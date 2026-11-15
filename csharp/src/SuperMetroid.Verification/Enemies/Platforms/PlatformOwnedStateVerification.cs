@@ -31,7 +31,7 @@ internal static class PlatformOwnedStateVerification
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
         AssertEqual(EnemyLinearSpeedTable.Speed(speedRecord), state.Speed, "the patrol speed is the row's speed");
-        AssertEqual((ushort)0, state.RestingHeight.Y, "one pixel below the last row wraps to the top row");
+        AssertEqual(0, state.RestingY, "one pixel below the last row wraps to the top row");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(accelerationCap), state.MaximumYSpeedCurvePlace, "the acceleration cap is parameter two's high byte");
 
         int[] expectedIndexes = [1, 2, 3, 3, 3];

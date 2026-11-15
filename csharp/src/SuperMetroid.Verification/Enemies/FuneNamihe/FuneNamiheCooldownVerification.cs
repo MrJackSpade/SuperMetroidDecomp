@@ -32,7 +32,7 @@ internal static class FuneNamiheCooldownVerification
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
 
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneNamiheEnemyState { CooldownTimer = byte.MaxValue + 1 },
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { CooldownTimer = byte.MaxValue + 1 },
             "a waiting count past the largest cooldown is refused");
         Console.WriteLine("  Fune cooldown: short and reached counts pass.");
     }
@@ -43,7 +43,7 @@ internal static class FuneNamiheCooldownVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fune, slot.Definition);
-        var state = new FuneNamiheEnemyState
+        var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown)
         {
             ShowsActiveAnimation = false,
             FacingRight = false,

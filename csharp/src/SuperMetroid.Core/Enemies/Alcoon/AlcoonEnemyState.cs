@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// <summary>The state of one Alcoon.</summary>
 public sealed class AlcoonEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal AlcoonEnemyState(AlcoonAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<AlcoonSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public AlcoonAction? Action { get; internal set; }
+    public AlcoonAction Action { get; internal set; }
 
     /// <summary>
     /// The way it walks and faces, airborne and firing too; null from the start of each jump until it picks the side Samus

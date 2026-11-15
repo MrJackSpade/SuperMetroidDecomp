@@ -229,7 +229,7 @@ internal sealed class TorizoCombat
 
             if (c.Family == SamusProjectileFamily.SuperMissile)
             {
-                if (c.Samus is not null && TorizoFacing.FacesSamus(enemy, c.Samus))
+                if (TorizoFacing.FacesSamus(enemy, c.Samus))
                 {
                     c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -25,7 +25,7 @@ internal sealed class DraygonParts
     /// <summary>Publishes the room shaking caused by Draygon's attacks and death.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Updates the body and eye shade bands used by Draygon's presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI behaviours.</summary>
@@ -41,7 +41,7 @@ internal sealed class DraygonParts
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
-        _spriteObjects = dependencies.SpriteObjects;
+        _effectActors = dependencies.EffectActors;
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _audio = dependencies.Audio;
@@ -110,7 +110,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Runs the no-op tail/arms main AI and the active eye step.</summary>
-    internal void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
+    internal void RunDraygonPartMain(RoomEnemySlot part, SamusState samus)
     {
         if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
             return;
@@ -148,7 +148,7 @@ internal sealed class DraygonParts
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
     /// part.
     /// </summary>
-    internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState? samus)
+    internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState samus)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
@@ -194,7 +194,7 @@ internal sealed class DraygonParts
     /// final store of the running part's position replaces it.
     /// </summary>
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
-    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState? samus, DraygonCue cue)
+    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState samus, DraygonCue cue)
     {
         switch (cue)
         {
@@ -220,8 +220,8 @@ internal sealed class DraygonParts
             case DraygonCue.QueueSound sound:
                 RequestDraygonSound(sound.Sound);
                 return;
-            case DraygonCue.SpawnDyingObject dying:
-                SpawnRandomDyingDraygonObject(state, dying.Kind);
+            case DraygonCue.SpawnDyingEffect dying:
+                SpawnRandomDyingDraygonEffect(state, dying.Kind);
                 return;
             case DraygonCue.ParalyseTailAndArms:
                 StartDraygonAnimation(RequirePart(state.Tail), DraygonSegment.Rest);
@@ -257,7 +257,7 @@ internal sealed class DraygonParts
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Runs the eye direction partition.</summary>
-    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
+    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState samus, HorizontalDirection facing)
     {
         // Emission precedes the angle-change early return, so a stationary
         // target must not suppress the periodic particle. It shares the real pool.
@@ -266,9 +266,6 @@ internal sealed class DraygonParts
                 new(CoordinateAxis.Wrap(eye.Position.X.Whole + (facing == HorizontalDirection.Right
                     ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), CoordinateAxis.Wrap(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
-        if (samus is null)
-            return;
-
         Position16<RoomPixels> gaze = eye.Position.Whole +
             new Offset16<RoomPixels>(facing == HorizontalDirection.Right ? 24 : -24, -32);
         Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
@@ -301,24 +298,21 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>
-    private void SpawnRandomDyingDraygonObject(
+    private void SpawnRandomDyingDraygonEffect(
         DraygonEnemyState state,
-        RoomSpriteObjectKind kind)
+        RoomEffectActorKind kind)
     {
         int random = _room.Random.Generate();
         Offset16<RoomPixels> scatter = new(DraygonRandomDefinitions.DyingScatterX.Of(random) - 64, DraygonRandomDefinitions.DyingScatterY.Of(random) - 64);
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
             graphics: default);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
-    private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState? samus)
+    private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Draygon's tail-hit cue requires Samus state.");
-
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
@@ -326,9 +320,9 @@ internal sealed class DraygonParts
         // energy it costs.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
 
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + 16)),
-            RoomSpriteObjectKind.DustCloud,
+            RoomEffectActorKind.DustCloud,
             graphics: default);
     }
 

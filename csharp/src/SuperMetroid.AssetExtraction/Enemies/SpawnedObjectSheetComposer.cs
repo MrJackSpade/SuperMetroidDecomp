@@ -5,13 +5,13 @@ using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Composes the spawned-object sheets of a room graphics set (#1392, #1513): the enemy projectiles and room sprite objects
+/// Composes the spawned-object sheets of a room graphics set (#1392, #1513): the enemy projectiles and room effect actors
 /// its enemies spawn, over the set's OBJ page and in its colours, one sheet per owner the game names. A spawned object's
 /// parts count from its spawner's character index or from character zero, so each spawner's objects are composed at its
 /// own index, in its row, as the sheet of <see cref="SpawnedObjectOwner.Of"/> that spawner; every object the set can
@@ -57,7 +57,7 @@ internal static class SpawnedObjectSheetComposer
             // The objects' sheet is coloured in the row the set holds their spawner's colours in, whatever its character
             // index: spawning with the spawner's graphics ORs its palette bits into the objects' parts (#1513).
             int palette = rowOf(enemy);
-            // A projectile draws at its spawner's index's place in its page, a sprite object at the index itself.
+            // A projectile draws at its spawner's index's place in its page, an effect actor at the index itself.
             plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Of(enemy), tileBase % ProjectilePageCharacters, tileBase, palette,
                 [enemy], [], [], []));
             // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435).
@@ -129,10 +129,10 @@ internal static class SpawnedObjectSheetComposer
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
                 EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase, 0),
                 Drawn(FrameDrawings.Of(frame))))
-            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(frame => characters.Pictures(
-                EnemySheetDefinitions.SpriteObjectFrameName(frame),
+            .Concat(EffectActorFrames(spawned.EffectActors).Select(frame => characters.Pictures(
+                EnemySheetDefinitions.EffectActorFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), objectBase, 0),
+                    : throw new InvalidDataException($"Room effect-actor frame {frame} has no installed composition."), objectBase, 0),
                 Drawn(FrameDrawings.Of(frame)))))
             .Concat(EncounterFrames(plan.Spawners, plan.Owner == SpawnedObjectOwner.Shared).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
@@ -167,7 +167,7 @@ internal static class SpawnedObjectSheetComposer
     {
         SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(owner, 0, 0, 0, [.. spawners], [.. sharedSpawners], common, []));
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
-            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName))
+            .Concat(EffectActorFrames(spawned.EffectActors).Select(EnemySheetDefinitions.EffectActorFrameName))
             .Concat(EncounterFrames(spawners, owner == SpawnedObjectOwner.Shared).Select(EnemySheetDefinitions.EncounterFrameName));
     }
 
@@ -205,12 +205,12 @@ internal static class SpawnedObjectSheetComposer
                 .Concat(plan.SharedSpawners.Select(enemy => SpawnedObjectFrameDefinitions.SharedByEnemy[enemy]));
         sources = plan.Common.Select(common => common.Objects).Concat(sources);
         return new SpawnedObjects([.. sources.SelectMany(spawned => spawned.Projectiles).Distinct().Order()],
-            [.. sources.SelectMany(spawned => spawned.SpriteObjects).Distinct().Order()]);
+            [.. sources.SelectMany(spawned => spawned.EffectActors).Distinct().Order()]);
     }
 
     /// <summary>
     /// The enemies of <paramref name="plan"/> that spawn each of its frames with the room's graphics, by frame name: on the
-    /// shared sheet, each of its shared spawners for every projectile frame and sprite-object frame it spawns there.
+    /// shared sheet, each of its shared spawners for every projectile frame and effect-actor frame it spawns there.
     /// </summary>
     private static SharedSpawnerFrames SharedSpawnersOf(SpawnedObjectSheetPlan plan)
     {
@@ -219,7 +219,7 @@ internal static class SpawnedObjectSheetComposer
         {
             SpawnedObjects spawned = SpawnedObjectFrameDefinitions.SharedByEnemy[spawner];
             foreach (string frame in spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
-                .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName)).Distinct())
+                .Concat(EffectActorFrames(spawned.EffectActors).Select(EnemySheetDefinitions.EffectActorFrameName)).Distinct())
             {
                 if (!spawnersOf.TryGetValue(frame, out List<EnemyDefinitionId>? spawners))
                 {
@@ -232,8 +232,8 @@ internal static class SpawnedObjectSheetComposer
         return new SharedSpawnerFrames(spawnersOf);
     }
 
-    /// <summary>The enemy frames the room sprite objects of <paramref name="kinds"/> show, each once.</summary>
-    private static IEnumerable<EnemyFrameId> SpriteObjectFrames(IEnumerable<RoomSpriteObjectKind> kinds) =>
-        kinds.SelectMany(kind => RoomSpriteObjectAnimations.Segments.FramesOf(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Animations[kind])))
+    /// <summary>The enemy frames the room effect actors of <paramref name="kinds"/> show, each once.</summary>
+    private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
+        kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(RoomEffectActorDefinitions.Animations[kind])))
             .Select(picture => picture.RequireEnemyFrame()).Distinct().Order();
 }

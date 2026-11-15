@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 public sealed class PowampBodyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal PowampBodyState(PowampAction action) => Action = action;
+
     /// <summary>The body's pulse animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PowampSegment> Playback { get; set; }
 
@@ -23,7 +26,7 @@ public sealed class PowampBodyState
     public int ActionTimer { get; internal set; }
 
     /// <summary>The main-AI behaviour.</summary>
-    public PowampAction? Action { get; internal set; }
+    public PowampAction Action { get; internal set; }
 
     /// <summary>Whether touch and shot AI are refused: set once a lethal shot starts the body's death.</summary>
     public bool RefusesContact { get; internal set; }

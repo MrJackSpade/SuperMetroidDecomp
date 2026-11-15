@@ -28,10 +28,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemySlot slot)
     {
-        var state = new FlyEnemyState
+        var state = new FlyEnemyState(FlyAction.ClockwiseCircle)
         {
             Angle = RotationAngle.Zero,
-            Action = FlyAction.ClockwiseCircle,
         };
         slot.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
@@ -67,7 +66,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Fly has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Fly has no behaviour for action {state.Action}.");
         }
     }
 
@@ -108,7 +107,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
-        state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
+        state.TargetY = samus.Position.Y.Whole;
         state.Action = FlyAction.AttackSamus;
     }
 
@@ -119,8 +118,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RetreatTimer++;
 
         bool crossedTarget = state.Velocity.Y.IsNegative
-            ? slot.Position.Y.Whole < state.TargetHeight.Y
-            : slot.Position.Y.Whole >= state.TargetHeight.Y;
+            ? slot.Position.Y.Whole < state.TargetY
+            : slot.Position.Y.Whole >= state.TargetY;
         if (!crossedTarget)
             return;
 

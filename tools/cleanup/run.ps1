@@ -7,15 +7,16 @@
 #    csharp/.editorconfig), the reachability prune of dead code and the architecture audit's prune of stale reviews,
 #    until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
 # 3. Regenerates the architecture and module inventories.
-# 4. When anything changed: builds the solution once with tools/build.ps1, commits as "Cleanup: ..." and pushes with
-#    a plain fast-forward push.
+# 4. When anything changed: builds the solution once with tools/build.ps1, commits as "Cleanup: ..." and pushes. When a
+#    developer push moved the branch during the run, it merges its commit onto the new tip and pushes that, until a push
+#    lands; the run's work is never discarded.
 # The owner's ruling (2026-11-15): the cleanup never fails over what it does, and would rather commit broken code. A
 # fix it cannot apply, a failed prune or inventory step, steps that do not settle or undo each other, and a failed
 # build are each recorded as a problem; the run goes on and commits and pushes what it has, naming every problem and
 # unfixed site in the commit body and the result. Only a clone, restore, tool build, workspace load or push failure,
 # where there is nothing to commit or no way to deliver it, fails the run.
 #
-# Writes the outcome to -Result as JSON: result nothing, pushed or rejected (exit 0), or failed (nonzero exit).
+# Writes the outcome to -Result as JSON: result nothing or pushed (exit 0), or failed (nonzero exit).
 param(
     [Parameter(Mandatory)][string]$Remote,
     [Parameter(Mandatory)][string]$Branch,
@@ -341,27 +342,71 @@ try {
     $commit = Invoke-Git @('rev-parse', 'HEAD')
     Write-Output "committed $commit`: $subject"
 
-    Write-Step "push to $Remote $Branch"
-    # A rejection is an outcome, never retried; any other failure is retried (Invoke-NetworkGit) before the run fails.
+    # A push rejected because a developer push landed during the run never discards the run's work (owner, 2026-11-15):
+    # the cleanup commit is merged onto the branch's new tip and that merge is pushed, until a push lands. The new tip is
+    # the merge's first parent, so the branch's first-parent history stays the developer's, and the developer's side wins
+    # every conflict, as tools/cleanup/pull.ps1 merges the other way; the next run regenerates whatever that leaves. The
+    # merged tree is not rebuilt: the owner would rather the cleanup commit broken code, which the next pull shows, than
+    # lose its work. A rejection while the branch has not moved, or any other push failure, fails the run.
     $rejectedPattern = "^!\s+HEAD:refs/heads/$([regex]::Escape($Branch))\s+\[rejected\] \((fetch first|non-fast-forward)\)"
-    $pushed = Invoke-NetworkGit $repository @('push', '--porcelain', $Remote, "HEAD:refs/heads/$Branch") {
-        param($Lines) @($Lines | Where-Object { $_ -match $rejectedPattern }).Count -eq 1
-    }.GetNewClosure()
-    $push = $pushed.Output
-    $exit = $pushed.Exit
-    $push | ForEach-Object { Write-Output $_ }
-    Write-Output "--- push exit $exit after $($pushed.Attempt) attempt(s)"
-    if ($exit -eq 0) {
-        Save-Result @{ result = 'pushed'; tip = $Tip; commit = $commit; message = $subject; problems = @($problems); unfixed = $unfixed.Count }
-        exit 0
+    $base = $Tip
+    $delivered = $commit
+    while ($true) {
+        Write-Step "push to $Remote $Branch"
+        $pushed = Invoke-NetworkGit $repository @('push', '--porcelain', $Remote, "HEAD:refs/heads/$Branch") {
+            param($Lines) @($Lines | Where-Object { $_ -match $rejectedPattern }).Count -eq 1
+        }.GetNewClosure()
+        $push = $pushed.Output
+        $exit = $pushed.Exit
+        $push | ForEach-Object { Write-Output $_ }
+        Write-Output "--- push exit $exit after $($pushed.Attempt) attempt(s)"
+        if ($exit -eq 0) {
+            Save-Result @{ result = 'pushed'; tip = $Tip; commit = $delivered; message = $subject; problems = @($problems); unfixed = $unfixed.Count }
+            exit 0
+        }
+        # A stale tip is reported as rejected with "fetch first" or "non-fast-forward"; anything else is a failure.
+        $rejection = @($push | Where-Object { $_ -match $rejectedPattern })
+        if ($rejection.Count -ne 1) { throw "The push failed (exit $exit): $($push -join "`n")" }
+        $fetched = Invoke-NetworkGit $repository @('fetch', '--quiet', '--no-tags', $Remote,
+            "+refs/heads/${Branch}:refs/remotes/$Remote/$Branch") $null
+        if ($fetched.Exit -ne 0) {
+            throw "git fetch of $Remote/$Branch failed on all $($fetched.Attempt) attempts (exit $($fetched.Exit)): $($fetched.Output -join "`n")"
+        }
+        $moved = Invoke-Git @('rev-parse', "$Remote/$Branch")
+        if ($moved -eq $base) { throw "The push of $delivered was rejected, but $Branch is still at ${base}: $($rejection[0])" }
+
+        Write-Step "merge $commit onto $moved, where a developer push moved $Branch during the run"
+        $null = Invoke-Git @('checkout', '--quiet', '--detach', $moved)
+        $merge = & git -C $repository merge --no-ff --no-commit -X ours $commit 2>&1
+        $mergeExit = $LASTEXITCODE
+        $merge | ForEach-Object { Write-Output "$_" }
+        # Exit 1 means conflicts -X ours could not settle (a file one side deleted and the other changed); others fail.
+        if ($mergeExit -ne 0 -and $mergeExit -ne 1) { throw "git merge of $commit onto $moved failed (exit $mergeExit): $($merge -join "`n")" }
+        $unmerged = @((Invoke-Git @('diff', '--name-only', '--diff-filter=U')) -split "`n" | Where-Object { $_ })
+        foreach ($path in $unmerged) {
+            # The developer's side wins: their version of the file, or its absence when they deleted it.
+            & git -C $repository cat-file -e "HEAD:$path" 2>$null
+            if ($LASTEXITCODE -eq 0) {
+                $null = Invoke-Git @('checkout', '--ours', '--', $path)
+                $null = Invoke-Git @('add', '--', $path)
+            }
+            else {
+                $null = Invoke-Git @('rm', '--quiet', '--', $path)
+            }
+            Write-Output "conflict in $path kept the developer's side"
+        }
+        $mergeMessage = Join-Path $Artifacts 'merge-message.txt'
+        [IO.File]::WriteAllText($mergeMessage, (
+            "$subject (merged onto $($moved.Substring(0, 10)))`n`n" +
+            "The asynchronous cleanup of $Tip (commit $commit), merged onto $moved, where a developer push moved $Branch " +
+            "during the run. Conflicting lines keep the developer's side, which the next cleanup run regenerates" +
+            $(if ($unmerged.Count -gt 0) { " (whole files: $($unmerged -join ', '))" } else { '' }) +
+            ". The merged tree was not rebuilt.`n"), [Text.UTF8Encoding]::new($false))
+        Invoke-Checked 'merge commit' { git -C $repository commit --quiet --file $mergeMessage }
+        $delivered = Invoke-Git @('rev-parse', 'HEAD')
+        $base = $moved
+        Write-Output "merged as $delivered"
     }
-    # A stale tip is reported as rejected with "fetch first" or "non-fast-forward"; anything else is a failure.
-    $rejection = @($push | Where-Object { $_ -match $rejectedPattern })
-    if ($rejection.Count -eq 1) {
-        Save-Result @{ result = 'rejected'; tip = $Tip; commit = $commit; message = $rejection[0] }
-        exit 0
-    }
-    throw "The push failed (exit $exit): $($push -join "`n")"
 }
 catch {
     $failure = "$($_.Exception.ToString())`n$($_.ScriptStackTrace)"

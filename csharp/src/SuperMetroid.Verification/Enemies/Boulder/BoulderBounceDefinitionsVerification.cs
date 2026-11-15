@@ -18,7 +18,7 @@ internal static class BoulderBounceDefinitionsVerification
         Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
-        var state = new BoulderEnemyState();
+        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         actor.Position = actor.Position.WithWholeX(40);
         actor.Radius = new(8, 8);
         for (int impactsSoFar = 0; impactsSoFar < BoulderBounces.ImpactCount; impactsSoFar++)

@@ -159,7 +159,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         initialize(slot);
 
         DeadTourianCorpseEnemyState state = (enemies.DeadTourianCorpses[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadTourianCorpses[0]."));
-        AssertEqual(species, state.Profile.Species,
+        AssertEqual(species, state.Species,
             $"dead {species} variant {variantIndex} species");
         AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(expected.InitialAnimation), AnimationPlace.StartOfAnimation),
             state.Playback,

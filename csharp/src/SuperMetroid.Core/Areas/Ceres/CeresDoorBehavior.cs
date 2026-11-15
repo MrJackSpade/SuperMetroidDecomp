@@ -128,7 +128,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>Plays a door's or wall's typed animation in place of the shared enemy animation.</summary>
-    internal void AdvanceAnimation(RoomEnemySlot slot, SamusState? samus)
+    internal void AdvanceAnimation(RoomEnemySlot slot, SamusState samus)
     {
         Ensure.NotNull(slot);
         if (!slot.AnimationClock.Expire())
@@ -143,18 +143,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>Carries out one cue of a door's or wall's animation, returning the segment a branch continues at, or null to run on.</summary>
-    private CeresDoorSegment? ApplyCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCue(RoomEnemySlot slot, SamusState samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
             case CeresDoorCueKind.GoToIfSamusDistant:
             {
-                if (samus is null)
-                {
-                    throw new InvalidOperationException(
-                        "Ceres door proximity cue requires the active Samus actor.");
-                }
-
                 // The distance test subtracts the two positions, takes the
                 // wrapped difference, then its distance independently
                 // on each axis. If either distance is at least 48 pixels, the door branches.

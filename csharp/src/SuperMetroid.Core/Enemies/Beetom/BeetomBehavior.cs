@@ -69,20 +69,17 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState samus, GameplayAction controllerInput)
     {
-        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
+        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         slot.SetSpeciesState(state);
 
         state.ActionTimer = 0;
-        state.Action = null;
         state.Falling = false;
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMashCount;
         state.PreviousController1Input = controllerInput;
 
-        // Every Beetom initializer writes the global seed, even when several Beetoms share
-        // a room. This is observable game behavior, not a per-actor random sequence.
-        Action<int> setRandomNumber = _room.Random.Seed;
-        setRandomNumber(23);
+        // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
+        _room.Random.Seed(BeetomRandomDefinitions.Seed);
 
         state.InitialShortLeapYSpeedCurvePlace = BeetomLeapDefinitions.ShortLeap.StartPlace;
         state.InitialLongLeapYSpeedCurvePlace = BeetomLeapDefinitions.LongLeap.StartPlace;
@@ -96,7 +93,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
-        state.Action = BeetomAction.DecideAction;
     }
 
     /// <summary>Runs a Beetom's per-frame behaviour through all of its actions.</summary>
@@ -196,7 +192,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
-                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action}.");
         }
     }
 

@@ -88,7 +88,7 @@ internal static class EnemyEffectMechanicsVerification
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
             int calls = (20480 - 256 + 383) / 384 + 1;
-            int initialSmokeObjects = fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive);
+            int initialSmokeObjects = fixture.Enemies.RoomEffectActors.Count(slot => slot.IsActive);
             for (int call = 1; call <= calls; call++)
             {
                 fixture.Dissolve();
@@ -105,7 +105,7 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathPhase, "exact dissolve phase handoff");
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), fixture.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
-                    fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
+                    fixture.Enemies.RoomEffectActors.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
                 if (call <= CrocomireMeltingDefinitions.ColumnCount)
                     AssertEqual(call, fixture.MeltBandStep((call - 1) % bands), "each step shows the next band");
                 // His body shows the melt image, stored once, hiding what the steps its bands last showed have erased (#1652).

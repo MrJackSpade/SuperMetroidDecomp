@@ -36,7 +36,7 @@ internal static class BabyMetroidHeadTargetVerification
         baby.Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position);
 
-        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((slot), runtime.Player.Samus, Position16<RoomPixels>.Zero);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((slot), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
         AssertEqual((ushort)0x007d, slot.Position.X.Whole, "the Baby pins to the head enemy's current X");
         AssertEqual((ushort)0x0045, slot.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");

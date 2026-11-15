@@ -72,7 +72,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
-        state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
+        state.RestingY = CoordinateAxis.Wrap(slot.Position.Y.Whole + 1);
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }
@@ -193,7 +193,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The signed comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
-        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingY) < 0)
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             SetPlatformVerticallyStillAnimation(slot, state);

@@ -15,7 +15,7 @@ internal static class MamaTurtleOwnedStateVerification
     /// </summary>
     internal static void VerifyMamaTurtleOwnedState()
     {
-        var state = new MamaTurtleEnemyState
+        var state = new MamaTurtleEnemyState(MamaTurtleAction.Initial)
         {
             Velocity = new(SignedSixteenSixteen.FromParts(2, 0xf800), SignedSixteenSixteen.FromParts(1, 0x2000)),
             XAcceleration = SignedSixteenSixteen.FromParts(0, 0x1000),

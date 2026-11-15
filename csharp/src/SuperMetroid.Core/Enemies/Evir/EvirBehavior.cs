@@ -82,7 +82,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             BodyState: body?.RequireSpeciesState<EvirEnemyState>(),
             Spit: isArms ? null : _slotTable.ListedAfter(slot, 2),
             FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 2)));
-        var state = new EvirEnemyState();
+        var state = new EvirEnemyState(EvirAction.HandleBodyOrArms);
         slot.SetSpeciesState(state);
 
         if (isArms)
@@ -103,7 +103,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.MovingDown = false;
         state.InstalledAnimation = null;
-        state.Action = EvirAction.HandleBodyOrArms;
     }
 
     /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
@@ -127,13 +126,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The room lists each Evir's spit two places after its body, behind the arms.
         RoomEnemySlot spitBody = RequireEvirPart(slot, _slotTable.ListedBefore(slot, 2), EnemyDefinitionId.Evir, "projectile body", initializing: true);
-        var state = new EvirEnemyState
+        var state = new EvirEnemyState(EvirAction.ProjectileIdle)
         {
             RequestedAnimation = EvirSegment.ProjectileNormal,
             InstalledAnimation = null,
             Regenerating = false,
             InFlight = false,
-            Action = EvirAction.ProjectileIdle,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         _partners.Place(slot, new EvirPartners(
@@ -246,8 +244,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Evir facing AI requires the active Samus actor.");
+        SamusState activeSamus = samus;
         state.Facing = CoordinateAxis.Difference(activeSamus.Position.X.Whole, body.Position.X.Whole) < 0
             ? EvirFacing.Left
             : EvirFacing.Right;
@@ -289,8 +286,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Evir projectile aiming requires the active Samus actor.");
+        SamusState activeSamus = samus;
         RoomEnemySlot body = RequireSpitBody(projectile);
         if (!EnemyMath.IsWithinStrictModularDistance(
                 activeSamus.Position.X.Whole,
@@ -337,12 +333,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         Position16<RoomPixels> camera)
     {
-        bool farOffscreen =
-            CoordinateAxis.Precedes(projectile.Position.X.Whole + EvirFarOffscreenDistance, camera.X) ||
-            CoordinateAxis.Precedes(camera.X + 256 + EvirFarOffscreenDistance, projectile.Position.X.Whole) ||
-            CoordinateAxis.Precedes(projectile.Position.Y.Whole + EvirFarOffscreenDistance, camera.Y) ||
-            CoordinateAxis.Precedes(camera.Y + 256 + EvirFarOffscreenDistance, projectile.Position.Y.Whole);
-        if (!farOffscreen)
+        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirFarOffscreenDistance))
             return;
 
         RoomEnemySlot body = RequireSpitBody(projectile);

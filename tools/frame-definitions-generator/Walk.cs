@@ -21,8 +21,8 @@ internal sealed class Collected
     /// <summary>The EnemyProjectileFrameId member names.</summary>
     public HashSet<string> ProjectileFrames { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>The RoomSpriteObjectKind member names.</summary>
-    public HashSet<string> SpriteObjects { get; } = new(StringComparer.Ordinal);
+    /// <summary>The RoomEffectActorKind member names.</summary>
+    public HashSet<string> EffectActors { get; } = new(StringComparer.Ordinal);
 
     /// <summary>The projectile program families constructed, or started through a typed-start kind, in any of their programs.</summary>
     public HashSet<INamedTypeSymbol> Families { get; } = new(SymbolEqualityComparer.Default);
@@ -119,7 +119,7 @@ internal sealed record CallRecord(IMethodSymbol Callee, INamedTypeSymbol SiteTyp
 /// <param name="Add">Adds it to a collection.</param>
 /// <param name="Family">
 /// The projectile program family it starts, when it starts one (by construction or a typed-start kind); null for a frame or
-/// sprite object named outright.
+/// effect actor named outright.
 /// </param>
 /// <param name="Member">The enum member naming it, when an enum member does; null for a family the code constructs.</param>
 internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add, INamedTypeSymbol? Family, IFieldSymbol? Member);
@@ -154,10 +154,10 @@ internal sealed class Walk
     ];
 
     /// <summary>
-    /// RoomSpriteObjectKind members that are Samus's weapon effects and on no enemy sheet (#1713): the kinds Core's
-    /// <c>RoomSpriteObjectVisualDefinitions.SamusHitBursts</c> lists, which her projectile sheets picture.
+    /// RoomEffectActorKind members that are Samus's weapon effects and on no enemy sheet (#1713): the kinds Core's
+    /// <c>RoomEffectActorVisualDefinitions.SamusHitBursts</c> lists, which her projectile sheets picture.
     /// </summary>
-    public static readonly string[] ExcludedSpriteObjects = ["EnemyHit"];
+    public static readonly string[] ExcludedEffectActors = ["EnemyHit"];
 
 
     private readonly CoreModel _model;
@@ -170,8 +170,8 @@ internal sealed class Walk
     private readonly HashSet<Unit> _recorded = [];
     private readonly Dictionary<Unit, HashSet<Unit>> _callers = [];
     private readonly Dictionary<Unit, Collected> _helperEvidence = [];
-    private readonly List<(Unit Unit, SpawnCall Call)> _openSpriteObjectSpawns = [];
-    private readonly List<(Unit Unit, string Kind)> _dataSpriteObjects = [];
+    private readonly List<(Unit Unit, SpawnCall Call)> _openEffectActorSpawns = [];
+    private readonly List<(Unit Unit, string Kind)> _dataEffectActors = [];
     private readonly List<UnspawnedName> _unspawnedNames = [];
     private readonly Queue<(Unit Unit, WalkContext Context)> _pending = new();
     private readonly List<(Unit Spawner, INamedTypeSymbol Family, WalkContext Context)> _handedPrograms = [];
@@ -229,7 +229,7 @@ internal sealed class Walk
     /// <summary>The units reached as the walk's own code.</summary>
     public IReadOnlySet<Unit> OwnUnits => _own;
 
-    /// <summary>The reached units whose own code names a projectile frame, sprite object, started kind or family.</summary>
+    /// <summary>The reached units whose own code names a projectile frame, effect actor, started kind or family.</summary>
     public HashSet<Unit> Spawners { get; } = [];
 
     /// <summary>Each other behaviour's unit the walk's own code references directly, with the unit referencing it.</summary>
@@ -254,7 +254,7 @@ internal sealed class Walk
             if (_recorded.Add(unit))
             {
                 RecordCalls(unit, scan);
-                _openSpriteObjectSpawns.AddRange(scan.SpawnCalls.Where(call => call.OpenSpriteObjectKind).Select(call => (unit, call)));
+                _openEffectActorSpawns.AddRange(scan.SpawnCalls.Where(call => call.OpenEffectActorKind).Select(call => (unit, call)));
             }
             foreach (IFieldSymbol member in scan.EnumMembers)
                 Record(unit, scan, member, context);
@@ -263,7 +263,7 @@ internal sealed class Walk
         }
         LinkConstructorArguments();
         RecordHandedPrograms();
-        RouteDataSpriteObjects();
+        RouteDataEffectActors();
         // Helper evidence first, so a family a helper starts on what its callers spawn is on those spawns' collections
         // when the names no spawning caller reaches look for where the walk spawns their families.
         RouteHelperEvidence();
@@ -381,14 +381,14 @@ internal sealed class Walk
     }
 
     /// <summary>
-    /// Sends each room sprite-object kind named by code that spawns nothing (a cue or frame table carrying the kind) to the
+    /// Sends each room effect-actor kind named by code that spawns nothing (a cue or frame table carrying the kind) to the
     /// sheets of the walk's spawn calls whose kind is not a constant, since only such a call spawns a kind other code
     /// chose; a walk without one routes them as other helper evidence.
     /// </summary>
-    private void RouteDataSpriteObjects()
+    private void RouteDataEffectActors()
     {
         bool common = _behaviour is null && _family is null;
-        foreach ((Unit unit, string kind) in _dataSpriteObjects)
+        foreach ((Unit unit, string kind) in _dataEffectActors)
         {
             if (common)
             {
@@ -396,27 +396,27 @@ internal sealed class Walk
                 // to the open spawns whose code reads that data (the escape explosions' table to the escape explosion), not
                 // to every open spawn the walk met.
                 HashSet<Unit> readers = AncestorsOf(unit);
-                var reading = _openSpriteObjectSpawns.Where(open => readers.Contains(open.Unit)).ToList();
+                var reading = _openEffectActorSpawns.Where(open => readers.Contains(open.Unit)).ToList();
                 if (reading.Count == 0)
-                    Unreadable.Add($"{_model.Describe(unit)}: sprite object {kind} is carried by data no open spawn outside the behaviours reads");
+                    Unreadable.Add($"{_model.Describe(unit)}: effect actor {kind} is carried by data no open spawn outside the behaviours reads");
                 foreach ((Unit spawning, SpawnCall call) in reading)
                 {
                     foreach (SpawnTarget target in call.Targets)
-                        Collect(spawning, target)?.SpriteObjects.Add(kind);
+                        Collect(spawning, target)?.EffectActors.Add(kind);
                 }
                 continue;
             }
-            if (_openSpriteObjectSpawns.Count == 0)
+            if (_openEffectActorSpawns.Count == 0)
             {
                 foreach (SpawnTarget target in ScanOf(unit).UnitTargets)
-                    Collect(unit, target)?.SpriteObjects.Add(kind);
-                Of(_helperEvidence, unit).SpriteObjects.Add(kind);
+                    Collect(unit, target)?.EffectActors.Add(kind);
+                Of(_helperEvidence, unit).EffectActors.Add(kind);
                 continue;
             }
-            foreach ((Unit spawning, SpawnCall call) in _openSpriteObjectSpawns)
+            foreach ((Unit spawning, SpawnCall call) in _openEffectActorSpawns)
             {
                 foreach (SpawnTarget target in call.Targets)
-                    Collect(spawning, target)?.SpriteObjects.Add(kind);
+                    Collect(spawning, target)?.EffectActors.Add(kind);
             }
         }
     }
@@ -488,7 +488,7 @@ internal sealed class Walk
     private static void Merge(Collected target, Collected source)
     {
         target.ProjectileFrames.UnionWith(source.ProjectileFrames);
-        target.SpriteObjects.UnionWith(source.SpriteObjects);
+        target.EffectActors.UnionWith(source.EffectActors);
         target.AddFamiliesOf(source);
     }
 
@@ -668,19 +668,19 @@ internal sealed class Walk
             if (!ExcludedProjectileFrames.Contains(member.Name))
                 add = collected => collected.ProjectileFrames.Add(member.Name);
         }
-        else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomSpriteObjectKind))
+        else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEffectActorKind))
         {
             // Samus's weapon effects are pictured on her projectile sheets, so no enemy sheet holds them.
-            if (ExcludedSpriteObjects.Contains(member.Name))
+            if (ExcludedEffectActors.Contains(member.Name))
                 return;
             if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
             {
                 Spawners.Add(unit);
-                Evidence(unit).SpriteObjects.Add(member.Name);
-                _dataSpriteObjects.Add((unit, member.Name));
+                Evidence(unit).EffectActors.Add(member.Name);
+                _dataEffectActors.Add((unit, member.Name));
                 return;
             }
-            add = collected => collected.SpriteObjects.Add(member.Name);
+            add = collected => collected.EffectActors.Add(member.Name);
         }
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEnemyProjectileKind))
         {

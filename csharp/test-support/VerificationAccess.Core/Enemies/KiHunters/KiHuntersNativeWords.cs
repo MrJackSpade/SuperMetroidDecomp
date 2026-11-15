@@ -20,8 +20,13 @@ internal static class KiHuntersNativeWords
         [KiHunterAction.GroundJump] = 0xf5f0,
         [KiHunterAction.GroundWait] = 0xf68b,
         [KiHunterAction.SelectAcidSpit] = 0xf6b3,
-        [KiHunterAction.FollowBody] = 0xf6f3,
-        [KiHunterAction.DetachedWing] = 0xf7cf,
+    });
+
+    /// <summary>The routine word naming each <see cref="KiHunterWingAction"/>.</summary>
+    internal static readonly NativeWordIdentities<KiHunterWingAction> KiHunterWingActions = new(new Dictionary<KiHunterWingAction, ushort>
+    {
+        [KiHunterWingAction.FollowBody] = 0xf6f3,
+        [KiHunterWingAction.Detached] = 0xf7cf,
     });
 
     /// <summary>The routine word naming each <see cref="KiHunterWingMovement"/>.</summary>

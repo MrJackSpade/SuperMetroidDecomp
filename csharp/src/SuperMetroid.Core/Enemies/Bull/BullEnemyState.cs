@@ -17,8 +17,10 @@ public sealed class BullEnemyState
     /// are always written by targeting or a kick before they are read, so they are the Bull's own.
     /// </remarks>
     /// <param name="previous">The slot's previous Bull, or null for the slot's first in the room.</param>
-    internal BullEnemyState(BullEnemyState? previous)
+    /// <param name="action">The action the Bull starts in.</param>
+    internal BullEnemyState(BullEnemyState? previous, BullAction action)
     {
+        Action = action;
         ShotReactionDisabled = previous?.ShotReactionDisabled ?? false;
         ShotReactionDisableTimer = previous?.ShotReactionDisableTimer ?? WrappingCountdown.Start(0);
     }
@@ -27,7 +29,7 @@ public sealed class BullEnemyState
     internal AnimationPlayback<BullSegment> Playback { get; set; }
 
     /// <summary>The current delay, target, acceleration, or deceleration step.</summary>
-    public BullAction? Action { get; internal set; }
+    public BullAction Action { get; internal set; }
 
     /// <summary>
     /// The speed change applied at each interval expiry. It grows or shrinks by <see cref="AccelerationDelta"/> through

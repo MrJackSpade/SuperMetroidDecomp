@@ -11,7 +11,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Animals;
@@ -288,7 +288,7 @@ internal static class LookupStream1Verification
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.AnimationClock.StepOnNextUpdate();
-            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             });
@@ -1142,7 +1142,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xb3e71e + offset), role.Position.Y, "Etecoon native role Y");
             AssertEqual(Word(0xb3e724 + offset), AnimalsNativeWords.EscapeEtecoonActions.Word(role.Action), "Etecoon native role action");
             AssertEqual(Word(0xb3e72a + offset), EscapeEtecoonNativeListAddresses.Entries.Single(entry => entry.Program == role.Animation).Entry, "Etecoon native role program");
-            AssertEqual(Word(0xb3e730 + offset), role.Velocity.X.RawValue, "Etecoon native role speed");
+            AssertEqual(Word(0xb3e730 + offset), role.Velocity.RawValue, "Etecoon native role speed");
         }
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
         {

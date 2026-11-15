@@ -39,7 +39,7 @@ internal sealed class TorizoMovement
     /// Golden definitions. The concrete definition selects the values, so the room's area
     /// cannot become a second authority for actor identity.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemySlot torizo, SamusState? samus, GameplayAction controllerInput)
+    internal void InitializeTorizo(RoomEnemySlot torizo, SamusState samus, GameplayAction controllerInput)
     {
         bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(isGolden)
@@ -84,8 +84,6 @@ internal sealed class TorizoMovement
             TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenInitial));
             if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
             {
-                if (samus is null)
-                    throw new InvalidOperationException("The Golden Torizo code requires the live Samus owner.");
                 // Initialization overwrites both the collected and equipped items, even if
                 // this reduces capacity or equips normally incompatible beams.
                 samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
@@ -105,7 +103,7 @@ internal sealed class TorizoMovement
     internal void RunBombTorizoActiveState(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
 
@@ -134,20 +132,20 @@ internal sealed class TorizoMovement
     internal void MoveBody(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         switch (state.Motion)
         {
             case null:
                 return;
             case TorizoBodyMotion.Walking:
-                Walk(torizo, state, RequireTorizoLevel(level));
+                Walk(torizo, state, level);
                 return;
             case TorizoBodyMotion.Standing:
-                ApplyTorizoGravity(torizo, state, RequireTorizoLevel(level));
+                ApplyTorizoGravity(torizo, state, level);
                 return;
             case TorizoBodyMotion.Leaping:
-                Leap(torizo, state, RequireTorizoLevel(level));
+                Leap(torizo, state, level);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TorizoBodyMotion)} {state.Motion}.");
@@ -245,14 +243,9 @@ internal sealed class TorizoMovement
         return facesRight ? definition.TurningLeft : definition.TurningRight;
     }
 
-    /// <summary>Requires a collision layer for the motions, which cannot run outside a loaded room.</summary>
-    internal static RoomLevelData RequireTorizoLevel(RoomLevelData? level) =>
-        level ?? throw new InvalidOperationException(
-            "Torizo movement requires the active room collision layer.");
-
     /// <summary>Runs either Torizo's initialization AI.</summary>
     internal void RunTorizoInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeTorizo(slot, surroundings.Samus, surroundings.ControllerInput);
+        InitializeTorizo(slot, surroundings.IntroducedSamus, surroundings.ControllerInput);
     }
 }

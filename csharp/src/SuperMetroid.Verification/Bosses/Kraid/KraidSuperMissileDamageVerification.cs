@@ -10,7 +10,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -204,8 +204,8 @@ internal static class KraidSuperMissileDamageVerification
         AssertEqual(1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
         AssertEqual(true, bomb.IsSpent,
             "Count five reaches and marks the adjacent physical bomb slot");
-        AssertEqual(true, runtime.Enemies.RoomSpriteObjects.Any(sprite =>
-            sprite.Kind == RoomSpriteObjectKind.EnemyProjectileDud && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),
+        AssertEqual(true, runtime.Enemies.RoomEffectActors.Any(sprite =>
+            sprite.Kind == RoomEffectActorKind.EnemyProjectileDud && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),
             "Non-damaging mouth callback emits its native dud sprite");
         Console.WriteLine("Kraid close-range damage, deferred owner/link cleanup, count traversal and adjacent bomb slot verified.");
     }

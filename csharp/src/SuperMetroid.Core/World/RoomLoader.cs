@@ -996,7 +996,7 @@ internal sealed class RoomLoader
         SamusProjectileSystem.ShowBeamShade(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
         // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the sprite-object places start
+        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the effect-actor places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
         // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
         // and are handed on.
@@ -1006,7 +1006,7 @@ internal sealed class RoomLoader
             BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
             BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
             PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
-            SpriteObjectPlaces = new SpriteObjectPlaces(),
+            EffectActorPlaces = new EffectActorPlaces(),
             FadeStepCount = _fadeStepCount,
             UnauthoredBoostCadence = _unauthoredBoostCadence,
             KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),

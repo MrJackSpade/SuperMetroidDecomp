@@ -31,7 +31,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
             };
         Action<RoomEnemySlot, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new NorfairLavaJumpingEnemyState();
+        var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump);
 
         for (int random = 0; random <= ushort.MaxValue; random++)
         {

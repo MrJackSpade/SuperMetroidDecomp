@@ -39,9 +39,9 @@ internal static class OwtchMovementDefinitionsVerification
                     AssertEqual(EnemySpawnSelectors.OwtchUndergroundWait(timerIndex),
                         state.UndergroundTimer,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
-                    AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
+                    AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumX,
                         $"Owtch minimum X {spawnX:X4}/{timerIndex}/{distanceIndex}");
-                    AssertEqual(unchecked((ushort)(spawnX + distance)), state.MaximumPosition.X,
+                    AssertEqual(unchecked((ushort)(spawnX + distance)), state.MaximumX,
                         $"Owtch maximum X {spawnX:X4}/{timerIndex}/{distanceIndex}");
                 }
             }

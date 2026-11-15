@@ -50,12 +50,12 @@ internal static class IntroCinematicRomDataVerification
 
         AssertIntroCrossfadeScenes();
         AssertEqual(SoundEffectLibrary.Enemies,
-            IntroCinematicDefinitions.Objects.EggHatch.Library,
+            IntroCinematicDefinitions.Sounds.EggHatch.Library,
             "egg hatch sound library");
         AssertEqual(SoundEffectLibrary.Room,
-            IntroCinematicDefinitions.Objects.BabyCry1.Library,
+            IntroCinematicDefinitions.Sounds.BabyCry1.Library,
             "Baby cry sound library");
-        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x23), IntroCinematicDefinitions.Objects.BabyCry1,
+        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x23), IntroCinematicDefinitions.Sounds.BabyCry1,
             "Baby cry one sequence");
 
         Suite(nameof(VerifyCinematicCodePointerCatalog), () => VerifyCinematicCodePointerCatalog());

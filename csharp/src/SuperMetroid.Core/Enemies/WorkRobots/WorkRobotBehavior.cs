@@ -152,8 +152,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemySlot slot, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
     {
-        SamusState? samus = context.Samus;
-        RoomLevelData? level = context.Level;
+        SamusState samus = context.Samus;
+        RoomLevelData level = context.Level;
         Position16<RoomPixels> camera = context.Camera;
         switch (cue.Kind)
         {
@@ -233,7 +233,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return step.WallAnimation;
         }
 
-        if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(slot, samus))
+        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(slot, samus))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(step.HorizontalPixels), 0));
         }
@@ -261,7 +261,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot robot,
         Position16<RoomPixels> camera) =>
         CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
-        CoordinateAxis.AsSigned(camera.X + 256 - robot.Position.X.Whole) >= 0 &&
+        CoordinateAxis.AsSigned(camera.X + EnemyView.Extent - robot.Position.X.Whole) >= 0 &&
         CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
         CoordinateAxis.AsSigned(camera.Y + 224 - robot.Position.Y.Whole) >= 0;
 

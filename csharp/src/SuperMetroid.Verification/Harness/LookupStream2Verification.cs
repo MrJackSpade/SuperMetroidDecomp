@@ -161,7 +161,7 @@ internal static class LookupStream2Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Shading = PictureShading.Standard;
-        var state = new WreckedShipGhostEnemyState { PhaseTimer = 2 };
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay) { PhaseTimer = 2 };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
@@ -661,7 +661,7 @@ internal static class LookupStream2Verification
     {
         Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
-        var yard = new YardEnemyState();
+        var yard = new YardEnemyState(YardMovement.HoldingStill);
         SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
@@ -1177,7 +1177,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var slot = enemies.SlotTable.Slots[0];
-        var part = new GunshipPartState();
+        var part = new GunshipState(GunshipPhase.ReadyTakeoffEngines);
         slot.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
@@ -1275,7 +1275,7 @@ internal static class LookupStream2Verification
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
         var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
-        var state = new WreckedShipGhostEnemyState();
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay);
         SamusAxisMotion[] motions = [SamusAxisMotion.TowardSmaller, SamusAxisMotion.Still, SamusAxisMotion.TowardLarger];
         for (int index = 0; index < 9; index++)
         {

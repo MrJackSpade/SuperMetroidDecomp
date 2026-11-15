@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The behaviour a Ki-Hunter's main AI runs each frame.
+/// What a Ki-Hunter's body is doing: patrolling, swooping, and once wingless, hopping, waiting and spitting.
 /// Its values are arbitrary.
 /// </summary>
 public enum KiHunterAction
@@ -24,8 +24,4 @@ public enum KiHunterAction
     GroundWait,
     /// <summary>Starts the acid-spit animation facing Samus and suspends movement while the animation owns the attack.</summary>
     SelectAcidSpit,
-    /// <summary>Copies X and Y from the physically preceding body slot.</summary>
-    FollowBody,
-    /// <summary>Runs the detached wing's secondary arc action.</summary>
-    DetachedWing,
 }

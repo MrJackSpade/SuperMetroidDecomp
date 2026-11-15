@@ -27,7 +27,7 @@ internal static class KiHunterMotionDefinitionsVerification
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
         var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
-        var state = new KiHunterWingState();
+        var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
         // Any reset distinguishes an arc change, which restores it, from a slowing step, which lands on 256.
         const int speedReset = 10752;
         state.DetachedSpeedReset = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(speedReset);

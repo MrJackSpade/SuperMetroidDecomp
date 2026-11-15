@@ -59,9 +59,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
-    private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
-
     /// <summary>Initializes the dead Sidehopper.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
@@ -90,12 +87,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (_shitroid.HasAlreadyFedOn(slot))
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
 
-        slot.Position = slot.Position.WithWhole(new(488, 184));
+        slot.Position = slot.Position.WithWhole(DeadSidehopperVictimDefinitions.StartPosition);
         slot.Radius = slot.Radius.WithY(21);
 
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot, DeadSidehopperAction.AliveWaitForCamera);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
-        state.Action = DeadSidehopperAction.AliveWaitForCamera;
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = 0;
         slot.Shading = state.Shading;
@@ -105,17 +101,16 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the already-dead Tourian layout.</summary>
     private static void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot, DeadSidehopperAction.WaitForSamusCollision);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperInitiallyDead);
         state.DrainStage = null;
         slot.Shading = state.Shading;
-        state.Action = DeadSidehopperAction.WaitForSamusCollision;
     }
 
-    /// <summary>Allocates slot state with the corpse's own rot schedule and its own rows.</summary>
-    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemySlot slot)
+    /// <summary>Allocates slot state with the corpse's own rot schedule, its own rows and its first action.</summary>
+    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemySlot slot, DeadSidehopperAction action)
     {
-        var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action);
         slot.SetSpeciesState(state);
         return state;
     }
@@ -126,7 +121,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         SamusState samus,
         RoomLevelData level,
         Position16<RoomPixels> camera) =>
-        RunDeadSidehopperState(slot, RequireDeadSidehopperState(slot), samus, level, camera);
+        RunDeadSidehopperState(slot, slot.RequireSpeciesState<DeadSidehopperEnemyState>(), samus, level, camera);
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
     internal void RunDeadSidehopperState(
@@ -139,7 +134,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         switch (state.Action)
         {
             case DeadSidehopperAction.AliveWaitForCamera:
-                if ((camera - VictimActivationCamera).X < 0)
+                if (CoordinateAxis.Precedes(camera.X, DeadSidehopperVictimDefinitions.ActivationCameraX))
                 {
                     state.Action = DeadSidehopperAction.ActivatedMovement;
                     goto case DeadSidehopperAction.ActivatedMovement;
@@ -183,7 +178,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAction.WaitForSamusCollision:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
+                if (samus.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Action = DeadSidehopperAction.PreRotDelay;
                 return;
 
@@ -202,21 +197,20 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             default:
                 throw new InvalidDataException(
-                    $"Dead sidehopper has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Dead sidehopper has no behaviour for action {state.Action}.");
         }
     }
 
     /// <summary>
-    /// Moves a dead monster through its staged set. The scripted
-    /// Shitroid-room half moves directly through the staged set until X reaches 544; the
-    /// general room half then switches to the shared terrain collision primitives.
+    /// Moves the victim through its hop. Left of <see cref="DeadSidehopperVictimDefinitions.TerrainFromX"/> it moves
+    /// directly and lands on the scripted floor; from there on it collides with the room's terrain.
     /// </summary>
     private bool MoveDeadSidehopper(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
         RoomLevelData level)
     {
-        bool beforeTerrainBoundary = CoordinateAxis.Difference(slot.Position.X.Whole, 544) < 0;
+        bool beforeTerrainBoundary = CoordinateAxis.Precedes(slot.Position.X.Whole, DeadSidehopperVictimDefinitions.TerrainFromX);
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (beforeTerrainBoundary)
         {
@@ -228,7 +222,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         else
         {
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                RequireDeadSidehopperLevel(level),
+                level,
                 slot,
                 horizontalDisplacement);
         }
@@ -243,12 +237,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 slot,
                 axis: Axis.Vertical,
                 state.Velocity.Y);
-            return CoordinateAxis.Difference(slot.Position.Y.Whole, 184) >= 0;
+            return !CoordinateAxis.Precedes(slot.Position.Y.Whole, DeadSidehopperVictimDefinitions.FloorY);
         }
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y.ToSixteenSixteenDelta();
         return _terrain.MoveEnemyVertically(
-            RequireDeadSidehopperLevel(level),
+            level,
             slot,
             verticalDisplacement);
     }
@@ -270,11 +264,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             slot.Position = slot.Position.WithY(moved);
         }
     }
-
-    /// <summary>Rejects terrain-driven movement when no room level was supplied.</summary>
-    private static RoomLevelData RequireDeadSidehopperLevel(RoomLevelData level) =>
-        level ?? throw new InvalidDataException(
-            "Dead sidehopper crossed into terrain-driven movement without room level data.");
 
     /// <summary>Counts one draining call and, on every eighth, steps the drain, which only the victim shows (#1512).</summary>
     private static void StepDeadSidehopperDrain(
@@ -307,7 +296,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// </summary>
     private static void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         state.Action = state.HasBegunDraining
             ? DeadSidehopperAction.Draining
             : DeadSidehopperAction.BeginPostLandingDelay;
@@ -315,12 +304,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Begins Shitroid's drain of its victim, when the Shitroid latches on to feed.</summary>
     internal static void ActivateDeadSidehopperVictim(RoomEnemySlot victim) =>
-        RequireDeadSidehopperState(victim).DrainStage = 1;
+        victim.RequireSpeciesState<DeadSidehopperEnemyState>().DrainStage = 1;
 
     /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
     private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         if (slot.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.IsDrained)
         {
@@ -347,7 +336,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context)
     {
         RoomEnemySlot slot = context.Enemy;
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         if (state.IsDrained)
         {
             ResolveDeadSidehopperShot(slot);
@@ -382,7 +371,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) => RequireDeadSidehopperState(slot).Rows.Shown;
+    internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) => slot.RequireSpeciesState<DeadSidehopperEnemyState>().Rows.Shown;
 
     /// <summary>Spawns a completed row's dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(RoomEnemySlot slot) =>
@@ -401,17 +390,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Rejects missing or mismatched private state before the corpse's AI runs.</summary>
-    internal static DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
-    {
-        DeadSidehopperEnemyState state = slot.SpeciesState<DeadSidehopperEnemyState>() ??
-            throw new InvalidDataException(
-                $"Enemy slot {slot.SlotIndex} has no initialized dead-sidehopper state.");
-        if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("Dead-sidehopper state belongs to a different slot.");
-        return state;
-    }
-
     /// <summary>Routes a bomb that selects the corpse's shot reaction to its decay check, in place of common bomb damage.</summary>
     internal static void ReplaceDeadSidehopperBombDamage(EnemyBombContext c) =>
         ResolveDeadSidehopperShot(c.Enemy);
@@ -427,7 +405,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!slot.AnimationClock.Expire())
             return;
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => ApplyDeadSidehopperCue(slot, cue) is { } target
@@ -459,5 +437,5 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
         // Before Shitroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        ResolveDeadSidehopperTouch(context.Slot, RequireDeadSidehopperState(context.Slot), context.Samus);
+        ResolveDeadSidehopperTouch(context.Slot, context.Slot.RequireSpeciesState<DeadSidehopperEnemyState>(), context.Samus);
 }

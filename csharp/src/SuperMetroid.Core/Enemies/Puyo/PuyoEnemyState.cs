@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// <summary>The state of one Puyo.</summary>
 public sealed class PuyoEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal PuyoEnemyState(PuyoAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PuyoSegment> Playback { get; set; }
 
@@ -25,7 +28,7 @@ public sealed class PuyoEnemyState
     public int HopCooldownTimer { get; internal set; }
 
     /// <summary>Whether the Puyo is grounded or airborne.</summary>
-    public PuyoAction? Action { get; internal set; }
+    public PuyoAction Action { get; internal set; }
 
     /// <summary>The current hop's airborne behaviour.</summary>
     public PuyoAirborneMovement? AirborneMovement { get; internal set; }

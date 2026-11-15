@@ -42,19 +42,17 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Skultera.</summary>
     internal static void InitializeSkultera(RoomEnemySlot slot)
     {
-        var state = new SkulteraEnemyState();
-        slot.SetSpeciesState(state);
-
         // The placement names the way it starts swimming and the speed it swims at either way.
         SkulteraSpawnSettings settings = slot.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
+        var state = new SkulteraEnemyState(startsLeft
+            ? SkulteraAction.SwimmingLeft
+            : SkulteraAction.SwimmingRight);
+        slot.SetSpeciesState(state);
+
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
-        state.Action = startsLeft
-            ? SkulteraAction.SwimmingLeft
-            : SkulteraAction.SwimmingRight;
-
         EnemyLinearSpeed speeds = new(settings.Speed);
         state.RightVelocity = speeds.Positive;
         state.LeftVelocity = speeds.Negative;
@@ -90,7 +88,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Skultera has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Skultera has no behaviour for action {state.Action}.");
         }
     }
 

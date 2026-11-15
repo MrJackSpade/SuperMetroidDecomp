@@ -34,7 +34,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Bull.</summary>
     internal void InitializeBull(RoomEnemySlot slot)
     {
-        BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
+        BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
         slot.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(slot, BullAnimations.StartingWith(BullSegment.Normal));
@@ -45,7 +45,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = BullMovementDelayFrames;
-        state.Action = BullAction.MovementDelay;
         state.MaxSpeed = settings.MaximumSpeed;
     }
 
@@ -100,7 +99,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Bull has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Bull has no behaviour for action {state.Action}.");
         }
     }
 

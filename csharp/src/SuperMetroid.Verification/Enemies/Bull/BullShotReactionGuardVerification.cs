@@ -22,7 +22,7 @@ internal static class BullShotReactionGuardVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), compatibility);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         SlotInheritance<BullEnemyState> inheritance = compatibility.BullInheritance;
-        BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous)
+        BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous, BullAction.MovementDelay)
         {
             Action = BullAction.MovementDelay,
             ActivationTimer = 100,
@@ -32,7 +32,7 @@ internal static class BullShotReactionGuardVerification
         BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(ushort.MaxValue, state.ShotReactionDisableTimer.RawValue, "a zero guard timer wraps to the largest count");
         AssertTrue(state.ShotReactionDisabled, "the wrapped guard stays set");
-        BullEnemyState successor = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
+        BullEnemyState successor = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
         AssertEqual(ushort.MaxValue, successor.ShotReactionDisableTimer.RawValue,
             "the next Bull set up in the same slot inherits the wrapped count");
         AssertTrue(successor.ShotReactionDisabled, "the next Bull set up in the same slot inherits the set guard");

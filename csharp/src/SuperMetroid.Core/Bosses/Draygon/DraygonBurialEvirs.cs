@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using static SuperMetroid.Core.Bosses.Draygon.DraygonBurialEvirDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -41,7 +41,7 @@ internal static class DraygonBurialEvirs
                 (int)Math.Floor(CenterX + Radius * x),
                 (int)Math.Floor(CenterY - Radius * y)),
             angle,
-            x < 0 ? RoomSpriteObjectKind.DraygonDeathEvirFacingRight : RoomSpriteObjectKind.DraygonIntroEvir);
+            x < 0 ? RoomEffectActorKind.DraygonDeathEvirFacingRight : RoomEffectActorKind.DraygonIntroEvir);
     }
 
     /// <summary>

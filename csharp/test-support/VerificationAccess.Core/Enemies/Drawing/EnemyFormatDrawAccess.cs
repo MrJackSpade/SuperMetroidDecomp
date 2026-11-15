@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -123,11 +123,11 @@ internal static class EnemyFormatDrawAccess
     }
 
     /// <summary>Draws room sprite objects into an OAM image.</summary>
-    extension(RoomSpriteObjects pool)
+    extension(RoomEffectActors pool)
     {
         /// <summary>Publishes the room sprite objects, appending their OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawRoomSpriteObjectsAsOam(OamBuffer oam, Position16<RoomPixels> camera) =>
-            oam.AppendDrawn(frame => pool.DrawRoomSpriteObjects(frame, camera, NoHitBurstSheets));
+        internal void DrawRoomEffectActorsAsOam(OamBuffer oam, Position16<RoomPixels> camera) =>
+            oam.AppendDrawn(frame => pool.DrawRoomEffectActors(frame, camera, NoHitBurstSheets));
     }
 
     /// <summary>Draws enemy projectiles into an OAM image.</summary>

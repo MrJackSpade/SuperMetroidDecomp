@@ -375,8 +375,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KraidLintPostGrowth,
     ];
 
-    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidNail</c>, <c>KraidSecondNail</c>.</summary>
-    private static readonly EnemyFrameId[] KraidNailFrames =
+    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidFirstNail</c>, <c>KraidSecondNail</c>.</summary>
+    private static readonly EnemyFrameId[] KraidFirstNailFrames =
     [
         EnemyFrameId.KraidNailLoopFirst,
         EnemyFrameId.KraidNailLoopSecond,
@@ -599,8 +599,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RidleyBodyRightLegsExtended,
     ];
 
-    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyExplosion</c>.</summary>
-    private static readonly EnemyFrameId[] RidleyExplosionFrames =
+    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyBreakupPiece</c>.</summary>
+    private static readonly EnemyFrameId[] RidleyBreakupPieceFrames =
     [
         EnemyFrameId.RidleyTailBaseLink,
         EnemyFrameId.RidleyTailMiddleLink,
@@ -2267,8 +2267,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.WaverSpinningFacingRightFourth,
     ];
 
-    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows for <c>Robot</c>.</summary>
-    private static readonly EnemyFrameId[] RobotFrames =
+    /// <summary>The frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> shows for <c>WorkRobot</c>.</summary>
+    private static readonly EnemyFrameId[] WorkRobotFrames =
     [
         EnemyFrameId.WorkRobotFacingLeftWalkingForwardsLoopTwelfth,
         EnemyFrameId.WorkRobotInitial,
@@ -2492,8 +2492,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.KraidLintBottom] = KraidLintBottomFrames,
             [EnemyDefinitionId.KraidLintMiddle] = KraidLintBottomFrames,
             [EnemyDefinitionId.KraidLintTop] = KraidLintBottomFrames,
-            [EnemyDefinitionId.KraidFirstNail] = KraidNailFrames,
-            [EnemyDefinitionId.KraidSecondNail] = KraidNailFrames,
+            [EnemyDefinitionId.KraidFirstNail] = KraidFirstNailFrames,
+            [EnemyDefinitionId.KraidSecondNail] = KraidFirstNailFrames,
             [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
             [EnemyDefinitionId.MotherBrainBody] = MotherBrainBodyFrames,
             [EnemyDefinitionId.MotherBrainHead] = MotherBrainHeadFrames,
@@ -2507,7 +2507,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PhantoonTentacles] = Phantoon,
             [EnemyDefinitionId.Ridley] = RidleyFrames,
             [EnemyDefinitionId.RidleyCeres] = RidleyCeresFrames,
-            [EnemyDefinitionId.RidleyBreakupPiece] = RidleyExplosionFrames,
+            [EnemyDefinitionId.RidleyBreakupPiece] = RidleyBreakupPieceFrames,
             [EnemyDefinitionId.SporeSpawn] = SporeSpawn,
             [EnemyDefinitionId.BombTorizo] = BombTorizoFrames,
             [EnemyDefinitionId.GoldenTorizo] = GoldenTorizoFrames,
@@ -2615,7 +2615,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PirateSilverWall] = WallSpacePirate,
             [EnemyDefinitionId.Spark] = Spark,
             [EnemyDefinitionId.Waver] = Waver,
-            [EnemyDefinitionId.WorkRobot] = RobotFrames,
+            [EnemyDefinitionId.WorkRobot] = WorkRobotFrames,
             [EnemyDefinitionId.UnpoweredWorkRobot] = UnpoweredWorkRobotFrames,
             [EnemyDefinitionId.Coven] = WreckedShipGhost,
             [EnemyDefinitionId.YappingMaw] = YappingMaw,

@@ -86,7 +86,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the live-fight phase of Crocomire's main AI for one update.</summary>
     internal void RunCrocomireMain(
         RoomEnemySlot slot,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         CrocomireEnemyState state = Access.RequireCrocomire(slot);
@@ -97,7 +97,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             // The scroll write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
-                samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
+                CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
                     ? RoomScrollState.Closed : RoomScrollState.OpenAlignedToTop);
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
             // The fight's update always finishes by placing his tongue at his body, including the update in which the bridge
@@ -119,7 +119,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs Crocomire's sinking, skeleton, wall-break, and arena-completion phases; the acid hides his sinking body below
     /// a row of <paramref name="camera"/>, the camera his main update runs with.
     /// </summary>
-    private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState? samus, Position16<RoomPixels> camera)
+    private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState samus, Position16<RoomPixels> camera)
     {
         switch (state.DeathPhase)
         {

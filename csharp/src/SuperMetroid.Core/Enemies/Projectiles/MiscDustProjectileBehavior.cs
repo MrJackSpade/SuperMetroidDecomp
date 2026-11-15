@@ -15,19 +15,12 @@ internal sealed class MiscDustProjectileBehavior : SingleMotionProjectileBehavio
     {
     }
 
-    /// <summary>Runs the strict 256x256 camera cull for dust/explosion actors.</summary>
+    /// <summary>Removes a dust cloud or explosion once it lies outside the view, the view's right and bottom edges already outside.</summary>
     internal static void CullMiscDustOutsideCamera(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
-        // The cull compares the position against camera + 256 and culls when not below it, so
-        // a projectile exactly 256 past the camera is already off-screen.
-        if (CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.X.Whole, (camera.X + 256)) >= 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, (camera.Y + 256)) >= 0)
-        {
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
-        }
     }
 }

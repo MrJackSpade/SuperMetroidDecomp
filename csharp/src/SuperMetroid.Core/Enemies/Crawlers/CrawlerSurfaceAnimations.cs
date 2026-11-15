@@ -14,7 +14,7 @@ internal static class CrawlerSurfaceAnimations
         CrawlerAnimationDefinitions.Families.TryGetValue(family, out CrawlerAnimationDefinition definition)
             ? definition
             : throw new InvalidDataException(
-                $"Crawler animation family {family} exceeds five authored tables.");
+                $"Crawler animation family {family} has no authored animations.");
 
     /// <summary>Selects an animation by one of the four physical surface orientations.</summary>
     private static CrawlerSegment ForOrientation(CrawlerAnimationDefinition definition, CrawlerSurfaceOrientation orientation) =>
@@ -25,6 +25,6 @@ internal static class CrawlerSurfaceAnimations
             CrawlerSurfaceOrientation.UpsideDown => definition.UpsideDown,
             CrawlerSurfaceOrientation.UpsideUp => definition.UpsideUp,
             _ => throw new InvalidDataException(
-                $"Crawler surface orientation {orientation} exceeds four authored values."),
+                $"Crawler surface orientation {orientation} is not one of the four surfaces."),
         };
 }

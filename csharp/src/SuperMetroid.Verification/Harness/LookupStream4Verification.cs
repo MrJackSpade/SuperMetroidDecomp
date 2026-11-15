@@ -47,7 +47,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -1116,15 +1116,15 @@ internal static class LookupStream4Verification
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
     internal static void VerifyRoomSpriteDispatch(CartridgeImportAddressSpace rom)
     {
-        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObject> spriteSpawn =
-            (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomEffectActorKind, SpriteGraphics, RoomEffectActor> spriteSpawn =
+            (owner, position, kind, graphics) => owner.EffectActors.SpawnRoomEffectActor(position, kind, graphics);
         int kinds = 0;
-        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Distinct())
+        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>().Distinct())
         {
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
-            AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomEffectActorNativeWords.Kinds.Word(kind)));
+            AssertEqual(entry, RoomEffectActorDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObject spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+            RoomEffectActor spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
@@ -1135,7 +1135,7 @@ internal static class LookupStream4Verification
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
+            AssertEqual(false, RoomEffectActorNativeWords.Kinds.TryDecode(invalid, out _),
                 "room sprite native kind domain rejects invalid selector");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
@@ -1219,7 +1219,7 @@ internal static class LookupStream4Verification
                 RidleyGrabs.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Func<SamusState?, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
+        Func<SamusState, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
         Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
@@ -1236,7 +1236,6 @@ internal static class LookupStream4Verification
             AssertTrue(state.TailWhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.TailAction, "Actual release resets tail controller");
         }
-        AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
         var absentState = new RidleyEnemyState();
         release(absentState, null);
         AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
@@ -1283,7 +1282,7 @@ internal static class LookupStream4Verification
     /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
-        Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
+        Func<RidleyEnemyState, RoomLevelData, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
         for (int solidRow = 0; solidRow < 2; solidRow++)
         {
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
@@ -1308,7 +1307,6 @@ internal static class LookupStream4Verification
             }
             AssertTrue(!touches(new RidleyEnemyState(), level), "Incomplete tail keeps terrain gate");
         }
-        AssertTrue(!touches(new RidleyEnemyState(), null), "Missing terrain keeps tail gate");
     }
 
     /// <summary>Checks enemy notice-region bounds and their native coordinate ordering.</summary>
@@ -1754,10 +1752,10 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
                                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=5};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and clear/color targets");
                 }
             }
@@ -1806,10 +1804,10 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=3};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
                 }
             }
@@ -1852,7 +1850,7 @@ internal static class LookupStream4Verification
                 RoomEnemySlot body = enemies.SlotTable.Slots[0];
                 var state = new DraygonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tail = enemies.SlotTable.Slots[2], Arms = enemies.SlotTable.Slots[3] };
                 Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthBand = null;
@@ -1861,9 +1859,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
-                    body.FlashTimer = 2; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer = 2; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = 0; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer = 0; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");

@@ -89,7 +89,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.AnimationClock.StepOnNextUpdate();
 
-        var state = new FuneNamiheEnemyState
+        var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown)
         {
             ShowsActiveAnimation = program.Active,
             FacingRight = program.Right,

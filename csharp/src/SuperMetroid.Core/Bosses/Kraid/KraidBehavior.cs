@@ -65,7 +65,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
         Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, Parts, dependencies.Collision, Access);
+        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision, Access);
     }
 
     /// <summary>
@@ -83,22 +83,17 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void RunKraidBodyMain(
         RoomEnemySlot body,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
-        SamusProjectileSystem? samusProjectiles,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusProjectileSystem samusProjectiles,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         KraidEnemyState state = Access.RequireKraidState(body);
-        IReadOnlyList<KraidPassProjectile>? tested = samusProjectiles is not null && sharedProjectiles is not null
-            ? TestedByShotPasses(samusProjectiles, sharedProjectiles)
-            : null;
-        if (tested is not null)
-            Combat.ResolveKraidMouthProjectileHits(body, state, tested);
+        IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, sharedProjectiles);
+        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
-        if (tested is not null)
-            Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        if (samus is not null)
-            Combat.ResolveKraidBodyContact(body, state, samus);
+        Combat.ResolveKraidBodyProjectileHits(body, state, tested);
+        Combat.ResolveKraidBodyContact(body, state, samus);
         if (state.BodyState.Phase is { } phase && KraidPhaseGroups.Rising.Contains(phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);

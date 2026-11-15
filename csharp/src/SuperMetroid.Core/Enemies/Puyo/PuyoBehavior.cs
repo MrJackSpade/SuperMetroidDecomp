@@ -44,11 +44,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer shows the common empty frame before starting the fast grounded animation.
         slot.Frame = EnemyFrameId.Empty;
 
-        var state = new PuyoEnemyState
+        var state = new PuyoEnemyState(PuyoAction.Grounded)
         {
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
-            Action = PuyoAction.Grounded,
             // The initialization AI never writes the airborne movement or the inactive extra values. The room loader's
             // cleared enemy allocation therefore leaves them empty until the first hop owns
             // them; do not pre-populate plausible values the game has not written.
@@ -84,7 +83,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Puyo has no behaviour for action {state.Action}.");
         }
     }
 

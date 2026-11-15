@@ -60,21 +60,20 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         bool upsideUp = settings.Mounting == CacatacMounting.Floor;
         slot.Frame = EnemyFrameId.Empty;
 
-        var travel = new Offset16<RoomPixels>(settings.TravelDistance, 0);
-        Position16<RoomPixels> spawn = slot.Position.Whole;
-        var state = new CacatacEnemyState
+        int spawnX = slot.Position.X.Whole;
+        CacatacAction action = direction switch
+        {
+            CacatacDirection.Left => CacatacAction.MovingLeft,
+            CacatacDirection.Right => CacatacAction.MovingRight,
+            CacatacDirection.InitialStop => CacatacAction.Stopped,
+            _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
+        };
+        var state = new CacatacEnemyState(action)
         {
             Speed = settings.Speed,
             Direction = direction,
-            Action = direction switch
-            {
-                CacatacDirection.Left => CacatacAction.MovingLeft,
-                CacatacDirection.Right => CacatacAction.MovingRight,
-                CacatacDirection.InitialStop => CacatacAction.Stopped,
-                _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
-            },
-            RightPatrolLimit = spawn + travel,
-            LeftPatrolLimit = spawn - travel,
+            RightPatrolX = CoordinateAxis.Wrap(spawnX + settings.TravelDistance),
+            LeftPatrolX = CoordinateAxis.Wrap(spawnX - settings.TravelDistance),
             UpsideUp = upsideUp,
         };
         slot.SetSpeciesState(state);
@@ -98,7 +97,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Cacatac has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Cacatac has no behaviour for action {state.Action}.");
         }
     }
 
@@ -115,14 +114,14 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (direction != HorizontalDirection.Right)
         {
-            if ((slot.Position.Whole - state.LeftPatrolLimit).X >= 0)
+            if (!CoordinateAxis.Precedes(slot.Position.X.Whole, state.LeftPatrolX))
                 return;
             state.Action = CacatacAction.MovingRight;
             state.Direction = CacatacDirection.Right;
             return;
         }
 
-        if ((slot.Position.Whole - state.RightPatrolLimit).X < 0)
+        if (CoordinateAxis.Precedes(slot.Position.X.Whole, state.RightPatrolX))
             return;
         state.Action = CacatacAction.MovingLeft;
         state.Direction = CacatacDirection.Left;
@@ -208,24 +207,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
-    }
-
-    /// <summary>
-    /// Shared clone of the signed four-edge viewport cull. Equality with the right or
-    /// bottom edge remains alive; only strictly outside coordinates delete the projectile.
-    /// </summary>
-    internal static void DeleteEnemyProjectileIfOutsideInclusiveViewport(
-        EnemyProjectile projectile,
-        Position16<RoomPixels> camera)
-    {
-        int right = CoordinateAxis.Wrap(camera.X + 256);
-        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
-        bool outside = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(right, projectile.Position.X.Whole) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(bottom, projectile.Position.Y.Whole) < 0;
-        if (outside)
-            projectile.Delete();
+        EnemyView.DeleteOutside(projectile, camera);
     }
 }

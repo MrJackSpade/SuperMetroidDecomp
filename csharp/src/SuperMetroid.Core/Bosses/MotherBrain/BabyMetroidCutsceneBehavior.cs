@@ -117,7 +117,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
         RoomEnemySlot slot,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
@@ -133,8 +133,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
             throw new InvalidOperationException("The cutscene Baby lost the rainbow sequence.");
-        SamusState target = samus ?? throw new InvalidOperationException(
-            "The cutscene Baby requires the live Samus actor.");
+        SamusState target = samus;
 
         slot.ShakeTimer = 0;
         if (state.PendingBabyCryCount != 0 &&

@@ -5,8 +5,11 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>The state of one Ceres steam vent.</summary>
 internal sealed class CeresSteamEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal CeresSteamEnemyState(CeresSteamAction action) => Action = action;
+
     /// <summary>The main-AI action the vent's variant selects, or null for a vent that has none.</summary>
-    public CeresSteamAction? Action { get; internal set; }
+    public CeresSteamAction Action { get; internal set; }
 
     /// <summary>The staggered updates before the vent first appears, counted down by its animation.</summary>
     public WrappingCountdown ActivationDelay { get; internal set; }

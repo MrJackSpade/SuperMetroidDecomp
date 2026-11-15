@@ -116,7 +116,7 @@ internal sealed class CeresRidleyFlight
     internal void TickCeresRidleyHover(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         // Ceres Ridley never loses the ordinary enemy health. His shot AI increments
         // this separate counter and the fight treats 100 contacts as the scripted win condition.
@@ -131,7 +131,7 @@ internal sealed class CeresRidleyFlight
         // The other original termination route is Samus energy below 30. A synthetic room
         // fixture may omit Samus, in which case only the shot-counter route is meaningful.
         // The low-energy check jumps into the real retreat, so its first acceleration runs this call.
-        if (samus is not null && samus.Health < 30)
+        if (samus.Health < 30)
         {
             state.FightMode = RidleyFightMode.NotFighting;
             BeginCeresRidleyRetreat(state);
@@ -207,11 +207,8 @@ internal sealed class CeresRidleyFlight
     internal static void TickCeresRidleyLunge(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Ceres Ridley lunge requires the active Samus actor.");
-
         Position16<RoomPixels> target = CoordinateAxis.Difference(samus.Position.Y.Whole, 132) < 0
             ? samus.Position.Whole.WithY(64)
             : samus.Position.Whole - new Offset16<RoomPixels>(0, 68);

@@ -124,7 +124,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(slot, ElevatorAnimations.StartingWith(ElevatorSegment.Loop));
         state.Direction = slot.SpawnSettings<ElevatorSpawnSettings>().Direction;
-        state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
+        state.RestingY = slot.Position.Y.Whole;
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
         {
@@ -208,7 +208,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSound, priority: SoundRequestPriority.Normal);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);
-        samusProjectiles?.Reset();
+        samusProjectiles.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);
         ElevatorStatus = ElevatorActorStatus.Departing;
@@ -244,12 +244,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         if (state.Direction is ElevatorTravelDirection.Up)
         {
             AddElevatorYVelocity(slot, ElevatorSpeed);
-            stillReturning = slot.Position.Y.Whole < state.RestingHeight.Y;
+            stillReturning = slot.Position.Y.Whole < state.RestingY;
         }
         else
         {
             AddElevatorYVelocity(slot, -ElevatorSpeed);
-            stillReturning = slot.Position.Y.Whole >= state.RestingHeight.Y;
+            stillReturning = slot.Position.Y.Whole >= state.RestingY;
         }
 
         if (stillReturning)
@@ -261,7 +261,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorStatus = ElevatorActorStatus.Inactive;
         ElevatorFlags = ElevatorJourneyFlag.None;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorSoundStop, priority: SoundRequestPriority.Normal);
-        slot.Position = slot.Position.WithWholeY(state.RestingHeight.Y);
+        slot.Position = slot.Position.WithWholeY(state.RestingY);
         samus.Control.Unlock();
         PinSamusToElevator(slot, samus);
         _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;

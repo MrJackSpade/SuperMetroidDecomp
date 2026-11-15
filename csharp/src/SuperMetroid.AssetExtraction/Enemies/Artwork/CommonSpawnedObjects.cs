@@ -8,5 +8,5 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// The spawner: the Core type whose code spawns, or <c>Type.Member</c> for a type whose members serve unrelated rooms.
 /// <see cref="CommonSpawnerPresenceDefinitions"/> names the rooms each one runs in.
 /// </param>
-/// <param name="Objects">The projectile frames and sprite objects it spawns.</param>
+/// <param name="Objects">The projectile frames and effect actors it spawns.</param>
 internal sealed record CommonSpawnedObjects(string Spawner, SpawnedObjects Objects);

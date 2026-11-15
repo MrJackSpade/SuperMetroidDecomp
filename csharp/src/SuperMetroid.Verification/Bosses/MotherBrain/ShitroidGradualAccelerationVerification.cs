@@ -33,7 +33,7 @@ internal static class ShitroidGradualAccelerationVerification
         state.Action = ShitroidAction.RiseAfterFeeding;
         state.Velocity = default;
         shitroid.Position = shitroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
-        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.Samus, new Position16<RoomPixels>(0x0200, 0x0000), null);
+        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0x0200, 0x0000), null);
 
         AssertEqual((ushort)0xfff1, state.Velocity.Y.RawValue, "the reversal step borrows once, reaching Y velocity $FFF1");
         AssertEqual((ushort)0x009c, shitroid.Position.Y.Whole, "the rise stays within the same pixel");

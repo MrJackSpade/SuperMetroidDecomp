@@ -39,9 +39,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemySlot slot)
     {
-        var state = new ZoaEnemyState
+        var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
         {
-            Action = ZoaAction.WaitForSamus,
             RequestedAnimation = ZoaSegment.FacingLeftShooting,
             InstalledAnimation = ZoaSegment.FacingLeftShooting,
             LaunchSpeed = SignedSixteenSixteen.Zero,
@@ -75,7 +74,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Zoa has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Zoa has no behaviour for action {state.Action}.");
         }
     }
 

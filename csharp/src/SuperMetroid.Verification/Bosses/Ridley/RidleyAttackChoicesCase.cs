@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 /// <param name="Health">The health.</param>
 /// <param name="Samus">The samus.</param>
 /// <param name="Row">The row.</param>
-internal readonly record struct RidleyAttackChoicesCase(ushort Health, SamusState? Samus, int Row);
+internal readonly record struct RidleyAttackChoicesCase(ushort Health, SamusState Samus, int Row);

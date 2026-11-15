@@ -40,38 +40,51 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Initializes the Norfair lava jumper.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
     {
-        var state = new NorfairLavaJumpingEnemyState
-        {
-            AnimationFinished = false,
-            InstalledAnimation = null,
-            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower,
-        };
-        slot.SetSpeciesState(state);
-
-        if (state.IsFollower)
+        if (IsFollower(slot))
         {
             // The retail population always places this cosmetic second half immediately after its moving parent, which
             // it finds when it is placed and follows from then on; a population that places anything else there is
             // refused.
+            slot.SetSpeciesState(new NorfairLavaJumperFollowerState
+            {
+                Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
+            });
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
             _parentStates.Place(slot, GetPrecedingNorfairLavaJumpingEnemySlot(slot).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
-            state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation);
-            state.Action = NorfairLavaJumpingEnemyAction.FollowParent;
             return;
         }
+
+        var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump)
+        {
+            AnimationFinished = false,
+            InstalledAnimation = null,
+        };
+        slot.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these population coordinates after every
         // arc. Subpositions are deliberately not saved or cleared by the retail jump.
         state.SpawnPosition = slot.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
-        state.Action = NorfairLavaJumpingEnemyAction.BeginJump;
+    }
+
+    /// <summary>Whether <paramref name="slot"/>'s placement makes it a follower, the cosmetic second half of the parent listed before it.</summary>
+    private static bool IsFollower(RoomEnemySlot slot) =>
+        slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
+
+    /// <summary>
+    /// Runs the follower's main behaviour. Main advances the shared random numbers once for the follower as for the
+    /// parent; the follower discards the number, which still affects later room actors.
+    /// </summary>
+    internal void RunNorfairLavaJumperFollowerMain(RoomEnemySlot follower)
+    {
+        _room.Random.Generate();
+        FollowNorfairLavaJumpingEnemyParent(follower);
     }
 
     /// <summary>
-    /// Runs the lava jumper's main behaviour and
-    /// its rising, flipping and falling actions. Main advances the shared enemy RNG once for every parent and follower
-    /// frame; even the follower discards the number, which still affects later room actors.
+    /// Runs the jumping parent's main behaviour: its rising, flipping and falling actions. Main advances the shared
+    /// random numbers once each update.
     /// </summary>
     internal void RunNorfairLavaJumpingEnemyMain(
         RoomEnemySlot slot,
@@ -81,10 +94,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
         switch (state.Action)
         {
-            case NorfairLavaJumpingEnemyAction.FollowParent:
-                FollowNorfairLavaJumpingEnemyParent(slot);
-                return;
-
             case NorfairLavaJumpingEnemyAction.BeginJump:
                 state.YVelocity = NorfairLavaJumps.InitialVerticalVelocity(random);
                 state.Action = NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch;
@@ -137,7 +146,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair lava-jumping enemy has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Norfair lava-jumping enemy has no behaviour for action {state.Action}.");
         }
     }
 
@@ -218,13 +227,26 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Runs the Norfair lava-jumping enemy's main AI.</summary>
     internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
+        if (IsFollower(slot))
+        {
+            RunNorfairLavaJumperFollowerMain(slot);
+            return;
+        }
         RunNorfairLavaJumpingEnemyMain(
             slot,
             slot.RequireSpeciesState<NorfairLavaJumpingEnemyState>());
     }
 
-    /// <summary>Advances the Norfair lava-jumping enemy's typed animation.</summary>
-    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+    /// <summary>Advances the Norfair lava-jumping enemy's typed animation: the parent's jump, or the follower's loop.</summary>
+    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    {
+        if (IsFollower(slot))
+        {
+            EnemyAnimationPlayback.Advance(slot, NorfairLavaJumperAnimations.Segments,
+                static (NorfairLavaJumperFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
+                static (_, cue) => throw new InvalidOperationException($"The Squeept follower's animation raised {cue}."));
+            return;
+        }
         EnemyAnimationPlayback.Advance(slot, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
@@ -232,4 +254,5 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 ApplyNorfairLavaJumperCue(state, cue);
                 return null;
             });
+    }
 }

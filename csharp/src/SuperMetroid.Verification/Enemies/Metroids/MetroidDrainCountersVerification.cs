@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Metroids;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
 
@@ -14,7 +14,7 @@ internal static class MetroidDrainCountersVerification
     /// </summary>
     internal static void VerifyMetroidDrainCounters()
     {
-        var metroid = new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+        var metroid = new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
         {
             Drain = FractionalEnergyDrain.HoldingOver(3 * FractionalEnergyDrain.PartsPerEnergy / 16),
         };

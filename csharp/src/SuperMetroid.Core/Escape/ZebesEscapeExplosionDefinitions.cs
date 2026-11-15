@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Escape;
 
@@ -12,31 +12,31 @@ internal static class ZebesEscapeExplosionDefinitions
 
     /// <summary>A small explosion that sounds the small-explosion sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SoundingSmallExplosion =
-        new(RoomSpriteObjectKind.SporeSpawnDyingExplosion, SmallExplosionSound);
+        new(RoomEffectActorKind.SporeSpawnDyingExplosion, SmallExplosionSound);
 
     /// <summary>A small explosion that makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SilentSmallExplosion =
-        new(RoomSpriteObjectKind.SporeSpawnDyingExplosion, null);
+        new(RoomEffectActorKind.SporeSpawnDyingExplosion, null);
 
     /// <summary>A small dust cloud, which makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SmallDustCloud =
-        new(RoomSpriteObjectKind.BotwoonSmallExplosion, null);
+        new(RoomEffectActorKind.BotwoonSmallExplosion, null);
 
     /// <summary>A smoke cloud that sounds the big-explosion sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SoundingSmoke =
-        new(RoomSpriteObjectKind.Smoke, SmokeSound);
+        new(RoomEffectActorKind.Smoke, SmokeSound);
 
     /// <summary>A smoke cloud that makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SilentSmoke =
-        new(RoomSpriteObjectKind.Smoke, null);
+        new(RoomEffectActorKind.Smoke, null);
 
     /// <summary>A short big dust cloud, which makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition ShortBigDustCloud =
-        new(RoomSpriteObjectKind.ShortBigDustCloud, null);
+        new(RoomEffectActorKind.ShortBigDustCloud, null);
 
     /// <summary>A big dust cloud, which makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition BigDustCloud =
-        new(RoomSpriteObjectKind.DustCloud, null);
+        new(RoomEffectActorKind.DustCloud, null);
 
     /// <summary>
     /// The eight equally likely explosions a draw that names one chooses from, in the draw's order: two small explosions,
@@ -58,14 +58,14 @@ internal static class ZebesEscapeExplosionDefinitions
     ];
 
     /// <summary>The kind an indoor explosion shows when its draw leaves the kind open: a small explosion.</summary>
-    internal static readonly RoomSpriteObjectKind IndoorKindLeftOpen = SilentSmallExplosion.SpriteKind;
+    internal static readonly RoomEffectActorKind IndoorKindLeftOpen = SilentSmallExplosion.SpriteKind;
 
     /// <summary>
     /// The kinds an outdoor explosion shows when its draw leaves the kind open, by the column phase of the block it goes off
     /// over, the phases repeating every four columns: a small explosion, a small dust cloud, a smoke cloud and a short big
     /// dust cloud.
     /// </summary>
-    internal static readonly RoomSpriteObjectKind[] OutdoorKindsLeftOpenByColumnPhase =
+    internal static readonly RoomEffectActorKind[] OutdoorKindsLeftOpenByColumnPhase =
     [
         SilentSmallExplosion.SpriteKind,
         SmallDustCloud.SpriteKind,

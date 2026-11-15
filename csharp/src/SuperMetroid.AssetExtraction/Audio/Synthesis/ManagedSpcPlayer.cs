@@ -164,13 +164,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>Starts recording every audio RAM address and PCM source the driver and DSP read from now on (#1503).</summary>
-    internal void RecordReads()
-    {
-        ram.RecordReads();
-        dsp.RecordSampleSources();
-    }
-
     /// <summary>The address of the next top-level music record, for offline loop analysis (#1305).</summary>
     internal int ReadMusicTopLevelPointer() => Music.musicTopLevelPointer;
 

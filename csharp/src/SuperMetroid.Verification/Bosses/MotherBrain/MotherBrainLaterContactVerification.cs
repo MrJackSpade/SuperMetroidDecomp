@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -29,7 +29,7 @@ internal static class MotherBrainLaterContactVerification
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
         enemies.MotherBrainEncounter.MotherBrain = state;
-        Action<RoomEnemySlot, SamusState?, SamusBombProjectileSystem?> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
+        Action<RoomEnemySlot, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
@@ -41,7 +41,7 @@ internal static class MotherBrainLaterContactVerification
             if (contact == "neck") { samus.Position = samus.Position.WithWhole(new(250, 80)); expectedX = 16; }
             if (contact == "no-damage side") { samus.Position = samus.Position.WithWholeX(152); expectedX = 26; }
             if (contact == "post-dispatch position") { samus.Position = samus.Position.WithWhole(new(89, 279)); }
-            main(body, samus, null);
+            main(body, samus, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             AssertEqual((ushort)(contact == "no-damage side" ? 500 : 500 - body.Definition.Damage),
                 samus.Health, $"Later-phase {contact} applies native contact damage");
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
@@ -71,7 +71,7 @@ internal static class MotherBrainLaterContactVerification
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");
             AssertEqual((SoundEffectId?)SamusSound.DudShot, enemies.Audio.LatestSound, "Body emits native dud sound");
         }
-        AssertEqual(2, enemies.RoomSpriteObjects.Count(slot => slot.Kind == RoomSpriteObjectKind.EnemyProjectileDud),
+        AssertEqual(2, enemies.RoomEffectActors.Count(slot => slot.Kind == RoomEffectActorKind.EnemyProjectileDud),
             "Both beam and missile callbacks create their dud sprite");
         Console.WriteLine("Mother Brain later contact: body/neck damage, side condition, post-dispatch position and projectile duds passed.");
         return 0;

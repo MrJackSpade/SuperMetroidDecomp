@@ -31,7 +31,7 @@ internal static class GunshipMotionDefinitionsVerification
             // The top hull finds the bottom hull and pad listed after it as production places it.
             enemies.GunshipBehavior.InitializeGunshipTop(top);
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
-            var part = new GunshipPartState();
+            var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
             top.SetSpeciesState(part);
             part.LandingBrakeStep = frame;
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
@@ -61,7 +61,7 @@ internal static class GunshipMotionDefinitionsVerification
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             // The top hull finds the bottom hull and pad listed after it as production places it.
             enemies.GunshipBehavior.InitializeGunshipTop(top);
-            var part = new GunshipPartState();
+            var part = new GunshipState(GunshipPhase.Idle);
             top.SetSpeciesState(part);
             part.BobPhase = phase;
             part.BobTimer = 1;
@@ -162,7 +162,7 @@ internal static class GunshipMotionDefinitionsVerification
     /// </summary>
     private static void VerifyGunshipEscapeAcceleration()
     {
-        var part = new GunshipPartState { EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity };
+        var part = new GunshipState(GunshipPhase.AcceleratingLiftoff) { EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity };
         int nativeWord = 512;
         bool capped = false;
         for (int update = 0; update < 64; update++)

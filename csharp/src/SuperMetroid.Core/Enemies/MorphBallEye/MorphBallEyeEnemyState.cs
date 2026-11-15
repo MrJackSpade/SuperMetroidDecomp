@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal MorphBallEyeEnemyState(MorphBallEyeAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MorphBallEyeSegment> Playback { get; set; }
 
@@ -25,5 +28,5 @@ public sealed class MorphBallEyeEnemyState
     public int ActionTimer { get; internal set; }
 
     /// <summary>The action the eye performs.</summary>
-    public MorphBallEyeAction? Action { get; internal set; }
+    public MorphBallEyeAction Action { get; internal set; }
 }

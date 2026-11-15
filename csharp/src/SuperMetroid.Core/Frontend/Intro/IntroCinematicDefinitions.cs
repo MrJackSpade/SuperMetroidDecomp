@@ -50,7 +50,7 @@ public static class IntroCinematicDefinitions
     }
 
     /// <summary>The actors' sounds.</summary>
-    public static class Objects
+    public static class Sounds
     {
         /// <summary>The queue limit the opening's sounds are requested under.</summary>
         public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
@@ -63,7 +63,7 @@ public static class IntroCinematicDefinitions
     }
 
     /// <summary>The narration caret's positions and the text characters' size.</summary>
-    public static class ObjectSystem
+    public static class NarrationLayout
     {
         /// <summary>The caret's leftmost column, in pixels.</summary>
         public const int CaretLeftX = 8;

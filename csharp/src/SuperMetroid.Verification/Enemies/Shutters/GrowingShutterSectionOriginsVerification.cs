@@ -14,7 +14,7 @@ internal static class GrowingShutterSectionOriginsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
-        var state = new GrowingShutterEnemyState(slot);
+        var state = new GrowingShutterEnemyState(slot, GrowingShutterAction.WaitToGrowUpForTimer);
         slot.SetSpeciesState(state);
         state.PlaceSectionOrigins(growsUp: true);
         AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200 - 24), state.SectionOrigin(3),

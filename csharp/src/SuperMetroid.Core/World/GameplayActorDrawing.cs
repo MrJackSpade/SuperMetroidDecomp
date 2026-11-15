@@ -77,7 +77,7 @@ internal sealed class GameplayActorDrawing
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
             _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
-            // A hit burst among the sprite objects is one of Samus's weapon effects: it shows the sheet of the beams she
+            // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
                 _sprites,

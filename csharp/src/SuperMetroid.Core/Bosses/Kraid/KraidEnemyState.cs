@@ -53,11 +53,10 @@ public sealed class KraidEnemyState
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }
     /// <summary>
-    /// Gets the room position whose Y is the highest Samus may be pushed to when Kraid's body ejects her: Y 324 for the
-    /// small form and 164 once growth raises the clamp. Only the Y axis is meaningful; Samus's position is compared with
-    /// it by the wrapped spatial difference on Y.
+    /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: 324 for the small form and 164 once
+    /// growth raises the clamp. Samus's Y is compared with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> EjectionLimit { get; internal set; }
+    public int EjectionLimitY { get; internal set; }
     /// <summary>Gets the mouth's shot latches: a charged hit this pass, an armed reopen and a pending reopen.</summary>
     public KraidMouthFlags MouthFlags { get; internal set; }
     /// <summary>
@@ -78,10 +77,10 @@ public sealed class KraidEnemyState
     /// <summary>Half of Kraid's initial health, as four eighths: below it, his arm slows (#1890).</summary>
     internal int HalfHealth => HealthEighths(4);
     /// <summary>
-    /// Gets the room position the second-phase body walks to: X from 208 to 384. Only the X axis is meaningful; the
-    /// body's position is compared with it by the wrapped spatial difference on X.
+    /// Gets the room X the second-phase body walks to, from 208 to 384. The body's X is compared with it by the wrapped
+    /// difference.
     /// </summary>
-    public Position16<RoomPixels> WalkTarget { get; internal set; }
+    public int WalkTargetX { get; internal set; }
     /// <summary>Gets the hurt-flash phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
     public int HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-flash phases, normally reloaded to two and reused by background fades during death.</summary>

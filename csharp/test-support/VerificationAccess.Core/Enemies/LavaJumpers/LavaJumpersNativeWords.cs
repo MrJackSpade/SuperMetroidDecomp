@@ -11,7 +11,6 @@ internal static class LavaJumpersNativeWords
     /// <summary>The routine word naming each <see cref="NorfairLavaJumpingEnemyAction"/>.</summary>
     internal static readonly NativeWordIdentities<NorfairLavaJumpingEnemyAction> NorfairLavaJumpingEnemyActions = new(new Dictionary<NorfairLavaJumpingEnemyAction, ushort>
     {
-        [NorfairLavaJumpingEnemyAction.FollowParent] = 0xbedc,
         [NorfairLavaJumpingEnemyAction.BeginJump] = 0xbf1a,
         [NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch] = 0xbf3e,
         [NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal] = 0xbf7c,

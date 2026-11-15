@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Fixed cinematic-object definitions for egg shell fragments and slime drops.</summary>
+/// <summary>Fixed cinematic-actor definitions for egg shell fragments and slime drops.</summary>
 internal static class IntroEggEffectDefinitions
 {
     /// <summary>The shell's pieces in the order the hatching egg spawns them, which is the order they update and draw in.</summary>

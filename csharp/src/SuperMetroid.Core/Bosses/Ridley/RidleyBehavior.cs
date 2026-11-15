@@ -57,19 +57,18 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// </summary>
     private void RunNorfairRidleyMain(
         RoomEnemySlot slot,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction controllerInput,
-        RoomLevelData? level = null,
-        SamusProjectileSystem? samusProjectiles = null,
-        SamusBombProjectileSystem? sharedProjectiles = null,
+        RoomLevelData level,
+        SamusProjectileSystem samusProjectiles,
+        SamusBombProjectileSystem sharedProjectiles,
         Position16<RoomPixels> camera = default)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireNorfairRidley(slot);
         state.HurtMovementClamp = Math.Max(0, state.HurtMovementClamp - 4);
 
         RidleyInteractions.UpdateNorfairRidleyIntangibility(slot, state, camera);
-        NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles ?? throw new InvalidOperationException(
-            "Ridley's power-bomb check requires the shared projectile owner."));
+        NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
 
         RunNorfairRidleyPhase(slot, state, samus, controllerInput, level);
 
@@ -79,10 +78,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
             _ceresRidleyBehavior.Flight.IntegrateRidleyMovement(slot, state);
             CeresRidleyFlight.TickRidleyWingAnimation(state);
             _ridleyTail.TickRidleyTail(slot, state, samus);
-            if (samusProjectiles is not null)
-                _ridleyTail.ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
+            _ridleyTail.ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
             // Main places carried Samus after body/tail movement.
-            if (state.GrabState != RidleyGrabState.Released && samus is not null)
+            if (state.GrabState != RidleyGrabState.Released)
                 NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
         }
 
@@ -93,9 +91,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal void RunNorfairRidleyPhase(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction controllerInput,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         switch (state.Phase)
         {
@@ -369,12 +367,12 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal void SelectNorfairRidleyAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction controllerInput,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         RidleyAttackSituation situation;
-        if (samus is not null && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping)
+        if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping)
         {
             situation = RidleyAttackSituation.SpinJumping;
         }
@@ -387,7 +385,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         {
             situation = RidleyAttackSituation.Ordinary;
         }
-        else if (samus is not null && samus.Position.Y.Whole >= 352)
+        else if (samus.Position.Y.Whole >= 352)
         {
             situation = RidleyAttackSituation.PogoZone;
         }
@@ -426,10 +424,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// </summary>
     internal void RunNorfairRidleyHurt(
         RoomEnemySlot body,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction controllerInput,
-        RoomLevelData? level,
-        SamusProjectileSystem? samusProjectiles,
+        RoomLevelData level,
+        SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem sharedProjectiles,
         Position16<RoomPixels> camera)
     {
@@ -447,13 +445,13 @@ internal sealed class RidleyBehavior : IEnemySpecies
             }
         }
 
-        if (samusProjectiles is not null && state.MovementAnimationEnabled)
+        if (state.MovementAnimationEnabled)
             _ridleyTail.ResolveRidleyTailProjectileHits(body, state, samusProjectiles);
         CeresRidleyHits.UpdateRidleyHurtFlash(body, state, body.FrameCounter);
         RidleyInteractions.UpdateNorfairRidleyHealthBand(body, state);
 
         state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);
-        if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= 8 && samus is not null)
+        if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= 8)
             NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
 

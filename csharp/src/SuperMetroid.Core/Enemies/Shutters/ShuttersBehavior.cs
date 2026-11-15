@@ -65,12 +65,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         GrowingShutterSpawnSettings settings = slot.SpawnSettings<GrowingShutterSpawnSettings>();
-        var state = new GrowingShutterEnemyState(slot)
-        {
-            ActivationTimer = settings.ActivationWait,
-            ActivationDistance = settings.ActivationDistance,
-        };
-        slot.SetSpeciesState(state);
 
         // The initializer selects its first action from the way it grows and what it waits for.
         bool growsUp = settings.Growth switch
@@ -79,7 +73,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             GrowingShutterGrowth.Up => true,
             _ => throw new InvalidOperationException($"Growing shutter growth {settings.Growth} is not a direction."),
         };
-        state.Action = settings.Wait switch
+        GrowingShutterAction action = settings.Wait switch
         {
             GrowingShutterWait.Timer => growsUp
                 ? GrowingShutterAction.WaitToGrowUpForTimer
@@ -89,6 +83,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 : GrowingShutterAction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
+        var state = new GrowingShutterEnemyState(slot, action)
+        {
+            ActivationTimer = settings.ActivationWait,
+            ActivationDistance = settings.ActivationDistance,
+        };
+        slot.SetSpeciesState(state);
 
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
@@ -143,7 +143,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Growing shutter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Growing shutter has no behaviour for action {state.Action}.");
         }
     }
 
@@ -313,23 +313,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Tests whether the shutter is on screen for sound. Its bottom edge is 256 pixels, deliberately not the 224-line visible
-    /// viewport, because the sound admission test uses a square screen window.
+    /// Publishes the activation sound only when the shutter's centre lies in the enemies' square view, which reaches
+    /// below the screen's visible lines.
     /// </summary>
-    private static bool IsShutterCenterOnScreen(
-        RoomEnemySlot slot,
-        Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) >= 0 &&
-        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) >= 0 &&
-        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) >= 0 &&
-        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
-
-    /// <summary>Publishes the activation sound only when the shutter center lies in the 256-pixel camera square.</summary>
     private void QueueShutterActivationSoundIfOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera)
     {
-        if (IsShutterCenterOnScreen(slot, camera))
+        if (EnemyView.Contains(slot.Position.Whole, camera))
             _audio.QueueEnemySound(ShutterActivationSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -433,7 +424,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Definition {slot.DefinitionId} does not use vertical-shutter initialization.");
         }
 
-        var state = new VerticalShutterEnemyState();
+        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
         slot.SetSpeciesState(state);
 
         ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
@@ -463,7 +454,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.UpperEndpoint = spawn - travel;
         }
 
-        state.Action = VerticalShutterAction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
         slot.CollidesByFrameHitboxes = false;
@@ -532,14 +522,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             case VerticalShutterAction.Initial:
             default:
                 throw new InvalidDataException(
-                    $"Vertical shutter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Vertical shutter has no behaviour for action {state.Action}.");
         }
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions
         // names this enemy and she has contact damage (e.g. screw attack).
         if (state.Action is not (VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown) &&
-            SamusContactsIdleShutter(slot, samus ?? throw new InvalidOperationException(
-                "Vertical-shutter AI requires Samus state for its contact reaction.")))
+            SamusContactsIdleShutter(slot, samus))
         {
             ReactVerticalShutter(slot, camera);
         }

@@ -36,11 +36,10 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
     internal static void InitializeSkree(RoomEnemySlot slot)
     {
-        var state = new SkreeEnemyState
+        var state = new SkreeEnemyState(SkreeAction.Idling)
         {
             InstalledAnimation = SkreeMetareeSegment.SkreeIdling,
             AttackReady = false,
-            Action = SkreeAction.Idling,
         };
         slot.SetSpeciesState(state);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
@@ -82,7 +81,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Skree has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Skree has no behaviour for action {state.Action}.");
         }
     }
 

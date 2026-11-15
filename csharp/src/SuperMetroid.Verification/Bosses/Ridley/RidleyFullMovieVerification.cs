@@ -103,14 +103,14 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairSwoopSetup; state.PhaseTimer = 112;
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         AssertEqual(112, state.PhaseTimer, "native swoop setup retains general AI timer");
         AssertEqual(10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
         state.Phase = RidleyPhase.NorfairSwoopAimDown; state.SwoopPhaseTimer = 1;
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData);
         AssertEqual(0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
         AssertEqual(112, state.PhaseTimer, "native swoop countdown retains general timer");
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData);
         AssertEqual(20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
         AssertEqual(112, state.PhaseTimer, "native phase transition retains general timer");
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
@@ -126,13 +126,13 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairDeathFinish; state.PhaseTimer = 0;
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         AssertEqual(RidleyPhase.NorfairDeathComplete, state.Phase, "death finish selects native C600 return");
         AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted), "death finish publishes deletion");
         AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Norfair, DefeatedBosses.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
             "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData);
         AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
         AssertEqual(-1, state.PhaseTimer, "terminal return retains the countdown expired one update past zero");
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
@@ -152,7 +152,7 @@ internal static class RidleyFullMovieVerification
         state.GrabState = RidleyGrabState.Released; state.ClawHeight = RidleyClawHeight.Standing;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, samus, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, samus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "native grab immediately enters carry movement");
         AssertEqual(31, state.PhaseTimer, "native setup falls through first carry countdown");
         AssertEqual((ushort)0xb6, state.Velocity.X.RawValue, "native same-update grab X acceleration");
@@ -461,7 +461,7 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairPogoFall;
         state.TailSegments[6].Position = new Position16<RoomPixels>(4, 118);
-        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, null, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");

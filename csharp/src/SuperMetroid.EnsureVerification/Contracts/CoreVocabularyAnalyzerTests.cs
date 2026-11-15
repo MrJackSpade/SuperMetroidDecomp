@@ -376,6 +376,24 @@ internal static class CoreVocabularyAnalyzerTests
             $"'frameBehaviors' {frameBehavior} ('FrameBehavior')");
         // The words alone, apart or in another order are the game's own: a frame, a behaviour, a shot behaviour.
         Expect("class P { int Frame; int Behavior; int ShotBehavior; int BehaviorFrame; int FrameCountBehavior; }");
+        // The hardware's object (#2004, #1977), in each kind of declaration the renamed effect actors, cinematic actors and
+        // statue animations used it in: a type and its file, an enum, a field, a parameter, a method, a property and a local.
+        const string hardwareObject = "names the hardware's object";
+        ExpectFile("public sealed class RoomSpriteObject { }", "RoomSpriteObject.cs",
+            $"'RoomSpriteObject' {hardwareObject} ('SpriteObject')", $"'RoomSpriteObject' {hardwareObject} ('SpriteObject')");
+        Expect("enum RoomSpriteObjectKind { Smoke }", $"'RoomSpriteObjectKind' {hardwareObject} ('SpriteObject')");
+        Expect("class P { readonly int _spriteObjects; }", $"'_spriteObjects' {hardwareObject} ('SpriteObject')");
+        Expect("class P { void Spawn(int spriteObject) { } }", $"'spriteObject' {hardwareObject} ('SpriteObject')");
+        Expect("class P { void StepRoomSpriteObjects() { } }", $"'StepRoomSpriteObjects' {hardwareObject} ('SpriteObject')");
+        Expect("class P { int objectSprites; }", $"'objectSprites' {hardwareObject} ('ObjectSprite')");
+        Expect("sealed class IntroCinematicObjectSystem { }", $"'IntroCinematicObjectSystem' {hardwareObject} ('CinematicObject')");
+        Expect("class P { void SpawnAnimatedObjects() { } }", $"'SpawnAnimatedObjects' {hardwareObject} ('AnimatedObject')");
+        Expect("class P { int RootSpriteObject { get; set; } }", $"'RootSpriteObject' {hardwareObject} ('SpriteObject')");
+        Expect("class P { void Run() { int animatedObject = 0; _ = animatedObject; } }", $"'animatedObject' {hardwareObject} ('AnimatedObject')");
+        // The room's objects, an object in plain English and the words apart are the game's own: a room object, a door
+        // cap's object, a deleted object, the objects in space, an object an enemy spawned, a sprite and an animation.
+        Expect("class RoomObject { } class BlueDoorCapObject { } class P { void DeleteObject() { } int SpaceObjects; " +
+            "int SpawnedObjectOwner; int Sprite; int RoomEffectActor; int AnimatedBlock; int ObjectCount; int SpriteSheetObject; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

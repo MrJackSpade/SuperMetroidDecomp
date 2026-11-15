@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 /// <param name="Enemies">The enemies.</param>
 /// <param name="Slot">The slot.</param>
 /// <param name="State">The state.</param>
-internal readonly record struct CreateSystemResult(RoomEnemySystem Enemies, RoomEnemySlot Slot, MagdolliteEnemyState State);
+internal readonly record struct CreateSystemResult(RoomEnemySystem Enemies, RoomEnemySlot Slot, MagdollitePartState State);

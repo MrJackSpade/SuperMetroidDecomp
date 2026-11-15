@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -58,8 +58,8 @@ internal static class MetroidBehaviorDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
             var state = new MetroidEnemyState(
-                new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
-                new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+                new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
+                new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 EscapeTimer = timer,
                 Movement = MetroidMovement.PowerBombEscape,
@@ -102,7 +102,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.AnimationClock.StepOnNextUpdate();
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
-            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                     AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),

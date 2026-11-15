@@ -89,7 +89,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeDachora(RoomEnemySlot slot)
     {
         DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
-        var state = new DachoraEnemyState
+        var state = new DachoraEnemyState(settings.Role == DachoraRole.SpeedBoostEcho ? DachoraAction.Echo : DachoraAction.WaitingForSamus)
         {
             FacingRight = settings.Facing == HorizontalDirection.Right || settings.Role == DachoraRole.SpeedBoostEcho,
         };
@@ -107,7 +107,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? DachoraSegment.EchoRight
                 : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
-            state.Action = DachoraAction.Echo;
             return;
         }
 
@@ -115,7 +114,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.IdleRight
             : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
-        state.Action = DachoraAction.WaitingForSamus;
     }
 
     /// <summary>Runs the Dachora's current action.</summary>
@@ -135,10 +133,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Dachora body AI requires the active Samus actor.");
-        RoomLevelData activeLevel = level ?? throw new InvalidOperationException(
-            "Dachora body AI requires active room collision data.");
+        SamusState activeSamus = samus;
+        RoomLevelData activeLevel = level;
         switch (state.Action)
         {
             case DachoraAction.WaitingForSamus:
@@ -165,7 +161,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             case DachoraAction.Echo:
             default:
                 throw new InvalidDataException(
-                    $"Dachora has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Dachora has no behaviour for action {state.Action}.");
         }
     }
 

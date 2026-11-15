@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -20,8 +20,8 @@ internal abstract record DraygonCue
     /// <summary>Queues a sound effect at normal priority.</summary>
     internal sealed record QueueSound(SoundEffectId Sound) : DraygonCue;
 
-    /// <summary>Spawns a dying-Draygon sprite object at a random point of the body.</summary>
-    internal sealed record SpawnDyingObject(RoomSpriteObjectKind Kind) : DraygonCue;
+    /// <summary>Spawns a dying-Draygon effect actor at a random point of the body.</summary>
+    internal sealed record SpawnDyingEffect(RoomEffectActorKind Kind) : DraygonCue;
 
     /// <summary>Rests the tail and arms on their last frames.</summary>
     internal sealed record ParalyseTailAndArms : DraygonCue

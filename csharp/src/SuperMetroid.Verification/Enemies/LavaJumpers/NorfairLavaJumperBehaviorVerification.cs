@@ -53,8 +53,8 @@ internal static class NorfairLavaJumperBehaviorVerification
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
-        NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1]
-            ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[1].");
+        NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
+            ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
             "real follower initializer starts the follower loop");
         follower.AnimationClock.StepOnNextUpdate();

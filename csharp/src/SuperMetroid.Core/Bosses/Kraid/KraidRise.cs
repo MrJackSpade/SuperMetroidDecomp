@@ -79,7 +79,7 @@ internal sealed class KraidRise
         // Kraid's fight tracks the camera like a boss.
         _cameraDistance.Request(CameraDistanceMode.BossTracking);
         ApplyKraidScrolls(layout: KraidScrollLayout.Initial);
-        state.EjectionLimit = new Position16<RoomPixels>(0, 324);
+        state.EjectionLimitY = 324;
         state.InitialHealth = body.Health;
 
         // Kraid's initialization readies his body layer, on which his body shows once he rises.
@@ -144,7 +144,7 @@ internal sealed class KraidRise
             case KraidPhase.GrowReleaseCamera:
                 ApplyKraidScrolls(layout: KraidScrollLayout.Grown);
                 state.BodyState.Phase = KraidPhase.GrowBreakCeilingPlatforms;
-                state.EjectionLimit = new Position16<RoomPixels>(0, 164);
+                state.EjectionLimitY = 164;
                 return;
 
             case KraidPhase.GrowBreakCeilingPlatforms:
@@ -270,7 +270,7 @@ internal sealed class KraidRise
             nailDelay += 64;
         }
         state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
-        state.WalkTarget = new Position16<RoomPixels>(288, 0);
+        state.WalkTargetX = 288;
         RoomEnemySlot foot = _parts.Foot;
         state.FootState.Phase = KraidPhase.FootSecondPhaseWalkToStart;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
@@ -305,7 +305,7 @@ internal sealed class KraidRise
     internal void RunKraidRisePhase(
         RoomEnemySlot body,
         KraidEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         KraidPhase? phase = state.BodyState.Phase;
         switch (phase)
@@ -436,9 +436,9 @@ internal sealed class KraidRise
     /// and previous X, so the camera's horizontal follow sees Samus's subsequent
     /// movement away from 256 as a scroll.
     /// </summary>
-    private static void RestrictSamusToKraidFirstScreen(SamusState? samus)
+    private static void RestrictSamusToKraidFirstScreen(SamusState samus)
     {
-        if (samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
         {
             samus.Position = samus.Position.WithWholeX(256);
             samus.WritePreviousXPosition(256);

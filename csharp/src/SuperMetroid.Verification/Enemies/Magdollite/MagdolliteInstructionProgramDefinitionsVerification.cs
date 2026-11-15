@@ -57,7 +57,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         void VerifyIdle(MagdolliteSegment program, string direction)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) =
+            (RoomEnemySystem enemies, RoomEnemySlot slot, MagdollitePartState state) =
                 CreateSystem(MagdollitePart.Head);
             Install(slot, state, program);
             RunFrames(enemies, slot, 55);
@@ -67,9 +67,9 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         void VerifyThrow(MagdolliteSegment program, string direction)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) =
+            (RoomEnemySystem enemies, RoomEnemySlot slot, MagdollitePartState state) =
                 CreateSystem(MagdollitePart.TrackingOverlay);
-            state.ThrowOrigin = slot.Position.Whole;
+            ((MagdolliteOverlayState)state).ThrowOrigin = slot.Position.Whole;
             Install(slot, state, program);
             RunFrames(enemies, slot, 80);
             AssertEqual(EnemySound.FireSpit, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending Magdollite sound.")),
@@ -84,7 +84,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         void VerifySubmerge(MagdolliteSegment program, string direction)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot head, MagdolliteEnemyState state) =
+            (RoomEnemySystem enemies, RoomEnemySlot head, MagdollitePartState state) =
                 CreateSystem(MagdollitePart.Head);
             Install(head, state, program);
             RunFrames(enemies, head, 80);
@@ -98,7 +98,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         void VerifyEmerge(MagdolliteSegment program, string direction)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot head, MagdolliteEnemyState state) =
+            (RoomEnemySystem enemies, RoomEnemySlot head, MagdollitePartState state) =
                 CreateSystem(MagdollitePart.Head);
             enemies.SlotTable.Slots[1].Presence = enemies.SlotTable.Slots[1].Presence.Without(EnemyPresence.Hidden);
             enemies.SlotTable.Slots[2].Presence = enemies.SlotTable.Slots[2].Presence.Without(EnemyPresence.Hidden);
@@ -114,7 +114,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         void VerifyStaticProgram(MagdolliteSegment program, MagdollitePart part, string name)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, MagdolliteEnemyState state) = CreateSystem(part);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, MagdollitePartState state) = CreateSystem(part);
             Install(slot, state, program);
             RunFrames(enemies, slot, 3);
             // The playback holds past the last beat of an animation that holds there.
@@ -147,7 +147,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             return new CreateSystemResult(enemies, selected, (enemies.MagdolliteStates[position] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
         }
 
-        static void Install(RoomEnemySlot slot, MagdolliteEnemyState state, MagdolliteSegment program)
+        static void Install(RoomEnemySlot slot, MagdollitePartState state, MagdolliteSegment program)
         {
             state.Playback = new(MagdolliteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             slot.AnimationClock.Restart();

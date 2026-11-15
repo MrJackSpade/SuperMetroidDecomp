@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
@@ -27,20 +27,20 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Queues Metroid-specific animation, ice, and recoil sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Owns the two sprite objects composited over the Metroid body.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Owns the two effect actors composited over the Metroid body.</summary>
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Supplies the current frame's Samus and room context to registered AI.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Creates death animations and randomized item drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Binds Metroid AI to the room, body layers, audio, frame context, and death owner.</summary>
-    internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomSpriteObjects spriteObjects, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
+    internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomEffectActors effectActors, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
         _terrain = terrain;
         _audio = audio;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _frameContext = frameContext;
         _deathsAndDrops = deathsAndDrops;
     }
@@ -77,13 +77,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(slot);
-        RoomSpriteObject electricity = _spriteObjects.SpawnRoomSpriteObject(
+        RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
             slot.Position.Whole,
-            RoomSpriteObjectKind.MetroidElectricity,
+            RoomEffectActorKind.MetroidElectricity,
             graphics);
-        RoomSpriteObject shell = _spriteObjects.SpawnRoomSpriteObject(
+        RoomEffectActor shell = _effectActors.SpawnRoomEffectActor(
             slot.Position.Whole,
-            RoomSpriteObjectKind.MetroidShell,
+            RoomEffectActorKind.MetroidShell,
             graphics);
 
         var state = new MetroidEnemyState(electricity, shell)
@@ -353,8 +353,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EscapeTimer = MetroidEscapeDuration;
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
-        if (samus is not null)
-            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
+        samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
@@ -364,8 +363,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithWholeX(0);
         state.Electricity.End();
         state.Shell.End();
-        if (samus is not null)
-            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
+        samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
     }
 
     /// <summary>
@@ -398,7 +396,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves an outer-body sprite to the Metroid's position and enables its selected graphics.</summary>
     private static void PositionMetroidOuterBody(
-        RoomSpriteObject outerBody,
+        RoomEffectActor outerBody,
         RoomEnemySlot metroid,
         SpriteGraphics graphics)
     {
@@ -409,8 +407,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Switches an outer-body sprite to frozen art, starting its frozen animation from its first frame.</summary>
     private static void FreezeMetroidOuterBody(
-        RoomSpriteObject outerBody,
-        RoomSpriteObjectSegment frozenSegment)
+        RoomEffectActor outerBody,
+        RoomEffectActorSegment frozenSegment)
     {
         outerBody.Graphics = outerBody.Graphics.In(EnemyShades.FrozenLook);
         outerBody.UpdatesDisabled = true;

@@ -47,7 +47,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
-        var state = new EscapeEtecoonEnemyState();
+        EscapeEtecoonInitialization initialization =
+            EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+        var state = new EscapeEtecoonEnemyState(initialization.Action);
         slot.SetSpeciesState(state);
 
         // The critters-escaped event means the animals already escaped on an earlier visit. Code
@@ -65,10 +67,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.Restart();
         // The initializer selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
 
-        EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         slot.Position = slot.Position.WithWhole(initialization.Position);
-        state.Action = initialization.Action;
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
         state.Velocity = initialization.Velocity;
     }
@@ -121,7 +120,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             default:
-                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action}.");
         }
     }
 
@@ -134,14 +133,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The stored speed is signed and in 1/256 pixels; the slope-ignoring horizontal mover receives signed
         // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
         // branch in the retail game and must not turn an animal around in open space.
-        SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
+        SignedSixteenSixteen horizontalDisplacement = state.Velocity.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             slot.AnimationClock.StepOnNextUpdate();
-            state.Velocity = state.Velocity.ReversedX();
+            state.Velocity = state.Velocity.Negated();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonSegment.RunningForEscape
-                : state.Velocity.X.IsNegative
+                : state.Velocity.IsNegative
                     ? EscapeEtecoonSegment.RunningLeftLowTide
                     : EscapeEtecoonSegment.RunningRightLowTide), AnimationPlace.StartOfAnimation);
         }
@@ -224,7 +223,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// as it is with no Samus or liquid context.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
-        samus?.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
+        samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
 
     /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, SignedSixteenSixteen displacement) =>

@@ -489,7 +489,7 @@ internal sealed class MotherBrainHead
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.
-        _projectileAttacks.Projectile.RunMotherBrainAttachedDroolFrameBehavior(drool);
+        _projectileAttacks.Projectile.HoldMotherBrainDroolAtMouth(drool);
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's initializer.</summary>
@@ -542,6 +542,6 @@ internal sealed class MotherBrainHead
         projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
         projectile.Velocity = EightEightVector<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        _projectileAttacks.Projectile.RunMotherBrainRainbowChargingFrameBehavior(projectile);
+        _projectileAttacks.Projectile.PinMotherBrainRainbowCharge(projectile);
     }
 }

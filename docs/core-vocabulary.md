@@ -148,6 +148,14 @@ hold, and each wake starts, by name at its call site, the animation it means (Bo
 on the side it was laid facing, the next stage of a gate's travel). A creature asleep or dormant in the game says
 `Asleep` or `Dormant`; `Sleeper` and `Sleepy` are other words.
 
+A name that says `FrameBehavior` or `FrameBehaviour` names the original's per-frame routine pointer and is reported too
+(#2022, `CoreVocabularyAnalyzer.FrameBehaviourPhrases`), with the plural ending (`RunKraidRockFrameBehavior`,
+`UnauthoredBeamFrameBehaviors`). The cartridge's enemy and projectile records and Samus's projectiles held the routine
+they ran each frame as a pointer their animations installed and cleared. Core names the action, motion or phase:
+`FlyKraidRock`, `DropMotherBrainDrool`, `UnauthoredBeamShotBehaviors`; an animation's cue names the event that begins
+it (`YardCueKind.BeginTurn`, `YardCue.BeginCrawling`). A delegate keeps no allowance. Each word alone stays the game's
+own: a frame, a behaviour.
+
 SME6454 also reads the original's numbering of the game (#1769). In every type it reports a numbered routine or variable
 label (`Func126`, `Func139–142`, `var4`). Outside hardware owners it reports a game state, load station or area by
 number (`game state eight`, `station 18`, `area six`, `area-zero`); a pose by the original's number, in hexadecimal or as

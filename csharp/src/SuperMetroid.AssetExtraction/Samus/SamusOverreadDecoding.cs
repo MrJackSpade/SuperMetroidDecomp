@@ -98,7 +98,7 @@ internal static class SamusOverreadDecoding
         {
             foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
             {
-                if (SamusBeamFrameBehaviors.Resolve(charged, beams) != SamusShotBehaviors.Spacetime)
+                if (SamusBeamShotBehaviors.Resolve(charged, beams) != SamusShotBehaviors.Spacetime)
                     continue;
                 foreach (SamusProjectileSegment program in EquippedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {

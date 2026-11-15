@@ -197,7 +197,7 @@ internal static class BotwoonAnimationsVerification
 
         // Landing hands the segment to the shared native big-explosion list.
         Action<RoomEnemySlot, BotwoonEnemyState, int> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
-        Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyFrameBehavior;
+        Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         spawnBody(head, state, 1);
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);

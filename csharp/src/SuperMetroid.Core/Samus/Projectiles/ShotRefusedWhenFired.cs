@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// What a Spazer and Plasma beam's shot runs when every shot of it would run data rather than the game's code (#1923,
-/// <see cref="SamusBeamFrameBehaviorDefinitions"/>): reproducing it needs full memory and processor emulation, which is
+/// <see cref="SamusBeamShotBehaviorDefinitions"/>): reproducing it needs full memory and processor emulation, which is
 /// outside the emulation scope limit (#1500), so the shot is refused as it is fired, after its muzzle collision.
 /// </summary>
 /// <param name="runs">What the shot runs, completing "The shot runs ...".</param>

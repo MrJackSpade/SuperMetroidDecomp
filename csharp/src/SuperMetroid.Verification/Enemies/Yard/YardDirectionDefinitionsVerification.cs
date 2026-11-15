@@ -83,7 +83,7 @@ internal static class YardDirectionDefinitionsVerification
             AssertYardDirectionState(state, initial,
                 $"Yard initializer direction {direction}",
                 assertMovementFunction: false);
-            AssertEqual(YardMovement.AwaitingAnimationCue, state.Movement,
+            AssertEqual(YardMovement.HoldingStill, state.Movement,
                 $"Yard initializer direction {direction} pending function");
 
             // The population selector does not initialize the live direction word;

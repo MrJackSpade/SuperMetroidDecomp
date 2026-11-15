@@ -819,10 +819,10 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         switch (motion)
         {
             case BotwoonProjectileMotion.BodySegment:
-                RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
+                MoveBotwoonBodySegment(context.Projectile, context.ShortCounter);
                 break;
             case BotwoonProjectileMotion.SpitFlying:
-                RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
+                FlyBotwoonSpit(context.Projectile, context.Camera);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BotwoonProjectileMotion)} {motion}.");
@@ -893,7 +893,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Moves a body segment for one update through its four movement states.</summary>
-    internal void RunBotwoonBodyFrameBehavior(
+    internal void MoveBotwoonBodySegment(
         EnemyProjectile segment,
         int randomEnemyCounter)
     {
@@ -1024,7 +1024,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Runs a spit's per-frame flight.</summary>
-    internal static void RunBotwoonSpitFrameBehavior(
+    internal static void FlyBotwoonSpit(
         EnemyProjectile spit,
         Position16<RoomPixels> camera)
     {

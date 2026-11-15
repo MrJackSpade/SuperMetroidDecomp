@@ -110,10 +110,10 @@ internal sealed class KraidProjectiles
             switch (motion)
             {
                 case KraidRockMotion.Flying:
-                    RunKraidRockFrameBehavior(context.Projectile, context.Level);
+                    FlyKraidRock(context.Projectile, context.Level);
                     break;
                 case KraidRockMotion.CeilingRockFalling:
-                    RunKraidCeilingRockFrameBehavior(context.Projectile, context.Level);
+                    DropKraidCeilingRock(context.Projectile, context.Level);
                     break;
                 case KraidRockMotion.ShotRockRecolouring:
                     context.Projectile.Graphics = SpriteGraphics.SharedStandard;
@@ -500,7 +500,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Updates a spit rock's flight and removes it at its boundary.</summary>
-    internal static void RunKraidRockFrameBehavior(
+    internal static void FlyKraidRock(
         EnemyProjectile rock,
         RoomLevelData level)
     {
@@ -519,7 +519,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Updates a falling ceiling rock and its contact with room terrain.</summary>
-    internal static void RunKraidCeilingRockFrameBehavior(
+    internal static void DropKraidCeilingRock(
         EnemyProjectile rock,
         RoomLevelData level)
     {

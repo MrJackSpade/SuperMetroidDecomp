@@ -73,7 +73,7 @@ internal sealed class MotherBrainProjectiles
         /// <param name="context">The projectile and what its pass hands every motion.</param>
         /// <param name="motion">The bullet's one motion.</param>
         private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-            RunMotherBrainTurretBulletFrameBehavior(context.Projectile, context.Level);
+            FlyMotherBrainTurretBullet(context.Projectile, context.Level);
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
@@ -152,31 +152,31 @@ internal sealed class MotherBrainProjectiles
             switch (motion)
             {
                 case MotherBrainProjectileMotion.TurretAiming:
-                    RunMotherBrainTurretFrameBehavior(projectile, context.Camera);
+                    OperateMotherBrainTurret(projectile, context.Camera);
                     break;
                 case MotherBrainProjectileMotion.GlassShardFlying:
-                    RunMotherBrainGlassShardFrameBehavior(projectile);
+                    MoveMotherBrainGlassShard(projectile);
                     break;
                 case MotherBrainProjectileMotion.TubeFalling:
-                    RunMotherBrainTopTubeFrameBehavior(projectile);
+                    DropMotherBrainTopTube(projectile);
                     break;
                 case MotherBrainProjectileMotion.DroolHanging:
-                    RunMotherBrainAttachedDroolFrameBehavior(projectile);
+                    HoldMotherBrainDroolAtMouth(projectile);
                     break;
                 case MotherBrainProjectileMotion.DroolFalling:
-                    RunMotherBrainFallingDroolFrameBehavior(projectile);
+                    DropMotherBrainDrool(projectile);
                     break;
                 case MotherBrainProjectileMotion.OnionRingFlying:
-                    RunMotherBrainOnionRingFrameBehavior(projectile, context.Samus, context.Camera.X);
+                    FlyMotherBrainOnionRing(projectile, context.Samus, context.Camera.X);
                     break;
                 case MotherBrainProjectileMotion.BombBouncing:
-                    RunMotherBrainBombFrameBehavior(projectile, context.SamusBombs);
+                    BounceMotherBrainBomb(projectile, context.SamusBombs);
                     break;
                 case MotherBrainProjectileMotion.RainbowBeamCharging:
-                    RunMotherBrainRainbowChargingFrameBehavior(projectile);
+                    PinMotherBrainRainbowCharge(projectile);
                     break;
                 case MotherBrainProjectileMotion.RainbowImpactTracking:
-                    RunMotherBrainRainbowExplosionFrameBehavior(projectile, context.Samus);
+                    AdvanceMotherBrainRainbowExplosion(projectile, context.Samus);
                     break;
                 case MotherBrainProjectileMotion.DeathExplosionTracking:
                     RunMotherBrainDeathExplosion(projectile);
@@ -264,7 +264,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Moves the bomb.</summary>
-        private void RunMotherBrainBombFrameBehavior(
+        private void BounceMotherBrainBomb(
             EnemyProjectile bomb,
             SamusBombProjectileSystem? samusBombs)
         {
@@ -376,7 +376,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Moves the four falling ceiling-tube pieces.</summary>
-        private void RunMotherBrainTopTubeFrameBehavior(EnemyProjectile projectile)
+        private void DropMotherBrainTopTube(EnemyProjectile projectile)
         {
             MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
             if (tube.DustPending)
@@ -399,7 +399,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Moves the glass shard.</summary>
-        private void RunMotherBrainGlassShardFrameBehavior(EnemyProjectile shard)
+        private void MoveMotherBrainGlassShard(EnemyProjectile shard)
         {
             shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
 
@@ -494,7 +494,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Exact six-position mouth attachment table.</summary>
-        internal void RunMotherBrainAttachedDroolFrameBehavior(
+        internal void HoldMotherBrainDroolAtMouth(
             EnemyProjectile drool)
         {
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
@@ -510,7 +510,7 @@ internal sealed class MotherBrainProjectiles
         /// Moves the onion ring. A live Baby slot is tested before Samus and the room,
         /// matching the private projectile's cross-enemy collision order during phase three.
         /// </summary>
-        internal void RunMotherBrainOnionRingFrameBehavior(
+        internal void FlyMotherBrainOnionRing(
             EnemyProjectile ring,
             SamusState? samus,
             int cameraX)
@@ -594,7 +594,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Runs one of Mother Brain's turrets per frame.</summary>
-        private void RunMotherBrainTurretFrameBehavior(
+        private void OperateMotherBrainTurret(
             EnemyProjectile turret,
             Position16<RoomPixels> camera)
         {
@@ -671,7 +671,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
-        internal void RunMotherBrainRainbowChargingFrameBehavior(
+        internal void PinMotherBrainRainbowCharge(
             EnemyProjectile projectile)
         {
             RoomEnemySlot head = dependencies.Encounter.MotherBrain?.Head ?? throw new InvalidOperationException(
@@ -793,7 +793,7 @@ internal sealed class MotherBrainProjectiles
     /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds twelve
     /// units of gravity per frame, and switches to its four-map splash at world Y 215.
     /// </summary>
-    internal static void RunMotherBrainFallingDroolFrameBehavior(
+    internal static void DropMotherBrainDrool(
         EnemyProjectile drool)
     {
         // The drool splashes once it falls to 215, so its speed stays a few pixels an update.
@@ -868,7 +868,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Runs the bullet property flicker, 1/256-pixel movement, and point collision.</summary>
-    internal static void RunMotherBrainTurretBulletFrameBehavior(
+    internal static void FlyMotherBrainTurretBullet(
         EnemyProjectile bullet,
         RoomLevelData level)
     {
@@ -882,7 +882,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>Advances the rainbow impact effect through its timed lifetime.</summary>
-    internal static void RunMotherBrainRainbowExplosionFrameBehavior(
+    internal static void AdvanceMotherBrainRainbowExplosion(
         EnemyProjectile projectile,
         SamusState? samus)
     {

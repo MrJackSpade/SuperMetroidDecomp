@@ -58,9 +58,18 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case YardCue.SetMovement setMovement:
-                // Yard animation owns movement dispatch: the cue's value is a movement behaviour, not a branch.
-                state.Movement = setMovement.Movement;
+            case YardCue.Signal { Kind: YardCueKind.BeginTurn }:
+                // The Yard holds still while it turns the corner; the turn's animation begins its next crawl.
+                state.Movement = YardMovement.HoldingStill;
+                return null;
+            case YardCue.BeginCrawling beginCrawling:
+                state.Movement = beginCrawling.Crawl;
+                return null;
+            case YardCue.Signal { Kind: YardCueKind.BeginHiding }:
+                state.Movement = YardMovement.Hiding;
+                return null;
+            case YardCue.Signal { Kind: YardCueKind.BeginFlight }:
+                state.Movement = YardMovement.Airborne;
                 return null;
             case YardCue.SetHidingAnimation setHidingAnimation:
                 state.HidingAnimation = setHidingAnimation.OptionalTarget;
@@ -115,7 +124,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new YardEnemyState
         {
-            Movement = YardMovement.AwaitingAnimationCue,
+            Movement = YardMovement.HoldingStill,
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
@@ -162,7 +171,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         switch (state.Movement)
         {
-            case YardMovement.AwaitingAnimationCue:
+            case YardMovement.HoldingStill:
                 return;
             case YardMovement.Hiding:
                 RunYardHidingMovement(slot, state, level);
@@ -234,7 +243,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         else if (state.Behavior == YardBehavior.AggressiveCrawling)
         {
             solid = !samus.HorizontalSpeed.HasRunningMomentum &&
-                state.Movement == YardMovement.AwaitingAnimationCue;
+                state.Movement == YardMovement.HoldingStill;
         }
         else if (samus.HorizontalSpeed.HasRunningMomentum)
         {
@@ -466,7 +475,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         var landing = new EightEightVector<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         slot.Frame = EnemyFrameId.Empty;
-        state.Movement = YardMovement.AwaitingAnimationCue;
+        state.Movement = YardMovement.HoldingStill;
         state.Playback = EnemyAnimationPlayback.Start(slot, YardAnimations.StartingWith(state.HidingAnimation ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
     }
@@ -495,11 +504,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         return shouldTurn && TurnYardAround(state);
     }
 
-    /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or awaiting its animation.</summary>
+    /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or holding still.</summary>
     internal static bool TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
-            state.Movement == YardMovement.AwaitingAnimationCue)
+            state.Movement == YardMovement.HoldingStill)
         {
             return false;
         }
@@ -568,7 +577,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         GameplayAction controllerInput)
     {
         bool aggressiveCrawlRejectsKick = state.Behavior == YardBehavior.AggressiveCrawling &&
-            state.Movement != YardMovement.AwaitingAnimationCue &&
+            state.Movement != YardMovement.HoldingStill &&
             SamusIsDirectingTowardYard(state, controllerInput);
         bool kickRequested = !aggressiveCrawlRejectsKick &&
             (state.Movement == YardMovement.Airborne ||
@@ -581,10 +590,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // A hidden shell awaiting its animation, a falling shell, and an already kicked shell
+        // A shell holding still, a falling shell, and an already kicked shell
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
         // restores the population's idle speed, optionally turns, then resumes normal crawling.
-        if (state.Movement == YardMovement.AwaitingAnimationCue ||
+        if (state.Movement == YardMovement.HoldingStill ||
             state.Behavior is YardBehavior.Dropped or YardBehavior.Kicked)
         {
             return;

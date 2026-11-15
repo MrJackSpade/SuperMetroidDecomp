@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TBeams">A beam combination.</typeparam>
 /// <typeparam name="TBehavior">The frame behaviour a shot runs.</typeparam>
 [CompatibilityService("a Spazer and Plasma beam's shot runs the frame behaviour that follows the beam frame-behaviour lists")]
-public sealed class UnauthoredBeamFrameBehaviors<TBeams, TBehavior>
+public sealed class UnauthoredBeamShotBehaviors<TBeams, TBehavior>
     where TBeams : notnull
     where TBehavior : notnull
 {
@@ -42,7 +42,7 @@ public sealed class UnauthoredBeamFrameBehaviors<TBeams, TBehavior>
     /// <param name="uncharged">The frame behaviour each combination's uncharged shot runs.</param>
     /// <param name="charged">The frame behaviour each combination's charged shot runs.</param>
     /// <exception cref="ArgumentException">The two sets name different combinations, or none.</exception>
-    public UnauthoredBeamFrameBehaviors(IReadOnlyDictionary<TBeams, TBehavior> uncharged, IReadOnlyDictionary<TBeams, TBehavior> charged)
+    public UnauthoredBeamShotBehaviors(IReadOnlyDictionary<TBeams, TBehavior> uncharged, IReadOnlyDictionary<TBeams, TBehavior> charged)
     {
         Ensure.NotNull(uncharged);
         Ensure.NotNull(charged);
@@ -54,7 +54,7 @@ public sealed class UnauthoredBeamFrameBehaviors<TBeams, TBehavior>
 
     /// <summary>The frame behaviour a shot of <paramref name="beams"/> runs, charged when <paramref name="charged"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The fire routines author the combination's frame behaviours.</exception>
-    public TBehavior FrameBehavior(TBeams beams, bool charged) =>
+    public TBehavior ShotBehavior(TBeams beams, bool charged) =>
         (charged ? _charged : _uncharged).TryGetValue(beams, out TBehavior? behavior)
             ? behavior
             : throw new ArgumentOutOfRangeException(nameof(beams), beams, "The fire routines author this combination's frame behaviours.");

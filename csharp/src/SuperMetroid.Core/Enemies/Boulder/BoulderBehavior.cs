@@ -62,7 +62,19 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Largest travel clock while rolling: mark 64 of the curve.</summary>
     private static readonly QuadraticSpeedCurvePlace MaximumRollingTravelSpeed = QuadraticSpeedCurvePlace.FromMarks(64);
 
-    /// <summary>Reads both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
+    /// <summary>
+    /// The pixels a Boulder that rolls at once hangs above its resting place: the game raises it as it raises a falling one,
+    /// by the least it can.
+    /// </summary>
+    private const int RollingStartLift = 1;
+
+    /// <summary>
+    /// The pixels below its resting place a rolling Boulder's ground probe reaches, until the rolling stops changing its
+    /// height.
+    /// </summary>
+    private const int RollingGroundReach = 2;
+
+    /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
         var state = new BoulderEnemyState();
@@ -76,13 +88,20 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = slot.Position.Y;
 
         BoulderSpawnSettings settings = slot.SpawnSettings<BoulderSpawnSettings>();
-        int initialYOffset = settings.Drop;
-        if (initialYOffset == 0)
+        int initialYOffset;
+        switch (settings.Start)
         {
-            // A zero drop is not “no offset.” The game substitutes one pixel and marks the
-            // boulder so the trigger jumps directly to rolling instead of the bounce chain.
-            initialYOffset = 1;
-            state.StartsRollingWithoutBounce = true;
+            case BoulderStart.FallsFrom fall:
+                initialYOffset = fall.Drop;
+                break;
+            case BoulderStart.RollsAtOnce:
+                // A Boulder that rolls at once still hangs a pixel above its resting place, and its trigger starts it
+                // rolling instead of falling.
+                initialYOffset = RollingStartLift;
+                state.StartsRollingWithoutBounce = true;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(BoulderStart)} {settings.Start}.");
         }
         slot.Position = slot.Position.WithWrappedWholeY(state.InitialPosition.Y - initialYOffset);
 
@@ -106,12 +125,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
 
-        state.VerticalCompensation = new Offset16<RoomPixels>(0, settings.Landing switch
-        {
-            BoulderLanding.Standard => 2,
-            BoulderLanding.Deep => 5,
-            _ => throw new InvalidOperationException($"Undefined {nameof(BoulderLanding)} {settings.Landing}."),
-        });
+        state.VerticalCompensation = new Offset16<RoomPixels>(0, RollingGroundReach);
     }
 
     /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>

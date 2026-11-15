@@ -21,20 +21,21 @@ internal static class AnimalsNativeWords
         [DachoraAction.Echo] = 0xf98c,
     });
 
-    /// <summary>The routine word naming each <see cref="EscapeEtecoonFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<EscapeEtecoonFrameBehavior> EscapeEtecoonFrameBehaviors = new(new Dictionary<EscapeEtecoonFrameBehavior, ushort>
+    /// <summary>
+    /// The routine word naming each <see cref="EscapeEtecoonAction"/>: an Etecoon thanking Samus runs the routine that
+    /// returns at once (#1803), its animation moving it.
+    /// </summary>
+    internal static readonly NativeWordIdentities<EscapeEtecoonAction> EscapeEtecoonActions = new(new Dictionary<EscapeEtecoonAction, ushort>
     {
-        [EscapeEtecoonFrameBehavior.EscapeRight] = 0xe65c,
-        [EscapeEtecoonFrameBehavior.WaitForEscapeEvent] = 0xe670,
-        [EscapeEtecoonFrameBehavior.WalkAndFall] = 0xe680,
+        [EscapeEtecoonAction.Escaping] = 0xe65c,
+        [EscapeEtecoonAction.AwaitingEscape] = 0xe670,
+        [EscapeEtecoonAction.Walking] = 0xe680,
+        [EscapeEtecoonAction.ExpressingGratitude] = 0x807b,
     });
 
-    /// <summary>The routine word of the cleared frame routine, which returns at once (#1803): an Etecoon running it runs none.</summary>
-    internal const ushort ClearedEscapeEtecoonFrameWord = 0x807b;
-
-    /// <summary>The escape Etecoon frame behaviour a recorded routine word names, or null for none.</summary>
-    internal static EscapeEtecoonFrameBehavior? EscapeEtecoonFrameBehaviorAt(ushort word) =>
-        word is 0 or ClearedEscapeEtecoonFrameWord ? null : EscapeEtecoonFrameBehaviors.Decode(word, "recorded EscapeEtecoonFrameBehavior");
+    /// <summary>The escape Etecoon action a recorded routine word names, or null for none.</summary>
+    internal static EscapeEtecoonAction? EscapeEtecoonActionAt(ushort word) =>
+        word is 0 ? null : EscapeEtecoonActions.Decode(word, "recorded EscapeEtecoonAction");
 
     /// <summary>The routine word naming each <see cref="EtecoonAction"/>.</summary>
     internal static readonly NativeWordIdentities<EtecoonAction> EtecoonActions = new(new Dictionary<EtecoonAction, ushort>

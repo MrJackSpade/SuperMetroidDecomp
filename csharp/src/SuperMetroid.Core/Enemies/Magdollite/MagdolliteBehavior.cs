@@ -90,13 +90,20 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {state.Part}.");
         }
 
-        // The spawn settings name the speed Magdollite rises and sinks at.
-        state.Speed = slot.SpawnSettings<MagdolliteSpawnSettings>().Speed;
+        // The head's spawn settings name the speed it and its arm rise and sink at; the arm reads the head's.
+        if (state.Part == MagdollitePart.Head)
+            state.Speed = HeadRise(slot).Speed;
 
         // The room has one lava glow, not one per part: each part's initialization restarts it, so the last part placed
         // sets its phase.
         RestartGlow();
     }
+
+    /// <summary>How the Magdollite head in <paramref name="head"/> rises, from its spawn settings.</summary>
+    /// <exception cref="InvalidDataException">The head's placement names no rise.</exception>
+    private static MagdolliteHeadRise HeadRise(RoomEnemySlot head) =>
+        head.SpawnSettings<MagdolliteSpawnSettings>().Rise
+            ?? throw new InvalidDataException($"The Magdollite head in enemy slot {head.SlotIndex} names no rise.");
 
     /// <summary>
     /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
@@ -227,7 +234,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         overlayState.AttackTimer = WrappingCountdown.Start(0);
-        int range = head.SpawnSettings<MagdolliteSpawnSettings>().Range;
+        int range = HeadRise(head).Range;
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
@@ -309,8 +316,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state,
         SamusState samus)
     {
-        // The arm reads the velocity of the slot before it: the preceding head owns the
-        // placement's speed. The arm's own speed is zero in retail.
+        // The arm rises at its head's speed.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, -speedOwner.Speed);
@@ -700,7 +706,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
     private sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
-        context => RunMagdolliteLavaFrameBehavior(context.Projectile, context.Camera),
+        context => FlyMagdolliteLava(context.Projectile, context.Camera),
         shot: () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot)), IEnemyProjectileCues<MagdolliteLavaCue>
     {
         /// <summary>Carries out one cue of the thrown lava's animations.</summary>
@@ -787,8 +793,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }
 
-    /// <summary>Runs the lava's per-frame behaviour: the lava flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunMagdolliteLavaFrameBehavior(
+    /// <summary>Flies the lava one update: it flies sideways at its speed until it leaves the view.</summary>
+    internal static void FlyMagdolliteLava(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {

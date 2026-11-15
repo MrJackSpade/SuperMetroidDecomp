@@ -40,7 +40,7 @@ internal static class EyeDoorSweatBehaviorVerification
             EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatSegment.Falling), 20, "eye-door sweat fall");
         AssertTrue(!deleted, "the fall loops");
 
-        EyeDoorBehavior.RunEyeDoorSweatFrameBehavior(sweat, level);
+        EyeDoorBehavior.DripEyeDoorSweat(sweat, level);
         AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatSegment.HitFloor }, "the floor collision starts the splash");
         AssertEqual<Enum?>(null, sweat.Motion,
             "the splash stops the drop with the native inert pre-instruction");

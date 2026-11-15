@@ -6,5 +6,4 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// Its crawl speed on both axes, in 1/256 pixels per update; none keeps the velocity it has and takes the default speed
 /// after its first landing.
 /// </param>
-/// <param name="SurfaceFamily">The surface animation family its entry names; the Viola's own initializer always uses its own.</param>
-internal sealed record ViolaSpawnSettings(CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed, CrawlerAnimationFamily SurfaceFamily) : EnemySpawnSettings;
+internal sealed record ViolaSpawnSettings(CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : EnemySpawnSettings;

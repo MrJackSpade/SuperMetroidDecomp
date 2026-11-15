@@ -25,8 +25,8 @@ internal static class FuneNamiheDefinitionsVerification
             Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
-            slot.SetSpawnParameter1(EnemyDefinitionId.Fune, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
-            slot.SetSpawnParameter2(EnemyDefinitionId.Fune, 0x1000);
+            slot.SetSpawnParameter1(slot.DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
+            slot.SetSpawnParameter2(slot.DefinitionId, 0x1000);
             slot.Position = slot.Position.WithWholeY(0x0200);
             initialize(slot);
             FuneNamiheEnemyState state = (enemies.FuneNamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[0]."));
@@ -58,7 +58,7 @@ internal static class FuneNamiheDefinitionsVerification
         {
             ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
-            var state = new FuneNamiheEnemyState { Variant = namihe ? FuneNamiheVariant.Namihe : FuneNamiheVariant.Fune, ShowsActiveAnimation = active, FacingRight = right };
+            var state = new FuneNamiheEnemyState { IsNamihe = namihe, ShowsActiveAnimation = active, FacingRight = right };
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheAnimation(state)),
                 "Fune/Namihe production species/activity/facing selection matches native pointer");
         }

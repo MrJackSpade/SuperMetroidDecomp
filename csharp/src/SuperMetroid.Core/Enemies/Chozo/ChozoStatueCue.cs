@@ -16,10 +16,6 @@ internal abstract record ChozoStatueCue
     /// <param name="Step">The facing and carry pose a <see cref="Move"/> cue moves by.</param>
     internal sealed record Move(ChozoCarryStep Step) : ChozoStatueCue;
 
-    /// <summary>Sets the frame behaviour main AI runs.</summary>
-    /// <param name="FrameBehavior">The frame behaviour the cue sets.</param>
-    internal sealed record SetFrameBehavior(ChozoStatueFrameBehavior FrameBehavior) : ChozoStatueCue;
-
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(ChozoStatueCueKind Kind) : ChozoStatueCue;

@@ -32,8 +32,9 @@ internal static class EscapeEtecoonNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<EscapeEtecoonCue>> Instructions = new()
     {
-        [0x806b] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.SetFrameBehavior>("E"),
-        [0x8074] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Signal(EscapeEtecoonCueKind.ClearFrameBehavior)),
+        // The escape run installs its routine; thanking Samus clears the routine, which leaves the animation to move it.
+        [0x806b] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Signal(EscapeEtecoonCueKind.Escapes)) with { Operands = "E" },
+        [0x8074] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Signal(EscapeEtecoonCueKind.ExpressesGratitude)),
         [0xe545] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.GoToIfAcidHigh>("T"),
         [0xe610] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.Move>("S"),
     };

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ChozoStatuePartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChozoStatueEntity(this, slot, common);
@@ -65,15 +65,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ChozoFootstepsSound =
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
-    /// <summary>
-    /// Initializes the glass tube's cracks, which do nothing the game keeps: the enemy is deleted before any main-AI
-    /// update, and the cracks' colours are the shade every tube projectile draws in
-    /// (<see cref="ChozoAndTubeShades.TubeCracks"/>, #1512).
-    /// </summary>
-    internal static void InitializeN00bTubeCracks()
-    {
-    }
-
     /// <summary>Initializes either shipped statue.</summary>
     internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
@@ -120,7 +111,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// trigger. Collision/pose/item admission remains the room object's responsibility; once
     /// admitted, both trigger setups mark the hand triggered and disable Samus controls.
     /// </summary>
-    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks>? handBlock = null)
+    /// <param name="level">The room's level, whose hand block loses its collision.</param>
+    /// <param name="handBlock">The hand block the room object that admitted the trigger stands on.</param>
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock)
     {
         Ensure.NotNull(level);
         RoomEnemySlot statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
@@ -128,9 +121,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");
 
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
-        int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;
-        int triggerBlockY = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.Y : ChozoStatueRoomDefinitions.LowerNorfairTriggerY;
-        Position16<RoomBlocks> triggerPosition = handBlock ?? level.GridBlock(new(CoordinateAxis.Wrap(triggerBlockX), CoordinateAxis.Wrap(triggerBlockY)));
+        Position16<RoomBlocks> triggerPosition = handBlock;
         RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 
         // Both setup steps clear only the block's collision kind. Its behaviour and
@@ -158,33 +149,21 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Dispatches statue phases, including boss-gated movement and authored scene transitions.</summary>
+    /// <summary>
+    /// Starts the statue's activation once it is awaiting Samus at its hand and she has triggered it: at once in Lower
+    /// Norfair, and in the Wrecked Ship only once Phantoon is defeated. The animation does the rest.
+    /// </summary>
     private void RunChozoStatueMain(RoomEnemySlot statue, ChozoStatueState state)
     {
-        switch (state.FrameBehavior)
-        {
-            case null:
-                return;
+        if (!state.AwaitingHand || !state.HandTriggered)
+            return;
+        if (state.IsWreckedShip && !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
+            return;
 
-            case ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger:
-                if (state.HandTriggered)
-                {
-                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
-                    statue.AnimationClock.StepOnNextUpdate();
-                }
-                return;
-
-            case ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger:
-                if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) && state.HandTriggered)
-                {
-                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipActivated), AnimationPlace.StartOfAnimation);
-                    statue.AnimationClock.StepOnNextUpdate();
-                }
-                return;
-
-            default:
-                throw new InvalidDataException($"Chozo statue has no frame behaviour {state.FrameBehavior}.");
-        }
+        state.Playback = new(ChozoStatueAnimations.StartingWith(state.IsWreckedShip
+            ? ChozoStatueSegment.WreckedShipActivated
+            : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
+        statue.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>
@@ -200,12 +179,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         switch (cue)
         {
-            case ChozoStatueCue.SetFrameBehavior setFrameBehavior:
-                state.FrameBehavior = setFrameBehavior.FrameBehavior;
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
+                state.AwaitingHand = true;
                 return null;
 
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ClearFrameBehavior }:
-                state.FrameBehavior = null;
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StopAwaitingHand }:
+                state.AwaitingHand = false;
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:

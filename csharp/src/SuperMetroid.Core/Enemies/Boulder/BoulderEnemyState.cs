@@ -72,7 +72,7 @@ public sealed class BoulderEnemyState
     /// height.
     /// </summary>
     public Offset16<RoomPixels> TriggerReach { get; internal set; }
-    /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two or five pixels by its authored landing, then zero once the full Y position stops changing.</summary>
+    /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two pixels, then zero once the full Y position stops changing.</summary>
     public Offset16<RoomPixels> VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
     public FixedCoordinate PreviousY { get; internal set; }
@@ -82,6 +82,6 @@ public sealed class BoulderEnemyState
     /// the initial upward offset, which the first fall snaps to before rebounding.
     /// </summary>
     public Position16<RoomPixels> InitialPosition { get; internal set; }
-    /// <summary>True when its authored drop is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence.</summary>
+    /// <summary>True when it rolls at once: it hangs a pixel above its resting place and activation bypasses the falling and bounce sequence.</summary>
     public bool StartsRollingWithoutBounce { get; internal set; }
 }

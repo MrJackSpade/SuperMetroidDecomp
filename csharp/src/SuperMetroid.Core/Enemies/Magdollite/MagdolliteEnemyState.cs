@@ -61,8 +61,8 @@ public sealed class MagdolliteEnemyState
     public WrappingCountdown AttackTimer { get; internal set; }
 
     /// <summary>
-    /// The speed in pixels per update the arm rises and sinks at, the spawn settings' speed: the arm reads the head's,
-    /// adding it as it sinks and negating it as it rises.
+    /// The head's speed in pixels per update, from its spawn settings, at which its arm rises and sinks: the arm reads
+    /// the head's, adding it as it sinks and negating it as it rises. Only the head has one.
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
     /// <summary>Whether the arm has finished growing, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>

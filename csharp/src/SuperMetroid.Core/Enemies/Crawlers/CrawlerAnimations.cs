@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.Crawlers.CrawlerCueKind;
 using P = SuperMetroid.Core.Enemies.Crawlers.CrawlerSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -7,17 +6,16 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
 /// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CrawlerCue"/> with the values it acts on.
+/// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue: the surface a crawler shows sets its crawl.
 /// </summary>
 internal static class CrawlerAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CrawlerSegment, EnemyFrameId, CrawlerCue> Segments { get; } = new(
-        new Dictionary<CrawlerSegment, AnimationBeat<EnemyFrameId, CrawlerCue>[]>
+    internal static AnimationSegments<CrawlerSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<CrawlerSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.SciserUpsideRight] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SciserUpsideRightLoop] =
         [
@@ -28,7 +26,6 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideLeft] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SciserUpsideLeftLoop] =
         [
@@ -39,7 +36,6 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideDown] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SciserUpsideDownLoop] =
         [
@@ -50,7 +46,6 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideUp] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SciserUpsideUpLoop] =
         [
@@ -61,7 +56,6 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideRight] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ZeroUpsideRightLoop] =
         [
@@ -74,7 +68,6 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideLeft] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ZeroUpsideLeftLoop] =
         [
@@ -87,7 +80,6 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideDown] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ZeroUpsideDownLoop] =
         [
@@ -100,7 +92,6 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideUp] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ZeroUpsideUpLoop] =
         [
@@ -113,19 +104,15 @@ internal static class CrawlerAnimations
         ],
         [P.ViolaUpsideDown] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ViolaUpsideUp] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ViolaUpsideRight] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ViolaUpsideLeft] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ViolaNormal] =
         [
@@ -146,7 +133,6 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideRight] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.HZoomerCrawlingVertically)),
         ],
         [P.HZoomerUpsideRightLoop] =
         [
@@ -158,7 +144,6 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideLeft] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.HZoomerCrawlingVertically)),
         ],
         [P.HZoomerUpsideLeftLoop] =
         [
@@ -170,7 +155,6 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideDown] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.HZoomerCrawlingHorizontally)),
         ],
         [P.HZoomerUpsideDownLoop] =
         [
@@ -182,7 +166,6 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideUp] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.HZoomerCrawlingHorizontally)),
         ],
         [P.HZoomerUpsideUpLoop] =
         [
@@ -194,7 +177,6 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideRight] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SharedUpsideRightLoop] =
         [
@@ -206,7 +188,6 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideLeft] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SharedUpsideLeftLoop] =
         [
@@ -218,7 +199,6 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideDown] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SharedUpsideDownLoop] =
         [
@@ -230,7 +210,6 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideUp] =
         [
-            Cue(new(K.SetMovement, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SharedUpsideUpLoop] =
         [
@@ -245,42 +224,42 @@ internal static class CrawlerAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
     {
-        [P.SciserUpsideRight] = new([new(P.SciserUpsideRight, 0, 1, 1), new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideRight] = new([new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SciserUpsideRightLoop] = new([new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideLeft] = new([new(P.SciserUpsideLeft, 0, 1, 1), new(P.SciserUpsideLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideLeft] = new([new(P.SciserUpsideLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SciserUpsideLeftLoop] = new([new(P.SciserUpsideLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideDown] = new([new(P.SciserUpsideDown, 0, 1, 1), new(P.SciserUpsideDownLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideDown] = new([new(P.SciserUpsideDownLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SciserUpsideDownLoop] = new([new(P.SciserUpsideDownLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SciserUpsideUp] = new([new(P.SciserUpsideUp, 0, 1, 1), new(P.SciserUpsideUpLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SciserUpsideUp] = new([new(P.SciserUpsideUpLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SciserUpsideUpLoop] = new([new(P.SciserUpsideUpLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideRight] = new([new(P.ZeroUpsideRight, 0, 1, 1), new(P.ZeroUpsideRightLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideRight] = new([new(P.ZeroUpsideRightLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZeroUpsideRightLoop] = new([new(P.ZeroUpsideRightLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideLeft] = new([new(P.ZeroUpsideLeft, 0, 1, 1), new(P.ZeroUpsideLeftLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideLeft] = new([new(P.ZeroUpsideLeftLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZeroUpsideLeftLoop] = new([new(P.ZeroUpsideLeftLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideDown] = new([new(P.ZeroUpsideDown, 0, 1, 1), new(P.ZeroUpsideDownLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideDown] = new([new(P.ZeroUpsideDownLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZeroUpsideDownLoop] = new([new(P.ZeroUpsideDownLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ZeroUpsideUp] = new([new(P.ZeroUpsideUp, 0, 1, 1), new(P.ZeroUpsideUpLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ZeroUpsideUp] = new([new(P.ZeroUpsideUpLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZeroUpsideUpLoop] = new([new(P.ZeroUpsideUpLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ViolaUpsideDown] = new([new(P.ViolaUpsideDown, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ViolaUpsideUp] = new([new(P.ViolaUpsideUp, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ViolaUpsideRight] = new([new(P.ViolaUpsideRight, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ViolaUpsideLeft] = new([new(P.ViolaUpsideLeft, 0, 1, 1), new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ViolaUpsideDown] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ViolaUpsideUp] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ViolaUpsideRight] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ViolaUpsideLeft] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ViolaNormal] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideRight] = new([new(P.HZoomerUpsideRight, 0, 1, 1), new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideRight] = new([new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HZoomerUpsideRightLoop] = new([new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideLeft] = new([new(P.HZoomerUpsideLeft, 0, 1, 1), new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideLeft] = new([new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HZoomerUpsideLeftLoop] = new([new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideDown] = new([new(P.HZoomerUpsideDown, 0, 1, 1), new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideDown] = new([new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HZoomerUpsideDownLoop] = new([new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideUp] = new([new(P.HZoomerUpsideUp, 0, 1, 1), new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HZoomerUpsideUp] = new([new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HZoomerUpsideUpLoop] = new([new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideRight] = new([new(P.SharedUpsideRight, 0, 1, 1), new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideRight] = new([new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideRightLoop] = new([new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideLeft] = new([new(P.SharedUpsideLeft, 0, 1, 1), new(P.SharedUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideLeft] = new([new(P.SharedUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideLeftLoop] = new([new(P.SharedUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideDown] = new([new(P.SharedUpsideDown, 0, 1, 1), new(P.SharedUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideDown] = new([new(P.SharedUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideDownLoop] = new([new(P.SharedUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideUp] = new([new(P.SharedUpsideUp, 0, 1, 1), new(P.SharedUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SharedUpsideUp] = new([new(P.SharedUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideUpLoop] = new([new(P.SharedUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
@@ -288,8 +267,5 @@ internal static class CrawlerAnimations
     internal static Animation<CrawlerSegment> StartingWith(CrawlerSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyFrameId, CrawlerCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CrawlerCue>.Frame(frame, duration);
-
-    /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyFrameId, CrawlerCue> Cue(CrawlerCue cue) => new AnimationBeat<EnemyFrameId, CrawlerCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

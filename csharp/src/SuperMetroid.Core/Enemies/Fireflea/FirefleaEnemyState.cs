@@ -18,10 +18,7 @@ public sealed class FirefleaEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FirefleaSegment> Playback { get; set; }
 
-    /// <summary>
-    /// The turn the circle makes each update: its spawn speed toward its spawn sign read as a turn
-    /// (<see cref="FirefleaBehavior.TurnPerUpdate"/>).
-    /// </summary>
+    /// <summary>The turn a circling Fireflea makes each update, from its spawn settings.</summary>
     public RotationAngle AngularSpeed { get; internal set; }
 
     /// <summary>The movement radius in pixels, 8 through 64, from its spawn settings.</summary>
@@ -43,7 +40,7 @@ public sealed class FirefleaEnemyState
     /// <summary>Lower extent of vertical motion, the spawn Y plus the radius with room-coordinate wraparound; only its Y is meaningful. Reaching or passing it, by the wrapped spatial difference, reverses speed without clamping.</summary>
     public Position16<RoomPixels> MaximumYExtent { get; internal set; }
 
-    /// <summary>The speed the Fireflea moves at, from its spawn settings, toward increasing coordinates.</summary>
+    /// <summary>The speed a bobbing Fireflea moves at, from its spawn settings, toward increasing coordinates.</summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>Which way the Fireflea moves at its speed; vertical movement reverses it at each extent.</summary>
@@ -58,5 +55,5 @@ public sealed class FirefleaEnemyState
     };
 
     /// <summary>Whether the spawn settings choose circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
-    public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Path == FirefleaPath.Circling;
+    public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Flight is FirefleaFlight.Circling;
 }

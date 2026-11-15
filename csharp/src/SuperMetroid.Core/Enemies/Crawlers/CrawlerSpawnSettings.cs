@@ -7,5 +7,4 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// Its crawl speed on both axes, in 1/256 pixels per update; none keeps the velocity it has and takes the default speed
 /// after its first landing.
 /// </param>
-/// <param name="SurfaceFamily">The family whose animations it switches between at corners, where the species does not fix one.</param>
-internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed, CrawlerAnimationFamily SurfaceFamily) : EnemySpawnSettings;
+internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : EnemySpawnSettings;

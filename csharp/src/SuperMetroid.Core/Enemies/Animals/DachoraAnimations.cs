@@ -165,27 +165,6 @@ internal static class DachoraAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
 
-    /// <summary>The segment a resting animation resumes into when its owner wakes it.</summary>
-    internal static DachoraSegment AfterSleep(DachoraSegment segment) => segment switch
-    {
-        P.ChargeRight => P.EchoRight,
-        P.RunningLeft or
-            P.RunningLeftFast or
-            P.RunningLeftVeryFast or
-            P.IdleLeft or
-            P.BlinkLeft or
-            P.EchoLeft or
-            P.FallingLeft or
-            P.RunningRight or
-            P.RunningRightFast or
-            P.RunningRightVeryFast or
-            P.IdleRight or
-            P.BlinkRight or
-            P.EchoRight or
-            P.FallingRight => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation never rests."),
-        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation never rests."),
-    };
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

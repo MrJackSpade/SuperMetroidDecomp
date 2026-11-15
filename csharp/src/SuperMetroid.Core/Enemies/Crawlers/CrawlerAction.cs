@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 public enum CrawlerAction
 {
-    /// <summary>The orange Zoomer's starting state: it does nothing until its animation's cue installs a horizontal or vertical crawling action.</summary>
-    HZoomerAwaitingAnimationCue,
+    /// <summary>The orange Zoomer settles for its first update, then crawls along the surface it starts on.</summary>
+    HZoomerSettling,
     /// <summary>Maintains wall contact and traverses vertical edges, reversing its tangent toward Samus while attached.</summary>
     HZoomerCrawlingVertically,
     /// <summary>Maintains floor or ceiling contact and traverses edges, reversing its horizontal tangent toward Samus while attached.</summary>
     HZoomerCrawlingHorizontally,
-    /// <summary>The shared crawlers' starting state: it does nothing until the surface animation's cue installs the crawling action.</summary>
-    AwaitingAnimationCue,
+    /// <summary>The shared crawlers' starting state: it settles for its first update, then crawls along the surface it starts on.</summary>
+    Settling,
     /// <summary>Shared wall-crawling behaviour that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
     CrawlingVertically,
     /// <summary>Shared detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached action.</summary>

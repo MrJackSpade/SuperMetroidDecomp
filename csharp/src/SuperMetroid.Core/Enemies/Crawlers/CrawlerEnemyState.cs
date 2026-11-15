@@ -16,9 +16,12 @@ public sealed class CrawlerEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The current crawling or falling behaviour; animation cues install the surface-specific one.
+    /// The current settling, crawling or falling behaviour; the surface the crawler shows sets which way it crawls.
     /// </summary>
     public CrawlerAction? Action { get; internal set; }
+
+    /// <summary>The surface the crawler clings to, which its animation shows and its crawl follows.</summary>
+    internal CrawlerSurfaceOrientation Surface { get; set; }
 
     /// <summary>
     /// Whether the crawler was placed without a crawl speed, so it keeps its velocity until its first landing and takes
@@ -27,8 +30,8 @@ public sealed class CrawlerEnemyState
     public bool TakesDefaultSpeedOnLanding { get; internal set; }
 
     /// <summary>
-    /// The family whose animations the crawler switches between when it turns a corner: the species' own, or the one
-    /// its population entry names when the species gives none.
+    /// The family whose animations the crawler shows on each surface and switches between when it turns a corner: its
+    /// species' own.
     /// </summary>
     public CrawlerAnimationFamily SurfaceFamily { get; internal set; }
 

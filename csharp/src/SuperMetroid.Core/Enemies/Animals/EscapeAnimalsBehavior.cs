@@ -68,7 +68,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         slot.Position = slot.Position.WithWhole(initialization.Position);
-        state.FrameBehavior = initialization.FrameBehavior;
+        state.Action = initialization.Action;
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
         state.Velocity = initialization.Velocity;
     }
@@ -93,22 +93,22 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             new(EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs an escaping Etecoon's per-frame behaviour through all of its actions.</summary>
+    /// <summary>Runs an escaping Etecoon's action.</summary>
     private void RunEscapeEtecoonMain(
         RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
-        switch (state.FrameBehavior)
+        switch (state.Action)
         {
-            case null:
+            case EscapeEtecoonAction.ExpressingGratitude:
                 return;
 
-            case EscapeEtecoonFrameBehavior.EscapeRight:
+            case EscapeEtecoonAction.Escaping:
                 AddEscapeAnimalX(slot, EscapeEtecoonUncollidedExitSpeed);
                 return;
 
-            case EscapeEtecoonFrameBehavior.WaitForEscapeEvent:
+            case EscapeEtecoonAction.AwaitingEscape:
                 // The wait changes only the animation. It deliberately leaves the
                 // existing frame hold intact, so the new animation begins on the same
                 // update boundary the game observes.
@@ -116,12 +116,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
                 return;
 
-            case EscapeEtecoonFrameBehavior.WalkAndFall:
+            case EscapeEtecoonAction.Walking:
                 RunEscapeEtecoonWalking(slot, state, level);
                 return;
 
             default:
-                throw new InvalidDataException($"Escape Etecoon has no frame behaviour {state.FrameBehavior}.");
+                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -180,11 +180,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case EscapeEtecoonCue.SetFrameBehavior setFrameBehavior:
-                state.FrameBehavior = setFrameBehavior.FrameBehavior;
+            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.Escapes }:
+                state.Action = EscapeEtecoonAction.Escaping;
                 return null;
-            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ClearFrameBehavior }:
-                state.FrameBehavior = null;
+            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ExpressesGratitude }:
+                state.Action = EscapeEtecoonAction.ExpressingGratitude;
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;

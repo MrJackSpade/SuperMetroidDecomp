@@ -32,7 +32,7 @@ public sealed class ShaktoolSegmentState
     /// The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle
     /// attack motion.
     /// </summary>
-    public ShaktoolFrameBehavior? FrameBehavior { get; internal set; }
+    public ShaktoolSegmentMotion? Motion { get; internal set; }
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
     internal ShaktoolMotionFlags MotionFlags { get; set; }
 

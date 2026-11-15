@@ -29,7 +29,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Initializes the Fireflea, decoding motion parameters and the retail initial-circle angle bug.</summary>
+    /// <summary>Initializes the Fireflea from its flight and radius.</summary>
     internal static void InitializeFireflea(RoomEnemySlot slot)
     {
         var state = new FirefleaEnemyState(slot);
@@ -37,21 +37,22 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation);
 
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
-        state.Speed = settings.Speed;
-        state.SpeedSign = settings.SpeedSign;
-        state.AngularSpeed = TurnPerUpdate(state.Velocity);
         state.Radius = settings.Radius;
 
-        if (state.UsesCircularMovement)
+        switch (settings.Flight)
         {
-            state.Center = slot.Position.Whole;
-            state.Angle = settings.InitialAngle.ToAngle();
-
-            // The initializer places the Fireflea at the circle's zero angle whatever its initial angle: it reads the
-            // angle's fraction, which a spawned angle never has. The main AI places it at its initial angle on its
-            // first update.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(RotationAngle.Zero.ToTrigonometryAngle(), state.Radius));
-            return;
+            case FirefleaFlight.Circling circling:
+                state.AngularSpeed = circling.TurnPerUpdate;
+                state.Center = slot.Position.Whole;
+                state.Angle = RotationAngle.Zero;
+                slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
+                return;
+            case FirefleaFlight.Bobbing bobbing:
+                state.Speed = bobbing.Speed;
+                state.SpeedSign = bobbing.StartSign;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}.");
         }
 
         var spawnY = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
@@ -59,13 +60,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MinimumYExtent = spawnY - reach;
         state.MaximumYExtent = spawnY + reach;
     }
-
-    /// <summary>
-    /// The turn a circling Fireflea makes each update at linear speed <paramref name="speed"/>: each pixel of the speed
-    /// turns it one step, each 256th of a pixel a 256th of a step, the speed's finer fraction dropped. A speed toward
-    /// decreasing coordinates turns it back, its 256ths continued around the circle.
-    /// </summary>
-    internal static RotationAngle TurnPerUpdate(SignedSixteenSixteen speed) => RotationAngle.NormalizeRaw(speed.InTwoFiftySixths);
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or wrapped vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)

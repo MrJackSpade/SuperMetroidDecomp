@@ -13,7 +13,7 @@ internal static class CorpsesNativeWords
     {
         [DeadSidehopperAction.AliveWaitForCamera] = 0xd8e2,
         [DeadSidehopperAction.ActivatedMovement] = 0xd8f1,
-        [DeadSidehopperAction.NoOperation] = 0xd90f,
+        [DeadSidehopperAction.Landing] = 0xd90f,
         [DeadSidehopperAction.BeginPostLandingDelay] = 0xd910,
         [DeadSidehopperAction.PostLandingDelay] = 0xd91d,
         [DeadSidehopperAction.Draining] = 0xda08,
@@ -28,6 +28,6 @@ internal static class CorpsesNativeWords
         [DeadTorizoPhase.Wait] = 0xd3ad,
         [DeadTorizoPhase.PreRot] = 0xd3c8,
         [DeadTorizoPhase.Rotting] = 0xd3e6,
-        [DeadTorizoPhase.NoOperation] = 0xd3c7,
+        [DeadTorizoPhase.Finished] = 0xd3c7,
     });
 }

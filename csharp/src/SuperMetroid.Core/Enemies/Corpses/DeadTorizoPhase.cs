@@ -15,6 +15,6 @@ internal enum DeadTorizoPhase
     /// <summary>Advances row rot, sand-line copies, and the phases that show the rotted rows.</summary>
     Rotting,
 
-    /// <summary>Leaves the finished corpse slot inert.</summary>
-    NoOperation,
+    /// <summary>Has finished rotting: the corpse does nothing more.</summary>
+    Finished,
 }

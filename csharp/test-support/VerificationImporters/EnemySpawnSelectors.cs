@@ -42,6 +42,13 @@ internal static class EnemySpawnSelectors
             : throw new InvalidDataException(
                 $"Population words select {setting} row {row}, past the {EnemyLinearSpeedTable.RowCount} linear speeds.");
 
+    /// <summary>
+    /// The turn a circling Fireflea makes each update at linear speed <paramref name="speed"/>: each pixel of the speed
+    /// turns it one step, each 256th of a pixel a 256th of a step, the speed's finer fraction dropped. A speed toward
+    /// decreasing coordinates turns it back, its 256ths continued around the circle.
+    /// </summary>
+    public static RotationAngle FirefleaTurnPerUpdate(SignedSixteenSixteen speed) => RotationAngle.NormalizeRaw(speed.InTwoFiftySixths);
+
     /// <summary>The linear-speed row whose positive speed is <paramref name="speed"/>.</summary>
     /// <exception cref="ArgumentException">No row moves at the speed.</exception>
     public static int LinearSpeedRow(string setting, SignedSixteenSixteen speed)

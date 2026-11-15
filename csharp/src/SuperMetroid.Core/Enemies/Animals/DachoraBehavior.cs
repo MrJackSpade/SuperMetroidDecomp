@@ -313,7 +313,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             // The game's speed-up jump lands at the matching pose in the faster clone of the
             // current six-pose run loop: every run plays one six-pose phase, so the animation keeps its place and timing.
             if ((speed.WholePixels is 4 or 8) && speed.Fraction == 0)
-                state.Playback = state.Playback with { Animation = DachoraAnimations.StartingWith(FasterDachoraRun(Playing(state.Playback))) };
+                state.Playback = state.Playback with { Animation = DachoraAnimations.StartingWith(FasterDachoraRun(state.Playback.PlayingSegment)) };
         }
         else
         {
@@ -330,10 +330,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.PhaseTimer != 0)
             return;
 
-        // The charge animation rests at its launch wait. Stepping past the rest enters the same
-        // right-facing echo animation used by the four trails, exactly as the game does on launch.
-        state.Playback = new(DachoraAnimations.StartingWith(DachoraAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.AnimationClock.StepOnNextUpdate();
+        // The charge animation holds its crouch until the launch, which starts the right-facing echo animation the
+        // four trails also show.
+        StartDachoraAnimation(slot, state, DachoraSegment.EchoRight);
         state.Action = DachoraAction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
@@ -543,10 +542,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen.FromParts(
             samus.Kinematics.YAcceleration.Whole,
             samus.Kinematics.YAcceleration.Fraction);
-
-    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a rest stays in it.</summary>
-    private static DachoraSegment Playing(AnimationPlayback<DachoraSegment> playback) =>
-        playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Advances Dachora's typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>

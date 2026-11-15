@@ -17,12 +17,12 @@ internal static class ChozoStatueAnimations
     {
         [P.LowerNorfairInitial] =
         [
-            Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger)),
+            Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
             Show(EnemyFrameId.ChozoStatueLowerNorfairInitial, 1),
         ],
         [P.LowerNorfairActivated] =
         [
-            Cue(new ChozoStatueCue.Signal(K.ClearFrameBehavior)),
+            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Reaching))),
             Show(EnemyFrameId.ChozoStatueLowerNorfairInitial, 32),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Closing))),
@@ -47,7 +47,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueLowerNorfairActivatedNinth, 8),
             Show(EnemyFrameId.ChozoStatueLowerNorfairActivatedEighth, 6),
             Show(EnemyFrameId.ChozoStatueLowerNorfairActivatedSeventh, 8),
-            Cue(new ChozoStatueCue.Signal(K.ClearFrameBehavior)),
+            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueLowerNorfairActivatedFourth, 128),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Gripping))),
@@ -61,12 +61,12 @@ internal static class ChozoStatueAnimations
         ],
         [P.WreckedShipInitial] =
         [
-            Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger)),
+            Cue(new ChozoStatueCue.Signal(K.AwaitHand)),
             Show(EnemyFrameId.ChozoStatueWreckedShipInitial, 1),
         ],
         [P.WreckedShipActivated] =
         [
-            Cue(new ChozoStatueCue.Signal(K.ClearFrameBehavior)),
+            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Reaching))),
             Show(EnemyFrameId.ChozoStatueWreckedShipInitial, 32),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Closing))),
@@ -90,7 +90,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedNinth, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedEighth, 6),
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedSeventh, 8),
-            Cue(new ChozoStatueCue.Signal(K.ClearFrameBehavior)),
+            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
         ],
         [P.WreckedShipActivatedLoop2] =
         [
@@ -132,7 +132,7 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.StrideSwing))),
             Cue(new ChozoStatueCue.Footstep(Offset: new(0, 0))),
             Show(EnemyFrameId.ChozoStatueWreckedShipWalkingFourth, 6),
-            Cue(new ChozoStatueCue.Signal(K.ClearFrameBehavior)),
+            Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueWreckedShipActivatedFourth, 128),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Gripping))),

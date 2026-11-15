@@ -29,10 +29,10 @@ internal static class ChozoStatueNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<ChozoStatueCue>> Instructions = new()
     {
-        // Installing a frame routine that returns at once clears the frame behaviour (#1803).
-        [0x806b] = new NativeCueShape<ChozoStatueCue>("a frame behaviour cue",
-            cue => cue is ChozoStatueCue.SetFrameBehavior or ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ClearFrameBehavior }, "E"),
-        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.ClearFrameBehavior)),
+        // Installing the hand wait starts awaiting Samus; installing a routine that returns at once stops it (#1803).
+        [0x806b] = new NativeCueShape<ChozoStatueCue>("an awaiting-hand cue",
+            cue => cue is ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand or ChozoStatueCueKind.StopAwaitingHand }, "E"),
+        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.StopAwaitingHand)),
         [0xe429] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.StartLoweringAcid)),
         [0xe436] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.SetLoweredAcidPosition)),
         [0xe43d] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.UnlockSamus)),

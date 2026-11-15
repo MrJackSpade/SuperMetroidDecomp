@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// How a Shaktool segment moves itself before its animation runs.
 /// Its values are arbitrary; verification's view relates each member to its source (#1412).
 /// </summary>
-public enum ShaktoolFrameBehavior
+public enum ShaktoolSegmentMotion
 {
     /// <summary>
     /// The segment does not move itself: the anchoring saw always, and every segment while its collision response plays,

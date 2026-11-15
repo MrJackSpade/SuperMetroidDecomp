@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="OwnerSlotDistance">How many places after the chain's leading saw the room lists the segment.</param>
 /// <param name="InitialOrbitAngle">The segment's first angle around the segment before it.</param>
 /// <param name="InitialAnimation">The animation the segment starts.</param>
-/// <param name="FrameBehavior">The segment's motion.</param>
+/// <param name="Motion">The segment's motion.</param>
 /// <param name="AngularVelocity">The turn the segment curls by each update.</param>
 internal readonly record struct ShaktoolSegmentDefinition(
     EnemyProcessing Processing,
@@ -14,5 +14,5 @@ internal readonly record struct ShaktoolSegmentDefinition(
     int OwnerSlotDistance,
     RotationAngle InitialOrbitAngle,
     ShaktoolSegment InitialAnimation,
-    ShaktoolFrameBehavior FrameBehavior,
+    ShaktoolSegmentMotion Motion,
     RotationAngle AngularVelocity);

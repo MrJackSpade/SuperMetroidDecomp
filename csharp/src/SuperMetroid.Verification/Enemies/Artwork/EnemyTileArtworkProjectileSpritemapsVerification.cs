@@ -584,10 +584,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             EnemyProjectileFrameId frame = EnemyProjectileProgramFrameOperands.Frame(operand);
             return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame)
-                || frame is EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFirst or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsSecond
-                    or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsThird or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFourth
-                    or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFifth or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsSixth
-                    or EnemyProjectileFrameId.ShaktoolFrontFirst or EnemyProjectileFrameId.ShaktoolFrontSecond
+                || frame is EnemyProjectileFrameId.ShaktoolFrontFirst or EnemyProjectileFrameId.ShaktoolFrontSecond
                     or EnemyProjectileFrameId.ShaktoolFrontLoop or EnemyProjectileFrameId.ShaktoolMiddleFirst
                     or EnemyProjectileFrameId.ShaktoolMiddleSecond or EnemyProjectileFrameId.ShaktoolMiddleLoop
                     or EnemyProjectileFrameId.ShaktoolBack or EnemyProjectileFrameId.ShaktoolBackLoop;

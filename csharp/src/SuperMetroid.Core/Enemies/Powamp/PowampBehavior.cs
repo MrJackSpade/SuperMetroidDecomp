@@ -495,7 +495,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// delete animation its definition names as its shot animation.
     /// </summary>
     internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
-        context => RunPowampSpikeFrameBehavior(context.Projectile, context.Level),
+        context => FlyPowampSpike(context.Projectile, context.Level),
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
     /// <summary>Advances the body's pulse, or the balloon's inflate or sink animation and the poses it shows.</summary>
@@ -608,7 +608,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Powamp spike's per-frame behaviour.</summary>
-    internal static void RunPowampSpikeFrameBehavior(
+    internal static void FlyPowampSpike(
         EnemyProjectile spike,
         RoomLevelData level)
     {

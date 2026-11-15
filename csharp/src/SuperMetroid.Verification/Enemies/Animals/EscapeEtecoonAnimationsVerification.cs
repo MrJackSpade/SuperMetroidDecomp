@@ -25,7 +25,7 @@ internal static class EscapeEtecoonAnimationsVerification
                     {
                         'T' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<EscapeEtecoonCue.GoToIfAcidHigh>(cue, $"{at}: cue").Target),
                         'S' => unchecked((ushort)AssertIs<EscapeEtecoonCue.Move>(cue, $"{at}: cue").Offset),
-                        'E' => AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Word(AssertIs<EscapeEtecoonCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
+                        'E' => AnimalsNativeWords.EscapeEtecoonActions.Word(EscapeEtecoonAction.Escaping),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }));

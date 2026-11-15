@@ -8,8 +8,14 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NoobTubeBehavior
+internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NoobTubeCrack];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NoobTubeCrackEntity(slot, common);
+
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
         SpriteGraphics.SharedIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));

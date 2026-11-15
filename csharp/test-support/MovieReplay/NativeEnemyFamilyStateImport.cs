@@ -349,7 +349,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedColourCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.FrameBehavior = ChozoNativeWords.FrameBehaviorAt(words.F);
+            chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.IsWreckedShip);
         }
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
@@ -416,7 +416,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
         {
-            firefleaRecord.AngularSpeed = FirefleaBehavior.TurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
+            firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
             firefleaRecord.Angle = RotationAngle.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);
@@ -570,7 +570,7 @@ internal static class NativeEnemyFamilyStateImport
             // Every segment's owner is the chain's leading saw, the first enemy its room lists.
             if (SlotIndex(words.E, "Shaktool owner") != 0)
                 throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
-            segment.FrameBehavior = words.F == 0 ? null : ShaktoolNativeWords.DecodeFrameBehavior(words.F, "recorded ShaktoolFrameBehavior");
+            segment.Motion = words.F == 0 ? null : ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
         }
         if (enemies.ChootStates[index] is { } choot)
         {
@@ -624,7 +624,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
             escape.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(words.A), default);
-            escape.FrameBehavior = AnimalsNativeWords.EscapeEtecoonFrameBehaviorAt(words.F);
+            escape.Action = AnimalsNativeWords.EscapeEtecoonActionAt(words.F);
         }
         if (slot.DefinitionId == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
@@ -733,7 +733,7 @@ internal static class NativeEnemyFamilyStateImport
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
             dragon.ActionTimer = unchecked((short)words.D);
             dragon.AttackCounter = unchecked((short)words.D);
-            dragon.Action = words.F == 0 ? null : DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
+            dragon.Action = DragonNativeWords.ActionAt(words.F);
         }
         if (enemies.ElevatorStates[index] is { } elevator)
             elevator.RestingHeight = new Position16<RoomPixels>(0, words.A);
@@ -741,7 +741,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             funeNamihe.Action = words.B == 0 ? null : FuneNamiheNativeWords.FuneNamiheActions.Decode(words.B, "recorded FuneNamiheAction");
             funeNamihe.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
-            funeNamihe.Variant = Index(words.D, 15, "Fune/Namihe variant") == 0 ? FuneNamiheVariant.Fune : FuneNamiheVariant.Namihe;
+            if ((Index(words.D, 15, "Fune/Namihe behaviour") != 0) != funeNamihe.IsNamihe)
+                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names the other species.");
             funeNamihe.CooldownTimer = words.E;
             funeNamihe.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);

@@ -22,12 +22,12 @@ internal static class CrawlerOwnedStateVerification
         slot.Contact = EnemyContact.None;
         slot.Processing = EnemyProcessing.None;
         slot.Presence = EnemyPresence.None;
-        CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared, null);
+        CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
         CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
         int speed = CrawlerSpeeds.ForParameter(2);
         AssertEqual(new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),
             state.Velocity, "the reset speed with the X sign the properties select");
-        AssertEqual<CrawlerAction?>(CrawlerAction.AwaitingAnimationCue, state.Action, "a new crawler waits for its instruction");
+        AssertEqual<CrawlerAction?>(CrawlerAction.Settling, state.Action, "a new crawler settles before it crawls");
         Console.WriteLine("Crawler owned state: the velocity reset matches.");
     }
 

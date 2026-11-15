@@ -227,8 +227,6 @@ public enum RoomEnemyProjectileKind
     TourianStatueBaseDecoration,
     /// <summary>A spike-clearing footstep effect.</summary>
     WreckedShipChozoSpikeFootstep,
-    /// <summary>The alternate unused spike-clearing explosion definition.</summary>
-    WreckedShipChozoSpikeFootstepAlternate,
     /// <summary>Dust emitted during the Tourian statue's descent.</summary>
     TourianStatueDescentDust,
     /// <summary>The front circle of Shaktool's attack.</summary>

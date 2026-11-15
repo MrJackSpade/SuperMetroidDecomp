@@ -14,7 +14,6 @@ internal static class ChozoTourianDustNativeListAddresses
     internal static readonly NativeProgramEntry<ChozoTourianDustSegment>[] Entries =
     [
         new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.Footsteps, 0xaec4),
-        new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.SpikeClearingExplosions, 0xaedc),
         new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDust, 0xaf14),
         new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDustLoop, 0xaf18),
     ];

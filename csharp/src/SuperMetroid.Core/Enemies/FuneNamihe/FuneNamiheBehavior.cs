@@ -60,7 +60,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Takes the variant, facing, cooldown and Y proximity from the spawn settings, then starts the corresponding idle animation.</summary>
+    /// <summary>Takes the facing, cooldown and Y proximity from the spawn settings, then starts the species' idle animation.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
@@ -68,15 +68,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ShowsActiveAnimation = false,
             Action = FuneNamiheAction.FuneWaitForCooldown,
-            Variant = settings.Variant,
+            IsNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
             FacingRight = settings.Facing == HorizontalDirection.Right,
         };
 
-        // The behaviour follows the placement's variant rather than the enemy's species. This sounds redundant, but
-        // preserving it lets custom populations give one species the other's behaviour, as the game does.
         if (state.IsNamihe)
             state.Action = FuneNamiheAction.NamiheWaitForSamus;
 
@@ -169,7 +167,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally in 1/256-pixel steps until it leaves the camera.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
-        context => RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera));
+        context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Runs FuneNamihe's main AI.</summary>
     internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -207,10 +205,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Position = source.Position;
 
-        // The initializer tests the placement's variant, not the projectile definition. Namihe's mouth is four
-        // pixels lower than Fune's in the shared art.
+        // Namihe's mouth is four pixels lower than Fune's in the shared art.
         FuneNamiheSpawnSettings sourceSettings = source.SpawnSettings<FuneNamiheSpawnSettings>();
-        if (sourceSettings.Variant == FuneNamiheVariant.Namihe)
+        if (source.DefinitionId == EnemyDefinitionId.Namihe)
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 4);
 
         projectile.Velocity = new(
@@ -218,8 +215,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedEightEight.Zero);
     }
 
-    /// <summary>Runs the fireball's per-frame behaviour: the fireball flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunFuneNamiheFireballFrameBehavior(
+    /// <summary>Flies the fireball one update: it flies sideways at its speed until it leaves the view.</summary>
+    internal static void FlyFuneNamiheFireball(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {

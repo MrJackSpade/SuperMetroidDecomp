@@ -80,7 +80,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             Chain: [owner, .. _slotTable.ListedRunAfter(owner, ShaktoolSegmentCount - 1)],
             Previous: _slotTable.ListedBeforeOrNone(slot, 1),
             Next: _slotTable.ListedAfterOrNone(slot, 1)));
-        state.FrameBehavior = definition.FrameBehavior;
+        state.Motion = definition.Motion;
         // Initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
         state.AngularVelocity = definition.AngularVelocity;
@@ -102,27 +102,27 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         ShaktoolSegmentState state,
         RoomLevelData level)
     {
-        switch (state.FrameBehavior)
+        switch (state.Motion)
         {
-            case ShaktoolFrameBehavior.Idle:
+            case ShaktoolSegmentMotion.Idle:
                 return;
 
-            case ShaktoolFrameBehavior.OrbitPreviousSegment:
+            case ShaktoolSegmentMotion.OrbitPreviousSegment:
                 AdvanceShaktoolOrbit(slot, state);
                 return;
 
-            case ShaktoolFrameBehavior.OrbitAndOrientCenter:
+            case ShaktoolSegmentMotion.OrbitAndOrientCenter:
                 AdvanceAndOrientShaktoolCenter(slot, state);
                 return;
 
-            case ShaktoolFrameBehavior.DriveTailAndReverseAtWalls:
+            case ShaktoolSegmentMotion.DriveTailAndReverseAtWalls:
                 DriveShaktoolTail(slot, state, level);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool has no frame behaviour " +
-                    $"{state.FrameBehavior?.ToString() ?? "none"}.");
+                    $"Shaktool has no motion " +
+                    $"{state.Motion?.ToString() ?? "none"}.");
         }
     }
 
@@ -285,7 +285,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemySlot segment = group[index];
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
             CalculateShaktoolAngularVelocity(segmentState);
-            segmentState.FrameBehavior = ShaktoolFrameBehavior.Idle;
+            segmentState.Motion = ShaktoolSegmentMotion.Idle;
             segmentState.Playback = new(ShaktoolAnimations.StartingWith(
                 ShaktoolAnimationChoices.CollisionForSegment(index)), AnimationPlace.StartOfAnimation);
             segment.AnimationClock.StepOnNextUpdate();
@@ -418,13 +418,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             }
 
-            case ShaktoolCueKind.ResetFrameBehaviors:
+            case ShaktoolCueKind.ResumeMotion:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
                 {
-                    RequireShaktoolState(group[index]).FrameBehavior =
-                        ShaktoolSegments.ForIndex(index).FrameBehavior;
+                    RequireShaktoolState(group[index]).Motion =
+                        ShaktoolSegments.ForIndex(index).Motion;
                 }
                 break;
             }
@@ -503,10 +503,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             switch (motion)
             {
                 case ShaktoolCircleMotion.Leading:
-                    RunShaktoolFrontCircleFrameBehavior(context.Projectile, context.Level);
+                    FlyShaktoolFrontCircle(context.Projectile, context.Level);
                     break;
                 case ShaktoolCircleMotion.Trailing:
-                    RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
+                    FlyShaktoolTrailingCircle(context.Projectile, context.Level);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(ShaktoolCircleMotion)} {motion}.");
@@ -514,10 +514,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>
-        /// Runs the middle and back linked circles' per-frame behaviour: a circle vanishes once the first enemy-projectile
+        /// Flies the middle or back circle one update behind the front one: a circle vanishes once the first enemy-projectile
         /// place is free (<see cref="ShaktoolCirclesFollowFirstPlace"/>).
         /// </summary>
-        private void RunShaktoolLinkedCircleFrameBehavior(
+        private void FlyShaktoolTrailingCircle(
             EnemyProjectile projectile,
             RoomLevelData level)
         {
@@ -563,8 +563,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
     };
-    /// <summary>Runs the front circle's per-frame behaviour.</summary>
-    internal static void RunShaktoolFrontCircleFrameBehavior(
+    /// <summary>Flies the front circle one update.</summary>
+    internal static void FlyShaktoolFrontCircle(
         EnemyProjectile projectile,
         RoomLevelData level)
     {

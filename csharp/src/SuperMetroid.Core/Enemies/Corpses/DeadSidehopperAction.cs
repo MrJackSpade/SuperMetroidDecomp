@@ -10,8 +10,8 @@ public enum DeadSidehopperAction
     AliveWaitForCamera,
     /// <summary>Applies signed 1/256-pixel hop velocity and gravity; landing advances the four-phase launch sequence and starts the hopping animation.</summary>
     ActivatedMovement,
-    /// <summary>Holds main AI idle while the landing animation runs until the end-hop cue selects its successor.</summary>
-    NoOperation,
+    /// <summary>Lands: main AI waits while the landing animation runs, until its end-hop cue selects what follows.</summary>
+    Landing,
     /// <summary>Selects the post-landing idle state and initializes the action timer to 64.</summary>
     BeginPostLandingDelay,
     /// <summary>Decrements the timer through zero into signed-negative expiry, then resumes hopping or begins the drain.</summary>

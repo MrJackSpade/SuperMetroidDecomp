@@ -1140,7 +1140,7 @@ internal static class LookupStream1Verification
             int offset = selector & ~1;
             AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
             AssertEqual(Word(0xb3e71e + offset), role.Position.Y, "Etecoon native role Y");
-            AssertEqual(Word(0xb3e724 + offset), AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Word(role.FrameBehavior), "Etecoon native role action");
+            AssertEqual(Word(0xb3e724 + offset), AnimalsNativeWords.EscapeEtecoonActions.Word(role.Action), "Etecoon native role action");
             AssertEqual(Word(0xb3e72a + offset), EscapeEtecoonNativeListAddresses.Entries.Single(entry => entry.Program == role.Animation).Entry, "Etecoon native role program");
             AssertEqual(Word(0xb3e730 + offset), role.Velocity.X.RawValue, "Etecoon native role speed");
         }

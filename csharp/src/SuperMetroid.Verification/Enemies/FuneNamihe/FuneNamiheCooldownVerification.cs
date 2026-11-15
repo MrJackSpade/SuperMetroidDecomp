@@ -49,7 +49,7 @@ internal static class FuneNamiheCooldownVerification
             ShowsActiveAnimation = false,
             FacingRight = false,
             Action = FuneNamiheAction.FuneWaitForCooldown,
-            Variant = FuneNamiheVariant.Fune,
+            IsNamihe = false,
             CooldownTime = CooldownTime,
             CooldownTimer = count,
         };

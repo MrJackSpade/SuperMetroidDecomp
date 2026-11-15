@@ -49,9 +49,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         // instruction identity and native PLM requests remain engine-owned.
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
-        // The tube's crack colours are the shade its pieces draw in, so its initializer leaves the slot's shading alone.
-        Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Standard,
-            "n00b-tube cracks", (_, _) => ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
             "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueSegment.WreckedShipInitial));

@@ -139,7 +139,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies.NoobTubeBehavior.TubePieces,
         RoomEnemyProjectileKind.YappingMawBody or RoomEnemyProjectileKind.NuclearWaffleBody or
             RoomEnemyProjectileKind.EyeDoorSmoke or RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
-            RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or RoomEnemyProjectileKind.SaveStationElectricity =>
+            RoomEnemyProjectileKind.SaveStationElectricity =>
             EnemyProjectileBehavior.Still,
         RoomEnemyProjectileKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A gone projectile has no behaviour."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined enemy projectile kind."),
@@ -172,8 +172,6 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.MetareeParticleDownLeft or RoomEnemyProjectileKind.MetareeParticleUpLeft =>
             new SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment.Metaree),
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustSegment.Footsteps),
-        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate =>
-            new ChozoTourianDustAnimation(ChozoTourianDustSegment.SpikeClearingExplosions),
         RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustSegment.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
             new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallEnergy),

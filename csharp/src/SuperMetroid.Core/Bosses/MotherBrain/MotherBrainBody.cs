@@ -420,10 +420,9 @@ internal sealed class MotherBrainBody
             _projectileAttacks.Projectile,
             MotherBrainTurretDefinitions.Graphics);
 
-        MotherBrainTurretDirection direction = definition.InitialDirection;
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(definition, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
+        turret.State = new MotherBrainTurretState(definition);
+        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, definition.InitialDirection));
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
         // 256 upward.

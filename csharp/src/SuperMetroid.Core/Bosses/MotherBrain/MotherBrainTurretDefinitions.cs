@@ -39,30 +39,38 @@ internal static class MotherBrainTurretDefinitions
         new(new(264, 64), MotherBrainTurretDirection.Right, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Right),
         new(new(232, 64), MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Left, MotherBrainTurretDirection.DownRight),
     ];
-    /// <summary>The bullet uses a 2.75-pixel speed, in 1/256 pixels, rounded in diagonal octants.</summary>
-    internal const int BulletSpeed = 704;
-    /// <summary>The muzzle samples a seventeen-pixel horizontal radius.</summary>
-    internal const int MuzzleRadius = 17;
+    /// <summary>A bullet's speed along an axis it is fired straight along: two and three quarter pixels an update.</summary>
+    private static readonly SignedEightEight StraightBulletSpeed = SignedEightEight.FromParts(2, 192);
 
     /// <summary>
-    /// The eight turret directions around the compass, from left through down to up-left; a direction's position on
-    /// this ring is the octant the turret's rotation steps through and the launch angle's multiple of 45 degrees.
+    /// A diagonal bullet's speed along each axis: one and 242 256ths of a pixel an update, the straight speed's share of
+    /// each axis on a diagonal.
+    /// </summary>
+    private static readonly SignedEightEight DiagonalBulletSpeed = SignedEightEight.FromParts(1, 242);
+
+    /// <summary>
+    /// The eight turret directions around the compass, counterclockwise from left through down to up-left: the order a
+    /// turret turns through and the order each turret's arc is given in.
     /// </summary>
     internal static readonly IdentitySequence<MotherBrainTurretDirection> Ring = new(
         MotherBrainTurretDirection.Left, MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Down,
         MotherBrainTurretDirection.DownRight, MotherBrainTurretDirection.Right, MotherBrainTurretDirection.UpRight,
         MotherBrainTurretDirection.Up, MotherBrainTurretDirection.UpLeft);
 
-    /// <summary>The muzzle's vertical offset for each of the eight directions.</summary>
-    internal static readonly Dictionary<MotherBrainTurretDirection, int> MuzzleYs = new()
+    /// <summary>
+    /// The bullet each of the eight directions fires (#1950): where it leaves the turret's muzzle and its velocity. A
+    /// straight shot moves at <see cref="StraightBulletSpeed"/> along its axis and a diagonal one at
+    /// <see cref="DiagonalBulletSpeed"/> along each.
+    /// </summary>
+    internal static readonly Dictionary<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition> Launches = new()
     {
-        [MotherBrainTurretDirection.Left] = -9,
-        [MotherBrainTurretDirection.Right] = -9,
-        [MotherBrainTurretDirection.DownLeft] = 3,
-        [MotherBrainTurretDirection.DownRight] = 3,
-        [MotherBrainTurretDirection.Down] = 7,
-        [MotherBrainTurretDirection.UpLeft] = -19,
-        [MotherBrainTurretDirection.UpRight] = -19,
-        [MotherBrainTurretDirection.Up] = -21,
+        [MotherBrainTurretDirection.Left] = new(new(-17, -9), new(-StraightBulletSpeed, SignedEightEight.Zero)),
+        [MotherBrainTurretDirection.DownLeft] = new(new(-12, 3), new(-DiagonalBulletSpeed, DiagonalBulletSpeed)),
+        [MotherBrainTurretDirection.Down] = new(new(0, 7), new(SignedEightEight.Zero, StraightBulletSpeed)),
+        [MotherBrainTurretDirection.DownRight] = new(new(12, 3), new(DiagonalBulletSpeed, DiagonalBulletSpeed)),
+        [MotherBrainTurretDirection.Right] = new(new(17, -9), new(StraightBulletSpeed, SignedEightEight.Zero)),
+        [MotherBrainTurretDirection.UpRight] = new(new(12, -19), new(DiagonalBulletSpeed, -DiagonalBulletSpeed)),
+        [MotherBrainTurretDirection.Up] = new(new(0, -21), new(SignedEightEight.Zero, -StraightBulletSpeed)),
+        [MotherBrainTurretDirection.UpLeft] = new(new(-12, -19), new(-DiagonalBulletSpeed, -DiagonalBulletSpeed)),
     };
 }

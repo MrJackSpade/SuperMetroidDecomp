@@ -2453,7 +2453,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Treadmill oracle revision");
         Suite(nameof(VerifyRetailTreadmillMechanics), () => VerifyRetailTreadmillMechanics(rom));
         foreach (var program in OriginalTreadmillPrograms(rom))
-            VerifyRetailTreadmillStream(rom, TreadmillDefinition(program.Header).Direction,
+            VerifyRetailTreadmillStream(rom, TreadmillDirection(program.Header),
                 program.Frames.Select(pointer => 0x870000 | ReadVerificationWord(rom, 0x870002 + pointer)).ToArray());
         Console.WriteLine("Treadmill: native header/control fields, calculated cursors, full ushort domains and both guarded loops pass.");
         return 0;

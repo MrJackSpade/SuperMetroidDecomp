@@ -3,16 +3,18 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>Verification access to <see cref="WreckedShipTreadmillLoop"/> members production does not use.</summary>
+/// <summary>Verification access to the bank-$87 program a Wrecked Ship treadmill's <see cref="BlockAnimationLoop"/> replaces.</summary>
 internal static class WreckedShipTreadmillObjectDefinitionAccess
 {
-    /// <summary>Reads the four timed frame-control pointers for one Wrecked Ship treadmill direction.</summary>
-    extension(WreckedShipTreadmillLoop self)
+    /// <summary>Reads the boss wait and the four timed frame-control pointers of one Wrecked Ship treadmill's program.</summary>
+    extension(BlockAnimationLoop self)
     {
         /// <summary>The boss-wait command installed by the object header.</summary>
-        public ushort WaitInstructionPointer => self.Direction == WreckedShipTreadmillDirection.Rightwards
-            ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsWait
-            : AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsWait;
+        /// <exception cref="InvalidDataException">The loop is not a treadmill's.</exception>
+        public ushort WaitInstructionPointer =>
+            self.Animation == BlockAnimation.WreckedShipTreadmillRightwards ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsWait
+            : self.Animation == BlockAnimation.WreckedShipTreadmillLeftwards ? AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsWait
+            : throw new InvalidDataException($"{self.Animation} is not a Wrecked Ship treadmill.");
         /// <summary>The first timed frame reached after Phantoon is defeated.</summary>
         public ushort LoopInstructionPointer => unchecked((ushort)(self.WaitInstructionPointer + 2));
         /// <summary>The four timed frame-control addresses in execution order.</summary>
@@ -33,37 +35,8 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
             int listIndex = self.FrameIndex(instructionPointer);
             if (listIndex < 0)
                 throw new InvalidDataException(
-                    $"Treadmill {self.AnimatedObject} has no frame at $87:{instructionPointer:X4}.");
-            return AnimatedTileImageSources.Of(self.Image(listIndex));
-        }
-        /// <summary>The terminal loop command after the fourth frame.</summary>
-        public ushort GotoInstructionPointer =>
-            unchecked((ushort)(self.LoopInstructionPointer + 16));
-        /// <summary>Reads one immutable mechanics word, excluding presentation source operands.</summary>
-        public bool TryReadMechanicsWord(ushort pointer, out ushort value)
-        {
-            ushort header = FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject);
-            if (pointer == header)
-                value = self.WaitInstructionPointer;
-            else if (pointer == unchecked((ushort)(header + 2)))
-                value = RoomFxBlockAnimationLoops.TreadmillFrameByteCount;
-            else if (pointer == unchecked((ushort)(header + 4)))
-                value = AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards);
-            else if (pointer == self.WaitInstructionPointer)
-                value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;
-            else if (self.FrameIndex(pointer) >= 0)
-                value = WreckedShipTreadmillMechanicsDefinitions.FrameDuration;
-            else if (pointer == self.GotoInstructionPointer)
-                value = (ushort)AnimatedTileInstruction.Goto;
-            else if (pointer == unchecked((ushort)(self.GotoInstructionPointer + 2)))
-                value = self.LoopInstructionPointer;
-            else
-            {
-                value = 0;
-                return false;
-            }
-
-            return true;
+                    $"Treadmill {self.Animation} has no frame at $87:{instructionPointer:X4}.");
+            return AnimatedTileImageSources.Of(self.TreadmillImage(listIndex));
         }
     }
 }

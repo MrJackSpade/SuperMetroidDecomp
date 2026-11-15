@@ -29,19 +29,18 @@ public static class RoomFxBlockAnimationAtlasFile
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (RoomFxBlockAnimationLoop definition in RoomFxBlockAnimationLoops.All)
-            if (definition.AnimatedObject is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
+        foreach (BlockAnimationLoop definition in RoomFxBlockAnimationLoops.All)
+            if (definition.Animation is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
                     yield return segment;
                 }
-        WreckedShipTreadmillLoop treadmill =
-            WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards);
+        BlockAnimationLoop treadmill = BlockAnimationLoops.Of(BlockAnimation.WreckedShipTreadmillRightwards);
         for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount; frame++)
         {
             total += RoomFxBlockAnimationLoops.TreadmillFrameByteCount;
-            yield return new RoomFxAtlasSegment.Image(treadmill.Image(frame), RoomFxBlockAnimationLoops.TreadmillFrameByteCount);
+            yield return new RoomFxAtlasSegment.Image(treadmill.TreadmillImage(frame), RoomFxBlockAnimationLoops.TreadmillFrameByteCount);
         }
         var statues = new RoomFxAtlasSegment.TourianStatueStrip();
         total += statues.ByteCount;
@@ -60,7 +59,7 @@ public static class RoomFxBlockAnimationAtlasFile
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
 
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
-        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxBlockAnimationLoop definition) =>
+        static IEnumerable<RoomFxAtlasSegment> Frames(BlockAnimationLoop definition) =>
             definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.PictureByteCount));
     }
 }

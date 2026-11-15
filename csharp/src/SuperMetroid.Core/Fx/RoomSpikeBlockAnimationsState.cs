@@ -8,20 +8,21 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomSpikeBlockAnimationsState
 {
-    /// <summary>The current room's horizontal-spike animation, which each room builds afresh.</summary>
-    private readonly RoomFxBlockAnimationsState animation = new();
+    /// <summary>The animations this owner plays.</summary>
+    private static readonly BlockAnimation[] Played = [BlockAnimation.HorizontalSpikes];
 
-    /// <summary>Spawns one room's horizontal spikes, at most once, from the door-selected room effect.</summary>
+    /// <summary>The current room's horizontal-spike animations, which each room builds afresh.</summary>
+    internal readonly List<BlockAnimationPlayer> objects;
+
+    /// <summary>Spawns one room's horizontal spikes from the door-selected room effect.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
-    public RoomSpikeBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door)
-    {
-        if (fx?.Select(door) is not { } effect) return;
-        if (effect.BlockAnimations.Contains(BlockAnimation.HorizontalSpikes))
-            animation.LoadDefinition(BlockAnimation.HorizontalSpikes);
-    }
+    public RoomSpikeBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door) =>
+        objects = RoomEffectBlockAnimations.Start(fx, door, Played);
 
     /// <summary>Advances the spike animation and selects its authored frame for the next frame boundary.</summary>
-    public void Step(ArtworkFrameSelections frames) =>
-        animation.Step(frames);
+    public void Step(ArtworkFrameSelections frames)
+    {
+        foreach (BlockAnimationPlayer animation in objects) animation.Step(frames);
+    }
 }

@@ -21,8 +21,6 @@ internal static class AnimatedTileInstructionCodesVerification
 {
     /// <summary>
     /// Verifies the bank-$87 vocabulary and executes both compiled retail treadmill streams.
-    /// Constructed non-retail streams prove that the loader cannot silently
-    /// accept unsupported object definitions as compiled mechanics.
     /// </summary>
     internal static void VerifyAnimatedTileInstructionCodeCatalog()
     {
@@ -32,13 +30,12 @@ internal static class AnimatedTileInstructionCodesVerification
             Enum.GetValues<BlockAnimation>().Where(header => header != BlockAnimation.None)
                 .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 17);
         AssertAnimatedTileCatalog(typeof(AnimatedTileAnimationScriptPointers), 4);
-        Suite(nameof(VerifyConstructedAnimatedTileStreams), () => VerifyConstructedAnimatedTileStreams());
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {
             Console.WriteLine(
-                "  Animated tiles: catalogs and constructed dispatch paths pass; " +
+                "  Animated tiles: catalogs pass; " +
                 "retail treadmill streams skipped.");
             return;
         }
@@ -65,86 +62,45 @@ internal static class AnimatedTileInstructionCodesVerification
             ]));
 
         Console.WriteLine(
-            "  Animated tiles: 37 named bank-$87 pointers, constructed fail-loud " +
-            "dispatch, and both retail treadmill streams agree.");
+            "  Animated tiles: 37 named bank-$87 pointers and both retail treadmill streams agree.");
     }
 
     /// <summary>Values naming no <see cref="BlockAnimation"/> member (its values are arbitrary, #1415), including a constructed bank-$87 header word.</summary>
     internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0100, 0x8f00, 0xffff];
 
-    /// <summary>Checks that foreign and direction-mismatched objects are rejected before any program interpretation.</summary>
-    private static void VerifyConstructedAnimatedTileStreams()
-    {
-        // Generic ROM dispatch was removed when treadmill mechanics became compiled.
-        // Even a well-formed foreign program must now fail at object admission, before
-        // an unknown opcode or zero duration could be interpreted as a valid frame.
-        ushort[][] programs =
-        [
-            [(ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead, 1, 0x9100,
-                (ushort)AnimatedTileInstruction.Goto, 0x9002],
-            [0xdead],
-            [0],
-        ];
-        foreach (ushort[] program in programs)
-        {
-            TestAddressSpace bus = CreateConstructedLavaAnimatedTileCartridge(program);
-            var state = new WreckedShipTreadmillBlockAnimationsState();
-            var error = AssertThrows<InvalidDataException>(() => state.StartDefinition(
-                WreckedShipTreadmillDirection.Rightwards, BlockAnimation.Lava),
-                "non-treadmill animated-tile object rejects before interpreting its program");
-            AssertTrue(error.Message.Contains(nameof(BlockAnimation.Lava), StringComparison.Ordinal),
-                "unsupported animated-tile error identifies the rejected object");
-        }
-        var mismatched = new WreckedShipTreadmillBlockAnimationsState();
-        AssertThrows<InvalidDataException>(() => mismatched.StartDefinition(
-            WreckedShipTreadmillDirection.Leftwards,
-            BlockAnimation.WreckedShipTreadmillRightwards),
-            "compiled treadmill definition rejects the opposite direction");
-    }
-
-    /// <summary>Creates a non-treadmill bank-87 object with supplied program words to check admission behavior.</summary>
-    private static TestAddressSpace CreateConstructedLavaAnimatedTileCartridge(ushort[] program)
-    {
-        var bus = new TestAddressSpace();
-        WriteTestWords(bus, 0x870000 | FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Lava), 0x9000,
-            RoomFxBlockAnimationLoops.TreadmillFrameByteCount,
-            AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards));
-        WriteTestWords(bus, 0x879000, program);
-        return bus;
-    }
     /// <summary>Checks boss wait, four directional DMA sources, loop restart, and forbidden source reads.</summary>
     internal static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
         int[] expectedSources)
     {
-        WreckedShipTreadmillLoop definition =
-            WreckedShipTreadmills.ForDirection(direction);
+        BlockAnimationLoop definition =
+            BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(direction));
         var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
         var state = new WreckedShipTreadmillBlockAnimationsState();
         var frames = new ArtworkFrameSelections();
         state.Start(direction);
         state.Step(areaBossDefeated: false, frames);
-        AssertTrue(!frames.TryShown(BlockAnimationFrames.Of(definition.AnimatedObject), out _), $"{direction} retail boss wait");
+        AssertTrue(!frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out _), $"{direction} retail boss wait");
 
         // Each pass selects into fresh selections, so a selection read back is the one this pass made.
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
             frames = new ArtworkFrameSelections();
             state.Step(areaBossDefeated: true, frames);
-            AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
-                    shown == BlockAnimationFrames.Frame(definition.AnimatedObject, frame),
+            AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame shown) &&
+                    shown == BlockAnimationFrames.Frame(definition.Animation, frame),
                 $"{direction} retail frame {frame} is the frame the treadmill shows");
-            AssertEqual(expectedSources[frame], AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
+            AssertEqual(expectedSources[frame], AnimatedTileImageSources.OfShown(frames, definition.Animation),
                 $"{direction} retail source frame {frame}");
         }
 
         frames = new ArtworkFrameSelections();
         state.Step(areaBossDefeated: true, frames);
-        AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.AnimatedObject), out ArtworkFrame wrapped) &&
-                wrapped == BlockAnimationFrames.Frame(definition.AnimatedObject, 0),
+        AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame wrapped) &&
+                wrapped == BlockAnimationFrames.Frame(definition.Animation, 0),
             $"{direction} compiled goto returns to frame zero");
-        AssertEqual(expectedSources[0], AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
+        AssertEqual(expectedSources[0], AnimatedTileImageSources.OfShown(frames, definition.Animation),
             $"{direction} compiled goto returns to frame zero's source");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{direction} performs no treadmill mechanics ROM reads");
@@ -184,7 +140,7 @@ internal static class AnimatedTileInstructionCodesVerification
     /// <summary>Rejects compiled treadmill control reads and counts obsolete frame-source operand reads.</summary>
     private static CartridgeReadGuard NewWreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
-        WreckedShipTreadmillLoop definition,
+        BlockAnimationLoop definition,
         out StrongBox<int> presentationReads)
     {
         var reads = new StrongBox<int>();

@@ -22,8 +22,8 @@ internal static class SandAnimatedTilesVerification
         BlockAnimation[] definitions = [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
-            AssertTrue(RoomFxBlockAnimations.TryResolve(
-                    definitions[slot], out RoomFxBlockAnimationLoop? definition),
+            AssertTrue(BlockAnimationLoops.TryResolve(
+                    definitions[slot], out BlockAnimationLoop? definition),
                 $"sand object {slot} resolves compiled mechanics");
             for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {

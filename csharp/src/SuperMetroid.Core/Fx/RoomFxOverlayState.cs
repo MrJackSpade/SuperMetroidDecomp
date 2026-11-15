@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFxOverlayState : IGameplayShadingSource
 {
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore block animations.</summary>
-    private readonly RoomFxBlockAnimationsState blockAnimations = new();
+    private readonly BlockAnimationPlayer blockAnimations = new();
 
     /// <summary>The Fireflea state, which outlives each room.</summary>
     private readonly RoomFxSession _session;
@@ -232,7 +232,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Type = definition.Type;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
-        blockAnimations.Load(Type);
+        blockAnimations.Play(BlockAnimationLoops.OnEffectOverlay(Type));
         Tint = definition.Tint;
 
         if (Type == RoomFxType.Fireflea)

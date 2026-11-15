@@ -357,13 +357,11 @@ internal static class RoomBlockUploads
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
     internal static IEnumerable<AnimatedCharacterPlacement> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)
     {
-        BlockAnimation animatedObject = RoomFxBlockAnimationsState.ObjectOf(type);
-        if (animatedObject == BlockAnimation.None)
+        if (BlockAnimationLoops.OnEffectOverlay(type) is not { } mechanics)
             yield break;
-        RoomFxBlockAnimationLoop mechanics = RoomFxBlockAnimationLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
-                mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
+                mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(mechanics.Animation));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>
@@ -417,16 +415,17 @@ internal static class RoomBlockUploads
     /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
     private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, BlockAnimation animatedObject)
     {
-        if (WreckedShipTreadmills.TryResolve(animatedObject, out WreckedShipTreadmillLoop? treadmill))
+        if (animatedObject is BlockAnimation.WreckedShipTreadmillRightwards or BlockAnimation.WreckedShipTreadmillLeftwards)
         {
-            for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Animated(inputs, BlockAnimationFrames.Frame(animatedObject, frame), treadmill.Image(frame),
+            BlockAnimationLoop treadmill = BlockAnimationLoops.Of(animatedObject);
+            for (int frame = 0; frame < treadmill.Frames.Count; frame++)
+                yield return Animated(inputs, treadmill.Frames[frame].Frame, treadmill.TreadmillImage(frame),
                     RoomFxBlockAnimationLoops.TreadmillFrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
             yield break;
         }
         if (animatedObject is not (BlockAnimation.HorizontalSpikes or BlockAnimation.MaridiaSandCeiling or BlockAnimation.MaridiaSandFalling))
             yield break;
-        RoomFxBlockAnimationLoop mechanics = RoomFxBlockAnimationLoops.Require(animatedObject);
+        BlockAnimationLoop mechanics = RoomFxBlockAnimationLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
                 mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));

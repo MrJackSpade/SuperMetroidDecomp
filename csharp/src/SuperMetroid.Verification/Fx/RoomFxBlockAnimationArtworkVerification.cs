@@ -23,11 +23,11 @@ internal static class RoomFxBlockAnimationArtworkVerification
         RoomFxBlockAnimationAtlas atlas = RoomFxBlockAnimationAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         int frameCount = 0;
-        foreach (RoomFxBlockAnimationLoop definition in
+        foreach (BlockAnimationLoop definition in
                  RoomFxBlockAnimationLoops.All)
         {
-            var state = new RoomFxBlockAnimationsState();
-            state.LoadDefinition(definition.AnimatedObject);
+            var state = new BlockAnimationPlayer();
+            state.Play(definition);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
                 ushort cursor = definition.FrameInstructionPointer(frameIndex);
@@ -44,10 +44,10 @@ internal static class RoomFxBlockAnimationArtworkVerification
                     state.Step(new ArtworkFrameSelections());
                 var frames = new ArtworkFrameSelections();
                 state.Step(frames);
-                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
+                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame shown) &&
                         shown == definition.Frames[frameIndex].Frame,
                     $"room-FX frame $87:{cursor:X4} is the frame its animation shows from this update");
-                AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
+                AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition.Animation),
                     $"room-FX frame $87:{cursor:X4} selects its compiled art source");
                 frameCount++;
             }
@@ -60,7 +60,7 @@ internal static class RoomFxBlockAnimationArtworkVerification
             var waitFrames = new ArtworkFrameSelections();
             treadmill.Start(direction);
             treadmill.Step(areaBossDefeated: false, waitFrames);
-            BlockAnimation treadmillObject = WreckedShipTreadmills.ForDirection(direction).AnimatedObject;
+            BlockAnimation treadmillObject = BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(direction)).Animation;
             AssertTrue(!waitFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out _),
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
             for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount;

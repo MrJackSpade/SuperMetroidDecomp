@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ChozoStatuePartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChozoStatueEntity(this, slot, common);
@@ -65,15 +65,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ChozoFootstepsSound =
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
-    /// <summary>
-    /// Initializes the glass tube's cracks, which do nothing the game keeps: the enemy is deleted before any main-AI
-    /// update, and the cracks' colours are the shade every tube projectile draws in
-    /// (<see cref="ChozoAndTubeShades.TubeCracks"/>, #1512).
-    /// </summary>
-    internal static void InitializeN00bTubeCracks()
-    {
-    }
-
     /// <summary>Initializes either shipped statue.</summary>
     internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
@@ -120,7 +111,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// trigger. Collision/pose/item admission remains the room object's responsibility; once
     /// admitted, both trigger setups mark the hand triggered and disable Samus controls.
     /// </summary>
-    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks>? handBlock = null)
+    /// <param name="level">The room's level, whose hand block loses its collision.</param>
+    /// <param name="handBlock">The hand block the room object that admitted the trigger stands on.</param>
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock)
     {
         Ensure.NotNull(level);
         RoomEnemySlot statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
@@ -128,9 +121,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");
 
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
-        int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;
-        int triggerBlockY = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.Y : ChozoStatueRoomDefinitions.LowerNorfairTriggerY;
-        Position16<RoomBlocks> triggerPosition = handBlock ?? level.GridBlock(new(CoordinateAxis.Wrap(triggerBlockX), CoordinateAxis.Wrap(triggerBlockY)));
+        Position16<RoomBlocks> triggerPosition = handBlock;
         RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 
         // Both setup steps clear only the block's collision kind. Its behaviour and

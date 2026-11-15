@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// The behaviour Dragon's main AI runs each frame.
+/// The behaviour a Dragon body's main AI runs each frame; its cosmetic wing has none.
 /// Its values are arbitrary.
 /// </summary>
 public enum DragonAction
@@ -20,7 +20,4 @@ public enum DragonAction
 
     /// <summary>Moves the body and wing downward before restoring the hidden wait.</summary>
     Sinking,
-
-    /// <summary>No-op action used by the cosmetic wing, an enemy of its own beside the body.</summary>
-    WingNoOp,
 }

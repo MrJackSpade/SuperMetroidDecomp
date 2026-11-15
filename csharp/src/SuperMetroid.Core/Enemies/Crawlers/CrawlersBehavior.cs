@@ -404,11 +404,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ApplyFallingGravity();
-
-        // The fall contains this zero-velocity escape even though ordinary falls
-        // immediately gain gravity. Retain it for modified parameter/state combinations.
-        if (state.FallingYVelocity == SignedSixteenSixteen.Zero)
-            state.Action = CrawlerAction.CrawlingVertically;
     }
 
     /// <summary>Remembers the attached surface action before entering gravity-controlled falling.</summary>

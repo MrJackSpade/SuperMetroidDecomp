@@ -733,7 +733,7 @@ internal static class NativeEnemyFamilyStateImport
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
             dragon.ActionTimer = unchecked((short)words.D);
             dragon.AttackCounter = unchecked((short)words.D);
-            dragon.Action = words.F == 0 ? null : DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
+            dragon.Action = DragonNativeWords.ActionAt(words.F);
         }
         if (enemies.ElevatorStates[index] is { } elevator)
             elevator.RestingHeight = new Position16<RoomPixels>(0, words.A);

@@ -96,7 +96,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunDeadTorizoRotting(slot, state);
                 break;
 
-            case DeadTorizoPhase.NoOperation:
+            case DeadTorizoPhase.Finished:
                 break;
 
             default:
@@ -116,7 +116,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
-            state.Phase = DeadTorizoPhase.NoOperation;
+            state.Phase = DeadTorizoPhase.Finished;
     }
 
     /// <summary>Shot/touch tail.</summary>

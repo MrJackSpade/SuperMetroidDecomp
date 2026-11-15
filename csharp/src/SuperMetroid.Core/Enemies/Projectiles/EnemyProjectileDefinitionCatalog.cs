@@ -219,8 +219,6 @@ internal static class EnemyProjectileDefinitionCatalog
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep] = new(
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate] = new(
-            new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.TourianStatueDescentDust] = new(
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = new(

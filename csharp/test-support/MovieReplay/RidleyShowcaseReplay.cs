@@ -956,7 +956,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.TourianStatuePhantoon:
                     case RoomEnemyProjectileKind.TourianStatueBaseDecoration:
                     case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep:
-                    case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate:
                     case RoomEnemyProjectileKind.TourianStatueDescentDust:
                     case RoomEnemyProjectileKind.ShaktoolAttackFrontCircle:
                     case RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle:

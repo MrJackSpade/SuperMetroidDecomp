@@ -22,7 +22,7 @@ public sealed class DragonEnemyState
     /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
     public int AttackCounter { get; internal set; }
 
-    /// <summary>The current behaviour.</summary>
+    /// <summary>The body's current behaviour; the wing has none.</summary>
     public DragonAction? Action { get; internal set; }
 
     /// <summary>The animation main AI asks for.</summary>

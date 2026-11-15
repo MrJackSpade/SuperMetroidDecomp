@@ -151,11 +151,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 {
                     state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
                     SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperHopping);
-                    state.Action = DeadSidehopperAction.NoOperation;
+                    state.Action = DeadSidehopperAction.Landing;
                 }
                 return;
 
-            case DeadSidehopperAction.NoOperation:
+            case DeadSidehopperAction.Landing:
                 return;
 
             case DeadSidehopperAction.BeginPostLandingDelay:

@@ -28,7 +28,6 @@ internal static class ChozoTourianDustBehaviorVerification
         foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustSegment program) in new VerifyChozoTourianDustBehaviorCase[]
                  {
                      new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustSegment.Footsteps),
-                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate, ChozoTourianDustSegment.SpikeClearingExplosions),
                      new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.TourianStatueDescentDust, ChozoTourianDustSegment.TourianDescentDust),
                  })
         {

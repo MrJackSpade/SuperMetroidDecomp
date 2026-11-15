@@ -72,7 +72,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.InstalledAnimation = DragonSegment.WingsFacingLeft;
             state.Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-            state.Action = DragonAction.WingNoOp;
             return;
         }
 
@@ -85,11 +84,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Dragon's main AI and its five body actions.</summary>
     private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState samus)
     {
+        // The body moves its cosmetic wing with it; the wing takes no action of its own.
+        if (state.IsWing)
+            return;
+
         switch (state.Action)
         {
-            case DragonAction.WingNoOp:
-                return;
-
             case DragonAction.WaitToRise:
                 RunDragonWaitToRise(slot, state, samus);
                 return;

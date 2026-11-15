@@ -567,18 +567,6 @@ public enum EnemyProjectileFrameId
     ChozoTourianDustFootstepsThird,
     /// <summary><c>chozo_tourian_dust_footsteps_fourth</c>, an installed animation frame.</summary>
     ChozoTourianDustFootstepsFourth,
-    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_first</c>, an installed animation frame.</summary>
-    ChozoTourianDustSpikeClearingExplosionsFirst,
-    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_second</c>, an installed animation frame.</summary>
-    ChozoTourianDustSpikeClearingExplosionsSecond,
-    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_third</c>, an installed animation frame.</summary>
-    ChozoTourianDustSpikeClearingExplosionsThird,
-    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_fourth</c>, an installed animation frame.</summary>
-    ChozoTourianDustSpikeClearingExplosionsFourth,
-    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_fifth</c>, an installed animation frame.</summary>
-    ChozoTourianDustSpikeClearingExplosionsFifth,
-    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_sixth</c>, an installed animation frame.</summary>
-    ChozoTourianDustSpikeClearingExplosionsSixth,
     /// <summary><c>chozo_tourian_dust_tourian_descent_dust_first</c>, an installed animation frame.</summary>
     ChozoTourianDustTourianDescentDustFirst,
     /// <summary><c>chozo_tourian_dust_tourian_descent_dust_second</c>, an installed animation frame.</summary>

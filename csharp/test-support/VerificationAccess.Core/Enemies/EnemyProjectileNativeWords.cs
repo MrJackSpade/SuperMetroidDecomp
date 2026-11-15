@@ -121,7 +121,6 @@ internal static class EnemyProjectileNativeWords
         [RoomEnemyProjectileKind.TourianStatuePhantoon] = 0xbab0,
         [RoomEnemyProjectileKind.TourianStatueBaseDecoration] = 0xbabe,
         [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep] = 0xaf68,
-        [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate] = 0xaf76,
         [RoomEnemyProjectileKind.TourianStatueDescentDust] = 0xaf84,
         [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = 0xbe25,
         [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = 0xbe33,

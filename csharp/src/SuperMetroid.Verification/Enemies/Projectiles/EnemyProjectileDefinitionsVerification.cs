@@ -291,7 +291,6 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.TourianStatuePhantoon or
                         RoomEnemyProjectileKind.TourianStatueBaseDecoration or
                         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
-                        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
                         RoomEnemyProjectileKind.TourianStatueDescentDust or
                         RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
                         RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
@@ -424,7 +423,6 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.TourianStatuePhantoon or
                         RoomEnemyProjectileKind.TourianStatueBaseDecoration or
                         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
-                        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
                         RoomEnemyProjectileKind.TourianStatueDescentDust or
                         RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
                         RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or

@@ -41,7 +41,7 @@ internal static class ChozoStatueAnimationsVerification
                             // The other native operands are the footstep's signed X word and the hand wait's word.
                             'F' => unchecked((ushort)AssertIs<ChozoStatueCue.Footstep>(cue, $"{at}: cue").Offset.X),
                             // A site's idle animation installs that site's hand wait.
-                            'E' => ChozoNativeWords.HandWaitWord(at.StartsWith(nameof(ChozoStatueSegment.WreckedShip), StringComparison.Ordinal)),
+                            'E' => ChozoNativeWords.HandWaitWord(at.StartsWith(nameof(ChozoStatueSegment.WreckedShipInitial), StringComparison.Ordinal)),
                             _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                         }, $"{at}: operand {index}");
                     }

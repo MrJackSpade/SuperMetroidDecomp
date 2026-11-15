@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileCueKind;
 using P = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileSegment;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;
@@ -24,7 +23,7 @@ internal static class NoobTubeProjectileAnimations
             Show(3, 6),
             Show(4, 6),
             Show(5, 6),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeCrackFlickering)),
+            Cue(new(K.StartCrackFlicker)),
             Show(6, 1),
             Show(7, 1),
             Show(8, 1),
@@ -35,7 +34,7 @@ internal static class NoobTubeProjectileAnimations
             Show(13, 6),
             Show(14, 9),
             Show(15, 8),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeCrackFalling)),
+            Cue(new(K.StartCrackFall)),
             Show(16, 7),
             Show(17, 7),
             Show(18, 7),
@@ -70,7 +69,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(37, 38),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard0Loop2] =
         [
@@ -86,7 +85,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(41, 42),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard1Loop2] =
         [
@@ -102,7 +101,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(45, 46),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard2Loop2] =
         [
@@ -118,7 +117,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(49, 50),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard3Loop2] =
         [
@@ -134,7 +133,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(53, 54),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard4Loop2] =
         [
@@ -150,7 +149,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(57, 58),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard5Loop2] =
         [
@@ -166,7 +165,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(61, 62),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard6Loop2] =
         [
@@ -182,7 +181,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(65, 66),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard7Loop2] =
         [
@@ -198,7 +197,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerHidden)),
             Flicker(69),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard8Loop2] =
         [
@@ -214,7 +213,7 @@ internal static class NoobTubeProjectileAnimations
             Cue(new(K.FlickerReflected)),
             Flicker(71, 72),
             Cue(new(K.AssignShardFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeShardFalling)),
+            Cue(new(K.StartShardFall)),
         ],
         [P.Shard9Loop2] =
         [
@@ -224,13 +223,13 @@ internal static class NoobTubeProjectileAnimations
         ],
         [P.ReleasedAirBubble] =
         [
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeBubbleFlying)),
+            Cue(new(K.StartBubbleRise)),
             Show(75, 2),
             Show(76, 2),
             Show(77, 2),
             Show(78, 2),
             Cue(new(K.AssignBubbleFallingAngle)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.NoobTubeBubbleFalling)),
+            Cue(new(K.StartBubbleFall)),
             Show(79, 2),
             Show(80, 2),
             Show(81, 2),

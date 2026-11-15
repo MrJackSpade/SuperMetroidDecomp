@@ -15,15 +15,20 @@ internal static class EnemyProjectileCodePointersVerification
     {
         VerifyEnemyProjectileCodePointerCatalogCase[] callbacks =
         [
-            .. EnemyProjectileFrameBehaviorAccess.RoutineWords
+            .. EnemyProjectileMotionAccess.RoutineWords
                 .Where(word => word != 0)
-                .Select(word => new VerifyEnemyProjectileCodePointerCatalogCase($"pre-instruction {EnemyProjectileFrameBehaviorAccess.FromWord(word)}", word)),
+                .Select(word => new VerifyEnemyProjectileCodePointerCatalogCase($"pre-instruction {EnemyProjectileMotionAccess.FromWord(word)}", word)),
             .. Enum.GetValues<NativeEnemyProjectileInstruction>().Select(code => new VerifyEnemyProjectileCodePointerCatalogCase($"instruction {code}", (ushort)code)),
         ];
         AssertTrue(callbacks.Length != 0, "enemy projectile callback catalog is populated");
-        foreach (EnemyProjectileFrameBehavior frameBehavior in Enum.GetValues<EnemyProjectileFrameBehavior>())
-            AssertTrue(EnemyProjectileFrameBehaviorAccess.RoutineWords.Any(word => EnemyProjectileFrameBehaviorAccess.FromWord(word) == frameBehavior),
-                $"pre-instruction {frameBehavior} stands for a cartridge routine");
+        // Every member of each motion type a routine stands for is a motion some routine stands for, and so is holding still.
+        Enum?[] motions = [.. EnemyProjectileMotionAccess.RoutineWords.Select(EnemyProjectileMotionAccess.FromWord)];
+        AssertTrue(motions.Contains(null), "holding still stands for a cartridge routine");
+        foreach (Type motionType in motions.OfType<Enum>().Select(motion => motion.GetType()).Distinct())
+        {
+            foreach (Enum motion in Enum.GetValues(motionType).Cast<Enum>())
+                AssertTrue(motions.Contains(motion), $"motion {motionType.Name}.{motion} stands for a cartridge routine");
+        }
 
         AssertEqual(callbacks.Length, callbacks
             .Select(callback => callback.Pointer)

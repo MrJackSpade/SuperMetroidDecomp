@@ -216,7 +216,7 @@ internal static class EnemyDropsVerification
 
         AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.LatestSound,
             $"{kind} library-two sound");
-        AssertEqual(EnemyProjectileFrameBehavior.Stationary, pickup.FrameBehavior,
+        AssertEqual<Enum?>(null, pickup.Motion,
             $"{kind} enters shared blank/no-collision tail after collection");
         assertEffect(samus);
     }
@@ -258,7 +258,7 @@ internal static class EnemyDropsVerification
         biasSamus.Health = 50;
         EnemyProjectile clearedBias =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChances) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePoi...."));
-        AssertEqual(EnemyProjectileFrameBehavior.Stationary, clearedBias.FrameBehavior,
+        AssertEqual<Enum?>(null, clearedBias.Motion,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
         SamusState fullSamus = CreateDropTestSamus();
@@ -269,7 +269,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
         EnemyProjectile ineligible =
             (full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChances) ?? throw new InvalidOperationException("Verification requires full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChanceP...."));
-        AssertEqual(EnemyProjectileFrameBehavior.Stationary, ineligible.FrameBehavior,
+        AssertEqual<Enum?>(null, ineligible.Motion,
             "full resources make the native record's ammo weights ineligible");
     }
 
@@ -286,7 +286,7 @@ internal static class EnemyDropsVerification
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime,
             "pickup lifetime decrements before its expiry comparison");
-        AssertEqual(EnemyProjectileFrameBehavior.Stationary, expiring.FrameBehavior,
+        AssertEqual<Enum?>(null, expiring.Motion,
             "expired pickup enters native blank tail");
         AssertEqual(50, samus.Health,
             "expiry does not apply a pickup effect");
@@ -351,14 +351,14 @@ internal static class EnemyDropsVerification
                 (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
             AssertEqual(17 - allocation, pickup.Place,
                 $"enemy projectile allocation {allocation} descends from native $22");
-            AssertEqual(EnemyProjectileFrameBehavior.PickupLifetime, pickup.FrameBehavior,
+            AssertEqual<Enum?>(SingleMotion.Moving, pickup.Motion,
                 $"nonzero projectile slot {pickup.Place} becomes pickup");
         }
 
         EnemyProjectile slotZero =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
         AssertEqual(0, slotZero.Place, "eighteenth allocation reaches physical slot zero");
-        AssertEqual(EnemyProjectileFrameBehavior.PickupLifetime, slotZero.FrameBehavior,
+        AssertEqual<Enum?>(SingleMotion.Moving, slotZero.Motion,
             "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<EnemyProjectile?>(null,
             fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances),
@@ -413,7 +413,7 @@ internal static class EnemyDropsVerification
             "EEAF converts death actor in place without rewriting its definition identity");
         AssertEqual(EnemyPickupKind.SmallEnergy, explosion.StateOf<EnemyPickupState>().Kind,
             "converted death actor becomes a small-energy pickup");
-        AssertEqual(EnemyProjectileFrameBehavior.PickupLifetime, explosion.FrameBehavior,
+        AssertEqual<Enum?>(SingleMotion.Moving, explosion.Motion,
             "converted death actor enters shared pickup pre-instruction");
         AssertEqual(EnemyDeathProjectileSegment.SmallEnergy, converted,
             "converted death actor continues at the small-energy drop program");

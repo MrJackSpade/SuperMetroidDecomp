@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyDeathsAndDrops
-    : EnemyProjectileBehavior, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
+    : EnemyProjectileBehavior<SingleMotion>, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
 {
     /// <summary>Tracks the room's cumulative enemy-kill count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
@@ -31,6 +31,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room,
         IEnemyLifecycle lifecycle, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
+        : base(StartingMotions)
     {
         _audio = audio;
         _roomStatus = roomStatus;
@@ -39,9 +40,12 @@ internal sealed class EnemyDeathsAndDrops
         _lifecycle = lifecycle;
         _powerBombRadius = powerBombRadius;
     }
-    /// <summary>Frame behaviour that checks pickup lifetime, Grapple, and Samus contact.</summary>
-    private const EnemyProjectileFrameBehavior EnemyPickupFrameBehavior =
-        EnemyProjectileFrameBehavior.PickupLifetime;
+    /// <summary>A pickup starts counting its lifetime; a death explosion holds still while its animation plays.</summary>
+    private static readonly Dictionary<RoomEnemyProjectileKind, SingleMotion?> StartingMotions = new()
+    {
+        [RoomEnemyProjectileKind.EnemyDeathPickup] = SingleMotion.Moving,
+        [RoomEnemyProjectileKind.EnemyDeathExplosion] = null,
+    };
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
     private const int EnemyPickupLifetime = 400;
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
@@ -257,7 +261,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
-        projectile.FrameBehavior = EnemyPickupFrameBehavior;
+        projectile.StartMotion(SingleMotion.Moving);
 
         // Becoming a pickup clears the persists-on-contact property but retains the other definition bits. The typed
         // representation stores the three collision flags separately from the low damage.
@@ -274,7 +278,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The blank frame lasts 64 frames before the respawn cue handles a retained respawning enemy
         // and the actor is deleted. Collection and natural expiry use this same tail.
-        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+        projectile.HoldStill();
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
@@ -565,18 +569,13 @@ internal sealed class EnemyDeathsAndDrops
     internal EnemyProjectileBehavior DeathProjectiles => this;
 
     /// <summary>
-    /// Moves a pickup: it counts its lifetime and is collected on contact. A death explosion holds still while its
-    /// animation plays.
+    /// Moves a pickup, the one kind here that moves: it counts its lifetime, then tests its grapple endpoint, then Samus's
+    /// body contact, and is collected on contact. A death explosion, and a pickup gone dormant, hold still.
     /// </summary>
-    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
-    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
-    {
-        // A pickup runs its lifetime, then its grapple endpoint, then its Samus body contact.
-        if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.PickupLifetime)
-            RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
-        else
-            base.Move(context);
-    }
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    /// <param name="motion">The pickup's one motion.</param>
+    private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
 
     /// <summary>
     /// Carries out a cue of the death and drop animations (sprite spawns, sounds, drop conversion and respawn), returning

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// What a kind of enemy projectile does (#1760): how it moves itself under each frame behaviour it reaches, the animation
+/// What a kind of enemy projectile does (#1760): how it moves itself under each motion it reaches, the animation
 /// a shot that destroys it starts and the one touching Samus starts. Its spawner binds it to the projectile at spawn and
 /// starts the animation it chooses; the projectile engine then runs the projectile through it without naming any kind.
 /// <para>
@@ -11,7 +11,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </para>
 /// <para>
 /// A behaviour of this class itself is a kind that never moves itself and whose animations publish only shared cues;
-/// families that move their projectiles derive from it and override <see cref="Move"/>.
+/// families that move their projectiles derive from <see cref="EnemyProjectileBehavior{TMotion}"/>, which owns their
+/// typed motions (#1843).
 /// </para>
 /// </summary>
 internal class EnemyProjectileBehavior
@@ -47,24 +48,22 @@ internal class EnemyProjectileBehavior
     internal EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
 
     /// <summary>
-    /// Runs the projectile's frame behaviour for one projectile pass, before its animation advances. A stationary
-    /// projectile does not move itself: it holds still while its animation plays, or its owner positions it.
+    /// The motion a projectile of <paramref name="kind"/> starts with when its spawner binds this behaviour to it (#1843),
+    /// or null when it starts holding still. A kind of this class itself never moves itself.
     /// </summary>
-    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
-    internal void RunFrameBehavior(EnemyProjectileFrameBehaviorContext context)
-    {
-        if (context.Projectile.FrameBehavior != EnemyProjectileFrameBehavior.Stationary)
-            Move(context);
-    }
+    /// <param name="kind">What the freshly spawned projectile is.</param>
+    internal virtual Enum? InitialMotion(RoomEnemyProjectileKind kind) => null;
 
     /// <summary>
-    /// Moves the projectile under its frame behaviour, which is not <see cref="EnemyProjectileFrameBehavior.Stationary"/>.
-    /// A kind runs only the frame behaviours its definition, its animations and its own code install; any other is a
-    /// defect.
+    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843). A projectile that
+    /// holds still does not move itself: it holds still while its animation plays, or its owner positions it.
     /// </summary>
-    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
-    /// <exception cref="InvalidOperationException">The kind does not run the projectile's frame behaviour.</exception>
-    private protected virtual void Move(EnemyProjectileFrameBehaviorContext context) =>
-        throw new InvalidOperationException(
-            $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} does not run frame behaviour {context.Projectile.FrameBehavior}.");
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    /// <exception cref="InvalidOperationException">The projectile moves by a motion this behaviour does not own.</exception>
+    internal virtual void RunMotion(EnemyProjectileMotionContext context)
+    {
+        if (context.Projectile.Motion is { } motion)
+            throw new InvalidOperationException(
+                $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} moves by {motion.GetType().Name}.{motion}, which its behaviour does not run.");
+    }
 }

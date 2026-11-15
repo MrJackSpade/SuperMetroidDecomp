@@ -301,7 +301,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Dragon fireball (#1760): it arcs under gravity and leaves below the screen.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.DragonFireballArc,
         context => RunDragonFireballFrameBehavior(context.Projectile, context.Camera.Y));
 
     /// <summary>Runs Dragon's main AI.</summary>

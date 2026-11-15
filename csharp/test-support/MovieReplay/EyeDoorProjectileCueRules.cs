@@ -6,15 +6,15 @@ using SuperMetroid.Core.Enemies.EyeDoor;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
-/// <summary>How the eye-door shot's typed programs match its native lists: each command and the cue it becomes.</summary>
+/// <summary>How the eye-door shot's and sweat's typed programs match their native lists: each command and the cue it becomes.</summary>
 internal static class EyeDoorProjectileCueRules
 {
     /// <summary>Each command the shot's lists use, the cue it becomes and its operand byte count.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, EyeDoorProjectileCueRulesCommand> Commands = new()
     {
         [NativeEnemyProjectileInstruction.Delete] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.ClearFrameBehavior, 0),
-        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.SetFrameBehavior, 2),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.StopMoving, 0),
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.StartFlight, 2),
         [NativeEnemyProjectileInstruction.CalculateDirectionTowardsSamus] = new EyeDoorProjectileCueRulesCommand(EyeDoorProjectileCueKind.AimAtSamus, 0),
     };
 
@@ -24,8 +24,8 @@ internal static class EyeDoorProjectileCueRules
         (word, operands, cue, at) =>
         {
             VerificationAssertions.AssertEqual(Commands[(NativeEnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
-            if (cue.Kind == EyeDoorProjectileCueKind.SetFrameBehavior)
-                VerificationAssertions.AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+            if (cue.Kind == EyeDoorProjectileCueKind.StartFlight)
+                VerificationAssertions.AssertEqual<Enum?>(EyeDoorProjectileMotion.ShotFlying, EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
         },
         cue => cue.Kind == EyeDoorProjectileCueKind.Delete);
 }

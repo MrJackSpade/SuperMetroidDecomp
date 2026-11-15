@@ -206,12 +206,12 @@ internal static class RidleyNativeProgramOracle
             switch ((NativeEnemyProjectileInstruction)word)
             {
                 case NativeEnemyProjectileInstruction.ClearFrameBehavior:
-                    VerificationAssertions.AssertEqual(RidleyFireballCue.ClearFrameBehavior, Raised(beat, at), $"{at}: clear pre-instruction");
+                    VerificationAssertions.AssertEqual(RidleyFireballCue.StopMoving, Raised(beat, at), $"{at}: clear pre-instruction");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyProjectileInstruction.FrameBehaviorInY:
-                    VerificationAssertions.AssertEqual(EnemyProjectileFrameBehavior.RidleyFireballFlight, EnemyProjectileFrameBehaviorAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
+                    VerificationAssertions.AssertEqual<Enum?>(RidleyFireballMotion.FireballFlying, EnemyProjectileMotionAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
                     VerificationAssertions.AssertEqual(RidleyFireballCue.BeginFlight, Raised(beat, at), $"{at}: begin flight");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));

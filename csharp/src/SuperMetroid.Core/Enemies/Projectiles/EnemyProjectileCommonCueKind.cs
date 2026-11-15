@@ -8,8 +8,6 @@ internal enum EnemyProjectileCommonCueKind
 {
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Stops the projectile's movement.</summary>
-    ClearFrameBehavior,
     /// <summary>Returns the projectile to the origin its spawn kept.</summary>
     ReturnToOrigin,
 }

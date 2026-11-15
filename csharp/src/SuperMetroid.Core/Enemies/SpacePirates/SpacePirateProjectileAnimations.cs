@@ -16,7 +16,7 @@ internal static class SpacePirateProjectileAnimations
             Show(EnemyProjectileFrameId.SpacePirateLaserLeftFirst, 2),
             Show(EnemyProjectileFrameId.SpacePirateLaserLeftSecond, 2),
             Show(EnemyProjectileFrameId.SpacePirateLaserLeftThird, 2),
-            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectileFrameBehavior.LaserFlightLeft),
+            Cue(SpacePirateProjectileCueKind.FireLaser, HorizontalDirection.Left),
             Show(EnemyProjectileFrameId.SpacePirateLaserLeftFourth, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserLeftFifth, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserLeftSixth, 1),
@@ -36,7 +36,7 @@ internal static class SpacePirateProjectileAnimations
             Show(EnemyProjectileFrameId.SpacePirateLaserRightFirst, 2),
             Show(EnemyProjectileFrameId.SpacePirateLaserRightSecond, 2),
             Show(EnemyProjectileFrameId.SpacePirateLaserRightThird, 2),
-            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectileFrameBehavior.LaserFlightRight),
+            Cue(SpacePirateProjectileCueKind.FireLaser, HorizontalDirection.Right),
             Show(EnemyProjectileFrameId.SpacePirateLaserRightFourth, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserRightFifth, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserRightSixth, 1),
@@ -53,7 +53,7 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawLeft] =
         [
-            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectileFrameBehavior.PirateClawThrownLeft),
+            Cue(SpacePirateProjectileCueKind.ThrowClaw, HorizontalDirection.Left),
         ],
         [P.ClawLeftLoop] =
         [
@@ -68,7 +68,7 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawRight] =
         [
-            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectileFrameBehavior.PirateClawThrownRight),
+            Cue(SpacePirateProjectileCueKind.ThrowClaw, HorizontalDirection.Right),
         ],
         [P.ClawRightLoop] =
         [
@@ -103,8 +103,8 @@ internal static class SpacePirateProjectileAnimations
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Frame(frame, duration);
 
-    /// <summary>Publishes a cue of <paramref name="kind"/> installing <paramref name="movement"/>.</summary>
+    /// <summary>Publishes a cue of <paramref name="kind"/> toward <paramref name="direction"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Cue(
-        SpacePirateProjectileCueKind kind, EnemyProjectileFrameBehavior movement) =>
-        new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Event(new(kind, movement));
+        SpacePirateProjectileCueKind kind, HorizontalDirection direction) =>
+        new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Event(new(kind, direction));
 }

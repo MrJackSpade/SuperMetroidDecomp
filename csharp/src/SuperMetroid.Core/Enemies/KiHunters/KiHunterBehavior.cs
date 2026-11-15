@@ -863,28 +863,51 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
     internal static readonly EnemyProjectileBehavior Acid = new AcidBehavior();
 
-    /// <summary>Ki-Hunter acid: its animation launches it in its direction, and it then flies under gravity until it strikes the room.</summary>
-    private sealed class AcidBehavior : EnemyProjectileBehavior
+    /// <summary>
+    /// Ki-Hunter acid: it holds still in the Ki-Hunter's mouth until its animation launches it in its direction, then flies
+    /// under gravity until it strikes the room, where its splash stops it.
+    /// </summary>
+    private sealed class AcidBehavior : EnemyProjectileBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        /// <summary>Carries out one cue of the acid's animations: its launch either way, its stop on the floor, or its deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, KiHunterAcidSpitCue cue)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.KiHunterAcidFlight)
+            EnemyProjectile projectile = context.Projectile;
+            switch (cue)
             {
-                RunKiHunterAcidMovement(context.Projectile, context.Level);
+                case KiHunterAcidSpitCue.LaunchLeft:
+                    projectile.StartMotion(KiHunterAcidMotion.LaunchingLeft);
+                    break;
+                case KiHunterAcidSpitCue.LaunchRight:
+                    projectile.StartMotion(KiHunterAcidMotion.LaunchingRight);
+                    break;
+                case KiHunterAcidSpitCue.StopMoving:
+                    projectile.HoldStill();
+                    break;
+                case KiHunterAcidSpitCue.Delete:
+                    projectile.Delete();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidSpitCue)} {cue}.");
             }
-            else if (motion == EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft)
+        }
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
+        {
+            switch (motion)
             {
-                StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight)
-            {
-                StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
-            }
-            else
-            {
-                base.Move(context);
+                case KiHunterAcidMotion.Falling:
+                    RunKiHunterAcidMovement(context.Projectile, context.Level);
+                    break;
+                case KiHunterAcidMotion.LaunchingLeft:
+                    StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
+                    break;
+                case KiHunterAcidMotion.LaunchingRight:
+                    StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidMotion)} {motion}.");
             }
         }
     }
@@ -920,9 +943,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
     };
-    /// <summary>Acid mover installed by the startup frame behaviour after the projectile's idle frames.</summary>
-    private const EnemyProjectileFrameBehavior KiHunterAcidMovingFrameBehavior =
-        EnemyProjectileFrameBehavior.KiHunterAcidFlight;
     /// <summary>Horizontal acid speed, three pixels per update, negated for leftward shots.</summary>
     private static readonly SignedEightEight KiHunterAcidHorizontalSpeed = SignedEightEight.FromParts(3, 0);
     /// <summary>Downward speed added to each active acid frame, a sixteenth of a pixel per update.</summary>
@@ -961,15 +981,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the one-shot spit frame behaviours. The animation installs one through the
-    /// common frame-behaviour cue after its opening map; the frame behaviour shifts nineteen pixels and
-    /// then installs the falling mover.
+    /// Runs the acid's one-pass launch: its animation starts the launch after its opening frames, and the launch shifts the
+    /// acid nineteen pixels in its direction and sets it falling.
     /// </summary>
     internal static void StartKiHunterAcidMovement(
         EnemyProjectile projectile,
         HorizontalDirection direction)
     {
-        projectile.FrameBehavior = KiHunterAcidMovingFrameBehavior;
+        projectile.StartMotion(KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWrappedWholeX(
             projectile.Position.X.Whole + (direction == HorizontalDirection.Right ? 19 : -19));
     }

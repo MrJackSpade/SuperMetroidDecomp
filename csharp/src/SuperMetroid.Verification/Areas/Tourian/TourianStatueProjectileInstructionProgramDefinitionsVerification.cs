@@ -107,9 +107,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         EnemyProjectile baseDecoration = SpawnStatue(
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
-        AssertEqual(
-            EnemyProjectileFrameBehavior.TourianStatueRevealFollow,
-            baseDecoration.FrameBehavior,
+        AssertEqual<Enum?>(
+            TourianStatueDecorationMotion.FollowingReveal,
+            baseDecoration.Motion,
             "base decoration installs its delayed position callback");
         AssertEqual((ushort)0xb866, NativePointer(baseDecoration),
             "base decoration reaches its stable loop");

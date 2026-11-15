@@ -55,8 +55,12 @@ public sealed class EnemyProjectile
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
-    /// <summary>How the projectile moves itself on each pass, before its animation advances.</summary>
-    internal EnemyProjectileFrameBehavior FrameBehavior { get; set; }
+    /// <summary>
+    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
+    /// behaviour owns (<see cref="EnemyProjectileBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
+    /// it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// </summary>
+    internal Enum? Motion { get; set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it runs the projectile's frame behaviours, carries out its animations'
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
@@ -126,6 +130,24 @@ public sealed class EnemyProjectile
     /// <summary>The chance table a boss-selected drop rolls against instead of its enemy definition's, or null.</summary>
     internal EnemyDropChances? DropChancesOverride { get; set; }
 
+    /// <summary>
+    /// Makes the projectile <paramref name="kind"/> with <paramref name="behavior"/> bound to it for its life (#1760), in
+    /// the motion the behaviour starts that kind with (#1843).
+    /// </summary>
+    internal void Bind(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
+    {
+        Kind = kind;
+        Behavior = Ensure.NotNull(behavior);
+        Motion = behavior.InitialMotion(kind);
+    }
+
+    /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
+    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
+    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum => Motion = motion;
+
+    /// <summary>Stops the projectile moving itself: it holds still while its animation plays, or its owner positions it.</summary>
+    internal void HoldStill() => Motion = null;
+
     /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any animation it plays.</summary>
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
@@ -161,7 +183,7 @@ public sealed class EnemyProjectile
     private void Vacate()
     {
         Kind = RoomEnemyProjectileKind.None;
-        FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+        Motion = null;
         Frame = null;
         FrameHold = WrappingCountdown.Start(0);
         Animation = null;

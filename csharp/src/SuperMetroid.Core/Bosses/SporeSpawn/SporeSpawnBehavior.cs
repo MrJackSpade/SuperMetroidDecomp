@@ -348,26 +348,32 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEncounter encounter,
         SporeSpawnProjectileBehavior? spores,
         Func<EnemyProjectileAnimation> shot)
-        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
+        : EnemyProjectileBehavior<SporeSpawnProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
     {
         /// <summary>The behaviour the spores a spawner releases run: the spores' own.</summary>
         private SporeSpawnProjectileBehavior Spores => spores ?? this;
 
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        /// <summary>A spore drifts and a spawner releases spores from its spawn; a stalk link holds still.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, SporeSpawnProjectileMotion?> StartingMotions = new()
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.SporeDrift)
+            [RoomEnemyProjectileKind.SporeSpawnSpore] = SporeSpawnProjectileMotion.SporeDrifting,
+            [RoomEnemyProjectileKind.SporeSpawnSpawner] = SporeSpawnProjectileMotion.SpawnerReleasing,
+            [RoomEnemyProjectileKind.SporeSpawnStalk] = null,
+        };
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, SporeSpawnProjectileMotion motion)
+        {
+            switch (motion)
             {
-                RunSporeSpawnSporeFrameBehavior(context.Projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.SporeSpawnerCadence)
-            {
-                RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
-            }
-            else
-            {
-                base.Move(context);
+                case SporeSpawnProjectileMotion.SporeDrifting:
+                    RunSporeSpawnSporeFrameBehavior(context.Projectile);
+                    break;
+                case SporeSpawnProjectileMotion.SpawnerReleasing:
+                    RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileMotion)} {motion}.");
             }
         }
 

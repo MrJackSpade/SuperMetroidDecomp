@@ -94,27 +94,33 @@ internal sealed class KraidProjectiles
     /// rock's switch to the shared colours, and the rock animations' cues.
     /// </summary>
     private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<KraidRockCue>
+        : EnemyProjectileBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        /// <summary>A spat or rising rock flies, and a ceiling rock falls, from its spawn.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, KraidRockMotion?> StartingMotions = new()
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.KraidRockFlight)
+            [RoomEnemyProjectileKind.KraidSpitRock] = KraidRockMotion.Flying,
+            [RoomEnemyProjectileKind.KraidRisingRockLeft] = KraidRockMotion.Flying,
+            [RoomEnemyProjectileKind.KraidRisingRockRight] = KraidRockMotion.Flying,
+            [RoomEnemyProjectileKind.KraidCeilingRock] = KraidRockMotion.CeilingRockFalling,
+        };
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
+        {
+            switch (motion)
             {
-                RunKraidRockFrameBehavior(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.KraidCeilingRockFall)
-            {
-                RunKraidCeilingRockFrameBehavior(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.KraidShotRockRecolor)
-            {
-                context.Projectile.Graphics = SpriteGraphics.SharedStandard;
-            }
-            else
-            {
-                base.Move(context);
+                case KraidRockMotion.Flying:
+                    RunKraidRockFrameBehavior(context.Projectile, context.Level);
+                    break;
+                case KraidRockMotion.CeilingRockFalling:
+                    RunKraidCeilingRockFrameBehavior(context.Projectile, context.Level);
+                    break;
+                case KraidRockMotion.ShotRockRecolouring:
+                    context.Projectile.Graphics = SpriteGraphics.SharedStandard;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(KraidRockMotion)} {motion}.");
             }
         }
 
@@ -125,7 +131,7 @@ internal sealed class KraidProjectiles
             switch (cue)
             {
                 case KraidRockCue.DrawFromSharedSheetFromNextPass:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.KraidShotRockRecolor;
+                    projectile.StartMotion(KraidRockMotion.ShotRockRecolouring);
                     return;
                 case KraidRockCue.Delete:
                     projectile.Delete();

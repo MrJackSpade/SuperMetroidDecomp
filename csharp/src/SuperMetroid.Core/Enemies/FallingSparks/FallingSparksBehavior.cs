@@ -142,6 +142,5 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
     internal SingleMotionProjectileBehavior Spark => field ??= new(
-        EnemyProjectileFrameBehavior.FallingSparkBounce,
         context => RunFallingSparkFrameBehavior(context.Projectile, context.Level, context.ShortCounter));
 }

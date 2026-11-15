@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Animation;
-using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
+using K = SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileCueKind;
 using P = SuperMetroid.Core.Rooms.Doors.EyeDoorSweatSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Doors;
@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>
 /// The eye-door sweat drop's falling and floor-splash animations (#1296, #1600). Each frame shows a <see cref="EnemyProjectileFrameId"/> and each
-/// cue is an <see cref="EnemyProjectileCommonCue"/>.
+/// cue is an <see cref="EyeDoorProjectileCue"/>.
 /// </summary>
 internal static class EyeDoorSweatAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<EyeDoorSweatSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
+        new Dictionary<EyeDoorSweatSegment, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
     {
         [P.Falling] =
         [
@@ -22,11 +22,11 @@ internal static class EyeDoorSweatAnimations
         ],
         [P.HitFloor] =
         [
-            Cue(new EnemyProjectileCommonCue.Signal(CK.ClearFrameBehavior)),
+            Cue(new(K.StopMoving)),
             Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorFirst, 6),
             Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorSecond, 6),
             Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorThird, 6),
-            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
+            Cue(new(K.Delete)),
         ],
     });
 
@@ -41,8 +41,8 @@ internal static class EyeDoorSweatAnimations
     internal static Animation<EyeDoorSweatSegment> StartingWith(EyeDoorSweatSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Event(cue);
 }

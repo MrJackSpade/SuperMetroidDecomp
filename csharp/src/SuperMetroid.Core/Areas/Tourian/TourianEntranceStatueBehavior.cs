@@ -113,7 +113,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         }
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
-            if (projectile.IsActive && projectile.Behavior is TourianStatueProjectileBehavior)
+            if (projectile.IsActive && projectile.Behavior is IEnemyProjectileCues<TourianStatueProjectileCue>)
                 projectile.Graphics = projectile.Graphics.In(shading);
         }
     }
@@ -181,26 +181,32 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state: the statue's descent, which the decoration follows.</param>
-    private sealed class DecorationBehavior(TourianStatueAnimation statue) : TourianStatueProjectileBehavior
+    private sealed class DecorationBehavior(TourianStatueAnimation statue)
+        : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
     {
+        /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
+        /// <param name="projectile">The base decoration.</param>
+        private protected override void FollowReveal(EnemyProjectile projectile) =>
+            projectile.StartMotion(TourianStatueDecorationMotion.FollowingReveal);
+
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        private protected override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion is EnemyProjectileFrameBehavior.TourianStatueRevealFollow or EnemyProjectileFrameBehavior.TourianStatueDecorationSettled)
+            switch (motion)
             {
-                PositionTourianEntranceStatueProjectile(context.Projectile);
-            }
-            else
-            {
-                base.Move(context);
+                case TourianStatueDecorationMotion.FollowingReveal:
+                case TourianStatueDecorationMotion.Settled:
+                    PositionTourianEntranceStatueProjectile(context.Projectile);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueDecorationMotion)} {motion}.");
             }
         }
 
         /// <summary>Tracks the background statue's vertical displacement and publishes the base decoration's completion latch.</summary>
         private void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
         {
-            if (projectile.FrameBehavior == EnemyProjectileFrameBehavior.TourianStatueRevealFollow &&
+            if (projectile.Motion is TourianStatueDecorationMotion.FollowingReveal &&
                 statue.AtRest)
             {
                 statue.Finished = true;

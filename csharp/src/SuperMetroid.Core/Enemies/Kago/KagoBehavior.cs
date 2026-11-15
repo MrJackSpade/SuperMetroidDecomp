@@ -105,27 +105,24 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="audio">The enemy sound queue a waiting or airborne bug's sound joins.</param>
     /// <param name="deathsAndDrops">The drops a shot bug leaves.</param>
     private sealed class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
-        : EnemyProjectileBehavior(shot: () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot)), IEnemyProjectileCues<KagoBugProjectileCue>
+        : EnemyProjectileBehavior<KagoBugMotion>(shot: () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot)), IEnemyProjectileCues<KagoBugProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        private protected override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.KagoBugWaiting)
+            switch (motion)
             {
-                RunKagoBugIdle(context.Projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.KagoBugJump)
-            {
-                RunKagoBugJumping(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.KagoBugFall)
-            {
-                RunKagoBugFalling(context.Projectile, context.Level);
-            }
-            else
-            {
-                base.Move(context);
+                case KagoBugMotion.Waiting:
+                    RunKagoBugIdle(context.Projectile);
+                    break;
+                case KagoBugMotion.Jumping:
+                    RunKagoBugJumping(context.Projectile, context.Level);
+                    break;
+                case KagoBugMotion.Falling:
+                    RunKagoBugFalling(context.Projectile, context.Level);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(KagoBugMotion)} {motion}.");
             }
         }
 
@@ -185,7 +182,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.JumpStart));
-            projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+            projectile.HoldStill();
         }
 
         /// <summary>Runs the bug's airborne rising per-frame behaviour.</summary>
@@ -231,7 +228,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
             {
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                projectile.HoldStill();
                 projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Landed));
                 return;
             }
@@ -268,16 +265,14 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Velocity = projectile.Velocity.WithX(jumpLeft
                 ? -KagoBugHorizontalSpeed
                 : KagoBugHorizontalSpeed);
-            projectile.FrameBehavior =
-                EnemyProjectileFrameBehavior.KagoBugJump;
+            projectile.StartMotion(KagoBugMotion.Jumping);
         }
 
         /// <summary>Landed-animation cue: returns the bug to idle.</summary>
         private void StartKagoBugIdle(EnemyProjectile projectile)
         {
             projectile.StateOf<KagoBugState>().IdleFrames = KagoDefinitions.LandedIdleFrames.Of(room.Random.Read()) + 1;
-            projectile.FrameBehavior =
-                EnemyProjectileFrameBehavior.KagoBugWaiting;
+            projectile.StartMotion(KagoBugMotion.Waiting);
         }
 
         /// <summary>Shot-animation cue: requests the bug's drop.</summary>
@@ -338,8 +333,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             IdleFrames = initialIdleFrames,
             SoundDelay = initialIdleFrames + 4,
         };
-        projectile.FrameBehavior =
-            EnemyProjectileFrameBehavior.KagoBugWaiting;
+        projectile.StartMotion(KagoBugMotion.Waiting);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));
         return true;
     }
@@ -359,8 +353,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches an airborne bug to the falling animation when rising ends or a wall interrupts it.</summary>
     private static void BeginKagoBugFall(EnemyProjectile projectile)
     {
-        projectile.FrameBehavior =
-            EnemyProjectileFrameBehavior.KagoBugFall;
+        projectile.StartMotion(KagoBugMotion.Falling);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Falling));
     }
 

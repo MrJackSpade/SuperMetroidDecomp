@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
-
-namespace SuperMetroid.Core.Areas.Tourian;
+﻿namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>A statue projectile animation cue.</summary>
 internal abstract record TourianStatueProjectileCue
@@ -13,10 +11,6 @@ internal abstract record TourianStatueProjectileCue
     /// <summary>Moves the projectile down by its cue's offset.</summary>
     /// <param name="Pixels">How far a <see cref="MoveDown"/> cue moves the projectile.</param>
     internal sealed record MoveDown(int Pixels) : TourianStatueProjectileCue;
-
-    /// <summary>Installs its cue's movement behaviour.</summary>
-    /// <param name="Movement">The behaviour a <see cref="StartMoving"/> cue installs.</param>
-    internal sealed record StartMoving(EnemyProjectileFrameBehavior Movement) : TourianStatueProjectileCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

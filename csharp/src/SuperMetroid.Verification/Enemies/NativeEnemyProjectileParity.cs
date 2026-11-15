@@ -38,9 +38,9 @@ internal static class NativeEnemyProjectileParity
                 AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
-                AssertEqual(EnemyProjectileFrameBehavior.Stationary, projectile.FrameBehavior, $"{at}: cleared pre-instruction");
+                AssertEqual<Enum?>(null, projectile.Motion, $"{at}: cleared pre-instruction");
             else if (native.FrameBehavior is { } installed)
-                AssertEqual(EnemyProjectileFrameBehaviorAccess.FromWord(installed), projectile.FrameBehavior, $"{at}: installed pre-instruction");
+                AssertEqual(EnemyProjectileMotionAccess.FromWord(installed), projectile.Motion, $"{at}: installed pre-instruction");
         }
         return new CompareResult(false, update);
     }

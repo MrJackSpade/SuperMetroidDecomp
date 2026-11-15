@@ -213,7 +213,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, projectile.Graphics, $"{at}: the cleared graphics word, in the common colours");
             if (native.FrameBehaviorCleared)
-                AssertEqual(EnemyProjectileFrameBehavior.Stationary, projectile.FrameBehavior, $"{at}: pre-instruction cleared");
+                AssertEqual<Enum?>(null, projectile.Motion, $"{at}: pre-instruction cleared");
         }
         return update;
     }

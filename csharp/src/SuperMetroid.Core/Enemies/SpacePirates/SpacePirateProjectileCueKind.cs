@@ -3,12 +3,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>What a laser or claw animation cue does.</summary>
 internal enum SpacePirateProjectileCueKind
 {
-    /// <summary>Installs the movement behaviour.</summary>
-    StartMoving,
+    /// <summary>Throws the claw: it flies out and back from the next pass.</summary>
+    ThrowClaw,
 
-    /// <summary>
-    /// Installs the movement behaviour and runs it at once:
-    /// the laser moves on the update it starts.
-    /// </summary>
-    StartMovingNow,
+    /// <summary>Fires the laser and runs its flight at once: the laser moves on the update it fires.</summary>
+    FireLaser,
 }

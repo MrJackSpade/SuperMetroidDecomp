@@ -37,7 +37,6 @@ internal sealed class CeresFallingTiles
     /// raises dust and sounds its fall.
     /// </summary>
     internal SingleMotionProjectileBehavior Behavior => field ??= new(
-        EnemyProjectileFrameBehavior.CeresTileFall,
         context => Drop(context.Projectile, context.Level));
 
     /// <summary>

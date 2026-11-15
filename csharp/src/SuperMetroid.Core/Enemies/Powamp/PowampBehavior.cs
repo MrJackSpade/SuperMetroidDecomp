@@ -495,7 +495,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// delete animation its definition names as its shot animation.
     /// </summary>
     internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.PowampSpikeFlight,
         context => RunPowampSpikeFrameBehavior(context.Projectile, context.Level),
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 

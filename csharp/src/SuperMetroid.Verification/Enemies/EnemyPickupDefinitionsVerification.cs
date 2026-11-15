@@ -32,8 +32,7 @@ internal static class EnemyPickupDefinitionsVerification
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             var projectile = new EnemyProjectile(index, default)
             {
-                FrameHold = WrappingCountdown.Start(0xffff),
-                FrameBehavior = EnemyProjectileFrameBehavior.Stationary,
+                FrameHold = WrappingCountdown.Start(0xffff),
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
@@ -46,8 +45,8 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime,
                 $"production pickup lifetime {kind}");
-            AssertEqual(EnemyProjectileFrameBehavior.PickupLifetime,
-                projectile.FrameBehavior,
+            AssertEqual<Enum?>(SingleMotion.Moving,
+                projectile.Motion,
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,
                 $"production pickup contact persistence {kind}");

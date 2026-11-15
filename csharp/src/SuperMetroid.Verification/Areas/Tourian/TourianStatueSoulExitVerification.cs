@@ -25,7 +25,7 @@ internal static class TourianStatueSoulExitVerification
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles[0];
-            soul.FrameBehavior = EnemyProjectileFrameBehavior.TourianStatueSoulMotion;
+            soul.StartMotion(TourianStatueEffectMotion.SoulRising);
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));
             soul.Velocity = soul.Velocity.WithY(new SignedEightEight(unchecked((ushort)(-RisePixels * 256))));
 

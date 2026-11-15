@@ -72,8 +72,6 @@ internal sealed class DraygonTurrets
             new(CoordinateAxis.Difference(samus.Position.X.Whole, turret.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, turret.Position.Y.Whole))).ToTrigonometryAngle();
         DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
-        // The definition names the flight step, but init replaces it with an empty step until the 84-frame muzzle
-        // bloom reaches its enable step and explicitly enables flight.
-        turret.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+        // The shot holds still until the 84-frame muzzle bloom reaches its enable step and explicitly enables flight.
     }
 }

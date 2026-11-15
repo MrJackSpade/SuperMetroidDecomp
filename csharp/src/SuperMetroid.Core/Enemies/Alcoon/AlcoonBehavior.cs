@@ -384,7 +384,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.AlcoonFireballFlight,
         context => RunAlcoonFireballFrameBehavior(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>

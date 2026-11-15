@@ -39,6 +39,15 @@ internal static class TorizoProjectileAnimationsVerification
         Cue,
     }
 
+    /// <summary>The motion each cue that starts one starts, which the native list names by its movement routine (#1843).</summary>
+    private static readonly Dictionary<TorizoProjectileCueKind, TorizoProjectileMotion> StartedMotion = new()
+    {
+        [TorizoProjectileCueKind.StartDroolFall] = TorizoProjectileMotion.DroolFalling,
+        [TorizoProjectileCueKind.StartFragmentFall] = TorizoProjectileMotion.StatueFragmentFalling,
+        [TorizoProjectileCueKind.StartEggCharge] = TorizoProjectileMotion.EggCharging,
+        [TorizoProjectileCueKind.ThrowSuperMissile] = TorizoProjectileMotion.SuperMissileThrown,
+    };
+
     /// <summary>Each native command Torizo's lists use: what it becomes and, for a cue, which cue.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, TorizoProjectileAnimationsWord> Words = new()
     {
@@ -48,8 +57,8 @@ internal static class TorizoProjectileAnimationsVerification
         [NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched] = new TorizoProjectileAnimationsWord(ProjectileWord.Hatch, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.Hatch))),
         [NativeEnemyProjectileInstruction.TimerInY] = new TorizoProjectileAnimationsWord(ProjectileWord.SetCounter, null),
         [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = new TorizoProjectileAnimationsWord(ProjectileWord.RepeatWhileCounting, null),
-        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.ClearFrameBehavior))),
-        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetFrameBehavior>("")),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.StopMoving))),
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.Signal>("")),
         [NativeEnemyProjectileInstruction.Properties_OrY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetProperties>("")),
         [NativeEnemyProjectileInstruction.Properties_AndY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.ClearProperties>("")),
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
@@ -168,8 +177,9 @@ internal static class TorizoProjectileAnimationsVerification
         }
         switch (cue)
         {
-            case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
-                AssertEqual(setFrameBehavior.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(Word(0)), $"{at}: movement routine");
+            case TorizoProjectileCue.Signal signal when StartedMotion.TryGetValue(signal.Kind, out TorizoProjectileMotion started):
+                // Setting a movement routine is the cue that starts the motion that routine stands for.
+                AssertEqual<Enum?>(started, EnemyProjectileMotionAccess.FromWord(Word(0)), $"{at}: movement routine");
                 return;
             case TorizoProjectileCue.SetProperties setProperties:
                 // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores;
@@ -205,7 +215,7 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual<int>(operands[2], (scatter.Spread.YRange.Outcomes - 1) << scatter.Spread.YRange.Shift, $"{at}: scatter Y range");
                 AssertEqual(new Extent16<RoomPixels>(operands[1], operands[3]), scatter.Spread.Center, $"{at}: scatter center");
                 return;
-            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ClearFrameBehavior or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopMoving or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
                 TorizoProjectileCueKind.AimSuperMissileAwayFromSamus or TorizoProjectileCueKind.ReturnToOrigin or TorizoProjectileCueKind.RaiseDust or
                 TorizoProjectileCueKind.StopBlockingShots or TorizoProjectileCueKind.StopHarmingSamus or TorizoProjectileCueKind.DrawInFront or
                 TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch }:

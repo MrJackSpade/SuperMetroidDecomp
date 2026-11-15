@@ -66,17 +66,14 @@ internal sealed class MotherBrainProjectiles
     /// animation's cues. It needs nothing of the encounter.
     /// </summary>
     private sealed class TurretBulletBehavior()
-        : EnemyProjectileBehavior(shot: () => new MotherBrainTurretAnimation(), touch: () => new MotherBrainTurretAnimation()),
+        : EnemyProjectileBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new MotherBrainTurretAnimation(), touch: () => new MotherBrainTurretAnimation()),
         IEnemyProjectileCues<MotherBrainTurretCue>
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
-        {
-            if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight)
-                RunMotherBrainTurretBulletFrameBehavior(context.Projectile, context.Level);
-            else
-                base.Move(context);
-        }
+        /// <summary>Flies the bullet, flickering its vulnerability, until it meets a solid block.</summary>
+        /// <param name="context">The projectile and what its pass hands every motion.</param>
+        /// <param name="motion">The bullet's one motion.</param>
+        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+            RunMotherBrainTurretBulletFrameBehavior(context.Projectile, context.Level);
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
@@ -90,8 +87,8 @@ internal sealed class MotherBrainProjectiles
             case MotherBrainTurretCue.DrawFromSharedSheet:
                 projectile.Graphics = SpriteGraphics.SharedStandard;
                 return;
-            case MotherBrainTurretCue.ClearFrameBehavior:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+            case MotherBrainTurretCue.StopMoving:
+                projectile.HoldStill();
                 return;
             case MotherBrainTurretCue.Delete:
                 projectile.Delete();
@@ -114,7 +111,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectileBehavior turretBullet,
         MotherBrainProjectileBehavior? spawned = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : EnemyProjectileBehavior(touch: touch),
+        : EnemyProjectileBehavior<MotherBrainProjectileMotion>(StartingMotions, touch: touch),
         IEnemyProjectileCues<MotherBrainTurretCue>,
         IEnemyProjectileCues<MotherBrainGlassCue>,
         IEnemyProjectileCues<MotherBrainEffectCue>,
@@ -123,66 +120,75 @@ internal sealed class MotherBrainProjectiles
         /// <summary>The behaviour the glass sparkles and hand beams this spawns run: Mother Brain's own projectiles'.</summary>
         private MotherBrainProjectileBehavior Spawned => spawned ?? this;
 
+        /// <summary>The motion each of her projectiles starts with; the glass sparkles, hand beams and purple breath hold still.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, MotherBrainProjectileMotion?> StartingMotions = new()
+        {
+            [RoomEnemyProjectileKind.MotherBrainRoomTurret] = MotherBrainProjectileMotion.TurretAiming,
+            [RoomEnemyProjectileKind.MotherBrainGlassShard] = MotherBrainProjectileMotion.GlassShardFlying,
+            [RoomEnemyProjectileKind.MotherBrainBomb] = MotherBrainProjectileMotion.BombBouncing,
+            [RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging] = MotherBrainProjectileMotion.RainbowBeamCharging,
+            [RoomEnemyProjectileKind.MotherBrainDrool] = MotherBrainProjectileMotion.DroolHanging,
+            [RoomEnemyProjectileKind.MotherBrainDyingDrool] = MotherBrainProjectileMotion.DroolHanging,
+            [RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion] = MotherBrainProjectileMotion.RainbowImpactTracking,
+            [RoomEnemyProjectileKind.MotherBrainTopRightTube] = MotherBrainProjectileMotion.TubeFalling,
+            [RoomEnemyProjectileKind.MotherBrainTopLeftTube] = MotherBrainProjectileMotion.TubeFalling,
+            [RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube] = MotherBrainProjectileMotion.TubeFalling,
+            [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = MotherBrainProjectileMotion.TubeFalling,
+            [RoomEnemyProjectileKind.MotherBrainDeathExplosion] = MotherBrainProjectileMotion.DeathExplosionTracking,
+            [RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment] = MotherBrainProjectileMotion.DoorFragmentFalling,
+            [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = MotherBrainProjectileMotion.SubtitleHeld,
+            [RoomEnemyProjectileKind.MotherBrainOnionRing] = MotherBrainProjectileMotion.OnionRingFlying,
+            [RoomEnemyProjectileKind.MotherBrainGlassSparkle] = null,
+            [RoomEnemyProjectileKind.MotherBrainHandBeamCharging] = null,
+            [RoomEnemyProjectileKind.MotherBrainHandBeamFired] = null,
+            [RoomEnemyProjectileKind.MotherBrainPurpleBreathBig] = null,
+            [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = null,
+        };
+
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        private protected override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
-            EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.MotherBrainTurretAiming)
+            switch (motion)
             {
-                RunMotherBrainTurretFrameBehavior(projectile, context.Camera);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight)
-            {
-                RunMotherBrainTurretBulletFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainGlassShardFlight)
-            {
-                RunMotherBrainGlassShardFrameBehavior(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainTubeFall)
-            {
-                RunMotherBrainTopTubeFrameBehavior(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDroolHanging)
-            {
-                RunMotherBrainAttachedDroolFrameBehavior(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDroolFall)
-            {
-                RunMotherBrainFallingDroolFrameBehavior(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainOnionRingFlight)
-            {
-                RunMotherBrainOnionRingFrameBehavior(projectile, context.Samus, context.Camera.X);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainBombBounce)
-            {
-                RunMotherBrainBombFrameBehavior(projectile, context.SamusBombs);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainRainbowBeamCharge)
-            {
-                RunMotherBrainRainbowChargingFrameBehavior(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainRainbowImpactTracking)
-            {
-                RunMotherBrainRainbowExplosionFrameBehavior(projectile, context.Samus);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathExplosionTracking)
-            {
-                RunMotherBrainDeathExplosion(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall)
-            {
-                RunMotherBrainDoorFragment(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleFixedPlace)
-            {
-                PinMotherBrainEscapeSubtitle(projectile);
-            }
-            else
-            {
-                base.Move(context);
+                case MotherBrainProjectileMotion.TurretAiming:
+                    RunMotherBrainTurretFrameBehavior(projectile, context.Camera);
+                    break;
+                case MotherBrainProjectileMotion.GlassShardFlying:
+                    RunMotherBrainGlassShardFrameBehavior(projectile);
+                    break;
+                case MotherBrainProjectileMotion.TubeFalling:
+                    RunMotherBrainTopTubeFrameBehavior(projectile);
+                    break;
+                case MotherBrainProjectileMotion.DroolHanging:
+                    RunMotherBrainAttachedDroolFrameBehavior(projectile);
+                    break;
+                case MotherBrainProjectileMotion.DroolFalling:
+                    RunMotherBrainFallingDroolFrameBehavior(projectile);
+                    break;
+                case MotherBrainProjectileMotion.OnionRingFlying:
+                    RunMotherBrainOnionRingFrameBehavior(projectile, context.Samus, context.Camera.X);
+                    break;
+                case MotherBrainProjectileMotion.BombBouncing:
+                    RunMotherBrainBombFrameBehavior(projectile, context.SamusBombs);
+                    break;
+                case MotherBrainProjectileMotion.RainbowBeamCharging:
+                    RunMotherBrainRainbowChargingFrameBehavior(projectile);
+                    break;
+                case MotherBrainProjectileMotion.RainbowImpactTracking:
+                    RunMotherBrainRainbowExplosionFrameBehavior(projectile, context.Samus);
+                    break;
+                case MotherBrainProjectileMotion.DeathExplosionTracking:
+                    RunMotherBrainDeathExplosion(projectile);
+                    break;
+                case MotherBrainProjectileMotion.DoorFragmentFalling:
+                    RunMotherBrainDoorFragment(projectile);
+                    break;
+                case MotherBrainProjectileMotion.SubtitleHeld:
+                    PinMotherBrainEscapeSubtitle(projectile);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(MotherBrainProjectileMotion)} {motion}.");
             }
         }
 
@@ -234,7 +240,7 @@ internal sealed class MotherBrainProjectiles
                     projectile.Graphics = SpriteGraphics.SharedStandard;
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
-                    // After changing to the falling frame behaviour, the released drool drops twelve pixels before its first
+                    // After its release starts its fall, the released drool drops twelve pixels before its first
                     // falling frame.
                     projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
                     break;
@@ -243,11 +249,11 @@ internal sealed class MotherBrainProjectiles
                         "Mother Brain's small purple breath ran without its encounter state."))
                         .SmallPurpleBreathActive = false;
                     break;
-                case MotherBrainEffectCue.SetFrameBehavior setFrameBehavior:
-                    projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
+                    projectile.StartMotion(MotherBrainProjectileMotion.DroolFalling);
                     break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ClearFrameBehavior }:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.StopMoving }:
+                    projectile.HoldStill();
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
                     projectile.Delete();

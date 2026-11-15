@@ -80,7 +80,7 @@ internal static class OldTourianEscapeShaftWallVerification
             "the animation first plays the setup");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants.InitialAnimationScript, (ushort)0xb443, "the setup starts the list");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior, Word(0xb443), "the list first clears the movement");
-        AssertEqual(OldTourianWallExplosionCue.ClearFrameBehavior, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(start[0], "the setup raises an event").Raised, "the setup clears the movement");
+        AssertEqual(OldTourianWallExplosionCue.StopMoving, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(start[0], "the setup raises an event").Raised, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
         AnimationPhase<OldTourianWallExplosionSegment> counted = animation.Phases[1];
         AssertTrue(counted.CountsRepeats, "the burst counts its plays down the timer the list loads");

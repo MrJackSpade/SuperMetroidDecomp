@@ -800,9 +800,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 // The showcase's projectiles keep only their program's loop count in the native timer word.
                 Check(owner + " Timer", projectile.LoopCountdown.RemainingFrames, NativeSnapshotMemory.EnemyProjectileTimer + index);
-                EnemyProjectileFrameBehavior nativeFrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
-                if (projectile.FrameBehavior != nativeFrameBehavior)
-                    mismatches.Add($"{owner} FrameBehavior: native={nativeFrameBehavior} port={projectile.FrameBehavior}");
+                Enum? nativeMotion = EnemyProjectileMotionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
+                if (!Equals(projectile.Motion, nativeMotion))
+                    mismatches.Add($"{owner} Motion: native={nativeMotion?.ToString() ?? "holding still"} port={projectile.Motion?.ToString() ?? "holding still"}");
                 Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
                 Check(owner + " XVelocity", projectile.Velocity.X.RawValue, NativeSnapshotMemory.EnemyProjectileXVelocity + index);

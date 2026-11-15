@@ -18,9 +18,10 @@ internal static class SpawnWordDecodes
     public static TourianEntranceStatueSegment TourianStatue(int parameter1) =>
         Settings<TourianEntranceStatueSpawnSettings>(EnemyDefinitionId.TourianStatue, parameter1).Statue;
 
-    /// <summary>The Ceres door or wall a first parameter word names.</summary>
-    public static CeresDoorOrWall CeresDoorOrWallActor(int parameter1) =>
-        Settings<CeresDoorOrWallSpawnSettings>(EnemyDefinitionId.CeresDoor, parameter1).Actor;
+    /// <summary>The Ceres door or wall, with its settings, a first parameter word of the Ceres door header places (#1989).</summary>
+    /// <exception cref="InvalidDataException">The word selects past the seven doors and walls.</exception>
+    public static (EnemyDefinitionId Actor, EnemySpawnSettings Settings) CeresDoorHeaderPlacement(int parameter1) =>
+        EnemySpawnSettingsCodec.CeresDoorHeaderPlacement(parameter1);
 
     /// <summary>The escape Etecoon role a first parameter word names.</summary>
     public static EscapeEtecoonRole EscapeEtecoonRole(int parameter1) =>

@@ -34,7 +34,7 @@ internal static class EncounterFrameDefinitions
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyDefinitionId> DrawnInRowOf { get; } = new Dictionary<EnemyFrameId, EnemyDefinitionId>
     {
-        [CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame] = EnemyDefinitionId.CeresDoor,
+        [CeresDoorFrameDefinitions.RidleyRoomDoorDrawnByRidley] = EnemyDefinitionId.CeresRidleyRoomDoor,
     };
 
     /// <summary>The frames each enemy's encounter draws itself.</summary>
@@ -47,7 +47,7 @@ internal static class EncounterFrameDefinitions
             [
                 .. RidleySupplements,
                 .. CeresBabyFrameDefinitions.ShownFrames.Select(entry => entry.Value),
-                CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
+                CeresDoorFrameDefinitions.RidleyRoomDoorDrawnByRidley,
             ],
         };
 }

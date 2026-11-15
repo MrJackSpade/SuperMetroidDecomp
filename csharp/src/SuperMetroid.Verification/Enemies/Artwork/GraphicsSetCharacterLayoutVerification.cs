@@ -19,7 +19,7 @@ internal static class GraphicsSetCharacterLayoutVerification
     /// <summary>Checks the layout of retail sets with an ordinary and a fixed-block member, and the rejected shapes.</summary>
     internal static void VerifyGraphicsSetCharacterLayout()
     {
-        // Ceres Ridley's set: Ridley, then the Ceres door at its header's fixed block.
+        // Ceres Ridley's set: Ridley, then the Ceres door header's artwork at its fixed block (#1989).
         GraphicsSetCharacterLayout ceres = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault));
         AssertEqual(2, ceres.Members.Count, "Ceres Ridley's set lays out both members");
         GraphicsSetMemberCharacters ridley = ceres.Members[0];
@@ -28,10 +28,10 @@ internal static class GraphicsSetCharacterLayoutVerification
         AssertEqual(64 * TileBytes, ridley.StagingOffset, "an ordinary first member stages 64 tiles into the enemy tile area");
         AssertEqual(0, ridley.TileIndexBase, "the first member's pictures count from the set's first character");
         AssertEqual(EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.RidleyCeres], ridley.TileByteCount, "Ridley stages his whole tile set");
-        AssertEqual(EnemyTileSetDefinitions.FixedBlocks[EnemyDefinitionId.CeresDoor] * 512, door.StagingOffset,
-            "the Ceres door stages at its fixed block");
+        AssertEqual(EnemyTileSetDefinitions.UnplacedFixedBlocks[UnplacedEnemyArtwork.CeresDoors] * 512, door.StagingOffset,
+            "the Ceres door header's artwork stages at its fixed block");
         AssertEqual(ridley.TileByteCount / TileBytes, door.TileIndexBase, "the second member's index counts the first member's tiles");
-        AssertEqual(0, ceres.TileBaseOf(EnemyDefinitionId.CeresDoor), "the Ceres door draws from the characters it fixes");
+        AssertEqual(0, ceres.TileBaseOf(EnemyDefinitionId.CeresRidleyRoomDoor), "the door of Ridley's room draws from the characters it fixes");
         AssertEqual(0, ceres.TileBaseOf(EnemyDefinitionId.Kraid), "an enemy the set does not load draws from the first character");
 
         // An enemy copying its owner's index draws where its owner's set member does.
@@ -45,7 +45,7 @@ internal static class GraphicsSetCharacterLayoutVerification
             [.. Enumerable.Repeat(new RoomEnemyGraphicsSetMember(EnemyDefinitionId.Beetom), 5)])),
             "a set of more than four members is rejected");
         AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("after a fixed block",
-            [new(EnemyDefinitionId.CeresDoor), new(EnemyDefinitionId.Beetom)])),
+            [new(UnplacedEnemyArtwork.CeresDoors), new(EnemyDefinitionId.Beetom)])),
             "a member after one staged at a fixed block is rejected");
         Console.WriteLine("  Graphics-set layout: ordinary and fixed-block members land where the cartridge stages them.");
     }

@@ -231,7 +231,7 @@ public sealed class TourianStatueSequence
                 case TourianStatueBlockCueKind.ClaimRelease:
                     statue.Animation.ReleaseInProgress = true;
                     return null;
-                case TourianStatueBlockCueKind.ClearThreeColors:
+                case TourianStatueBlockCueKind.BlackOutEyes:
                     // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
                     _enemies.TourianStatue.ShowStatueLook(definition.ClearedShade);
                     return null;

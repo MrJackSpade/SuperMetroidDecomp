@@ -69,7 +69,8 @@ internal static class EnemySpawnSettingsCodec
     /// <summary>The species whose entries tell them settings, each with its packing.</summary>
     private static readonly Dictionary<EnemyDefinitionId, Func<PopulationWords, EnemySpawnSettings>> Decoders = new()
     {
-        [EnemyDefinitionId.CeresDoor] = words => new CeresDoorOrWallSpawnSettings(Actor: Bits(words.Parameter1, 0, 16) switch { 0 => CeresDoorOrWall.DoorFacingRight, 1 => CeresDoorOrWall.DoorFacingLeft, 2 => CeresDoorOrWall.ElevatorDoor, 3 => CeresDoorOrWall.RidleyRoomDoor, 4 => CeresDoorOrWall.ElevatorRoomWall, 5 => CeresDoorOrWall.GetawayChamberLeftWall, 6 => CeresDoorOrWall.GetawayChamberRightWall, var other => throw Unmapped("Variant", other) }),
+        [EnemyDefinitionId.CeresDoor] = words => CeresDoorHeaderSettings(EnemyDefinitionId.CeresDoor, words.Parameter1),
+        [EnemyDefinitionId.CeresGetawayChamberWall] = words => CeresDoorHeaderSettings(EnemyDefinitionId.CeresGetawayChamberWall, words.Parameter1),
         [EnemyDefinitionId.Steam] = words => new CeresSteamSpawnSettings(Variant: Bits(words.Parameter1, 0, 16) switch { 0 => CeresSteamVariant.Up, 1 => CeresSteamVariant.Left, 2 => CeresSteamVariant.Down, 3 => CeresSteamVariant.Right, 4 => CeresSteamVariant.RotatingElevatorLeft, 5 => CeresSteamVariant.RotatingElevatorRight, var other => throw Unmapped("Variant", other) }),
         [EnemyDefinitionId.TourianStatue] = words => new TourianEntranceStatueSpawnSettings(Statue: Bits(words.Parameter1, 0, 16) switch { 0 => TourianEntranceStatueSegment.BaseDecoration, 2 => TourianEntranceStatueSegment.Ridley, 4 => TourianEntranceStatueSegment.Phantoon, var other => throw Unmapped("Statue", other) }),
         [EnemyDefinitionId.MotherBrainTubes] = words => new MotherBrainTubeSpawnSettings(Piece: Bits(words.Parameter1, 1, 15) switch { 0 => MotherBrainTubePiece.BottomLeft, 1 => MotherBrainTubePiece.BottomRight, 2 => MotherBrainTubePiece.BottomMiddleLeft, 3 => MotherBrainTubePiece.BottomMiddleRight, 4 => MotherBrainTubePiece.Main, var other => throw Unmapped("Piece", other) }, FallDelay: Bits(words.Parameter2, 0, 16)),
@@ -172,11 +173,86 @@ internal static class EnemySpawnSettingsCodec
     /// <summary>Whether the species reads its settings from the extra-property word, which then holds no additional property.</summary>
     public static bool TakesExtraPropertySettings(EnemyDefinitionId enemy) => enemy is EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or EnemyDefinitionId.Kamer;
 
+    /// <summary>
+    /// The actor and settings each first parameter of a placement of the Ceres door header selects, in its order (#1989):
+    /// an ordinary door facing right, then left; the elevator room's blocked door; the door of Ridley's room; the elevator
+    /// room's wall; and the getaway chamber's left, then right wall. The cartridge places every Ceres door and wall by the one
+    /// header; the game's actors are each their own definition.
+    /// </summary>
+    private static readonly (EnemyDefinitionId Actor, EnemySpawnSettings Settings)[] CeresDoorHeaderPlacements =
+    [
+        (EnemyDefinitionId.CeresDoor, new CeresDoorSpawnSettings(HorizontalDirection.Right)),
+        (EnemyDefinitionId.CeresDoor, new CeresDoorSpawnSettings(HorizontalDirection.Left)),
+        (EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None),
+        (EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None),
+        (EnemyDefinitionId.CeresElevatorRoomWall, EnemySpawnSettings.None),
+        (EnemyDefinitionId.CeresGetawayChamberWall, new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left)),
+        (EnemyDefinitionId.CeresGetawayChamberWall, new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Right)),
+    ];
+
+    /// <summary>The actor and settings a placement of the Ceres door header with first parameter <paramref name="parameter1"/> places.</summary>
+    /// <exception cref="InvalidDataException">The parameter selects past the seven doors and walls.</exception>
+    public static (EnemyDefinitionId Actor, EnemySpawnSettings Settings) CeresDoorHeaderPlacement(int parameter1)
+    {
+        int selector = Bits(parameter1, 0, 16);
+        return selector < CeresDoorHeaderPlacements.Length ? CeresDoorHeaderPlacements[selector] : throw Unmapped("Actor", selector);
+    }
+
+    /// <summary>
+    /// The actor a native placement of the header at <paramref name="headerPointer"/> places with first parameter
+    /// <paramref name="parameter1"/>: the header's own enemy, or, for a header several actors share, the one its parameter
+    /// selects (#1989).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The pointer names no placeable header, or its parameter selects no actor.</exception>
+    public static EnemyDefinitionId PlacedActor(int headerPointer, int parameter1) =>
+        EnemyDefinitionIds.TryFromHeaderPointer(headerPointer, out EnemyDefinitionId enemy) ? enemy
+        : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(headerPointer, out UnplacedEnemyArtwork shared)
+            && shared == UnplacedEnemyArtwork.CeresDoors
+            ? CeresDoorHeaderPlacement(parameter1).Actor
+            : throw new InvalidDataException($"${headerPointer:X4} is not a header a placement places.");
+
+    /// <summary>
+    /// The first parameter of a placement of <paramref name="enemy"/>'s header that places <paramref name="enemy"/>: zero,
+    /// or, for an actor sharing the Ceres door header, the first selector that places it (#1989).
+    /// </summary>
+    public static int FirstParameterPlacing(EnemyDefinitionId enemy) =>
+        SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.SharedHeaders.ContainsKey(enemy)
+            ? Array.FindIndex(CeresDoorHeaderPlacements, placement => placement.Actor == enemy)
+            : 0;
+
+    /// <summary>The settings <paramref name="actor"/> takes from a Ceres door header placement's first parameter.</summary>
+    /// <exception cref="InvalidDataException">The parameter selects another actor, or none.</exception>
+    private static EnemySpawnSettings CeresDoorHeaderSettings(EnemyDefinitionId actor, int parameter1)
+    {
+        (EnemyDefinitionId placed, EnemySpawnSettings settings) = CeresDoorHeaderPlacement(parameter1);
+        return placed == actor ? settings : throw Unmapped($"{actor} actor", Bits(parameter1, 0, 16));
+    }
+
+    /// <summary>The first parameter that places <paramref name="actor"/> with <paramref name="settings"/> by the Ceres door header.</summary>
+    /// <exception cref="ArgumentException">No first parameter places them.</exception>
+    private static int CeresDoorHeaderSelector(EnemyDefinitionId actor, EnemySpawnSettings settings)
+    {
+        int selector = Array.FindIndex(CeresDoorHeaderPlacements, placement => placement.Actor == actor && placement.Settings.Equals(settings));
+        return selector >= 0 ? selector
+            : throw new ArgumentException($"No Ceres door header placement places {actor} with the settings {settings}.", nameof(settings));
+    }
+
+    /// <summary>
+    /// The words that place <paramref name="enemy"/> with <paramref name="settings"/>: the settings' own words, with the
+    /// first parameter selecting the actor where the enemy shares the Ceres door header with the other doors and walls (#1989).
+    /// </summary>
+    /// <exception cref="ArgumentException">No words place the enemy with the settings.</exception>
+    public static PopulationWords Encode(EnemyDefinitionId enemy, EnemySpawnSettings settings) =>
+        SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.SharedHeaders.ContainsKey(enemy)
+            ? Encode(settings) with { Parameter1 = CeresDoorHeaderSelector(enemy, settings) }
+            : Encode(settings);
+
     /// <summary>The words that decode to <paramref name="settings"/> for its species; a species told nothing gets zero words.</summary>
     /// <exception cref="ArgumentException">No words decode to the settings.</exception>
     public static PopulationWords Encode(EnemySpawnSettings settings) => Ensure.NotNull(settings) switch
     {
-        CeresDoorOrWallSpawnSettings s => Checked(EnemyDefinitionId.CeresDoor, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Actor switch { CeresDoorOrWall.DoorFacingRight => 0, CeresDoorOrWall.DoorFacingLeft => 1, CeresDoorOrWall.ElevatorDoor => 2, CeresDoorOrWall.RidleyRoomDoor => 3, CeresDoorOrWall.ElevatorRoomWall => 4, CeresDoorOrWall.GetawayChamberLeftWall => 5, CeresDoorOrWall.GetawayChamberRightWall => 6, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
+        CeresDoorSpawnSettings => Checked(EnemyDefinitionId.CeresDoor, settings, PopulationWords.Parameters(CeresDoorHeaderSelector(EnemyDefinitionId.CeresDoor, settings), 0)),
+        CeresGetawayChamberWallSpawnSettings => Checked(EnemyDefinitionId.CeresGetawayChamberWall, settings, PopulationWords.Parameters(CeresDoorHeaderSelector(EnemyDefinitionId.CeresGetawayChamberWall, settings), 0)),
         CeresSteamSpawnSettings s => Checked(EnemyDefinitionId.Steam, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Variant switch { CeresSteamVariant.Up => 0, CeresSteamVariant.Left => 1, CeresSteamVariant.Down => 2, CeresSteamVariant.Right => 3, CeresSteamVariant.RotatingElevatorLeft => 4, CeresSteamVariant.RotatingElevatorRight => 5, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         TourianEntranceStatueSpawnSettings s => Checked(EnemyDefinitionId.TourianStatue, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Statue switch { TourianEntranceStatueSegment.BaseDecoration => 0, TourianEntranceStatueSegment.Ridley => 2, TourianEntranceStatueSegment.Phantoon => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         MotherBrainTubeSpawnSettings s => Checked(EnemyDefinitionId.MotherBrainTubes, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Piece switch { MotherBrainTubePiece.BottomLeft => 0, MotherBrainTubePiece.BottomRight => 1, MotherBrainTubePiece.BottomMiddleLeft => 2, MotherBrainTubePiece.BottomMiddleRight => 3, MotherBrainTubePiece.Main => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 1), Parameter2: Place(s.FallDelay, 0, 16))),

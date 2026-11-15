@@ -28,8 +28,8 @@ internal static class EnemyTileArtworkCeresDoorVerification
         AssertTrue(door.Characters.Span.SequenceEqual(nativeTiles),
             "installed Ceres-door PNG preserves the complete direct tile DMA");
         // $A6:F739 copies the characters to VRAM byte $E000, word $7000: OBJ character $100.
-        EncounterArtworkUpload overlay = EncounterLookUploads.Uploads(ComposedEncounter.CeresDoor,
-            EncounterLookUploads.IndexOf(ComposedEncounter.CeresDoor, CeresDoorLookDefinitions.OverlayLook.Name), new EnemyTileTransfers(stock)).Single();
+        EncounterArtworkUpload overlay = EncounterLookUploads.Uploads(ComposedEncounter.CeresElevatorDoor,
+            EncounterLookUploads.IndexOf(ComposedEncounter.CeresElevatorDoor, CeresElevatorDoorLookDefinitions.OverlayLook.Name), new EnemyTileTransfers(stock)).Single();
         AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(0x7000)), overlay.FirstByte,
             "the door's characters show where the cartridge's DMA lands them among the OBJ characters");
         AssertTrue(overlay.Characters.Span.SequenceEqual(nativeTiles), "the door's overlay look shows all its characters");

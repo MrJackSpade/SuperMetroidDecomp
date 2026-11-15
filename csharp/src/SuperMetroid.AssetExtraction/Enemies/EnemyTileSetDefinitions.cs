@@ -83,7 +83,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.Ridley] = 8192,
         [EnemyDefinitionId.RidleyExplosion] = 1024,
         [EnemyDefinitionId.Steam] = 0,
-        [EnemyDefinitionId.CeresDoor] = 1536,
         [EnemyDefinitionId.Zebetite] = 0,
         [EnemyDefinitionId.Kraid] = 7680,
         [EnemyDefinitionId.KraidArm] = 7680,
@@ -169,7 +168,6 @@ internal static class EnemyTileSetDefinitions
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> FixedBlocks { get; } = new Dictionary<EnemyDefinitionId, int>
     {
-        [EnemyDefinitionId.CeresDoor] = 1,
         [EnemyDefinitionId.Crocomire] = 1,
         [EnemyDefinitionId.MotherBrainBody] = 1,
         [EnemyDefinitionId.RidleyExplosion] = 2,
@@ -181,11 +179,13 @@ internal static class EnemyTileSetDefinitions
         [UnplacedEnemyArtwork.Stoke] = 1024,
         [UnplacedEnemyArtwork.DeadSidehopperLivingTiles] = 1536,
         [UnplacedEnemyArtwork.TourianStatueGhosts] = 1536,
+        [UnplacedEnemyArtwork.CeresDoors] = 1536,
     };
 
     /// <summary>The fixed staging block each unplaced artwork whose header places its tiles at a fixed block uploads them to.</summary>
     internal static IReadOnlyDictionary<UnplacedEnemyArtwork, int> UnplacedFixedBlocks { get; } = new Dictionary<UnplacedEnemyArtwork, int>
     {
         [UnplacedEnemyArtwork.TourianStatueGhosts] = 1,
+        [UnplacedEnemyArtwork.CeresDoors] = 1,
     };
 }

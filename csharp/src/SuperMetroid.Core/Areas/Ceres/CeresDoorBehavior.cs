@@ -11,30 +11,52 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The room's owner of the Ceres station's doors and walls (#1953): it places each placement's own actor (an ordinary
-/// door, the door of Ridley's room, the elevator room's blocked door, the elevator room's wall or a wall of Ridley's
-/// getaway chamber) and lends them the animation they share, the station's escape quake and the room's services.
+/// The room's owner of the Ceres station's doors and walls (#1953, #1989): it places each one's own actor, each its own
+/// definition and sheet (an ordinary door, the door of Ridley's room, the elevator room's blocked door, the elevator
+/// room's wall or a wall of Ridley's getaway chamber), and lends them the animations they share, the station's escape
+/// quake and the room's services.
 /// </summary>
 [RoomLifetime]
 internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresDoor];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
+    [
+        EnemyDefinitionId.CeresDoor, EnemyDefinitionId.CeresRidleyRoomDoor, EnemyDefinitionId.CeresElevatorDoor,
+        EnemyDefinitionId.CeresElevatorRoomWall, EnemyDefinitionId.CeresGetawayChamberWall,
+    ];
 
-    /// <summary>The door or wall actor <paramref name="slot"/>'s placement places.</summary>
-    /// <exception cref="InvalidDataException">The placement names no Ceres door or wall.</exception>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) =>
-        Ensure.NotNull(slot).SpawnSettings<CeresDoorOrWallSpawnSettings>().Actor switch
+    /// <summary>The door or wall actor <paramref name="slot"/>'s definition names, facing or standing where its placement says.</summary>
+    /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId actor = Ensure.NotNull(slot).DefinitionId;
+        if (actor == EnemyDefinitionId.CeresDoor)
         {
-            CeresDoorOrWall.DoorFacingRight => new CeresDoorEntity(this, slot, common, CeresDoorSegment.DoorFacingRight),
-            CeresDoorOrWall.DoorFacingLeft => new CeresDoorEntity(this, slot, common, CeresDoorSegment.DoorFacingLeft),
-            CeresDoorOrWall.ElevatorDoor => new CeresElevatorDoorEntity(this, slot, common),
-            CeresDoorOrWall.RidleyRoomDoor => new CeresRidleyRoomDoorEntity(this, slot, common),
-            CeresDoorOrWall.ElevatorRoomWall => new CeresElevatorRoomWallEntity(this, slot, common),
-            CeresDoorOrWall.GetawayChamberLeftWall => new CeresGetawayChamberWallEntity(this, slot, common, CeresDoorSegment.GetawayChamberLeftWall),
-            CeresDoorOrWall.GetawayChamberRightWall => new CeresGetawayChamberWallEntity(this, slot, common, CeresDoorSegment.GetawayChamberRightWall),
-            var other => throw new InvalidDataException($"No Ceres door or wall is placed as {other}."),
-        };
+            return new CeresDoorEntity(this, slot, common, slot.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
+            {
+                HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
+                HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
+                var other => throw new InvalidDataException($"No Ceres door faces {other}."),
+            });
+        }
+        if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
+            return new CeresRidleyRoomDoorEntity(this, slot, common);
+        if (actor == EnemyDefinitionId.CeresElevatorDoor)
+            return new CeresElevatorDoorEntity(this, slot, common);
+        if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
+            return new CeresElevatorRoomWallEntity(this, slot, common);
+        if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
+        {
+            return new CeresGetawayChamberWallEntity(this, slot, common, slot.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
+            {
+                HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
+                HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,
+                var other => throw new InvalidDataException($"No getaway chamber wall stands on side {other}."),
+            });
+        }
+        throw new InvalidDataException($"{actor} is no Ceres door or wall.");
+    }
 
     /// <summary>Captures the room systems the Ceres doors and walls use.</summary>
     internal CeresDoorBehavior(CeresDoorBehaviorDependencies dependencies)
@@ -90,7 +112,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     internal void Start(RoomEnemySlot slot, CeresDoorSegment animation)
     {
         Ensure.NotNull(slot);
-        slot.Frame = EnemyFrameId.CeresDoorInitial;
+        slot.Frame = EnemyFrameId.CeresDoorOrWallInitial;
         slot.AnimationClock.Restart();
         slot.SetSpeciesState(new CeresDoorAnimationState
         {

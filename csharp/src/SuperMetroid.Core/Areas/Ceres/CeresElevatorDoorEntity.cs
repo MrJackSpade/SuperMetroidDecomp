@@ -27,7 +27,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         doors.Start(Slot, CeresDoorSegment.ElevatorDoor);
         Slot.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
         // Only the elevator door shows the door's own look (#1406, #1538).
-        doors.Presentation.ShowLook(CeresDoorLookDefinitions.OverlayLook);
+        doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
     }
 
     /// <inheritdoc/>

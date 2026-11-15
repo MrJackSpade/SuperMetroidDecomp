@@ -103,7 +103,29 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         DropChances: new EnemyDropChances(10, 20, 200, 25, 0, 0),
         Vulnerability: EnemyVulnerabilityDefinitions.SporeSpawn);
 
-    /// <summary>The cutscene actors', Torizo orbs' and Spore Spawn stalk's definitions, by identity.</summary>
+    /// <summary>
+    /// A wall of Ceres Ridley's getaway chamber, which his getaway places (#1989), with the same fields as every Ceres door
+    /// and wall.
+    /// </summary>
+    internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = new(
+        Health: 40,
+        Damage: 15,
+        Radius: new(8, 32),
+        HurtFlashFrames: 4,
+        HurtSoundEffect: EnemySound.RidleyRoar,
+        Boss: null,
+        GrappleResponse: EnemyGrappleResponse.Cancel,
+        HurtResponse: EnemyHurtResponse.Inert,
+        DeathExplosion: EnemyDeathExplosion.Small,
+        PowerBombReaction: null,
+        Touch: EnemyReaction.Ignore,
+        Shot: EnemyReaction.Ignore,
+        TouchHitboxScan: EnemyHitboxScan.Scanned,
+        ShotHitboxScan: EnemyHitboxScan.Scanned,
+        DropChances: null,
+        Vulnerability: null);
+
+    /// <summary>The cutscene actors', Torizo orbs', Spore Spawn stalk's and getaway chamber walls' definitions, by identity.</summary>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
@@ -112,6 +134,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         [EnemyDefinitionId.BombTorizoOrb] = BombTorizoOrb,
         [EnemyDefinitionId.GoldenTorizoOrb] = GoldenTorizoOrb,
         [EnemyDefinitionId.SporeSpawnStalk] = SporeSpawnStalk,
+        [EnemyDefinitionId.CeresGetawayChamberWall] = CeresGetawayChamberWall,
     };
 
     /// <summary>Looks up one dynamic actor's definition.</summary>

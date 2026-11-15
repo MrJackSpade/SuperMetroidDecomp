@@ -248,6 +248,23 @@ internal sealed record PartFrameConfiguration(
                 ["ShipTop"] = ["TopHull"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // The Ceres doors and walls run the doors' one animation set, each from its own start (#1989): an ordinary door from
+        // its facing's, which its placement chooses; the door of Ridley's room from its own, running on into the right-facing
+        // door's; the elevator room's blocked door, its wall (which runs on into the left-facing door's) and the getaway
+        // chamber's walls each from theirs.
+        new("CeresDoorBehavior", null, null, "CeresDoorAnimations", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["CeresDoor"] = ["DoorFacingRight", "DoorFacingLeft"],
+                ["CeresRidleyRoomDoor"] = ["RidleyRoomDoor"],
+                ["CeresElevatorDoor"] = ["ElevatorDoor"],
+                ["CeresElevatorRoomWall"] = ["ElevatorRoomWall"],
+                ["CeresGetawayChamberWall"] = ["GetawayChamberLeftWall", "GetawayChamberRightWall"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
+            [
+                new("CeresDoor", "CeresDoorSpawnSettings", "Facing", ["Right", "Left"]),
+            ]),
         // The Mama Turtle sleeps, leaves and enters her shell and spins; the baby crawls, hides, leaves its shell and spins.
         new("MamaTurtleBehavior", null, null, "MamaTurtleAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)

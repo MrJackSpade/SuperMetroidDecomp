@@ -353,7 +353,9 @@ internal sealed class EnemySheetShades
                 // The bosses' own effects over the row they draw in (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));
                 break;
-            case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor:
+            case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor
+                or EnemyDefinitionId.CeresRidleyRoomDoor or EnemyDefinitionId.CeresElevatorDoor or EnemyDefinitionId.CeresElevatorRoomWall
+                or EnemyDefinitionId.CeresGetawayChamberWall:
                 // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses));
                 break;
@@ -457,7 +459,8 @@ internal sealed class EnemySheetShades
             rows.Add(new(NinjaSpacePirateShades.GoldWall, EnemySheetRowDefinitions.NinjaGoldWall, colours.With(EnemySheetRowDefinitions.NinjaGoldWall, 0,
                 inputs.Enemies.PaletteOf(EnemyDefinitionId.PirateGoldWall).Colours)));
         }
-        if (enemy == EnemyDefinitionId.CeresDoor)
+        if (enemy is EnemyDefinitionId.CeresDoor or EnemyDefinitionId.CeresRidleyRoomDoor or EnemyDefinitionId.CeresElevatorDoor
+            or EnemyDefinitionId.CeresElevatorRoomWall or EnemyDefinitionId.CeresGetawayChamberWall)
             rows.AddRange(CeresDoorLooks());
         return new SheetShadeSet(inks, rows);
     }

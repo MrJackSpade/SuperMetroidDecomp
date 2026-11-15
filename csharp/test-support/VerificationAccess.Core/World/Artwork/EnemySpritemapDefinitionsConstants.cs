@@ -103,5 +103,5 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Ceres Baby Metroid frames.</summary>
     internal static int PreCeresBabyFrameCount => FramesBefore(EnemyFrameId.CeresBabyHorizontal);
     /// <summary>Frames the document lists before the Ceres door frames.</summary>
-    internal static int PreCeresDoorFrameCount => FramesBefore(EnemyFrameId.CeresDoorRotatingOverlay);
+    internal static int PreCeresDoorFrameCount => FramesBefore(EnemyFrameId.CeresElevatorDoorBlocked);
 }

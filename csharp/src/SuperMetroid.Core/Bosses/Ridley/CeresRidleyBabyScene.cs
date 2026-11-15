@@ -206,7 +206,7 @@ internal sealed class CeresRidleyBabyScene
             // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's
             // own earthquake shake, which moves only the drawn door.
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
-            _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
+            _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyRoomDoorDrawnByRidley,
                 new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),
                 // The overlay shows its own standard colours; the door actor's own looks never reach it (#1512).
                 PictureShading.Standard);

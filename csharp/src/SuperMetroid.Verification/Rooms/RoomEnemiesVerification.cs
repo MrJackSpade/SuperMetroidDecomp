@@ -646,7 +646,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 internal static void VerifyCeresElevatorPlatformAnimation()
 {
     RoomLevelData openRoom = RoomEnemyFrameFixtures.OpenRoom(new(16, 16));
-    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
+    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresElevatorDoor;
     const ushort populationPointer = 0x9480;
     const ushort tilesetPointer = 0x9480;
     var bus = new TestAddressSpace();
@@ -691,7 +691,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 internal static void VerifyCeresDoorBossBranch()
 {
     RoomLevelData openRoom = RoomEnemyFrameFixtures.OpenRoom(new(16, 16));
-    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
+    const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresRidleyRoomDoor;
     const ushort populationPointer = 0x94c0;
     const ushort tilesetPointer = 0x94c0;
     var bus = new TestAddressSpace();
@@ -780,8 +780,6 @@ internal static void VerifyCeresRidleyRoomEntry()
     var vram = new SnesVram();
 
     SeedCeresRidleyRoomEntryCartridge(bus, definitionPointer, populationPointer, tilesetPointer);
-    const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
-
     (ushort[] fixturePaletteWords, byte[] fixturePlanar) = ReadCeresRidleyFixtureArtwork(bus);
     var fixturePalette = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
     for (int color = 0; color < fixturePalette.Length; color++)
@@ -821,14 +819,20 @@ internal static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
-                [ceresDoorDefinitionPointer] = InstalledFixtures.EnemyTiles.TryGetSheet(ceresDoorDefinitionPointer, out RoomCharacterAtlas? doorSheet)
-                    ? doorSheet : throw new InvalidOperationException("The installation has no Ceres door characters."),
+            }, UnplacedSheets = new Dictionary<SuperMetroid.AssetExtraction.Enemies.UnplacedEnemyArtwork, RoomCharacterAtlas>
+            {
+                // The room's set loads the Ceres door header's artwork, which no one of its doors owns (#1989).
+                [SuperMetroid.AssetExtraction.Enemies.UnplacedEnemyArtwork.CeresDoors] = new RoomCharacterAtlas(
+                    InstalledFixtures.EnemyTiles.UnplacedTilesOf(SuperMetroid.AssetExtraction.Enemies.UnplacedEnemyArtwork.CeresDoors).ToArray()),
+            }, UnplacedPalettes = new Dictionary<SuperMetroid.AssetExtraction.Enemies.UnplacedEnemyArtwork, EnemyPaletteSheet>
+            {
+                // The room's set loads the Ceres door header's colours too (#1512); the fixture shows the installed ones.
+                [SuperMetroid.AssetExtraction.Enemies.UnplacedEnemyArtwork.CeresDoors] =
+                    InstalledFixtures.EnemyTiles.UnplacedPaletteOf(SuperMetroid.AssetExtraction.Enemies.UnplacedEnemyArtwork.CeresDoors),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-                // The room's set loads the Ceres door's colours too (#1512); the fixture shows the installed ones.
-                [ceresDoorDefinitionPointer] = InstalledFixtures.EnemyTiles.PaletteOf(ceresDoorDefinitionPointer),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             // Every character-zero spawned-object sheet takes the n00b tube's crack shade (#1512).
@@ -1104,8 +1108,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(ridley.Presence.HasAny(EnemyPresence.Hidden),
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
-        .Where(slot => slot.DefinitionId == ceresDoorDefinitionPointer &&
-            slot.SpawnSettings<CeresDoorOrWallSpawnSettings>().Actor is CeresDoorOrWall.GetawayChamberLeftWall or CeresDoorOrWall.GetawayChamberRightWall)
+        .Where(slot => slot.DefinitionId == EnemyDefinitionId.CeresGetawayChamberWall)
         .ToArray();
     AssertTrue(mode7Walls.All(wall => wall.Presence.HasAny(EnemyPresence.Hidden)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,
@@ -1439,7 +1442,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The native post-battle path dynamically spawns Ceres-door variants five and six as
     // the two Mode-7 chamber walls. Keep their real header/dispatch/list boundaries in this
     // fixture so the escape audit cannot pass by changing only Ridley's logical status.
-    const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
+    const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresGetawayChamberWall;
     WriteEnemyDefinition(bus, ceresDoorDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa69000, BossId = 0, NamePointer = 0, FieldSeed = 0x4100 });
     SeedEnemyDefinitionWord(bus, ceresDoorDefinitionPointer, 18, 0xf6c5);
     SeedEnemyDefinitionWord(bus, ceresDoorDefinitionPointer, 24, 0xf765);

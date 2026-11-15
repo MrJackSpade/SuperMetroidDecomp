@@ -54,7 +54,7 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>The enemies whose code raises the room-graphics dust and explosions.</summary>
     private static readonly EnemyDefinitionId[] DustRaisers =
     [
-        .. Corpses, .. Ridleys, EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.CeresDoor,
+        .. Corpses, .. Ridleys, EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.CeresElevatorDoor,
         EnemyDefinitionId.Botwoon, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail,
         EnemyDefinitionId.DraygonArms, EnemyDefinitionId.Kraid, EnemyDefinitionId.BabyMetroidCutscene, EnemyDefinitionId.MotherBrainBody,
         EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.Rinka, EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.SporeSpawn,

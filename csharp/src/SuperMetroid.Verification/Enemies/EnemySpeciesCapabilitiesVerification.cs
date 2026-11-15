@@ -190,9 +190,11 @@ internal static class EnemySpeciesCapabilitiesVerification
         int answers = 0;
         foreach (EnemyDefinitionId definition in definitions)
         {
-            // The Ceres doors and walls are actors their placement names; bind the door of Ridley's room (#1953).
+            // An ordinary Ceres door faces the way its placement says, and a getaway chamber wall stands on its side (#1989).
             if (definition == EnemyDefinitionId.CeresDoor)
-                slot.SetSpawnSettings(new CeresDoorOrWallSpawnSettings(CeresDoorOrWall.RidleyRoomDoor));
+                slot.SetSpawnSettings(new CeresDoorSpawnSettings(HorizontalDirection.Right));
+            if (definition == EnemyDefinitionId.CeresGetawayChamberWall)
+                slot.SetSpawnSettings(new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left));
             slot.Bind(definition, HeaderOf(definition));
             IEnemyEntity entity = slot.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
             bound++;
@@ -215,7 +217,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             {
                 doorState.HandsDrawingToRidley = handed;
                 bool drawnByRidley = entity is IDrawnByCeresRidleyScene door && door.HandsDrawingToRidley;
-                AssertEqual(definition == EnemyDefinitionId.CeresDoor && handed, drawnByRidley,
+                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && handed, drawnByRidley,
                     $"{definition} hands its drawing to Ceres Ridley's scene with the hand-drawing flag {(handed ? "set" : "clear")}");
             }
         }

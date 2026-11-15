@@ -213,6 +213,10 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.RidleyExplosion:
             case EnemyDefinitionId.Steam:
             case EnemyDefinitionId.CeresDoor:
+            case EnemyDefinitionId.CeresRidleyRoomDoor:
+            case EnemyDefinitionId.CeresElevatorDoor:
+            case EnemyDefinitionId.CeresElevatorRoomWall:
+            case EnemyDefinitionId.CeresGetawayChamberWall:
             case EnemyDefinitionId.Zebetite:
             case EnemyDefinitionId.Kraid:
             case EnemyDefinitionId.KraidArm:

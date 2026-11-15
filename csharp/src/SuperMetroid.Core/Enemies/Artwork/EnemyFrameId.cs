@@ -476,36 +476,36 @@ public enum EnemyFrameId
     MagdolliteSevenSegmentPillar,
     /// <summary>Magdollite: the pillar eight segments high.</summary>
     MagdolliteEightSegmentPillar,
-    /// <summary>The Ceres door: rotating overlay.</summary>
-    CeresDoorRotatingOverlay,
-    /// <summary>The Ceres door: left hold.</summary>
-    CeresDoorLeftHold,
-    /// <summary>The Ceres door: close facing left, fourth frame.</summary>
-    CeresDoorCloseFacingLeftFourth,
-    /// <summary>The Ceres door: close facing left, third frame.</summary>
-    CeresDoorCloseFacingLeftThird,
-    /// <summary>The Ceres door: close facing left, second frame.</summary>
-    CeresDoorCloseFacingLeftSecond,
-    /// <summary>The Ceres door: close facing left, first frame.</summary>
-    CeresDoorCloseFacingLeftFirst,
-    /// <summary>The Ceres door: right hold.</summary>
-    CeresDoorRightHold,
-    /// <summary>The Ceres door: Ridley room facing right, fourth frame.</summary>
-    CeresDoorRidleyRoomFacingRightFourth,
-    /// <summary>The Ceres door: Ridley room facing right, third frame.</summary>
-    CeresDoorRidleyRoomFacingRightThird,
-    /// <summary>The Ceres door: Ridley room facing right, second frame.</summary>
-    CeresDoorRidleyRoomFacingRightSecond,
-    /// <summary>The Ceres door: Ridley room facing right, first frame.</summary>
-    CeresDoorRidleyRoomFacingRightFirst,
-    /// <summary>The Ceres door: initial.</summary>
-    CeresDoorInitial,
-    /// <summary>The Ceres door: turning floor left wall.</summary>
-    CeresDoorTurningFloorLeftWall,
-    /// <summary>The Ceres door: turning floor right wall.</summary>
-    CeresDoorTurningFloorRightWall,
-    /// <summary>The Ceres door: Ridley private overlay.</summary>
-    CeresDoorRidleyPrivateOverlay,
+    /// <summary>The Ceres elevator room's blocked door, standing until the station starts to self-destruct.</summary>
+    CeresElevatorDoorBlocked,
+    /// <summary>A Ceres door facing left: closed.</summary>
+    CeresDoorFacingLeftClosed,
+    /// <summary>A Ceres door facing left: opening, first frame.</summary>
+    CeresDoorFacingLeftOpeningFirst,
+    /// <summary>A Ceres door facing left: opening, second frame.</summary>
+    CeresDoorFacingLeftOpeningSecond,
+    /// <summary>A Ceres door facing left: opening, third frame.</summary>
+    CeresDoorFacingLeftOpeningThird,
+    /// <summary>A Ceres door facing left: open.</summary>
+    CeresDoorFacingLeftOpen,
+    /// <summary>A Ceres door facing right: closed.</summary>
+    CeresDoorFacingRightClosed,
+    /// <summary>A Ceres door facing right: opening, first frame.</summary>
+    CeresDoorFacingRightOpeningFirst,
+    /// <summary>A Ceres door facing right: opening, second frame.</summary>
+    CeresDoorFacingRightOpeningSecond,
+    /// <summary>A Ceres door facing right: opening, third frame.</summary>
+    CeresDoorFacingRightOpeningThird,
+    /// <summary>A Ceres door facing right: open.</summary>
+    CeresDoorFacingRightOpen,
+    /// <summary>Every Ceres door and wall: the picture it shows before its animation's first frame.</summary>
+    CeresDoorOrWallInitial,
+    /// <summary>The left wall of Ceres Ridley's getaway chamber.</summary>
+    CeresGetawayChamberLeftWall,
+    /// <summary>The right wall of Ceres Ridley's getaway chamber.</summary>
+    CeresGetawayChamberRightWall,
+    /// <summary>The door of Ceres Ridley's room as Ridley's scene draws it while the door hands its drawing to him.</summary>
+    CeresRidleyRoomDoorDrawnByRidley,
     /// <summary>The Ceres baby Metroid: horizontal.</summary>
     CeresBabyHorizontal,
     /// <summary>The Ceres baby Metroid: round.</summary>

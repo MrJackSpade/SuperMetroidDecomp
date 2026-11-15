@@ -36,7 +36,7 @@ internal static class TourianStatueBlockAnimations
             [
                 Cue(new(K.GoToIfReleaseInProgress, Target: P.Oscillate)),
                 Cue(new(K.ClaimRelease)),
-                Cue(new(K.ClearThreeColors)),
+                Cue(new(K.BlackOutEyes)),
                 Show(F.OscillationSecond, 16),
                 Show(F.OscillationThird, 16),
                 Cue(new(K.SpawnEyeGlow)),

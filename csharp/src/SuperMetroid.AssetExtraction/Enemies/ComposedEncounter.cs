@@ -26,8 +26,8 @@ internal enum ComposedEncounter
     /// <summary>The Ceres self-destruct's escape timer and warning.</summary>
     CeresEscape,
 
-    /// <summary>A Ceres door's pre-explosion overlay.</summary>
-    CeresDoor,
+    /// <summary>The Ceres elevator room's blocked door's own look, over the Ceres door header's characters.</summary>
+    CeresElevatorDoor,
 
     /// <summary>Mother Brain's legs, the Baby, her attacks, her corpse and the escape.</summary>
     MotherBrain,

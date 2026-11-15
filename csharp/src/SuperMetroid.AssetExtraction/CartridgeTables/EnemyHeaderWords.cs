@@ -95,7 +95,6 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.Ridley] = 0xe17f,
         [EnemyDefinitionId.RidleyExplosion] = 0xe1bf,
         [EnemyDefinitionId.Steam] = 0xe1ff,
-        [EnemyDefinitionId.CeresDoor] = 0xe23f,
         [EnemyDefinitionId.Zebetite] = 0xe27f,
         [EnemyDefinitionId.Kraid] = 0xe2bf,
         [EnemyDefinitionId.KraidArm] = 0xe2ff,
@@ -183,5 +182,19 @@ internal static class EnemyHeaderWords
         [UnplacedEnemyArtwork.Stoke] = 0xceff,
         [UnplacedEnemyArtwork.DeadSidehopperLivingTiles] = 0xedbf,
         [UnplacedEnemyArtwork.TourianStatueGhosts] = 0xf03f,
+        [UnplacedEnemyArtwork.CeresDoors] = 0xe23f,
     });
+
+    /// <summary>
+    /// The actors the cartridge places by one header whose artwork names no one of them (#1989), each with that artwork:
+    /// every Ceres door and wall is placed by the Ceres door header, whose placement's first parameter selects among them.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyDefinitionId, UnplacedEnemyArtwork> SharedHeaders { get; } = new Dictionary<EnemyDefinitionId, UnplacedEnemyArtwork>
+    {
+        [EnemyDefinitionId.CeresDoor] = UnplacedEnemyArtwork.CeresDoors,
+        [EnemyDefinitionId.CeresRidleyRoomDoor] = UnplacedEnemyArtwork.CeresDoors,
+        [EnemyDefinitionId.CeresElevatorDoor] = UnplacedEnemyArtwork.CeresDoors,
+        [EnemyDefinitionId.CeresElevatorRoomWall] = UnplacedEnemyArtwork.CeresDoors,
+        [EnemyDefinitionId.CeresGetawayChamberWall] = UnplacedEnemyArtwork.CeresDoors,
+    };
 }

@@ -73,12 +73,12 @@ internal static class StoredExploredMapsVerification
             for (int offset = 0; offset < native.Length; offset++)
             {
                 AssertEqual(RoomScrollStates.FromStorageByte(native[offset]),
-                    grid.ReadCameraState(RoomScrollGrid.KeptCellCount + offset),
+                    grid.ReadCameraState(grid.Size.CellAtRowMajorIndex(RoomScrollGrid.KeptCellCount + offset)),
                     $"{when}: index {RoomScrollGrid.KeptCellCount + offset} reads the original map byte's scroll state");
             }
-            AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(RoomScrollGrid.KeptCellCount + native.Length),
+            AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(grid.Size.CellAtRowMajorIndex(RoomScrollGrid.KeptCellCount + native.Length)),
                 $"{when}: the first index past the eighth stored map is rejected");
-            AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(ushort.MaxValue),
+            AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(grid.Size.CellAtRowMajorIndex(ushort.MaxValue)),
                 $"{when}: the last index is rejected");
         }
         CompareAll("stored");

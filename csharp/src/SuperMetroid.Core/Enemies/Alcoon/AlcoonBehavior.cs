@@ -377,7 +377,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
-        context => RunAlcoonFireballFrameBehavior(context.Projectile, context.Level));
+        context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
     internal void RunAlcoonInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
@@ -433,8 +433,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
 
-    /// <summary>Runs the Alcoon fireball's per-frame behaviour.</summary>
-    internal static void RunAlcoonFireballFrameBehavior(
+    /// <summary>Flies the Alcoon fireball one update.</summary>
+    internal static void FlyAlcoonFireball(
         EnemyProjectile projectile,
         RoomLevelData level)
     {

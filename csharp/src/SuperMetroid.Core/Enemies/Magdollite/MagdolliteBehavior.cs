@@ -706,7 +706,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
     private sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
-        context => RunMagdolliteLavaFrameBehavior(context.Projectile, context.Camera),
+        context => FlyMagdolliteLava(context.Projectile, context.Camera),
         shot: () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot)), IEnemyProjectileCues<MagdolliteLavaCue>
     {
         /// <summary>Carries out one cue of the thrown lava's animations.</summary>
@@ -793,8 +793,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }
 
-    /// <summary>Runs the lava's per-frame behaviour: the lava flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunMagdolliteLavaFrameBehavior(
+    /// <summary>Flies the lava one update: it flies sideways at its speed until it leaves the view.</summary>
+    internal static void FlyMagdolliteLava(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {

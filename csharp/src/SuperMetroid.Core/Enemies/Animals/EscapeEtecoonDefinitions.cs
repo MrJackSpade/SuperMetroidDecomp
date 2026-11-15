@@ -10,11 +10,11 @@ internal static class EscapeEtecoonDefinitions
     /// </summary>
     internal static readonly Dictionary<EscapeEtecoonRole, EscapeEtecoonInitialization> Initializations = new()
     {
-        [EscapeEtecoonRole.LeftWalker] = new(new(128, 200), EscapeEtecoonFrameBehavior.WalkAndFall,
+        [EscapeEtecoonRole.LeftWalker] = new(new(128, 200), EscapeEtecoonAction.Walking,
             EscapeEtecoonSegment.RunningLeftLowTide, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-512, 0)),
-        [EscapeEtecoonRole.RightWalker] = new(new(160, 200), EscapeEtecoonFrameBehavior.WalkAndFall,
+        [EscapeEtecoonRole.RightWalker] = new(new(160, 200), EscapeEtecoonAction.Walking,
             EscapeEtecoonSegment.RunningRightLowTide, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(640, 0)),
-        [EscapeEtecoonRole.WaitForEscapeEvent] = new(new(232, 200), EscapeEtecoonFrameBehavior.WaitForEscapeEvent,
+        [EscapeEtecoonRole.WaitForEscapeEvent] = new(new(232, 200), EscapeEtecoonAction.AwaitingEscape,
             EscapeEtecoonSegment.Stationary, default),
     };
 }

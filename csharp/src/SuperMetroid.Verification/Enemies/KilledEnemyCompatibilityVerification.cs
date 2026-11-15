@@ -41,7 +41,7 @@ internal static class KilledEnemyCompatibilityVerification
             ?? throw new InvalidOperationException("The killed segment left no remains.");
         AssertEqual(RotationAngle.Zero, remains.OrbitAngle, "the remains have no orbit");
         AssertEqual(RotationAngle.Zero, remains.AngularVelocity, "the remains have no angular speed");
-        AssertEqual<ShaktoolFrameBehavior?>(null, remains.FrameBehavior, "the remains have no motion");
+        AssertEqual<ShaktoolSegmentMotion?>(null, remains.Motion, "the remains have no motion");
         AssertEqual<ShaktoolSegmentState?>(null, segments.RemainsAt(otherPlace), "a place no kill emptied has no remains");
         remains.TargetAngle = RotationAngle.FromRaw(0x4000);
         AssertTrue(ReferenceEquals(remains, segments.RemainsAt(killedPlace)), "the chain reads back what it wrote to the remains");

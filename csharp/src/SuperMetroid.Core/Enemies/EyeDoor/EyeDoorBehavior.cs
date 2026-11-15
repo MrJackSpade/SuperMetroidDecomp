@@ -108,10 +108,10 @@ internal sealed class EyeDoorBehavior
             switch (motion)
             {
                 case EyeDoorProjectileMotion.ShotFlying:
-                    RunEyeDoorProjectileFrameBehavior(context.Projectile, context.Level);
+                    FlyEyeDoorProjectile(context.Projectile, context.Level);
                     break;
                 case EyeDoorProjectileMotion.SweatFalling:
-                    RunEyeDoorSweatFrameBehavior(context.Projectile, context.Level);
+                    DripEyeDoorSweat(context.Projectile, context.Level);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileMotion)} {motion}.");
@@ -185,7 +185,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Moves the eye shot, accelerates along its angle, and switches to impact on collision or door opening.</summary>
-    internal static void RunEyeDoorProjectileFrameBehavior(
+    internal static void FlyEyeDoorProjectile(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
@@ -206,7 +206,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Applies sweat gravity and starts the impact animation on a downward vertical collision.</summary>
-    internal static void RunEyeDoorSweatFrameBehavior(
+    internal static void DripEyeDoorSweat(
         EnemyProjectile projectile,
         RoomLevelData level)
     {

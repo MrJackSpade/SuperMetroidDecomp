@@ -159,7 +159,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Cacatac spike (#1760): it flies by its direction's velocity until it leaves the camera.</summary>
     internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
-        context => RunCacatacSpikeFrameBehavior(context.Projectile, context.Camera));
+        context => FlyCacatacSpike(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
     internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
@@ -202,7 +202,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the spike's per-frame behaviour: the spike moves along its velocity, horizontally then vertically, then is culled
     /// once outside the view.
     /// </summary>
-    internal static void RunCacatacSpikeFrameBehavior(
+    internal static void FlyCacatacSpike(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {

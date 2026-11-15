@@ -402,7 +402,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
-    internal void RunEnemyPickupFrameBehavior(
+    internal void TendEnemyPickup(
         EnemyProjectile projectile,
         SamusState samus)
     {
@@ -571,7 +571,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The pickup's one motion.</param>
     private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
-        RunEnemyPickupFrameBehavior(context.Projectile, context.Samus);
+        TendEnemyPickup(context.Projectile, context.Samus);
 
     /// <summary>
     /// Carries out a cue of the death and drop animations (sprite spawns, sounds, drop conversion and respawn), returning

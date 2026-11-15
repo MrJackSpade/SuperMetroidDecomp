@@ -64,8 +64,8 @@ internal sealed class FallingSparksBehavior
     /// <summary>The vertical speed a spark bounces up at when it hits the floor: half a pixel upward.</summary>
     private static readonly SignedSixteenSixteen FallingSparkImpactBounce = -SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
 
-    /// <summary>Runs the falling spark's per-frame behaviour.</summary>
-    internal void RunFallingSparkFrameBehavior(
+    /// <summary>Moves the falling spark one update.</summary>
+    internal void FallFallingSpark(
         EnemyProjectile projectile,
         RoomLevelData level,
         int frameCycle)
@@ -142,5 +142,5 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
     internal SingleMotionProjectileBehavior Spark => field ??= new(
-        context => RunFallingSparkFrameBehavior(context.Projectile, context.Level, context.ShortCounter));
+        context => FallFallingSpark(context.Projectile, context.Level, context.ShortCounter));
 }

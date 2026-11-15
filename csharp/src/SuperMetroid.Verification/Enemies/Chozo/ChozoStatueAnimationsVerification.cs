@@ -30,7 +30,7 @@ internal static class ChozoStatueAnimationsVerification
                             continue;
                         }
 
-                        if (instruction.Operands[index] == 'E' && cue is ChozoStatueCue.Signal)
+                        if (instruction.Operands[index] == 'E' && cue is ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StopAwaitingHand })
                         {
                             AssertTrue(ChozoNativeWords.NoFrameBehaviorWords.Contains(operands[index]), $"{at}: operand {index} is a frame routine that returns at once");
                             continue;
@@ -38,9 +38,10 @@ internal static class ChozoStatueAnimationsVerification
 
                         AssertEqual(operands[index], instruction.Operands[index] switch
                         {
-                            // The other native operands are the footstep's signed X word and the frame behaviour's word.
+                            // The other native operands are the footstep's signed X word and the hand wait's word.
                             'F' => unchecked((ushort)AssertIs<ChozoStatueCue.Footstep>(cue, $"{at}: cue").Offset.X),
-                            'E' => ChozoNativeWords.ChozoStatueFrameBehaviors.Word(AssertIs<ChozoStatueCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
+                            // A site's idle animation installs that site's hand wait.
+                            'E' => ChozoNativeWords.HandWaitWord(at.StartsWith(nameof(ChozoStatueSegment.WreckedShip), StringComparison.Ordinal)),
                             _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                         }, $"{at}: operand {index}");
                     }

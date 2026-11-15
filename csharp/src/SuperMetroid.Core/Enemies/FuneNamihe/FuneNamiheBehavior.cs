@@ -167,7 +167,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally in 1/256-pixel steps until it leaves the camera.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
-        context => RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera));
+        context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Runs FuneNamihe's main AI.</summary>
     internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -215,8 +215,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedEightEight.Zero);
     }
 
-    /// <summary>Runs the fireball's per-frame behaviour: the fireball flies sideways at its speed until it leaves the view.</summary>
-    internal static void RunFuneNamiheFireballFrameBehavior(
+    /// <summary>Flies the fireball one update: it flies sideways at its speed until it leaves the view.</summary>
+    internal static void FlyFuneNamiheFireball(
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {

@@ -7,8 +7,11 @@ public sealed class ChozoStatueState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChozoStatueSegment> Playback { get; set; }
 
-    /// <summary>What the statue waits for each frame, or null while it waits for nothing.</summary>
-    public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }
+    /// <summary>
+    /// Whether the statue awaits Samus at its hand: from its idle animation's start until its activation starts. Lower
+    /// Norfair's wakes once Samus triggers the hand, the Wrecked Ship's once Phantoon is also defeated.
+    /// </summary>
+    public bool AwaitingHand { get; internal set; }
 
     /// <summary>Whether this is the Wrecked Ship statue rather than Lower Norfair's.</summary>
     public bool IsWreckedShip { get; internal set; }

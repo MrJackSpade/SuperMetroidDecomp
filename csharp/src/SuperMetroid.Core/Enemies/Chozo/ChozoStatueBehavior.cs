@@ -149,33 +149,21 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Dispatches statue phases, including boss-gated movement and authored scene transitions.</summary>
+    /// <summary>
+    /// Starts the statue's activation once it is awaiting Samus at its hand and she has triggered it: at once in Lower
+    /// Norfair, and in the Wrecked Ship only once Phantoon is defeated. The animation does the rest.
+    /// </summary>
     private void RunChozoStatueMain(RoomEnemySlot statue, ChozoStatueState state)
     {
-        switch (state.FrameBehavior)
-        {
-            case null:
-                return;
+        if (!state.AwaitingHand || !state.HandTriggered)
+            return;
+        if (state.IsWreckedShip && !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
+            return;
 
-            case ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger:
-                if (state.HandTriggered)
-                {
-                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
-                    statue.AnimationClock.StepOnNextUpdate();
-                }
-                return;
-
-            case ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger:
-                if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) && state.HandTriggered)
-                {
-                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipActivated), AnimationPlace.StartOfAnimation);
-                    statue.AnimationClock.StepOnNextUpdate();
-                }
-                return;
-
-            default:
-                throw new InvalidDataException($"Chozo statue has no frame behaviour {state.FrameBehavior}.");
-        }
+        state.Playback = new(ChozoStatueAnimations.StartingWith(state.IsWreckedShip
+            ? ChozoStatueSegment.WreckedShipActivated
+            : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
+        statue.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>
@@ -191,12 +179,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         switch (cue)
         {
-            case ChozoStatueCue.SetFrameBehavior setFrameBehavior:
-                state.FrameBehavior = setFrameBehavior.FrameBehavior;
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.AwaitHand }:
+                state.AwaitingHand = true;
                 return null;
 
-            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ClearFrameBehavior }:
-                state.FrameBehavior = null;
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StopAwaitingHand }:
+                state.AwaitingHand = false;
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:

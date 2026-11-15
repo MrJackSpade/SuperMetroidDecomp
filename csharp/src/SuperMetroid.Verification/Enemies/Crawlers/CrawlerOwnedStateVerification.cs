@@ -27,7 +27,7 @@ internal static class CrawlerOwnedStateVerification
         int speed = CrawlerSpeeds.ForParameter(2);
         AssertEqual(new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),
             state.Velocity, "the reset speed with the X sign the properties select");
-        AssertEqual<CrawlerAction?>(CrawlerAction.AwaitingAnimationCue, state.Action, "a new crawler waits for its instruction");
+        AssertEqual<CrawlerAction?>(CrawlerAction.Settling, state.Action, "a new crawler settles before it crawls");
         Console.WriteLine("Crawler owned state: the velocity reset matches.");
     }
 

@@ -39,7 +39,7 @@ internal static class ShaktoolNativeListAddresses
     {
         [0xd94a] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Lower, ""),
         [0xd953] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Raise, ""),
-        [0xd9ba] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.ResetFrameBehaviors, ""),
+        [0xd9ba] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.ResumeMotion, ""),
     };
 
     /// <summary>

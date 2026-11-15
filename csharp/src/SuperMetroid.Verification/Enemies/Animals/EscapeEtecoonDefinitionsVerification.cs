@@ -33,8 +33,8 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"escape Etecoon role {role} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
-            AssertEqual(AnimalsNativeWords.EscapeEtecoonFrameBehaviors.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
-                initialization.FrameBehavior,
+            AssertEqual(AnimalsNativeWords.EscapeEtecoonActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord((frameBehaviorTable + parameter)), "escape Etecoon pre-instruction"),
+                initialization.Action,
                 $"escape Etecoon role {role} pre-instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
                 NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
@@ -69,7 +69,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} X");
             AssertEqual(expected.Position.Y, slot.Position.Y.Whole,
                 $"production escape Etecoon selector {parameter} Y");
-            AssertEqual(expected.FrameBehavior, state.FrameBehavior,
+            AssertEqual(expected.Action, state.Action,
                 $"production escape Etecoon selector {parameter} pre-instruction");
             AssertEqual(new AnimationPlayback<EscapeEtecoonSegment>(EscapeEtecoonAnimations.StartingWith(expected.Animation), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production escape Etecoon selector {parameter} program");
@@ -122,7 +122,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         RunForcedEscapeEtecoonUpdates(etecoon, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
-        AssertEqual(EscapeEtecoonFrameBehavior.EscapeRight, state.FrameBehavior,
+        AssertEqual(EscapeEtecoonAction.Escaping, state.Action,
             "escape Etecoon gratitude program hands off to rightward escape");
 
         var poses = EscapeEtecoonAnimations.Segments.Frames.Select(EscapeEtecoonFrameToolingDefinitions.Spritemap).ToHashSet();
@@ -191,7 +191,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
-        AssertTrue(state.FrameBehavior is not null, "an initialized escape Etecoon has a pre-instruction");
+        AssertTrue(state.Action is not null, "an initialized escape Etecoon has an action");
         Console.WriteLine("  Escape Etecoon owned state: an initialized escape Etecoon has a pre-instruction.");
     }
 

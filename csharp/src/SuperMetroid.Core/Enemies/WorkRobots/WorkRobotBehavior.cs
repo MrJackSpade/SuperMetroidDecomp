@@ -365,7 +365,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Work Robot laser, in any of its five directions (#1760): it flies with room collision.</summary>
     internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
-        context => RunWorkRobotLaserFrameBehavior(context.Projectile, context.Level));
+        context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs WorkRobot's main AI.</summary>
     internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -446,7 +446,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the laser's per-frame behaviour: X collision, then Y collision, else move.</summary>
-    internal static void RunWorkRobotLaserFrameBehavior(
+    internal static void FlyWorkRobotLaser(
         EnemyProjectile projectile,
         RoomLevelData level)
     {

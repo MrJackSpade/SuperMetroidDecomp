@@ -9,12 +9,14 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal static class ChozoNativeWords
 {
-    /// <summary>The routine word naming each <see cref="ChozoStatueFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<ChozoStatueFrameBehavior> ChozoStatueFrameBehaviors = new(new Dictionary<ChozoStatueFrameBehavior, ushort>
-    {
-        [ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger] = 0xe445,
-        [ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger] = 0xe7ae,
-    });
+    /// <summary>The routine word of the Lower Norfair statue's wait for Samus at its hand.</summary>
+    internal const ushort LowerNorfairHandWaitWord = 0xe445;
+
+    /// <summary>The routine word of the Wrecked Ship statue's wait for Samus at its hand and Phantoon's defeat.</summary>
+    internal const ushort WreckedShipHandWaitWord = 0xe7ae;
+
+    /// <summary>The routine word of the wait for Samus at its hand of the Wrecked Ship statue, or of Lower Norfair's.</summary>
+    internal static ushort HandWaitWord(bool wreckedShip) => wreckedShip ? WreckedShipHandWaitWord : LowerNorfairHandWaitWord;
 
     /// <summary>
     /// The routine words of the statue's frame routines that return at once (#1803): the initializer's, the cleared one
@@ -22,9 +24,13 @@ internal static class ChozoNativeWords
     /// </summary>
     internal static readonly HashSet<ushort> NoFrameBehaviorWords = [0x807b, 0xe7a6, 0xe7da];
 
-    /// <summary>The frame behaviour a recorded routine word names, or null for none.</summary>
-    internal static ChozoStatueFrameBehavior? FrameBehaviorAt(ushort word) =>
-        word == 0 || NoFrameBehaviorWords.Contains(word) ? null : ChozoStatueFrameBehaviors.Decode(word, "recorded ChozoStatueFrameBehavior");
+    /// <summary>Whether a recorded routine word of the statue's site has it awaiting Samus at its hand.</summary>
+    /// <exception cref="InvalidDataException">The word is neither the site's wait nor a routine that returns at once.</exception>
+    internal static bool AwaitingHandAt(ushort word, bool wreckedShip) =>
+        word == HandWaitWord(wreckedShip) ||
+        (word == 0 || NoFrameBehaviorWords.Contains(word)
+            ? false
+            : throw new InvalidDataException($"Recorded Chozo statue routine ${word:X4} is not one its site runs."));
 
     /// <summary>The cartridge's carry-motion records per facing: sixteen facing left, then their sixteen mirrors facing right.</summary>
     internal const int CarryRecordsPerFacing = 16;

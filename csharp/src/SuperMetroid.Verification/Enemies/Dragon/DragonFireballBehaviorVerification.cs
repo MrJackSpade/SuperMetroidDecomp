@@ -51,7 +51,7 @@ internal static class DragonFireballBehaviorVerification
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball, Entry(rising), 25, rising.ToString());
             AssertTrue(!deleted, $"{rising} loops");
             fireball.Velocity = fireball.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-16));
-            DragonBehavior.RunDragonFireballFrameBehavior(fireball, 0);
+            DragonBehavior.FlyDragonFireball(fireball, 0);
             AssertEqual(falling, ProgramOf(fireball), $"the zero crossing selects {falling}");
             AssertEqual((ushort)1, fireball.FrameHold.RawValue, $"the switch to {falling} requests a same-pass frame");
             (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball, Entry(falling), 25, falling.ToString());

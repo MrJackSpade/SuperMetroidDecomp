@@ -55,10 +55,9 @@ internal static class CrawlerNativeListAddresses
         new NativeProgramEntry<CrawlerSegment>(CrawlerSegment.SharedUpsideUpLoop, 0xe2b4),
     ];
 
-    /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
-    internal static readonly Dictionary<ushort, CrawlerNativeListAddressesInstruction> Instructions = new()
-    {
-        [0xdfc2] = new CrawlerNativeListAddressesInstruction(CrawlerCueKind.SetMovement, "E"),
-        [0xe660] = new CrawlerNativeListAddressesInstruction(CrawlerCueKind.SetMovement, "E"),
-    };
+    /// <summary>
+    /// The owner instructions the lists use, each installing a movement routine from its one operand word: the port's
+    /// animations omit them, as the surface a crawler shows sets its crawl (#2022).
+    /// </summary>
+    internal static readonly HashSet<ushort> OmittedInstructions = [0xdfc2, 0xe660];
 }

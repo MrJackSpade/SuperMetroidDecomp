@@ -16,9 +16,12 @@ public sealed class CrawlerEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The current crawling or falling behaviour; animation cues install the surface-specific one.
+    /// The current settling, crawling or falling behaviour; the surface the crawler shows sets which way it crawls.
     /// </summary>
     public CrawlerAction? Action { get; internal set; }
+
+    /// <summary>The surface the crawler clings to, which its animation shows and its crawl follows.</summary>
+    internal CrawlerSurfaceOrientation Surface { get; set; }
 
     /// <summary>
     /// Whether the crawler was placed without a crawl speed, so it keeps its velocity until its first landing and takes

@@ -47,7 +47,7 @@ internal static class ShaktoolOwnedStateVerification
         for (int index = 0; index < states.Length; index++)
         {
             AssertEqual(ShaktoolMotionFlags.ReversedOnce, states[index].MotionFlags, $"segment {index} has reversed once and stopped straightening");
-            AssertEqual(ShaktoolFrameBehavior.Idle, states[index].FrameBehavior, $"segment {index} idles through the collision response");
+            AssertEqual(ShaktoolSegmentMotion.Idle, states[index].Motion, $"segment {index} idles through the collision response");
         }
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).

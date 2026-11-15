@@ -15,9 +15,9 @@ using SuperMetroid.Core.World;
 internal static class CrawlerBehaviorVerification
 {
     /// <summary>
-    /// For every crawler family and surface, the real initializer starts that surface's animation; its first step
-    /// installs the movement function (vertical crawling on the side walls, horizontal on floors and ceilings, with the
-    /// orange Zoomer's own functions) and its poses then loop on time. Every pose has installed artwork when supplied.
+    /// For every crawler family and surface, the real initializer starts that surface's animation and settles the
+    /// crawler into the crawl that surface sets (vertical crawling on the side walls, horizontal on floors and ceilings,
+    /// with the orange Zoomer's own crawls), and its poses loop on time. Every pose has installed artwork when supplied.
     /// </summary>
     internal static void VerifyCrawlerBehavior(ImportEnemyArtwork? artwork = null)
     {
@@ -58,13 +58,15 @@ internal static class CrawlerBehaviorVerification
             CrawlerAction expected = family == CrawlerAnimationFamily.HZoomer
                 ? sideWall ? CrawlerAction.HZoomerCrawlingVertically : CrawlerAction.HZoomerCrawlingHorizontally
                 : sideWall ? CrawlerAction.CrawlingVertically : CrawlerAction.CrawlingHorizontally;
-            AssertEqual(expected, state.Action, $"{context} installs its movement function");
+            AssertEqual<CrawlerAction?>(family == CrawlerAnimationFamily.HZoomer ? CrawlerAction.HZoomerSettling : CrawlerAction.Settling,
+                state.Action, $"{context} settles first");
+            AssertEqual(expected, CrawlersBehavior.CrawlActionOn(state), $"{context} settles into its surface's crawl");
             if (artwork is not null)
                 foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(loop))
                     AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
                         $"{context} pose ${pose:X4} has installed artwork");
         }
-        Console.WriteLine("  Crawler behavior: all five families' four surfaces start, install their movement functions and loop on time.");
+        Console.WriteLine("  Crawler behavior: all five families' four surfaces start, settle into their crawls and loop on time.");
     }
 
     /// <summary>Runs the crawler behavior check and the program oracle against the local retail cartridge.</summary>

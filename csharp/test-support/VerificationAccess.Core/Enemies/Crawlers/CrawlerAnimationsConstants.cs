@@ -10,6 +10,6 @@ internal static class CrawlerAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params CrawlerSegment[] programs) =>
         programs.SelectMany(program => CrawlerAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, CrawlerCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => CrawlerFrameToolingDefinitions.Spritemap(frame.Shown));
 }

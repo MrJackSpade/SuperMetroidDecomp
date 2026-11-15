@@ -24,17 +24,17 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore block animations.</summary>
     private readonly BlockAnimationPlayer blockAnimations = new();
 
-    /// <summary>The Fireflea state, which outlives each room.</summary>
-    private readonly RoomFxSession _session;
-
-    /// <summary>The Fireflea FX state. It lives for the session, so a room load does not reset it.</summary>
-    public FirefleaFxState Fireflea => _session.Fireflea;
+    /// <summary>
+    /// The room's Fireflea darkness, which its Fireflea effect starts as the room loads and which lasts as long as the
+    /// room; null when the room's effect is not Fireflea darkness (#2053).
+    /// </summary>
+    public FirefleaFxState? Fireflea { get; private set; }
 
     /// <summary>
     /// The shade Fireflea darkness subtracts from this room (<see cref="FirefleaFxState.Tint"/>), or null when the room's
     /// effect is not Fireflea darkness. No other room shows it.
     /// </summary>
-    public RgbColor? FirefleaTint => Type == RoomFxType.Fireflea ? Fireflea.Tint : null;
+    public RgbColor? FirefleaTint => Fireflea?.Tint;
 
     /// <summary>
     /// Whether the room's last applied effect animates Samus's visor (<see cref="RoomEffectDefinition.VisorAnimation"/>):
@@ -213,25 +213,22 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public EarthquakeShake? SustainedEarthquake { get; private set; }
 
     /// <summary>Builds one room's effect-overlay FX from the effect the current door selects.</summary>
-    /// <param name="session">The Fireflea state, which outlives each room.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomFxOverlayState ForRoom(
-        RoomFxSession session,
         RoomFxSelection? fx,
         DoorDefinition? door,
         int randomNumber,
         RoomDefinition? room = null) =>
-        ForSource(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForSource(new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its effect directly.</summary>
-    /// <param name="session">The Fireflea state, which outlives each room.</param>
     /// <param name="source">The room effect's source.</param>
-    internal static RoomFxOverlayState ForSource(RoomFxSession session, RoomFxLoadSource source)
+    internal static RoomFxOverlayState ForSource(RoomFxLoadSource source)
     {
-        var fx = new RoomFxOverlayState(session);
+        var fx = new RoomFxOverlayState();
         fx.SelectEffect(source);
         return fx;
     }
@@ -260,7 +257,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Tint = definition.Tint;
 
         if (Type == RoomFxType.Fireflea)
-            Fireflea.Initialize();
+            Fireflea = new FirefleaFxState();
         if (!IsRenderable)
             return;
 
@@ -334,8 +331,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// main-loop random-number generation. The liquid's first motion pass after the room loads only begins its
     /// motion (<see cref="LiquidMotionStart"/>); lava/acid's motion then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
-    /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
-    /// which must not advance that motion twice.
+    /// door fades and pause entry. Visual updates remain in <see cref="Step"/>, which places the surface this pass left.
     /// </summary>
     public void AdvanceLiquidMotion(SharedGameState system, bool timeIsFrozen)
     {
@@ -381,15 +377,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         AudioRequests.QueueSound(LiquidEffects.LavaAmbientSound(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
     }
 
-    /// <summary>Runs the active effect's per-frame behaviour step and rain block animation.</summary>
+    /// <summary>
+    /// Runs the active effect's per-frame behaviour step and its overlay's block animation. A liquid's surface is where
+    /// its motion pass (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>), which runs earlier in the update, left it.
+    /// </summary>
     public void Step(ArtworkFrameSelections frames, RoomFxOverlayFrame frame)
     {
         Ensure.NotNull(frames);
-        if (!frame.LiquidMotionAlreadyAdvanced)
-            SustainedEarthquake = null;
-        if (Type == RoomFxType.Fireflea)
+        if (Fireflea is { } fireflea)
         {
-            Fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessStep);
+            fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessStep);
             return;
         }
         if (!IsRenderable || frame.TimeIsFrozen)
@@ -405,13 +402,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(frame.Camera, frame.RandomNumber, frame.EarthquakeSoundDelay, frame.LiquidMotionAlreadyAdvanced);
+            StepLavaAcid(frame.Camera);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(frame.Camera, frame.RandomNumber, frame.EarthquakeSoundDelay, frame.LiquidMotionAlreadyAdvanced);
+            StepWater(frame.Camera);
             return;
         }
 
@@ -581,18 +578,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             : throw new InvalidOperationException($"A {Type} room has no water whose surface a room object can enable.");
 
     /// <summary>
-    /// Runs the observable static-water path of the water effect and both circular wave
-    /// clocks. Rising/tidal rooms retain their loaded surfaces; the presently reported
-    /// room has zero velocity and therefore exercises the game's normal static branch.
+    /// Places the water on the screen where its motion pass (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>) left
+    /// its surface and runs both circular wave clocks.
     /// </summary>
-    private void StepWater(
-        Position16<RoomPixels> camera,
-        int randomNumber,
-        PowerOnEarthquakeSoundDelay earthquakeSoundDelay,
-        bool liquidMotionAlreadyAdvanced)
+    private void StepWater(Position16<RoomPixels> camera)
     {
-        if (!liquidMotionAlreadyAdvanced)
-            AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         PlaceLiquid(camera, waterDrift.Whole);
 
         waterOverlayWave = waterOverlayWave.Advanced(WaterWaveDefinitions.OverlayWavePhaseDuration,
@@ -618,18 +608,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid
-    /// surface and the effect overlay follow the room camera, while one of two sixteen-row background
-    /// waveforms rotates at the cadence of the liquid's heat haze.
+    /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid surface its motion pass
+    /// (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>) left and the effect overlay follow the room camera,
+    /// while one of two sixteen-row background waveforms rotates at the cadence of the liquid's heat haze.
     /// </summary>
-    private void StepLavaAcid(
-        Position16<RoomPixels> camera,
-        int randomNumber,
-        PowerOnEarthquakeSoundDelay earthquakeSoundDelay,
-        bool liquidMotionAlreadyAdvanced)
+    private void StepLavaAcid(Position16<RoomPixels> camera)
     {
-        if (!liquidMotionAlreadyAdvanced)
-            AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         // Lava and acid lie on the screen from their surface line as water does, the strip's surface row on that line.
         PlaceLiquid(camera, Offset16<OverlayPixels>.Zero);
 
@@ -827,11 +811,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
 
-    /// <summary>Creates one room's effect state, with no room effect selected, over the session's carried state.</summary>
-    /// <param name="session">The Fireflea state, which outlives each room.</param>
-    public RoomFxOverlayState(RoomFxSession session)
+    /// <summary>Creates one room's effect state, with no room effect selected.</summary>
+    public RoomFxOverlayState()
     {
-        _session = Ensure.NotNull(session);
         Type = RoomFxType.None;
         TargetSurface = null;
         LiquidLevelSpeed = default;

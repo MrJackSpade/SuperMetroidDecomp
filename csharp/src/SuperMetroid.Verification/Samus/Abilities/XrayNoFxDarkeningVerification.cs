@@ -55,7 +55,7 @@ internal static class XrayNoFxDarkeningVerification
         foreach (int index in samples)
             AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), pixels[index],
                 "the fixed colour adds to the outside-beam foreground without halving");
-        runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
+        _ = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

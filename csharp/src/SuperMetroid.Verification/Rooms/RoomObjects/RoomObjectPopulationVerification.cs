@@ -631,8 +631,7 @@ internal static class RoomObjectPopulationVerification
 
         RoomFxOverlayState CreateFx(ushort baseY, int? targetY, ushort velocity, byte timer)
         {
-            var fxSession = new RoomFxSession();
-            var fx = new RoomFxOverlayState(fxSession);
+            var fx = new RoomFxOverlayState();
             fx.BindAudioRequests(new GameplayAudioRequests());
             fx.SetLiquidLevel(baseY);
             if (targetY is int target)

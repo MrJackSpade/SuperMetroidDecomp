@@ -116,9 +116,9 @@ internal static class CrocomirePresentation1193Verification
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
                     resumed == BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, 0),
                 "Re-enabled spikes resume the pending first frame");
-            var unselected = new RoomSpikeBlockAnimationsState(null, null);
+            var unselected = new RoomBlockAnimations(null, null);
             var cleared = new ArtworkFrameSelections();
-            unselected.Step(cleared);
+            unselected.Step(areaBossDefeated: false, cleared);
             AssertTrue(!cleared.TryShown(spikeTiles, out _), "A room without selected spikes builds an empty spike owner");
         }
         else
@@ -151,15 +151,15 @@ internal static class CrocomirePresentation1193Verification
     private static void VerifyCrocomireSpikeGraphRestoration(SuperMetroidRuntime runtime)
     {
         using var graph = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(graph, runtime.RoomSpikes);
+        DebuggerObjectGraphSerializer.Serialize(graph, runtime.BlockAnimations);
         graph.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<RoomSpikeBlockAnimationsState>(graph);
+        var restored = DebuggerObjectGraphSerializer.Deserialize<RoomBlockAnimations>(graph);
         var expected = new ArtworkFrameSelections();
         var actual = new ArtworkFrameSelections();
         for (int tick = 0; tick < 8; tick++)
         {
-            runtime.RoomSpikes.Step(expected);
-            restored.Step(actual);
+            runtime.BlockAnimations.Step(areaBossDefeated: false, expected);
+            restored.Step(areaBossDefeated: false, actual);
             ArtworkAnimation spikeAnimation = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             AssertTrue(expected.TryShown(spikeAnimation, out ArtworkFrame expectedFrame) == actual.TryShown(spikeAnimation, out ArtworkFrame actualFrame) &&
                 expectedFrame == actualFrame, "Current debugger graph retains exact spike cadence");

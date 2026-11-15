@@ -38,7 +38,7 @@ internal static class TreadmillVisualVerification
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
             BlockAnimation[] tiles = record == 0 ? [] : [.. RoomFxDefinitions.RecordAt(record).BlockAnimations];
-            Console.WriteLine($"Room {room.Definition.Name} header={pointer:X4} FX={room.State.FxPointer:X4} animated tiles={string.Join(", ", tiles)} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
+            Console.WriteLine($"Room {room.Definition.Name} header={pointer:X4} FX={room.State.FxPointer:X4} animated tiles={string.Join(", ", tiles)}");
             bool rightwards = tiles.Contains(BlockAnimation.WreckedShipTreadmillRightwards);
             if (!rightwards && !tiles.Contains(BlockAnimation.WreckedShipTreadmillLeftwards)) continue;
             var images = new HashSet<string>();

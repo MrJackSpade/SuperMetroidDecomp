@@ -64,7 +64,7 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
             // His room's acid, whose surface his acid smoke rises from.
-            var acid = new RoomFxOverlayState(new RoomFxSession()) { Type = RoomFxType.Acid, Surface = 224 };
+            var acid = new RoomFxOverlayState() { Type = RoomFxType.Acid, Surface = 224 };
             Enemies.RoomFx.BindRoomFx(acid);
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }

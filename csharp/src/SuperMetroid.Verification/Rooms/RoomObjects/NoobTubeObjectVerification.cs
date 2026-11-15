@@ -347,8 +347,7 @@ internal static class NoobTubeObjectVerification
     internal static RoomFxOverlayState CreateNoobTubeWaterFx()
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel record.
-        var roomFxSession = new RoomFxSession();
-        var roomFx = RoomFxOverlayState.ForRoom(roomFxSession, RoomFxDefinitions.Suffix(0x9c94), door: null,
+        var roomFx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
         roomFx.BindAudioRequests(new GameplayAudioRequests());
         return roomFx;

@@ -22,9 +22,11 @@ internal static class SpeedBoosterPickupVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             var vram = new SnesVram();
-            var fxSession = new RoomFxSession();
-            var fx = RoomFxOverlayState.ForRoom(fxSession, RoomFxDefinitions.Suffix(0x8600), null, 0);
+            var fx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0);
             fx.BindAudioRequests(new GameplayAudioRequests());
+            // The room's first update begins its liquid's motion, long before Samus reaches the item.
+            var system = new SharedGameState(new SuperMetroid.Core.Compatibility.SharedRandom());
+            fx.AdvanceLiquidMotion(system, timeIsFrozen: false);
             CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(chozo ? RoomObjectKind.ChozoSpeedBooster : RoomObjectKind.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.RoomObjects.Step(fixture.Level);
             if (chozo)
@@ -52,11 +54,11 @@ internal static class SpeedBoosterPickupVerification
             fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.LiquidLevelSpeed.RawValue,
                 "only the Chozo instruction list writes the native upward velocity");
-            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            fx.RunUpdate(system, new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
             AssertEqual((ushort)0x20, fx.LiquidMoveDelay.RawValue, "first FX pass selects waiting phase");
             for (int frame = 0; frame < 32; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+                fx.RunUpdate(system, new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
                 AssertEqual((ushort)0xda, fx.NamedBaseY.Whole, "surface waits throughout native delay");
                 AssertEqual(chozo, fx.SustainedEarthquake.HasValue,
                     "native liquid owner publishes pickup earthquake during delay");
@@ -65,7 +67,7 @@ internal static class SpeedBoosterPickupVerification
             // in 8.8, the first four moving frames consume that half pixel.
             for (int frame = 1; frame <= 5; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+                fx.RunUpdate(system, new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
                     fx.NamedBaseY.Whole, "lava rises at native subpixel speed after delay");
             }

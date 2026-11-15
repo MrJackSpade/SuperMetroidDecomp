@@ -13,7 +13,7 @@ internal static class RoomFxSharedRandomVerification
     /// liquid room; returns the freshly loaded effect for the caller's visual checks.
     /// </summary>
     internal static RoomFxOverlayState VerifyRoomFxSharedRandomState(TestAddressSpace bus,
-        RoomFxSession session, RoomFxOverlayState fx, ushort record, RoomFxType type)
+        RoomFxOverlayState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;
         var system = new SharedGameState(new SharedRandom());
@@ -29,11 +29,11 @@ internal static class RoomFxSharedRandomVerification
 
         // Installing the callback is instruction-list work, even when its eventual
         // pre-instruction will return early for frozen gameplay.
-        fx = LoadSyntheticRoomFx(session, bus, record);
+        fx = LoadSyntheticRoomFx(bus, record);
         fx.AdvanceLiquidMotion(system, true);
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx = RoomFxOverlayState.ForRoom(session, null, null, 0);
+        fx = RoomFxOverlayState.ForRoom(null, null, 0);
         fx.BindAudioRequests(new GameplayAudioRequests());
         system.SetRandomNumber(0x1234);
         fx.AdvanceLiquidMotion(system, false);
@@ -42,9 +42,9 @@ internal static class RoomFxSharedRandomVerification
 
         // Leave the existing visual tests with a freshly loaded effect, proving
         // that reloading does not retain the previous room's callback phase.
-        fx = LoadSyntheticRoomFx(session, bus, record);
+        fx = LoadSyntheticRoomFx(bus, record);
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(0x1234, system.RandomNumber, $"{type} reload restores initialization delay");
-        return LoadSyntheticRoomFx(session, bus, record);
+        return LoadSyntheticRoomFx(bus, record);
     }
 }

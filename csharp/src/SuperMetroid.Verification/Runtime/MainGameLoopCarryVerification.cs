@@ -24,8 +24,7 @@ internal static class MainGameLoopCarryVerification
 
         foreach (PowerOnEarthquakeSoundDelay delay in new[] { PowerOnEarthquakeSoundDelay.OneFrame, PowerOnEarthquakeSoundDelay.None })
         {
-            var stateSession = new RoomFxSession();
-            var state = new RoomFxOverlayState(stateSession);
+            var state = new RoomFxOverlayState();
             state.BindAudioRequests(new GameplayAudioRequests());
             state.EarthquakeSoundTimer = WrappingCountdown.Start(0);
             state.EarthquakeSoundRhythmPosition = 0;

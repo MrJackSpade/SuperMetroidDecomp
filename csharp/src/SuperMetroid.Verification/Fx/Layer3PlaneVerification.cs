@@ -64,8 +64,7 @@ internal static class Layer3PlaneVerification
         var presentation = runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("The retail fixture installs the FX artwork.");
         RoomEffectDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { LiquidStartLevel = 0x0080 };
-        var session = new RoomFxSession();
-        RoomFxOverlayState water = RoomFxOverlayState.ForDefinition(session, record, 0);
+        RoomFxOverlayState water = RoomFxOverlayState.ForDefinition(record, 0);
         AssertEqual<RoomFxType?>(RoomFxType.Water, water.OverlayEffect, "the water room shows the water page");
 
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.

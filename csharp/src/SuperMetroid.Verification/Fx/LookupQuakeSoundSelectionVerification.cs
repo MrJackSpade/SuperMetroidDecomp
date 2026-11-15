@@ -21,8 +21,7 @@ internal static class LookupQuakeSoundSelectionVerification
         AssertEqual((ushort)0x8000, ReadVerificationWord(rom, 0x88b256 + 4 * count), "Original reset marker");
         for (int index = 0; index < count; index++)
         {
-            var stateSession = new RoomFxSession();
-            var state = new RoomFxOverlayState(stateSession);
+            var state = new RoomFxOverlayState();
             state.BindAudioRequests(new GameplayAudioRequests());
             state.EarthquakeSoundRhythmPosition = index;
             state.PublishStatueEarthquakeSound(0, SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame);

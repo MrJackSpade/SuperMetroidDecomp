@@ -28,10 +28,6 @@ internal static class FirefleaFxVerification
         var bus = new MutableCartridgeReadGuard(memory);
         bus.Forbid(address => address is >= 0x88B058 and < 0x88B07E,
             address => $"Fireflea FX attempted migrated definition read ${address:X6}.");
-        var fxSession = new RoomFxSession();
-        var fx = new RoomFxOverlayState(fxSession);
-        fx.BindAudioRequests(new GameplayAudioRequests());
-        FirefleaFxState state = fxSession.Fireflea;
         var vram = new SnesVram();
         RoomEffectDefinition record = RoomFxDefinitions.AllRecords.First(candidate => candidate.Type == RoomFxType.Fireflea && candidate.DoorPointer == 0);
         // Independent transcription of $88:B058/$88:B070. These are deliberately not
@@ -42,46 +38,47 @@ internal static class FirefleaFxVerification
         Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
         Suite(nameof(VerifyFirefleaFrozenDarkness), VerifyFirefleaFrozenDarkness);
-        Suite(nameof(VerifyFirefleaUninitializedTimerWrap), VerifyFirefleaUninitializedTimerWrap);
-        fx = RoomFxOverlayState.ForDefinition(fxSession, record, 0);
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, fx.Fireflea.Timer.RawValue, "Fireflea load initializes native six-frame timer");
+        Suite(nameof(VerifyFirefleaFlashCount), VerifyFirefleaFlashCount);
+        RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, 0);
+        FirefleaFxState state = Darkness(fx);
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, state.FramesUntilNextFlash, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
         {
-            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
             int expectedPhase = (frame / 6) % 12;
             int shade = LittleEndianBytes.HighByte(flash[expectedPhase]);
-            AssertEqual(expectedPhase, fx.Fireflea.FlashPhase, $"Fireflea flash phase frame {frame}");
+            AssertEqual(expectedPhase, state.FlashPhase, $"Fireflea flash phase frame {frame}");
             AssertEqual(new RgbColor?(new FadeLevelColour(shade, shade, shade).ToColour()), fx.FirefleaTint,
                 $"Fireflea grey shade frame {frame}");
         }
-        WrappingCountdown timer = fx.Fireflea.Timer;
+        int timer = state.FramesUntilNextFlash;
         RgbColor tint = state.Tint;
-        for (int frame = 0; frame < 100; frame++) fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-        AssertEqual(timer, fx.Fireflea.Timer, "X-ray frozen time retains flashing phase");
+        for (int frame = 0; frame < 100; frame++) fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true });
+        AssertEqual(timer, state.FramesUntilNextFlash, "X-ray frozen time retains flashing phase");
         AssertEqual(tint, state.Tint, "X-ray frozen time retains the shade");
         for (int step = 0; step < darkness.Length; step++)
         {
-            fx = RoomFxOverlayState.ForDefinition(fxSession, record, 0);
+            fx = RoomFxOverlayState.ForDefinition(record, 0);
+            state = Darkness(fx);
             for (int frame = 1; frame <= 78; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame, FirefleaDarknessStep = step });
+                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarknessStep = step });
                 int index = step < 5 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 // The native shade's bits above the level name the colour channels each write sets, all to the level.
                 int shade = LittleEndianBytes.HighByte((ushort)(darkness[step] + flash[index])) & FadeLevelColour.FullLevel;
                 AssertEqual(new FadeLevelColour(shade, shade, shade).ToColour(), state.Tint, $"darkness step {step}, frame {frame}: grey shade");
-                AssertEqual(step, fx.Fireflea.DarknessStep, "the enemies' darkness step reaches the Fireflea FX state");
+                AssertEqual(step, state.DarknessStep, "the enemies' darkness step reaches the Fireflea FX state");
             }
             RgbColor retained = state.Tint;
-            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame, FirefleaDarknessStep = step });
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarknessStep = step });
             AssertEqual(retained, state.Tint, "frozen death level retains its exact shade");
         }
-        // Removing the effect stops its producer, and a room without it shows no Fireflea shade.
-        fx = RoomFxOverlayState.ForRoom(fxSession, null, null, 0);
+        // A room without the effect has no Fireflea darkness and shows no Fireflea shade; the darkness lives with its room.
+        fx = RoomFxOverlayState.ForRoom(null, null, 0);
         fx.BindAudioRequests(new GameplayAudioRequests());
-        WrappingCountdown leftTimer = state.Timer;
-        fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-        AssertEqual(leftTimer, state.Timer, "non-Fireflea room does not execute the old producer");
+        fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
+        AssertTrue(fx.Fireflea is null, "a non-Fireflea room has no Fireflea darkness");
         AssertEqual<RgbColor?>(null, fx.FirefleaTint, "non-Fireflea room shows no Fireflea shade");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, grey shades and frozen-time retention agree.");
@@ -119,35 +116,32 @@ internal static class FirefleaFxVerification
         AssertThrows<InvalidDataException>(() => FirefleaShades.DarknessShade(-1), "Darkness negative step");
     }
 
+    /// <summary>The Fireflea darkness <paramref name="fx"/>'s room effect started, which the check requires.</summary>
+    private static FirefleaFxState Darkness(RoomFxOverlayState fx) =>
+        fx.Fireflea ?? throw new InvalidOperationException("Verification requires the room's Fireflea darkness.");
+
     /// <summary>Checks that frozen time holds the flash clock while the darkness level still follows the enemies.</summary>
     private static void VerifyFirefleaFrozenDarkness()
     {
         var fireflea = new FirefleaFxState();
-        fireflea.Initialize();
         for (int frame = 0; frame < 10; frame++) fireflea.Step(frozen: false, darknessStep: 0);
-        WrappingCountdown timer = fireflea.Timer;
+        int timer = fireflea.FramesUntilNextFlash;
         int phase = fireflea.FlashPhase;
         fireflea.Step(frozen: true, darknessStep: 1);
-        AssertEqual(timer, fireflea.Timer, "frozen Fireflea holds its flash timer");
+        AssertEqual(timer, fireflea.FramesUntilNextFlash, "frozen Fireflea holds its flash timer");
         AssertEqual(phase, fireflea.FlashPhase, "frozen Fireflea holds its flash phase");
         AssertEqual(1, fireflea.DarknessStep, "frozen Fireflea still publishes the enemies' darkness step");
     }
 
-    /// <summary>
-    /// Checks the flash clock's wrap: a step from the cleared zero timer, before the FX initializes, wraps to $FFFF
-    /// rather than restarting, and the flash phase stays put until the timer later reaches zero.
-    /// </summary>
-    private static void VerifyFirefleaUninitializedTimerWrap()
+    /// <summary>Checks that a new Fireflea darkness starts from its first flash and advances the phase when its count reaches zero.</summary>
+    private static void VerifyFirefleaFlashCount()
     {
         var fireflea = new FirefleaFxState();
-        fireflea.Step(frozen: false, darknessStep: 0);
-        AssertEqual(ushort.MaxValue, fireflea.Timer.RawValue, "a step from the cleared timer wraps");
-        AssertEqual(0, fireflea.FlashPhase, "the wrapped step does not advance the flash phase");
-        fireflea.Initialize();
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.FramesUntilNextFlash, "a new darkness waits a whole flash");
         for (int step = 0; step < FirefleaFxDefinitions.FlashDuration; step++)
             fireflea.Step(frozen: false, darknessStep: 0);
-        AssertEqual(1, fireflea.FlashPhase, "the timer reaching zero advances the flash phase");
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.Timer.RawValue, "the timer reaching zero restarts it");
+        AssertEqual(1, fireflea.FlashPhase, "the count reaching zero advances the flash phase");
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.FramesUntilNextFlash, "the count reaching zero restarts it");
     }
 
     /// <summary>Checks the retail Fireflea room's fixed-color subtraction before, during, and after X-Ray.</summary>
@@ -167,8 +161,8 @@ internal static class FirefleaFxVerification
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
-        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame, FirefleaDarknessStep = 3 });
-        int shade = runtime.RoomFxOverlay.Fireflea.Tint.FadeLevels.Red;
+        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarknessStep = 3 });
+        int shade = Darkness(runtime.RoomFxOverlay).Tint.FadeLevels.Red;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The darkness and its shade reach the screen at the accepted frame (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);

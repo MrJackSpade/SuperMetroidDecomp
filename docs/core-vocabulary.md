@@ -109,7 +109,7 @@ Matching is by whole camel-case word, ignoring case, with plural and verb ending
 A name that says `Tile` or `Metatile` names the hardware's tile and is reported too (#1726,
 `CoreVocabularyAnalyzer.TileWords`): the eight-pixel picture the machine drew its backgrounds and sprites from, and the
 block named as four of them. Core names what it means instead: a block animation (`BlockAnimation`,
-`RoomSandBlockAnimationsState`, `TourianStatueBlockPicture`), a picture (`PictureFlip`, `BindScreenPictures`), a
+`RoomBlockAnimations`, `TourianStatueBlockPicture`), a picture (`PictureFlip`, `BindScreenPictures`), a
 block (`XrayRoomOverlayBlocks`, `TankBlock`), the part of a layer drawn behind or in front of the actors
 (`ActorDepth.BehindFrontParts`, `GameplayLayer.BackgroundFrontPart`) or the eight-pixel cell
 (`BackgroundCellSizePixels`). The game's own tiles keep the word (`CoreVocabularyAnalyzer.GameTilePhrases`), each tile

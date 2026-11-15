@@ -20,7 +20,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertEqual(0, Conditions(0).SamusY, "palette-FX Samus Y keeps the room's top line");
 
         AssertEqual(6, Frame(6).FirefleaDarknessStep, "Fireflea darkness keeps its last step");
-        AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None }.FirefleaDarknessStep,
+        AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false }.FirefleaDarknessStep,
             "Fireflea darkness defaults to none");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(7), "Fireflea darkness past its last step");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(-1), "negative Fireflea darkness");
@@ -30,10 +30,6 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => LoadSource(largestRandom + 1), "room-FX load random number the shared random never holds");
         AssertThrows<ArgumentOutOfRangeException>(() => LoadSource(-1), "negative room-FX load random number");
 
-        AssertEqual(largestRandom, FrameRandom(largestRandom).RandomNumber, "layer-3 frame random number keeps the shared random's largest value");
-        AssertEqual(0, Frame(0).RandomNumber, "layer-3 frame random number defaults to zero");
-        AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(largestRandom + 1), "layer-3 frame random number the shared random never holds");
-        AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(-1), "negative layer-3 frame random number");
 
         const int lastFrame = SuperMetroid.Core.Compatibility.FrameClock.CounterPeriod - 1;
         AssertEqual(lastFrame, (Conditions(0) with { FrameCounter = lastFrame }).FrameCounter,
@@ -47,7 +43,7 @@ internal static class RoomFxWidenedInputsVerification
         const int deepest = CoordinateAxis.LastNonNegative;
         AssertTrue(CoordinateAxis.AsSigned(deepest) >= 0 && CoordinateAxis.AsSigned(deepest + 1) < 0,
             "the deepest named line is the last a signed reading finds at or below the room's top");
-        var liquid = new RoomFxOverlayState(new RoomFxSession());
+        var liquid = new RoomFxOverlayState();
         liquid.BindAudioRequests(new GameplayAudioRequests());
         AssertTrue(liquid.BaseY is null && liquid.TargetSurface is null && liquid.Surface is null,
             "a room with no effect has no liquid surface or target (#1987)");
@@ -70,9 +66,7 @@ internal static class RoomFxWidenedInputsVerification
         static ColourEffectInputs Conditions(int samusY) =>
             new() { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessStep = darkness };
-        static RoomFxOverlayFrame FrameRandom(int randomNumber) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, RandomNumber = randomNumber };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarknessStep = darkness };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
             new() { Fx = null, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }

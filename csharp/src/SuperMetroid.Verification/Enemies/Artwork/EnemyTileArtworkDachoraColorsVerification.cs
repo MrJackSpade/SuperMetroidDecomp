@@ -62,11 +62,11 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Position = place.Position.WithWhole(new(96, 96));
-        place.Radius = new(8, 8);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Position = slot.Position.WithWhole(new(96, 96));
+        slot.Radius = new(8, 8);
         var state = new DachoraEnemyState();
-        DachoraBehavior.ShowDachoraColours(place, DachoraColourPhase.Default, 0);
+        DachoraBehavior.ShowDachoraColours(slot, DachoraColourPhase.Default, 0);
         CheckLive(DachoraColourPhase.Default, 0);
 
         RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
@@ -74,14 +74,14 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         {
             state.Speed = SignedSixteenSixteen.FromParts(8, 0);
             state.SetGlowCycle(frame, ticks: 1);
-            enemies.DachoraBehavior.AccelerateDachora(place, state, empty);
+            enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             CheckLive(DachoraColourPhase.Speed, frame);
         }
 
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.SetGlowCycle(frame, ticks: 0);
-            DachoraBehavior.StepDachoraShineGlow(place, state);
+            DachoraBehavior.StepDachoraShineGlow(slot, state);
             CheckLive(DachoraColourPhase.Shine, frame);
             AssertEqual((frame + 1) % 4, state.GlowFrame,
                 $"Dachora shine frame {frame} retains native next-frame selection");
@@ -109,7 +109,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         void CheckLive(DachoraColourPhase phase, int frame)
         {
             // The Dachora shows its phase's frame as the shade its draws publish (#1512); the colours are the import's.
-            AssertEqual(PictureShading.Shaded(DachoraShades.Of(phase, frame)), place.Shading,
+            AssertEqual(PictureShading.Shaded(DachoraShades.Of(phase, frame)), slot.Shading,
                 $"live Dachora {phase} frame {frame} shade");
         }
     }

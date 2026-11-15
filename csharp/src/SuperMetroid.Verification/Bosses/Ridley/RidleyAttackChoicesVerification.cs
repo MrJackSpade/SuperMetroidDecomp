@@ -43,8 +43,8 @@ internal static class RidleyAttackChoicesVerification
 
         var actual = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var reference = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyPhase;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyPhase;
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
         actual.VerificationServices().NextRandom = () => { advances++; return random; };
@@ -73,13 +73,13 @@ internal static class RidleyAttackChoicesVerification
                 Phase = native[sample.Row, raw & 7],
                 ZeroHealthLungeCount = sample.Row == 5 ? 1 : 0,
             };
-            foreach (var place in new[] { actual.Places.InUpdateOrder[0], reference.Places.InUpdateOrder[0] })
+            foreach (var slot in new[] { actual.SlotTable.Slots[0], reference.SlotTable.Slots[0] })
             {
-                place.Health = sample.Health;
-                place.Position = place.Position.WithWhole(new(128, 352));
+                slot.Health = sample.Health;
+                slot.Position = slot.Position.WithWhole(new(128, 352));
             }
-            runReference(reference.Places.InUpdateOrder[0], expected, sample.Samus, 0, null);
-            select(actual.Places.InUpdateOrder[0], state, sample.Samus, 0, null);
+            runReference(reference.SlotTable.Slots[0], expected, sample.Samus, 0, null);
+            select(actual.SlotTable.Slots[0], state, sample.Samus, 0, null);
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
             AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");

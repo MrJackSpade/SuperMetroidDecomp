@@ -30,8 +30,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyPlatformInitialProgramSelection), () => VerifyPlatformInitialProgramSelection(rom));
         Suite(nameof(VerifyPlatformAnimationProgramSelection), () => VerifyPlatformAnimationProgramSelection(rom));
 
-        Action<RoomEnemyPlace, PlatformEnemyState> installMoving = PlatformsBehavior.InstallPlatformVerticallyMovingForCurrentDirection;
-        Action<RoomEnemyPlace, PlatformEnemyState> installStill = PlatformsBehavior.InstallPlatformVerticallyStillForCurrentDirection;
+        Action<RoomEnemySlot, PlatformEnemyState> installMoving = PlatformsBehavior.InstallPlatformVerticallyMovingForCurrentDirection;
+        Action<RoomEnemySlot, PlatformEnemyState> installStill = PlatformsBehavior.InstallPlatformVerticallyStillForCurrentDirection;
 
         PlatformProgramCase[] cases =
         [
@@ -56,15 +56,15 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         foreach (PlatformProgramCase testCase in cases)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(testCase.IsKamer
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.SuspensorPlatform
-                : EnemyDefinitionId.Tripper, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
-            place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
-            place.Position = place.Position.WithWholeY(0x0100);
-            PlatformsBehavior.InitializePlatform(place);
+                : EnemyDefinitionId.Tripper, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
+            slot.SetSpawnSettings(slot.SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
+            slot.Position = slot.Position.WithWholeY(0x0100);
+            PlatformsBehavior.InitializePlatform(slot);
 
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformSegment expectedInitial = testCase.IsKamer
@@ -78,7 +78,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 $"real {(testCase.IsKamer ? "Kamer" : "Tripper")} initializer " +
                 $"selects {testCase.Direction} still program");
 
-            (testCase.IsMoving ? installMoving : installStill)(place, (state));
+            (testCase.IsMoving ? installMoving : installStill)(slot, (state));
             AssertEqual(new AnimationPlayback<PlatformSegment>(PlatformAnimations.StartingWith(testCase.Program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production platform installer selects {testCase.Program}");
 
@@ -87,10 +87,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             state.XMovement = testCase.Direction == PlatformHorizontalMovement.Left
                 ? PlatformHorizontalMovement.Right
                 : PlatformHorizontalMovement.Left;
-            ExecutePlatformProgram(place, callCount: 1);
+            ExecutePlatformProgram(slot, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
             AnimationPlayback<PlatformSegment>? firstPose = state.Playback;
-            ExecutePlatformProgram(place, callCount: 4);
+            ExecutePlatformProgram(slot, callCount: 4);
             AssertEqual(firstPose, state.Playback, $"platform program {testCase.Program} loops through four poses");
         }
 
@@ -103,14 +103,14 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces the selected platform's instruction timer across several interpreter calls.</summary>
-    private static void ExecutePlatformProgram(RoomEnemyPlace place,
+    private static void ExecutePlatformProgram(RoomEnemySlot slot,
         int callCount)
     {
         object?[] arguments =
-            [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int call = 0; call < callCount; call++)
         {
-            place.AnimationClock.StepOnNextUpdate();
+            slot.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
         }
     }

@@ -51,10 +51,10 @@ public static class EnemyOverreadFiles
         Ensure.NotNull(document);
         if (document.Version != EnemyOverreadFormat.Version)
             throw new InvalidDataException("Enemy overread file has an unsupported version.");
-        IReadOnlyList<bool> apexGrowth = Require(document.MagdolliteApexGrowthByPlace, nameof(document.MagdolliteApexGrowthByPlace));
-        if (apexGrowth.Count != EnemyPlaceOrder.Capacity)
+        IReadOnlyList<bool> apexGrowth = Require(document.MagdolliteApexGrowthBySlot, nameof(document.MagdolliteApexGrowthBySlot));
+        if (apexGrowth.Count != EnemySlotOrder.Capacity)
             throw new InvalidDataException(
-                $"Enemy overread file holds Magdollite apex growth for {apexGrowth.Count} places, not {EnemyPlaceOrder.Capacity}.");
+                $"Enemy overread file holds Magdollite apex growth for {apexGrowth.Count} slots, not {EnemySlotOrder.Capacity}.");
         EnemyOverreadDocument.Drift drift = Require(document.FallingSparkUnauthoredLaunch, nameof(document.FallingSparkUnauthoredLaunch));
         if (drift.WholePixels is < short.MinValue or > short.MaxValue || drift.Fraction is < 0 or > ushort.MaxValue)
             throw new InvalidDataException("Enemy overread file's falling-spark unauthored launch is out of range.");

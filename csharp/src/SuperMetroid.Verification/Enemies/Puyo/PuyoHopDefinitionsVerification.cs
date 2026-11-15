@@ -63,18 +63,18 @@ internal static class PuyoHopDefinitionsVerification
         {
             int nativeDrop = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa29a0b + PuyoNativeWords.HopRecordOffsets.Word(cut));
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Puyo, place.Definition);
-            place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
-            PuyoBehavior.InitializePuyo(place);
-            place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            place.Radius = RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Puyo).Radius;
-            PuyoEnemyState state = place.RequireSpeciesState<PuyoEnemyState>();
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
+            PuyoBehavior.InitializePuyo(slot);
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            slot.Radius = RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Puyo).Radius;
+            PuyoEnemyState state = slot.RequireSpeciesState<PuyoEnemyState>();
             state.Action = PuyoAction.Airborne;
             state.AirborneMovement = PuyoAirborneMovement.Dropping;
             state.HopType = PuyoHopType.Dropping;
             state.CurrentHop = cut;
-            enemies.PuyoBehavior.RunPuyoMainAi(place, new ClockedEnemyAiFrame(
+            enemies.PuyoBehavior.RunPuyoMainAi(slot, new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with
                 {
                     Camera = Position16<RoomPixels>.Zero,
@@ -82,7 +82,7 @@ internal static class PuyoHopDefinitionsVerification
                     Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(600, 128)) },
                 },
                 new FrameCounters(0)));
-            AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + nativeDrop * 256))), place.Position.Y,
+            AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + nativeDrop * 256))), slot.Position.Y,
                 $"a Puyo dropping after its {cut} hop was cut short falls {nativeDrop}/256 pixels in one update");
         }
         Console.WriteLine("  Puyo drop speeds: a drop after each of the seven hops falls at its cut hop's native speed.");

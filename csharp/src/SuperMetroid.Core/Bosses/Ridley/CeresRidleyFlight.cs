@@ -22,7 +22,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Finds the free place the turning-floor wall enemy takes when Ridley spawns it.</summary>
-    private readonly EnemyPlaces _places;
+    private readonly EnemySlotTable _slotTable;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
@@ -34,7 +34,7 @@ internal sealed class CeresRidleyFlight
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
-        _places = dependencies.Places;
+        _slotTable = dependencies.SlotTable;
         _ridleyEncounter = dependencies.RidleyEncounter;
     }
 
@@ -43,18 +43,18 @@ internal sealed class CeresRidleyFlight
     /// branch for a Ceres Ridley whose boss is already dead never runs: the room's state once its boss is dead places
     /// no Ridley, only its door.
     /// </summary>
-    internal void InitializeCeresRidley(RoomEnemyPlace place)
+    internal void InitializeCeresRidley(RoomEnemySlot slot)
     {
-        _ridleyEncounter.Parts.AttachBody(place, "Ceres Ridley");
+        _ridleyEncounter.Parts.AttachBody(slot, "Ceres Ridley");
 
         // Ceres Ridley's initialization clears the boss's working state, which the fresh Ridley state below holds, and
         // disables the minimap, which the room loader does once the enemies are loaded; Ceres has no arena to mark explored.
-        place.CollidesByFrameHitboxes = true;
+        slot.CollidesByFrameHitboxes = true;
 
         // The initializer sets both of Ridley's contact properties: he stops the Plasma Beam and ignores Samus.
-        place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
-        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        place.Position = place.Position.WithWhole(new(186, 169));
+        slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+        slot.Position = slot.Position.WithWhole(new(186, 169));
         _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
@@ -73,7 +73,7 @@ internal sealed class CeresRidleyFlight
             BabyFrameHold = 1,
             BabyAction = CeresBabyAction.CarriedInArms,
             BabyCurrentPose = null,
-            BabyPosition = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole + CeresRidleyBabyScene.CeresBabyArmsAnchor),
+            BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresRidleyBabyScene.CeresBabyArmsAnchor),
             WingBeatStep = 5,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
@@ -88,7 +88,7 @@ internal sealed class CeresRidleyFlight
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
-        StartRidleyAnimation(_ridleyEncounter.Ridley, place, RidleyBodySegment.Initial);
+        StartRidleyAnimation(_ridleyEncounter.Ridley, slot, RidleyBodySegment.Initial);
         // Ceres Ridley's initialization ends by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
@@ -98,14 +98,14 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>
     internal static void TickCeresRidleyLiftoffDecelerating(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state)
     {
         // The fallthrough from the rise deliberately applies both -16 and +20 on the crossing
         // frame. Do not combine these into a single acceleration outside this state.
         // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(20));
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, 80) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
             state.Phase = RidleyPhase.CeresHovering;
             state.FightMode = RidleyFightMode.Fighting;
@@ -114,7 +114,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Tests the scripted shot-count and Samus-energy exits, then admits attacks only inside the hover box.</summary>
     internal void TickCeresRidleyHover(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
     {
@@ -124,7 +124,7 @@ internal sealed class CeresRidleyFlight
         {
             state.FightMode = RidleyFightMode.NotFighting;
             state.Phase = RidleyPhase.CeresFakeRetreatMoveToPosition;
-            TickCeresRidleyFakeRetreatMoveToPosition(place, state);
+            TickCeresRidleyFakeRetreatMoveToPosition(slot, state);
             return;
         }
 
@@ -135,14 +135,14 @@ internal sealed class CeresRidleyFlight
         {
             state.FightMode = RidleyFightMode.NotFighting;
             BeginCeresRidleyRetreat(state);
-            TickCeresRidleyRetreat(place, state);
+            TickCeresRidleyRetreat(slot, state);
             return;
         }
 
         // The shared cooldown/return-to-hover movement: accelerate toward (192, 100)
         // with the hover's divisor of 16.
-        AccelerateRidleyToward(place, state, target: new(192, 100), divisor: 16);
-        if (!IsWithinRidleyRectangle(place, new(192, 100), new(8, 8)))
+        AccelerateRidleyToward(slot, state, target: new(192, 100), divisor: 16);
+        if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
             // The hover waits only while Ridley is still outside the hover box, for at most 124 updates.
             state.HoverCounter++;
@@ -158,36 +158,36 @@ internal sealed class CeresRidleyFlight
     private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
-    internal void TickCeresRidleyFireballMove(RoomEnemyPlace place, RidleyEnemyState state)
+    internal void TickCeresRidleyFireballMove(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
         SignedEightEight verticalVelocity = state.Velocity.Y;
         state.Velocity = state.Velocity.WithY(SignedEightEight.Max(FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
             .AlongDirectionOf(verticalVelocity));
-        AccelerateRidleyToward(place, state, new(place.Position.X.Whole, 88), 16);
+        AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 16);
 
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, 80) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
             state.HoverCounter++;
             if (state.HoverCounter >= 48)
                 state.Phase = RidleyPhase.CeresSwoopSetup;
             return;
         }
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, 128) >= 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 128) >= 0)
             return;
 
-        state.FireballBasePosition = place.Position.Whole;
+        state.FireballBasePosition = slot.Position.Whole;
         // The fireball phase starts the complete retail mouth/fireball animation.
         // Its fireball cues calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
-        StartRidleyAnimation(state, place, RidleyBodySegment.Fireballing);
+        StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
         state.Phase = RidleyPhase.CeresFireballShooting;
         state.PhaseTimer = 224;
-        TickCeresRidleyFireballShooting(place, state);
+        TickCeresRidleyFireballShooting(slot, state);
     }
 
     /// <summary>Selects the next fireball target from the base position and a jitter drawn from the current random number.</summary>
-    internal void TickCeresRidleyFireballShooting(RoomEnemyPlace place, RidleyEnemyState state)
+    internal void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // The attack choice reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
@@ -195,7 +195,7 @@ internal sealed class CeresRidleyFlight
             ? RidleyRandomDefinitions.FireballJitter.Of(random)
             : -RidleyRandomDefinitions.FireballJitter.Of(random);
         Position16<RoomPixels> target = CeresRidleyFireballTarget.Around(state.FireballBasePosition, jitter);
-        AccelerateRidleyToward(place, state, target, 16);
+        AccelerateRidleyToward(slot, state, target, 16);
         if (--state.PhaseTimer < 0)
         {
             state.HoverCounter = 0;
@@ -205,7 +205,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Advances the attack lunge until its position threshold hands control to the swoop.</summary>
     internal static void TickCeresRidleyLunge(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
     {
@@ -215,8 +215,8 @@ internal sealed class CeresRidleyFlight
         Position16<RoomPixels> target = CoordinateAxis.Difference(samus.Position.Y.Whole, 132) < 0
             ? samus.Position.Whole.WithY(64)
             : samus.Position.Whole - new Offset16<RoomPixels>(0, 68);
-        AccelerateRidleyToward(place, state, target, 3);
-        bool reached = IsWithinRidleyRectangle(place, target, new(2, 2));
+        AccelerateRidleyToward(slot, state, target, 3);
+        bool reached = IsWithinRidleyRectangle(slot, target, new(2, 2));
         state.PhaseTimer--;
         if (reached || state.PhaseTimer < 0)
         {
@@ -227,11 +227,11 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Steers Ridley toward the swoop start point with the shared acceleration.</summary>
     internal static void TickCeresRidleySwoopMoveToPosition(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        AccelerateRidleyToward(place, state, new(192, 80), 15);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, 96) < 0)
+        AccelerateRidleyToward(slot, state, new(192, 80), 15);
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 96) < 0)
         {
             state.Phase = RidleyPhase.CeresSwoopDescendingAimingDown;
             state.PhaseTimer = 10;
@@ -298,27 +298,27 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Moves the 100-shot retreat toward the Baby retrieval staging point.</summary>
     internal static void TickCeresRidleyFakeRetreatMoveToPosition(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state)
     {
         // The shared Ridley phase steers toward (192,128). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
-        AccelerateRidleyToward(place, state, new(192, 128), 15);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, 192) >= 0)
+        AccelerateRidleyToward(slot, state, new(192, 128), 15);
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, 192) >= 0)
             state.Phase = RidleyPhase.CeresFakeRetreatRising;
     }
 
     /// <summary>Raises Ridley above Y=32 before releasing the Baby into its independent fall.</summary>
     internal static void TickCeresRidleyFakeRetreatRising(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state)
     {
         // Ridley rises past Y=32 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent fall and a
         // wait of 21 counted past zero before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
-        AccelerateRidleyToward(place, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, 32) < 0)
+        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 32) < 0)
         {
             state.BabyAction = CeresBabyAction.Drop;
             state.Phase = RidleyPhase.CeresWaitBeforeRetrievingBaby;
@@ -327,13 +327,13 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>Steers Ridley's hand toward the falling Baby and accepts overlapping radius-four grasp rectangles.</summary>
-    internal static void TickCeresRidleyRetrieveBaby(RoomEnemyPlace place, RidleyEnemyState state)
+    internal static void TickCeresRidleyRetrieveBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // The Baby grab flies Ridley's hand toward the falling Baby. The collision compares
         // two radius-four rectangles centered on the hand and Baby points.
-        AccelerateRidleyToward(place, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 4);
+        AccelerateRidleyToward(slot, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 4);
 
-        Offset16<RoomPixels> fromHand = state.BabyPosition.Whole - (place.Position.Whole + CeresRidleyBabyScene.CeresBabyFeetAnchor);
+        Offset16<RoomPixels> fromHand = state.BabyPosition.Whole - (slot.Position.Whole + CeresRidleyBabyScene.CeresBabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= 8 || Math.Abs(fromHand.Y) >= 8)
         {
             return;
@@ -345,13 +345,13 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the 64-frame getaway delay.</summary>
-    internal void TickCeresRidleyRetreat(RoomEnemyPlace place, RidleyEnemyState state)
+    internal void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // The retreat accelerates toward the off-screen point. The above-the-line check
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and the delay falls through into its first tick.
-        AccelerateRidleyToward(place, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
-        if (CoordinateAxis.AsSigned(place.Position.Y.Whole + 128) < 0)
+        AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
+        if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
             state.Phase = RidleyPhase.CeresRetreatDelay;
             state.PhaseTimer = 64;
@@ -382,7 +382,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Steers both 1/256-pixel velocity axes toward a target, raising a step that divides to zero to one.</summary>
     internal static void AccelerateRidleyToward(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state,
         Position16<RoomPixels> target,
         int divisor)
@@ -392,8 +392,8 @@ internal sealed class CeresRidleyFlight
         divisor = RidleyInertia.Divisor(divisor);
 
         state.Velocity = new EightEightVector<RoomPixels>(
-            AccelerateAxis(state.Velocity.X, place.Position.X.Whole, target.X, divisor),
-            AccelerateAxis(state.Velocity.Y, place.Position.Y.Whole, target.Y, divisor));
+            AccelerateAxis(state.Velocity.X, slot.Position.X.Whole, target.X, divisor),
+            AccelerateAxis(state.Velocity.Y, slot.Position.Y.Whole, target.Y, divisor));
     }
 
     /// <summary>
@@ -436,15 +436,15 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Applies Ridley's 1/256-pixel motion and arena clamps, invoking impact only at the strict left bound.</summary>
     internal void IntegrateRidleyMovement(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state,
         RidleyWallImpact wallImpact = RidleyWallImpact.None)
     {
         // The bounds clamp runs the impact only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
-        FixedCoordinate proposedX = IntegrateUnclampedAxis(place.Position.X, state.Velocity.X);
-        FixedCoordinate proposedY = IntegrateUnclampedAxis(place.Position.Y, state.Velocity.Y);
+        FixedCoordinate proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X);
+        FixedCoordinate proposedY = IntegrateUnclampedAxis(slot.Position.Y, state.Velocity.Y);
         state.HitRoomBoundary = CoordinateAxis.Difference(proposedX.Whole, state.MovementMinimum.X) < 0 ||
             CoordinateAxis.Difference(proposedX.Whole, state.MovementMaximum.X) >= 0 ||
             CoordinateAxis.Difference(proposedY.Whole, state.MovementMinimum.Y) < 0 ||
@@ -455,19 +455,19 @@ internal sealed class CeresRidleyFlight
             _earthquake.Start(RidleyWallImpactDefinitions.Earthquake, RidleyWallImpactDefinitions.Duration);
         }
         (FixedCoordinate x, SignedEightEight xVelocity) = IntegrateAxis(
-            place.Position.X,
+            slot.Position.X,
             state.Velocity.X,
             state.MovementMinimum.X,
             state.MovementMaximum.X);
         state.Velocity = state.Velocity.WithX(xVelocity);
-        place.Position = place.Position.WithX(x);
+        slot.Position = slot.Position.WithX(x);
         (FixedCoordinate y, SignedEightEight yVelocity) = IntegrateAxis(
-            place.Position.Y,
+            slot.Position.Y,
             state.Velocity.Y,
             state.MovementMinimum.Y,
             state.MovementMaximum.Y);
         state.Velocity = state.Velocity.WithY(yVelocity);
-        place.Position = place.Position.WithY(y);
+        slot.Position = slot.Position.WithY(y);
     }
 
     /// <summary>Integrates one 1/256-pixel velocity into a position's fraction, in 256ths of a pixel, and clips to an arena bound.</summary>
@@ -494,13 +494,13 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Tests an inclusive actor rectangle for hover, lunge or retrieval handoffs.</summary>
     internal static bool IsWithinRidleyRectangle(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         Position16<RoomPixels> center,
         Extent16<RoomPixels> radius) =>
         // The hover check tests overlap with the actor's rectangle, including its boundary.
         // A center-only test delays flight and attack handoffs until Ridley gets too close.
-        CoordinateAxis.Distance(place.Position.X.Whole, center.X) < CoordinateAxis.Wrap(place.Radius.X + radius.X + 1) &&
-            CoordinateAxis.Distance(place.Position.Y.Whole, center.Y) < CoordinateAxis.Wrap(place.Radius.Y + radius.Y + 1);
+        CoordinateAxis.Distance(slot.Position.X.Whole, center.X) < CoordinateAxis.Wrap(slot.Radius.X + radius.X + 1) &&
+            CoordinateAxis.Distance(slot.Position.Y.Whole, center.Y) < CoordinateAxis.Wrap(slot.Radius.Y + radius.Y + 1);
 
     /// <summary>Advances the initial battle hold before Ridley's eye fade begins.</summary>
     internal static void TickCeresRidleyInitialDelay(RidleyEnemyState state)
@@ -514,9 +514,9 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>Restarts Ridley's body animation and frame timer at a selected segment.</summary>
-    internal static void StartRidleyAnimation(RidleyEnemyState state, RoomEnemyPlace place, RidleyBodySegment segment)
+    internal static void StartRidleyAnimation(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodySegment segment)
     {
-        state.BodyPlayback = EnemyAnimationPlayback.Start(place, RidleyAnimations.StartingWith(segment));
+        state.BodyPlayback = EnemyAnimationPlayback.Start(slot, RidleyAnimations.StartingWith(segment));
     }
 
     /// <summary>Animates Ridley's wings after the common Ridley movement pass.</summary>
@@ -562,8 +562,8 @@ internal sealed class CeresRidleyFlight
     /// <summary>Initializes one wall actor at its place, on its side of the chamber, drawing nothing.</summary>
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, HorizontalDirection side)
     {
-        RoomEnemyPlace wall = _places.FindFreePlace() ??
-            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy place for a turning-floor wall.");
+        RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
+            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a turning-floor wall.");
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
         RoomEnemyPlacement population = new(
@@ -574,8 +574,8 @@ internal sealed class CeresRidleyFlight
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
             SpawnSettings: new CeresGetawayChamberWallSpawnSettings(side));
-        _lifecycle.InitializePlaceFromDefinition(wall, population, definition);
+        _lifecycle.InitializeSlotFromDefinition(wall, population, definition);
         _lifecycle.RunInitializationAi(wall, EnemySpawnSurroundings.None);
-        _places.CoverSpawn(wall);
+        _slotTable.CoverSpawn(wall);
     }
 }

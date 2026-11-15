@@ -23,11 +23,11 @@ internal static class EnemyRoomCountersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessStep = -1,
             "darkness rejects a negative step");
 
-        enemies.Places.EnemyCount = EnemyPlaceOrder.Capacity;
-        AssertEqual(32, enemies.Places.EnemyCount, "a full population fills every slot");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.Places.EnemyCount = EnemyPlaceOrder.Capacity + 1,
+        enemies.SlotTable.EnemyCount = EnemySlotOrder.Capacity;
+        AssertEqual(32, enemies.SlotTable.EnemyCount, "a full population fills every slot");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = EnemySlotOrder.Capacity + 1,
             "the population count cannot exceed the slot table");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.Places.EnemyCount = -1,
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = -1,
             "the population count cannot be negative");
 
         enemies.RoomStatus.EnemiesKilled = 65535;

@@ -6,13 +6,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide state and the values of his body. The four visible enemy parts remain physical <see cref="RoomEnemyPlace"/> instances; the eye's values live
+/// Draygon's encounter-wide state and the values of his body. The four visible enemy parts remain physical <see cref="RoomEnemySlot"/> instances; the eye's values live
 /// in its own <see cref="DraygonEyeState"/>.
 /// </summary>
 public sealed class DraygonEnemyState
 {
-    /// <summary>Anchors the encounter-wide state to Draygon's physical body place.</summary>
-    internal DraygonEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <summary>Anchors the encounter-wide state to Draygon's physical body slot.</summary>
+    internal DraygonEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
     internal DraygonColours Colours { get; } = new();
@@ -27,29 +27,29 @@ public sealed class DraygonEnemyState
     }
 
     /// <summary>His body, which owns encounter movement, health, and the body's phases, and runs first.</summary>
-    public RoomEnemyPlace Body { get; }
+    public RoomEnemySlot Body { get; }
     /// <summary>Each part's playing animation and where it stands, keyed by the part.</summary>
-    private readonly Dictionary<RoomEnemyPlace, AnimationPlayback<DraygonSegment>> _playbacks = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<DraygonSegment>> _playbacks = new(ReferenceEqualityComparer.Instance);
 
     /// <summary><paramref name="part"/>'s playing animation and where it stands.</summary>
-    internal AnimationPlayback<DraygonSegment> Playback(RoomEnemyPlace part) =>
+    internal AnimationPlayback<DraygonSegment> Playback(RoomEnemySlot part) =>
         _playbacks.TryGetValue(part, out AnimationPlayback<DraygonSegment> playback)
             ? playback
             : throw new InvalidOperationException("A Draygon part has no animation.");
 
     /// <summary>Sets <paramref name="part"/>'s playing animation and where it stands.</summary>
-    internal void SetPlayback(RoomEnemyPlace part, AnimationPlayback<DraygonSegment> playback) => _playbacks[Ensure.NotNull(part)] = playback;
+    internal void SetPlayback(RoomEnemySlot part, AnimationPlayback<DraygonSegment> playback) => _playbacks[Ensure.NotNull(part)] = playback;
 
     /// <summary>Starts the animation beginning at <paramref name="segment"/> on <paramref name="part"/>, before its first play.</summary>
-    internal void StartAnimation(RoomEnemyPlace part, DraygonSegment segment) =>
+    internal void StartAnimation(RoomEnemySlot part, DraygonSegment segment) =>
         SetPlayback(part, new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation));
 
     /// <summary>His eye, attached by its initializer; tracks Samus using coordinates copied from the body.</summary>
-    public RoomEnemyPlace Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
+    public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
     /// <summary>His tail, attached by its initializer; its animations drive whips and the final release handshake.</summary>
-    public RoomEnemyPlace Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
+    public RoomEnemySlot Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
     /// <summary>His arms, attached by their initializer; their animation follows the body's authoritative coordinates.</summary>
-    public RoomEnemyPlace Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
+    public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
 
 

@@ -14,7 +14,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new AlcoonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AlcoonEntity(this, slot, common);
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
@@ -39,20 +39,20 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or stepping. Starting to walk
     /// always continues at the walk for the Alcoon's facing, and a step that meets a wall turns it round to the other walk.
     /// </summary>
-    private AlcoonSegment? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
+    private AlcoonSegment? ApplyAlcoonCue(RoomEnemySlot slot, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         switch (cue.Kind)
         {
             case AlcoonCueKind.FireUpward:
-                SpawnAlcoonFireball(place, AlcoonFireballLaunchDefinitions.Upward);
+                SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Upward);
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireHorizontally:
-                SpawnAlcoonFireball(place, AlcoonFireballLaunchDefinitions.Level);
+                SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Level);
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireDownward:
-                SpawnAlcoonFireball(place, AlcoonFireballLaunchDefinitions.Downward);
+                SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Downward);
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.StartWalking:
@@ -60,9 +60,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonCueKind.Step:
                 if (state.StepCounter != 0)
                     state.StepCounter--;
-                return MoveAlcoonHorizontally(place, state, level);
+                return MoveAlcoonHorizontally(slot, state, level);
             case AlcoonCueKind.Move:
-                return MoveAlcoonHorizontally(place, state, level);
+                return MoveAlcoonHorizontally(slot, state, level);
             default:
                 throw new InvalidOperationException($"Undefined {nameof(AlcoonCueKind)} {cue.Kind}.");
         }
@@ -76,14 +76,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int AlcoonJumpSimulationLimit = 4096;
 
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
-    private void InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
+    private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData level)
     {
         var state = new AlcoonEnemyState();
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
 
         state.StepCounter = 0;
-        state.SpawnPosition = place.Position.Whole;
-        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        state.SpawnPosition = slot.Position.Whole;
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = new(AlcoonAnimations.StartingWith(AlcoonSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
         state.Action = AlcoonAction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
@@ -94,28 +94,28 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int iterations = 0;
         do
         {
-            AddAlcoonYVelocity(place, state);
+            AddAlcoonYVelocity(slot, state);
             AccelerateAlcoonY(state);
-            GuardAlcoonJumpSimulation(++iterations, place);
+            GuardAlcoonJumpSimulation(++iterations, slot);
         }
         while (state.VerticalVelocity.WholePixels < 0);
 
         while (true)
         {
             SignedSixteenSixteen displacement = state.VerticalVelocity;
-            if (_terrain.MoveEnemyVertically(level, place, displacement))
+            if (_terrain.MoveEnemyVertically(level, slot, displacement))
                 break;
             AccelerateAlcoonY(state);
-            GuardAlcoonJumpSimulation(++iterations, place);
+            GuardAlcoonJumpSimulation(++iterations, slot);
         }
 
-        state.LandingPosition = place.Position.Whole;
-        place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
+        state.LandingPosition = slot.Position.Whole;
+        slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
     /// <summary>Runs Alcoon's per-frame behaviour through all seven of its actions.</summary>
     private void RunAlcoonMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         AlcoonEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -123,24 +123,24 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case AlcoonAction.WaitingForSamus:
-                WaitForAlcoonActivation(place, state, samus);
+                WaitForAlcoonActivation(slot, state, samus);
                 return;
             case AlcoonAction.EmergingRising:
-                RunAlcoonEmergingRise(place, state);
+                RunAlcoonEmergingRise(slot, state);
                 return;
             case AlcoonAction.EmergingFalling:
-                RunAlcoonEmergingFall(place, state, samus, level);
+                RunAlcoonEmergingFall(slot, state, samus, level);
                 return;
             case AlcoonAction.WalkingAndFiring:
-                RunEmergedAlcoon(place, state, samus, level);
+                RunEmergedAlcoon(slot, state, samus, level);
                 return;
             case AlcoonAction.WaitingForFireAnimation:
                 return;
             case AlcoonAction.HidingRising:
-                RunAlcoonHidingRise(place, state);
+                RunAlcoonHidingRise(slot, state);
                 return;
             case AlcoonAction.HidingFalling:
-                RunAlcoonHidingFall(place, state);
+                RunAlcoonHidingFall(slot, state);
                 return;
             default:
                 throw new InvalidDataException(
@@ -150,14 +150,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts Alcoon's jump when Samus nears its predicted landing point.</summary>
     private void WaitForAlcoonActivation(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         AlcoonEnemyState state,
         SamusState samus)
     {
         if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= 32)
             return;
 
-        int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
+        int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
         if (Math.Abs(signedXDistance) >= AlcoonEmergeXDistance)
             return;
 
@@ -165,28 +165,28 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (signedXDistance < 0)
         {
             state.WalkingDirection = HorizontalDirection.Left;
-            StartAlcoonAnimation(place, state, AlcoonSegment.AirborneLeftLookingUp);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
             state.WalkingDirection = HorizontalDirection.Right;
-            StartAlcoonAnimation(place, state, AlcoonSegment.AirborneRightLookingUp);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Action = AlcoonAction.EmergingRising;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonEmergeSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Integrates the emerging ascent until vertical velocity ceases to be negative.</summary>
-    private static void RunAlcoonEmergingRise(RoomEnemyPlace place, AlcoonEnemyState state)
+    private static void RunAlcoonEmergingRise(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        AddAlcoonYVelocity(place, state);
+        AddAlcoonYVelocity(slot, state);
         AccelerateAlcoonY(state);
         if (state.VerticalVelocity.WholePixels < 0)
             return;
 
         state.Action = AlcoonAction.EmergingFalling;
         StartAlcoonAnimation(
-            place,
+            slot,
             state,
             FacesLeft(state)
                 ? AlcoonSegment.AirborneLeftLookingForward
@@ -195,27 +195,27 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies collision-aware descent, then chooses the initial walking direction toward Samus.</summary>
     private void RunAlcoonEmergingFall(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         AlcoonEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
         SignedSixteenSixteen displacement = state.VerticalVelocity;
-        if (!_terrain.MoveEnemyVertically(level, place, displacement))
+        if (!_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             AccelerateAlcoonY(state);
             return;
         }
 
-        if (CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole))
+        if (CoordinateAxis.Precedes(samus.Position.X.Whole, slot.Position.X.Whole))
         {
             state.WalkingDirection = HorizontalDirection.Left;
-            StartAlcoonAnimation(place, state, AlcoonSegment.WalkingLeft);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
             state.WalkingDirection = HorizontalDirection.Right;
-            StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
         state.StepCounter = 1;
@@ -223,7 +223,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
     private void RunEmergedAlcoon(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         AlcoonEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -231,14 +231,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is a real two-pixel downward move, not merely a floor probe. On ordinary
         // floors it collides and keeps Alcoon aligned; if the floor vanishes it lets the
         // walking actor fall by the same amount before the remainder of main AI runs.
-        _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(2));
+        _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(2));
 
-        if (CoordinateAxis.Distance(state.SpawnPosition.X, place.Position.X.Whole) >= AlcoonHideXDistance)
+        if (CoordinateAxis.Distance(state.SpawnPosition.X, slot.Position.X.Whole) >= AlcoonHideXDistance)
         {
             state.Action = AlcoonAction.HidingRising;
             state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(-4);
             StartAlcoonAnimation(
-                place,
+                slot,
                 state,
                 FacesLeft(state)
                     ? AlcoonSegment.AirborneLeftLookingForward
@@ -249,13 +249,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.StepCounter != 0)
             return;
 
-        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
+        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
         bool movingLeft = FacesLeft(state);
         if (samusIsLeft != movingLeft)
             return;
 
         StartAlcoonAnimation(
-            place,
+            slot,
             state,
             movingLeft
                 ? AlcoonSegment.FireLeft
@@ -264,19 +264,19 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the retreat arc upward until gravity reverses its Y velocity.</summary>
-    private static void RunAlcoonHidingRise(RoomEnemyPlace place, AlcoonEnemyState state)
+    private static void RunAlcoonHidingRise(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        AddAlcoonYVelocity(place, state);
+        AddAlcoonYVelocity(slot, state);
         AccelerateAlcoonY(state);
         if (state.VerticalVelocity.WholePixels >= 0)
             state.Action = AlcoonAction.HidingFalling;
     }
 
     /// <summary>Returns the retreating actor to its whole-pixel spawn position while retaining subpositions.</summary>
-    private static void RunAlcoonHidingFall(RoomEnemyPlace place, AlcoonEnemyState state)
+    private static void RunAlcoonHidingFall(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        AddAlcoonYVelocity(place, state);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, state.SpawnPosition.Y) < 0)
+        AddAlcoonYVelocity(slot, state);
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.SpawnPosition.Y) < 0)
         {
             AccelerateAlcoonY(state);
             return;
@@ -284,7 +284,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The reset snaps only whole coordinates. Both subpositions and
         // the last animation map remain live while the actor waits underground.
-        place.Position = place.Position.WithWhole(state.SpawnPosition);
+        slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.Action = AlcoonAction.WaitingForSamus;
     }
 
@@ -303,27 +303,27 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Integrates vertical velocity without collision during airborne ascent or retreat.</summary>
-    private static void AddAlcoonYVelocity(RoomEnemyPlace place, AlcoonEnemyState state)
+    private static void AddAlcoonYVelocity(RoomEnemySlot slot, AlcoonEnemyState state)
     {
-        place.Position = place.Position.AdvanceY(state.VerticalVelocity);
+        slot.Position = slot.Position.AdvanceY(state.VerticalVelocity);
     }
 
     /// <summary>Rejects an initializer that cannot find a landing floor within the simulation bound.</summary>
-    private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemyPlace place)
+    private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemySlot slot)
     {
         if (iterations > AlcoonJumpSimulationLimit)
         {
             throw new InvalidDataException(
-                $"Alcoon place {place.Ordinal} did not find a landing floor within " +
+                $"Alcoon slot {slot.SlotIndex} did not find a landing floor within " +
                 $"{AlcoonJumpSimulationLimit} initialization steps.");
         }
     }
 
     /// <summary>Switches Alcoon's animation so its first step runs on the next update.</summary>
-    private static void StartAlcoonAnimation(RoomEnemyPlace place, AlcoonEnemyState state, AlcoonSegment segment)
+    private static void StartAlcoonAnimation(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonSegment segment)
     {
         state.Playback = new(AlcoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-        place.AnimationClock.StepOnNextUpdate();
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs the Alcoon's start-walking cue and returns the walk the animation continues at.</summary>
@@ -342,7 +342,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// round, when it continues at the other walk's first pose.
     /// </summary>
     private AlcoonSegment? MoveAlcoonHorizontally(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         AlcoonEnemyState state,
         RoomLevelData level)
     {
@@ -353,9 +353,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             null => SignedSixteenSixteen.Zero,
             _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {state.WalkingDirection}."),
         };
-        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
+        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
-            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
+            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
             return null;
         }
 
@@ -380,22 +380,22 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void RunAlcoonInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal void RunAlcoonInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeAlcoon(place, surroundings.PopulationLevel);
+        InitializeAlcoon(slot, surroundings.PopulationLevel);
     }
 
     /// <summary>Runs Alcoon's main AI.</summary>
-    internal void RunAlcoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunAlcoonMain(place, place.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
+        RunAlcoonMain(slot, slot.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue) is { } walk
+            (state, cue) => ApplyAlcoonCue(slot, state, context.Level, cue) is { } walk
                 ? new AnimationContinuation<AlcoonSegment>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -407,7 +407,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SignedEightEight AlcoonFireballHorizontalDeceleration = SignedEightEight.FromParts(0, 64);
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, AlcoonFireballLaunch launch)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

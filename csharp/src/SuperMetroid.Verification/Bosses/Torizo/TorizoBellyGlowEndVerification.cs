@@ -65,7 +65,7 @@ internal static class TorizoBellyGlowEndVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Bind(definition, RoomEnemyDefinitionLookup.Get(definition));
         torizo.Health = 800;
         var state = new TorizoEnemyState(isGolden) { Phase = TorizoPhase.Falling };
@@ -92,7 +92,7 @@ internal static class TorizoBellyGlowEndVerification
             if (update == DefeatUpdate)
                 torizo.Health = 0;
             // The original's glow tests the first enemy place's health at the start of its turn.
-            originalEnded |= enemies.Places.InUpdateOrder[0].Health == 0;
+            originalEnded |= enemies.SlotTable.Slots[0].Health == 0;
             fx.Step(conditions);
             AssertEqual(!originalEnded, fx.IsRunning(glow), $"{definition}'s glow at update {update}");
             AssertEqual(update < DefeatUpdate, fx.IsRunning(glow), $"{definition}'s glow at update {update} runs until its Torizo's defeat");

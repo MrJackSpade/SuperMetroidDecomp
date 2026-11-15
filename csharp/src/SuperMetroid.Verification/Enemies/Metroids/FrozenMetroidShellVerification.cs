@@ -22,12 +22,12 @@ internal static class FrozenMetroidShellVerification
         // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
         enemies.DrawUnder(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
         int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);
-        var enemy = enemies.Places.InUpdateOrder[0];
-        enemy.Position = enemy.Position.WithWhole(new(120, 100));
-        enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
-        enemy.Shading = PictureShading.Standard;
-        enemy.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(enemy);
+        var slot = enemies.SlotTable.Slots[0];
+        slot.Position = slot.Position.WithWhole(new(120, 100));
+        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+        slot.Shading = PictureShading.Standard;
+        slot.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
+        enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;
@@ -53,7 +53,7 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            MetroidBehavior.RunMetroidFrozen(enemy);
+            MetroidBehavior.RunMetroidFrozen(slot);
             enemies.SpriteObjects.StepRoomSpriteObjects();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");

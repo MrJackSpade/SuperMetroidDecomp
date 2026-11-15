@@ -193,10 +193,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
                             ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                             ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
                             (bool nativeHit, EnemyReaction? nativeReaction) = Invoke(
-                                native.Enemies, native.Place, xs[xi], ys[yi],
+                                native.Enemies, native.Slot, xs[xi], ys[yi],
                                 radiusX, radiusY, mode);
                             (bool compiledHit, EnemyReaction? compiledReaction) = Invoke(
-                                compiled.Enemies, compiled.Place, xs[xi], ys[yi],
+                                compiled.Enemies, compiled.Slot, xs[xi], ys[yi],
                                 radiusX, radiusY, mode);
                             AssertEqual(nativeHit, compiledHit,
                                 $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
@@ -227,33 +227,33 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool compiledPirate)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             bool wallFrame = pointer != EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap &&
                 !ninjaFramePointers.Contains(pointer) &&
                 !walkingFramePointers.Contains(pointer);
-            place.Bind(compiledPirate switch
+            slot.Bind(compiledPirate switch
             {
                 false => EnemyDefinitionId.None,
                 true when ninjaFramePointers.Contains(pointer) =>
                     EnemyDefinitionId.PirateSilverNinja,
                 true when wallFrame => EnemyDefinitionId.PirateGreyWall,
                 _ => EnemyDefinitionId.PirateGreyWalking,
-            }, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            }, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // Space Pirates collide by their frames' hitboxes, so the empty frame is the point-hitbox record.
-            place.CollidesByFrameHitboxes = true;
-            place.Frame = RoomEnemyPlaceFrameAccess.FrameAt(SpacePirateFrameBank, pointer);
-            place.Position = place.Position.WithWhole(new(x, y));
-            return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
+            slot.CollidesByFrameHitboxes = true;
+            slot.Frame = RoomEnemySlotFrameAccess.FrameAt(SpacePirateFrameBank, pointer);
+            slot.Position = slot.Position.WithWhole(new(x, y));
+            return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
         }
 
         HitboxResult Invoke(RoomEnemySystem enemies,
-            RoomEnemyPlace place, ushort x, ushort y, ushort radiusX,
+            RoomEnemySlot slot, ushort x, ushort y, ushort radiusX,
             ushort radiusY, bool shot)
         {
             object?[] arguments =
-                [place, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, default(GameplayAction)];
-            bool native = place.DefinitionId == EnemyDefinitionId.None;
+                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, default(GameplayAction)];
+            bool native = slot.DefinitionId == EnemyDefinitionId.None;
             bool hit = native
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Find(arguments);

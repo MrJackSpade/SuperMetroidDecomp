@@ -14,7 +14,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new FuneNamiheEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FuneNamiheEntity(this, slot, common);
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -30,7 +30,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
-    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
+    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemySlot slot, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
         switch (cue.Kind)
         {
@@ -39,16 +39,16 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 QueueFuneNamiheSpitSound();
                 break;
             case FuneNamiheCueKind.NamiheFireLeft:
-                SpawnFuneNamiheFireball(place, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.NamiheFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.NamiheFireball);
                 break;
             case FuneNamiheCueKind.NamiheFireRight:
-                SpawnFuneNamiheFireball(place, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.NamiheFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.NamiheFireball);
                 break;
             case FuneNamiheCueKind.FuneFireLeft:
-                SpawnFuneNamiheFireball(place, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.FuneFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FuneFireRight:
-                SpawnFuneNamiheFireball(place, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FinishActivity:
                 // Left/right animations use duplicate steps with identical state effects.
@@ -61,14 +61,14 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Takes the facing, cooldown and Y proximity from the spawn settings, then starts the species' idle animation.</summary>
-    internal static void InitializeFuneNamihe(RoomEnemyPlace place)
+    internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
-        FuneNamiheSpawnSettings settings = place.SpawnSettings<FuneNamiheSpawnSettings>();
+        FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
         FuneNamiheEnemyState state = new()
         {
             ShowsActiveAnimation = false,
             Action = FuneNamiheAction.FuneWaitForCooldown,
-            IsNamihe = place.DefinitionId == EnemyDefinitionId.Namihe,
+            IsNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
@@ -78,13 +78,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsNamihe)
             state.Action = FuneNamiheAction.NamiheWaitForSamus;
 
-        place.SetSpeciesState(state);
-        StartFuneNamiheAnimation(place, state);
+        slot.SetSpeciesState(state);
+        StartFuneNamiheAnimation(slot, state);
     }
 
     /// <summary>Starts Fune's activity after its cooldown or Namihe's after strict modular Y proximity; active animations own the return to idle.</summary>
     internal static void RunFuneNamiheMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         FuneNamiheEnemyState state,
         SamusState samus)
     {
@@ -97,7 +97,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 state.ShowsActiveAnimation = true;
-                StartFuneNamiheAnimation(place, state);
+                StartFuneNamiheAnimation(slot, state);
                 state.Action = FuneNamiheAction.Spitting;
                 state.CooldownTimer = 0;
                 return;
@@ -107,14 +107,14 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // uses a strict comparison. Equality at the configured distance stays idle.
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.Y.Whole,
-                        place.Position.Y.Whole,
+                        slot.Position.Y.Whole,
                         state.YProximity))
                 {
                     return;
                 }
 
                 state.ShowsActiveAnimation = true;
-                StartFuneNamiheAnimation(place, state);
+                StartFuneNamiheAnimation(slot, state);
                 state.Action = FuneNamiheAction.Spitting;
                 return;
 
@@ -134,10 +134,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// animation timers are reset together.
     /// </summary>
     private static void StartFuneNamiheAnimation(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
-        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(state)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(state)));
     }
 
     /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>
@@ -168,16 +168,16 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Runs FuneNamihe's main AI.</summary>
-    internal static void RunFuneNamiheMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunFuneNamiheMain(place, place.RequireSpeciesState<FuneNamiheEnemyState>(), frame.Samus);
+        RunFuneNamiheMain(slot, slot.RequireSpeciesState<FuneNamiheEnemyState>(), frame.Samus);
     }
 
     /// <summary>Advances FuneNamihe's typed animation.</summary>
-    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, FuneNamiheAnimations.Segments,
+    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, FuneNamiheAnimations.Segments,
             static (FuneNamiheEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyFuneNamiheCue(place, state, cue) is { } target
+            (state, cue) => ApplyFuneNamiheCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -186,7 +186,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// direction.
     /// </summary>
     internal void SpawnFuneNamiheFireball(
-        RoomEnemyPlace source,
+        RoomEnemySlot source,
         HorizontalDirection direction,
         RoomEnemyProjectileKind kind)
     {

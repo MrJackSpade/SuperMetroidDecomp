@@ -332,7 +332,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     // terrain: the solid enemy is the wall the jump launches from.
     var enemyEligible = CreateSpinSamus(animationFrame: 0x0b);
     var launchRoom = WallJumpLaunchShakeChecks.CreateFilledRoom();
-    RoomEnemyPlace launchEnemy = launchRoom.Places.InUpdateOrder[9];
+    RoomEnemySlot launchEnemy = launchRoom.SlotTable.Slots[9];
     enemyEligible.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(
@@ -356,7 +356,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     WallJumpLaunchShakeChecks.AssertEnemyPassShakes(WallJumpLaunchShakeChecks.CreateFilledRoom(), eligible, null, "a wall jump off terrain");
     // A later check that reaches the launch frames without launching withdraws a waiting shake.
     var withdrawnRoom = WallJumpLaunchShakeChecks.CreateFilledRoom();
-    RoomEnemyPlace withdrawnEnemy = withdrawnRoom.Places.InUpdateOrder[9];
+    RoomEnemySlot withdrawnEnemy = withdrawnRoom.SlotTable.Slots[9];
     var withdrawn = CreateSpinSamus(animationFrame: 0x0b);
     withdrawn.Kinematics.InteractiveEnemies = [enemyEligible.Kinematics.InteractiveEnemies[0] with { Enemy = withdrawnEnemy }];
     withdrawn.Kinematics.RequestWallJumpLaunchShake(withdrawnEnemy);

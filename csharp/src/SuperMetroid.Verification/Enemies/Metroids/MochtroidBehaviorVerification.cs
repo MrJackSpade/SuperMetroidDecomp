@@ -19,25 +19,25 @@ internal static class MochtroidBehaviorVerification
     internal static void VerifyMochtroidBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Mochtroid, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        MochtroidBehavior.InitializeMochtroid(place);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Mochtroid, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        MochtroidBehavior.InitializeMochtroid(slot);
         MochtroidEnemyState state = enemies.MochtroidStates[0] ?? throw new InvalidOperationException("Mochtroid has no state.");
         AssertEqual((MochtroidSegment?)MochtroidSegment.FreeFlight, state.InstalledAnimation, "initializer installs free flight");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Segments, MochtroidSegment.FreeFlight, MochtroidFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Segments, MochtroidSegment.FreeFlight)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Segments, MochtroidSegment.FreeFlight)),
             "Mochtroid free-flight loop");
 
         AnimationPlayback<MochtroidSegment> running = state.Playback;
-        MochtroidBehavior.SetMochtroidAnimation(place, state, MochtroidSegment.FreeFlight);
+        MochtroidBehavior.SetMochtroidAnimation(slot, state, MochtroidSegment.FreeFlight);
         AssertEqual(running, state.Playback, "re-requesting the installed loop keeps it running");
 
-        MochtroidBehavior.SetMochtroidAnimation(place, state, MochtroidSegment.Attached);
+        MochtroidBehavior.SetMochtroidAnimation(slot, state, MochtroidSegment.Attached);
         AssertEqual(new AnimationPlayback<MochtroidSegment>(MochtroidAnimations.StartingWith(MochtroidSegment.Attached), AnimationPlace.StartOfAnimation),
             state.Playback, "switching starts the attached loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Segments, MochtroidSegment.Attached, MochtroidFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Segments, MochtroidSegment.Attached)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MochtroidAnimations.Segments, MochtroidSegment.Attached)),
             "Mochtroid attached loop");
         Console.WriteLine("  Mochtroid behavior: both pulse loops and the change-detecting install pass.");
     }

@@ -30,8 +30,8 @@ internal static class RespawnedEnemyContactVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
 
-        RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == respawningEnemy && place.Position.X.Whole == respawnX);
+        RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.Single(slot =>
+            slot.DefinitionId == respawningEnemy && slot.Position.X.Whole == respawnX);
         AssertTrue(enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled),
             "the Hellway actor respawns when killed");
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);

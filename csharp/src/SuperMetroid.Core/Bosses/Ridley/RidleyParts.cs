@@ -14,44 +14,44 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyParts
 {
     /// <summary>His body once it has initialized in this room; null in a room he has not initialized in.</summary>
-    internal RoomEnemyPlace? AttachedBody { get; private set; }
+    internal RoomEnemySlot? AttachedBody { get; private set; }
 
     /// <summary>His body, which his encounters reach once it has initialized.</summary>
     /// <exception cref="InvalidOperationException">His body has not initialized in this room.</exception>
-    internal RoomEnemyPlace Body => AttachedBody
+    internal RoomEnemySlot Body => AttachedBody
         ?? throw new InvalidOperationException("Ridley's body has not initialized in this room.");
 
     /// <summary>
     /// The door of Ceres Ridley's room once it has initialized, whose drawing his scene takes over while the door hands it
     /// to him; null in any other room.
     /// </summary>
-    internal RoomEnemyPlace? CeresRoomDoor { get; private set; }
+    internal RoomEnemySlot? CeresRoomDoor { get; private set; }
 
     /// <summary>Whether his place holds Ceres Ridley: false in Lower Norfair and in a room he has not initialized in.</summary>
     internal bool HoldsCeresRidley => AttachedBody?.DefinitionId == EnemyDefinitionId.RidleyCeres;
 
-    /// <summary>Whether <paramref name="place"/> is his body.</summary>
-    internal bool IsBody(RoomEnemyPlace place) => AttachedBody is { } body && ReferenceEquals(place, body);
+    /// <summary>Whether <paramref name="slot"/> is his body.</summary>
+    internal bool IsBody(RoomEnemySlot slot) => AttachedBody is { } body && ReferenceEquals(slot, body);
 
-    /// <summary>Attaches <paramref name="place"/> as his body as it initializes as Ridley.</summary>
-    /// <param name="place">The enemy initializing as Ridley.</param>
+    /// <summary>Attaches <paramref name="slot"/> as his body as it initializes as Ridley.</summary>
+    /// <param name="slot">The enemy initializing as Ridley.</param>
     /// <param name="encounter">The encounter's name for the failure message.</param>
     /// <exception cref="InvalidDataException">Another enemy of the room has already initialized as his body.</exception>
-    internal void AttachBody(RoomEnemyPlace place, string encounter)
+    internal void AttachBody(RoomEnemySlot slot, string encounter)
     {
-        Ensure.NotNull(place);
-        if (AttachedBody is { } body && !ReferenceEquals(body, place))
-            throw new InvalidDataException($"{encounter} initializes as enemy {place.Ordinal}, but enemy {body.Ordinal} is already his body.");
-        AttachedBody = place;
+        Ensure.NotNull(slot);
+        if (AttachedBody is { } body && !ReferenceEquals(body, slot))
+            throw new InvalidDataException($"{encounter} initializes as enemy {slot.SlotIndex}, but enemy {body.SlotIndex} is already his body.");
+        AttachedBody = slot;
     }
 
     /// <summary>Attaches <paramref name="door"/> as the door of Ceres Ridley's room as it initializes.</summary>
     /// <exception cref="InvalidDataException">Another door of the room has already initialized as the door of Ridley's room.</exception>
-    internal void AttachCeresRoomDoor(RoomEnemyPlace door)
+    internal void AttachCeresRoomDoor(RoomEnemySlot door)
     {
         Ensure.NotNull(door);
         if (CeresRoomDoor is { } attached && !ReferenceEquals(attached, door))
-            throw new InvalidDataException($"Ceres door {door.Ordinal} initializes as the door of Ridley's room, but door {attached.Ordinal} already is.");
+            throw new InvalidDataException($"Ceres door {door.SlotIndex} initializes as the door of Ridley's room, but door {attached.SlotIndex} already is.");
         CeresRoomDoor = door;
     }
 }

@@ -15,12 +15,12 @@ internal static class WreckedShipGhostBehaviorVerification
     internal static void VerifyWreckedShipGhostBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace ghost = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
         ghost.Bind(ghost.DefinitionId, default(RoomEnemyDefinition));
         WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
         AssertEqual(new AnimationPlayback<WreckedShipGhostSegment>(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),
-            (enemies.Places.InUpdateOrder[0].EntityState<WreckedShipGhostEntity, WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException("The ghost has no state.")).Playback,
+            (enemies.SlotTable.Slots[0].EntityState<WreckedShipGhostEntity, WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException("The ghost has no state.")).Playback,
             "real Wrecked Ship ghost initializer starts the floating loop");
         ushort[] loop = WreckedShipGhostAnimationsTooling.Spritemaps(WreckedShipGhostSegment.Floating).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [16, 16, 16, 16]),

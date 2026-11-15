@@ -35,7 +35,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
-        var top = runtime.Enemies.Places.InUpdateOrder.First(place => place.NativeHeader.InitializationAiPointer == 0xa644);
+        var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.NativeHeader.InitializationAiPointer == 0xa644);
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));

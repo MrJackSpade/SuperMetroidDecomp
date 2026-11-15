@@ -16,7 +16,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// <summary>What the struck rescue wall shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared place table and the installed pictures.</summary>
+    /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared slot table and the installed pictures.</summary>
     internal EscapeAnimalObjects(IGlobalEventFlags events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _events = events;
@@ -28,7 +28,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     {
         // The wall's setup runs only once its spawn has taken a place, which a full room never gives.
         if (_places.IsFull)
-            throw new InvalidOperationException("Animal rescue wall setup has no free room-object place.");
+            throw new InvalidOperationException("Animal rescue wall setup has no free room-object slot.");
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType,
             EscapeAnimalWallDefinitions.ReactionBehavior);
         for (int row = 1; row <= 2; row++)

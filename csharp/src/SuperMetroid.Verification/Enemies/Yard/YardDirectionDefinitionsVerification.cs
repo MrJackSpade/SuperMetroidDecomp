@@ -68,13 +68,13 @@ internal static class YardDirectionDefinitionsVerification
         for (ushort direction = 0; direction < 8; direction++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
-            place.Contact = EnemyContact.None;
-            place.Processing = EnemyProcessing.None;
-            place.Presence = EnemyPresence.RespawnsIfKilled;
-            place.Bind(EnemyDefinitionId.Yard, place.Definition);
-            YardEnemyBehavior.InitializeYard(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
+            slot.Contact = EnemyContact.None;
+            slot.Processing = EnemyProcessing.None;
+            slot.Presence = EnemyPresence.RespawnsIfKilled;
+            slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
+            YardEnemyBehavior.InitializeYard(slot);
 
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
@@ -105,16 +105,16 @@ internal static class YardDirectionDefinitionsVerification
         foreach (ushort direction in new ushort[] { 0, 1 })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
-            place.Bind(EnemyDefinitionId.Yard, place.Definition);
-            YardEnemyBehavior.InitializeYard(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
+            slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
+            YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
             YardAirborneFacing facing = state.AirborneFacingDirection;
             YardAirborneAnimationDefinition expected =
                 YardDirections.ForAirborneFacing(facing);
 
-            YardEnemyBehavior.DropYard(place, state);
+            YardEnemyBehavior.DropYard(slot, state);
             AssertYardAirborneLists(state, expected,
                 $"Yard detach facing {facing}");
 
@@ -128,11 +128,11 @@ internal static class YardDirectionDefinitionsVerification
             };
             var kickDistance = new SuperMetroid.Core.Compatibility.YardKickTrackingDistance();
             kickDistance.Record(SignedSixteenSixteen.FromParts(1, 32768));
-            YardEnemyBehavior.KickYardIntoAir(place, state, samus, kickDistance);
+            YardEnemyBehavior.KickYardIntoAir(slot, state, samus, kickDistance);
             AssertYardAirborneLists(state, expected,
                 $"Yard contact kick facing {facing}");
 
-            YardEnemyBehavior.ShootYardIntoAir(place, state, samus);
+            YardEnemyBehavior.ShootYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(state, expected,
                 $"Yard shot launch facing {facing}");
         }

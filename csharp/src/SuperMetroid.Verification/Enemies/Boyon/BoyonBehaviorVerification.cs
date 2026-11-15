@@ -29,14 +29,14 @@ internal static class BoyonBehaviorVerification
     /// </summary>
     internal static void VerifyBoyonBehavior()
     {
-        (RoomEnemySystem idleSystem, RoomEnemyPlace idle, BoyonEnemyState idleState) = Create(parameter1: 0);
+        (RoomEnemySystem idleSystem, RoomEnemySlot idle, BoyonEnemyState idleState) = Create(parameter1: 0);
         AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Idle), AnimationPlace.StartOfAnimation), idleState.Playback, "Boyon initializer starts idling");
         idle.Processing = idle.Processing.With(EnemyProcessing.OffScreen);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.IdleLoop, BoyonFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.IdleLoop)), "Boyon idle loop");
         AssertTrue(!idle.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon idle stops off-screen processing");
 
-        (RoomEnemySystem bounceSystem, RoomEnemyPlace bounce, BoyonEnemyState bounceState) = Create(parameter1: 0);
+        (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create(parameter1: 0);
         SamusState samus = SamusAt(bounce);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
@@ -92,9 +92,9 @@ internal static class BoyonBehaviorVerification
         for (int multiplierSelector = 0; multiplierSelector < SelectorMultipliers.Length; multiplierSelector++)
         for (int heightSelector = 0; heightSelector < BouncedHeightSelectors; heightSelector++)
         {
-            (_, RoomEnemyPlace place, BoyonEnemyState state) = Create(parameter1: (heightSelector << 8) | multiplierSelector);
-            SamusState samus = SamusAt(place);
-            BoyonBehavior.RunBoyonMain(place, state, samus);
+            (_, RoomEnemySlot slot, BoyonEnemyState state) = Create(parameter1: (heightSelector << 8) | multiplierSelector);
+            SamusState samus = SamusAt(slot);
+            BoyonBehavior.RunBoyonMain(slot, state, samus);
             int multiplier = SelectorMultipliers[multiplierSelector];
             (int baseline, _) = OriginalBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + heightSelector * 2));
             string context = $"Boyon with multiplier {multiplier} and height selector {heightSelector}";
@@ -102,7 +102,7 @@ internal static class BoyonBehaviorVerification
 
             int index = baseline;
             bool rising = true;
-            int y = place.Position.Y.Whole;
+            int y = slot.Position.Y.Whole;
             for (int update = 0; update < 4 * (baseline + 1); update++)
             {
                 if (rising)
@@ -118,10 +118,10 @@ internal static class BoyonBehaviorVerification
                     rising = unchecked((short)(index - baseline)) >= 0;
                 }
 
-                BoyonBehavior.RunBoyonMain(place, state, samus);
+                BoyonBehavior.RunBoyonMain(slot, state, samus);
                 updates++;
                 string at = $"{context}, update {update}";
-                AssertEqual(y, (int)place.Position.Y.Whole, $"{at}: height");
+                AssertEqual(y, (int)slot.Position.Y.Whole, $"{at}: height");
                 AssertEqual(rising ? BoyonBounceMovement.Rising : BoyonBounceMovement.Falling, state.BounceMovement, $"{at}: rise or fall");
                 AssertEqual(index == ushort.MaxValue ? BoyonCurvePlace.PastTheTop : BoyonCurvePlace.AtEntry(index), state.CurvePlace, $"{at}: place on the curve");
             }
@@ -163,25 +163,25 @@ internal static class BoyonBehaviorVerification
         [.. Enumerable.Range(0, StoredSamples).Select(index => (int)rom.ReadCartridgeByte(0xa28701 + index))];
 
     /// <summary>Samus standing on the Boyon, within its trigger range.</summary>
-    private static SamusState SamusAt(RoomEnemyPlace place) =>
+    private static SamusState SamusAt(RoomEnemySlot slot) =>
         new(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
-            Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole),
+            Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole),
         };
 
     /// <summary>A Boyon with a 64-pixel trigger range and the given first parameter after its real initializer.</summary>
     private static BoyonBehaviorCreateResult Create(int parameter1)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Boyon, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.Boyon, parameter1);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnParameter1(EnemyDefinitionId.Boyon, parameter1);
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
-        place.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
-        place.Position = place.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(place);
-        return new BoyonBehaviorCreateResult(enemies, place, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
+        slot.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
+        slot.Position = slot.Position.WithWhole(new(256, 512));
+        BoyonBehavior.InitializeBoyon(slot);
+        return new BoyonBehaviorCreateResult(enemies, slot, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
     }
 
     /// <summary>Runs the Boyon behavior and arc checks, its program oracle and the compiled selector check.</summary>

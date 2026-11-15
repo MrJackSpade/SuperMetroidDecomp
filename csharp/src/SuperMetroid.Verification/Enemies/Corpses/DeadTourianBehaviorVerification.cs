@@ -20,7 +20,7 @@ internal static class DeadTourianBehaviorVerification
     internal static void VerifyDeadSidehopperBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
@@ -62,7 +62,7 @@ internal static class DeadTourianBehaviorVerification
         void Confirm(int cameraX, bool wakes)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
             corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
             corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
             corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);

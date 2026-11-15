@@ -21,7 +21,7 @@ internal sealed record CeresRidleyFlightDependencies
     public required EnemyAudioQueue Audio { get; init; }
 
     /// <summary>Finds the free place the turning-floor wall enemy takes when Ridley spawns it.</summary>
-    public required EnemyPlaces Places { get; init; }
+    public required EnemySlotTable SlotTable { get; init; }
 
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     public required RidleyEncounter RidleyEncounter { get; init; }

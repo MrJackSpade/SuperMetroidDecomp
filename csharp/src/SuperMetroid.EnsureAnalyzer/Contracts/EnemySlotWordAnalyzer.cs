@@ -17,8 +17,8 @@ public sealed class EnemySlotWordAnalyzer : DiagnosticAnalyzer
     /// <summary>A multipurpose word declared on the common enemy slot.</summary>
     public const string Id = "SME6408";
 
-    /// <summary>The common enemy place whose members are guarded.</summary>
-    internal const string EnemySlotMetadataName = "SuperMetroid.Core.Enemies.RoomEnemyPlace";
+    /// <summary>The common enemy slot whose members are guarded.</summary>
+    internal const string EnemySlotMetadataName = "SuperMetroid.Core.Enemies.RoomEnemySlot";
 
     /// <summary>The names the cartridge's multipurpose enemy words take: a lettered variable or a numbered parameter.</summary>
     private static readonly Regex MultipurposeWordName = new("^(Variable[A-Z]|Parameter[0-9]+)$", RegexOptions.CultureInvariant);

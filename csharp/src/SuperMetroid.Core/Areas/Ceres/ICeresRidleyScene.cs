@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal interface ICeresRidleyScene
 {
     /// <summary>Attaches <paramref name="door"/> as the door of Ridley's room as it initializes.</summary>
-    void AttachRoomDoor(RoomEnemyPlace door);
+    void AttachRoomDoor(RoomEnemySlot door);
 }

@@ -72,22 +72,22 @@ internal static class EnemyGameplayAcceptanceVerification
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
         (RoomEnemySystem baseline, _) = Load(stock);
-        AssertEqual(population.Placements.Length, baseline.Places.EnemyCount, "compiled population publishes its exact count");
-        AssertEqual(population.Placements.Length < EnemyPlaceOrder.Capacity ? baseline.Places.InUpdateOrder[population.Placements.Length] : null,
-            baseline.Places.FindFreePlace(), "a spawn takes the slot after the compiled population");
+        AssertEqual(population.Placements.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
+        AssertEqual(population.Placements.Length < EnemySlotOrder.Capacity ? baseline.SlotTable.Slots[population.Placements.Length] : null,
+            baseline.SlotTable.FindFreeSlot(), "a spawn takes the slot after the compiled population");
         AssertEqual(population.DeathQuota, baseline.PopulationLoader.DeathQuota, "compiled population publishes its authored death quota");
         for (int index = 0; index < population.Placements.Length; index++)
         {
-            RoomEnemyPlace place = baseline.Places.InUpdateOrder[index];
-            AssertEqual(index, place.Ordinal, "linked population slot order");
-            AssertEqual(population.Placements.Span[index], place.Spawn.Population, "linked population preserves every spawn word");
-            AssertEqual(RoomEnemyDefinitionLookup.Get(place.DefinitionId), place.Definition, "linked slot uses compiled header");
-            AssertEqual(place.Definition.Health, place.Health, "linked slot starts at compiled health");
+            RoomEnemySlot slot = baseline.SlotTable.Slots[index];
+            AssertEqual(index, slot.SlotIndex, "linked population slot order");
+            AssertEqual(population.Placements.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
+            AssertEqual(RoomEnemyDefinitionLookup.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
+            AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)
             {
-                RoomEnemyPlace body = baseline.Places.InUpdateOrder[index - 1];
-                AssertEqual(body.Position.X.Whole, place.Position.X.Whole, "wing initializer retains its preceding body's X");
-                AssertEqual(body.Position.Y.Whole, place.Position.Y.Whole, "wing initializer retains its preceding body's Y");
+                RoomEnemySlot body = baseline.SlotTable.Slots[index - 1];
+                AssertEqual(body.Position.X.Whole, slot.Position.X.Whole, "wing initializer retains its preceding body's X");
+                AssertEqual(body.Position.Y.Whole, slot.Position.Y.Whole, "wing initializer retains its preceding body's Y");
             }
         }
 

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Verification's native view of the frame an enemy shows: the bank-local spritemap or extended-frame word the cartridge
 /// stores it at, and the frame stored at a word in the enemy's bank.
 /// </summary>
-internal static class RoomEnemyPlaceFrameAccess
+internal static class RoomEnemySlotFrameAccess
 {
     /// <summary>Whether an installed composition shows native word <paramref name="word"/> in bank <paramref name="bank"/>.</summary>
     internal static bool Shows(byte bank, ushort word) =>
@@ -23,7 +23,7 @@ internal static class RoomEnemyPlaceFrameAccess
     internal static EnemyFrameId? TryFrameAt(byte bank, ushort word) => word == 0 ? null : EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word);
 
     /// <summary>Native views of a slot.</summary>
-    extension(RoomEnemyPlace self)
+    extension(RoomEnemySlot self)
     {
         /// <summary>
         /// The bank-local word of the frame the slot shows, zero before it shows any: the empty frame of a slot colliding by
@@ -47,7 +47,7 @@ internal static class RoomEnemyPlaceFrameAccess
                 catch (ArgumentOutOfRangeException exception)
                 {
                     throw new InvalidOperationException(
-                        $"Enemy slot {self.Ordinal} ({self.DefinitionId}, contact {self.Contact}, processing {self.Processing}, presence {self.Presence}) cannot show ${self.NativeHeader.Bank:X2}:{value:X4}.",
+                        $"Enemy slot {self.SlotIndex} ({self.DefinitionId}, contact {self.Contact}, processing {self.Processing}, presence {self.Presence}) cannot show ${self.NativeHeader.Bank:X2}:{value:X4}.",
                         exception);
                 }
             }

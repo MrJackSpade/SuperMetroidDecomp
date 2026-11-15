@@ -115,7 +115,7 @@ internal static class NativeSnapshotImport
                 PaletteFxNativeProgramOracle.AnimationsOf(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
             ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
-                ? runtime.Enemies.Places.InUpdateOrder.Select(enemy => enemy.Entity).OfType<TorizoEntity>().SingleOrDefault()
+                ? runtime.Enemies.SlotTable.Slots.Select(slot => slot.Entity).OfType<TorizoEntity>().SingleOrDefault()
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
             // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783).
@@ -188,7 +188,7 @@ internal static class NativeSnapshotImport
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirectionNativeWords.Directions.Decode(direction, "solid-enemy collision direction"),
                 SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOrNoneOf(W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2)) is { } contactPlace
-                    ? runtime.Enemies.Places.InUpdateOrder[contactPlace]
+                    ? runtime.Enemies.SlotTable.Slots[contactPlace]
                     : null);
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
@@ -330,56 +330,56 @@ internal static class NativeSnapshotImport
         var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
-        for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)
+        for (int index = 0; index < runtime.Enemies.SlotTable.Slots.Count; index++)
         {
-            var enemy = runtime.Enemies.Places.InUpdateOrder[index];
+            var slot = runtime.Enemies.SlotTable.Slots[index];
             int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(index);
             if (W(address) != 0)
-                VerificationAssertions.AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(enemy.DefinitionId) == W(address), "initial enemy species agrees with room population");
+                VerificationAssertions.AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(slot.DefinitionId) == W(address), "initial enemy species agrees with room population");
             // A recorded occupant is the one the room load placed, which keeps its species state; a slot the recording
             // holds free loses its loaded occupant with that occupant's state (#1543).
             EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address));
-            if (recordedOccupant != enemy.DefinitionId)
-                enemy.Bind(recordedOccupant, enemy.Definition);
-            enemy.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
-            enemy.Radius = new(W(address + 10), W(address + 12));
+            if (recordedOccupant != slot.DefinitionId)
+                slot.Bind(recordedOccupant, slot.Definition);
+            slot.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
+            slot.Radius = new(W(address + 10), W(address + 12));
             // The species bits of the property words are the entry's spawn settings, which the population already holds.
-            SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineStateOf(W(address + 14), W(address + 16)).ApplyTo(enemy);
-            enemy.AiStates = SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Decode(W(address + 18));
-            enemy.Health = W(address + 20);
+            SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineStateOf(W(address + 14), W(address + 16)).ApplyTo(slot);
+            slot.AiStates = SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Decode(W(address + 18));
+            slot.Health = W(address + 20);
             // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.
-            enemy.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
+            slot.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
             // The timer word at +$18 is the loop counter of the occupant's animation; the imported playbacks play no repeated
             // phase, so it counts nothing the port keeps (#2006).
-            enemy.AnimationClock.HoldFor(W(address + 28));
+            slot.AnimationClock.HoldFor(W(address + 28));
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
-            enemy.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
+            slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).
-            enemy.FlashTimer = W(address + 36);
-            enemy.FrozenTimer = W(address + 38);
-            enemy.InvincibilityTimer = W(address + 40);
-            enemy.ShakeTimer = W(address + 42);
-            enemy.FrameCounter = W(address + 44);
+            slot.FlashTimer = W(address + 36);
+            slot.FrozenTimer = W(address + 38);
+            slot.InvincibilityTimer = W(address + 40);
+            slot.ShakeTimer = W(address + 42);
+            slot.FrameCounter = W(address + 44);
             var words = new NativeEnemyRecordWords(
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
             // A free native slot's family words are its last occupant's, which no family state of this slot holds (#1435).
             if (W(address) != 0)
-                NativeEnemyFamilyStateImport.Import(runtime.Enemies, enemy, words);
+                NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
             // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none.
-            if (W(address) != 0 && enemy.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon && words.C != 0)
+            if (W(address) != 0 && slot.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon && words.C != 0)
                 draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
-            if (enemy.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
+            if (slot.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
                 kraid.HeadPlayback = kraidHeadCursors.TryPlaybackAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
-            if (enemy.PipeBugPlayback is not null)
-                enemy.PipeBugPlayback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
+            if (slot.PipeBugPlayback is not null)
+                slot.PipeBugPlayback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));
             if (runtime.Enemies.BrinstarPipeBugStates[index] is { } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = unchecked((short)words.D);
-                bool strong = runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
+                bool strong = runtime.Enemies.SlotTable.Slots[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
                     == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI

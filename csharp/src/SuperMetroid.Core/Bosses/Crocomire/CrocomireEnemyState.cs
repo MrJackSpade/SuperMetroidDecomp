@@ -19,14 +19,14 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </remarks>
 public sealed class CrocomireEnemyState
 {
-    /// <summary>Creates the state for Crocomire's body place.</summary>
-    internal CrocomireEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <summary>Creates the state for Crocomire's body slot.</summary>
+    internal CrocomireEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
 
     /// <summary>Crocomire's body, owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
-    public RoomEnemyPlace Body { get; }
+    public RoomEnemySlot Body { get; }
     /// <summary>The body's playing animation and where it stands; before the first start, the initial animation.</summary>
     internal AnimationPlayback<CrocomireBodySegment> BodyPlayback { get; set; } =
         new(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Initial), AnimationPlace.StartOfAnimation);
@@ -64,7 +64,7 @@ public sealed class CrocomireEnemyState
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
     /// <summary>Crocomire's tongue, attached during initialization; bridge collapse rests and hides it, while later melting phases reuse its actor.</summary>
-    public RoomEnemyPlace? Tongue { get; internal set; }
+    public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.InertCorpse"/> is a corpse, an already-defeated room's from its setup.</summary>
     public CrocomireDeathPhase DeathPhase { get; internal set; }

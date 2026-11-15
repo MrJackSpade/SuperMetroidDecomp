@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyPowerBombReaction
 {
     /// <summary>Whether the enemy is skipped before its reaction is examined.</summary>
-    internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }
+    internal Func<RoomEnemySlot, bool>? SkipsEnemy { get; init; }
 
     /// <summary>A private reaction that replaces common power-bomb damage entirely.</summary>
     internal EnemyPowerBombStage? ReplacesCommon { get; init; }

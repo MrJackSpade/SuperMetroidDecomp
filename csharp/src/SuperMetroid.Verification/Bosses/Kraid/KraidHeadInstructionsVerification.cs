@@ -44,7 +44,7 @@ internal static class KraidHeadInstructionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState { HeadPlayback = record.Playback };
 
             KraidHeadAnimationResult result = execute(state);
@@ -86,14 +86,14 @@ internal static class KraidHeadInstructionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
-        var combat = new Action<RoomEnemyPlace, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
+        var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
             enemies.KraidBehavior.RunKraidCombatPhase(combatBody, combatState, cameraX));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

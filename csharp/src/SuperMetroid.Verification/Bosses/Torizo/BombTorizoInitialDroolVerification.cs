@@ -24,7 +24,7 @@ internal static class BombTorizoInitialDroolVerification
         const int RoomExtent = 512;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         var randoms = new Queue<ushort>();
         enemies.VerificationServices().NextRandom = randoms.Dequeue;
         int spawns = 0;

@@ -23,10 +23,10 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockBehavior()
     {
-        (RoomEnemySystem enemies, RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
+        (RoomEnemySystem enemies, RoomEnemySlot slot, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
         AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "face block starts neutral");
         ushort neutral = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.Initial).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(place, 3), "face block neutral pose");
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), "face block neutral pose");
 
         foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockSegment program) in new[]
                  {
@@ -34,18 +34,18 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
                      new VerifyBlueBrinstarFaceBlockBehaviorCase(1, 32, BlueBrinstarFaceBlockSegment.SamusRight),
                  })
         {
-            (enemies, place, state) = Create(parameter2);
+            (enemies, slot, state) = Create(parameter2);
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(BlueBrinstarFaceBlockNativeValues.MorphBallItem),
-                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(place.Position.X.Whole + samusX)), place.Position.Y.Whole)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(slot.Position.X.Whole + samusX)), slot.Position.Y.Whole)),
             };
-            enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
+            enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(slot, state, samus);
             AssertTrue(state.Activated, $"face block {program} activates");
             AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"face block {program} selection");
             int[] holds = [48, 16, 16];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(program), holds),
-                EnemyInstructionRunner.ShownFrames(place, holds.Sum() + 1), $"face block {program} poses");
+                EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"face block {program} poses");
         }
 
         AssertEqual(5, BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).Distinct().Count(), "five distinct face-block poses");
@@ -59,14 +59,14 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     private static BlueBrinstarFaceBlockBehaviorCreateResult Create(ushort parameter2)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
-        place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, parameter2);
-        place.Position = place.Position.WithWhole(new(256, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
-        return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, place, enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("The face block has no state."));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
+        slot.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, parameter2);
+        slot.Position = slot.Position.WithWhole(new(256, 256));
+        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, RoomEnemyFrameFixtures.StandaloneSamus());
+        return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, slot, enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("The face block has no state."));
     }
 
     /// <summary>Runs the face-block behavior check, its program oracle and the compiled selector check.</summary>

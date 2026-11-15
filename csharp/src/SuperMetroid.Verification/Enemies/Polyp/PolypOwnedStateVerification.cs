@@ -15,10 +15,10 @@ internal static class PolypOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.LavaRocks, place.Definition);
-        enemies.PolypBehavior.InitializePolyp(place);
-        PolypEnemyState state = place.RequireSpeciesState<PolypEnemyState>();
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
+        enemies.PolypBehavior.InitializePolyp(slot);
+        PolypEnemyState state = slot.RequireSpeciesState<PolypEnemyState>();
         AssertEqual<PolypAction?>(PolypAction.WaitingForSamus, state.Action, "a new Polyp waits for Samus");
         AssertEqual(0, state.CooldownTimer, "a new Polyp has no cooldown");
         Console.WriteLine("Polyp owned state: the initial behaviour matches.");

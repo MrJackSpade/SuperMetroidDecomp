@@ -118,7 +118,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void CompareSink(ushort acceleration, ushort speed, ushort subposition, ushort y, string name)
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
         state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
@@ -145,7 +145,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void CompareRise(ushort acceleration, ushort speed, ushort subposition, ushort y, string name)
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
         state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
@@ -241,7 +241,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void VerifySkeletonMotionMatchesNativeWords()
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         CrocomireBehavior behavior = enemies.CrocomireBehavior;
         CrocomireDeathState death = behavior.Access.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
         ushort fraction = 0;
@@ -342,7 +342,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static NewCrocomireResult NewCrocomire()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

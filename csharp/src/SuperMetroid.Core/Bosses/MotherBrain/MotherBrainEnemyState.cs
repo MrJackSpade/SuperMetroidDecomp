@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainEnemyState
 {
     /// <summary>Starts the shared encounter state with her body before her head is attached.</summary>
-    internal MotherBrainEnemyState(RoomEnemyPlace body) => Body = body;
+    internal MotherBrainEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Her body, which owns the encounter and runs first.</summary>
-    public RoomEnemyPlace Body { get; }
+    public RoomEnemySlot Body { get; }
 
     /// <summary>Her head, the brain, attached by its initializer.</summary>
-    public RoomEnemyPlace Head { get => field ?? throw new InvalidOperationException("Mother Brain's head place is not attached; head initialization attaches it."); internal set; }
+    public RoomEnemySlot Head { get => field ?? throw new InvalidOperationException("Mother Brain's head slot is not attached; head initialization attaches it."); internal set; }
 
     /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>
     public MotherBrainForm Form { get; internal set; }
@@ -88,7 +88,7 @@ public sealed class MotherBrainEnemyState
         new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
 
     /// <summary>The head enemy's animation and where it stands; it keeps the initial dummy for life.</summary>
-    internal AnimationPlayback<MotherBrainBodySegment> HeadPlayback { get; set; } =
+    internal AnimationPlayback<MotherBrainBodySegment> HeadSlotPlayback { get; set; } =
         new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
 
     /// <summary>Earthquake timer copied into the head-shake timer after the glass event.</summary>
@@ -292,12 +292,12 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The Baby Metroid enemy placed in the room by
-    /// the final beam's Baby spawn. Keeping the place and its extended cutscene state side by side makes
+    /// the final beam's Baby spawn. Keeping the slot and its extended cutscene state side by side makes
     /// the cross-enemy index observable without pretending the Baby is a draw-only
     /// effect owned by Mother Brain's body.
     /// </summary>
-    public RoomEnemyPlace? BabyMetroidPlace { get; internal set; }
-    /// <summary>Extended cutscene AI state attached to the dynamically allocated baby place; its independent turn owns latch, draining, healing, and death handshakes.</summary>
+    public RoomEnemySlot? BabyMetroidSlot { get; internal set; }
+    /// <summary>Extended cutscene AI state attached to the dynamically allocated baby slot; its independent turn owns latch, draining, healing, and death handshakes.</summary>
     public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
 
 
@@ -308,7 +308,7 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     internal MotherBrainBabySegment BabyAppliedAnimation { get; set; }
 
-    /// <summary>The cutscene Baby's place animation and where it stands (#641, #1600).</summary>
+    /// <summary>The cutscene Baby's slot animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<MotherBrainBabySegment> BabyPlayback { get; set; } = MotherBrainBabyAnimations.Starting(default);
 
     /// <summary>

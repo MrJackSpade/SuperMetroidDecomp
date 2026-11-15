@@ -49,7 +49,7 @@ internal static class ShutterScrewContactVerification
         {
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
             var samus = runtime.Player.IntroducedSamus;
-            RoomEnemyPlace shutter = runtime.Enemies.Places.InUpdateOrder[ShutterPlace];
+            RoomEnemySlot shutter = runtime.Enemies.SlotTable.Slots[ShutterPlace];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[ShutterPlace] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));
             AssertEqual(ShutterTriggerMode.OneShotReaction, state.TriggerMode, "the movie's shutter waits only for a shot");
 
@@ -57,7 +57,7 @@ internal static class ShutterScrewContactVerification
             for (int direction = 0; direction < ContactDirections.Length; direction++)
             {
                 samus.Kinematics.RecordSolidEnemyCollision(ContactDirections[direction],
-                    contactPlaces[direction] is { } place ? runtime.Enemies.Places.InUpdateOrder[place] : null);
+                    contactPlaces[direction] is { } place ? runtime.Enemies.SlotTable.Slots[place] : null);
             }
 
             runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter, state, samus, Position16<RoomPixels>.Zero);
@@ -69,7 +69,7 @@ internal static class ShutterScrewContactVerification
     }
 
     /// <summary>
-    /// Checks <see cref="SolidContactPlaceCombination"/> (#1471, #1702) over every combination of contacts the shutters'
+    /// Checks <see cref="SolidContactSlotCombination"/> (#1471, #1702) over every combination of contacts the shutters'
     /// idle test reads: each of the four directions meeting no enemy or the enemy in any of the room's places, recorded
     /// as Samus's movement records them. The place named is the one the cartridge reaches by ANDing the four contact
     /// words, each the enemy's slot offset or all ones, and no place when she met none.
@@ -78,7 +78,7 @@ internal static class ShutterScrewContactVerification
     {
         RoomEnemySystem room = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        IReadOnlyList<RoomEnemyPlace> places = room.Places.InUpdateOrder;
+        IReadOnlyList<RoomEnemySlot> places = room.SlotTable.Slots;
         var kinematics = new SamusKinematicsState();
         int choices = places.Count + 1;
         int[] choice = new int[ContactDirections.Length];
@@ -95,14 +95,14 @@ internal static class ShutterScrewContactVerification
                 kinematics.RecordSolidEnemyCollision(ContactDirections[direction], place is { } met ? places[met] : null);
                 nativeWord &= EnemySlotOffsets.WordOf(place);
             }
-            RoomEnemyPlace? expected = nativeWord == EnemySlotOffsets.NoEnemy ? null : places[EnemySlotOffsets.SlotOf(nativeWord)];
-            ISolidEnemy? named = SolidContactPlaceCombination.NamedPlace<ISolidEnemy>(kinematics.SolidEnemyContacts, places);
+            RoomEnemySlot? expected = nativeWord == EnemySlotOffsets.NoEnemy ? null : places[EnemySlotOffsets.SlotOf(nativeWord)];
+            ISolidEnemy? named = SolidContactSlotCombination.NamedPlace<ISolidEnemy>(kinematics.SolidEnemyContacts, places);
             if (!ReferenceEquals(expected, named))
             {
                 throw new InvalidDataException(
                     $"Contacts left/right/up/down {string.Join("/", choice.Select(c => c == 0 ? "none" : (c - 1).ToString(System.Globalization.CultureInfo.InvariantCulture)))}: " +
-                    $"the cartridge's combined word {nativeWord:X4} names {expected?.Ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "no enemy"}, " +
-                    $"the combination names {(named as RoomEnemyPlace)?.Ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "no enemy"}.");
+                    $"the cartridge's combined word {nativeWord:X4} names {expected?.SlotIndex.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "no enemy"}, " +
+                    $"the combination names {(named as RoomEnemySlot)?.SlotIndex.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "no enemy"}.");
             }
             combinations++;
         }

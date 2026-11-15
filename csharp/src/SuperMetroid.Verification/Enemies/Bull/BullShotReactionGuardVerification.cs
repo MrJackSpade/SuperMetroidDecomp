@@ -7,7 +7,7 @@ using SuperMetroid.Core.World;
 
 /// <summary>
 /// Checks the wrap of Bull's shot-reaction guard countdown, which a Bull inherits from the previous Bull in its slot
-/// (<see cref="PlaceInheritance{TOccupant}"/>) and stores as a wrapping countdown (#1419, #1476).
+/// (<see cref="SlotInheritance{TOccupant}"/>) and stores as a wrapping countdown (#1419, #1476).
 /// </summary>
 internal static class BullShotReactionGuardVerification
 {
@@ -20,25 +20,25 @@ internal static class BullShotReactionGuardVerification
     {
         RoomEnemyCompatibility compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), compatibility);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        PlaceInheritance<BullEnemyState> inheritance = compatibility.BullInheritance;
-        BullEnemyState state = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous)
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        SlotInheritance<BullEnemyState> inheritance = compatibility.BullInheritance;
+        BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous)
         {
             Action = BullAction.MovementDelay,
             ActivationTimer = 100,
             ShotReactionDisabled = true,
         });
 
-        BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(ushort.MaxValue, state.ShotReactionDisableTimer.RawValue, "a zero guard timer wraps to the largest count");
         AssertTrue(state.ShotReactionDisabled, "the wrapped guard stays set");
-        BullEnemyState successor = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous));
+        BullEnemyState successor = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
         AssertEqual(ushort.MaxValue, successor.ShotReactionDisableTimer.RawValue,
             "the next Bull set up in the same slot inherits the wrapped count");
         AssertTrue(successor.ShotReactionDisabled, "the next Bull set up in the same slot inherits the set guard");
 
         state.ShotReactionDisableTimer = WrappingCountdown.Start(1);
-        BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(1, state.ShotReactionDisableTimer.RawValue, "a guard timer reaching zero pins at one");
         AssertTrue(!state.ShotReactionDisabled, "the expired guard clears");
         Console.WriteLine("Bull shot-reaction guard: a zero timer wraps to the largest count, the slot's next Bull inherits it, and an expiring one pins at one.");

@@ -29,24 +29,24 @@ internal static class MagdollitePhaseDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
-        Action<RoomEnemyPlace, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
-        Action<RoomEnemyPlace, MagdolliteEnemyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
-        Action<RoomEnemyPlace, MagdolliteEnemyState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
+        Action<RoomEnemySlot, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+        Action<RoomEnemySlot, MagdolliteEnemyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
+        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
 
         for (int index = 0; index < 3; index++)
         {
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Magdollite, place.Definition);
-            place.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
-            place.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
-            place.Position = place.Position.WithWhole(new(0x0200, 0x0300));
-            initialize(place, RoomEnemyFrameFixtures.StandaloneSamus());
+            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
+            slot.Bind(EnemyDefinitionId.Magdollite, slot.Definition);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
+            slot.Position = slot.Position.WithWhole(new(0x0200, 0x0300));
+            initialize(slot, RoomEnemyFrameFixtures.StandaloneSamus());
         }
 
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        RoomEnemyPlace overlay = enemies.Places.InUpdateOrder[2];
+        RoomEnemySlot head = enemies.SlotTable.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[1];
+        RoomEnemySlot overlay = enemies.SlotTable.Slots[2];
         MagdolliteEnemyState headState = (enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[0]."));
         MagdolliteEnemyState bodyState = (enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1]."));
         MagdolliteEnemyState overlayState = (enemies.MagdolliteStates[2] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2]."));

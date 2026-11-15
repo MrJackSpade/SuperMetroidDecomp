@@ -15,10 +15,10 @@ internal static class FlyOwnedStateVerification
     internal static void VerifyFlyOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Mellow, place.Definition);
-        FliesBehavior.InitializeFly(place);
-        FlyEnemyState state = place.EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.");
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Mellow, slot.Definition);
+        FliesBehavior.InitializeFly(slot);
+        FlyEnemyState state = slot.EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.");
 
         for (int update = 1; update < 16; update++)
         {

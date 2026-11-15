@@ -341,7 +341,7 @@ internal sealed class MotherBrainProjectiles
             DeleteMotherBrainBomb(bomb, state);
 
             // The bomb's explosion clears the source slot before both allocations. They therefore use
-            // the normal descending shared-pool competition, including legitimate same-place
+            // the normal descending shared-pool competition, including legitimate same-slot
             // replacement that the outer scheduler will continue processing on this pass.
             // Its afterburn pair flies left and right.
             dependencies.RoomActors.SpawnAfterburnCenter(
@@ -499,7 +499,7 @@ internal sealed class MotherBrainProjectiles
         {
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
                 "Mother Brain drool ran without its multipart encounter state.");
-            RoomEnemyPlace head = state.Head;
+            RoomEnemySlot head = state.Head;
             Offset16<RoomPixels> mouth = drool.StateOf<MotherBrainDroolState>().MouthPoint;
 
             drool.Position = drool.Position.WithWhole(head.Position.Whole + mouth);
@@ -507,7 +507,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>
-        /// Moves the onion ring. A live Baby place is tested before Samus and the room,
+        /// Moves the onion ring. A live Baby slot is tested before Samus and the room,
         /// matching the private projectile's cross-enemy collision order during phase three.
         /// </summary>
         internal void FlyMotherBrainOnionRing(
@@ -544,11 +544,11 @@ internal sealed class MotherBrainProjectiles
                 {
                     state.PendingBabyCryCount++;
                     baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-                    // The ring writes the Baby place's Enemy.health from this projectile
+                    // The ring writes the Baby slot's Enemy.health from this projectile
                     // pass; it must not wait for the Baby's next AI turn to publish it.
-                    RoomEnemyPlace babyPlace = state.BabyMetroidPlace ?? throw new InvalidDataException(
+                    RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
                         "A Mother Brain onion ring hit the Baby while the Baby has no enemy in the room.");
-                    babyPlace.Health = baby.Health;
+                    babySlot.Health = baby.Health;
                     ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
                     return;
                 }
@@ -674,8 +674,8 @@ internal sealed class MotherBrainProjectiles
         internal void PinMotherBrainRainbowCharge(
             EnemyProjectile projectile)
         {
-            RoomEnemyPlace head = dependencies.Encounter.MotherBrain?.Head ?? throw new InvalidOperationException(
-                "Mother Brain rainbow charge ran without the physical head place.");
+            RoomEnemySlot head = dependencies.Encounter.MotherBrain?.Head ?? throw new InvalidOperationException(
+                "Mother Brain rainbow charge ran without the physical head slot.");
             projectile.Position = projectile.Position.WithWhole(head.Position.Whole);
         }
     }
@@ -811,7 +811,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile ring,
         MotherBrainEnemyState state)
     {
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         ring.Position = ring.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 10), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
     }
 

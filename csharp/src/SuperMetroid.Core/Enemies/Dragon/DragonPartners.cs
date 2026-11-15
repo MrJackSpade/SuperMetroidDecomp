@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// The enemy the part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>): a body's own wing, or the
 /// enemy listed after a wing.
 /// </param>
-internal sealed record DragonPartners(RoomEnemyPlace? Wing, RoomEnemyPlace FollowUpRecipient);
+internal sealed record DragonPartners(RoomEnemySlot? Wing, RoomEnemySlot FollowUpRecipient);

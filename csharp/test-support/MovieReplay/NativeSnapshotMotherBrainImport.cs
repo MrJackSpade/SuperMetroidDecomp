@@ -65,14 +65,14 @@ internal static class NativeSnapshotMotherBrainImport
         state.BrainFrameTimer = W(MotherBrainMemory.BrainFrameHold);
         Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         // Each record's instruction-list word is read from the snapshot; the port keeps the typed playback it stands for.
-        ushort AnimationScript(RoomEnemyPlace place) => W(NativeSnapshotMemory.EnemyBase +
-            SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(place.Ordinal) + MovieDesyncMemory.EnemyAnimationScriptOffset);
-        AnimationPlayback<MotherBrainBodySegment> BodyPlaybackAt(RoomEnemyPlace place) => NativeEnemyAnimationOracle.PlaybackAt(
-            body, MotherBrainNativeListAddresses.BodyEntries, MotherBrainAnimations.BodyStartingAt, AnimationScript(place));
+        ushort AnimationScript(RoomEnemySlot slot) => W(NativeSnapshotMemory.EnemyBase +
+            SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyAnimationScriptOffset);
+        AnimationPlayback<MotherBrainBodySegment> BodyPlaybackAt(RoomEnemySlot slot) => NativeEnemyAnimationOracle.PlaybackAt(
+            body, MotherBrainNativeListAddresses.BodyEntries, MotherBrainAnimations.BodyStartingAt, AnimationScript(slot));
         state.BodyPlayback = BodyPlaybackAt(state.Body);
-        state.HeadPlayback = BodyPlaybackAt(state.Head);
+        state.HeadSlotPlayback = BodyPlaybackAt(state.Head);
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
-        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
+        foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
         {
             tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
                 tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));

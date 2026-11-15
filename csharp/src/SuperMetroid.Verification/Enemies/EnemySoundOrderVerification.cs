@@ -37,13 +37,13 @@ internal static class EnemySoundOrderVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => CryRandom;
-        RoomEnemyPlace firstMetroid = MetroidAtItsCry(enemies, 0);
-        RoomEnemyPlace boyon = BoyonStartingItsBounce(enemies, 1);
-        RoomEnemyPlace secondMetroid = MetroidAtItsCry(enemies, 2);
+        RoomEnemySlot firstMetroid = MetroidAtItsCry(enemies, 0);
+        RoomEnemySlot boyon = BoyonStartingItsBounce(enemies, 1);
+        RoomEnemySlot secondMetroid = MetroidAtItsCry(enemies, 2);
 
         enemies.Audio.BeginFrame();
-        foreach (RoomEnemyPlace place in new[] { firstMetroid, boyon, secondMetroid })
-            EnemyAnimationPlayer.AdvanceAnimation(place, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+        foreach (RoomEnemySlot slot in new[] { firstMetroid, boyon, secondMetroid })
+            EnemyAnimationPlayer.AdvanceAnimation(slot, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
 
         SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(CryRandom);
         AssertEqual(EnemyAudioQueueAccess.SoundList([cry, EnemySoundEffectDefinitions.BoyonBounceSound, cry]), enemies.Audio.QueuedSoundList,
@@ -95,13 +95,13 @@ internal static class EnemySoundOrderVerification
     }
 
     /// <summary>A Metroid in <paramref name="place"/> whose next script step is its chasing loop's random cry.</summary>
-    private static RoomEnemyPlace MetroidAtItsCry(RoomEnemySystem enemies, int place)
+    private static RoomEnemySlot MetroidAtItsCry(RoomEnemySystem enemies, int place)
     {
-        RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        enemy.Bind(EnemyDefinitionId.Metroid, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
-        enemy.AnimationClock.StepOnNextUpdate();
-        enemy.SetSpeciesState(new MetroidEnemyState(
+        RoomEnemySlot slot = enemies.SlotTable.Slots[place];
+        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.AnimationClock.StepOnNextUpdate();
+        slot.SetSpeciesState(new MetroidEnemyState(
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SpriteGraphics.SharedStandard))
         {
@@ -110,22 +110,22 @@ internal static class EnemySoundOrderVerification
                     MetroidSegment.ChasingSamus,
                     MetroidAnimations.Segments.Beats(MetroidSegment.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
         });
-        return enemy;
+        return slot;
     }
 
     /// <summary>A Boyon in <paramref name="place"/> whose next script step starts its bounce.</summary>
-    private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
+    private static RoomEnemySlot BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
     {
-        RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        enemy.Bind(EnemyDefinitionId.Boyon, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition));
-        enemy.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
-        enemy.Position = enemy.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(enemy);
-        BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
+        RoomEnemySlot slot = enemies.SlotTable.Slots[place];
+        slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
+        slot.Position = slot.Position.WithWhole(new(256, 512));
+        BoyonBehavior.InitializeBoyon(slot);
+        BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
         state.Playback = new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation);
-        enemy.AnimationClock.StepOnNextUpdate();
-        return enemy;
+        slot.AnimationClock.StepOnNextUpdate();
+        return slot;
     }
 
     /// <summary>Runs the enemy sound order check.</summary>

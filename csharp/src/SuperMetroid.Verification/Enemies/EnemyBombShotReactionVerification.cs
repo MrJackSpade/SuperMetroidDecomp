@@ -38,7 +38,7 @@ internal static class EnemyBombShotReactionVerification
             ("immune", mellow with { Vulnerability = EnemyVulnerabilityDefinitions.Invulnerable }, 0),
         })
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place) = LoadedRoomWithMellow(definition, frozenTimer);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = LoadedRoomWithMellow(definition, frozenTimer);
             var bombs = new SamusBombProjectileSystem();
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
@@ -49,13 +49,13 @@ internal static class EnemyBombShotReactionVerification
                 new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: place),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot),
                 $"{kind}: the exploding bomb hits the Mellow");
 
             bool immune = kind == "immune";
             AssertTrue(bomb.IsSpent, $"{kind}: the hit marks the bomb");
-            AssertEqual(immune ? 1000 : 1000 - 30, place.Health, $"{kind}: the Mellow's health after the bomb");
-            AssertEqual(immune ? 0 : place.HurtFlashFrames + 8, place.FlashTimer, $"{kind}: the Mellow's hurt flash");
+            AssertEqual(immune ? 1000 : 1000 - 30, slot.Health, $"{kind}: the Mellow's health after the bomb");
+            AssertEqual(immune ? 0 : slot.HurtFlashFrames + 8, slot.FlashTimer, $"{kind}: the Mellow's hurt flash");
             SoundRequest[] expected = kind switch
             {
                 "hurt" => [new SoundRequest(cry, SoundRequestPriority.Low)],
@@ -87,12 +87,12 @@ internal static class EnemyBombShotReactionVerification
             ("radius, leftmost column", false, LeftEdgeBombMissesFrameHitboxes.PassedColumn, true),
         })
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace enemy) = LoadedRoomWithMellow(mellow, frozenTimer: 0);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = LoadedRoomWithMellow(mellow, frozenTimer: 0);
             var place = new Position16<RoomPixels>(column, Place.Y);
-            enemy.Position = FixedPosition<RoomPixels>.FromWhole(place);
-            enemy.CollidesByFrameHitboxes = frameHitboxes;
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(place);
+            slot.CollidesByFrameHitboxes = frameHitboxes;
             if (frameHitboxes)
-                enemy.Frame = EnemyFrameId.Empty;
+                slot.Frame = EnemyFrameId.Empty;
             var bombs = new SamusBombProjectileSystem();
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
@@ -103,16 +103,16 @@ internal static class EnemyBombShotReactionVerification
                 new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
-            AssertEqual(hit ? 1 : 0, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: enemy),
+            AssertEqual(hit ? 1 : 0, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot),
                 $"{kind}: the bomb's hits");
             AssertEqual(hit, bomb.IsSpent, $"{kind}: the hit marks the bomb");
-            AssertEqual(hit ? 1000 - 30 : 1000, enemy.Health, $"{kind}: the Mellow's health after the bomb");
+            AssertEqual(hit ? 1000 - 30 : 1000, slot.Health, $"{kind}: the Mellow's health after the bomb");
         }
         Console.WriteLine("  Left-edge bomb: frame-hitbox enemies pass over a bomb on the room's leftmost column; radius enemies meet it.");
     }
 
     /// <summary>A loaded room with no population, a Mellow of <paramref name="definition"/> placed at <see cref="Place"/>.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemyPlace Slot) LoadedRoomWithMellow(RoomEnemyDefinition definition, int frozenTimer)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) LoadedRoomWithMellow(RoomEnemyDefinition definition, int frozenTimer)
     {
         const ushort populationPointer = 0x9400;
         var bus = new TestAddressSpace();
@@ -122,14 +122,14 @@ internal static class EnemyBombShotReactionVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Mellow, definition);
-        place.Position = FixedPosition<RoomPixels>.FromWhole(Place);
-        place.Radius = definition.Radius;
-        place.Health = 1000;
-        place.FrozenTimer = frozenTimer;
-        place.Frame = EnemyFrameId.SpriteObjectDudShotFirst;
-        return (enemies, place);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Mellow, definition);
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(Place);
+        slot.Radius = definition.Radius;
+        slot.Health = 1000;
+        slot.FrozenTimer = frozenTimer;
+        slot.Frame = EnemyFrameId.SpriteObjectDudShotFirst;
+        return (enemies, slot);
     }
 
     /// <summary>Runs the bomb shot reaction check.</summary>

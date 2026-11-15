@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <summary>Application-owned ordered enemy placements selected by all retail room states, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
 /// The 301 populations and their 1,658 placements are the ones the 322 retail room states select. Placement order governs
-/// linked place allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
+/// linked slot allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
 /// not an editable visual asset.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]

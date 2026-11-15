@@ -9,17 +9,17 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadTorizoEnemyState
 {
     /// <summary>Captures the corpse's own rot schedule.</summary>
-    internal DeadTorizoEnemyState(RoomEnemyPlace place, CorpseRotSchedule rot)
+    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRotSchedule rot)
     {
-        Place = place;
+        Slot = slot;
         Rot = Ensure.NotNull(rot);
     }
 
     /// <summary>The corpse's typed pose and where it stands in it (#641, #1600).</summary>
     internal AnimationPlayback<DeadTorizoSegment> Playback { get; set; }
 
-    /// <summary>The enemy place owning this corpse's position, collision properties and animation timing.</summary>
-    public RoomEnemyPlace Place { get; }
+    /// <summary>The enemy slot owning this corpse's position, collision properties and animation timing.</summary>
+    public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its ninety-six pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
 

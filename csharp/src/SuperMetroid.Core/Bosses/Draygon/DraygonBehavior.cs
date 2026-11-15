@@ -15,7 +15,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DraygonPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new DraygonEntity(this, place, common, _bossArtwork);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DraygonEntity(this, slot, common, _bossArtwork);
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -80,7 +80,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Draygon's body per-frame behaviour.</summary>
-    private void RunDraygonBodyMain(RoomEnemyPlace body, SamusState? samus, int frameCounter)
+    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounter)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
         switch (state.Phase)
@@ -240,29 +240,29 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonArmsReachUpdatesFromSwoopBottom = 26;
 
     /// <summary>Advances Draygon's typed animation.</summary>
-    internal void AdvanceDraygonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceDraygonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
-        Parts.AdvanceDraygonPartAnimation(place, context.Samus);
+        Parts.AdvanceDraygonPartAnimation(slot, context.Samus);
     }
 
     /// <summary>Runs DraygonBody's main AI.</summary>
-    internal void RunDraygonBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         // Draygon times turrets and smoke from the frame counter, never the separate
         // counter that wraps every 256 frames; only its place in a short repeating cycle is tested.
-        RunDraygonBodyMain(place, frame.Samus, _frameContext.FrameCounter);
+        RunDraygonBodyMain(slot, frame.Samus, _frameContext.FrameCounter);
     }
 
     /// <summary>Runs DraygonEye's main AI.</summary>
-    internal void RunDraygonEyeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDraygonEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        Parts.RunDraygonPartMain(place, frame.Samus);
+        Parts.RunDraygonPartMain(slot, frame.Samus);
     }
 
     /// <summary>Runs DraygonTail's main AI.</summary>
-    internal void RunDraygonTailMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDraygonTailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        Parts.RunDraygonPartMain(place, frame.Samus);
+        Parts.RunDraygonPartMain(slot, frame.Samus);
     }
     /// <summary>Arena X coordinate to which Draygon drifts before burial.</summary>
     internal const int DraygonDeathTargetX = 256;

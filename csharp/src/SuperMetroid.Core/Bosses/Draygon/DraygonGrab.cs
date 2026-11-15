@@ -60,7 +60,7 @@ internal sealed class DraygonGrab
 
         // Draygon ignores Samus's ordinary body contact while he chases the gooped Samus. Draygon's claw-window test below replaces the
         // ordinary body collision while he is deliberately chasing the gooped player.
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
         int clawOffset = state.FacingRight ? 8 : -8;
@@ -120,7 +120,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         bool reachedTarget =
             EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonSpiralTarget.X, 2) &&
             EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonSpiralTarget.Y, 2);
@@ -162,7 +162,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
         // negative.
         body.Position = body.Position.WithWhole(state.SpiralCenter.Center.Whole + new Offset16<RoomPixels>(
@@ -286,7 +286,7 @@ internal sealed class DraygonGrab
     /// and carry both do.
     /// </summary>
     private static void MoveDraygonToward(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         Position16<RoomPixels> target,
         int speed)
     {
@@ -313,7 +313,7 @@ internal sealed class DraygonGrab
     /// <summary>Starts the hurt flash and marks Draygon hurt after a grapple shock.</summary>
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.FlashTimer = body.HurtFlashFrames + 8;
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }

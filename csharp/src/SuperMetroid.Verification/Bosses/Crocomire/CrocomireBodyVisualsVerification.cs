@@ -181,18 +181,18 @@ internal static class CrocomireBodyVisualsVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             // His fight binds the installed body sheets and attaches the body his body frames show on.
             BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Crocomire);
-            enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
-            place.Shading = PictureShading.Standard;
-            place.CollidesByFrameHitboxes = true;
+            slot.Shading = PictureShading.Standard;
+            slot.CollidesByFrameHitboxes = true;
             if (newFrame)
-                place.AnimationClock.ShowsNewFrame = true;
-            place.SpritemapPointer = pointer;
-            place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
+                slot.AnimationClock.ShowsNewFrame = true;
+            slot.SpritemapPointer = pointer;
+            slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawAsOam(oam, new(0, 0));
             return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Crocomire, art.Bosses, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));

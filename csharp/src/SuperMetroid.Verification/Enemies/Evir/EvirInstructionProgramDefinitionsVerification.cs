@@ -32,22 +32,22 @@ internal static class EvirInstructionProgramDefinitionsVerification
         foreach (EvirSegment loop in new[] { EvirSegment.BodyFacingLeft, EvirSegment.ArmsFacingLeft, EvirSegment.BodyFacingRight, EvirSegment.ArmsFacingRight })
         {
             var enemies = NewEvirInstructionSystem();
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            PrepareEvirInstructionPlace(place, EnemyDefinitionId.Evir, loop);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
                 $"Evir {loop} loop");
         }
 
         {
             var enemies = NewEvirInstructionSystem();
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            EvirEnemyState state = PrepareEvirInstructionPlace(place, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileNormal);
-            _ = EnemyInstructionRunner.ShownFrames(place, 4);
-            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), place.SpritemapPointer,
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileNormal);
+            _ = EnemyInstructionRunner.ShownFrames(slot, 4);
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
             AnimationPlayback<EvirSegment>? held = state.Playback;
-            _ = EnemyInstructionRunner.ShownFrames(place, 4);
+            _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(held, state.Playback, "normal Evir projectile holds its flight pose");
         }
 
@@ -55,31 +55,31 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem();
             // The regeneration cues read Evir.instList-$80,X: the body record two slots before the projectile, as the
             // retail population lays them out.
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[2];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
             body.SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
             // The spit finds its body as production places it, two places after the body.
-            place.Bind(EnemyDefinitionId.EvirProjectile, place.Definition);
-            enemies.EvirBehavior.InitializeEvirProjectile(place);
-            EvirEnemyState state = PrepareEvirInstructionPlace(place, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileRegenerating);
+            slot.Bind(EnemyDefinitionId.EvirProjectile, slot.Definition);
+            enemies.EvirBehavior.InitializeEvirProjectile(slot);
+            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileRegenerating);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.Facing = EvirFacing.Right;
             state.InFlight = true;
             state.Regenerating = true;
             state.Action = EvirAction.ProjectileRegenerating;
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
-                place.AnimationClock.StepOnNextUpdate();
+                slot.AnimationClock.StepOnNextUpdate();
                 EnemyInstructionRunner.Process(arguments);
                 if (call == 0)
                     AssertEqual(new Offset16<RoomPixels>(8, 0), state.RegenerationOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
             }
-            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), place.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "regenerating Evir projectile ends on its flight pose");
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertTrue(!state.Regenerating, "regeneration finish cue clears regeneration ownership");
@@ -103,21 +103,21 @@ internal static class EvirInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Seeds an Evir body or projectile slot with its bank-$A8 definition and starting program.</summary>
-    internal static EvirEnemyState PrepareEvirInstructionPlace(
-        RoomEnemyPlace place,
+    internal static EvirEnemyState PrepareEvirInstructionSlot(
+        RoomEnemySlot slot,
         EnemyDefinitionId definition,
         EvirSegment program)
     {
-        place.Bind(definition, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.AnimationClock.StepOnNextUpdate();
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.AnimationClock.StepOnNextUpdate();
         var state = new EvirEnemyState
         {
             RequestedAnimation = program,
             InstalledAnimation = program,
             Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
         return state;
     }
 

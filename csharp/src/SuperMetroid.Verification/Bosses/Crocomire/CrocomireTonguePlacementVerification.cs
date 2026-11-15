@@ -24,7 +24,7 @@ internal static class CrocomireTonguePlacementVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Crocomire));
         body.Position = body.Position.WithWhole(new(576, 144));
         body.Radius = new(body.Definition.Radius.X, body.Definition.Radius.Y);
@@ -38,7 +38,7 @@ internal static class CrocomireTonguePlacementVerification
         enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
-        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
+        RoomEnemySlot tongue = enemies.SlotTable.Slots[1];
         tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
         tongue.SetSpeciesState(new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset });
         state.Tongue = tongue;

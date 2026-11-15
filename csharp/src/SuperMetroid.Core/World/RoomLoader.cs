@@ -192,7 +192,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Restores an existing save slot through the game's area/load-station tables and
+    /// Restores an existing slot through the game's area/load-station tables and
     /// enters the normal playable state at the station-authored Samus coordinates.
     /// </summary>
     /// <remarks>
@@ -605,10 +605,10 @@ internal sealed class RoomLoader
             else if (completed)
             {
                 throw new InvalidDataException(
-                    $"The door scroll finished before the loader initialized the arriving elevator in place {placement.Elevator.Ordinal}.");
+                    $"The door scroll finished before the loader initialized the arriving elevator in slot {placement.Elevator.SlotIndex}.");
             }
         }
-        _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, _room.Camera.PixelPosition);
+        _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
         if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         _player.Samus.Position = state.SamusPosition;
@@ -996,20 +996,20 @@ internal sealed class RoomLoader
         SamusProjectileSystem.ShowBeamShade(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
         // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the places and the sprite-object places start
+        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the sprite-object places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
         // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
         // and are handed on.
         var compatibility = new RoomEnemyCompatibility
         {
             PowerBombRadius = new PowerBombRadiusAfterKill(),
-            BullInheritance = new PlaceInheritance<BullEnemyState>(EnemyPlaceOrder.Capacity),
-            BeetomInheritance = new PlaceInheritance<BeetomEnemyState>(EnemyPlaceOrder.Capacity),
+            BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
+            BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
             PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
             SpriteObjectPlaces = new SpriteObjectPlaces(),
             FadeStepCount = _fadeStepCount,
             UnauthoredBoostCadence = _unauthoredBoostCadence,
-            KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>(),
+            KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
             YardKickDistance = _yardKickDistance,
         };
         var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies

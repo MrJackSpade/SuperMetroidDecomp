@@ -95,28 +95,28 @@ internal static class ZebetiteDefinitionsVerification
         {
             var enemies = NewZebetiteDefinitionSystem(
                 generation);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
-            place.Bind(EnemyDefinitionId.Zebetite, place.Definition);
-            enemies.ZebetiteBehavior.InitializeZebetite(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
+            slot.Bind(EnemyDefinitionId.Zebetite, slot.Definition);
+            enemies.ZebetiteBehavior.InitializeZebetite(slot);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
             AssertEqual(expected.Form, state.Form,
                 $"production Zebetite generation {generation} form");
-            AssertEqual(expected.HalfHeight, place.Radius.Y,
+            AssertEqual(expected.HalfHeight, slot.Radius.Y,
                 $"production Zebetite generation {generation} radius");
             AssertEqual(ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(expected.Form, 1000)), state.Playback,
                 $"production Zebetite generation {generation} program");
-            AssertEqual(expected.X, place.Position.X.Whole,
+            AssertEqual(expected.X, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
-            AssertEqual(Zebetites.YPosition(expected, linkedHalf), place.Position.Y.Whole,
+            AssertEqual(Zebetites.YPosition(expected, linkedHalf), slot.Position.Y.Whole,
                 $"production Zebetite generation {generation} Y");
 
             foreach (ushort health in healthSamples)
             {
-                place.Health = health;
-                ZebetiteBehavior.SelectZebetiteHealthAnimation(place, state);
+                slot.Health = health;
+                ZebetiteBehavior.SelectZebetiteHealthAnimation(slot, state);
                 AssertEqual(ZebetiteAnimations.HealthAnimation(expected.Form, health),
                     state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
                     $"production Zebetite generation {generation} health {health}");
@@ -126,10 +126,10 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(0);
-            RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
-            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), place.Spawn.Population,
+            RoomEnemySlot slot = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
+            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
-            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.SpawnSettings<ZebetiteSpawnSettings>().Half,
+            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, slot.SpawnSettings<ZebetiteSpawnSettings>().Half,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");
         }
 

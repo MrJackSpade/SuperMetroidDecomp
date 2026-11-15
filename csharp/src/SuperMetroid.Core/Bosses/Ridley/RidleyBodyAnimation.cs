@@ -29,28 +29,28 @@ internal sealed class RidleyBodyAnimation
     /// Plays Ridley's body animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
-    internal void AdvanceRidleyBodyAnimation(RoomEnemyPlace place, SamusState? samus)
+    internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!place.AnimationClock.Expire())
+        if (!slot.AnimationClock.Expire())
             return;
-        RidleyEnemyState state = _ridleyEncounter.RequireRidley(place);
+        RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
         AnimationPlayback<RidleyBodySegment> playback = state.BodyPlayback;
-        EnemyAnimationPlayback.Play(place, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
-            cue => ApplyRidleyBodyCue(place, state, samus, cue) is { } target
+        EnemyAnimationPlayback.Play(slot, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
+            cue => ApplyRidleyBodyCue(slot, state, samus, cue) is { } target
                 ? new AnimationContinuation<RidleyBodySegment>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.BodyPlayback = playback;
     }
 
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
-    internal RidleyBodySegment? ApplyRidleyBodyCue(RoomEnemyPlace place, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
+    internal RidleyBodySegment? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
     {
         switch (cue)
         {
             case RidleyBodyCue.GoToUnlessFacingLeft goToUnlessFacingLeft:
                 return state.FacingDirection != RidleyFacing.Left ? goToUnlessFacingLeft.Target : null;
             case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
-                if (place.DefinitionId == EnemyDefinitionId.Ridley)
+                if (slot.DefinitionId == EnemyDefinitionId.Ridley)
                     return null;
                 if (samus is null)
                 {
@@ -74,8 +74,8 @@ internal sealed class RidleyBodyAnimation
                 state.ClawHeight = setClawHeight.Height;
                 return null;
             case RidleyBodyCue.Move move:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Displacement.X);
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + move.Displacement.Y);
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + move.Displacement.X);
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + move.Displacement.Y);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FaceForward }:
                 state.FacingDirection = RidleyFacing.Turning;
@@ -94,17 +94,17 @@ internal sealed class RidleyBodyAnimation
                     throw new InvalidOperationException(
                         "Ceres Ridley fireball aim requires the active Samus actor.");
                 }
-                _ridleyProjectiles.CalculateRidleyFireballVelocity(place, samus);
+                _ridleyProjectiles.CalculateRidleyFireballVelocity(slot, samus);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithAfterburn }:
-                _ridleyProjectiles.SpawnRidleyFireball(place, afterburns: 3);
+                _ridleyProjectiles.SpawnRidleyFireball(slot, afterburns: 3);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithoutAfterburn }:
-                _ridleyProjectiles.SpawnRidleyFireball(place, afterburns: 0);
+                _ridleyProjectiles.SpawnRidleyFireball(slot, afterburns: 0);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.CeresStartLiftoff }:
             {
-                RidleyEnemyState liftoff = _ridleyEncounter.RequireCeresRidley(place);
+                RidleyEnemyState liftoff = _ridleyEncounter.RequireCeresRidley(slot);
                 liftoff.Phase = RidleyPhase.CeresLiftoffAccelerating;
                 liftoff.Velocity = liftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));
                 return null;
@@ -113,7 +113,7 @@ internal sealed class RidleyBodyAnimation
             {
                 // The shared roar/liftoff animation hands control to the real fight at
                 // the fight's start and supplies the initial upward 1/256-pixel velocity in the same tick.
-                RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(place);
+                RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
                 norfairLiftoff.Phase = RidleyPhase.NorfairEnterArena;
                 norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));
                 return null;
@@ -124,14 +124,14 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed animations (#641).</summary>
-    internal void AdvanceRidleyBodyTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        AdvanceRidleyBodyAnimation(place, context.Samus);
+    internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        AdvanceRidleyBodyAnimation(slot, context.Samus);
 
     /// <summary>
     /// Runs a breakup fragment's animation where the shared enemy animation runs: its pose shows for one update
     /// and then holds, raising the new-frame flag when shown.
     /// </summary>
-    internal static void AdvanceRidleyBreakupAnimation(RoomEnemyPlace fragment)
+    internal static void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
     {
         if (!fragment.AnimationClock.Expire())
             return;

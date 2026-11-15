@@ -36,8 +36,8 @@ internal static class SbugReversalVerification
             throw new InvalidOperationException("An authored Sbug reverses when far from Samus, so the original's separate negations are reached.");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
@@ -47,10 +47,10 @@ internal static class SbugReversalVerification
         foreach (int speed in placements.Select(placement => placement.Speed).Distinct().Order())
         for (int heading = 0; heading < HeadingCount; heading++)
         {
-            place.SetSpawnSettings(new SbugSpawnSettings(speed, RotationAngle.FromSteps(0), ActivationRadius: 48, SbugActivationBehavior.RandomAndReverseWhenFar));
-            place.Position = start;
-            SbugBehavior.InitializeSbug(place);
-            SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
+            slot.SetSpawnSettings(new SbugSpawnSettings(speed, RotationAngle.FromSteps(0), ActivationRadius: 48, SbugActivationBehavior.RandomAndReverseWhenFar));
+            slot.Position = start;
+            SbugBehavior.InitializeSbug(slot);
+            SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
             state.FaceCustomHeading(RotationAngle.FromSteps(heading));
             var angle = new TrigonometryAngle(heading);
             SignedSixteenSixteen x = SbugBehavior.CalculateSignedSbugComponent(angle, speed, EnemyTrigonometryAngleDefinitions.QuarterTurn);
@@ -61,11 +61,11 @@ internal static class SbugReversalVerification
             state.MovementTimer = 32;
             state.Action = SbugAction.MoveStraightAndReverseWhenFar;
 
-            enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             var expected = new FixedPosition<RoomPixels>(start.X.MovedBy(-x), start.Y.MovedBy(-y));
-            if (state.CustomXVelocity != -x || state.CustomYVelocity != -y || place.Position != expected)
+            if (state.CustomXVelocity != -x || state.CustomYVelocity != -y || slot.Position != expected)
                 throw new InvalidOperationException(
-                    $"An Sbug heading {heading} at speed {speed} reversed {x}, {y} to {state.CustomXVelocity}, {state.CustomYVelocity} and moved to {place.Position}.");
+                    $"An Sbug heading {heading} at speed {speed} reversed {x}, {y} to {state.CustomXVelocity}, {state.CustomYVelocity} and moved to {slot.Position}.");
         }
         Console.WriteLine($"  Sbug reversal: none of the {placements.Length} authored Sbugs reverses when far; every heading at each authored speed reverses exactly.");
     }

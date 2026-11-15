@@ -672,9 +672,9 @@
    "evidence": "a slot cleared when released or when its room-lifetime table is rebuilt"
   },
   {
-   "file": "Enemies/RoomEnemyPlace.cs",
+   "file": "Enemies/RoomEnemySlot.cs",
    "line": 179,
-   "owner": "RoomEnemyPlace",
+   "owner": "RoomEnemySlot",
    "method": "Clear",
    "classification": "per-slot",
    "evidence": "a slot cleared when released or when its room-lifetime table is rebuilt"

@@ -33,8 +33,8 @@ internal static class SharedSlopeHeightsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => RoomBlockBehaviorCodec.SlopeShapeOf(32), "shape cannot exceed catalog");
         var forbidden = NewSlopeHeightNoReadBus();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var enemy = enemies.Places.InUpdateOrder[0];
-        var align = new Func<RoomLevelData, RoomEnemyPlace, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
+        var enemy = enemies.SlotTable.Slots[0];
+        var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
         var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bomb = new Func<RoomLevelData, SamusBomb, bool>(SamusBombProjectileSystem.BombSpreadCollides);
         var projectile = new SamusProjectile(0);

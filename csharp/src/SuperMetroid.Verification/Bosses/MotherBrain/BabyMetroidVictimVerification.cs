@@ -16,16 +16,16 @@ internal static class BabyMetroidVictimVerification
     internal static void VerifyBabyMetroidVictim()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
-        AssertTrue(ReferenceEquals(places[1], BabyMetroidVictim.Of(places, 0)), "the retail Baby's victim is the enemy placed after it");
-        AssertTrue(ReferenceEquals(places[6], BabyMetroidVictim.Of(places, 5)), "a Baby placed later feeds on the enemy placed after it");
-        int last = places.Count - 1;
-        AssertTrue(ReferenceEquals(places[last], BabyMetroidVictim.Of(places, last - 1)), "the victim may be the final enemy");
-        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(places, last), "a Baby in the final place has no victim");
-        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(places, -1), "a Baby before the first place is refused");
-        AssertTrue(BabyMetroidVictim.FeederOf(places, 0) is null, "the enemy placed first has no enemy feeding on it");
-        AssertTrue(ReferenceEquals(places[5], BabyMetroidVictim.FeederOf(places, 6)), "a victim's feeder is the enemy placed before it");
-        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.FeederOf(places, -1), "a victim before the first place is refused");
+        IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
+        AssertTrue(ReferenceEquals(slots[1], BabyMetroidVictim.Of(slots, 0)), "the retail Baby's victim is the enemy placed after it");
+        AssertTrue(ReferenceEquals(slots[6], BabyMetroidVictim.Of(slots, 5)), "a Baby placed later feeds on the enemy placed after it");
+        int last = slots.Count - 1;
+        AssertTrue(ReferenceEquals(slots[last], BabyMetroidVictim.Of(slots, last - 1)), "the victim may be the final enemy");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(slots, last), "a Baby in the final place has no victim");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(slots, -1), "a Baby before the first place is refused");
+        AssertTrue(BabyMetroidVictim.FeederOf(slots, 0) is null, "the enemy placed first has no enemy feeding on it");
+        AssertTrue(ReferenceEquals(slots[5], BabyMetroidVictim.FeederOf(slots, 6)), "a victim's feeder is the enemy placed before it");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.FeederOf(slots, -1), "a victim before the first place is refused");
         Console.WriteLine("Baby Metroid victim: the enemy placed directly after the Baby, and none past the last.");
     }
 
@@ -37,18 +37,18 @@ internal static class BabyMetroidVictimVerification
     internal static void VerifyShitroidFeeding()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
-        var feeding = new ShitroidFeeding(enemies.Places);
+        IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
+        var feeding = new ShitroidFeeding(enemies.SlotTable);
         // Entering from the left door, the camera still lies left of the room's edge as the room's enemies are placed.
         int leftDoorCameraX = CoordinateAxis.Wrap(-16);
-        ShitroidBehavior.InitializeShitroid(places[0], 0);
-        ShitroidBehavior.InitializeShitroid(places[5], leftDoorCameraX);
-        AssertEqual<ShitroidAction?>(ShitroidAction.WaitForCamera, places[0].RequireSpeciesState<ShitroidEnemyState>().Action, "entering from the right leaves the first Shitroid waiting");
-        AssertEqual<ShitroidAction?>(ShitroidAction.Dormant, places[5].RequireSpeciesState<ShitroidEnemyState>().Action, "entering from the left leaves the second Shitroid dormant");
-        AssertTrue(!feeding.HasAlreadyFedOn(places[1]), "the victim after a waiting Shitroid is still there");
-        AssertTrue(feeding.HasAlreadyFedOn(places[6]), "the victim after a dormant Shitroid is gone");
-        AssertTrue(!feeding.HasAlreadyFedOn(places[0]), "the enemy placed first has no Shitroid feeding on it");
-        AssertTrue(!feeding.HasAlreadyFedOn(places[3]), "an enemy placed after no Shitroid has not been fed on");
+        ShitroidBehavior.InitializeShitroid(slots[0], 0);
+        ShitroidBehavior.InitializeShitroid(slots[5], leftDoorCameraX);
+        AssertEqual<ShitroidAction?>(ShitroidAction.WaitForCamera, slots[0].RequireSpeciesState<ShitroidEnemyState>().Action, "entering from the right leaves the first Shitroid waiting");
+        AssertEqual<ShitroidAction?>(ShitroidAction.Dormant, slots[5].RequireSpeciesState<ShitroidEnemyState>().Action, "entering from the left leaves the second Shitroid dormant");
+        AssertTrue(!feeding.HasAlreadyFedOn(slots[1]), "the victim after a waiting Shitroid is still there");
+        AssertTrue(feeding.HasAlreadyFedOn(slots[6]), "the victim after a dormant Shitroid is gone");
+        AssertTrue(!feeding.HasAlreadyFedOn(slots[0]), "the enemy placed first has no Shitroid feeding on it");
+        AssertTrue(!feeding.HasAlreadyFedOn(slots[3]), "an enemy placed after no Shitroid has not been fed on");
         Console.WriteLine("Shitroid feeding: each victim asks the Shitroid placed before it, which has fed when it started dormant.");
     }
 

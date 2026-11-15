@@ -78,7 +78,7 @@ internal sealed class EnemyDeathsAndDrops
     /// Tells a power bomb's sweep in progress that <paramref name="enemy"/> is dying, as every death does when it starts
     /// (<see cref="PowerBombRadiusAfterKill"/>).
     /// </summary>
-    internal void RecordKill(RoomEnemyPlace enemy) =>
+    internal void RecordKill(RoomEnemySlot enemy) =>
         _powerBombRadius.RecordKill(enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
 
     /// <summary>
@@ -87,7 +87,7 @@ internal sealed class EnemyDeathsAndDrops
     /// its authored animation reaches its become-pickup cue.
     /// </summary>
     internal void StartGenericEnemyDeath(
-        RoomEnemyPlace enemy,
+        RoomEnemySlot enemy,
         EnemyDeathExplosion deathAnimation)
     {
         RecordKill(enemy);
@@ -128,7 +128,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>
     internal static EnemyDeathExplosion SelectNormalShotDeathAnimation(
-        RoomEnemyPlace enemy,
+        RoomEnemySlot enemy,
         SamusProjectileType projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
     {
@@ -388,7 +388,7 @@ internal sealed class EnemyDeathsAndDrops
     private const int FullWeightBudget = 255;
 
     /// <summary>
-    /// Uses an explicit boss chance table, a saved enemy definition's, or none. A death explosion from a cleared enemy place
+    /// Uses an explicit boss chance table, a saved enemy definition's, or none. A death explosion from a cleared enemy slot
     /// drops nothing: the drop-chance table indexed by the empty definition reads a value
     /// the boot clears and the game never sets to anything but zero.
     /// </summary>
@@ -540,13 +540,13 @@ internal sealed class EnemyDeathsAndDrops
     /// The method is deliberately population/snapshot based so later respawning families can
     /// share it without acquiring a Rinka-specific reconstruction path.
     /// </summary>
-    internal void RespawnEnemyFromSnapshot(RoomEnemyPlace place)
+    internal void RespawnEnemyFromSnapshot(RoomEnemySlot slot)
     {
-        RoomEnemySpawnSnapshot spawn = place.Spawn;
+        RoomEnemySpawnSnapshot spawn = slot.Spawn;
         if (spawn.Population.DefinitionId == EnemyDefinitionId.None)
         {
             throw new InvalidDataException(
-                $"Enemy place {place.Ordinal} has no surviving population snapshot to respawn.");
+                $"Enemy slot {slot.SlotIndex} has no surviving population snapshot to respawn.");
         }
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
@@ -554,8 +554,8 @@ internal sealed class EnemyDeathsAndDrops
         // never sets the frame: the actor keeps the empty frame its death left,
         // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
-        _lifecycle.InitializePlaceFromDefinition(place, spawn.Population, definition);
-        _lifecycle.RunInitializationAi(place, EnemySpawnSurroundings.None);
+        _lifecycle.InitializeSlotFromDefinition(slot, spawn.Population, definition);
+        _lifecycle.RunInitializationAi(slot, EnemySpawnSurroundings.None);
     }
 
     /// <summary>

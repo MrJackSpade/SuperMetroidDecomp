@@ -32,7 +32,7 @@ internal static class SpringBallEquipmentJumpVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean);
             // A bounded underwater fixture retains the retail FX but removes terrain/enemies,
             // isolating the reported pause/equipment/launch contract from room obstacles.
-            foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
+            foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
             var level = runtime.Room.LoadedLevelData;
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetTerrain(block, default); level.SetBehavior(block, RoomBlockBehavior.None); }

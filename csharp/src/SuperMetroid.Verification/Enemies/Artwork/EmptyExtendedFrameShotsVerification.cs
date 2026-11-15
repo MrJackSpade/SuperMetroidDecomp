@@ -30,7 +30,7 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MiniKraid);
-        RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.PirateGreenWalking);
+        RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.PirateGreenWalking);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
 

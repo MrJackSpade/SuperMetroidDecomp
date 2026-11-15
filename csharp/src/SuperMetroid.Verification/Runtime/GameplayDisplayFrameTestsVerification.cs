@@ -96,7 +96,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
         var kraid = new KraidEnemyState { ShowsBodyLayer = true };
-        RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
+        RoomEnemySlot kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
         kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
@@ -109,7 +109,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0]) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
+        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),

@@ -18,7 +18,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. MotherBrainPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MotherBrainEntity(this, place, common, _bossArtwork);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MotherBrainEntity(this, slot, common, _bossArtwork);
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
@@ -80,7 +80,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         SamusState? samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
@@ -228,21 +228,21 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances MotherBrainBody's typed animation.</summary>
-    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
-        Body.AdvanceMotherBrainPlaceAnimation(place, context.Samus);
+        Body.AdvanceMotherBrainSlotAnimation(slot, context.Samus);
     }
 
     /// <summary>Runs MotherBrainBody's main AI.</summary>
-    internal void RunMotherBrainBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunMotherBrainBodyMain(place, frame.Samus, frame.SharedProjectiles);
+        RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
     }
 
     /// <summary>Runs MotherBrainHead's main AI.</summary>
-    internal void RunMotherBrainHeadMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        Head.RunMotherBrainHeadMain(place, frame.Samus);
+        Head.RunMotherBrainHeadMain(slot, frame.Samus);
     }
     /// <summary>Sequence of explosion positions used by the fake-death collapse.</summary>
     internal static readonly Position16<RoomPixels>[] MotherBrainFakeDeathExplosionPositions =

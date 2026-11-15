@@ -17,25 +17,25 @@ internal static class EnemyInstructionRunner
     /// <summary>Processes the slot's instruction list for one frame.</summary>
     internal static void Process(object?[] arguments) =>
         EnemyAnimationPlayer.AdvanceAnimation(
-            arguments[0] as RoomEnemyPlace ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
+            arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Optional<SamusState>(arguments, 1) ?? RoomEnemyFrameFixtures.StandaloneSamus(),
             Optional<RoomLevelData>(arguments, 2) ?? RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
             Value<Position16<RoomPixels>>(arguments, 3),
             Value<GameplayAction>(arguments, 4));
 
     /// <summary>
-    /// Processes <paramref name="place"/>'s animation for <paramref name="updates"/> updates with no Samus, level, camera or
+    /// Processes <paramref name="slot"/>'s animation for <paramref name="updates"/> updates with no Samus, level, camera or
     /// input, and lists each newly shown frame as <c>update:spritemap</c> (hexadecimal), comma-separated.
     /// </summary>
-    internal static string ShownFrames(RoomEnemyPlace place, int updates)
+    internal static string ShownFrames(RoomEnemySlot slot, int updates)
     {
-        object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         var shown = new List<string>();
         for (int update = 0; update < updates; update++)
         {
             Process(arguments);
-            if (place.AnimationClock.ShowsNewFrame)
-                shown.Add($"{update}:{place.SpritemapPointer:X4}");
+            if (slot.AnimationClock.ShowsNewFrame)
+                shown.Add($"{update}:{slot.SpritemapPointer:X4}");
         }
         return string.Join(",", shown);
     }

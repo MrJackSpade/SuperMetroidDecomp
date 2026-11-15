@@ -44,15 +44,15 @@ internal sealed class RidleyNativeInstructionPointers
 
     /// <summary>The native instruction pointer of <paramref name="actor"/>, which must keep a translated cursor.</summary>
     /// <exception cref="InvalidOperationException">The actor keeps no cursor this translates.</exception>
-    internal ushort Enemy(RoomEnemySystem enemies, RoomEnemyPlace actor) =>
+    internal ushort Enemy(RoomEnemySystem enemies, RoomEnemySlot actor) =>
         TranslatedEnemy(enemies, actor) ?? throw new InvalidOperationException(
-            $"Enemy {actor.DefinitionId} in slot {actor.Ordinal} keeps no cursor a native instruction pointer translates.");
+            $"Enemy {actor.DefinitionId} in slot {actor.SlotIndex} keeps no cursor a native instruction pointer translates.");
 
     /// <summary>
     /// The native instruction pointer of <paramref name="actor"/>: Ridley's body and breakup fragments and the Pipe Bugs
     /// translate their typed cursors; other actors keep their animation in their species state (#1471) and give null.
     /// </summary>
-    internal ushort? TranslatedEnemy(RoomEnemySystem enemies, RoomEnemyPlace actor)
+    internal ushort? TranslatedEnemy(RoomEnemySystem enemies, RoomEnemySlot actor)
     {
         if (RidleyInteractions.IsRidleyDefinition(actor.DefinitionId))
             return Body(RequireRidley(enemies));

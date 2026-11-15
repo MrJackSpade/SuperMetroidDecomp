@@ -35,7 +35,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
-    internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body)
+    internal void ApplyCrocomireHurtFlash(RoomEnemySlot body)
     {
         bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
@@ -214,7 +214,7 @@ internal sealed class CrocomireCombat
                 $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
         }
 
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
         // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
         // reads that latch, so it is not kept.
         if (context.HitboxTouch == CrocomireReactions.ClawTouch)
@@ -233,7 +233,7 @@ internal sealed class CrocomireCombat
     {
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
 
         // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust.
         if (reaction == CrocomireReactions.AbsorbedShot)
@@ -272,7 +272,7 @@ internal sealed class CrocomireCombat
     /// </summary>
     internal void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
         Position16<RoomPixels> camera)
@@ -334,7 +334,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
-    private void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body)
+    private void ResolveCrocomirePowerBombReaction(RoomEnemySlot body)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)
@@ -401,7 +401,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.Crocomire &&

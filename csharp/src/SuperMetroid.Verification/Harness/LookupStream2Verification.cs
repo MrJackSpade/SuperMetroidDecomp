@@ -159,11 +159,11 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2GhostPalette(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Shading = PictureShading.Standard;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Shading = PictureShading.Standard;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = 2 };
-        Action<RoomEnemyPlace, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
-        Func<RoomEnemyPlace, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
+        Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
         var native = new ushort[16];
         for (int color = 0; color < native.Length; color++)
@@ -177,13 +177,13 @@ internal static class LookupStream2Verification
         // thirty-second changes nothing, which installs the native target palette phase.
         for (int call = 1; call <= 31; call++)
         {
-            brightening(place, state);
+            brightening(slot, state);
             AssertTrue(state.Action != WreckedShipGhostAction.FadingToGhostColours, $"White flash call {call} still brightens");
-            AssertEqual(PictureShading.Shaded(new PictureShade(WreckedShipGhostShades.BrighteningEffect, call)), place.Shading,
+            AssertEqual(PictureShading.Shaded(new PictureShade(WreckedShipGhostShades.BrighteningEffect, call)), slot.Shading,
                 $"White flash call {call} shows its brightening step's shade");
         }
         AssertTrue(state.Fade.Shown.ToArray().All(colour => colour == RgbColor.White), "White flash reaches white in every colour");
-        brightening(place, state);
+        brightening(slot, state);
         AssertEqual(WreckedShipGhostAction.FadingToGhostColours, state.Action, "White flash installs native target palette phase");
         AssertTrue(state.Fade.Target.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
         for (int tick = 1; tick <= 32; tick++)
@@ -192,8 +192,8 @@ internal static class LookupStream2Verification
             for (int color = 0; color < native.Length; color++)
             for (int shift = 0; shift < 15; shift += 5)
                 if (31 - (tick - 1) > (native[color] >> shift & 31)) expectedChanges++;
-            AssertEqual(expectedChanges, fade(place, state), "Native component-change count preserves fade completion");
-            AssertEqual(PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade)), place.Shading, "The ghost shows the shade of its fade's current step");
+            AssertEqual(expectedChanges, fade(slot, state), "Native component-change count preserves fade completion");
+            AssertEqual(PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade)), slot.Shading, "The ghost shows the shade of its fade's current step");
             RgbColor[] installed = installedSteps[WreckedShipGhostFadeShade.Of(state.Fade)];
             for (int color = 0; color < native.Length; color++)
             {
@@ -815,11 +815,11 @@ internal static class LookupStream2Verification
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         enemies.VerificationServices().ReadRandom = () => 1;
-        Action<RoomEnemyPlace, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
-        Action<RoomEnemyPlace, KraidPartState> align = enemies.KraidBehavior.Projectiles.AlignKraidPart;
-        var body = enemies.Places.InUpdateOrder[0];
+        Action<RoomEnemySlot, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
+        Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.Projectiles.AlignKraidPart;
+        var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
         foreach (KraidLintPart lintPart in lintParts)
@@ -903,14 +903,14 @@ internal static class LookupStream2Verification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             for (int member = 0; member < 5; member++)
             {
-                var place = enemies.Places.InUpdateOrder[member];
-                place.Bind(EnemyDefinitionId.Gamet, place.Definition);
-                place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
-                place.AnimationClock.HoldFor((ushort)(member + 4));
+                var slot = enemies.SlotTable.Slots[member];
+                slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
+                slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
+                slot.AnimationClock.HoldFor((ushort)(member + 4));
             }
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
+            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.NorfairPipeBugStates[member];
@@ -921,7 +921,7 @@ internal static class LookupStream2Verification
                 AssertEqual(PipeBugAction.NorfairRise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
-                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.Places.InUpdateOrder[member].AnimationClock.Hold.RawValue,
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].AnimationClock.Hold.RawValue,
                     "Only leader instruction timer resets");
             }
         }
@@ -1176,9 +1176,9 @@ internal static class LookupStream2Verification
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var place = enemies.Places.InUpdateOrder[0];
+        var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
-        place.SetSpeciesState(part);
+        slot.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
@@ -1190,7 +1190,7 @@ internal static class LookupStream2Verification
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
             AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
-            enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(place);
+            enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(slot);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineReadyingDuration,
                 enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
                 "the gunship shows its takeoff look from the readying's last update only");
@@ -1272,9 +1272,9 @@ internal static class LookupStream2Verification
     /// <summary>Checks ghost appearance timing/visibility and four Norfair palette-FX cycles.</summary>
     internal static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
-        Action<RoomEnemyPlace, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
-        Action<RoomEnemyPlace, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
-        var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
+        var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new WreckedShipGhostEnemyState();
         SamusAxisMotion[] motions = [SamusAxisMotion.TowardSmaller, SamusAxisMotion.Still, SamusAxisMotion.TowardLarger];
         for (int index = 0; index < 9; index++)
@@ -1287,9 +1287,9 @@ internal static class LookupStream2Verification
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
             state.SamusMotion = motion;
-            spawn(place, state, new(32, 65520));
-            AssertEqual(unchecked((ushort)(32 + originalX)), place.Position.X.Whole, "Ghost actual wrapped spawn X");
-            AssertEqual(unchecked((ushort)(65520 + originalY)), place.Position.Y.Whole, "Ghost actual wrapped spawn Y");
+            spawn(slot, state, new(32, 65520));
+            AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
+            AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAction.BrighteningAndFlickering, state.Action, "Ghost appearance phase");
             AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
             AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
@@ -1310,33 +1310,33 @@ internal static class LookupStream2Verification
                 AssertEqual(position % 2 == 1 ? WreckedShipGhostFlickerVisibility.Shown : WreckedShipGhostFlickerVisibility.Unchanged,
                     steps[position].Visibility, "Ghost original flicker visibility");
             }
-            place.Contact = EnemyContact.None;
-            place.Processing = EnemyProcessing.OffScreen;
-            place.Presence = EnemyPresence.Hidden;
+            slot.Contact = EnemyContact.None;
+            slot.Processing = EnemyProcessing.OffScreen;
+            slot.Presence = EnemyPresence.Hidden;
             state.PhaseTimer = 1;
             state.NextFlickerStep = position;
-            flicker(place, state);
+            flicker(slot, state);
             AssertEqual(ended ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
             AssertEqual(ended ? steps.Count : position + 1, state.NextFlickerStep, "Ghost actual next step");
             bool remainsInvisible = ended || position % 2 == 0;
-            AssertEqual(EnemyContact.None, place.Contact, "Ghost actual visibility preserves unrelated contact");
-            AssertEqual(EnemyProcessing.OffScreen, place.Processing, "Ghost actual visibility preserves unrelated processing");
-            AssertEqual(remainsInvisible ? EnemyPresence.Hidden : EnemyPresence.None, place.Presence, "Ghost actual visibility");
+            AssertEqual(EnemyContact.None, slot.Contact, "Ghost actual visibility preserves unrelated contact");
+            AssertEqual(EnemyProcessing.OffScreen, slot.Processing, "Ghost actual visibility preserves unrelated processing");
+            AssertEqual(remainsInvisible ? EnemyPresence.Hidden : EnemyPresence.None, slot.Presence, "Ghost actual visibility");
         }
         state.PhaseTimer = 2;
         state.NextFlickerStep = 0;
-        place.Contact = EnemyContact.None;
-        place.Processing = EnemyProcessing.None;
-        place.Presence = EnemyPresence.Hidden;
-        flicker(place, state);
+        slot.Contact = EnemyContact.None;
+        slot.Processing = EnemyProcessing.None;
+        slot.Presence = EnemyPresence.Hidden;
+        flicker(slot, state);
         AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
         AssertEqual(0, state.NextFlickerStep, "Ghost no early interval advance");
-        AssertEqual(EnemyContact.None, place.Contact, "Ghost no early contact change");
-        AssertEqual(EnemyProcessing.None, place.Processing, "Ghost no early processing change");
-        AssertEqual(EnemyPresence.Hidden, place.Presence, "Ghost no early visibility change");
+        AssertEqual(EnemyContact.None, slot.Contact, "Ghost no early contact change");
+        AssertEqual(EnemyProcessing.None, slot.Processing, "Ghost no early processing change");
+        AssertEqual(EnemyPresence.Hidden, slot.Presence, "Ghost no early visibility change");
         state.PhaseTimer = 0;
-        flicker(place, state);
-        AssertTrue(place.Contact == EnemyContact.None && place.Processing == EnemyProcessing.None && place.Presence == EnemyPresence.None,
+        flicker(slot, state);
+        AssertTrue(slot.Contact == EnemyContact.None && slot.Processing == EnemyProcessing.None && slot.Presence == EnemyPresence.None,
             "Ghost terminal next call clears invisibility");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
@@ -1581,7 +1581,7 @@ internal static class LookupStream2Verification
                     "Golden Torizo calculated stock/supplied parts produce exact packed OAM");
             }
             var identities = definitions.ToDictionary(frame => frame.Name,
-                frame => EnemyFrameSheetKeys.Of(RoomEnemyPlaceFrameAccess.FrameAt(frame.Bank, frame.Pointer) ?? throw new InvalidOperationException($"{frame.Name} shows no frame.")), StringComparer.Ordinal);
+                frame => EnemyFrameSheetKeys.Of(RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer) ?? throw new InvalidOperationException($"{frame.Name} shows no frame.")), StringComparer.Ordinal);
             var orderedFrames = definitions.OrderBy(frame => identities[frame.Name], StringComparer.Ordinal).ToArray();
             string expectedHash = SelectedPresentationHash.Create("enemy-extended-oam-v2", content =>
             {

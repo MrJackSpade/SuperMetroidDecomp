@@ -22,24 +22,24 @@ internal static class DragonBehaviorVerification
         foreach (DragonSegment selector in Enum.GetValues<DragonSegment>())
         {
             DragonSegment program = selector;
-            (RoomEnemySystem enemies, RoomEnemyPlace place, DragonEnemyState state) = Install(selector);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(selector);
             ushort[] poses = DragonAnimationsConstants.Spritemaps(program).ToArray();
             switch (selector)
             {
                 case DragonSegment.IdleFacingLeft or DragonSegment.IdleFacingRight:
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([poses[0], poses[0]], [1, 1]),
-                        EnemyInstructionRunner.ShownFrames(place, 3), $"Dragon {program} pose");
+                        EnemyInstructionRunner.ShownFrames(slot, 3), $"Dragon {program} pose");
                     break;
                 case DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight:
                     AssertEqual(EnemyInstructionRunner.ExpectedLoop(DragonAnimations.Segments, program, DragonFrameToolingDefinitions.Spritemap),
-                        EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Segments, program)), $"Dragon {program} loop");
+                        EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Segments, program)), $"Dragon {program} loop");
                     break;
                 case DragonSegment.AttackingFacingLeft:
                 case DragonSegment.AttackingFacingRight:
                 default:
                     int[] holds = [32, 3, 7, 3, 1];
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. poses, poses[^1]], [.. holds, 1]),
-                        EnemyInstructionRunner.ShownFrames(place, holds.Sum() + 2), $"Dragon {program} poses");
+                        EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 2), $"Dragon {program} poses");
                     break;
             }
             bool attacks = selector is DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight;
@@ -60,11 +60,11 @@ internal static class DragonBehaviorVerification
         {
             for (int part = 0; part < 2; part++)
             {
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[bodySlot + part];
-                place.Bind(EnemyDefinitionId.Dragon, place.Definition);
-                place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-                place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
-                enemies.DragonBehavior.InitializeDragon(place);
+                RoomEnemySlot slot = enemies.SlotTable.Slots[bodySlot + part];
+                slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
+                slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+                slot.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
+                enemies.DragonBehavior.InitializeDragon(slot);
             }
         }
         foreach (int bodySlot in new[] { 0, 2 })
@@ -74,7 +74,7 @@ internal static class DragonBehaviorVerification
             body.RequestedAnimation = DragonSegment.AttackingFacingLeft;
             body.AttackCounter = 3;
             body.AnimationFinished = true;
-            enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot], body);
+            enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
         }
         SoundEffectId fireball = EnemySoundEffectDefinitions.DragonFireballSound;
         AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request.SoundEffect == fireball),
@@ -86,17 +86,17 @@ internal static class DragonBehaviorVerification
     private static InstallResult Install(DragonSegment selector)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Dragon, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight ? (ushort)1 : (ushort)0);
-        enemies.DragonBehavior.InitializeDragon(place);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight ? (ushort)1 : (ushort)0);
+        enemies.DragonBehavior.InitializeDragon(slot);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
         state.ReinstallRequested = true;
         state.RequestedAnimation = selector;
         state.AnimationFinished = false;
-        DragonBehavior.StartDragonAnimation(place, state);
-        return new InstallResult(enemies, place, state);
+        DragonBehavior.StartDragonAnimation(slot, state);
+        return new InstallResult(enemies, slot, state);
     }
 
     /// <summary>Runs the Dragon behavior check and its program oracle against the local retail cartridge.</summary>

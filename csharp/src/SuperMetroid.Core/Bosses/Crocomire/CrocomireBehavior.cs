@@ -16,9 +16,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. CrocomirePartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new CrocomireEntity(this, place, common, _bossArtwork);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrocomireEntity(this, slot, common, _bossArtwork);
 
-    /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
+    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
     internal CrocomireBodyLayer BodyLayer { get; }
@@ -85,11 +85,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the live-fight phase of Crocomire's main AI for one update.</summary>
     internal void RunCrocomireMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        CrocomireEnemyState state = Access.RequireCrocomire(place);
+        CrocomireEnemyState state = Access.RequireCrocomire(slot);
 
         if (state.DeathPhase == CrocomireDeathPhase.Fighting)
         {
@@ -109,8 +109,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             RunCrocomireDeathSequence(state, samus, camera);
         }
 
-        Fight.HandleCrocomireInvisibleWall(place, state, samus);
-        Combat.ApplyCrocomireHurtFlash(place);
+        Fight.HandleCrocomireInvisibleWall(slot, state, samus);
+        Combat.ApplyCrocomireHurtFlash(slot);
     }
 
     /// <summary>Number of dust puffs emitted across the bridge-collapse path.</summary>
@@ -271,14 +271,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Crocomire's typed animation.</summary>
-    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
-        Fight.AdvanceCrocomireBodyAnimation(place, context.Samus, context.Level, context.Camera.X);
+        Fight.AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
     }
 
     /// <summary>Runs Crocomire's main AI.</summary>
-    internal void RunCrocomireMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunCrocomireMain(place, frame.Samus, frame.Camera);
+        RunCrocomireMain(slot, frame.Samus, frame.Camera);
     }
 }

@@ -178,15 +178,15 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         // Invoke the production overlap walker with all cartridge reads
         // denied. This checks the actual dispatch, not just a matching table.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.Position = place.Position.WithWhole(new(0x100, 0x100));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
         {
-            place.SpritemapPointer = pointer;
+            slot.SpritemapPointer = pointer;
             object?[] arguments =
-                [place, new Position16<RoomPixels>(0x100, 0x100), new Extent16<RoomPixels>(0, 0), true, (ushort)0];
+                [slot, new Position16<RoomPixels>(0x100, 0x100), new Extent16<RoomPixels>(0, 0), true, (ushort)0];
             bool found = ExtendedHitboxWalker.Find(arguments);
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
@@ -221,15 +221,15 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the body his body frames show on.
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Draygon);
-        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.CollidesByFrameHitboxes = true;
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
-            place.AnimationClock.ShowsNewFrame = true;
-        place.SpritemapPointer = pointer;
-        place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
+            slot.AnimationClock.ShowsNewFrame = true;
+        slot.SpritemapPointer = pointer;
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawAsOam(new OamBuffer(), new(0, 0));
         return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Draygon, art.Bosses, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
     }

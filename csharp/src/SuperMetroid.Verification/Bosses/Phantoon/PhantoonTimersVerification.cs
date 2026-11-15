@@ -21,9 +21,9 @@ internal static class PhantoonTimersVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding[i], "Native rain timer");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
-        var eye = enemies.Places.InUpdateOrder[1];
-        var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = enemies.Places.InUpdateOrder[2], Mouth = enemies.Places.InUpdateOrder[3] };
+        var body = enemies.SlotTable.Slots[0];
+        var eye = enemies.SlotTable.Slots[1];
+        var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3] };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
         // His initialization shows his body black before any pattern fades it (#1512).
         state.Colours.Show(PhantoonBodyLook.Black);

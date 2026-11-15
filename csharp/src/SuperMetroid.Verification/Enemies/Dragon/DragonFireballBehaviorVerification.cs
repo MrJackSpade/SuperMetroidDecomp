@@ -24,7 +24,7 @@ internal static class DragonFireballBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DragonFireballNativeListAddresses.Extent, "Dragon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(384, 160));

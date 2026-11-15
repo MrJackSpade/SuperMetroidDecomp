@@ -16,7 +16,7 @@ internal static class KraidReportedCollisionsVerification
 {
     /// <summary>Runs each reported contact path and collects failures before leaving the verifier.</summary>
     internal static int VerifyKraidReportedCollisions(SuperMetroidGame game,
-        SuperMetroidRuntime runtime, RoomEnemyPlace body, KraidEnemyState state)
+        SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
         var failures = new List<Exception>();
         void Check(string name, Action action)
@@ -73,13 +73,13 @@ internal static class KraidReportedCollisionsVerification
         {
             Check("Nail contact slot " + index, () =>
             {
-                var nail = runtime.Enemies.Places.InUpdateOrder[index];
+                var nail = runtime.Enemies.SlotTable.Slots[index];
                 nail.Position = nail.Position.WithWhole(new(100, 400));
                 nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
                 nail.Presence = nail.Presence.Without(EnemyPresence.Deleted | EnemyPresence.Hidden);
                 ResetSamus(100, 400);
                 int damage = nail.Definition.Damage;
-                var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
+                var interactive = (List<RoomEnemySlot>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
                 interactive.Clear(); interactive.Add(nail);
                 AssertEqual(true, runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData), "Nail callback is dispatched");
                 AssertEqual((ushort)(999 - damage), samus.Health, "Nail applies native touch damage");
@@ -89,7 +89,7 @@ internal static class KraidReportedCollisionsVerification
         }
         Check("Belly projectile leading edge", () =>
         {
-            var lint = runtime.Enemies.Places.InUpdateOrder[2];
+            var lint = runtime.Enemies.SlotTable.Slots[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
             runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint).Phase = KraidPhase.LintInactive;

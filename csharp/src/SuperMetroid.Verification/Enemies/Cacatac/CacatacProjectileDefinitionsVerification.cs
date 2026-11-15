@@ -18,8 +18,8 @@ internal static class CacatacProjectileDefinitionsVerification
         const int instructionTable = 0x86d96a;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, CacatacSpikeDirection> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
-        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        Action<RoomEnemySlot, CacatacSpikeDirection> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
 

@@ -42,7 +42,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         var guarded = NewDraygonBurialEvirReadGuard(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Draygon dies on a white hurt frame here; his burial Evirs spawn in their own colours, not in his flash (#1544).
-        var draygon = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]);
+        var draygon = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         draygon.Colours.ShowHurt(true);
 
         for (int entry = 5; entry >= 0; entry--)

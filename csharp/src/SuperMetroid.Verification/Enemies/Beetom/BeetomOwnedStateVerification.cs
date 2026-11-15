@@ -32,24 +32,24 @@ internal static class BeetomOwnedStateVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Beetom, place.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), 0);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
+        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), 0);
         BeetomEnemyState state = enemies.BeetomStates[0]
             ?? throw new InvalidOperationException("The initialized Beetom has no state.");
         state.FacingRight = true;
-        place.Clear();
+        slot.Clear();
         AssertEqual<BeetomEnemyState?>(null, enemies.BeetomStates[0], "a kill takes the Beetom's state with it");
 
         // The next Beetom set up in the slot inherits the facing its predecessor left; a Beetom in another slot does not.
-        place.Bind(EnemyDefinitionId.Beetom, place.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), 0);
+        slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
+        enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), 0);
         BeetomEnemyState successor = Ensure.NotNull(enemies.BeetomStates[0]);
         AssertTrue(!ReferenceEquals(state, successor), "re-initialization sets up a new Beetom");
         AssertTrue(successor.FacingRight, "a new Beetom inherits the facing the slot's previous Beetom left");
-        RoomEnemyPlace otherPlace = enemies.Places.InUpdateOrder[1];
-        otherPlace.Bind(EnemyDefinitionId.Beetom, otherPlace.Definition);
-        enemies.BeetomBehavior.InitializeBeetom(otherPlace, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), 0);
+        RoomEnemySlot otherSlot = enemies.SlotTable.Slots[1];
+        otherSlot.Bind(EnemyDefinitionId.Beetom, otherSlot.Definition);
+        enemies.BeetomBehavior.InitializeBeetom(otherSlot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), 0);
         BeetomEnemyState first = enemies.BeetomStates[1]
             ?? throw new InvalidOperationException("The other slot's Beetom has no state.");
         AssertTrue(!first.FacingRight, "a slot's first Beetom faces left");

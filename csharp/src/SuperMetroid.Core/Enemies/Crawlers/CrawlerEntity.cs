@@ -2,52 +2,52 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>One crawler occupant: its family's initializer, the shared or orange-Zoomer main AI and the typed animation, with the shared reactions.</summary>
 /// <param name="species">The crawler species owner.</param>
-/// <param name="place">The place the crawler occupies.</param>
+/// <param name="slot">The slot the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (CrawlersPartDefinitions.Parts[Place.DefinitionId])
+        switch (CrawlersPartDefinitions.Parts[Slot.DefinitionId])
         {
             case CrawlersPart.Sciser:
-                CrawlersBehavior.InitializeSciserAi(Place);
+                CrawlersBehavior.InitializeSciserAi(Slot);
                 break;
             case CrawlersPart.Zero:
-                CrawlersBehavior.InitializeZeroAi(Place);
+                CrawlersBehavior.InitializeZeroAi(Slot);
                 break;
             case CrawlersPart.Viola:
-                CrawlersBehavior.InitializeViolaAi(Place);
+                CrawlersBehavior.InitializeViolaAi(Slot);
                 break;
             case CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.ArmoredZoomer:
-                CrawlersBehavior.InitializeSharedCrawlerAi(Place);
+                CrawlersBehavior.InitializeSharedCrawlerAi(Slot);
                 break;
             case CrawlersPart.OrangeZoomer:
-                CrawlersBehavior.InitializeOrangeZoomer(Place);
+                CrawlersBehavior.InitializeOrangeZoomer(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"Crawler entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (CrawlersPartDefinitions.Parts[Place.DefinitionId])
+        switch (CrawlersPartDefinitions.Parts[Slot.DefinitionId])
         {
             case CrawlersPart.Sciser or CrawlersPart.Zero or CrawlersPart.Viola or CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.ArmoredZoomer:
-                species.RunCrawlerMainAi(Place, frame);
+                species.RunCrawlerMainAi(Slot, frame);
                 break;
             case CrawlersPart.OrangeZoomer:
-                species.RunOrangeZoomerMainAi(Place, frame);
+                species.RunOrangeZoomerMainAi(Slot, frame);
                 break;
             default:
-                throw new InvalidOperationException($"Crawler entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Crawler entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrawlersBehavior.AdvanceCrawlerTypedAnimation(Slot, context);
 }

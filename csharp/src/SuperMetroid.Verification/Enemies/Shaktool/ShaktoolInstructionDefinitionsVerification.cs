@@ -33,10 +33,10 @@ internal static class ShaktoolInstructionDefinitionsVerification
         }
 
         RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
-        RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
+        RoomEnemySlot center = enemies.SlotTable.Slots[3];
         ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
         ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
-        Action<RoomEnemyPlace, ShaktoolSegmentState> orient = enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
+        Action<RoomEnemySlot, ShaktoolSegmentState> orient = enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
@@ -53,9 +53,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
                 $"Shaktool production orientation list {bucket:X2}");
         }
 
-        RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
+        RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         ShaktoolSegmentState tailState = (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6]."));
-        Action<RoomEnemyPlace, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
+        Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
         reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
@@ -101,21 +101,21 @@ internal static class ShaktoolInstructionDefinitionsVerification
             int slotIndex = Math.Min(index, 6);
             (enemies.ShaktoolSegments[slotIndex] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback =
                 new(ShaktoolAnimations.StartingWith(steadyPrograms[index]), AnimationPlace.StartOfAnimation);
-            RunForcedShaktoolInstructions(enemies.Places.InUpdateOrder[slotIndex], 5);
+            RunForcedShaktoolInstructions(enemies.SlotTable.Slots[slotIndex], 5);
         }
 
-        RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
+        RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6].");
         enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
-            RunForcedShaktoolInstructions(enemies.Places.InUpdateOrder[index], 8);
+            RunForcedShaktoolInstructions(enemies.SlotTable.Slots[index], 8);
 
         Suite(nameof(ShaktoolAnimationsVerification.VerifyShaktoolAnimations), () => ShaktoolAnimationsVerification.VerifyShaktoolAnimations(rom));
         Console.WriteLine("Shaktool: every steady and collision program runs on the real seven-segment group.");
     }
 
     /// <summary>Forces successive instruction steps and reports whether they moved the segment.</summary>
-    private static bool RunForcedShaktoolInstructions(RoomEnemyPlace segment,
+    private static bool RunForcedShaktoolInstructions(RoomEnemySlot segment,
         int steps)
     {
         bool moved = false;
@@ -136,15 +136,15 @@ internal static class ShaktoolInstructionDefinitionsVerification
 )
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
+        Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < 7; index++)
         {
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
-            place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
+            slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
+            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
+            initialize(slot);
         }
         return enemies;
     }

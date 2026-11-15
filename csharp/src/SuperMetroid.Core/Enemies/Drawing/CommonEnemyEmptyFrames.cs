@@ -16,12 +16,12 @@ internal static class CommonEnemyEmptyFrames
     /// Whether <paramref name="enemy"/> collides at the single point at its origin: it collides by its frames' hitboxes and
     /// shows the empty frame, whose one hitbox is that point. Samus and her bombs meet the point; her other shots pass it.
     /// </summary>
-    internal static bool CollidesAtOrigin(RoomEnemyPlace enemy) =>
+    internal static bool CollidesAtOrigin(RoomEnemySlot enemy) =>
         enemy.CollidesByFrameHitboxes && enemy.Frame == EnemyFrameId.Empty;
 
     /// <summary>
     /// Whether Samus's shots pass <paramref name="enemy"/> before any hitbox is tested: it shows no frame, or the empty
     /// frame while it collides by its radius.
     /// </summary>
-    internal static bool ShotsPass(RoomEnemyPlace enemy) => DrawsNothing(enemy.Frame) && !CollidesAtOrigin(enemy);
+    internal static bool ShotsPass(RoomEnemySlot enemy) => DrawsNothing(enemy.Frame) && !CollidesAtOrigin(enemy);
 }

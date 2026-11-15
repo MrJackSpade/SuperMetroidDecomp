@@ -18,12 +18,12 @@ internal static class SkulteraOwnedStateVerification
     internal static void VerifySkulteraOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Skultera, place.Definition);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Skultera, slot.Definition);
         const int speedRecord = 3;
-        place.SetSpawnParameter1(EnemyDefinitionId.Skultera, speedRecord);
-        place.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));
-        SkulteraBehavior.InitializeSkultera(place);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Skultera, speedRecord);
+        slot.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));
+        SkulteraBehavior.InitializeSkultera(slot);
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 

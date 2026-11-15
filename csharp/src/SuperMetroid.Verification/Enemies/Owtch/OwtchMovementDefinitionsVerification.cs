@@ -18,9 +18,9 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = OwtchBehavior.InitializeOwtch;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Owtch, place.Definition);
+        Action<RoomEnemySlot> initialize = OwtchBehavior.InitializeOwtch;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
 
         foreach (ushort spawnX in new ushort[] { 0, 0x0100, ushort.MaxValue })
         {
@@ -29,10 +29,10 @@ internal static class OwtchMovementDefinitionsVerification
                 for (byte distanceIndex = 0; distanceIndex < 8; distanceIndex++)
                 {
                     byte initialState = (byte)((timerIndex + distanceIndex) % 5);
-                    place.SetSpawnParameter1(EnemyDefinitionId.Owtch, LittleEndianBytes.Word(initialState, timerIndex));
-                    place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)(distanceIndex << 8));
-                    place.Position = place.Position.WithWhole(new(spawnX, 0x0100));
-                    initialize(place);
+                    slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, LittleEndianBytes.Word(initialState, timerIndex));
+                    slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)(distanceIndex << 8));
+                    slot.Position = slot.Position.WithWhole(new(spawnX, 0x0100));
+                    initialize(slot);
 
                     OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
                     int distance = EnemySpawnSelectors.OwtchTravelDistance(distanceIndex);

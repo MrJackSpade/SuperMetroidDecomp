@@ -34,10 +34,10 @@ internal static class PuyoOwnedStateVerification
         AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Puyo, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
-        PuyoBehavior.InitializePuyo(place);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
+        PuyoBehavior.InitializePuyo(slot);
         PuyoEnemyState state = enemies.PuyoStates[0]
             ?? throw new InvalidOperationException("The initialized Puyo has no state.");
         AssertEqual(null, state.AirborneMovement, "a fresh Puyo has no airborne behaviour");

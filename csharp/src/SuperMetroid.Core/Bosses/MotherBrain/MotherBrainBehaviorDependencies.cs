@@ -12,7 +12,7 @@ internal sealed record MotherBrainBehaviorDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>

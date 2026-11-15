@@ -16,11 +16,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EscapeAnimalsPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EscapeAnimalsPartDefinitions.Parts[place.DefinitionId] switch
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => EscapeAnimalsPartDefinitions.Parts[slot.DefinitionId] switch
     {
-        EscapeAnimalsPart.EtecoonEscape => new EscapeEtecoonEntity(this, place, common),
-        EscapeAnimalsPart.DachoraEscape => new EscapeDachoraEntity(this, place, common),
-        _ => throw new InvalidOperationException($"Escape animals do not own {place.DefinitionId}."),
+        EscapeAnimalsPart.EtecoonEscape => new EscapeEtecoonEntity(this, slot, common),
+        EscapeAnimalsPart.DachoraEscape => new EscapeDachoraEntity(this, slot, common),
+        _ => throw new InvalidOperationException($"Escape animals do not own {slot.DefinitionId}."),
     };
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
@@ -45,57 +45,57 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);
 
     /// <summary>Initializes the escape Etecoon.</summary>
-    internal void InitializeEscapeEtecoon(RoomEnemyPlace place)
+    internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
         var state = new EscapeEtecoonEnemyState();
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
 
         // The critters-escaped event means the animals already escaped on an earlier visit. Code
         // deletes the actor before changing any animation, position, colours, or AI fields.
         if (HasCrittersEscaped())
         {
-            place.Presence = place.Presence.With(EnemyPresence.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
         // An escaping animal runs its animation, is left out of the ordinary touch pass against Samus and
         // stands solid to her.
-        place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus | EnemyContact.SolidToSamus);
-        place.AnimationClock.Restart();
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus | EnemyContact.SolidToSamus);
+        slot.AnimationClock.Restart();
         // The initializer selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
 
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(place.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
-        place.Position = place.Position.WithWhole(initialization.Position);
+            EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+        slot.Position = slot.Position.WithWhole(initialization.Position);
         state.Action = initialization.Action;
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
         state.Velocity = initialization.Velocity;
     }
 
     /// <summary>Initializes the escape Dachora.</summary>
-    internal void InitializeEscapeDachora(RoomEnemyPlace place)
+    internal void InitializeEscapeDachora(RoomEnemySlot slot)
     {
-        place.SetSpeciesState(new EscapeDachoraEnemyState());
+        slot.SetSpeciesState(new EscapeDachoraEnemyState());
         if (HasCrittersEscaped())
         {
-            place.Presence = place.Presence.With(EnemyPresence.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
         // Dachora's population already supplies both properties, but the initializer sets the animating property again.
         // Expressing the idempotent write documents the initializer and keeps a
         // synthetic/debug population faithful to retail initialization.
-        place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
-        place.AnimationClock.Restart();
-        place.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+        slot.Frame = EnemyFrameId.Empty;
+        slot.AnimationClock.Restart();
+        slot.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
             new(EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs an escaping Etecoon's action.</summary>
     private void RunEscapeEtecoonMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
@@ -105,7 +105,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case EscapeEtecoonAction.Escaping:
-                AddEscapeAnimalX(place, EscapeEtecoonUncollidedExitSpeed);
+                AddEscapeAnimalX(slot, EscapeEtecoonUncollidedExitSpeed);
                 return;
 
             case EscapeEtecoonAction.AwaitingEscape:
@@ -117,7 +117,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case EscapeEtecoonAction.Walking:
-                RunEscapeEtecoonWalking(place, state, level);
+                RunEscapeEtecoonWalking(slot, state, level);
                 return;
 
             default:
@@ -127,7 +127,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Walks and falls, including the collision-only event branch.</summary>
     private void RunEscapeEtecoonWalking(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
@@ -135,9 +135,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
         // branch in the retail game and must not turn an animal around in open space.
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            place.AnimationClock.StepOnNextUpdate();
+            slot.AnimationClock.StepOnNextUpdate();
             state.Velocity = state.Velocity.ReversedX();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonSegment.RunningForEscape
@@ -149,34 +149,34 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The vertical mover is called even after horizontal collision, and whether it hit terrain
         // is ignored. This one-pixel probe lets the common collision helper settle the actor on
         // the room's actual floor without introducing a bespoke ground model.
-        _ = _terrain.MoveEnemyVertically(level, place, EscapeEtecoonGravity);
+        _ = _terrain.MoveEnemyVertically(level, slot, EscapeEtecoonGravity);
     }
 
     /// <summary>Runs an escaping Etecoon's or Dachora's typed animation where the shared enemy animation would.</summary>
-    private void AdvanceEscapeAnimal(RoomEnemyPlace place, SamusState samus)
+    private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState samus)
     {
-        if (!place.AnimationClock.Expire())
+        if (!slot.AnimationClock.Expire())
             return;
-        if (place.DefinitionId == EnemyDefinitionId.EtecoonEscape)
+        if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape)
         {
-            EscapeEtecoonEnemyState state = place.RequireSpeciesState<EscapeEtecoonEnemyState>();
+            EscapeEtecoonEnemyState state = slot.RequireSpeciesState<EscapeEtecoonEnemyState>();
             AnimationPlayback<EscapeEtecoonSegment> playback = state.Playback;
-            EnemyAnimationPlayback.Play(place, EscapeEtecoonAnimations.Segments, ref playback,
-                cue => ApplyEscapeEtecoonCue(place, state, samus, cue) is { } target
+            EnemyAnimationPlayback.Play(slot, EscapeEtecoonAnimations.Segments, ref playback,
+                cue => ApplyEscapeEtecoonCue(slot, state, samus, cue) is { } target
                     ? new AnimationContinuation<EscapeEtecoonSegment>(EscapeEtecoonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                     : null);
             state.Playback = playback;
             return;
         }
-        EscapeDachoraEnemyState dachora = place.RequireSpeciesState<EscapeDachoraEnemyState>();
+        EscapeDachoraEnemyState dachora = slot.RequireSpeciesState<EscapeDachoraEnemyState>();
         AnimationPlayback<EscapeDachoraSegment> dachoraPlayback = dachora.Playback;
-        EnemyAnimationPlayback.Play(place, EscapeDachoraAnimations.Segments, ref dachoraPlayback,
-            cue => ApplyEscapeDachoraCue(place, samus, cue) is { } target ? EscapeDachoraAnimations.BranchTargets[target] : null);
+        EnemyAnimationPlayback.Play(slot, EscapeDachoraAnimations.Segments, ref dachoraPlayback,
+            cue => ApplyEscapeDachoraCue(slot, samus, cue) is { } target ? EscapeDachoraAnimations.BranchTargets[target] : null);
         dachora.Playback = dachoraPlayback;
     }
 
     /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
-    private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemyPlace place, EscapeEtecoonEnemyState state, SamusState samus, EscapeEtecoonCue cue)
+    private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemySlot slot, EscapeEtecoonEnemyState state, SamusState samus, EscapeEtecoonCue cue)
     {
         switch (cue)
         {
@@ -189,7 +189,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;
             case EscapeEtecoonCue.Move move:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + move.Offset);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue}.");
@@ -197,7 +197,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Dachora's animation, returning the target a branch continues at, or null to run on.</summary>
-    private EscapeDachoraSegment? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
+    private EscapeDachoraSegment? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState samus, EscapeDachoraCue cue)
     {
         switch (cue.Kind)
         {
@@ -206,10 +206,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
                 return HasCrittersEscaped() ? cue.Target : null;
             case EscapeDachoraCueKind.MoveLeft:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - EscapeDachoraPixelsPerCue);
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole - EscapeDachoraPixelsPerCue);
                 return null;
             case EscapeDachoraCueKind.MoveRight:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + EscapeDachoraPixelsPerCue);
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + EscapeDachoraPixelsPerCue);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {cue.Kind}.");
@@ -227,15 +227,15 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         samus?.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
 
     /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
-    private static void AddEscapeAnimalX(RoomEnemyPlace place, SignedSixteenSixteen displacement) =>
-        place.Position = place.Position.WithX(place.Position.X.MovedBy(displacement));
+    private static void AddEscapeAnimalX(RoomEnemySlot slot, SignedSixteenSixteen displacement) =>
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(displacement));
 
     /// <summary>Runs the escape Etecoon's main AI.</summary>
-    internal void RunEscapeEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunEscapeEtecoonMain(place, place.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
+    internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
+        RunEscapeEtecoonMain(slot, slot.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
 
     /// <summary>Advances either escape animal's typed animation.</summary>
-    internal void AdvanceEscapeAnimalTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        AdvanceEscapeAnimal(place, context.Samus);
+    internal void AdvanceEscapeAnimalTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        AdvanceEscapeAnimal(slot, context.Samus);
 
 }

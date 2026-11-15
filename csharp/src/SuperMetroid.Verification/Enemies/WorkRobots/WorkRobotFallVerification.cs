@@ -28,14 +28,14 @@ internal static class WorkRobotFallVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.UnpoweredWorkRobot, place.Definition);
-            place.Radius = new(8, 8);
-            place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.UnpoweredWorkRobot, slot.Definition);
+            slot.Radius = new(8, 8);
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
             var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };
-            place.SetSpeciesState(state);
+            slot.SetSpeciesState(state);
 
-            enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, frame);
+            enemies.WorkRobotBehavior.RunWorkRobotMainAi(slot, frame);
 
             string context = $"Work Robot falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, state.FallVelocity.UnsignedWholePixels, $"{context}: whole speed word");

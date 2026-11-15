@@ -123,7 +123,7 @@ internal static class ShotCallbackDefinitionsVerification
         foreach (int callback in touchNoOps)
         {
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
-            (RoomEnemySystem enemies, RoomEnemyPlace enemy) =
+            (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
             byte touchBank = SnesLittleEndianConstants.BankByte(callback);
             ushort touchWord = unchecked((ushort)callback);
@@ -149,7 +149,7 @@ internal static class ShotCallbackDefinitionsVerification
         foreach (int callback in shotNoOps)
         {
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
-            (RoomEnemySystem enemies, RoomEnemyPlace enemy) =
+            (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
             byte shotBank = SnesLittleEndianConstants.BankByte(callback);
             ushort shotWord = unchecked((ushort)callback);
@@ -178,10 +178,10 @@ internal static class ShotCallbackDefinitionsVerification
         static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var interactive = (List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies;
-            RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
+            var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
+            RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy);
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+            enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftLoopFirst;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);

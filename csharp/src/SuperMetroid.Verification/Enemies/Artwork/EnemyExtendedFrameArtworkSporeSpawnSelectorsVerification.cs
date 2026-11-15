@@ -44,8 +44,8 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             var nativeTrace = ReadReferenceSporeSpawnProgram(rom, pointer, frames, allNativeSelectors);
             var installedTrace = new List<SporeSpawnProgramFrame>(frames);
             RunSporeSpawnProgram(program, frames, stock,
-                afterFrame: (system, place) =>
-                    installedTrace.Add(CaptureSporeSpawnProgramFrame(system, place, steps)));
+                afterFrame: (system, slot) =>
+                    installedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
             AssertEqual(nativeTrace.Count, installedTrace.Count,
                 $"Spore Spawn program {pointer:X4} installed frame count");
             for (int frame = 0; frame < frames; frame++)
@@ -138,15 +138,15 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     }
     /// <summary>Captures the live state compared with one native Spore Spawn instruction tick.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
-        RoomEnemySystem system, RoomEnemyPlace place, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps)
+        RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps)
     {
         SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
-            place.Contact, place.Processing, place.Presence, place.CollidesByFrameHitboxes, place.AnimationClock.ShowsNewFrame);
+            slot.Contact, slot.Processing, slot.Presence, slot.CollidesByFrameHitboxes, slot.AnimationClock.ShowsNewFrame);
         return new SporeSpawnProgramFrame(
-            NativeBodyInstruction(steps, state), place.AnimationClock.Hold.RawValue,
-            place.SpritemapPointer, place.Position.Whole,
-            checked((ushort)place.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
+            NativeBodyInstruction(steps, state), slot.AnimationClock.Hold.RawValue,
+            slot.SpritemapPointer, slot.Position.Whole,
+            checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Movement, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, system.ActiveEnemyDropPickups > 0);
     }

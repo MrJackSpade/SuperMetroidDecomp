@@ -28,7 +28,7 @@ internal static class KraidArmSamusContactVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
-        RoomEnemyPlace arm = runtime.Enemies.Places.InUpdateOrder[1];
+        RoomEnemySlot arm = runtime.Enemies.SlotTable.Slots[1];
         AssertEqual(EnemyDefinitionId.KraidArm, arm.DefinitionId, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
@@ -47,7 +47,7 @@ internal static class KraidArmSamusContactVerification
 
         // $A0:8EB6 builds this frame's interactive list from the native camera (0,$100).
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(new Position16<RoomPixels>(0, 0x100));
-        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData, onlyEnemy: runtime.Enemies.Places.InUpdateOrder[1]);
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData, onlyEnemy: runtime.Enemies.SlotTable.Slots[1]);
 
         AssertEqual(4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual(-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
@@ -58,7 +58,7 @@ internal static class KraidArmSamusContactVerification
     }
 
     /// <summary>Computes the smaller header-radius overlap used as a negative control for frame-$90FD contact.</summary>
-    private static bool RadiusBoxesOverlapForArm(RoomEnemyPlace arm, SamusState samus) =>
+    private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
         Math.Abs(arm.Position.X.Whole - samus.Position.X.Whole) < arm.Radius.X + samus.Kinematics.Radius.X &&
         Math.Abs(arm.Position.Y.Whole - samus.Position.Y.Whole) < arm.Radius.Y + samus.Kinematics.Radius.Y;
 

@@ -151,12 +151,12 @@ internal static class DeadTourianCorpseDefinitionsVerification
         DeadTourianCorpseDefinition expected)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(LookupStream5CorpseFixtureArtwork(rom)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = DeadTourianBehavior.InitializeDeadTourianCorpse;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(enemyDefinition, place.Definition);
-        place.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
+        Action<RoomEnemySlot> initialize = DeadTourianBehavior.InitializeDeadTourianCorpse;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(enemyDefinition, slot.Definition);
+        slot.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
 
-        initialize(place);
+        initialize(slot);
 
         DeadTourianCorpseEnemyState state = (enemies.DeadTourianCorpses[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadTourianCorpses[0]."));
         AssertEqual(species, state.Profile.Species,

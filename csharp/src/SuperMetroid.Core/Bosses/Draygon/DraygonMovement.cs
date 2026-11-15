@@ -20,7 +20,7 @@ internal sealed class DraygonMovement
     /// <summary>Moves Draygon right or left by the current swoop speed without losing its fraction.</summary>
     internal static void MoveDraygonHorizontally(DraygonEnemyState state, bool rightward)
     {
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithX(rightward
             ? body.Position.X.MovedForward(state.SwoopVelocity)
             : body.Position.X.MovedBack(state.SwoopVelocity));

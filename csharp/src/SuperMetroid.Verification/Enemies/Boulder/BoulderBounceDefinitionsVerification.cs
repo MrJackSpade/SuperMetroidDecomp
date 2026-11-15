@@ -15,9 +15,9 @@ internal static class BoulderBounceDefinitionsVerification
     internal static void VerifyCompiledBoulderBounces(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
+        Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
-        RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new BoulderEnemyState();
         actor.Position = actor.Position.WithWholeX(40);
         actor.Radius = new(8, 8);

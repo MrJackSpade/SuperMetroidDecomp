@@ -11,7 +11,7 @@ internal sealed class EnemyShotReaction
     internal bool AdmitsBombFamilies { get; init; }
 
     /// <summary>Whether the enemy currently ignores every shot before any projectile is examined.</summary>
-    internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }
+    internal Func<RoomEnemySlot, bool>? SkipsEnemy { get; init; }
 
     /// <summary>Runs after the overlap is found, before the frame-hitbox Super Missile quake.</summary>
     internal EnemyShotStage? BeforeSuperMissileQuake { get; init; }

@@ -21,11 +21,11 @@ internal static class EnemyTerrainBlockScanVerification
         SignedSixteenSixteen eightPixels = SignedSixteenSixteen.FromWholePixels(8);
 
         RoomLevelData tall = Room(2, 260, new EnemyTerrainScanBlock(1, 0, RoomCollisionType.SolidBlock, RoomBlockBehavior.None));
-        RoomEnemyPlace pastCycle = Enemy(8, 256 * 16 + 8);
+        RoomEnemySlot pastCycle = Enemy(8, 256 * 16 + 8);
         AssertTrue(terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(tall, pastCycle, eightPixels),
             "a horizontal move from the 257th row meets the block at the top of its target column");
         AssertEqual(12, pastCycle.Position.X.Whole, "the move stops against that block");
-        RoomEnemyPlace inCycle = Enemy(8, 24);
+        RoomEnemySlot inCycle = Enemy(8, 24);
         AssertTrue(!terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(tall, inCycle, eightPixels),
             "the same move from the second row passes");
         AssertEqual(16, inCycle.Position.X.Whole, "the move from the second row completes");
@@ -46,13 +46,13 @@ internal static class EnemyTerrainBlockScanVerification
     /// <summary>Moves an enemy in the room's first column down eight pixels into row 255 and confirms it collides there.</summary>
     private static void AssertVerticalMoveMeets(EnemyTerrain terrain, RoomLevelData level, string description)
     {
-        RoomEnemyPlace place = Enemy(8, 255 * 16 - 4);
-        AssertTrue(terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(8)), description);
-        AssertEqual(255 * 16 - 4, place.Position.Y.Whole, $"{description}: the move stops against that block");
+        RoomEnemySlot slot = Enemy(8, 255 * 16 - 4);
+        AssertTrue(terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(8)), description);
+        AssertEqual(255 * 16 - 4, slot.Position.Y.Whole, $"{description}: the move stops against that block");
     }
 
     /// <summary>An enemy eight pixels square centred on <paramref name="x"/>, <paramref name="y"/>.</summary>
-    private static RoomEnemyPlace Enemy(int x, int y) => new(0, EnemyPlaceFixtures.Registry)
+    private static RoomEnemySlot Enemy(int x, int y) => new(0, EnemySlotFixtures.Registry)
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(x, y)),
         Radius = new(4, 4),

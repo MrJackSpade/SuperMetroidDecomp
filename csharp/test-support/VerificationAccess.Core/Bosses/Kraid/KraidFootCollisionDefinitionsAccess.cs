@@ -40,6 +40,6 @@ internal static class KraidFootCollisionDefinitionsAccess
     {
         /// <summary>The components of the foot frame at native address <paramref name="pointer"/>, when it is one.</summary>
         internal static bool TryGetComponents(ushort pointer, out ImmutableArray<KraidCollisionComponent> components) =>
-            KraidFootCollision.TryGetComponents(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, pointer), out components);
+            KraidFootCollision.TryGetComponents(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer), out components);
     }
 }

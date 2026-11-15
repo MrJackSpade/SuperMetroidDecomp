@@ -22,8 +22,8 @@ internal static class BotwoonPositionHistoryVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Botwoon);
 
-        RoomEnemyPlace head = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == EnemyDefinitionId.Botwoon);
+        RoomEnemySlot head = runtime.Enemies.SlotTable.Slots.Single(slot =>
+            slot.DefinitionId == EnemyDefinitionId.Botwoon);
         BotwoonEnemyState state = runtime.Enemies.Botwoon
             ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
         AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),

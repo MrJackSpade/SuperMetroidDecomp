@@ -8,59 +8,59 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>One Crocomire occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Crocomire species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyNormalBombAdmission, IBossBodyFrames, IEnemyPrivateShotReaction
+internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyNormalBombAdmission, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (CrocomirePartDefinitions.Parts[Place.DefinitionId])
+        switch (CrocomirePartDefinitions.Parts[Slot.DefinitionId])
         {
             case CrocomirePart.Crocomire:
-                species.Fight.InitializeCrocomire(Place);
+                species.Fight.InitializeCrocomire(Slot);
                 break;
             case CrocomirePart.Tongue:
-                species.Fight.InitializeCrocomireTongue(Place);
+                species.Fight.InitializeCrocomireTongue(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"Crocomire entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (CrocomirePartDefinitions.Parts[Place.DefinitionId])
+        switch (CrocomirePartDefinitions.Parts[Slot.DefinitionId])
         {
             case CrocomirePart.Crocomire:
-                species.RunCrocomireMainAi(Place, frame);
+                species.RunCrocomireMainAi(Slot, frame);
                 break;
             // The tongue's main AI is an empty step; the tongue follows the body through its animation and extended map.
             case CrocomirePart.Tongue:
                 break;
             default:
-                throw new InvalidOperationException($"Crocomire entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        switch (CrocomirePartDefinitions.Parts[Place.DefinitionId])
+        switch (CrocomirePartDefinitions.Parts[Slot.DefinitionId])
         {
             case CrocomirePart.Crocomire:
-                species.AdvanceCrocomireTypedAnimation(Place, context);
+                species.AdvanceCrocomireTypedAnimation(Slot, context);
                 break;
             case CrocomirePart.Tongue:
-                species.Fight.AdvanceCrocomireTongueAnimation(Place);
+                species.Fight.AdvanceCrocomireTongueAnimation(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"Crocomire entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}.");
         }
     }
 
@@ -71,14 +71,14 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace 
     public EnemyReaction? SpeciesShot => null;
 
     /// <summary>Whether the occupant is Crocomire's body rather than his tongue.</summary>
-    private bool IsBody => Place.DefinitionId == EnemyDefinitionId.Crocomire;
+    private bool IsBody => Slot.DefinitionId == EnemyDefinitionId.Crocomire;
 
     /// <summary>
     /// The touch the body's ignoring definition and the tongue's ordinary one lead to: Crocomire's component contact, which
     /// his frames' hitboxes decide. Neither falls to the shared touch reactions.
     /// </summary>
     private bool OwnsTouch =>
-        IsBody ? Place.Definition.Touch == EnemyReaction.Ignore : Place.Definition.Touch == EnemyReaction.NormalEnemyTouch;
+        IsBody ? Slot.Definition.Touch == EnemyReaction.Ignore : Slot.Definition.Touch == EnemyReaction.NormalEnemyTouch;
 
     /// <summary>Whether Crocomire's component contact or a shared touch applies.</summary>
     public override bool ReactsToTouch => OwnsTouch || base.ReactsToTouch;
@@ -98,7 +98,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace 
     /// one: both route their hitboxes' reactions; anything else takes the shared one.
     /// </summary>
     public override EnemyShotReaction? ShotReaction =>
-        (IsBody ? Place.Definition.Shot is null : Place.Definition.Shot == EnemyReaction.NormalEnemyShot)
+        (IsBody ? Slot.Definition.Shot is null : Slot.Definition.Shot == EnemyReaction.NormalEnemyShot)
             ? species.Combat.CrocomireShotReaction
             : base.ShotReaction;
 
@@ -110,7 +110,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace 
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (!IsBody || Place.Definition.Shot is not null || !context.UsesFrameHitboxes ||
+        if (!IsBody || Slot.Definition.Shot is not null || !context.UsesFrameHitboxes ||
             context.SelectedShot == EnemyReaction.NormalEnemyShot)
             return base.TryReactToBomb(context);
         species.Combat.ReactToCrocomireBomb(context);
@@ -125,21 +125,21 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace 
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         // The tongue's frames carry no hitboxes (#1870, #1889): no probe overlaps it.
-        if (Place.DefinitionId == EnemyDefinitionId.CrocomireTongue)
+        if (Slot.DefinitionId == EnemyDefinitionId.CrocomireTongue)
         {
             reaction = null;
             return false;
         }
-        return CrocomireCombat.FindCrocomireBodyHitboxReaction(Place, probe, out reaction);
+        return CrocomireCombat.FindCrocomireBodyHitboxReaction(Slot, probe, out reaction);
     }
 
     /// <summary>The Crocomire body takes normal bombs on its frames' hitboxes although its species definition names no shot reaction.</summary>
     public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) =>
-        Place.DefinitionId == EnemyDefinitionId.Crocomire && Place.Definition.Shot is null && collidesByFrameHitboxes;
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.Shot is null && collidesByFrameHitboxes;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        Place.DefinitionId == EnemyDefinitionId.Crocomire && CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected)
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
 
     /// <summary>The body's and tongue's contact and shots both meet their own frames' hitboxes.</summary>

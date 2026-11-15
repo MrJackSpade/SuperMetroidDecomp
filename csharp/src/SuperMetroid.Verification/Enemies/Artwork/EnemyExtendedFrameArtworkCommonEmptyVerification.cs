@@ -91,15 +91,15 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         byte bank, bool selectShot)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         // The frame pointer names a frame of the bank the slot's enemy lives in.
-        place.Bind(RoomEnemyDefinitionNative.FirstInBank(bank), default(RoomEnemyDefinition));
+        slot.Bind(RoomEnemyDefinitionNative.FirstInBank(bank), default(RoomEnemyDefinition));
         // The shared point is the empty frame of an enemy that collides by its frames' hitboxes.
-        place.CollidesByFrameHitboxes = true;
-        place.SpritemapPointer = CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame;
-        place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
+        slot.CollidesByFrameHitboxes = true;
+        slot.SpritemapPointer = CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame;
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [place, new Position16<RoomPixels>(0x0080, 0x0080), new Extent16<RoomPixels>(2, 2), selectShot, null];
+            [slot, new Position16<RoomPixels>(0x0080, 0x0080), new Extent16<RoomPixels>(2, 2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(arguments);
         AssertTrue(found, "shared empty extended point overlaps its origin");
         return ExtendedHitboxWalker.Reaction(arguments);

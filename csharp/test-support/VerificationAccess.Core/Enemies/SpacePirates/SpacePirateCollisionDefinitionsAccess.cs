@@ -25,8 +25,8 @@ internal static class SpacePirateCollisionDefinitionsAccess
 
         /// <summary>The components of the frame at native address <paramref name="pointer"/>.</summary>
         internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort pointer) =>
-            pointer == CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame || RoomEnemyPlaceFrameAccess.Shows(SpacePiratesBank, pointer)
-                ? SpacePirateCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(SpacePiratesBank, pointer))
+            pointer == CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame || RoomEnemySlotFrameAccess.Shows(SpacePiratesBank, pointer)
+                ? SpacePirateCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(SpacePiratesBank, pointer))
                 : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");
     }
 

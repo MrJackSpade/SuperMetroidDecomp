@@ -19,7 +19,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Owns the enemy system, Samus, room, and installed artwork for this fixture.</summary>
         internal EnemyAnimationFixture Inner { get; }
         /// <summary>Body slot whose instruction pointer and OAM frame are exercised.</summary>
-        internal RoomEnemyPlace Body => Inner.Actor;
+        internal RoomEnemySlot Body => Inner.Actor;
         /// <summary>Whether the body's current frame's finished picture shows nothing, so that it draws nothing (#1538).</summary>
         internal bool BodyFrameShowsNothing => Inner.FrameShowsNothing(Body);
         /// <summary>Third-form body state bound to the fixture's encounter.</summary>
@@ -27,7 +27,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Where she lies in the room after each production step; her body's pictures follow her (#1949).</summary>
         internal List<Position16<RoomPixels>> BodyPositions { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
-        private readonly Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction> instructions;
+        private readonly Action<RoomEnemySlot, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction> instructions;
 
         /// <summary>Creates and binds a third-form body with installed artwork and the enemy BG2 image it owns since phase two.</summary>
         internal MotherBrainPresentationFixture(ImportEnemyArtwork artwork)
@@ -40,7 +40,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
             // palette row it gives her (#1459).
             SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
-            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.DrainedByBabyMetroid };
+            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
             // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.
@@ -48,7 +48,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(Body, reached: true);
-            instructions = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
+            instructions = new Action<RoomEnemySlot, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>

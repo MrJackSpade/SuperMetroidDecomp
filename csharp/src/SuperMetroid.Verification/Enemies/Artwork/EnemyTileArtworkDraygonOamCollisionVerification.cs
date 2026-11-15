@@ -24,10 +24,10 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         var sporePointers = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.Position = place.Position.WithWhole(new(0x100, 0x100));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
 
         int draygonFrames = 0;
         int sporeFrames = 0;
@@ -72,9 +72,9 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
                 componentsChecked++;
             }
 
-            place.SpritemapPointer = frame.Pointer;
+            slot.SpritemapPointer = frame.Pointer;
             object?[] arguments =
-                [place, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, default(GameplayAction)];
+                [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, default(GameplayAction)];
             AssertTrue(!ExtendedHitboxWalker.Find(arguments),
                 $"Draygon OAM frame {frame.Name} has no shot callback without ROM reads");
             arguments[3] = false;

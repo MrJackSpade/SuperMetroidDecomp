@@ -33,8 +33,8 @@ internal static class ZoaSpeedDefinitionsVerification
             return;
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
-        RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
+        Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();
         for (int stage = 0; stage < speeds.Length; stage++)
         {

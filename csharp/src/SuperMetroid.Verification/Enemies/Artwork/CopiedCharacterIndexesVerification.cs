@@ -43,14 +43,14 @@ internal static class CopiedCharacterIndexesVerification
             runtime.LoadCartridgeRoomForDebug(room, state: state);
             // Some copy on their first main-AI frame, which runs before the room's enemies first draw.
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus });
-            RoomEnemyPlace[] placed = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == child)];
+            RoomEnemySlot[] placed = [.. runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == child)];
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
-            foreach (RoomEnemyPlace place in placed)
+            foreach (RoomEnemySlot slot in placed)
             {
                 // The import colours the sheet of an enemy copying another's colours in its owner's row (#1512), so the copy
                 // draws in its sheet's standard colours.
                 if (SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.DrawsInRowOf.ContainsKey(child))
-                    AssertEqual(PictureShading.Standard, place.Shading,
+                    AssertEqual(PictureShading.Standard, slot.Shading,
                         $"{child} in {room.Name} draws in its sheet's standard colours");
                 slots++;
             }

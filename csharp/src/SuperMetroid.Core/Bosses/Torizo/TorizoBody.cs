@@ -21,14 +21,14 @@ internal sealed class TorizoBody
     }
 
     /// <summary>Shows <paramref name="look"/> on <paramref name="torizo"/>'s body and belly at once (#1512).</summary>
-    internal static void LoadTorizoBodyColours(RoomEnemyPlace torizo, TorizoEnemyState state, TorizoLook look)
+    internal static void LoadTorizoBodyColours(RoomEnemySlot torizo, TorizoEnemyState state, TorizoLook look)
     {
         state.Colours.Show(look);
         torizo.Shading = state.Colours.Shading;
     }
 
     /// <summary>Uses the room RNG to emit drool only while a living Torizo is below the head-break threshold.</summary>
-    internal void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo)
+    internal void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)
     {
         if (torizo.Health is 0 or >= TorizoDecisionDefinitions.GutBlowUpHealth)
             return;
@@ -40,14 +40,14 @@ internal sealed class TorizoBody
     }
 
     /// <summary>Whether Torizo has latched <paramref name="flag"/>.</summary>
-    internal static bool HasBehavior(RoomEnemyPlace torizo, TorizoBehaviorFlags flag) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior.HasFlag(flag);
+    internal static bool HasBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flag) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior.HasFlag(flag);
 
     /// <summary>Requests the awakening drool variant whose position and speed use wrap-sensitive jitter.</summary>
-    internal void SpawnBombTorizoInitialDrool(RoomEnemyPlace torizo) =>
+    internal void SpawnBombTorizoInitialDrool(RoomEnemySlot torizo) =>
         _attacks.SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
 
     /// <summary>Installs a body playback; its play resumes on the next frame.</summary>
-    internal static void StartTorizoBodyAnimation(RoomEnemyPlace torizo, TorizoEnemyState state, AnimationPlayback<TorizoAnimation> playback)
+    internal static void StartTorizoBodyAnimation(RoomEnemySlot torizo, TorizoEnemyState state, AnimationPlayback<TorizoAnimation> playback)
     {
         state.BodyPlayback = playback;
         torizo.AnimationClock.StepOnNextUpdate();

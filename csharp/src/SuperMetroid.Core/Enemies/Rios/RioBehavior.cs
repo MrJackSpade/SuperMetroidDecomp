@@ -14,7 +14,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new RioEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RioEntity(this, slot, common);
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -38,7 +38,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SignedEightEight RioGravityStep = SignedEightEight.FromParts(0, 24);
 
     /// <summary>Initializes the Rio.</summary>
-    internal static void InitializeRio(RoomEnemyPlace place)
+    internal static void InitializeRio(RoomEnemySlot slot)
     {
         var state = new RioEnemyState
         {
@@ -46,16 +46,16 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledAnimation = null,
             Action = RioAction.WaitingForSamus,
         };
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
 
         // The Rio's setup writes the animation directly rather than calling the animation starter. The installed animation must
         // therefore remain none until the first behavioral transition starts a new animation.
-        state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.Idle));
+        state.Playback = EnemyAnimationPlayback.Start(slot, RioAnimations.StartingWith(RioSegment.Idle));
     }
 
     /// <summary>Runs the Rio's main AI and its five actions.</summary>
     private void RunRioMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RioEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -71,7 +71,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             case RioAction.WaitingForSamus:
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
-                        place.Position.X.Whole,
+                        slot.Position.X.Whole,
                         RioTriggerDistance))
                 {
                     return;
@@ -80,17 +80,17 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = new EightEightVector<RoomPixels>(
                     RioLaunchDefinitions.RioXVelocity,
                     RioLaunchDefinitions.RioYVelocity);
-                if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0)
+                if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
                 StartRioAnimation(
-                    place,
+                    slot,
                     state,
                     RioSegment.SwoopOpening);
                 state.Action = RioAction.Diving;
 
                 // The game's on-screen check returns zero for an on-screen origin. The
                 // branch consequently queues the cry only for the visible attack start.
-                if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
+                if (EnemyProcessingWindow.IsWithinProcessingWindow(slot, camera))
                     _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
@@ -99,7 +99,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 state.AnimationFinished = false;
                 StartRioAnimation(
-                    place,
+                    slot,
                     state,
                     RioSegment.PostSwoopIdle);
                 state.Action = RioAction.WaitingForSamus;
@@ -108,7 +108,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             case RioAction.Diving:
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
-                        place,
+                        slot,
                         state.Velocity.X.ToSixteenSixteenDelta()))
                 {
                     state.Velocity = state.Velocity.ReversedX();
@@ -117,7 +117,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
-                        place,
+                        slot,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     ReverseRioVerticalVelocityAndBounce(state);
@@ -135,7 +135,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.AnimationFinished = false;
                     StartRioAnimation(
-                        place,
+                        slot,
                         state,
                         RioSegment.SwoopLoop);
                 }
@@ -144,18 +144,18 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             case RioAction.BouncingBackToPerch:
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
-                        place,
+                        slot,
                         state.Velocity.X.ToSixteenSixteenDelta()))
                 {
                     state.Velocity = state.Velocity.ReversedX();
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
-                        place,
+                        slot,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     StartRioAnimation(
-                        place,
+                        slot,
                         state,
                         RioSegment.SwoopCooldown);
                     state.Action = RioAction.WaitingForLandingAnimation;
@@ -169,7 +169,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             case RioAction.HoveringTowardSamus:
                 // Once Rio reaches Samus's Y coordinate from above, it restores the saved
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
-                if (CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
+                if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
@@ -179,17 +179,17 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 TrigonometryAngle angle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTrigonometryAngle();
                 state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
                     angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn)));
                 state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
-                    place,
+                    slot,
                     state.Velocity.X.ToSixteenSixteenDelta());
                 _terrain.MoveEnemyVertically(
                     level,
-                    place,
+                    slot,
                     state.Velocity.Y.ToSixteenSixteenDelta());
                 return;
 
@@ -214,10 +214,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Installs an animation only when it actually changes.</summary>
     private static void StartRioAnimation(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RioEnemyState state,
         RioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(RioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
@@ -238,19 +238,19 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>
-    internal void RunRioMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRioMain(
-            place,
-            place.RequireSpeciesState<RioEnemyState>(),
+            slot,
+            slot.RequireSpeciesState<RioEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.Camera);
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, RioAnimations.Segments,
+    internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

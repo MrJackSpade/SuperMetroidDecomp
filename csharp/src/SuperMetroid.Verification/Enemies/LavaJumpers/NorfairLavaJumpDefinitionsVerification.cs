@@ -29,8 +29,8 @@ internal static class NorfairLavaJumpDefinitionsVerification
                 advances++;
                 return nextRandom;
             };
-        Action<RoomEnemyPlace, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        Action<RoomEnemySlot, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new NorfairLavaJumpingEnemyState();
 
         for (int random = 0; random <= ushort.MaxValue; random++)
@@ -39,16 +39,16 @@ internal static class NorfairLavaJumpDefinitionsVerification
             advances = 0;
             state.Action = NorfairLavaJumpingEnemyAction.BeginJump;
             state.YVelocity = default;
-            place.Contact = EnemyContact.None;
-            place.Processing = EnemyProcessing.None;
-            place.Presence = EnemyPresence.None;
-            runMain(place, state);
+            slot.Contact = EnemyContact.None;
+            slot.Processing = EnemyProcessing.None;
+            slot.Presence = EnemyPresence.None;
+            runMain(slot, state);
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch,
                 state.Action, $"Norfair lava jumper production handoff {random:X4}");
-            AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen),
+            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");
             AssertEqual((SoundEffectId?)EnemySound.SplashIn, enemies.Audio.LatestSound,
                 $"Norfair lava jumper sound {random:X4}");

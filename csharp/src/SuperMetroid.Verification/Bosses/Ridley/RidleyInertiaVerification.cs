@@ -14,9 +14,9 @@ internal static class RidleyInertiaVerification
     /// <summary>Compares Ceres and Norfair inertia bytes to the cartridge and probes production acceleration across signed distances.</summary>
     internal static void VerifyCompiledRidleyInertia(CartridgeImportAddressSpace rom)
     {
-        Action<RoomEnemyPlace, RidleyEnemyState, Position16<RoomPixels>, int> ceres = CeresRidleyFlight.AccelerateRidleyToward;
-        Action<RoomEnemyPlace, RidleyEnemyState, Position16<RoomPixels>, int, int> norfair = NorfairRidleyMovement.MoveNorfairRidleyToward;
-        var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
+        Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int> ceres = CeresRidleyFlight.AccelerateRidleyToward;
+        Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int, int> norfair = NorfairRidleyMovement.MoveNorfairRidleyToward;
+        var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         for (int index = 0; index < 16; index++)
         {
@@ -33,16 +33,16 @@ internal static class RidleyInertiaVerification
             {
                 short distance = (short)(raw - MaximumRoomDistance);
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => -640, _ => 640 }));
-                place.Position = place.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
+                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
-                ceres(place, state, new(0xff00, 0x100), ceresDivisor);
-                AssertEqual(ExpectedCeresNativeAcceleration(velocity, place.Position.X.Whole, 0xff00, ceresDivisor), state.Velocity.X.RawValue, "Ceres actual X acceleration");
-                AssertEqual(ExpectedCeresNativeAcceleration(velocity, place.Position.Y.Whole, 0x100, ceresDivisor), state.Velocity.Y.RawValue, "Ceres actual wrapped Y acceleration");
+                ceres(slot, state, new(0xff00, 0x100), ceresDivisor);
+                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.Velocity.X.RawValue, "Ceres actual X acceleration");
+                AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.Velocity.Y.RawValue, "Ceres actual wrapped Y acceleration");
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ushort boost = (ushort)(raw % 3 * 16);
-                norfair(place, state, new Position16<RoomPixels>(0xff00, 0x100), divisor, boost);
-                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, place.Position.X.Whole, 0xff00, divisor, boost), state.Velocity.X.RawValue, "Norfair actual X acceleration");
-                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, place.Position.Y.Whole, 0x100, divisor, boost), state.Velocity.Y.RawValue, "Norfair actual wrapped Y acceleration");
+                norfair(slot, state, new Position16<RoomPixels>(0xff00, 0x100), divisor, boost);
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, divisor, boost), state.Velocity.X.RawValue, "Norfair actual X acceleration");
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, divisor, boost), state.Velocity.Y.RawValue, "Norfair actual wrapped Y acceleration");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(RidleyInertiaDefinitions.SmallestDivisor - 1), "Divisor below the smallest");

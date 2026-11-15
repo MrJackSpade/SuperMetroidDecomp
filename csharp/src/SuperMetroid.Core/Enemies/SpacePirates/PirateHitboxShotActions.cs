@@ -12,7 +12,7 @@ internal static class PirateHitboxShotActions
     /// through to normal shot AI even when it shows one of the frames it shares with the Ninja.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
-        RoomEnemyPlace enemy,
+        RoomEnemySlot enemy,
         SamusProjectile projectile,
         EnemyReaction? hitboxShot)
     {
@@ -69,7 +69,7 @@ internal static class PirateHitboxShotActions
     /// nor reflect from either authored body region.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
-        RoomEnemyPlace enemy,
+        RoomEnemySlot enemy,
         EnemyReaction? hitboxShot)
     {
         if ((hitboxShot != SpacePirateReactions.Shot && hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot))
@@ -91,7 +91,7 @@ internal static class PirateHitboxShotActions
     /// </summary>
     /// <param name="pirate">The Pirate hit.</param>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
-    internal static bool ShowsHitBurst(RoomEnemyPlace pirate, EnemyReaction? reaction) =>
+    internal static bool ShowsHitBurst(RoomEnemySlot pirate, EnemyReaction? reaction) =>
         reaction == EnemyReaction.NormalEnemyShot ||
         reaction == SpacePirateReactions.Shot && Ensure.NotNull(pirate).DefinitionId != EnemyDefinitionId.PirateGoldNinja;
 

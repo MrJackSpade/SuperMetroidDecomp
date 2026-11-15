@@ -2,32 +2,32 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>One Ki-Hunter occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Ki-Hunter species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (KiHunterPartDefinitions.Parts[Place.DefinitionId])
+        switch (KiHunterPartDefinitions.Parts[Slot.DefinitionId])
         {
             case KiHunterPart.KihunterGreen or KiHunterPart.KihunterYellow or KiHunterPart.KihunterRed:
-                species.InitializeKiHunter(Place);
+                species.InitializeKiHunter(Slot);
                 break;
             case KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterYellowWings or KiHunterPart.KihunterRedWings:
-                species.InitializeKiHunterWings(Place);
+                species.InitializeKiHunterWings(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"KiHunter entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"KiHunter entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterTypedAnimation(Slot, context);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.KiHunterShotReaction : base.ShotReaction;

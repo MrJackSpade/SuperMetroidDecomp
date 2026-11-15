@@ -24,11 +24,11 @@ internal sealed class EnemyTerrain
     /// <summary>Moves the enemy horizontally, ignoring non-square slopes.</summary>
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SignedSixteenSixteen displacement) =>
         MoveEnemyHorizontally(
             level,
-            place,
+            slot,
             displacement,
             slopes: NonSquareSlopes.Ignored);
 
@@ -38,11 +38,11 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SignedSixteenSixteen displacement) =>
         MoveEnemyHorizontally(
             level,
-            place,
+            slot,
             displacement,
             slopes: NonSquareSlopes.Walls);
 
@@ -52,22 +52,22 @@ internal sealed class EnemyTerrain
     /// </summary>
     private bool MoveEnemyHorizontally(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SignedSixteenSixteen displacement,
         NonSquareSlopes slopes)
     {
         if (displacement.IsZero)
             return false;
 
-        FixedCoordinate newPosition = place.Position.X.MovedBy(displacement);
+        FixedCoordinate newPosition = slot.Position.X.MovedBy(displacement);
         int targetCenter = newPosition.Whole;
         bool movingLeft = displacement.IsNegative;
         int targetEdge = movingLeft
-            ? CoordinateAxis.Wrap(targetCenter - place.Radius.X)
-            : CoordinateAxis.Wrap(targetCenter + place.Radius.X - 1);
+            ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
+            : CoordinateAxis.Wrap(targetCenter + slot.Radius.X - 1);
 
-        int topPixel = CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y);
-        int bottomPixel = CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1);
+        int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
+        int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int lastBlock = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)));
         // The scan walks down the target column from the top row, as the block scan cycle counts it.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(targetEdge, topPixel).ToRoomBlock();
@@ -76,7 +76,7 @@ internal sealed class EnemyTerrain
         {
             if (EnemyHorizontalProbeIsSolid(
                     level,
-                    place,
+                    slot,
                     BlockScanCycle.BlockDownRows(firstBlock, level.Size.X, scanIndex),
                     targetEdge,
                     SpanBlock(scanIndex, lastBlock),
@@ -89,7 +89,7 @@ internal sealed class EnemyTerrain
 
         if (!collided)
         {
-            place.Position = place.Position.WithX(newPosition);
+            slot.Position = slot.Position.WithX(newPosition);
             return false;
         }
 
@@ -97,17 +97,17 @@ internal sealed class EnemyTerrain
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
-            if (aligned <= place.Position.X.Whole)
-                place.Position = place.Position.WithWholeX(aligned);
-            place.Position = place.Position.WithFractionX(0);
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.X + 1);
+            if (aligned <= slot.Position.X.Whole)
+                slot.Position = slot.Position.WithWholeX(aligned);
+            slot.Position = slot.Position.WithFractionX(0);
         }
         else
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - place.Radius.X);
-            if (aligned >= place.Position.X.Whole)
-                place.Position = place.Position.WithWholeX(aligned);
-            place.Position = place.Position.WithFractionX(FixedCoordinate.LastFraction);
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.X);
+            if (aligned >= slot.Position.X.Whole)
+                slot.Position = slot.Position.WithWholeX(aligned);
+            slot.Position = slot.Position.WithFractionX(FixedCoordinate.LastFraction);
         }
         return true;
     }
@@ -115,28 +115,28 @@ internal sealed class EnemyTerrain
     /// <summary>Moves the enemy vertically.</summary>
     internal bool MoveEnemyVertically(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SignedSixteenSixteen displacement)
     {
         if (displacement.IsZero)
             return false;
 
-        FixedCoordinate newPosition = place.Position.Y.MovedBy(displacement);
+        FixedCoordinate newPosition = slot.Position.Y.MovedBy(displacement);
         int targetCenter = newPosition.Whole;
         bool movingUp = displacement.IsNegative;
         int targetEdge = movingUp
-            ? CoordinateAxis.Wrap(targetCenter - place.Radius.Y)
-            : CoordinateAxis.Wrap(targetCenter + place.Radius.Y - 1);
+            ? CoordinateAxis.Wrap(targetCenter - slot.Radius.Y)
+            : CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
 
-        int leftPixel = CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X);
-        int rightPixel = CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1);
+        int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
+        int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
         int lastBlock = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)));
         // The scan walks along the target row from the left column, as the block scan cycle counts it.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(leftPixel, targetEdge).ToRoomBlock();
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= lastBlock; scanIndex++)
         {
-            if (EnemyVerticalProbeIsSolid(level, place, BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, scanIndex), new EnemyVerticalProbe { TargetCenter = new(place.Position.X.Whole, targetCenter), TargetEdge = new(place.Position.X.Whole, targetEdge), MovingUp = movingUp, SpanBlock = SpanBlock(scanIndex, lastBlock) }))
+            if (EnemyVerticalProbeIsSolid(level, slot, BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, SpanBlock = SpanBlock(scanIndex, lastBlock) }))
             {
                 collided = true;
                 break;
@@ -145,7 +145,7 @@ internal sealed class EnemyTerrain
 
         if (!collided)
         {
-            place.Position = place.Position.WithY(newPosition);
+            slot.Position = slot.Position.WithY(newPosition);
             return false;
         }
 
@@ -153,17 +153,17 @@ internal sealed class EnemyTerrain
         // The outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.Y + 1);
-            if (aligned <= place.Position.Y.Whole)
-                place.Position = place.Position.WithWholeY(aligned);
-            place.Position = place.Position.WithFractionY(0);
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.Y + 1);
+            if (aligned <= slot.Position.Y.Whole)
+                slot.Position = slot.Position.WithWholeY(aligned);
+            slot.Position = slot.Position.WithFractionY(0);
         }
         else
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - place.Radius.Y);
-            if (aligned >= place.Position.Y.Whole)
-                place.Position = place.Position.WithWholeY(aligned);
-            place.Position = place.Position.WithFractionY(FixedCoordinate.LastFraction);
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.Y);
+            if (aligned >= slot.Position.Y.Whole)
+                slot.Position = slot.Position.WithWholeY(aligned);
+            slot.Position = slot.Position.WithFractionY(FixedCoordinate.LastFraction);
         }
         return true;
     }
@@ -183,14 +183,14 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockBelow(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SignedSixteenSixteen distance)
     {
-        int targetCenter = place.Position.Y.MovedBy(distance).Whole;
-        int targetEdge = CoordinateAxis.Wrap(targetCenter + place.Radius.Y - 1);
+        int targetCenter = slot.Position.Y.MovedBy(distance).Whole;
+        int targetEdge = CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
         int row = RoomGridConversions.PixelToBlock(targetEdge);
-        int firstColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X));
-        int lastColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1));
+        int firstColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X));
+        int lastColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1));
         for (int column = firstColumn; column <= lastColumn; column++)
         {
             if ((uint)column >= level.Size.X ||
@@ -210,17 +210,17 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockHorizontallyAhead(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SignedSixteenSixteen displacement)
     {
-        int targetCenter = place.Position.X.MovedBy(displacement).Whole;
+        int targetCenter = slot.Position.X.MovedBy(displacement).Whole;
         bool movingLeft = displacement.IsNegative;
         int targetEdge = movingLeft
-            ? CoordinateAxis.Wrap(targetCenter - place.Radius.X)
-            : CoordinateAxis.Wrap(targetCenter + place.Radius.X - 1);
+            ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
+            : CoordinateAxis.Wrap(targetCenter + slot.Radius.X - 1);
 
-        int topPixel = CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y);
-        int bottomPixel = CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1);
+        int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
+        int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int firstRow = RoomGridConversions.PixelToBlock(topPixel);
         int lastRow = RoomGridConversions.PixelToBlock(bottomPixel);
         int column = RoomGridConversions.PixelToBlock(targetEdge);
@@ -241,15 +241,15 @@ internal sealed class EnemyTerrain
     /// actor or apply slope or extension behavior; the Yard's hiding check uses it to test
     /// attachment without consuming its look-ahead distance.
     /// </summary>
-    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemyPlace place, SignedSixteenSixteen displacement)
+    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, SignedSixteenSixteen displacement)
     {
-        int center = place.Position.Y.MovedBy(displacement).Whole;
+        int center = slot.Position.Y.MovedBy(displacement).Whole;
         int edge = displacement.IsNegative
-            ? CoordinateAxis.Wrap(center - place.Radius.Y)
-            : CoordinateAxis.Wrap(center + place.Radius.Y - 1);
+            ? CoordinateAxis.Wrap(center - slot.Radius.Y)
+            : CoordinateAxis.Wrap(center + slot.Radius.Y - 1);
         int blockY = RoomGridConversions.PixelToBlock(edge);
-        int firstBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X));
-        int lastBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1));
+        int firstBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X));
+        int lastBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1));
         if ((uint)blockY >= level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
@@ -263,7 +263,7 @@ internal sealed class EnemyTerrain
     /// <summary>Classifies the next horizontal block, including square-slope quadrants and spike-block room-object reactions.</summary>
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         Position16<RoomBlocks> startBlock,
         int targetEdge,
         EnemyTerrainSpanBlock spanBlock,
@@ -281,7 +281,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 treatNonSquareSlopesAsWalls,
             RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
-                place,
+                slot,
                 targetEdge,
                 block.Behavior,
                 spanBlock),
@@ -300,7 +300,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
-    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemyPlace place, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
+    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.CollisionType switch
@@ -313,13 +313,13 @@ internal sealed class EnemyTerrain
             RoomCollisionType.BombableAir => false,
             RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 NonSquareVerticalSlopeIsSolid(
-                    place,
+                    slot,
                     reached,
                     block.Behavior,
                     probe.TargetCenter.Y,
                     probe.MovingUp),
             RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
-                place,
+                slot,
                 probe.TargetEdge.Y,
                 block.Behavior,
                 probe.SpanBlock),
@@ -420,7 +420,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         int targetEdge,
         RoomBlockBehavior behavior,
         EnemyTerrainSpanBlock spanBlock)
@@ -431,11 +431,11 @@ internal sealed class EnemyTerrain
         // half when the enemy's top starts there.
         if (spanBlock == EnemyTerrainSpanBlock.Last)
         {
-            if (!RoomGridConversions.InSecondHalfOfBlock(place.Radius.Y + place.Position.Y.Whole - 1))
+            if (!RoomGridConversions.InSecondHalfOfBlock(slot.Radius.Y + slot.Position.Y.Whole - 1))
                 return SquareSlopes.IsSolid(shape, quadrant);
         }
         else if (spanBlock == EnemyTerrainSpanBlock.First &&
-                 RoomGridConversions.InSecondHalfOfBlock(place.Position.Y.Whole - place.Radius.Y))
+                 RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole - slot.Radius.Y))
         {
             return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
         }
@@ -447,7 +447,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope.</summary>
     private static bool SquareVerticalSlopeIsSolid(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         int targetEdge,
         RoomBlockBehavior behavior,
         EnemyTerrainSpanBlock spanBlock)
@@ -458,11 +458,11 @@ internal sealed class EnemyTerrain
         // right half when the enemy's left side starts there.
         if (spanBlock == EnemyTerrainSpanBlock.Last)
         {
-            if (!RoomGridConversions.InSecondHalfOfBlock(place.Radius.X + place.Position.X.Whole - 1))
+            if (!RoomGridConversions.InSecondHalfOfBlock(slot.Radius.X + slot.Position.X.Whole - 1))
                 return SquareSlopes.IsSolid(shape, quadrant);
         }
         else if (spanBlock == EnemyTerrainSpanBlock.First &&
-                 RoomGridConversions.InSecondHalfOfBlock(place.Position.X.Whole - place.Radius.X))
+                 RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole - slot.Radius.X))
         {
             return SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
         }
@@ -473,51 +473,51 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Checks slope height under the enemy center and snaps its Y position to the floor or underside.</summary>
-    /// <param name="place">The enemy moving.</param>
+    /// <param name="slot">The enemy moving.</param>
     /// <param name="block">The slope block the enemy's vertical move reached, in the room's columns.</param>
     /// <param name="behavior">The slope block's behaviour.</param>
     /// <param name="targetCenter">The enemy's vertical center after the move.</param>
     /// <param name="movingUp">Whether the enemy moves up.</param>
     private static bool NonSquareVerticalSlopeIsSolid(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         Position16<RoomBlocks> block,
         RoomBlockBehavior behavior,
         int targetCenter,
         bool movingUp)
     {
         // Only the slope block in the enemy center's column shapes the move; the others the scan reaches are passed.
-        if (block.X != RoomGridConversions.PixelToBlock(place.Position.X.Whole))
+        if (block.X != RoomGridConversions.PixelToBlock(slot.Position.X.Whole))
             return false;
 
         int xWithinBlock = behavior.Slope.FlipsHorizontally
-            ? RoomGridConversions.OffsetFromBlockEnd(place.Position.X.Whole)
-            : RoomGridConversions.OffsetWithinBlock(place.Position.X.Whole);
+            ? RoomGridConversions.OffsetFromBlockEnd(slot.Position.X.Whole)
+            : RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole);
         int height = ReadNonSquareSlopeHeight(behavior, xWithinBlock);
         if (movingUp)
         {
             if (!behavior.Slope.FlipsVertically)
                 return false;
-            int edgeWithinBlock = RoomGridConversions.OffsetFromBlockEnd(targetCenter - place.Radius.Y);
+            int edgeWithinBlock = RoomGridConversions.OffsetFromBlockEnd(targetCenter - slot.Radius.Y);
             int adjustment = height - edgeWithinBlock - 1;
             if (adjustment > 0)
                 return false;
-            place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter - adjustment), 0));
+            slot.Position = slot.Position.WithY(new(CoordinateAxis.Wrap(targetCenter - adjustment), 0));
             return true;
         }
 
         if (behavior.Slope.FlipsVertically)
             return false;
-        int bottomWithinBlock = RoomGridConversions.OffsetWithinBlock(place.Radius.Y + targetCenter - 1);
+        int bottomWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Radius.Y + targetCenter - 1);
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
+        slot.Position = slot.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
         return true;
     }
 
     /// <summary>Aligns the enemy's Y position with a non-square slope.</summary>
-    internal static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemyPlace place) =>
-        AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, place);
+    internal static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemySlot slot) =>
+        AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
 
     /// <summary>
     /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while reporting
@@ -526,17 +526,17 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
         RoomLevelData level,
-        RoomEnemyPlace place)
+        RoomEnemySlot slot)
     {
         bool adjustedFloor = AlignAgainstSlopeAtPixel(
             level,
-            place,
-            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1)),
+            slot,
+            new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1)),
             surface: SlopeSurface.Top);
         bool adjustedCeiling = AlignAgainstSlopeAtPixel(
             level,
-            place,
-            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y)),
+            slot,
+            new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)),
             surface: SlopeSurface.Underside);
         return adjustedFloor || adjustedCeiling;
     }
@@ -544,7 +544,7 @@ internal sealed class EnemyTerrain
     /// <summary>Adjusts the enemy center when the sampled floor or ceiling pixel penetrates a matching non-square slope.</summary>
     internal static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         Position16<RoomPixels> pixel,
         SlopeSurface surface)
     {
@@ -573,9 +573,9 @@ internal sealed class EnemyTerrain
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
             return false;
-        place.Position = place.Position.WithWholeY(surface == SlopeSurface.Underside
-            ? CoordinateAxis.Wrap(place.Position.Y.Whole - adjustment)
-            : CoordinateAxis.Wrap(place.Position.Y.Whole + adjustment));
+        slot.Position = slot.Position.WithWholeY(surface == SlopeSurface.Underside
+            ? CoordinateAxis.Wrap(slot.Position.Y.Whole - adjustment)
+            : CoordinateAxis.Wrap(slot.Position.Y.Whole + adjustment));
         return true;
     }
 

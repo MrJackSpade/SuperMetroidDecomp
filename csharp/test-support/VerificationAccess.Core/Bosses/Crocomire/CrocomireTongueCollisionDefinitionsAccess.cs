@@ -7,6 +7,6 @@ internal static class CrocomireTongueCollisionDefinitionsAccess
 {
     /// <summary>Whether the frame at native address <paramref name="frame"/> is one of the tongue's.</summary>
     internal static bool HasFrame(ushort frame) =>
-        RoomEnemyPlaceFrameAccess.TryFrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame) is { } shown &&
+        RoomEnemySlotFrameAccess.TryFrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame) is { } shown &&
         CrocomireNativeWords.TongueFrames.WordsByIdentity.ContainsKey(shown);
 }

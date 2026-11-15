@@ -53,7 +53,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         {
             AssertEqual(program.Entry, FuneNamiheSelectorOracle.ProgramAt(program.SelectorCursor),
                 $"Fune/Namihe selector $A8:{program.SelectorCursor:X4} names {program.Entry}");
-            (RoomEnemySystem enemies, RoomEnemyPlace place) = RunFuneNamiheProgram(program);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(program);
             int activeProjectiles = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
             AssertEqual(program.Active ? 1 : 0, activeProjectiles, $"Fune/Namihe {program.Entry} projectile count");
 
@@ -66,7 +66,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
                 $"Fune/Namihe {program.Entry} sound cue");
             AssertEqual(
                 program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
-                (enemies.FuneNamiheStates[place.Ordinal] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[place.Ordinal].")).Action,
+                (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Action,
                 $"Fune/Namihe {program.Entry} returns main-AI ownership");
         }
         AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.ProgramAt(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
@@ -81,13 +81,13 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         FuneNamiheProgramCase program)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(place.DefinitionId, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
-        place.SetSpawnParameter2(place.DefinitionId, 0);
-        place.Position = place.Position.WithWhole(new(128, 128));
-        place.AnimationClock.StepOnNextUpdate();
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnParameter1(slot.DefinitionId, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
+        slot.SetSpawnParameter2(slot.DefinitionId, 0);
+        slot.Position = slot.Position.WithWhole(new(128, 128));
+        slot.AnimationClock.StepOnNextUpdate();
 
         var state = new FuneNamiheEnemyState
         {
@@ -99,14 +99,14 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             IsNamihe = program.Namihe,
             Playback = new(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation),
         };
-        enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
+        enemies.SlotTable.Slots[0].SetSpeciesState(state);
 
-        object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
             EnemyInstructionRunner.Process(arguments);
 
-        return new RunFuneNamiheProgramResult(enemies, place);
+        return new RunFuneNamiheProgramResult(enemies, slot);
     }
 
     /// <summary>Program, selector cursor, variant, facing, and active state for one of the eight production programs.</summary>

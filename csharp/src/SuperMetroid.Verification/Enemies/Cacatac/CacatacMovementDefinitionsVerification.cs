@@ -14,9 +14,9 @@ internal static class CacatacMovementDefinitionsVerification
         const int distanceTable = 0xa29f36;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = CacatacBehavior.InitializeCacatac;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        Action<RoomEnemySlot> initialize = CacatacBehavior.InitializeCacatac;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
 
         foreach (ushort spawnX in new ushort[] { 0, 0x100, ushort.MaxValue })
         {
@@ -24,12 +24,12 @@ internal static class CacatacMovementDefinitionsVerification
             {
                 int address = distanceTable + distanceIndex * 2;
                 ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
-                place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
-                AssertEqual(native, place.SpawnSettings<CacatacSpawnSettings>().TravelDistance,
+                slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
+                slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
+                AssertEqual(native, slot.SpawnSettings<CacatacSpawnSettings>().TravelDistance,
                     $"imported Cacatac travel distance {distanceIndex}");
-                place.Position = place.Position.WithWholeX(spawnX);
-                initialize(place);
+                slot.Position = slot.Position.WithWholeX(spawnX);
+                initialize(slot);
                 CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));
                 AssertEqual(unchecked((ushort)(spawnX - native)), state.LeftPatrolLimit.X,
                     $"Cacatac minimum X {spawnX:X4}/{distanceIndex}");
@@ -38,9 +38,9 @@ internal static class CacatacMovementDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, 6),
+        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, 6),
             "Cacatac import rejects the travel distance past its table");
-        AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, byte.MaxValue),
+        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, byte.MaxValue),
             "Cacatac import rejects a travel selector that would read adjacent code");
 
         Console.WriteLine(

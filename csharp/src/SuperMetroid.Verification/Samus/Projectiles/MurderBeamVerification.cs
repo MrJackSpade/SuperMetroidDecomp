@@ -97,8 +97,8 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
-        RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        target.Bind(EnemyPlaceFixtures.StandIn, target.Definition);
+        RoomEnemySlot target = combat.System.SlotTable.Slots[0];
+        target.Bind(EnemySlotFixtures.StandIn, target.Definition);
         target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
         {
             Shot = EnemyReaction.NormalEnemyShot,

@@ -2,23 +2,23 @@ namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
 /// One Bull occupant: its initialization, main AI, typed animation and immune-hit recoil after shots and bombs, with the
-/// shared reactions otherwise. Its state inherits the shot-reaction guard of the previous Bull in its place.
+/// shared reactions otherwise. Its state inherits the shot-reaction guard of the previous Bull in its slot.
 /// </summary>
 /// <param name="species">The Bull species owner.</param>
-/// <param name="place">The place the Bull occupies.</param>
+/// <param name="slot">The slot the Bull occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class BullEntity(BullBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeBull(Place);
+    public void Initialize() => species.InitializeBull(Slot);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(Place, Place.RequireSpeciesState<BullEnemyState>(), frame.Samus);
+        BullBehavior.RunBullMain(Slot, Slot.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Slot, context);
 
     /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;

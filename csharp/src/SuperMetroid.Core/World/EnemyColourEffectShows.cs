@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The enemies' colour effect glows and flashes over the species that show them (#1512).</summary>
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
-/// <param name="places">The room's enemy places: the Torizo whose belly glows, and the destroyable shutters that show the escape's shutter flash.</param>
+/// <param name="slots">The room's enemy places: the Torizo whose belly glows, and the destroyable shutters that show the escape's shutter flash.</param>
 internal sealed class EnemyColourEffectShows(
     TourianEntranceStatueBehavior statue,
-    EnemyPlaces places) : IEnemyColourEffectShows
+    EnemySlotTable slots) : IEnemyColourEffectShows
 {
     /// <inheritdoc/>
     /// <remarks>
@@ -24,7 +24,7 @@ internal sealed class EnemyColourEffectShows(
         switch (colours)
         {
             case ColourEffectColours.TorizoBelly:
-                TorizoBehavior.ShowBellyGlow(places.InUpdateOrder, frame);
+                TorizoBehavior.ShowBellyGlow(slots.Slots, frame);
                 return;
             case ColourEffectColours.RidleyStatue:
             case ColourEffectColours.PhantoonStatue:
@@ -32,7 +32,7 @@ internal sealed class EnemyColourEffectShows(
                 return;
             case ColourEffectColours.TourianShutters:
                 // The flash recolours the destroyable shutters in the first escape room, whose room effect also starts it.
-                ShuttersBehavior.ShowEscapeShutterFlash(places.InUpdateOrder, frame);
+                ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, frame);
                 return;
             case ColourEffectColours.GunshipGlow:
                 // The gunship's glow keeps the gunship whose placement started it and shows on it (#1783).

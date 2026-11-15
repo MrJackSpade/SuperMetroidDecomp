@@ -42,7 +42,7 @@ internal static class RetailKraidCaptureTests
         // The first sample is captured before any update: latch the loaded room for display first.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var boss = runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
-        var body = runtime.Enemies.Places.InUpdateOrder[0];
+        var body = runtime.Enemies.SlotTable.Slots[0];
         KraidPhase BodyPhase() =>
             (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Phase
                 ?? throw new InvalidOperationException("Kraid's body runs no phase.");
@@ -187,7 +187,7 @@ internal static class RetailKraidCaptureTests
     }
 
     /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>
-    private static void StrikeMouth(SuperMetroidRuntime runtime, RoomEnemyPlace body, KraidEnemyState boss)
+    private static void StrikeMouth(SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)
     {
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly

@@ -62,9 +62,9 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Runs the breakup explosion actor's initialization AI.</summary>
-    internal void RunRidleyExplosionInitializationAi(RoomEnemyPlace place) =>
+    internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot) =>
         InitializeNorfairRidleyExplosion(
-            place,
+            slot,
             _ridleyEncounter.Parts.Body,
             _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
                 "A Ridley breakup actor has no shared Ridley owner."));
@@ -75,7 +75,7 @@ internal sealed class NorfairRidleyDeath
     /// small-explosion phase in the same update.
     /// </summary>
     internal void TickNorfairRidleyDeathRoar(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         RidleyEnemyState state)
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
@@ -96,10 +96,10 @@ internal sealed class NorfairRidleyDeath
     /// <summary>
     /// Runs the death explosions. An authored-position small explosion appears every five calls while the
     /// acid lowers. When the 160-frame clock expires, Samus is released and Ridley's twelve
-    /// independently moving body/tail breakup enemies are allocated from the real place pool.
+    /// independently moving body/tail breakup enemies are allocated from the real slot pool.
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         RidleyEnemyState state,
         SamusState? samus)
     {
@@ -119,7 +119,7 @@ internal sealed class NorfairRidleyDeath
     /// shared wing/tail movement so only the breakup actors remain visible.
     /// </summary>
     internal void BeginNorfairRidleyBreakup(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         RidleyEnemyState state)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
@@ -143,7 +143,7 @@ internal sealed class NorfairRidleyDeath
     /// the elevator music is requested.
     /// </summary>
     internal void TickNorfairRidleyDeathFinish(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         RidleyEnemyState state)
     {
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
@@ -168,7 +168,7 @@ internal sealed class NorfairRidleyDeath
 
     /// <summary>Spawns a small explosion at one of its ten signed X/Y offset pairs.</summary>
     internal void SpawnSmallExplosionNearNorfairRidley(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         RidleyEnemyState state)
     {
         if (state.DeathExplosionTimer != 0)
@@ -221,8 +221,8 @@ internal sealed class NorfairRidleyDeath
 
     /// <summary>Runs the breakup actor's initialization AI for one of its 23 pieces.</summary>
     internal void InitializeNorfairRidleyExplosion(
-        RoomEnemyPlace fragment,
-        RoomEnemyPlace body,
+        RoomEnemySlot fragment,
+        RoomEnemySlot body,
         RidleyEnemyState state)
     {
         RidleyExplosionPart part = fragment.Spawn.Population.SpawnSettingsOf<RidleyExplosionSpawnSettings>().Part;
@@ -260,7 +260,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>
-    internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment)
+    internal void RunNorfairRidleyExplosionMain(RoomEnemySlot fragment)
     {
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
@@ -268,7 +268,7 @@ internal sealed class NorfairRidleyDeath
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
 
         RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-            ?? throw new InvalidOperationException($"Ridley breakup fragment in place {fragment.Ordinal} has no state.");
+            ?? throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no state.");
         // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
         var velocity = new EightEightVector<RoomPixels>(
             fragmentState.Velocity.X.SlowedBy(BreakupFragmentDrag),
@@ -279,7 +279,7 @@ internal sealed class NorfairRidleyDeath
         if (--fragmentState.Lifetime >= 0)
             return;
 
-        // The breakup actor runs the small enemy death: clear the place immediately and
+        // The breakup actor runs the small enemy death: clear the slot immediately and
         // retain the fragment's definition and position in the shared explosion-to-pickup actor.
         _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: EnemyDeathExplosion.Small);
     }

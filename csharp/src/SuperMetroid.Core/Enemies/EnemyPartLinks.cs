@@ -14,19 +14,19 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyPartLinks<TLinks> where TLinks : class
 {
     /// <summary>Each placed part's partners, keyed by the part's place.</summary>
-    private readonly Dictionary<RoomEnemyPlace, TLinks> _links = [];
+    private readonly Dictionary<RoomEnemySlot, TLinks> _links = [];
 
     /// <summary>Records the partners <paramref name="part"/> found as it was placed, replacing any it found before.</summary>
-    internal void Place(RoomEnemyPlace part, TLinks links) => _links[Ensure.NotNull(part)] = Ensure.NotNull(links);
+    internal void Place(RoomEnemySlot part, TLinks links) => _links[Ensure.NotNull(part)] = Ensure.NotNull(links);
 
     /// <summary>Whether <paramref name="part"/> has been placed as a part of this species this room.</summary>
-    internal bool IsPlaced(RoomEnemyPlace part) => _links.ContainsKey(Ensure.NotNull(part));
+    internal bool IsPlaced(RoomEnemySlot part) => _links.ContainsKey(Ensure.NotNull(part));
 
     /// <summary>The partners <paramref name="part"/> found when it was placed.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> has not been placed as this species this room.</exception>
-    internal TLinks Of(RoomEnemyPlace part) =>
+    internal TLinks Of(RoomEnemySlot part) =>
         _links.TryGetValue(Ensure.NotNull(part), out TLinks? links)
             ? links
             : throw new InvalidOperationException(
-                $"Enemy {part.Ordinal} ({part.DefinitionId}) reached its partners before it was placed as a part that has them.");
+                $"Enemy {part.SlotIndex} ({part.DefinitionId}) reached its partners before it was placed as a part that has them.");
 }

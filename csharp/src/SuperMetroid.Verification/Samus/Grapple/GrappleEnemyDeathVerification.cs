@@ -32,10 +32,10 @@ internal static class GrappleEnemyDeathVerification
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.LoadSetDrawing(fixture.System, EnemyDefinitionId.Zeela);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
-        ushort header = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
+        ushort header = TestAddressSpace.FixtureHeaderPointer(EnemySlotFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, header);
-        var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+        var enemy = fixture.System.SlotTable.Slots[0];
+        enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
             GrappleResponse = EnemyGrappleResponse.Kill,
@@ -55,7 +55,7 @@ internal static class GrappleEnemyDeathVerification
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
         AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
-        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.DropDefinitionId, "death actor retains drop-table identity");
+        AssertEqual(EnemySlotFixtures.StandIn, explosion.DropDefinitionId, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -114,8 +114,8 @@ internal static class GrappleEnemyDeathVerification
             samus.Position = samus.Position.WithWhole(new(220, 100));
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
-            var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+            var enemy = fixture.System.SlotTable.Slots[0];
+            enemy.Bind(EnemySlotFixtures.StandIn, enemy.Definition);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
                 GrappleResponse = EnemyGrappleResponse.Kill,

@@ -17,20 +17,20 @@ namespace SuperMetroid.Core.Compatibility;
 public static class BabyMetroidVictim
 {
     /// <summary>The enemy placed directly after the Baby Metroid.</summary>
-    /// <typeparam name="TPlace">An enemy place.</typeparam>
-    /// <param name="places">Every enemy place, in placement order.</param>
-    /// <param name="babyMetroid">The Baby Metroid's zero-based place in <paramref name="places"/>.</param>
+    /// <typeparam name="TSlot">An enemy slot.</typeparam>
+    /// <param name="slots">Every enemy slot, in placement order.</param>
+    /// <param name="babyMetroid">The Baby Metroid's zero-based place in <paramref name="slots"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The Baby Metroid is not in a place, or is in the final place.</exception>
-    public static TPlace Of<TPlace>(IReadOnlyList<TPlace> places, int babyMetroid)
+    public static TSlot Of<TSlot>(IReadOnlyList<TSlot> slots, int babyMetroid)
     {
-        Ensure.NotNull(places);
+        Ensure.NotNull(slots);
         int victim = babyMetroid + 1;
-        if (babyMetroid < 0 || victim >= places.Count)
+        if (babyMetroid < 0 || victim >= slots.Count)
         {
             throw new ArgumentOutOfRangeException(nameof(babyMetroid), babyMetroid,
-                $"The Baby Metroid in place {babyMetroid} has no enemy placed after it among {places.Count}.");
+                $"The Baby Metroid in place {babyMetroid} has no enemy placed after it among {slots.Count}.");
         }
-        return places[victim];
+        return slots[victim];
     }
 
     /// <summary>
@@ -38,15 +38,15 @@ public static class BabyMetroidVictim
     /// before it, by the rule <see cref="Of"/> states from the Baby's side; null for the enemy placed first, which no enemy
     /// is placed before. Whether that enemy is a Baby is its caller's question.
     /// </summary>
-    /// <typeparam name="TPlace">An enemy place.</typeparam>
-    /// <param name="places">Every enemy place, in placement order.</param>
-    /// <param name="victim">The victim's zero-based place in <paramref name="places"/>.</param>
+    /// <typeparam name="TSlot">An enemy slot.</typeparam>
+    /// <param name="slots">Every enemy slot, in placement order.</param>
+    /// <param name="victim">The victim's zero-based place in <paramref name="slots"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The victim is not in a place.</exception>
-    public static TPlace? FeederOf<TPlace>(IReadOnlyList<TPlace> places, int victim) where TPlace : class
+    public static TSlot? FeederOf<TSlot>(IReadOnlyList<TSlot> slots, int victim) where TSlot : class
     {
-        Ensure.NotNull(places);
-        if (victim < 0 || victim >= places.Count)
-            throw new ArgumentOutOfRangeException(nameof(victim), victim, $"The victim in place {victim} is not among {places.Count} places.");
-        return victim == 0 ? null : places[victim - 1];
+        Ensure.NotNull(slots);
+        if (victim < 0 || victim >= slots.Count)
+            throw new ArgumentOutOfRangeException(nameof(victim), victim, $"The victim in place {victim} is not among {slots.Count} places.");
+        return victim == 0 ? null : slots[victim - 1];
     }
 }

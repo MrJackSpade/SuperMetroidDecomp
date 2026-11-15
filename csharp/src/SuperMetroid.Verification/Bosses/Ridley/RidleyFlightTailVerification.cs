@@ -54,10 +54,10 @@ internal static class RidleyFlightTailVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
-        var place = enemies.Places.InUpdateOrder[0];
-        place.Position = place.Position.WithWhole(new(128, 128));
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        var slot = enemies.SlotTable.Slots[0];
+        slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
             Phase = RidleyPhase.NorfairPogoMoveToHeight, PhaseTimer = 0,
@@ -67,10 +67,10 @@ internal static class RidleyFlightTailVerification
                 Angle = RidleyTailAngle.StraightDown.TurnedClockwise(16), Distance = RidleyTailReach.RestDistance(index),
             }).ToArray(),
         };
-        run(place, state, null, 0, null);
+        run(slot, state, null, 0, null);
         AssertEqual(RidleyTailAction.PointDown, state.TailAction, "pogo wait runs pointed-tail setup");
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.TailSegments[0].Angle, "setup immediately advances tail by eight");
-        tail(place, state, null);
+        tail(slot, state, null);
         AssertEqual(RidleyTailAction.Pogo, state.TailAction, "all pointed segments finish into normal pogo");
         AssertTrue(state.TailSegments.All(segment => segment.Angle == RidleyTailAngle.StraightDown && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
@@ -78,13 +78,13 @@ internal static class RidleyFlightTailVerification
         AssertEqual((ushort)159, state.TailSegments[0].Position.X, "pointed root retains pre-stop native hip X");
         AssertEqual((ushort)145, state.TailSegments[0].Position.Y, "pointed root retains pre-stop native hip Y");
         state.Velocity = state.Velocity.WithY(new SignedEightEight(0));
-        tail(place, state, null);
+        tail(slot, state, null);
         AssertEqual(RidleyTailAction.StabSetup, state.TailAction, "descending normal pogo starts stab setup");
-        tail(place, state, null);
+        tail(slot, state, null);
         AssertEqual(RidleyTailAction.Stab, state.TailAction, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
         state.Phase = RidleyPhase.NorfairPogoRise;
-        run(place, state, null, 0, null);
+        run(slot, state, null, 0, null);
         AssertEqual(RidleyTailAction.Neutral, state.TailAction, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
         Action<RidleyEnemyState, SamusState?, int> aim = (state, samus, turnsBeyond) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, turnsBeyond);
@@ -111,27 +111,27 @@ internal static class RidleyFlightTailVerification
         int advances = 0;
         enemies.VerificationServices().ReadRandom = () => seed;
         enemies.VerificationServices().NextRandom = () => { advances++; return 0; };
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState?> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
         state.IdleTailWhipEnabled = true;
         state.TailSegments[0].Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
         foreach (var segment in state.TailSegments) segment.Active = true;
         state.ClockwiseWhipTarget = state.CounterClockwiseWhipTarget = null;
-        neutral(place, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
+        neutral(slot, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
         state.MovementMinimum = state.MovementMinimum.WithX(64);
         state.MovementMaximum = state.MovementMaximum.WithX(192);
-        place.Position = place.Position.WithWholeX(128);
+        slot.Position = slot.Position.WithWholeX(128);
         state.Velocity = state.Velocity.WithX(new SignedEightEight(0x100));
         seed = 0x1000;
-        direction(place, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
+        direction(slot, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
         AssertEqual(unchecked((ushort)-0x100), state.Velocity.X.RawValue, "pogo bounce turns toward Samus for ordinary seed");
-        place.Position = place.Position.WithWholeX(32);
-        direction(place, state, samus);
+        slot.Position = slot.Position.WithWholeX(32);
+        direction(slot, state, samus);
         AssertEqual((ushort)0x100, state.Velocity.X.RawValue, "pogo left boundary forces rightward bounce");
-        place.Position = place.Position.WithWholeX(192);
-        direction(place, state, samus);
+        slot.Position = slot.Position.WithWholeX(192);
+        direction(slot, state, samus);
         AssertEqual(unchecked((ushort)-0x100), state.Velocity.X.RawValue, "pogo right boundary forces leftward bounce");
         AssertEqual(0, advances, "pogo direction does not advance RNG");
         Console.WriteLine("Ridley flight: native swoop magnitude and signed angle comparison confirmed.");

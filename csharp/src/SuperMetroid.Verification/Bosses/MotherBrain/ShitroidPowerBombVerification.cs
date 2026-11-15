@@ -25,8 +25,8 @@ internal static class ShitroidPowerBombVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
-        RoomEnemyPlace shitroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+        RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         ShitroidBehavior behavior = runtime.Enemies.ShitroidBehavior;

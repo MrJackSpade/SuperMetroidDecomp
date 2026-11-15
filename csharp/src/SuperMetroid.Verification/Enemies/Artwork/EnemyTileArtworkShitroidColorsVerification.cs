@@ -62,12 +62,12 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        ShitroidBehavior.InitializeShitroid(place, 0);
-        ShitroidEnemyState state = place.RequireSpeciesState<ShitroidEnemyState>();
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        ShitroidBehavior.InitializeShitroid(slot, 0);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
         // The Shitroid draws in its entry's target colours, which the import pre-colours its sheets in (#1512); the drained
         // corpses' target is the corpses' own drained shade.
-        AssertEqual(ShitroidShades.InTargetColours, place.Shading, "the Shitroid draws in its entry's target colours");
+        AssertEqual(ShitroidShades.InTargetColours, slot.Shading, "the Shitroid draws in its entry's target colours");
         IReadOnlyList<SheetShade> shades = MotherBrainSheetShades.Shitroid(stock.Bosses);
         CheckLiveTarget(ShitroidColorTarget.Sidehopper, 0x90);
         CheckLiveTarget(ShitroidColorTarget.Shitroid, 0xa0);
@@ -75,12 +75,12 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         {
             state.MembranePulsePhase = (frame + 7) % 8;
             state.ColourTimer = 0;
-            enemies.ShitroidBehavior.StepShitroidMembranePulse(place, state);
+            enemies.ShitroidBehavior.StepShitroidMembranePulse(slot, state);
             AssertEqual(frame, state.MembranePulsePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
             AssertEqual(state.ColourDelay, state.ColourTimer, $"Shitroid normal frame {frame} reloads the palette timer");
-            AssertEqual(ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(frame)), place.Shading,
+            AssertEqual(ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(frame)), slot.Shading,
                 $"live Shitroid draws its membrane at normal frame {frame}");
-            ushort[] cgram = BossShadeColours.Laid(place.Shading.Shades, shades, BossShadeColours.Sprites, 0);
+            ushort[] cgram = BossShadeColours.Laid(slot.Shading.Shades, shades, BossShadeColours.Sprites, 0);
             for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
                 AssertEqual(colors.NormalColor(frame, color).ToWord(), cgram[165 + color],
                     $"live Shitroid normal frame {frame} color {color}");

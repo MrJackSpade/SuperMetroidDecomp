@@ -14,17 +14,17 @@ namespace SuperMetroid.Core.Compatibility;
 public static class ZebetiteShotShare
 {
     /// <summary>The enemy the struck Zebetite shares its health and flash with.</summary>
-    /// <typeparam name="TPlace">An enemy place.</typeparam>
-    /// <param name="places">Every enemy place, in placement order.</param>
+    /// <typeparam name="TSlot">An enemy slot.</typeparam>
+    /// <param name="slots">Every enemy slot, in placement order.</param>
     /// <param name="linkedHalf">The struck Zebetite's linked half, or null when it has none.</param>
     /// <exception cref="InvalidOperationException">The room places no enemy.</exception>
-    public static TPlace Recipient<TPlace>(IReadOnlyList<TPlace> places, TPlace? linkedHalf) where TPlace : class
+    public static TSlot Recipient<TSlot>(IReadOnlyList<TSlot> slots, TSlot? linkedHalf) where TSlot : class
     {
-        Ensure.NotNull(places);
+        Ensure.NotNull(slots);
         if (linkedHalf is not null)
             return linkedHalf;
-        return places.Count != 0
-            ? places[0]
+        return slots.Count != 0
+            ? slots[0]
             : throw new InvalidOperationException("A Zebetite with no linked half was shot in a room that places no enemy.");
     }
 }

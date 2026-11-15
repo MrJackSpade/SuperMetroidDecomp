@@ -25,7 +25,7 @@ internal static class AlcoonFireballBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;

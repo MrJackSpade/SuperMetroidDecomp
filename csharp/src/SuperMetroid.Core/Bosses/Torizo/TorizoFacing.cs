@@ -11,14 +11,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoFacing
 {
     /// <summary>The Torizo's posture: its facing, its forward leg and whether it is turning around.</summary>
-    internal static TorizoPostureFlags Posture(RoomEnemyPlace torizo) =>
+    internal static TorizoPostureFlags Posture(RoomEnemySlot torizo) =>
         Ensure.NotNull(torizo).RequireSpeciesState<TorizoEnemyState>().Posture;
 
     /// <summary>Whether the Torizo faces right.</summary>
-    internal static bool FacesRight(RoomEnemyPlace torizo) => Posture(torizo).HasFlag(TorizoPostureFlags.FacingRight);
+    internal static bool FacesRight(RoomEnemySlot torizo) => Posture(torizo).HasFlag(TorizoPostureFlags.FacingRight);
 
     /// <summary>Tests whether the Torizo faces the side Samus is on, as its attack branches do.</summary>
-    internal static bool FacesSamus(RoomEnemyPlace torizo, SamusState samus)
+    internal static bool FacesSamus(RoomEnemySlot torizo, SamusState samus)
     {
         // The awakening facing check compares the facing bit with whether
         // the enemy's X minus Samus's is negative, rather than the reverse difference the walkers test.

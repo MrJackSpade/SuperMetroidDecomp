@@ -249,9 +249,9 @@ internal static class RightFacingGateGlitchVerification
         SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
-        RoomEnemyPlace frozen = runtime.Enemies.Places.InUpdateOrder.First(boyon =>
-            boyon.DefinitionId == EnemyDefinitionId.Boyon);
-        foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
+        RoomEnemySlot frozen = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.Boyon);
+        foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
         {
             if (!ReferenceEquals(enemy, frozen))
                 enemy.Bind(0, enemy.Definition);

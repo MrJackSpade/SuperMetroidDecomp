@@ -82,7 +82,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             RoomEnemySystem installed = CreateEnemy(stock);
             Initialize(installed, parameter);
-            RgbColor[] shown = NativeColouredPictures.ShownIn(composedStatueSheet, installed.Places.InUpdateOrder[0].Shading);
+            RgbColor[] shown = NativeColouredPictures.ShownIn(composedStatueSheet, installed.SlotTable.Slots[0].Shading);
             AssertNativeWrites(shown, sceneHeld, 0xaad785, TourianStatuePaletteConstants.BaseCgramIndex, TourianStatueColorFormat.BaseColorCount,
                 $"Tourian statue entry parameter {parameter} shows the native base colours");
             AssertNativeWrites(shown, sceneHeld, 0xaad765, TourianStatuePaletteConstants.StatueCgramIndex, TourianStatueColorFormat.StatueColorCount,
@@ -177,10 +177,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
-            RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place);
+            RoomEnemySlot slot = enemy.SlotTable.Slots[0];
+            slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
+            enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
         }
 
         static SuperMetroidRuntime CreateGreyRoom(

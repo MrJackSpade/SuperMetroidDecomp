@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// A fade of the whole gameplay display toward one colour (#1512): the death fade to black, which keeps Samus lit, or the
-/// time-up whiteout. It takes one step of the shared gradual colour change per call and shows as one fade of the display,
+/// time-up whiteout. It takes one step of the shared gradual colour change each update and shows as one fade of the display,
 /// which every picture, the HUD's among them, and every shaded sprite draw shows after its own shading.
 /// </summary>
 internal sealed class GameplayFadeOut : IGameplayShadingSource

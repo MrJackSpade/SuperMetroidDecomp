@@ -131,9 +131,8 @@ public sealed class HudState
         if (!AreaMapSize.ContainsRow(centerY))
             return;
 
-        // Exploration is persistent game state, not HUD-local rendering state. Earlier
-        // builds kept this bit in HudState, which made the minimap look correct until a
-        // save/load or HUD reconstruction silently erased the visited route.
+        // Exploration is persistent game state, not the HUD's own drawing state, so saving,
+        // loading and rebuilding the HUD keep the visited route.
         system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(centerX, centerY));
         bool hasAreaMap = system.HasAreaMap(frame.Area);
         MinimapGrid minimap = MinimapGrid.Read(place =>

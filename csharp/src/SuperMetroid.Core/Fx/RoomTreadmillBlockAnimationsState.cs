@@ -19,7 +19,7 @@ public sealed class RoomTreadmillBlockAnimationsState
     internal readonly List<BlockAnimationPlayer> animations;
 
     /// <summary>Spawns one room's treadmill animations from the door-selected room effect in the effect's order.</summary>
-    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     public RoomTreadmillBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door) =>
         animations = RoomEffectBlockAnimations.Start(fx, door, Played);

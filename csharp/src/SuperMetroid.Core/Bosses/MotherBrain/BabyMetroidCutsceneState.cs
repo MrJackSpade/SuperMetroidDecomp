@@ -216,11 +216,11 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
-    /// Executes one complete main-AI call: the phase first, then the unconditional enemy
+    /// Runs one update of the Baby's main AI: the phase first, then the unconditional enemy
     /// velocity mover. Flash/colour presentation is intentionally kept
     /// as inspectable state because it does not alter this entrance's coordinates.
-    /// Every Baby step reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
-    /// the head AI has already moved this frame; <paramref name="head"/> carries them.
+    /// Every Baby step reads the coordinates of Mother Brain's head, which the head's AI
+    /// has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>
     public BabyMetroidCutsceneStepResult Step(
         SamusState samus,
@@ -240,9 +240,9 @@ public sealed class BabyMetroidCutsceneState
         bool bodyStumbleRequested = false;
         bool latchSoundQueued = false;
         // The release emits three independent dust allocations when the Baby
-        // finally lets go. Keep the individual room coordinates and parameter instead of
-        // collapsing that side effect into a boolean: allocation order matters when
-        // the shared eighteen-slot enemy-projectile pool is nearly full.
+        // finally lets go. Keep the individual room coordinates and animations instead of
+        // collapsing that side effect into a boolean: the spawn order matters when
+        // the room's enemy projectiles have nearly no room left.
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: 3);
         bool ambientCrySoundQueued = false;
         bool samusRainbowActivated = false;
@@ -363,8 +363,8 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.StopDraining:
-                // Shaking ceases immediately: every wait call pins to the unoffset brain
-                // coordinate before decrementing the timer of 64, which expires only after 65 calls.
+                // Shaking ceases immediately: every update of the wait pins the Baby to the brain
+                // before decrementing the timer of 64, which expires only after 65 updates.
                 Position = Position.WithWhole(head + BrainLatchOffset);
                 if (--PhaseTimer < 0)
                 {
@@ -383,8 +383,8 @@ public sealed class BabyMetroidCutsceneState
                 {
                     // The three dust clouds on Mother Brain's head are spawned in this
                     // exact order. Each helper adds its signed offsets to the brain
-                    // enemy's current room coordinate and passes animation parameter nine
-                    // to the ordinary highest-free-slot allocator.
+                    // enemy's current room coordinate and spawns a small dust cloud
+                    // in the highest free place for an enemy projectile.
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
                         head + new Offset16<RoomPixels>(-16, -8),
                         Animation: MiscDustAnimation.SmallDustCloud));
@@ -459,7 +459,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.HealSamusToFullHealth:
             {
-                // The healing step pins the actor to the four-entry shake table before healing. The
+                // The healing step pins the actor to its four-step shake before healing. The
                 // subsequent common mover is harmless because the touch response zeroed
                 // both velocities when it started this phase.
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
@@ -495,7 +495,7 @@ public sealed class BabyMetroidCutsceneState
                 if (Health == 0)
                 {
                     // The zero reached by the ordinary volleys is a state trigger, not the
-                    // health carried into the final charge. Code deliberately gives
+                    // health carried into the final charge. The game deliberately gives
                     // the Baby 320 health, changes to the low-health colour phase,
                     // disables health-band colours, and lets the next step run next frame.
                     Health = 320;
@@ -543,7 +543,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.MoveToFinalChargeStart:
                 // The final approach stages the Baby at `(305,160)`. Reaching that rectangle assigns
                 // exactly 79 HP so the final four-ring volley kills on its first collision,
-                // clears the brain-slot speed flag, and replaces Mother Brain's retreat AI.
+                // clears the brain's speed flag, and replaces Mother Brain's retreat AI.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(305, 160),
                     accelerationDivisor: 16,
@@ -738,7 +738,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
     /// <param name="damage">The ring's damage (<see cref="MotherBrainAttackDamage.OnionRing"/>), zero or more; even zero damage refreshes the flash timer when health is nonzero.</param>
-    /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, the copy of the Baby's health to its enemy, and ring explosion/deletion.</remarks>
+    /// <remarks>Zero health leaves all state unchanged. The ring's touch establishes the overlap, and the cutscene requests the Baby's cry, copies the Baby's health to its enemy and explodes and deletes the ring.</remarks>
     public void ApplyMotherBrainOnionRingHit(int damage)
     {
         int healthBefore = Health;
@@ -877,7 +877,7 @@ public sealed class BabyMetroidCutsceneState
             CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
-    /// <summary>Multiplies speed by the angle's signed sine with the game's bit-8-to-23 result.</summary>
+    /// <summary>Multiplies speed by the angle's signed sine, dropping the product's 256ths and keeping the sixteen bits above them, as the game does.</summary>
     /// <param name="speed">The speed, read unsigned.</param>
     /// <param name="angle">The angle in steps, 256ths of a turn.</param>
     internal static SignedEightEight CalculateVelocityComponent(

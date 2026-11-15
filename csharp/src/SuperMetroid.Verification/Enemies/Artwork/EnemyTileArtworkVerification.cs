@@ -255,7 +255,7 @@ internal static class EnemyTileArtworkVerification
                 }
             }
         }
-            Console.WriteLine("  Enemy artwork: 118 retail enemy and 3 unplaced tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity.");
+            Console.WriteLine("  Enemy artwork: 118 retail enemy and 3 unplaced tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/OrangeZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity.");
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity and installed draws pass.");
     }
 

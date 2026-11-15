@@ -49,7 +49,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// read in every type, to a handler named by the word before it, a handler pair and a dispatch point. #1856 adds, outside
 /// hardware owners, the original's numbering of Samus's movement types, modes, collision results and statuses. #1892
 /// adds, outside hardware owners, the palette in any word form. #1893 adds, outside hardware owners, the original's
-/// animation interpreter's sleep, stream and bytecode.
+/// animation interpreter's sleep, stream and bytecode. #1971, #1998 and #2018 add the review trail, read in every type:
+/// review and investigation citations, proofs, pinned reference data, release pins and commit hashes; and, outside
+/// hardware owners, the original's table, entry, slot, parameter and program numbering, its callers and calls, its
+/// dispatch, the sound chip's voices and key-off, and words run on to a number.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -585,6 +588,88 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"(?!\s+(?:in|into|through|from|out)\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The review trail in prose (#1971, #1998, #2018), read in every Core type: a review, check, verification, audit or
+    /// investigation cited by its ticket (reviewed for #1165, #1165 independently confirms, the #1165 research, Issue
+    /// #1039:), anything independently reviewed, checked, verified, audited or confirmed, a pair of ticket citations
+    /// (#625 / #643), an investigation in any word form, a proof, data pinned for reference (the pinned retail data, the
+    /// pinned cartridge's sine words, its pinned room states), a release pinned by its version (<c>v1.0</c>) and a
+    /// commit hash (<c>db3aa8b3bb</c>). Core states what the game does; how a value was reviewed, which ticket checked it
+    /// and which commit fixed it are the repository's history, not the game's. English stays legal: a ticket cited for
+    /// the change it names (<c>(#1989)</c>), a thing pinned in the game (Samus pinned by the beam, the ring pinned to the
+    /// mouth), a check the game itself makes, and a decimal number.
+    /// </summary>
+    private static readonly Regex ReviewTrailProse = new(
+        @"\b(?:reviewed|checked|verified|audited|confirmed|investigated)\s+(?:for|in|by|under)\s+#[0-9]+" +
+        @"|\bindependently\s+(?:re-?)?(?:review|check|verif|audit|confirm)\w*" +
+        @"|#[0-9]+\s+(?:research|independently|review\w*|audit\w*|investigation)\b|\bissue\s+#[0-9]+" +
+        @"|#[0-9]+\s*/\s*#[0-9]+" +
+        @"|\binvestigat\w*|\bproofs?\b" +
+        @"|\bpinned\s+(?:[\w'-]+\s+){0,2}?(?:sources?|data|references?|cartridge|retail|release|game|room\s+states?|values?)\b" +
+        @"|(?<![\w.])v[0-9]+\.[0-9]+(?![\w.])" +
+        @"|(?-i:(?<![\w.#-])(?=[0-9a-f]{0,39}[a-f])(?=[0-9a-f]{0,39}[0-9])[0-9a-f]{7,40}(?![\w-]))",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's numbering of its tables, entries, slots, parameters and programs in prose (#1971), outside hardware
+    /// owners, in digits or words: a table or list by its count of entries or rows (a sixteen-entry shot-block table, the
+    /// eight-entry list, a two-row table), an entry by number (entry 23, entries 40..43), a pool by its count of slots (the
+    /// eighteen-slot pool, all eighteen projectile slots, all forty slots), a slot by number (slot zero, random slots 0 and
+    /// 3), a parameter by number (animation parameter nine, the parameter-nine dust) and a program (a Torizo program, an
+    /// animation program, the gunship's programs). The original numbered the entries of its lookup tables, the slots of its
+    /// fixed pools and the parameters its routines took, and ran each animation as a program; Core names the choice, the
+    /// step, the place or the animation. English stays legal: a number that counts the noun after it (an entry two frames
+    /// later), a save slot by number, the rows of a screen, a menu or a panel (the two-row Yes/No prompt, the nine-row
+    /// result panel), a slot or an entry alone, and a program joined into a name or a key (the sound-program credit, a
+    /// generate-*-programs script).
+    /// </summary>
+    private static readonly Regex OriginalNumberingProse = new(
+        @"\b" + NumberWord + @"-(?:entry|entries)\b|\b" + NumberWord + @"-rows?\s+(?:[\w-]+\s+)?tables?\b" +
+        @"|\bentr(?:y|ies)[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\b" + NumberWord + @"-slots?\b|\b" + NumberWord + @"[-\s]+(?:enemy|projectile|sprite|object)[-\s]+slots?\b" +
+        @"|\ball\s+" + NumberWord + @"\s+slots\b" +
+        @"|(?<!\bsave[-\s]+)\bslots?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\bparameters?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|(?<![-\w])programs?(?![-\w])",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's call structure in prose (#1998, #2018), outside hardware owners: a caller in any number and form (the
+    /// caller reads first, its callers, the caller's guard, caller-owned), a pace per call (four pixels per call), and its
+    /// dispatch in any word form (the main AI dispatches, dispatches the body's behaviours, before dispatch, the
+    /// redispatch). The original's routines were called from others and jumped through tables of routines; Core says what
+    /// runs, when and how often in the game (per update, per frame) and who owns a value. English stays legal: sending a
+    /// request, a sound, music, a message, an event or audio (the queue dispatches the request, a dispatched request,
+    /// audio dispatch), a call and calling.
+    /// </summary>
+    private static readonly Regex CallerProse = new(
+        @"\bcallers?(?:'s|s')?\b|\bper\s+call\b" +
+        @"|(?<!\b" + SentThings + @"[-\s]+)\b(?:re-?)?dispatch(?:es|ed|ing)?\b(?!\s+(?:[\w'-]+\s+){0,3}?" + SentThings + @"\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>What dispatching may send in English: a request, a sound, music, a message, an event or audio.</summary>
+    private const string SentThings = @"(?:requests?|sounds?|music|messages?|events?|audio)";
+
+    /// <summary>
+    /// The sound chip's vocabulary in prose (#2018), outside hardware owners: a voice, the noun in any number (a voice
+    /// queue, the looping voice, environmental voices, a sound voice) and a key-off, spaced or hyphenated (a key-off
+    /// release). The original played its sounds on the chip's eight voices and released a note by keying it off; Core
+    /// names the sound library and its queue, the looping sound and the clip's fade. English stays legal: the verb before
+    /// its object (the particle voices the attack's sound) and a voice that keys on, which
+    /// <see cref="MachineArithmeticProse"/> reads.
+    /// </summary>
+    private static readonly Regex SoundChipProse = new(
+        @"\bvoice[sd]?\b(?!\s+(?:the|its|their|a|an|each|every)\b)|\bkey[-\s]?offs?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A word run on to a number in a comment (#2018): a lower-case word of two or more letters followed directly by digits
+    /// (<c>counter16</c>, <c>hold3</c>, <c>contains100</c>). It is a garbled numeral or a label of the original; Core
+    /// spaces its numbers (a counter of sixteen, a hold of three frames). English stays legal: a file extension
+    /// (<c>.ps1</c>) and a name Core's code spells, which is the code being described.
+    /// </summary>
+    private static readonly Regex GluedNumeral = new(@"(?<![.\w])[a-z]{2,}[0-9]+\b", RegexOptions.CultureInvariant);
+
     /// <summary>The numbers a game state, station or queue is cited by: digits, or a word from zero through ninety.</summary>
     private const string NumberWord = @"(?:[0-9]+|" + NumberWordsOnly + ")";
 
@@ -687,7 +772,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 return;
             Compilation compilation = start.Compilation;
             var codeNames = new Lazy<ImmutableHashSet<string>>(() => CodeNames(compilation, start.CancellationToken));
-            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames));
+            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames, tree.IsGeneratedCode));
         });
     }
 
@@ -700,8 +785,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             .ToImmutableHashSet(StringComparer.Ordinal);
 
     /// <summary>Reports each comment and string literal of a tree that names the hardware.</summary>
-    /// <remarks>A generated file's comments are the generator's, so they are not read for routine labels.</remarks>
-    private static void AnalyzeTree(SyntaxTreeAnalysisContext context, Lazy<ImmutableHashSet<string>>? codeNames)
+    /// <remarks>
+    /// A generated file's comments are the generator's, so they are not read for routine labels, and its text is the
+    /// build's, so it is not read for the review trail: the SDK stamps the target framework's version and the commit into
+    /// the assembly's generated attributes.
+    /// </remarks>
+    private static void AnalyzeTree(SyntaxTreeAnalysisContext context, Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
     {
         SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
         foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: false))
@@ -710,14 +799,14 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 !trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
                 !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
                 continue;
-            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames);
+            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated);
         }
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
                 token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
-                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null);
+                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated);
         }
     }
 
@@ -727,10 +816,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// handlers (<see cref="RoutineHandlerProse"/>) or the C reimplementation
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
-    /// and is not read for labels or hexadecimal literals.
+    /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
+    /// trail (<see cref="ReviewTrailProse"/>).
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
-        Lazy<ImmutableHashSet<string>>? codeNames)
+        Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
@@ -739,6 +829,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RoutineHandlerProse.Match(text) is { Success: true } handler ? handler.Value
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
+            : !generated && ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
             : IsInHardwareOwner(owner) ? null
             : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value
@@ -768,6 +859,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : MovementNumberProse.Match(text) is { Success: true } movementNumber ? movementNumber.Value
             : PaletteProse.Match(Markup.Replace(text, " ")) is { Success: true } palette ? palette.Value
             : InterpreterRestProse.Match(Markup.Replace(text, " ")) is { Success: true } rest ? rest.Value
+            : OriginalNumberingProse.Match(Markup.Replace(text, " ")) is { Success: true } originalNumbering ? originalNumbering.Value
+            : CallerProse.Match(Markup.Replace(text, " ")) is { Success: true } caller ? caller.Value
+            : SoundChipProse.Match(Markup.Replace(text, " ")) is { Success: true } soundChip ? soundChip.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
@@ -813,6 +907,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 return name;
         }
         string prose = Markup.Replace(text, " ");
+        foreach (Match glued in GluedNumeral.Matches(prose))
+        {
+            if (!codeNames.Value.Contains(glued.Value))
+                return glued.Value;
+        }
         foreach (Match symbol in MemorySymbol.Matches(prose))
         {
             if (!codeNames.Value.Contains(PascalCase(symbol.Value)))

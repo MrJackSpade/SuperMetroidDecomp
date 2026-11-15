@@ -7,6 +7,6 @@ public enum ZebetiteAction
     SpawnLinkedHalf,
     /// <summary>Remains inert while the shared door-transition flag is set, then installs and performs the active action immediately.</summary>
     WaitForDoorTransition,
-    /// <summary>Updates colour/health artwork, regenerates one health per call up to 1000, or handles death with primary-owned generation progression.</summary>
+    /// <summary>Updates colour/health artwork, regenerates one health per update up to 1000, or handles death with primary-owned generation progression.</summary>
     Active,
 }

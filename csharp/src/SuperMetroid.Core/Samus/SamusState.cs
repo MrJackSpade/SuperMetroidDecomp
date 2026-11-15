@@ -177,7 +177,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Mother Brain/Baby Metroid drain poses, the drain's operations, and the drained
-    /// fall. Enemy AI remains the separate caller of these drain operations.
+    /// fall. Enemy AI still runs these drain operations itself.
     /// </summary>
     public SamusDrainedState Drained { get; } = new();
 
@@ -258,7 +258,7 @@ public sealed class SamusState
     /// <summary>Maximum reserve energy.</summary>
     public int MaxReserveEnergy { get; set; }
 
-    /// <summary>Reserve-tank mode: zero off, one auto, two manual.</summary>
+    /// <summary>Reserve-tank mode: off, automatic or manual.</summary>
     public ReserveTankMode ReserveTankMode { get; set; }
 
     /// <summary>Current missiles.</summary>
@@ -924,7 +924,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     public SamusPoseHistoryState PoseHistory { get; } = new();
 
     /// <summary>
-    /// Commits current pose metadata through the four-entry history shift.
+    /// Commits current pose metadata, shifting her last four poses' history.
     /// Transition owners must call this after their final pose/metadata selection,
     /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
     /// </summary>

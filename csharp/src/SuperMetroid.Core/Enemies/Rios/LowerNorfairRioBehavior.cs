@@ -16,7 +16,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new LowerNorfairRioEntity(this, slot, common);
 
-    /// <summary>Supplies the shared random draw consumed before every parent and follower AI dispatch.</summary>
+    /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves wall and floor collisions during Rio dives and returns.</summary>
     private readonly EnemyTerrain _terrain;
@@ -69,8 +69,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>
-    /// Runs the Lower Norfair Rio's main AI and each action it dispatches.
-    /// The shared RNG advances before every parent and follower dispatch, exactly as retail.
+    /// Runs the Lower Norfair Rio's main AI and each action it runs.
+    /// The shared RNG advances before every parent and follower acts, exactly as retail.
     /// </summary>
     private void RunLowerNorfairRioMain(
         RoomEnemySlot slot,

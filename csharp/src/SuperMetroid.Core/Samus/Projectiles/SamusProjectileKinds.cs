@@ -11,7 +11,7 @@ internal static class SamusProjectileKinds
         DirectionalAnimations.TryGetValue(kind, out SamusProjectileDirectionMap<SamusProjectileSegment>? animations)
             ? animations.For(direction)
             : throw new ArgumentOutOfRangeException(nameof(kind), kind,
-                $"Projectile kind {kind} starts one program whatever its direction; no shot reads it by direction.");
+                $"Projectile kind {kind} starts one animation whatever its direction; no shot reads it by direction.");
 
     /// <summary>The one animation a shot, bomb or particle of <paramref name="kind"/> starts, whatever its direction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">Shots of the kind start an animation for each direction.</exception>
@@ -19,7 +19,7 @@ internal static class SamusProjectileKinds
         SoleAnimations.TryGetValue(kind, out SamusProjectileSegment segment)
             ? segment
             : throw new ArgumentOutOfRangeException(nameof(kind), kind,
-                $"Projectile kind {kind} starts a program for each direction; no shot reads it without one.");
+                $"Projectile kind {kind} starts an animation for each direction; no shot reads it without one.");
 
     /// <summary>Every animation a shot of <paramref name="kind"/> can start.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The kind is undefined.</exception>

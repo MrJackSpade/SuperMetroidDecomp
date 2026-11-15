@@ -6,7 +6,7 @@ internal static class WorkRobotPartDefinitions
     /// <summary>Each WorkRobot definition and its part.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, WorkRobotPart> Parts { get; } = new Dictionary<EnemyDefinitionId, WorkRobotPart>
     {
-        [EnemyDefinitionId.Robot] = WorkRobotPart.Robot,
-        [EnemyDefinitionId.RobotNoPower] = WorkRobotPart.RobotNoPower,
+        [EnemyDefinitionId.WorkRobot] = WorkRobotPart.Powered,
+        [EnemyDefinitionId.UnpoweredWorkRobot] = WorkRobotPart.Unpowered,
     };
 }

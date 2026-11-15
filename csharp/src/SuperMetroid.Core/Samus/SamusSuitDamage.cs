@@ -21,8 +21,8 @@ public static class SamusSuitDamage
 
     /// <summary>
     /// Hurts Samus by <paramref name="damageBeforeSuit"/>, zero or more, after her suit's division (<see cref="Reduce"/>):
-    /// her energy drops by what the suit lets through and stops at zero. The hit's invincibility and knockback are the
-    /// caller's, since each kind of hit sets them its own way.
+    /// her energy drops by what the suit lets through and stops at zero. Each kind of hit sets its invincibility and
+    /// knockback its own way.
     /// </summary>
     public static void Hurt(SamusState samus, int damageBeforeSuit)
     {

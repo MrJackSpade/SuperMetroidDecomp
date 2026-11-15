@@ -48,7 +48,7 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Reconstructs the one side effect still owned by the door-transition caller.
+    /// Reconstructs the one side effect the door transition still owns.
     /// Gameplay resumes immediately after loading the destination, so the arriving
     /// downward actor can cross its pseudo-door while the arrival statuses are visible to
     /// main gameplay. Retain its moving movement mode, but permit its door block's reaction to

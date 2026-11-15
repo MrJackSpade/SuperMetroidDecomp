@@ -29,7 +29,7 @@ internal static class SpawnWordDecodes
 
     /// <summary>The Ridley breakup part a first parameter word names.</summary>
     public static RidleyExplosionPart RidleyExplosionPart(int parameter1) =>
-        Settings<RidleyExplosionSpawnSettings>(EnemyDefinitionId.RidleyExplosion, parameter1).Part;
+        Settings<RidleyExplosionSpawnSettings>(EnemyDefinitionId.RidleyBreakupPiece, parameter1).Part;
 
     /// <summary>The first parameter word that names a Ridley breakup part.</summary>
     public static int RidleyExplosionParameter(RidleyExplosionPart part) =>
@@ -43,7 +43,7 @@ internal static class SpawnWordDecodes
     /// <summary>The unpowered pose a first parameter word gives a Work Robot.</summary>
     /// <exception cref="InvalidDataException">The word selects the pose past the three authored ones.</exception>
     public static WorkRobotSegment WorkRobotPose(int parameter1) =>
-        Settings<WorkRobotSpawnSettings>(EnemyDefinitionId.RobotNoPower, parameter1).Pose;
+        Settings<WorkRobotSpawnSettings>(EnemyDefinitionId.UnpoweredWorkRobot, parameter1).Pose;
 
     /// <summary>The settings a first parameter word gives <paramref name="species"/>.</summary>
     private static T Settings<T>(EnemyDefinitionId species, int parameter1) where T : EnemySpawnSettings =>

@@ -55,6 +55,6 @@ public readonly record struct ChargedShotGlow
     [IntegerQuantity("charge colour calls the glow has left")]
     public int RemainingSteps { get; }
 
-    /// <summary>The glow one step on; the step count stays within the kind's range, which a caller ends at zero.</summary>
+    /// <summary>The glow one step on; the step count stays within the kind's range, and the glow ends at zero.</summary>
     internal ChargedShotGlow Stepped() => new(Kind, Ensure.AtLeastZero(RemainingSteps - 1));
 }

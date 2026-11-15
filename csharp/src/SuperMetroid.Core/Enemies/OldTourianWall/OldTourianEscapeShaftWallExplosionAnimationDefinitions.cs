@@ -18,8 +18,7 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     internal const int BurstCount = 1;
 
     /// <summary>
-    /// The random scatter's fields, zero to seven pixels across (three bits) and zero to fifteen down (four bits), each
-    /// centred on zero.
+    /// The random scatter, zero to seven pixels across and zero to fifteen down, each centred on zero.
     /// </summary>
     internal static EnemyProjectileScatter Scatter => new(XRange: new(0, 3), YRange: new(0, 4), Center: new(0, 0));
 

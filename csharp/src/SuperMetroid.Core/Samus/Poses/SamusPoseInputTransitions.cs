@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// Read-only selection of the prospective pose from the input-transition table.
+/// Read-only selection of the prospective pose from the input transitions.
 /// </summary>
 /// <remarks>
 /// This matcher deliberately stops before applying a prospective pose. The runtime owns the

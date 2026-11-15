@@ -194,7 +194,7 @@ internal static class SpecialAttackParticlesVerification
                 SamusProjectile echo = projectiles.Pool.Occupy(place);
                 Fly(echo, place, fraction);
                 echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
-                BeamCombos.InitializeComboData(echo, BeamComboData.Echo);
+                BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
                 echo.Behavior = SamusShotBehaviors.ShinesparkEcho;
                 echo.EchoAngle = new TrigonometryAngle(32);
                 echo.EchoRadius = 24;

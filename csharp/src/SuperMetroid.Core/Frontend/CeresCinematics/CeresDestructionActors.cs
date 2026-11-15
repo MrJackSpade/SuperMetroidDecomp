@@ -11,12 +11,10 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresDestructionActors
 {
     /// <summary>Selects the definition of the persistent destruction actor that shows <paramref name="role"/>.</summary>
-    /// <remarks>#1165 independently confirms the spawn order and the definitions it selects.
+    /// <remarks>
     /// The large asteroids are the rear view's with their own animation, the small asteroids are the rear view's
     /// unchanged, and the vortex is the rear view's held still: this vortex has no motion, so no horizontal
-    /// movement or wrap. No slide applies to these actors. One proof against the authored data covers the complete
-    /// mapping, each actor's start and the definitions the scenes share. Animations have their separate existing
-    /// proofs.</remarks>
+    /// movement or wrap. No slide applies to these actors.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="role"/> is not a destruction role.</exception>
     public static CeresDestructionActorDefinition InitialActor(CeresDestructionActorRole role) => role switch
     {
@@ -46,11 +44,10 @@ internal static class CeresDestructionActors
 
     /// <summary>Selects the definition of the Zebes reveal actor that shows <paramref name="role"/>.</summary>
     /// <remarks>
-    /// #1165: the reveal's spawns select the planet, the four star quarters and the title; the title spawns the
+    /// The reveal's spawns select the planet, the four star quarters and the title; the title spawns the
     /// Japanese subtitle. All four star quarters start with the same colouring and acceleration; where each
     /// starts is installed (#1615). Only the lower-right quarter completes the scene. Planet and title are
     /// separate named roles with their own starts and animations, not curve exceptions.
-    /// One metadata proof against the authored data checks every field. Animations have their existing separate proofs.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="role"/> is not a reveal role.</exception>
     public static CeresDestructionActorDefinition ZebesActor(ZebesRevealActorRole role) => role switch

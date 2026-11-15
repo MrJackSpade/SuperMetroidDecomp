@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's pose animations: each frame's delay and the cue that ends each run (#1473).</summary>
 /// <remarks>
-/// Independently reviewed for #1165 against the game's pose animation data and its playback, and typed for #1473: a
-/// animation is the runs of frames a pose animates by, numbered as the pose's artwork numbers its frames, and closed by
+/// An animation is the runs of frames a pose animates by, numbered as the pose's artwork numbers its frames, and closed by
 /// the cue each run ends in. An animation holds every run up to the next pose's animation, so the frames the breathing,
 /// drained, falling, spin and wall-jump animations reach by cue or by a frame their movement owner sets all lie in it.
 /// These are gameplay cadence and transition definitions, not editable sprite artwork.

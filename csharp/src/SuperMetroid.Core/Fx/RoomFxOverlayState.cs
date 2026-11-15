@@ -214,7 +214,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>Builds one room's effect-overlay FX from the effect the current door selects.</summary>
     /// <param name="session">The Fireflea state, which outlives each room.</param>
-    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
@@ -721,7 +721,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <param name="randomNumber">The current random number, sampled without advancing it; the number modulo 4 adds zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
     /// The frame the save file found at power-on adds to every next delay (<see cref="PowerOnEarthquakeSoundDelay"/>).
-    /// Both callers' effects are the first their room starts after the door ends the previous room's effects, so they
+    /// Both effects are the first their room starts after the door ends the previous room's effects, so they
     /// receive that frame; an effect started after another would add nothing.
     /// </param>
     private void HandleEarthquakeSoundEffect(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)

@@ -12,6 +12,6 @@ public sealed record XrayBeginConditions
     /// <summary>The shared projectile cooldown, which X-ray reads to tell whether Samus reads as drained (<see cref="XrayRefusedAsDrained"/>).</summary>
     public WrappingCountdown ProjectileCooldownTimer { get; init; } = WrappingCountdown.Start(0);
 
-    /// <summary>The number of live bombs, a count of bomb slots, which X-ray reads to tell whether Samus reads as drained (<see cref="XrayRefusedAsDrained"/>).</summary>
+    /// <summary>The number of live bombs, which X-ray reads to tell whether Samus reads as drained (<see cref="XrayRefusedAsDrained"/>).</summary>
     public int BombCounter { get; init; } = 0;
 }

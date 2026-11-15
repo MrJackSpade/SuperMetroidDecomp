@@ -2,8 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its extra values. They are named here for each of the three
-/// neighbouring parts.
+/// The state of one Magdollite part, its values named for each of the three neighbouring parts.
 /// </summary>
 public sealed class MagdolliteEnemyState
 {

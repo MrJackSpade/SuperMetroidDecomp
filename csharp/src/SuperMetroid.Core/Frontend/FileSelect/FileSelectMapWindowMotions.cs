@@ -9,7 +9,6 @@ internal static class FileSelectMapWindowMotions
     /// Reveal edge speeds and moving updates for the six Zebes areas.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against all authored values and their consumers.
     /// Let D=max(x,256-x,y,256-y) for the area's stock label position.
     /// An edge at distance d travels floor(256*d/D)/64 pixels per update, negative for
     /// left/top. Quantize the positive magnitude before negating, then promote to signed
@@ -37,7 +36,7 @@ internal static class FileSelectMapWindowMotions
     /// Selects the stock geographic label anchor by named Zebes area.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 as semantic area-to-anchor cases. Label
+    /// Each area selects its own anchor. Label
     /// drawing first resolves the area's identity, then selects its
     /// X/Y pair; window setup selects the same pair. Area numbers are
     /// categorical identities, not samples of a coordinate curve. The cases express

@@ -352,7 +352,7 @@ public static class SamusBlockCollision
                 acceptedDisplacement);
 
         // Align Y to whole pixels after both collision and non-collision paths.
-        // Direct callers (notably the prospective-running-pose probe)
+        // Direct uses (notably the prospective-running-pose probe)
         // omit that wrapper step and must retain the unaligned whole-pixel Y. The game never turns the alignment off
         // for a move that asks for it (#1682): only a movement type no pose has would have cleared its enable.
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
@@ -387,10 +387,10 @@ public static class SamusBlockCollision
         bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
 
-        // Most callers enter through the upward or downward move and therefore probe the
-        // solid-enemy list before reacting to terrain. A few callers use
+        // Most of Samus's moves enter through the upward or downward move and therefore probe the
+        // solid-enemy list before reacting to terrain. A few moves use
         // the explicitly named entry without solid-enemy collision instead. Keep that
-        // distinction as an argument at the shared collision seam; clearing the caller's
+        // distinction as an argument at the shared collision seam; clearing the move's
         // enemy snapshot would mutate unrelated gameplay state and would make the omission
         // impossible to verify.
         // A zero-speed bounce apex still enters the downward solid-enemy probe.
@@ -609,7 +609,7 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.SpecialBlock:
-                    // Spawning a room object lets Samus pass when all forty slots
+                    // Spawning a room object lets Samus pass when the room has no place left for one
                     // are occupied. No setup runs, so the unchanged special block is
                     // treated as air for this collision probe.
                     if (terrain.RoomObjects.Quicksand.IsAllocationFull)
@@ -1118,7 +1118,7 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// Measures block overlap in the selected vertical direction after grapple releases
-    /// Samus, allowing the caller to eject her before the new pose radius is installed.
+    /// Samus, so the release can eject her before the new pose radius is installed.
     /// </summary>
     private static int GrappleVerticalOverlap(RoomLevelData level, SamusKinematicsState state, VerticalDirection direction)
     {

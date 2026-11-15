@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// once and installs the pictures they leave.
 /// </summary>
 /// <remarks>
-/// The backgrounds are generated from the pinned game data by tools/generate-library-background-programs.ps1 with the
-/// import pipeline's programs; regenerate them instead of editing the generated declaration.
+/// The backgrounds are generated from the game's data by tools/generate-library-background-programs.ps1 with the
+/// import pipeline's readers; regenerate them instead of editing the generated declaration.
 /// </remarks>
 public static partial class LibraryBackgroundDefinitions;

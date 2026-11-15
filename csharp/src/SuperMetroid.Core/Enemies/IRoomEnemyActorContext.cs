@@ -16,7 +16,7 @@ public interface IRoomEnemyActorContext
     /// <summary>Samus, or null before she is created.</summary>
     SamusState? Samus { get; }
 
-    /// <summary>The raw held controller mask.</summary>
+    /// <summary>The gameplay actions the player holds this update.</summary>
     GameplayAction ControllerInput { get; }
 
     /// <summary>The camera's room position.</summary>

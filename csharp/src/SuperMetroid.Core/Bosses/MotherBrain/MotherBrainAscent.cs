@@ -117,7 +117,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>
-    /// Runs one update of readying her standing body, one per call, and reports whether it was the last of
+    /// Runs one update of readying her standing body and reports whether it was the last of
     /// <see cref="MotherBrainReadyingDefinitions.StandingBodyDuration"/>: the last completes in the same call and starts
     /// the count over.
     /// </summary>

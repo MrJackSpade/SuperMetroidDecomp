@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// frames have the empty list rather than invented collision.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165; the single owner of the Torizo collision space. The original game listed each frame's sprite-part
+/// The single owner of the Torizo collision space. The original game listed each frame's sprite-part
 /// components, of which only the body's held rectangles; the others named the empty list and could never be the first
 /// hitbox a probe met, so a frame names its body alone. Right-facing frames name lists fitted separately to their
 /// drawings, not mirrors of the left-facing ones; the jump-back frames of the two facings are drawn differently.

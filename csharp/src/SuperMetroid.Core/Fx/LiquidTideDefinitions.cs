@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Fx;
 public static class LiquidTideDefinitions
 {
     /// <summary>
-    /// How far a small tide moves the surface at the wave's crest, in 256ths of a pixel per unit of the wave: 8, so the
-    /// surface swings up to 8 pixels either side of its base line.
+    /// How far a small tide moves the surface at the wave's crest, in pixels: 8, so the surface swings up to 8 pixels
+    /// either side of its base line.
     /// </summary>
     public const int SmallTideScale = 8;
 
     /// <summary>
-    /// How far a large tide moves the surface at the wave's crest, in 256ths of a pixel per unit of the wave: 32, so the
-    /// surface swings up to 32 pixels either side of its base line.
+    /// How far a large tide moves the surface at the wave's crest, in pixels: 32, so the surface swings up to 32 pixels
+    /// either side of its base line.
     /// </summary>
     public const int LargeTideScale = 32;
 

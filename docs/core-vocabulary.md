@@ -246,6 +246,32 @@ are hidden (`CrocomireTongueSegment.Hidden`), a dormant enemy is dormant, and a 
 audio, sound, file, data, level, random, input, output or memory stream and streaming in, into, through, from or out stay
 English.
 
+SME6454 also reads the review trail in every type (#1971, #1998, #2018): a review, check, verification, audit or
+investigation cited by its ticket (`Reviewed for #1165`, `#1165 independently confirms`, `the #1165 research`,
+`Issue #1039:`), anything independently reviewed, checked, verified or confirmed, a pair of ticket citations
+(`#625 / #643`), an investigation in any word form, a proof, data pinned for reference (`the pinned retail data`, `the
+pinned cartridge's sine words`), a release pinned by its version (`v1.0`) and a commit hash (`db3aa8b3bb`). How a value
+was reviewed and which commit fixed it are the repository's history, not the game's. A ticket cited for the change it
+names (`(#1989)`), a thing pinned in the game (Samus pinned by the beam) and a decimal stay English.
+
+Outside hardware owners it reads the original's numbering of its tables, entries, slots, parameters and programs
+(#1971): a table or list by its count of entries or rows (`the 16-entry shot-block table`, `the eight-entry list`, `a
+two-row table`), an entry by number (`entry 23`, `entries 40..43`), a pool by its count of slots (`the eighteen-slot
+pool`, `all eighteen projectile slots`), a slot or a parameter by number (`random slots 0 and 3`, `animation parameter
+nine`) and a program (`a Torizo program`, `animation programs`). Core names the choice, the step, the place or the
+animation. A number that counts the noun after it, a save slot by number, the rows of a screen, menu or panel (`the
+two-row Yes/No prompt`), a slot or entry alone and a program joined into a name or key (`sound-program-heading`) stay
+English. It reads the original's call structure (#1998, #2018): a caller in any form (`the caller reads first`,
+`caller-owned`), a pace per call (`4.5 pixels per call`) and dispatch in any word form (`Boulder's main AI dispatches`,
+`Dispatches the body's main behaviours`, `before dispatch`, `redispatch`), so a dispatch alone is read now; Core says
+what runs, when and how often in the game (per update, per frame) and who owns a value. Sending a request, a sound, music,
+a message, an event or audio (`the queue dispatches the request`, `audio dispatch`) stays English. It reads the sound
+chip's voices and key-off (#2018): a voice, the noun (`a voice queue`, `the looping voice`) and a key-off (`a key-off
+release`); Core names the sound library, the looping sound and the clip's fade, and the verb before its object (`the
+particle voices the attack's sound`) stays English. In comments it reads a word run on to a number (#2018: `counter16`,
+`hold3`, `contains100`), a garbled numeral or a label of the original; a file extension (`.ps1`) and a name Core's code
+spells stay legal.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

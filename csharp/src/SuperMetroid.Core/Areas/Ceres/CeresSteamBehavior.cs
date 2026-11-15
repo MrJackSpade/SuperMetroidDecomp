@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Steam];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresSteam];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresSteamEntity(this, slot, common);

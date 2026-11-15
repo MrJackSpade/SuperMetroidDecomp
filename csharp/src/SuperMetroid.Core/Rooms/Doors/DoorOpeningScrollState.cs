@@ -69,7 +69,7 @@ internal sealed class DoorOpeningScrollState
         {
             DoorDirection.Right => new(-252, 0),
             DoorDirection.Left => new(252, 0),
-            DoorDirection.Down => new(0, -224), // Down frame zero only stages the off-screen row.
+            DoorDirection.Down => new(0, -224), // A downward door's first update only readies the row below the screen.
             DoorDirection.Up => new(0, 220),
             _ => throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction."),
         };
@@ -79,7 +79,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>
     /// The scroll updates that remain after setup: a right or left setup takes the first step
-    /// before placement (63 remain), down's first update only stages a row (56 remain), and an
+    /// before placement (63 remain), down's first update only readies a row (56 remain), and an
     /// upward door's placement correction leaves its first moving step to setup (55 remain).
     /// </summary>
     internal static int MovingScrollUpdates(DoorDirection direction) => direction switch
@@ -138,8 +138,8 @@ internal sealed class DoorOpeningScrollState
     }
 
     /// <summary>
-    /// Applies setup's first directional call before the door setup replaces the
-    /// whole position. Downward setup stages a row without moving Samus.
+    /// Applies setup's first directional step before the door setup replaces the
+    /// whole position. Downward setup readies a row without moving Samus.
     /// </summary>
     internal static FixedPosition<RoomPixels> ApplySetupMovement(
         DoorDefinition door, FixedPosition<RoomPixels> source) =>

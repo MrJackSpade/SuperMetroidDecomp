@@ -109,7 +109,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// Builds one room's colour effects: exactly the colour effects the room's effect starts.
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
-    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room's effect.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
@@ -123,7 +123,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>Builds one room's colour effects from the colour effects the selected or supplied room effect starts.</summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
-    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room's effect.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>One shooting star's flight: how it accelerates, how its picture animates and how long it waits to start.</summary>
-/// <param name="Acceleration">Signed 1/256-pixel velocity change per call on both axes.</param>
+/// <param name="Acceleration">Signed 1/256-pixel velocity change each update on both axes.</param>
 /// <param name="Period">
 /// Animation frame duration, or null for a still star, which keeps its first visible frame for the whole of every flight
 /// and so never doubles its acceleration (#1983).

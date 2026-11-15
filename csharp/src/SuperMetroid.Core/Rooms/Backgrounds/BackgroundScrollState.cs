@@ -23,7 +23,7 @@ public sealed class BackgroundScrollState
 
     /// <summary>
     /// The room state's per-axis background scroll. Before a room state sets it, both axes copy the foreground and scroll in,
-    /// as the game's cleared mode values select.
+    /// as the game does before any room state chooses.
     /// </summary>
     public BackgroundScrollModes BackgroundScrollModes { get; set; } = BackgroundScrollModes.FollowsForeground;
 

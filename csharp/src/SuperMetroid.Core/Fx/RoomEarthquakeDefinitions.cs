@@ -35,13 +35,9 @@ public static class RoomEarthquakeDefinitions
     /// <see cref="RisingLiquidSoundJitter"/> is added at each emission.
     /// </summary>
     /// <remarks>
-    /// Retained as the particular irregular rhythm of repeated identical rumble
-    /// sounds. The index advances chronologically by one emission, not by angle,
-    /// distance, intensity or a semantic sound choice. The complete cycle has
-    /// neither a ramp nor half-cycle reflection/repetition; equal delay values
-    /// have different successors. Live RNG supplies separate variation. Reciting
-    /// these eight choices in cases or fitting them would merely disguise the
-    /// same rhythmic content, while replacing the rhythm changes sound cadence.
+    /// The authored irregular rhythm of the repeated rumble sound: each emission takes the next delay, whatever the
+    /// rumble's strength or Samus's place, and the cycle has neither a ramp nor a repeating half. The live random jitter
+    /// varies it further.
     /// </remarks>
     public static IReadOnlyList<int> RisingLiquidSoundBaseDelays { get; } =
         [1, 3, 2, 1, 1, 2, 2, 1];

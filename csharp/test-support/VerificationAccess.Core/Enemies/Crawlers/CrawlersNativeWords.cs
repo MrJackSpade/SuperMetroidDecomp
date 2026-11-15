@@ -11,9 +11,9 @@ internal static class CrawlersNativeWords
     /// <summary>The routine word naming each <see cref="CrawlerAction"/>.</summary>
     internal static readonly NativeWordIdentities<CrawlerAction> CrawlerActions = new(new Dictionary<CrawlerAction, ushort>
     {
-        [CrawlerAction.HZoomerSettling] = 0xe08a,
-        [CrawlerAction.HZoomerCrawlingVertically] = 0xe091,
-        [CrawlerAction.HZoomerCrawlingHorizontally] = 0xe168,
+        [CrawlerAction.OrangeZoomerSettling] = 0xe08a,
+        [CrawlerAction.OrangeZoomerCrawlingVertically] = 0xe091,
+        [CrawlerAction.OrangeZoomerCrawlingHorizontally] = 0xe168,
         [CrawlerAction.Settling] = 0xe6c1,
         [CrawlerAction.CrawlingVertically] = 0xe6c8,
         [CrawlerAction.Falling] = 0xe785,

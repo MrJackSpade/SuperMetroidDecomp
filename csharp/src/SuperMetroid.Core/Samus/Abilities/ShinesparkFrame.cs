@@ -28,7 +28,7 @@ public sealed record ShinesparkFrame
     /// </summary>
     public int GameTimeFrames { get; init; } = 0;
 
-    /// <summary>The runtime commits interrupted poses after animation; standalone movement callers may commit immediately.</summary>
+    /// <summary>The runtime commits interrupted poses after animation; a standalone movement run may commit immediately.</summary>
     public bool DeferTimeoutPoseChange { get; init; } = false;
 
     /// <summary>Optional mutable camera-history point whose X/Y trailing distance is capped after the corresponding spark movement axis.</summary>

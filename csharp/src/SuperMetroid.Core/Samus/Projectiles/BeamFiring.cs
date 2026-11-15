@@ -227,7 +227,7 @@ internal sealed class BeamFiring
         const GameplayAction shoot = GameplayAction.Shoot;
 
         // Both release paths converge on this allocation gate for every ordinary and
-        // charged beam combination. Without Charge Beam, callers attempt a shot every held
+        // charged beam combination. Without Charge Beam, Samus attempts a shot every held
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||

@@ -320,7 +320,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>
     /// The crumble block a special block's reaction selects, if it selects one. The same behaviours mean unrelated things to
-    /// other collision kinds, so the caller first establishes that the block is special.
+    /// other collision kinds, so it is read only of a block established as special.
     /// </summary>
     public bool TryGetContactCrumble(out ContactCrumbleBlock crumble) =>
         BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(Special, out crumble);
@@ -331,7 +331,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>
     /// The downward-gate trigger a shootable block's reaction selects, if it selects one. The same behaviours mean
-    /// unrelated things to other collision kinds, so the caller first establishes that the block is shootable.
+    /// unrelated things to other collision kinds, so it is read only of a block established as shootable.
     /// </summary>
     public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger) =>
         BlockReactionDefinitions.DownwardGateTriggers.TryGetMeaning(Shootable, out trigger);

@@ -349,17 +349,17 @@ public enum EnemyFrameId
     /// <summary>Owtch: moving left loop, third frame.</summary>
     OwtchMovingLeftLoopThird,
     /// <summary>Gripper: moving left, first frame.</summary>
-    GRipperMovingLeftFirst,
+    GrappleRipperMovingLeftFirst,
     /// <summary>Gripper: moving left, second frame.</summary>
-    GRipperMovingLeftSecond,
+    GrappleRipperMovingLeftSecond,
     /// <summary>Gripper: moving left, third frame.</summary>
-    GRipperMovingLeftThird,
+    GrappleRipperMovingLeftThird,
     /// <summary>Gripper: moving right, first frame.</summary>
-    GRipperMovingRightFirst,
+    GrappleRipperMovingRightFirst,
     /// <summary>Gripper: moving right, second frame.</summary>
-    GRipperMovingRightSecond,
+    GrappleRipperMovingRightSecond,
     /// <summary>Gripper: moving right, third frame.</summary>
-    GRipperMovingRightThird,
+    GrappleRipperMovingRightThird,
     /// <summary>Ripper: shared frozen left.</summary>
     RipperSharedFrozenLeft,
     /// <summary>Ripper: shared frozen right.</summary>
@@ -763,45 +763,45 @@ public enum EnemyFrameId
     /// <summary>Choot: fall end.</summary>
     ChootFallEnd,
     /// <summary>The horizontal Zoomer: upside right loop, first frame.</summary>
-    HZoomerUpsideRightLoopFirst,
+    OrangeZoomerUpsideRightLoopFirst,
     /// <summary>The horizontal Zoomer: upside right loop, second frame.</summary>
-    HZoomerUpsideRightLoopSecond,
+    OrangeZoomerUpsideRightLoopSecond,
     /// <summary>The horizontal Zoomer: upside right loop, third frame.</summary>
-    HZoomerUpsideRightLoopThird,
+    OrangeZoomerUpsideRightLoopThird,
     /// <summary>The horizontal Zoomer: upside right loop, fourth frame.</summary>
-    HZoomerUpsideRightLoopFourth,
+    OrangeZoomerUpsideRightLoopFourth,
     /// <summary>The horizontal Zoomer: upside right loop, fifth frame.</summary>
-    HZoomerUpsideRightLoopFifth,
+    OrangeZoomerUpsideRightLoopFifth,
     /// <summary>The horizontal Zoomer: upside left loop, first frame.</summary>
-    HZoomerUpsideLeftLoopFirst,
+    OrangeZoomerUpsideLeftLoopFirst,
     /// <summary>The horizontal Zoomer: upside left loop, second frame.</summary>
-    HZoomerUpsideLeftLoopSecond,
+    OrangeZoomerUpsideLeftLoopSecond,
     /// <summary>The horizontal Zoomer: upside left loop, third frame.</summary>
-    HZoomerUpsideLeftLoopThird,
+    OrangeZoomerUpsideLeftLoopThird,
     /// <summary>The horizontal Zoomer: upside left loop, fourth frame.</summary>
-    HZoomerUpsideLeftLoopFourth,
+    OrangeZoomerUpsideLeftLoopFourth,
     /// <summary>The horizontal Zoomer: upside left loop, fifth frame.</summary>
-    HZoomerUpsideLeftLoopFifth,
+    OrangeZoomerUpsideLeftLoopFifth,
     /// <summary>The horizontal Zoomer: upside down loop, first frame.</summary>
-    HZoomerUpsideDownLoopFirst,
+    OrangeZoomerUpsideDownLoopFirst,
     /// <summary>The horizontal Zoomer: upside down loop, second frame.</summary>
-    HZoomerUpsideDownLoopSecond,
+    OrangeZoomerUpsideDownLoopSecond,
     /// <summary>The horizontal Zoomer: upside down loop, third frame.</summary>
-    HZoomerUpsideDownLoopThird,
+    OrangeZoomerUpsideDownLoopThird,
     /// <summary>The horizontal Zoomer: upside down loop, fourth frame.</summary>
-    HZoomerUpsideDownLoopFourth,
+    OrangeZoomerUpsideDownLoopFourth,
     /// <summary>The horizontal Zoomer: upside down loop, fifth frame.</summary>
-    HZoomerUpsideDownLoopFifth,
+    OrangeZoomerUpsideDownLoopFifth,
     /// <summary>The horizontal Zoomer: upside up loop, first frame.</summary>
-    HZoomerUpsideUpLoopFirst,
+    OrangeZoomerUpsideUpLoopFirst,
     /// <summary>The horizontal Zoomer: upside up loop, second frame.</summary>
-    HZoomerUpsideUpLoopSecond,
+    OrangeZoomerUpsideUpLoopSecond,
     /// <summary>The horizontal Zoomer: upside up loop, third frame.</summary>
-    HZoomerUpsideUpLoopThird,
+    OrangeZoomerUpsideUpLoopThird,
     /// <summary>The horizontal Zoomer: upside up loop, fourth frame.</summary>
-    HZoomerUpsideUpLoopFourth,
+    OrangeZoomerUpsideUpLoopFourth,
     /// <summary>The horizontal Zoomer: upside up loop, fifth frame.</summary>
-    HZoomerUpsideUpLoopFifth,
+    OrangeZoomerUpsideUpLoopFifth,
     /// <summary>Sbug: right, first frame.</summary>
     SbugRightFirst,
     /// <summary>Sbug: right, second frame.</summary>

@@ -9,7 +9,7 @@ public sealed class SkulteraEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SkulteraSegment> Playback { get; set; }
 
-    /// <summary>The swimming or turning behaviour dispatched by main AI.</summary>
+    /// <summary>The swimming or turning behaviour main AI runs.</summary>
     public SkulteraAction? Action { get; internal set; }
 
     /// <summary>Signed 1/65536-room-pixel displacement per swimming update to the right, from the positive half of the population's linear speed row.</summary>

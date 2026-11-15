@@ -142,7 +142,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
 
-    /// <summary>Dispatches the body's main behaviours.</summary>
+    /// <summary>Runs the body's main behaviour.</summary>
     private void RunKiHunterMain(
         RoomEnemySlot actor,
         KiHunterBodyState state,
@@ -188,7 +188,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Dispatches the wings' main behaviours: following the body, or flying off once detached.</summary>
+    /// <summary>Runs the wings' main behaviour: following the body, or flying off once detached.</summary>
     private void RunKiHunterWingMain(RoomEnemySlot wings, KiHunterWingState state, RoomLevelData level)
     {
         switch (state.Action)
@@ -493,7 +493,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
-    /// <summary>Dispatches the detached wings' behaviour.</summary>
+    /// <summary>Runs the detached wings' behaviour.</summary>
     private void RunDetachedKiHunterWing(
         RoomEnemySlot wings,
         KiHunterWingState state,

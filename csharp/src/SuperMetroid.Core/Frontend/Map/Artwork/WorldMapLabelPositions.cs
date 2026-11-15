@@ -31,7 +31,7 @@ public sealed class WorldMapLabelPositions
     }
 
     /// <summary>Selects the independently editable anchor belonging to a named Zebes area.</summary>
-    /// <remarks>Reviewed for #1165: the six area identities select layout roles,
+    /// <remarks>The six area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
     /// from another area or storing a positional lookup. Only the six Zebes areas have labels.</remarks>
     public Offset16<ScreenPixels> Get(AreaId area) => area switch

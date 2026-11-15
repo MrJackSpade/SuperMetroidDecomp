@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>A trail family: the direction table one row of a trail selector names.</summary>
+/// <summary>A trail family: the trails, one per direction, that a kind of shot leaves.</summary>
 internal enum ProjectileTrailFamily
 {
     /// <summary>The trails of uncharged beams that start every trail at the projectile.</summary>

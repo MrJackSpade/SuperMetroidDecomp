@@ -47,7 +47,7 @@ public readonly record struct SamusSpeedBoostCounter
         return new SpeedBoostCountdown(counter, counter.Countdown == 0);
     }
 
-    /// <summary>The counter one stage higher; the caller checks that the boost is not yet full.</summary>
+    /// <summary>The counter one stage higher; it is advanced only while the boost is not yet full.</summary>
     public SamusSpeedBoostCounter AdvanceStage() => new(Stage + 1, Countdown);
 
     /// <summary>The same stage with its countdown restarted at <paramref name="countdown"/>.</summary>

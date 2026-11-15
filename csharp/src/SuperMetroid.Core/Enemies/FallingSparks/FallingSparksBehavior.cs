@@ -32,7 +32,7 @@ internal sealed class FallingSparksBehavior
             return;
 
         // The common spawn first copies the spark's definition, including its blank
-        // startup map, frame behaviour, animation, radii, property flags, damage,
+        // starting frame, frame behaviour, animation, radii, property flags, damage,
         // and interaction behavior. The spark's initializer then owns only the source position,
         // shared motion values, and RNG-selected horizontal delta below.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

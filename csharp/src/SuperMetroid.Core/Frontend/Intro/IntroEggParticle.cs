@@ -30,8 +30,8 @@ internal sealed class IntroEggParticle
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         CinematicActorDefinition definition = IntroEggParticleActors.Particle(fragment);
         this.fragment = fragment;
-        // The compiled start of each fragment is independently checked against all
-        // twelve authored values so this physical spawn does not read game data.
+        // The compiled start of each fragment matches all twelve authored values,
+        // so this spawn does not read game data.
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(fragment),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),

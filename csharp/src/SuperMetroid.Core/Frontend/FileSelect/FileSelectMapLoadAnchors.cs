@@ -10,8 +10,7 @@ public static class FileSelectMapLoadAnchors
 {
     /// <summary>Projects a valid saved station from compiled placement and room metadata.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the game's load placement and
-    /// map projection. Take the whole room screens of Samus's placement at the station, add the room's map
+    /// Take the whole room screens of Samus's placement at the station, add the room's map
     /// cell and multiply by eight. A map square and a room's screens are small
     /// counts, so the result is an ordinary map pixel and nothing wraps. The thirty-four supported station identities retain the
     /// existing marker-validity guard.

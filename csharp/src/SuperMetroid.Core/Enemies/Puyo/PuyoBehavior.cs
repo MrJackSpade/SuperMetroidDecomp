@@ -388,7 +388,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(slot, state, segment);
     }
 
-    /// <summary>Flips the two-entry direction domain after a terrain impact.</summary>
+    /// <summary>Turns a Puyo to its other direction after a terrain impact.</summary>
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {
         PuyoDirection.Right => PuyoDirection.Left,

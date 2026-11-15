@@ -49,21 +49,21 @@ internal enum CrawlerSegment
     /// <summary>The Viola normal animation.</summary>
     ViolaNormal,
     /// <summary>The h Zoomer upside right animation.</summary>
-    HZoomerUpsideRight,
+    OrangeZoomerUpsideRight,
     /// <summary>The loop.</summary>
-    HZoomerUpsideRightLoop,
+    OrangeZoomerUpsideRightLoop,
     /// <summary>The h Zoomer upside left animation.</summary>
-    HZoomerUpsideLeft,
+    OrangeZoomerUpsideLeft,
     /// <summary>The loop.</summary>
-    HZoomerUpsideLeftLoop,
+    OrangeZoomerUpsideLeftLoop,
     /// <summary>The h Zoomer upside down animation.</summary>
-    HZoomerUpsideDown,
+    OrangeZoomerUpsideDown,
     /// <summary>The loop.</summary>
-    HZoomerUpsideDownLoop,
+    OrangeZoomerUpsideDownLoop,
     /// <summary>The h Zoomer upside up animation.</summary>
-    HZoomerUpsideUp,
+    OrangeZoomerUpsideUp,
     /// <summary>The loop.</summary>
-    HZoomerUpsideUpLoop,
+    OrangeZoomerUpsideUpLoop,
     /// <summary>The shared upside right animation.</summary>
     SharedUpsideRight,
     /// <summary>The loop.</summary>

@@ -55,7 +55,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Runs a Zoa's per-frame behaviour, dispatching proximity wait, rise, or horizontal shot from the room state.</summary>
+    /// <summary>Runs a Zoa's per-frame behaviour: its proximity wait, rise or horizontal shot, from the room state.</summary>
     private static void RunZoaMain(
         RoomEnemySlot slot,
         ZoaEnemyState state,

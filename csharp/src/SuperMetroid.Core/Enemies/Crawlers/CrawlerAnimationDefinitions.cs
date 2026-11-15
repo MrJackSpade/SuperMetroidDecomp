@@ -26,10 +26,10 @@ internal static class CrawlerAnimationDefinitions
             CrawlerSegment.ZeroUpsideLeft,
             CrawlerSegment.ZeroUpsideDown,
             CrawlerSegment.ZeroUpsideUp),
-        [CrawlerAnimationFamily.HZoomer] = new(
-            CrawlerSegment.HZoomerUpsideRight,
-            CrawlerSegment.HZoomerUpsideLeft,
-            CrawlerSegment.HZoomerUpsideDown,
-            CrawlerSegment.HZoomerUpsideUp),
+        [CrawlerAnimationFamily.OrangeZoomer] = new(
+            CrawlerSegment.OrangeZoomerUpsideRight,
+            CrawlerSegment.OrangeZoomerUpsideLeft,
+            CrawlerSegment.OrangeZoomerUpsideDown,
+            CrawlerSegment.OrangeZoomerUpsideUp),
     };
 }

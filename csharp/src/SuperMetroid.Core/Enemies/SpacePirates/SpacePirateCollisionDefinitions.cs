@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Fixed walking/wall/ninja-Pirate collision data, separate from editable sprite art.</summary>
 /// <remarks>
-/// Reviewed for #1165. Each of the Pirates' 132 frames names its hitboxes directly. Component placements and hitbox
+/// Each of the Pirates' 132 frames names its hitboxes directly. Component placements and hitbox
 /// rectangles are drawn per frame: no frame's hitboxes mirror another's facing, and frames whose hitboxes repeat
 /// another's keep their own.
 /// </remarks>

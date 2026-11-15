@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Super Metroid does not have one universal "underwater" flag. Different checks
 /// compare either Samus's top, bottom, or bottom-minus-one boundary against the live
 /// surface, and the remembered medium records the medium selected by the animation/room-load pass.
-/// Keeping each surface here lets each caller reproduce its own
+/// Keeping each surface here lets each liquid check reproduce its own
 /// comparison instead of sharing a convenient but incorrect single boolean.
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
@@ -238,7 +238,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// True when the spin's top-boundary test finds Samus
-    /// fully under water/lava. The caller performs the Gravity Suit's exemption.
+    /// fully under water/lava. The spin applies the Gravity Suit's exemption itself.
     /// </summary>
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
@@ -255,7 +255,7 @@ public sealed class SamusLiquidPhysicsState
     /// It deliberately differs from
     /// <see cref="DetermineMovementMedium"/>: the suit colouring checks for the Gravity
     /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
-    /// decisions separate lets the caller reproduce both the submerged Power/Varia early
+    /// decisions separate lets the colouring reproduce both the submerged Power/Varia early
     /// return and Gravity Suit's unconditional colour-animation bypass. Water whose surface
     /// Samus ignores still reads as dry, while a room with no water surface falls through to the
     /// independent lava/acid surface exactly as the game does.
@@ -472,7 +472,7 @@ public sealed class SamusLiquidPhysicsState
         HandleLandingGraphics(samus);
     }
 
-    /// <summary>Selects landing dust or splash by area and room while leaving impact sound policy to the caller.</summary>
+    /// <summary>Selects landing dust or splash by area and room; the landing chooses its impact sound itself.</summary>
     private void HandleLandingGraphics(SamusState samus)
     {
         // Each area has its own landing graphics. An undefined area has none;
@@ -513,7 +513,7 @@ public sealed class SamusLiquidPhysicsState
     private void HandleCrateriaLandingGraphics(SamusState samus)
     {
         // Crateria's cinematic path shows no landing effect, ending the bubbles' landing wait, before consulting room
-        // data. This is distinct from the sound suppression already applied by the caller.
+        // data. This is distinct from the landing's own sound suppression, already applied.
         if (CinematicActive)
         {
             EndLandingEffectWait();

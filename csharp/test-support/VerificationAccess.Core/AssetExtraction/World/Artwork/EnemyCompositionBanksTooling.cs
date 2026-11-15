@@ -40,7 +40,7 @@ internal static class EnemyCompositionBanksTooling
         internal static byte ChootBank => 0xa2;
 
         /// <summary>Bank $A3 containing horizontal Zoomer composition pointers.</summary>
-        internal static byte HZoomerBank => 0xa3;
+        internal static byte OrangeZoomerBank => 0xa3;
 
         /// <summary>Bank $A3 containing Sbug composition pointers.</summary>
         internal static byte SbugBank => 0xa3;

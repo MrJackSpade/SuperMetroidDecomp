@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Audio;
 internal static class SynthesizerHostRateAccess
 {
     /// <summary>The session's stereo frames per 60-Hz update.</summary>
-    private const int HostStereoFramesPerVideoFrame = AudioSession.StereoFramesPerVideoFrame;
+    private const int HostStereoFramesPerVideoFrame = AudioSession.StereoFramesPerUpdate;
 
     /// <summary>Host-rate constants the driver definitions no longer carry.</summary>
     extension(SpcDriverDefinitions)

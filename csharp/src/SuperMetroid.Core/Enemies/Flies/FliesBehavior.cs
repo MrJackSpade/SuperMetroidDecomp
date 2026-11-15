@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.Menu];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FliesEntity(this, slot, common);
@@ -39,7 +39,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Advances room RNG and dispatches a fly's circle, attack, or retreat phase.</summary>
+    /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
     private void RunFlyMain(RoomEnemySlot slot, SamusState samus)
     {
         // The flies advance the global RNG even though this family does not consume the

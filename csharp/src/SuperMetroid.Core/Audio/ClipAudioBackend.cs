@@ -22,7 +22,7 @@ public sealed class ClipAudioBackend
     internal const int ReleaseFrames = 256;
 
     /// <summary>Clip frames in one update.</summary>
-    private const int FramesPerUpdate = AudioSession.StereoFramesPerVideoFrame;
+    private const int FramesPerUpdate = AudioSession.StereoFramesPerUpdate;
 
     /// <summary>Clip frames one sound clock step period accounts for.</summary>
     private const int FramesPerStep = SoundClockTiming.SamplesPerStep;

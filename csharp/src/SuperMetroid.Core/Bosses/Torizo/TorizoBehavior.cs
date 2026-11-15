@@ -25,7 +25,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Owns the eighteen-slot enemy projectile pool used by Torizo attacks.</summary>
+    /// <summary>Owns the room's enemy projectiles, which Torizo's attacks spawn.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues the statue-break sound with the enemy audio limits.</summary>
     private readonly EnemyAudioQueue _audio;

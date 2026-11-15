@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// The sound and music requests gameplay makes in one update, in the order it makes them (#1620). Every gameplay system
 /// queues its request here the moment it makes it, and a session's requests go straight on into its sound and music queues,
-/// so the queues receive them in the update's run order across every system, as the game's callers each queue theirs
+/// so the queues receive them in the update's run order across every system, as each of the game's systems queues its own
 /// directly while they run.
 /// </summary>
 /// <remarks>
@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Audio;
 /// effects, Samus's input handling (which fires her weapons), the projectiles' hits on enemies, the enemies, Samus's
 /// movement and animation, the enemy projectiles, the room objects, the enemy projectiles' hits, the power bomb's hits,
 /// the drawing and the HUD in turn, and each of them calls the game's sound and music queues at the point it runs;
-/// none holds a request back for a later caller.
+/// none holds a request back for a later system.
 /// </remarks>
 internal sealed class GameplayAudioRequests
 {

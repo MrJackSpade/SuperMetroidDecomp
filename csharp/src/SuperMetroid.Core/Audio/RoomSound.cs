@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// Every sound of the room's library (<see cref="SoundEffectLibrary.Room"/>): the room's doors, gates, elevators and
 /// gunship, the bosses' larger cries and quakes, Samus's landings, footsteps, Speed Booster and shinespark, and the
-/// low-health beep. The library is its own voice queue: its sounds interrupt one another and never those of Samus's or
+/// low-health beep. The library has its own queue: its sounds interrupt one another and never those of Samus's or
 /// the enemies' library, and its low-health beep holds the library against every other sound but silence.
 /// </summary>
 /// <remarks>

@@ -533,7 +533,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
     };
 
-    /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
+    /// <summary>Reacts to Samus touching a damaging or non-damaging Oum hitbox, each with its own push.</summary>
     internal void ReactToMaridiaLargeSnailTouch(EnemyTouchContext context)
     {
         if (!context.UsesFrameHitboxes)

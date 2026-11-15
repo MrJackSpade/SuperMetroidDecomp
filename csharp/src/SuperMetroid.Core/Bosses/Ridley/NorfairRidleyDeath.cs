@@ -203,7 +203,7 @@ internal sealed class NorfairRidleyDeath
             // body part. Initialization replaces position and animation from the still-live
             // shared Ridley joints below.
             RoomEnemyPlacement population = new(
-                EnemyDefinitionId.RidleyExplosion,
+                EnemyDefinitionId.RidleyBreakupPiece,
                 Position: Position16<RoomPixels>.Zero,
                 Contact: EnemyContact.IgnoresSamus,
                 Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
@@ -214,7 +214,7 @@ internal sealed class NorfairRidleyDeath
             if (_lifecycle.SpawnEnemy(population) is null)
             {
                 throw new InvalidOperationException(
-                    "Lower Norfair Ridley breakup exhausted the 32-slot enemy pool.");
+                    "Lower Norfair Ridley's breakup found no place left for an enemy in the room.");
             }
         }
     }

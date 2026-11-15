@@ -10,7 +10,7 @@ public static class RidleyAttackChoices
     /// situations select a single action.
     /// </summary>
     /// <param name="situation">The mutually exclusive distribution already selected from Ridley's health and Samus's movement and position.</param>
-    /// <param name="choice">An equally likely index from 0 through 7, normally the caller's RNG result modulo 8.</param>
+    /// <param name="choice">An equally likely index from 0 through 7, normally Ridley's random draw modulo 8.</param>
     /// <returns>The AI entry; this lookup does not draw RNG or execute the selected action.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The choice is outside 0..7, including for a distribution whose entries are identical.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined distribution.</exception>

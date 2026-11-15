@@ -128,7 +128,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticalCompensation = new Offset16<RoomPixels>(0, RollingGroundReach);
     }
 
-    /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>
+    /// <summary>Runs the wait, fall, rebound, roll or inert phase with required Samus and terrain state.</summary>
     private void RunBoulderMain(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
         switch (state.Action)

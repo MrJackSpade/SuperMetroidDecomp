@@ -39,7 +39,7 @@ internal sealed class GunshipPartState
     /// </summary>
     public int RumbleFrame { get; internal set; }
 
-    /// <summary>The phase the top hull dispatches; the bottom hull and the entrance pad have none (#1814).</summary>
+    /// <summary>The phase the top hull runs; the bottom hull and the entrance pad have none (#1814).</summary>
     public GunshipPhase? Phase { get; internal set; }
 
     /// <summary>

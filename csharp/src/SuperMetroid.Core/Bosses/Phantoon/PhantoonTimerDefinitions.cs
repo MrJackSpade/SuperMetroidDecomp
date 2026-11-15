@@ -57,13 +57,13 @@ public static class PhantoonTimerDefinitions
     /// <summary>Exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
     internal const int TierDoubling = 2;
 
-    /// <summary>Gets the eight-entry RNG-bucket schedule for Phantoon's open-eye damage opportunity.</summary>
+    /// <summary>Gets the eight random durations of Phantoon's open-eye damage opportunity.</summary>
     public static PhantoonTimerSchedule VulnerableWindow => new(TimerKind.Vulnerable);
 
-    /// <summary>Gets the eight-entry RNG/frame-bucket schedule for the closed-eye moving phase.</summary>
+    /// <summary>Gets the eight random and frame-chosen durations of the closed-eye moving phase.</summary>
     public static PhantoonTimerSchedule EyeClosed => new(TimerKind.EyeClosed);
 
-    /// <summary>Gets the eight-entry RNG-bucket schedule for the hidden delay after the flame rain.</summary>
+    /// <summary>Gets the eight random durations of the hidden delay after the flame rain.</summary>
     public static PhantoonTimerSchedule RainHiding => new(TimerKind.RainHiding);
 
     /// <summary>Each phase's short/medium/long bucket permutation.</summary>

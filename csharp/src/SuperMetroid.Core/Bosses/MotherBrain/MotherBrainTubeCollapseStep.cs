@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public enum MotherBrainTubeCollapseStep
 {
-    /// <summary>Admits collapse when four projectile slots are free, then requests physical bottom-left tube enemy 0.</summary>
+    /// <summary>Admits collapse when four enemy projectiles can still be placed, then requests the bottom-left tube's fall.</summary>
     WaitForFourFreeProjectileSlots,
     /// <summary>Requests the removal at block (5,9) and seeds the 32-count top-right delay.</summary>
     ClearBottomLeftTube,

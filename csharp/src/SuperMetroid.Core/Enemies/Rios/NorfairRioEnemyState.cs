@@ -22,7 +22,7 @@ public sealed class NorfairRioEnemyState
     /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The behaviour shared by parent and flame-follower dispatch.</summary>
+    /// <summary>The behaviour the parent and its flame follower both run.</summary>
     public NorfairRioAction? Action { get; internal set; }
 
     /// <summary>Whether this is the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>

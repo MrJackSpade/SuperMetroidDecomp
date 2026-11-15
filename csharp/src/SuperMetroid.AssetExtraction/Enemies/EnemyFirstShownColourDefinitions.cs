@@ -58,7 +58,7 @@ internal static class EnemyFirstShownColourDefinitions
             RidleyShades.EyeFade(0),
             RidleyShades.BodyFade(CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1),
         ],
-        [EnemyDefinitionId.RidleyExplosion] =
+        [EnemyDefinitionId.RidleyBreakupPiece] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,

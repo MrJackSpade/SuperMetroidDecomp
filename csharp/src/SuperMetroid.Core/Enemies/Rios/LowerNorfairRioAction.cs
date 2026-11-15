@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The behaviours Lower Norfair Rio's main AI dispatches.
+/// The behaviours Lower Norfair Rio's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum LowerNorfairRioAction

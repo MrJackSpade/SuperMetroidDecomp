@@ -92,7 +92,7 @@ internal sealed class RoomObjectFramePhase
 
     /// <summary>
     /// Steps the room objects, for ordinary gameplay and for the explicit
-    /// transition-time call. Player-facing events remain with each caller because the
+    /// transition-time call. Player-facing events remain with each phase that runs them because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
     private void StepRoomObjects(GameplayAction controllerNewInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)

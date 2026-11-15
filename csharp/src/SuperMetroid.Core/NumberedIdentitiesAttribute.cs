@@ -2,7 +2,7 @@ namespace SuperMetroid.Core;
 
 /// <summary>
 /// Justifies, at its one site, a gap-free numbered member family that is a set of distinct identities rather than a
-/// sequence (SME6415, SME6416): each member has its own role, so no caller indexes or iterates them. On a type it covers
+/// sequence (SME6415, SME6416): each member has its own role, so nothing indexes or iterates them. On a type it covers
 /// that type's families and hand-written list shape (SME6417). The reason names what makes each member distinct.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface | AttributeTargets.Field |

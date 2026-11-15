@@ -14,7 +14,7 @@ internal static class KraidPartDefinitions
         [EnemyDefinitionId.KraidLintBottom] = KraidPart.LintBottom,
         [EnemyDefinitionId.KraidLintMiddle] = KraidPart.LintMiddle,
         [EnemyDefinitionId.KraidLintTop] = KraidPart.LintTop,
-        [EnemyDefinitionId.KraidNail] = KraidPart.Nail,
-        [EnemyDefinitionId.KraidNailBad] = KraidPart.NailBad,
+        [EnemyDefinitionId.KraidFirstNail] = KraidPart.FirstNail,
+        [EnemyDefinitionId.KraidSecondNail] = KraidPart.SecondNail,
     };
 }

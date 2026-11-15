@@ -159,14 +159,14 @@ internal sealed class KraidProjectiles
         InitializeKraidLint(slot, KraidLintPart.Bottom);
     }
 
-    /// <summary>Runs KraidNail's initialization AI.</summary>
+    /// <summary>Runs the first fingernail's initialization AI.</summary>
     internal void RunKraidNailInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot);
     }
 
-    /// <summary>Runs KraidNailBad's initialization AI.</summary>
-    internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot)
+    /// <summary>Runs the second fingernail's initialization AI.</summary>
+    internal void RunKraidSecondNailInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot);
     }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// The behaviours Zoa's AI dispatches.
+/// The behaviours Zoa's AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum ZoaAction

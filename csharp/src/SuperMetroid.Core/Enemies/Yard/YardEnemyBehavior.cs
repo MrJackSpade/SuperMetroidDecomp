@@ -180,7 +180,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
             // Direction-changing animation can publish the new direction one frame before
-            // it installs the matching movement behaviour. The game dispatches through that behaviour,
+            // it installs the matching movement behaviour. The game moves by that behaviour,
             // not by the temporarily newer direction field.
             case YardMovement.CrawlingUpsideUpMovingLeft:
             case YardMovement.CrawlingUpsideLeftMovingDown:

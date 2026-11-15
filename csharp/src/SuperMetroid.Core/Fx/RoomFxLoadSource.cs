@@ -22,6 +22,6 @@ internal sealed record RoomFxLoadSource
     /// <summary>The room being entered, or null for a load outside a room.</summary>
     public required RoomDefinition? Room { get; init; }
 
-    /// <summary>Supplied definition.</summary>
+    /// <summary>The room effect to load in place of the one the room's door selects, or null to load the selected one.</summary>
     public required RoomEffectDefinition? SuppliedDefinition { get; init; }
 }

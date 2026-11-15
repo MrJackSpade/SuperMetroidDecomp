@@ -15,13 +15,13 @@ public sealed record ColourEffectInputs
     /// </summary>
     public required int SamusY { get; init; }
 
-    /// <summary>Equipped items.</summary>
+    /// <summary>Samus's equipment, which selects the suit-dependent colour effects.</summary>
     public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
 
-    /// <summary>Area mini boss defeated.</summary>
+    /// <summary>Whether the area's mini-boss is dead.</summary>
     public required bool AreaMiniBossDefeated { get; init; }
 
-    /// <summary>Samus.</summary>
+    /// <summary>Samus, whose suit some colour effects read, or null before she is created.</summary>
     public IRoomSamus? Samus { get; init; } = null;
 
     /// <summary>

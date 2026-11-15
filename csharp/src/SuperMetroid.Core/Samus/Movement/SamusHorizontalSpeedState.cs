@@ -352,7 +352,7 @@ public sealed class SamusHorizontalSpeedState
         // return at once when submerged: the current colours, common
         // timer, and cycle shade step all remain untouched. Gravity Suit bypasses this
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
-        // though the raw room-FX comparison still says the body is underwater. The caller
+        // though the raw room-FX comparison still says the body is underwater. Her movement
         // supplies the raw boundary result so this state owner does not invent a second,
         // subtly different reading of the room's FX values.
         bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
@@ -526,7 +526,7 @@ public sealed class SamusHorizontalSpeedState
             SuitShadeRestoreRequested = true;
         }
 
-        // This block is intentionally outside the momentum test. Every caller can
+        // This block is intentionally outside the momentum test. Every movement can
         // enter echo-departure mode even when the momentum flag was already clear. Repeated calls while
         // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)

@@ -81,7 +81,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Sbug frames.</summary>
     internal static int PreSbugFrameCount => FramesBefore(EnemyFrameId.SbugRightFirst);
     /// <summary>Frames the document lists before the horizontal Zoomer frames.</summary>
-    internal static int PreHZoomerFrameCount => FramesBefore(EnemyFrameId.HZoomerUpsideRightLoopFirst);
+    internal static int PreOrangeZoomerFrameCount => FramesBefore(EnemyFrameId.OrangeZoomerUpsideRightLoopFirst);
     /// <summary>Frames the document lists before the Choot frames.</summary>
     internal static int PreChootFrameCount => FramesBefore(EnemyFrameId.ChootIdle);
     /// <summary>Frames the document lists before the hopper frames.</summary>

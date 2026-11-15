@@ -12,5 +12,5 @@ public enum CrawlerAnimationFamily
     /// <summary>Zero's own surface animations.</summary>
     Zero,
     /// <summary>The orange Zoomer's surface animations, which it selects itself; shared corner turns never use this family.</summary>
-    HZoomer,
+    OrangeZoomer,
 }

@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class RipperBehaviorVerification
 {
     /// <summary>
-    /// Checks the retail populations' definitions, then runs each initializer and the GRipper reversal through the
+    /// Checks the retail populations' definitions, then runs each initializer and the grapple Ripper reversal through the
     /// production enemy system: the loop it selects shows its four frames on the native 8/7/8/7 cadence and returns to
     /// its first frame, and the six loops together show all twelve walking frames.
     /// </summary>
@@ -22,8 +22,8 @@ internal static class RipperBehaviorVerification
     {
         foreach ((int record, EnemyDefinitionId definition) in new[]
                  {
-                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.GRipperPopulationRecord, EnemyDefinitionId.GRipper),
-                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.Ripper2PopulationRecord, EnemyDefinitionId.RipperII),
+                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.GrappleRipperPopulationRecord, EnemyDefinitionId.GrappleRipper),
+                     new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.Ripper2PopulationRecord, EnemyDefinitionId.JetRipper),
                      new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
                  })
         {
@@ -35,10 +35,10 @@ internal static class RipperBehaviorVerification
         }
 
         HashSet<ushort> observedFrames = [];
-        Suite(nameof(VerifyGRipper), () => VerifyGRipper(RipperSegment.GRipperMovingRight, "GRipper right"));
-        Suite(nameof(VerifyGRipperReversal), () => VerifyGRipperReversal());
-        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0, RipperSegment.GRipperMovingLeft, "Ripper II flying left"));
-        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1, RipperSegment.GRipperMovingRight, "Ripper II flying right"));
+        Suite(nameof(VerifyGrappleRipper), () => VerifyGrappleRipper(RipperSegment.GrappleRipperMovingRight, "GrappleRipper right"));
+        Suite(nameof(VerifyGrappleRipperReversal), () => VerifyGrappleRipperReversal());
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0, RipperSegment.GrappleRipperMovingLeft, "Ripper II flying left"));
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1, RipperSegment.GrappleRipperMovingRight, "Ripper II flying right"));
         Suite(nameof(VerifyRipper), () => VerifyRipper(1, RipperSegment.RipperMovingRight, "Ripper right"));
         Suite(nameof(VerifyRipper), () => VerifyRipper(0, RipperSegment.RipperMovingLeft, "Ripper left"));
 
@@ -46,36 +46,36 @@ internal static class RipperBehaviorVerification
             "all Ripper-family walking frames execute across six loops");
         Console.WriteLine("  Ripper behavior: three initializers and the reversal select and run their loops.");
 
-        void VerifyGRipper(RipperSegment expectedProgram, string context)
+        void VerifyGrappleRipper(RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
-            slot.SetSpawnSettings(new GRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
-            slot.SetSpawnParameter1(EnemyDefinitionId.GRipper, 0);
-            slot.SetSpawnParameter2(EnemyDefinitionId.GRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGRipper(slot);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GrappleRipper);
+            slot.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            slot.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
+            RipperBehavior.InitializeGrappleRipper(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 
-        void VerifyGRipperReversal()
+        void VerifyGrappleRipperReversal()
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
-            slot.SetSpawnSettings(new GRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
-            slot.SetSpawnParameter1(EnemyDefinitionId.GRipper, 0);
-            slot.SetSpawnParameter2(EnemyDefinitionId.GRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGRipper(slot);
-            RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GRipperMovingRight, RipperSegment.GRipperMovingLeft);
-            VerifyInstalledLoop(enemies, slot, RipperSegment.GRipperMovingLeft, "GRipper left reversal");
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GrappleRipper);
+            slot.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            slot.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
+            RipperBehavior.InitializeGrappleRipper(slot);
+            RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GrappleRipperMovingRight, RipperSegment.GrappleRipperMovingLeft);
+            VerifyInstalledLoop(enemies, slot, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
 
         void VerifyRipper2(ushort initialDirection, RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.RipperII);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.JetRipper);
             slot.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             slot.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeRipperII(slot);
+            RipperBehavior.InitializeJetRipper(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 

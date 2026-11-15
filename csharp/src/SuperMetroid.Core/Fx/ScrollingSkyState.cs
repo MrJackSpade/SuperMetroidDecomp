@@ -29,7 +29,7 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
 
     /// <summary>
     /// Returns whether a room state's main behaviour runs the land sky. This is the
-    /// same choice of room-main behaviour the game makes; callers must not infer it
+    /// same choice of room-main behaviour the game makes; nothing infers it
     /// from a room number, area, door, or camera position.
     /// </summary>
     public static bool IsLandRoomMain(RoomMainBehavior main) =>

@@ -139,8 +139,7 @@ public sealed class AudioQueues
         bool changesMusicData = QueueRoomMusicData(music.DataSet);
         // A door into a room that inherits its track leaves the music alone. Most post-Ridley Ceres
         // states deliberately inherit so the escape song and its alarm bed continue through
-        // every door. Treating that as a request to stop replaced the live escape track at
-        // the first transition.
+        // every door.
         // The door compares the requested data set and track, not the track alone.
         // A changed data set restarts the room's song even when that song already plays: the
         // load stops the music, so the song must be queued again after it instead of leaving

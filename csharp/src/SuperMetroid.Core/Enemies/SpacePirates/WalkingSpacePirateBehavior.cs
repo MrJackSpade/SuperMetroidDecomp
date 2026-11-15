@@ -52,7 +52,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         {
             case WalkingSpacePirateCue.SetAction setAction:
                 // The pirate animation does not jump to the cue's action. It stores that action
-                // for main AI to dispatch next frame, then runs on.
+                // for main AI to run next frame, then runs on.
                 RequireWalkingSpacePirateState(slot).Action = setAction.Action;
                 return null;
             case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
@@ -381,7 +381,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
-    /// Runs the common laser initializer after the caller has chosen
+    /// Runs the common laser initializer once the firing enemy has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
     /// different actor animation steps, but the game deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.

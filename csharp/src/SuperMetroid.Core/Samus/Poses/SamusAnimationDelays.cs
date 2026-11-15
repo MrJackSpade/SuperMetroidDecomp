@@ -23,7 +23,7 @@ internal static class SamusAnimationDelays
     /// <param name="framesBeyondAnimation">What a frame past an animation's end reads.</param>
     internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, int frame, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation) =>
         TryStepFor(pose, frame, framesBeyondAnimation) ?? throw new InvalidDataException(
-            $"Samus animation frame {frame} is not a step of pose {pose}'s program nor of a program laid out after it.");
+            $"Samus animation frame {frame} is not a step of pose {pose}'s animation nor of an animation laid out after it.");
 
     /// <summary>
     /// The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads

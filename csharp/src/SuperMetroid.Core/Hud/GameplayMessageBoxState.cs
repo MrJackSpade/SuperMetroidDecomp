@@ -113,7 +113,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// The current controller bindings: the applicable item panels name the button bound to Shoot or to Dash, as the
     /// options menu may have remapped them.
     /// </param>
-    /// <param name="sourceContext">Caller identity included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
+    /// <param name="sourceContext">What opened the message, included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
         GameplayMessageId messageId,
         ControllerButton controllerRead,

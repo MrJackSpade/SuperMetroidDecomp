@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Samus-to-enemy interaction: touch, shot, bomb and power-bomb collision walks over the interactive
-/// enemies, frame hitboxes, vulnerability and freezing, and the dispatch into the registered reactions.
+/// enemies, frame hitboxes, vulnerability and freezing, and the registered reactions they run.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyCollision
@@ -111,7 +111,7 @@ internal sealed class EnemyCollision
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // slot remains invisible while its animation moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
-            // solved tail tip. The enemy pass dispatches its body at this same pre-AI seam;
+            // solved tail tip. The enemy pass runs its body's collision at this same pre-AI seam;
             // tail processing checks the tip later. Do not flatten either to the definition's
             // dummy 8x8 radius here. An actor without a touch reaction is skipped.
             if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
@@ -300,7 +300,7 @@ internal sealed class EnemyCollision
 
                 if (usesFrameHitboxes && family == SamusProjectileFamily.SuperMissile)
                 {
-                    // The frame-hitbox prelude requests this earthquake before dispatching the
+                    // The frame-hitbox prelude requests this earthquake before running the
                     // hitbox reaction, even when that reaction is the ignoring shell region.
                     _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
                 }
@@ -438,7 +438,7 @@ internal sealed class EnemyCollision
     /// </summary>
     /// <remarks>
     /// Normal bombs are not part of the five-shot beam/missile walk above: the bomb pass waits for the shared bomb
-    /// countdown to reach zero, marks the overlapping bomb as having hit, and dispatches the enemy's shot reaction with
+    /// countdown to reach zero, marks the overlapping bomb as having hit, and runs the enemy's shot reaction with
     /// that bomb selected.
     ///
     /// This pass owns both the common reaction and the Metroid tail. Private per-species reactions remain deliberately
@@ -521,7 +521,7 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                // Frame-hitbox actors dispatch the reaction stored in the selected hitbox,
+                // Frame-hitbox actors run the reaction stored in the selected hitbox,
                 // not necessarily the definition's. Do not turn a protected/private
                 // component into common damage merely because the definition names the ordinary shot.
                 bool selectedIgnore = selectedShot == EnemyReaction.Ignore;
@@ -531,7 +531,7 @@ internal sealed class EnemyCollision
                     !selectedPrivateReaction)
                     continue;
 
-                // The bomb collision marks the physical bomb before dispatch. Unlike an
+                // The bomb collision marks the bomb before its reaction runs. Unlike an
                 // ordinary beam impact, the bomb is already running its explosion animation;
                 // common shot AI must not replace it with an impact animation.
                 bomb.IsSpent = true;
@@ -657,7 +657,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Runs the power-bomb interaction for one expansion
-    /// sample. The caller supplies the live power-bomb radius in whole pixels; the game
+    /// sample. The power bomb's live radius comes in whole pixels; the game
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
     /// </summary>
     /// <param name="explosionCenter">The explosion's centre.</param>

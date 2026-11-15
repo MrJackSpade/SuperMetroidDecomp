@@ -193,7 +193,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Dispatches idle attachment, aimed flight, or regeneration after selecting its animation.</summary>
+    /// <summary>Runs idle attachment, aimed flight or regeneration after selecting its animation.</summary>
     private void RunEvirProjectileMain(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -559,8 +559,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
     {
         // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
-        // does not. Both body and arms therefore dispatch the shared tail and its intentionally physical next-slot follow-up
-        // aliases.
+        // does not. Both body and arms therefore run the shared tail, whose follow-up deliberately reaches the enemy after
+        // them in the room's list.
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };
 

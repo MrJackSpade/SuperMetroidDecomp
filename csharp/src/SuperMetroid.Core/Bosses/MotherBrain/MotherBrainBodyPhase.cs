@@ -42,7 +42,7 @@ public enum MotherBrainBodyPhase
     FakeDeathAscentPauseForSuspense,
     /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts readying her standing body with a 256-count later pause.</summary>
     FakeDeathAscentPrepareForRising,
-    /// <summary>Readies her standing body one update per call and decrements the suspense timer on the same call that finishes it.</summary>
+    /// <summary>Readies her standing body one update at a time and decrements the suspense timer on the update that finishes it.</summary>
     FakeDeathAscentReadyStandingBody,
     /// <summary>Waits for the 256-count timer to pass zero before placing the hidden body/background and enabling its hitboxes.</summary>
     FakeDeathAscentContinuePausing,
@@ -120,7 +120,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseFinishSamusOffAdmire,
     /// <summary>When the timer passes zero, installs the charging head animation and immediately begins readying the Baby Metroid's arrival.</summary>
     SecondPhaseFinishSamusOffChargeFinalBeam,
-    /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
+    /// <summary>Readies the Baby Metroid's arrival one update at a time; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
     SecondPhaseFinishSamusOffReadyBaby,
     /// <summary>Expires the final wait, starts the firing head animation, neck extension and its sound, then installs its own empty step as the holding phase.</summary>
     SecondPhaseFinishSamusOffFireFinalBeam,
@@ -194,7 +194,7 @@ public enum MotherBrainBodyPhase
     ThirdPhaseDeathRealizeDecapitation,
     /// <summary>Phase-three death/escape: the brain falls to the ground.</summary>
     ThirdPhaseDeathBrainFallsToGround,
-    /// <summary>Phase-three death/escape: readies her corpse one update per call.</summary>
+    /// <summary>Phase-three death/escape: readies her corpse one update at a time.</summary>
     ThirdPhaseDeathReadyCorpse,
     /// <summary>Phase-three death/escape: sets up the fade to grey.</summary>
     ThirdPhaseDeathSetupFadeToGrey,
@@ -206,7 +206,7 @@ public enum MotherBrainBodyPhase
     ThirdPhaseDeathCorpseRotsAway,
     /// <summary>Phase-three death/escape: waits twenty frames.</summary>
     ThirdPhaseDeath20FrameDelay,
-    /// <summary>Phase-three death/escape: readies the escape timer and message one update per call.</summary>
+    /// <summary>Phase-three death/escape: readies the escape timer and message one update at a time.</summary>
     ThirdPhaseDeathReadyEscapeWarning,
     /// <summary>Phase-three death/escape: starts the escape.</summary>
     ThirdPhaseDeathStartEscape,

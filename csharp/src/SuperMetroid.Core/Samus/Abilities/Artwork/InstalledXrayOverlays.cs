@@ -9,19 +9,15 @@ public sealed class InstalledXrayOverlays
 {
     /// <summary>The installed block the X-ray reveal shows for each tank kind.</summary>
     /// <remarks>
-    /// Issue #1038: the game's data reveals the four tanks as four particular blocks of the tileset. These are authored
+    /// The game reveals the four tanks as four particular blocks of the tileset. These are authored
     /// visual choices and reveals.json may replace them, so no universal formula can replace these installed
     /// blocks. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>
     private readonly Dictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks;
     /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
-    /// Issue #1039: among the Japanese and North American v1.0 release's 323 pinned room states, only
-    /// Bomb Torizo selects a special X-ray overlay. It reveals three
-    /// blocks, block 82 at column fifteen, rows ten through twelve, followed
-    /// by zero coordinates. The loop stops there;
-    /// what follows is not a fourth block. The independent installation
-    /// verifier compared all three stock blocks with the game.
+    /// Of all the game's room states only Bomb Torizo's selects a special X-ray overlay. It reveals three
+    /// blocks, block 82 at column fifteen, rows ten through twelve, and no fourth.
     /// reveals.json may change coordinates and blocks while retaining the
     /// overlay and block count, so the apparent Y sequence is not an
     /// algorithm for all valid installations. Retain the bounded lists
@@ -78,7 +74,7 @@ public sealed class InstalledXrayOverlays
             : throw new ArgumentOutOfRangeException(nameof(tank), tank, "The X-ray reveals only a tank by an installed block.");
 
     /// <summary>Returns a room overlay's installed records in draw order.</summary>
-    /// <param name="overlay">The active room state's overlay; a state without one is handled by the caller.</param>
+    /// <param name="overlay">The active room state's overlay; a state without one reveals no room blocks.</param>
     /// <returns>The shared copied record list; coordinates are room-block positions with the appearance shown there.</returns>
     /// <exception cref="InvalidDataException">No installed list exists for the overlay.</exception>
     public IReadOnlyList<XrayRoomOverlayVisual> RoomBlocks(XrayRoomOverlayDefinition overlay) =>

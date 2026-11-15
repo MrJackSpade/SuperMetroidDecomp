@@ -7,7 +7,7 @@ public static class ShotBlockReactions
 {
     /// <summary>
     /// The shot-block response's reaction for <paramref name="reaction"/>, or null for no reaction or a reaction the response does
-    /// not handle (the door, collectible, gate and animal-escape reactions are dispatched before it).
+    /// not handle (the door, collectible, gate and animal-escape reactions run before it).
     /// </summary>
     public static ShotBlockReaction? Of(ShootableReaction? reaction) =>
         reaction is { } read && Handled.TryGetValue(read, out ShotBlockReaction handled) ? handled : null;

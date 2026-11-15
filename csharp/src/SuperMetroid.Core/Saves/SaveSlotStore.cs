@@ -137,7 +137,7 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// Decides at boot, once, whether the title's attract demos include the completion set. When all three slots are
+    /// Decides at boot, once, whether the title's attract demos include the completion set. When every save slot is
     /// invalid it overwrites the completion marker with the corrupt-saves signature and leaves the completion set out;
     /// otherwise the completion signature unlocks it. The game never decides again before reset.
     /// </summary>

@@ -72,7 +72,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
-        definitionId is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
+        definitionId is EnemyDefinitionId.WorkRobot or EnemyDefinitionId.UnpoweredWorkRobot;
 
     /// <summary>Initializes the Robot.</summary>
     internal void InitializeWorkRobot(RoomEnemySlot slot)
@@ -81,9 +81,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         bool areaBossDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
-        if (slot.DefinitionId != EnemyDefinitionId.Robot || !areaBossDefeated)
+        if (slot.DefinitionId != EnemyDefinitionId.WorkRobot || !areaBossDefeated)
         {
-            InitializeWorkRobotNoPower(slot, state);
+            InitializeWorkUnpoweredWorkRobot(slot, state);
             return;
         }
 
@@ -115,7 +115,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the unpowered Work Robot.</summary>
-    internal void InitializeWorkRobotNoPower(RoomEnemySlot slot, WorkRobotEnemyState state)
+    internal void InitializeWorkUnpoweredWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state)
     {
         state.Powered = false;
 
@@ -307,7 +307,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState samus)
     {
-        if (robot.DefinitionId != EnemyDefinitionId.Robot || robot.Health == 0)
+        if (robot.DefinitionId != EnemyDefinitionId.WorkRobot || robot.Health == 0)
             return;
         if (!_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
             return;
@@ -357,7 +357,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The powered Work Robot's own shot reaction returns until Phantoon is dead; the bomb selects it where the
         // powered robot's definition leaves shots to it. The bomb pass has already marked the bomb, so reaction
         // rejection belongs here rather than in collision admission.
-        Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.Robot &&
+        Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.WorkRobot &&
                        c.SelectedShot is null &&
                        !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss),
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),

@@ -1,14 +1,15 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The tint a room effect lays over its overlay and the HUD; <see cref="None"/> lays none. Each is named for what it
+/// The tint a room effect lays over its overlay and the HUD; <see cref="None"/> leaves their colours but darkens one.
+/// Each is named for what it
 /// tints, the four Maridia waters by their retail colour. Its values are arbitrary (#1415, #1740, #1898).
 /// </summary>
 public enum RoomEffectTint
 {
     /// <summary>
-    /// No tint: the overlay and the HUD keep their own colours, except the last of the three colours a tint sets, which
-    /// shows black.
+    /// The untinted look: the overlay and the HUD keep their own colours, except the last of the three colours a tint
+    /// sets, which shows black.
     /// </summary>
     None,
     /// <summary>The tint of lava and acid.</summary>

@@ -59,7 +59,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
+    /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>
     private void RunMetareeMain(
         RoomEnemySlot slot,
         MetareeEnemyState state,

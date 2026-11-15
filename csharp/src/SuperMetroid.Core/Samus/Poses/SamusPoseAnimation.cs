@@ -16,7 +16,7 @@ internal sealed class SamusPoseAnimation
     {
         Ensure.NotNull(sequences);
         if (sequences.Count == 0)
-            throw new ArgumentException("An animation program holds at least one run of frames.", nameof(sequences));
+            throw new ArgumentException("A pose's animation holds at least one run of frames.", nameof(sequences));
         SamusAnimationSequence last = sequences[^1];
         steps = new SamusPoseAnimationStep?[last.FirstFrame + last.Delays.Count + 1];
         int nextFree = 0;

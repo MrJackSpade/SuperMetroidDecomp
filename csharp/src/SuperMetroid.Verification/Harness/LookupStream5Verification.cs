@@ -1073,7 +1073,7 @@ internal static class LookupStream5Verification
             var expected = new LookupStream5Expected2(unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
-            var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8000 | direction));
+            var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8000 | direction));
             var mount = MorphBallEyeGeometry.Mount(mountSettings.MountSide);
             AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyAnimationOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Animation)),
                 "Native directional mount tuple");
@@ -1082,10 +1082,10 @@ internal static class LookupStream5Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 // The mount's beam follows the eye listed right after it (#1835).
                 var followed = enemies.SlotTable.Slots[1];
-                followed.Bind(EnemyDefinitionId.Eye, followed.Definition);
+                followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
                 var slot = enemies.SlotTable.Slots[0];
-                slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
-                slot.SetSpawnParameter2(EnemyDefinitionId.Eye, (ushort)(0x8000 | direction));
+                slot.Bind(EnemyDefinitionId.MorphBallEye, slot.Definition);
+                slot.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
                 slot.Position = slot.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
@@ -1099,7 +1099,7 @@ internal static class LookupStream5Verification
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.SlotTable.Slots[1];
-        body.Bind(EnemyDefinitionId.Eye, body.Definition);
+        body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
         body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
         new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
@@ -1118,7 +1118,7 @@ internal static class LookupStream5Verification
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColourStep, "Actual cycling and wrap after the sixteenth colour");
         }
-        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8004)),
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
             "the import rejects a mount direction past the four sides");
         AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometry.BeamColor(16), "Beam phase bound");
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");

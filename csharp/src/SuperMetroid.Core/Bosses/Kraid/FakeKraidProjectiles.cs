@@ -9,7 +9,7 @@ internal static class FakeKraidProjectiles
         if ((uint)projectile >= FakeKraidProjectileDefinitions.SpitCount)
         {
             throw new InvalidDataException(
-                $"Fake Kraid spit index {projectile} exceeds its two-entry direction set.");
+                $"Fake Kraid spit {projectile} is neither of its two directions.");
         }
 
         SignedEightEight horizontal = SignedEightEight.FromPixels((projectile + 1) * FakeKraidProjectileDefinitions.SpitSpeedStepPixels);

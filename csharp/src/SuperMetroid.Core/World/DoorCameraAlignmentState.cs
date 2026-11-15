@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <remarks>
 /// Horizontal doors move the camera's Y toward the nearest screen boundary; vertical doors
-/// move its X, one pixel per call: a camera past the middle of its screen moves on to the next screen's edge and one
+/// move its X, one pixel per update: a camera past the middle of its screen moves on to the next screen's edge and one
 /// before it back to its own. Completion is reported only by the following call that observes an already aligned
 /// coordinate.
 /// </remarks>

@@ -1,6 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -107,10 +107,10 @@ internal static class DraygonIntroDanceDefinitionsVerification
         ushort[] expectedY = new ushort[4];
         bool[] expectedActive = new bool[4];
         // Each dancer is the Evir spawned in its turn; the native slot it would take indexes its expected values.
-        var dancers = new RoomSpriteObject[DraygonIntroDanceDefinitions.EvirCount];
+        var dancers = new RoomEffectActor[DraygonIntroDanceDefinitions.EvirCount];
         for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
         {
-            dancers[dancer] = enemies.SpriteObjects.SpawnRoomSpriteObject(new(0x0100, 0x0180), RoomSpriteObjectKind.DraygonIntroEvir,
+            dancers[dancer] = enemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180), RoomEffectActorKind.DraygonIntroEvir,
                 SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
             int actor = NativeDancerSlot(dancer) - 28;
             expectedX[actor] = 0x0100;
@@ -150,7 +150,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
             {
                 int actor = slotIndex - 28;
-                RoomSpriteObject actual = dancers[31 - slotIndex];
+                RoomEffectActor actual = dancers[31 - slotIndex];
                 AssertEqual(expectedActive[actor], actual.IsActive,
                     $"Draygon intro frame {frame} slot {slotIndex} active state");
                 // An Evir the dance deleted has ended; where it stood no longer shows.
@@ -181,8 +181,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
             IntroDanceStep = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0),
         };
-        RoomSpriteObject malformedSprite = malformedEnemies.SpriteObjects.SpawnRoomSpriteObject(new(0x0100, 0x0180),
-            RoomSpriteObjectKind.DraygonIntroEvir, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
+        RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
+            RoomEffectActorKind.DraygonIntroEvir, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
         malformedState.IntroDancers.Add(new DraygonIntroDancer(malformedSprite, DraygonIntroDance.StartDelay(0)));
         AssertThrows<InvalidDataException>(
             () => malformedRun(malformedState, null, 1),

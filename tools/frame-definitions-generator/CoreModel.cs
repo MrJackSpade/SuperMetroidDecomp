@@ -27,11 +27,11 @@ internal sealed class CoreModel
     private static readonly string[] TableNames =
     [
         "EnemyProjectileDefinitionCatalog",
-        "RoomSpriteObjectVisualDefinitions",
-        "RoomSpriteObjectDefinitions",
-        // The sprite objects' animations name their enemy-sheet frames outright (#1817); a sprite object's frames reach
+        "RoomEffectActorVisualDefinitions",
+        "RoomEffectActorDefinitions",
+        // The effect actors' animations name their enemy-sheet frames outright (#1817); an effect actor's frames reach
         // its spawner's sheet through its kind, as the spawn analysis reads it.
-        "RoomSpriteObjectAnimations",
+        "RoomEffectActorAnimations",
         "EnemyFrameNameDefinitions",
     ];
 
@@ -73,7 +73,7 @@ internal sealed class CoreModel
         Types = CollectTypes();
         EnemyFrameId = SingleType("EnemyFrameId");
         EnemyProjectileFrameId = SingleType("EnemyProjectileFrameId");
-        RoomSpriteObjectKind = SingleType("RoomSpriteObjectKind");
+        RoomEffectActorKind = SingleType("RoomEffectActorKind");
         RoomEnemyProjectileKind = SingleType("RoomEnemyProjectileKind");
         EnemyProjectileMotionBehavior = SingleType("EnemyProjectileMotionBehavior", arity: 1);
         EnemyProjectile = SingleType("EnemyProjectile");
@@ -128,8 +128,8 @@ internal sealed class CoreModel
     /// <summary>The enemy projectile frame identity.</summary>
     public INamedTypeSymbol EnemyProjectileFrameId { get; }
 
-    /// <summary>The room sprite-object kind identity.</summary>
-    public INamedTypeSymbol RoomSpriteObjectKind { get; }
+    /// <summary>The room effect-actor kind identity.</summary>
+    public INamedTypeSymbol RoomEffectActorKind { get; }
 
     /// <summary>The enemy projectile kind identity.</summary>
     public INamedTypeSymbol RoomEnemyProjectileKind { get; }

@@ -99,7 +99,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         set
         {
             field = value;
-            CurrentObjects?.BindNarration(value);
+            CurrentNarration?.BindNarration(value);
         }
     }
     /// <summary>Binds the opening's installed backdrops and the Ceres scenes' placements when the game is bound to its installed content.</summary>
@@ -125,7 +125,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
     internal readonly IntroNarrationText narrationText = new();
     /// <summary>The cinematic actors' sprite entries over the intro sprite page (#1358).</summary>
-    internal readonly ScreenSprites objectSprites;
+    internal readonly ScreenSprites screenSprites;
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
@@ -137,10 +137,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     /// <summary>Persistent narration actor and caret walker for illustrated pages.</summary>
-    internal IntroCinematicObjectSystem? CurrentObjects { get; private set; }
-    /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>
-    internal IntroCinematicObjectSystem Objects => CurrentObjects ??
-        throw new InvalidOperationException("The intro's sprite objects have not been created; the text pages create them.");
+    internal IntroNarrationActors? CurrentNarration { get; private set; }
+    /// <summary>The intro's narration actors, which exist from the first text page onward.</summary>
+    internal IntroNarrationActors Narration => CurrentNarration ??
+        throw new InvalidOperationException("The intro's narration actors have not been created; the text pages create them.");
     /// <summary>Applies the selected Japanese subtitle treatment to narration pages.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
     /// <summary>
@@ -243,7 +243,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // Setup loads the sprite sheets the intro binds; the narration, the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
-        objectSprites = new ScreenSprites();
+        screenSprites = new ScreenSprites();
 
         // The game's setup loads the ordinary beam colours before the full intro colours replace them, so the flashback
         // Samus shows the opening's colours from the start (her intro shades); the flashback projectile pages bind the
@@ -356,7 +356,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // page one's setup, so HasQueuedMusic becomes clear after fourteen update slots.
                 if (MusicQueueFinished())
                 {
-                    Objects.StartEnglishPageOne();
+                    Narration.StartEnglishPageOne();
                     // Page one seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
                     fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
@@ -491,23 +491,23 @@ public sealed class IntroCinematicState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
         }
 
-        if (CurrentObjects is not null)
+        if (CurrentNarration is not null)
         {
-            CurrentObjects.Step(controller.NewlyPressed);
-            if (CurrentObjects.PageOneAwaitingInput)
+            CurrentNarration.Step(controller.NewlyPressed);
+            if (CurrentNarration.PageOneAwaitingInput)
             {
                 if (Phase == IntroCinematicPhase.PageOneText)
                     Phase = IntroCinematicPhase.PageOneAwaitingInput;
             }
-            if (CurrentObjects.PageTwoAwaitingInput && Phase == IntroCinematicPhase.PageTwoText)
+            if (CurrentNarration.PageTwoAwaitingInput && Phase == IntroCinematicPhase.PageTwoText)
                 Phase = IntroCinematicPhase.PageTwoAwaitingInput;
-            if (CurrentObjects.PageThreeAwaitingInput && Phase == IntroCinematicPhase.PageThreeText)
+            if (CurrentNarration.PageThreeAwaitingInput && Phase == IntroCinematicPhase.PageThreeText)
                 Phase = IntroCinematicPhase.PageThreeAwaitingInput;
-            if (CurrentObjects.PageFourAwaitingInput && Phase == IntroCinematicPhase.PageFourText)
+            if (CurrentNarration.PageFourAwaitingInput && Phase == IntroCinematicPhase.PageFourText)
                 Phase = IntroCinematicPhase.PageFourAwaitingInput;
-            if (CurrentObjects.PageFiveAwaitingInput && Phase == IntroCinematicPhase.PageFiveText)
+            if (CurrentNarration.PageFiveAwaitingInput && Phase == IntroCinematicPhase.PageFiveText)
                 Phase = IntroCinematicPhase.PageFiveAwaitingInput;
-            if (CurrentObjects.IntroFinishRequested && Phase == IntroCinematicPhase.PageSixText)
+            if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageSixText)
             {
                 // Page six selects the ordinary fade-out owner with delay/counter one. The
                 // framebuffer on this request frame is still full-brightness page six.
@@ -559,12 +559,12 @@ public sealed class IntroCinematicState : IFrontendScreen
                 explosionsAllocated: FlashbackMotherBrainExplosions is not null);
         }
 
-        // This ordering makes a newly spawned timer-one object select its first frame
+        // This ordering makes a newly spawned timer-one actor select its first frame
         // on the same accepted frame as the page-one input transition.
         CurrentFlashbackMotherBrain?.Step();
         if (explosionsExistedBeforeThisFrame)
         {
-            // The eight actors are allocated while object zero is already being processed,
+            // The eight actors are allocated while the first actor is already being processed,
             // so their first cinematic sprite update occurs on the following frame. Hit count
             // four is reached on the spawn frame, after the update passed their free slots.
             FlashbackMotherBrainExplosions?.Step(CrossfadeFinishing);
@@ -575,7 +575,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentBabyDiscovery?.Step(frameCounter, CrossfadeFinishing);
         CurrentScientistCutscene?.Step(crossfadeTick);
 
-        // The cinematic's game state runs the colour effects after its sprite objects. The fight lights' own check ends
+        // The cinematic's game state runs the colour effects after its actors. The fight lights' own check ends
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
         if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.PageTwoRequested != true)
@@ -588,8 +588,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The shared scene setup places the persistent narration caret off screen.
         // It remains alive and will be restored by the next text-page setup. Starting the cross-fade turns the page,
         // which deletes the Japanese text's next-page arrow.
-        Objects.HideCaret();
-        Objects.AcceptPageTurn();
+        Narration.HideCaret();
+        Narration.AcceptPageTurn();
 
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
         // loaded with the initial artwork; the room's block data below is gameplay
@@ -621,7 +621,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackDemoInput.Clear();
         CurrentFlashbackDemoInput.Enable();
         CurrentFlashbackDemoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
-        // Samus is processed, and drawn ahead of the cinematic objects.
+        // Samus is processed, and drawn ahead of the cinematic actors.
         flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 
         // The scene setup starts the crossfade from the narration into the flashback, which starts black.
@@ -646,7 +646,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>
     /// The end of a crossfade into a flashback starts the old Mother Brain fight's background lights (#1733) while
     /// <paramref name="display"/>, how the intro shows Samus, has Samus draw first: the Mother Brain flashback sets it so, the
-    /// discovery's setup has its objects draw first.
+    /// discovery's setup has its actors draw first.
     /// </summary>
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
     {
@@ -657,9 +657,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts the second narration page while restoring its caret and fading back from gameplay colors.</summary>
     private void SetupPageTwoCrossfade()
     {
-        // Page two spawns its narration object, selects the reverse gameplay-to-
-        // text colour step, and restores the already allocated caret object.
-        Objects.StartEnglishPageTwo();
+        // Page two spawns its narration, selects the reverse gameplay-to-
+        // text colour step, and restores the already allocated caret.
+        Narration.StartEnglishPageTwo();
         // The crossfade recolours every colour from the opening's own, so the fight lights' last record no longer shows.
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
@@ -684,8 +684,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Replaces Mother Brain actors with SR388 egg and baby owners and selects the second gameplay room page.</summary>
     internal void SetupBabyDiscoveryCrossfade()
     {
-        Objects.HideCaret();
-        Objects.AcceptPageTurn();
+        Narration.HideCaret();
+        Narration.AcceptPageTurn();
 
         // The discovery setup shows the second authored room page, declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
@@ -693,7 +693,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
 
-        // The old gameplay objects have reached their delete animations. Releasing the scoped
+        // The old gameplay actors have reached their delete animations. Releasing the scoped
         // references prevents their projectile and collision steps from running behind the
         // new scene while preserving the shared artwork and colours they intentionally reuse.
         CurrentFlashbackSamus = null;
@@ -725,9 +725,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageThreeCrossfade()
     {
         // The egg's page-three step selects page three. On the next cinematic-phase call page three
-        // spawns its narration object and enters the same gameplay-to-text colour
+        // spawns its narration and enters the same gameplay-to-text colour
         // step used after Mother Brain. The SR388 actors continue running beneath it.
-        Objects.StartEnglishPageThree();
+        Narration.StartEnglishPageThree();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
@@ -745,8 +745,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // Scientist crossfades use the sibling setup, which performs
         // the same off-screen caret move before changing the visible layer configuration.
-        Objects.HideCaret();
-        Objects.AcceptPageTurn();
+        Narration.HideCaret();
+        Narration.AcceptPageTurn();
 
         // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight, and
         // spawns the delivered baby before starting the crossfade into the laboratory. Its picture is already in the
@@ -779,7 +779,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageFourCrossfade()
     {
         // The baby's page-four step selects page four, which starts its text and the crossfade back from the laboratory.
-        Objects.StartEnglishPageFour();
+        Narration.StartEnglishPageFour();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
@@ -815,8 +815,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts the second laboratory scene on its vertically offset page.</summary>
     private void SetupBabyMetroidExamination()
     {
-        Objects.HideCaret();
-        Objects.AcceptPageTurn();
+        Narration.HideCaret();
+        Narration.AcceptPageTurn();
 
         // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
         // Its setup is otherwise the same scientist crossfade as delivery.
@@ -832,7 +832,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts page five after the baby examination scene and selects the reverse colour transition.</summary>
     private void SetupPageFiveCrossfade()
     {
-        Objects.StartEnglishPageFive();
+        Narration.StartEnglishPageFive();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
@@ -846,7 +846,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // Page six's setup turns the page, which deletes the Japanese text's next-page arrow. English falls straight
         // through into page six; Japanese text selects page six as the next update's cinematic phase.
-        Objects.AcceptPageTurn();
+        Narration.AcceptPageTurn();
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
         else
@@ -857,8 +857,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StartPageSix()
     {
         // Page six has no colour transition. Only the English text region, caret, eye
-        // animation, and final page object are replaced.
-        Objects.StartEnglishPageSix();
+        // animation, and final page are replaced.
+        Narration.StartEnglishPageSix();
         CurrentScientistCutscene = null;
         Phase = IntroCinematicPhase.PageSixText;
     }
@@ -1001,7 +1001,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         SamusHurtFlash.Update(flashbackSamusColours, samus, demoInput);
 
         // The cinematic ages Samus's two hurt timers after both of her state updates, but before the
-        // cinematic-object walker can publish a new Rinka collision later in this frame.
+        // cinematic-actor walker can publish a new Rinka collision later in this frame.
         samus.DecrementHurtTimers();
     }
 
@@ -1013,7 +1013,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The flashback's end locks Samus standing facing left, reinitializes the pose/animation bookkeeping,
         // disables demo publication, and then returns to the demo's animation. The next
-        // step is the shared delete, so the object is removed on the same
+        // step is the shared delete, so the actor is removed on the same
         // update. Freezing input after the exact pose change gives the remaining Mother Brain explosion
         // frames the standing Samus the original gives them once her demo stops driving her.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -1056,9 +1056,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Both direct rendering and detached capture enter here once per display.
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        objectSprites.BeginFrame();
-        // Samus shown over the cinematic objects draws her and both projectile passes before the
-        // cinematic objects; once deleting Mother Brain clears it, only the objects remain.
+        screenSprites.BeginFrame();
+        // Samus shown over the cinematic actors draws her and both projectile passes before the
+        // cinematic actors; once deleting Mother Brain clears it, only the actors remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
             FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
@@ -1069,21 +1069,21 @@ public sealed class IntroCinematicState : IFrontendScreen
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
         }
-        FlashbackRinkas?.Draw(objectSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
-        FlashbackMotherBrainExplosions?.Draw(objectSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
+        FlashbackRinkas?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroRinka));
+        FlashbackMotherBrainExplosions?.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroMotherBrainExplosion));
         // The blank pose draws nothing.
         if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
             motherBrainPose != CinematicSpritePose.Blank)
         {
-            // Samus shown over the cinematic objects makes the intro's sprite draw put Samus first and cinematic
+            // Samus shown over the cinematic actors makes the intro's sprite draw put Samus first and cinematic
             // actors afterward. Retaining that drawing order preserves overlap wins.
             IntroSprites(CinematicSpriteFamily.IntroMotherBrain).Draw(
-                motherBrainPose, objectSprites,
+                motherBrainPose, screenSprites,
                 IntroMotherBrainSpriteState.Position,
                 FlashbackMotherBrain.Shading(crossfade.ActorShading(IntroMotherBrainSpriteState.Colouring)));
         }
-        objectSprites.FinishFrame();
-        foreach (SpriteDraw draw in objectSprites.Draws)
+        screenSprites.FinishFrame();
+        foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
         sprites.FinalizeFrame();
 
@@ -1095,17 +1095,17 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        // The cinematic draw layers Samus and the cinematic objects by how the intro shows her.
+        // The cinematic draw layers Samus and the cinematic actors by how the intro shows her.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
         if (display == IntroSamusDisplay.SamusFirst)
             DrawBabyDiscoverySamus(sprites);
-        objectSprites.BeginFrame();
-        BabyDiscovery.DrawActors(objectSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
+        screenSprites.BeginFrame();
+        BabyDiscovery.DrawActors(screenSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
             IntroSprites(CinematicSpriteFamily.IntroDiscoveryActor));
-        objectSprites.FinishFrame();
-        foreach (SpriteDraw draw in objectSprites.Draws)
+        screenSprites.FinishFrame();
+        foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
-        if (display == IntroSamusDisplay.ObjectsFirst)
+        if (display == IntroSamusDisplay.ActorsFirst)
             DrawBabyDiscoverySamus(sprites);
         sprites.FinalizeFrame();
 
@@ -1121,39 +1121,39 @@ public sealed class IntroCinematicState : IFrontendScreen
         BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounter);
     }
 
-    /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
+    /// <summary>Collects the scientist scene's actors for the current cinematic display.</summary>
     internal SpriteFrameBuffer PrepareScientistSprites()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        objectSprites.BeginFrame();
-        ScientistCutscene.Draw(objectSprites, IntroSprites(CinematicSpriteFamily.IntroScientist));
-        objectSprites.FinishFrame();
-        foreach (SpriteDraw draw in objectSprites.Draws)
+        screenSprites.BeginFrame();
+        ScientistCutscene.Draw(screenSprites, IntroSprites(CinematicSpriteFamily.IntroScientist));
+        screenSprites.FinishFrame();
+        foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
         sprites.FinalizeFrame();
         return sprites;
     }
 
-    /// <summary>Collects the persistent caret, the Japanese text's next-page arrow and illustrated-page cinematic objects in display order.</summary>
+    /// <summary>Collects the persistent caret, the Japanese text's next-page arrow and illustrated-page cinematic actors in display order.</summary>
     internal SpriteFrameBuffer PrepareIllustratedPageSprites()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        objectSprites.BeginFrame();
+        screenSprites.BeginFrame();
         // The caret's blank pose, shown while it blinks off, draws nothing.
-        if (Objects.CaretPose is { } caretPose && caretPose != CinematicSpritePose.Blank)
+        if (Narration.CaretPose is { } caretPose && caretPose != CinematicSpritePose.Blank)
         {
             // The persistent caret begins at its narration place, goes off screen during illustrated
             // crossfades, and is restored when the next narration page starts.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
-                caretPose, objectSprites, Objects.Caret,
-                IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+                caretPose, screenSprites, Narration.Caret,
+                IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
         }
-        // The Japanese text's next-page arrow is drawn after the caret, whose object comes first (#1655).
-        Objects.NextPageArrow?.Draw(objectSprites, installedArt: IntroSprites(CinematicSpriteFamily.IntroNextPageArrow));
-        objectSprites.FinishFrame();
-        foreach (SpriteDraw draw in objectSprites.Draws)
+        // The Japanese text's next-page arrow is drawn after the caret, which comes first (#1655).
+        Narration.NextPageArrow?.Draw(screenSprites, installedArt: IntroSprites(CinematicSpriteFamily.IntroNextPageArrow));
+        screenSprites.FinishFrame();
+        foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
         sprites.FinalizeFrame();
 
@@ -1166,7 +1166,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // The pages show blank text rows over the installed final line, drawn with the Japanese glyphs blanked (#1467).
         narrationText.ClearText();
-        CurrentObjects = new IntroCinematicObjectSystem(
+        CurrentNarration = new IntroNarrationActors(
             narrationText,
             subtitles,
             audio,
@@ -1226,7 +1226,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             sprites = PrepareScientistSprites();
             room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), crossfade.SceneShading), ScientistCutscene.Background);
         }
-        else if (CurrentObjects is null)
+        else if (CurrentNarration is null)
         {
             // The first card is opaque and unscrolled and shows no sprites; later text is transparent
             // and cropped eight pixels down. Do not conflate those two display setups.
@@ -1237,7 +1237,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         else
         {
             sprites = PrepareIllustratedPageSprites();
-            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
+            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentNarration.EyeFrame, crossfade.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
 
         var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, crossfade.SceneShading, crossfade.NarrationShading), default);

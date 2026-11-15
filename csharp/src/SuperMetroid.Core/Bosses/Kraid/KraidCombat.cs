@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -16,8 +16,8 @@ internal sealed class KraidCombat
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues Kraid's encounter sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Spawns room sprite objects for Kraid's visual effects, and gives the place a dud flash took.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Spawns room effect actors for Kraid's visual effects, and gives the place a dud flash took.</summary>
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
@@ -26,11 +26,11 @@ internal sealed class KraidCombat
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomSpriteObjects spriteObjects, KraidParts parts, EnemyCollision collision, KraidEncounterAccess access)
+    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, KraidParts parts, EnemyCollision collision, KraidEncounterAccess access)
     {
         _projectiles = projectiles;
         _audio = audio;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _parts = parts;
         _collision = collision;
         _access = access;
@@ -168,9 +168,9 @@ internal sealed class KraidCombat
                 }
                 else
                 {
-                    RoomSpriteObject dud = _spriteObjects.SpawnRoomSpriteObject(
-                        shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
-                    bounds.LeaveAfterDud(_spriteObjects.PlaceOf(dud), shot.Position);
+                    RoomEffectActor dud = _effectActors.SpawnRoomEffectActor(
+                        shot.Position, RoomEffectActorKind.EnemyProjectileDud, graphics: default);
+                    bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
                 projectile.MarkCollision();

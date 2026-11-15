@@ -123,8 +123,8 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 - **Room mains never survive**: the header step builds the Maridia elevatube and Ceres elevator shaft owners, active
   only where the room state selects them. Their room-main words other than `RoomMainASMVar1` are written before they
   are read, so a fresh owner is the cartridge's state; door setup code acts on the destination's owners.
-- **Enemies, their projectiles and sprite objects never survive**: each room builds its own enemy system, whose
-  bank-$86 projectile pool and sprite objects start empty (9d81b919c added the pool's destruction).
+- **Enemies, their projectiles and effect actors never survive**: each room builds its own enemy system, whose
+  bank-$86 projectile pool and effect actors start empty (9d81b919c added the pool's destruction).
 - **Stale Mode 7 math is cleared** on ordinary doors.
 - **Order-sensitive**: gate requests created during PLM setup are applied after the room's enemy system is built and
   loaded, so the closed gate survives into the first viewport.
@@ -140,7 +140,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 | `ElevatorBehavior` | actor states, arrival slot | room |
 | `EnemySession` | elevator journey, fade counter, Ceres status, drop bias, language, random counter, death quota, staging, Mode 7 residue, OBJ table, artwork | session carry-over |
 | `EnemyProjectileEngine` | places | room |
-| `RoomSpriteObjects`, `SpriteObjectPlaces` | sprite objects, their places | room |
+| `RoomEffectActors`, `EffectActorPlaces` | effect actors, their places | room |
 | `RoomObjectSystem` | slots, sounds, gate requests, bindings, tilemap updates, station events, Chozo references | room |
 | `SamusBombProjectileSystem` | slots, bomb counter, cooldown, power-bomb explosion | room |
 | `SamusProjectileSystem` | slots, trails, counter, combo, earthquake | room |

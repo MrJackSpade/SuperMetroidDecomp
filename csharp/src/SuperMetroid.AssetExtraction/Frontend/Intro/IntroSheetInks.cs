@@ -52,7 +52,7 @@ internal static class IntroSheetInks
     private static readonly Dictionary<IntroSpriteColouring, int> Sets = new()
     {
         [IntroSpriteColouring.MotherBrain] = 7,
-        [IntroSpriteColouring.CrossFadeObjects] = 6,
+        [IntroSpriteColouring.CrossFadeActors] = 6,
         [IntroSpriteColouring.DiscoveryActors] = 7,
         [IntroSpriteColouring.Explosions] = 5,
     };

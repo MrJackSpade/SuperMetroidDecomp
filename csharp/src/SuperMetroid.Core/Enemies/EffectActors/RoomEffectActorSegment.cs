@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Enemies.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.EffectActors;
 
-/// <summary>The room sprite-object animations the named object kinds reach.</summary>
-internal enum RoomSpriteObjectSegment
+/// <summary>The room effect-actor animations the named object kinds reach.</summary>
+internal enum RoomEffectActorSegment
 {
     /// <summary>Draygon foaming at the mouth animation.</summary>
     DraygonFoamingAtTheMouth,

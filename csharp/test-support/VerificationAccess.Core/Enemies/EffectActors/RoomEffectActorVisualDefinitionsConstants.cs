@@ -3,13 +3,13 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Enemies.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
 /// The native bank-$B4 spritemap each room sprite-object picture draws, which only verification reads (#1817): an
 /// enemy-sheet frame's is the record the extraction reads it from, and a hit burst's is the burst's own record.
 /// </summary>
-internal static class RoomSpriteObjectVisualDefinitionsConstants
+internal static class RoomEffectActorVisualDefinitionsConstants
 {
     /// <summary>The bank of the room sprite objects' records.</summary>
     private const byte Bank = 0xb4;
@@ -25,7 +25,7 @@ internal static class RoomSpriteObjectVisualDefinitionsConstants
 
     /// <summary>The bank-$B4 spritemap <paramref name="picture"/> draws.</summary>
     /// <exception cref="InvalidOperationException">The picture's record is not one of the room sprite objects'.</exception>
-    internal static ushort Spritemap(RoomSpriteObjectPicture picture)
+    internal static ushort Spritemap(RoomEffectActorPicture picture)
     {
         if (picture.HitBurst is { } burst)
             return HitBurstSpritemaps[burst];
@@ -36,6 +36,6 @@ internal static class RoomSpriteObjectVisualDefinitionsConstants
     }
 
     /// <summary>Every picture the room sprite objects' animations show, each once.</summary>
-    internal static IReadOnlySet<RoomSpriteObjectPicture> Pictures { get; } =
-        RoomSpriteObjectAnimations.Segments.Frames.ToHashSet();
+    internal static IReadOnlySet<RoomEffectActorPicture> Pictures { get; } =
+        RoomEffectActorAnimations.Segments.Frames.ToHashSet();
 }

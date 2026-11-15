@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic sprite object: its position and colouring, playing one of the typed cinematic sprite animations (#641,
+/// A cinematic actor: its position and colouring, playing one of the typed cinematic sprite animations (#641,
 /// #1600) where every cinematic sprite's update ran its animation.
 /// </summary>
 /// <remarks>
@@ -78,7 +78,7 @@ internal sealed class IntroDiscoverySprite
 
     /// <summary>
     /// Seeds the private frame hold used by the sprite's next update
-    /// call. Cinematic object setups write this hold directly when several actors
+    /// call. Cinematic actor setups write this hold directly when several actors
     /// share one animation but must begin on staggered frames.
     /// </summary>
     public void DelayFirstStep(int frames)
@@ -165,7 +165,7 @@ internal sealed class IntroDiscoverySprite
     /// Draws the current frame at the screen place minus <paramref name="scroll"/>, wherever that lies: the display clips
     /// a frame off the screen (#1587).
     /// </summary>
-    public void Draw(ScreenSprites objects, Offset16<ScreenPixels> scroll = default,
+    public void Draw(ScreenSprites screenSprites, Offset16<ScreenPixels> scroll = default,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
         // The blank pose draws nothing.
@@ -180,6 +180,6 @@ internal sealed class IntroDiscoverySprite
         }
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, placed, Colouring);
+            .Draw(pose, screenSprites, placed, Colouring);
     }
 }

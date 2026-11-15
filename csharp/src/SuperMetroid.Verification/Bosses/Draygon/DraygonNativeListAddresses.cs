@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -123,10 +123,10 @@ internal static class DraygonNativeListAddresses
         0x9e0a => new DraygonCue.ShiftBodyPicture(new(-unchecked((short)operands[0]), -unchecked((short)operands[1]))),
         0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
         0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Room, operands[0])),
-        0x973f => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud),
-        0x9752 => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.SporeSpawnDyingExplosion),
-        0x9765 => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.BotwoonLargeExplosion),
-        0x9778 => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DraygonBreathBubble),
+        0x973f => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DustCloud),
+        0x9752 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SporeSpawnDyingExplosion),
+        0x9765 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BotwoonLargeExplosion),
+        0x9778 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubble),
         0x98d3 => DraygonCue.ParalyseTailAndArms.Instance,
         0x98ef => DraygonCue.SetBodyIntangible.Instance,
         0x9f57 => new DraygonCue.SetBodyPhase(BodyPhases[operands[0]]),

@@ -28,7 +28,7 @@ internal static class TourianStatueXrayFreezeVerification
         AssertTrue(runtime.TourianStatues.Enabled, "the statue room runs the statue sequence");
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 
-        var objects = runtime.TourianStatues.objects;
+        var objects = runtime.TourianStatues.statues;
         string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Playback?.Place}/{o.Timer}"));
 
         runtime.StepFrame(0);

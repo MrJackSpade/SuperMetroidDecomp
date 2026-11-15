@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 using F = SuperMetroid.Core.Bosses.Draygon.DraygonFrame;
 using P = SuperMetroid.Core.Bosses.Draygon.DraygonSegment;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -74,10 +74,10 @@ internal static class DraygonAnimations
         [P.BodyDyingExplosions] =
         [
             Wait(12),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.BotwoonLargeExplosion)),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.SporeSpawnDyingExplosion)),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud)),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DraygonBreathBubble)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BotwoonLargeExplosion)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SporeSpawnDyingExplosion)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DustCloud)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubble)),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
             Wait(1),
             Cue(DraygonCue.ParalyseTailAndArms.Instance),
@@ -85,10 +85,10 @@ internal static class DraygonAnimations
         [P.BodyDyingExplosionsLoop] =
         [
             Wait(16),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.BotwoonLargeExplosion)),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.SporeSpawnDyingExplosion)),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud)),
-            Cue(new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DraygonBreathBubble)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BotwoonLargeExplosion)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SporeSpawnDyingExplosion)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DustCloud)),
+            Cue(new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubble)),
             Cue(new DraygonCue.QueueSound(DraygonSoundDefinitions.Explosion)),
         ],
         [P.Delete] =

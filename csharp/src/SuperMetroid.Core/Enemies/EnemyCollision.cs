@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies;
@@ -37,14 +37,14 @@ internal sealed class EnemyCollision
     private readonly EnemySlotTable _slotTable;
     /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
     private readonly PowerBombRadiusAfterKill _powerBombRadius;
-    /// <summary>The room's sprite objects, which the burst at an enemy a shot or bomb hurts joins.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>The room's effect actors, which the burst at an enemy a shot or bomb hurts joins.</summary>
+    private readonly RoomEffectActors _effectActors;
 
     /// <summary>Binds the enemy and room owners whose state or reactions collisions can change.</summary>
     internal EnemyCollision(EnemyCollisionDependencies dependencies)
     {
         _powerBombRadius = dependencies.PowerBombRadius;
-        _spriteObjects = dependencies.SpriteObjects;
+        _effectActors = dependencies.EffectActors;
         _lifecycle = dependencies.Lifecycle;
         _audio = dependencies.Audio;
         _deathsAndDrops = dependencies.DeathsAndDrops;
@@ -638,11 +638,11 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Shows the enemy-hit burst at <paramref name="enemy"/>'s position: the ordinary shot reaction's sign that a shot or
-    /// bomb hurt an enemy that was not frozen, shown after the damage and before the death. It is a room sprite object
-    /// drawn with the room's graphics, so it takes one of the room's sprite-object places as it spawns.
+    /// bomb hurt an enemy that was not frozen, shown after the damage and before the death. It is a room effect actor
+    /// drawn with the room's graphics, so it takes one of the room's effect-actor places as it spawns.
     /// </summary>
     private void ShowHitBurst(RoomEnemySlot enemy) =>
-        _ = _spriteObjects.SpawnRoomSpriteObject(enemy.Position.Whole, RoomSpriteObjectKind.EnemyHit, graphics: default);
+        _ = _effectActors.SpawnRoomEffectActor(enemy.Position.Whole, RoomEffectActorKind.EnemyHit, graphics: default);
 
     /// <summary>What a normal bomb's common damage did to the enemy it reached.</summary>
     private enum NormalBombHit

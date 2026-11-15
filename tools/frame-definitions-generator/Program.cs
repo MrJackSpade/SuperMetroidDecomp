@@ -5,7 +5,7 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <summary>
 /// Generates csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyDefinitionFrameDefinitions.cs and
 /// SpawnedObjectFrameDefinitions.cs (#1392, #1484, #1513) from SuperMetroid.Core's semantic call graph: the frames each
-/// enemy definition's behaviour shows, the projectile frames and room sprite objects it spawns, and what code outside
+/// enemy definition's behaviour shows, the projectile frames and room effect actors it spawns, and what code outside
 /// every behaviour spawns, by the common spawner whose code spawns it. Run from the repository root; --check exits nonzero when a committed file differs.
 /// </summary>
 internal static class Program

@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Projectiles.Artwork;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -42,7 +42,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing DraygonEvirs =
         new(ComposedEncounter.DraygonEvirs, [EncounterLookUploads.DraygonEvirsLook])
         {
-            SpriteObjects = [RoomSpriteObjectKind.DraygonIntroEvir, RoomSpriteObjectKind.DraygonDeathEvirFacingRight],
+            EffectActors = [RoomEffectActorKind.DraygonIntroEvir, RoomEffectActorKind.DraygonDeathEvirFacingRight],
         };
 
     /// <summary>The gunship's hull, drawn landed and through its takeoff.</summary>

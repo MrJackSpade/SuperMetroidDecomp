@@ -56,7 +56,7 @@ internal static class IntroNextPageArrowVerification
     /// </summary>
     private static void VerifyPageOne(IntroNarrationPresentation narration)
     {
-        (IntroCinematicObjectSystem japanese, IntroCinematicObjectSystem english, _) = Pair(narration);
+        (IntroNarrationActors japanese, IntroNarrationActors english, _) = Pair(narration);
         japanese.StartEnglishPageOne();
         english.StartEnglishPageOne();
         RunToTextEnd(japanese, english, () => english.PageOneAwaitingInput, "page one");
@@ -73,7 +73,7 @@ internal static class IntroNextPageArrowVerification
     /// </summary>
     private static void VerifyPageTwo(IntroNarrationPresentation narration)
     {
-        (IntroCinematicObjectSystem japanese, IntroCinematicObjectSystem english, IntroJapaneseSubtitles subtitles) = Pair(narration);
+        (IntroNarrationActors japanese, IntroNarrationActors english, IntroJapaneseSubtitles subtitles) = Pair(narration);
         japanese.StartEnglishPageTwo();
         english.StartEnglishPageTwo();
         RunToTextEnd(japanese, english, () => english.PageTwoAwaitingInput, "page two");
@@ -111,13 +111,13 @@ internal static class IntroNextPageArrowVerification
     private static NarrationPair Pair(IntroNarrationPresentation narration)
     {
         var subtitles = new IntroJapaneseSubtitles(enabled: true);
-        return new(new IntroCinematicObjectSystem(new IntroNarrationText(), subtitles, AudioQueues.Standalone(), narrationPresentation: narration),
-            new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration),
+        return new(new IntroNarrationActors(new IntroNarrationText(), subtitles, AudioQueues.Standalone(), narrationPresentation: narration),
+            new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration),
             subtitles);
     }
 
     /// <summary>Steps both narrations until the English one's input wait starts, neither showing the arrow while its text is typed.</summary>
-    private static void RunToTextEnd(IntroCinematicObjectSystem japanese, IntroCinematicObjectSystem english, Func<bool> englishWaiting, string page)
+    private static void RunToTextEnd(IntroNarrationActors japanese, IntroNarrationActors english, Func<bool> englishWaiting, string page)
     {
         while (!englishWaiting())
         {
@@ -128,7 +128,7 @@ internal static class IntroNextPageArrowVerification
     }
 
     /// <summary>Requires the Japanese page's arrow spawned as its text ended, at its place, not yet updated.</summary>
-    private static void RequireSpawned(IntroCinematicObjectSystem japanese, string page)
+    private static void RequireSpawned(IntroNarrationActors japanese, string page)
     {
         IntroDiscoverySprite arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"Japanese {page} spawned no next-page arrow as its text ended.");
@@ -137,7 +137,7 @@ internal static class IntroNextPageArrowVerification
     }
 
     /// <summary>Compares <see cref="ComparedLoops"/> whole loops of the Japanese arrow from its first update.</summary>
-    private static void CompareLoop(IntroCinematicObjectSystem japanese, IntroCinematicObjectSystem english, string at)
+    private static void CompareLoop(IntroNarrationActors japanese, IntroNarrationActors english, string at)
     {
         for (int update = 0; update < ComparedLoops * LoopPoses.Length * LoopFrameUpdates; update++)
         {
@@ -147,7 +147,7 @@ internal static class IntroNextPageArrowVerification
     }
 
     /// <summary>Accepts the press that turns the page: the arrow deletes itself on that update's object update.</summary>
-    private static void TurnPage(IntroCinematicObjectSystem japanese, IntroCinematicObjectSystem english, string page)
+    private static void TurnPage(IntroNarrationActors japanese, IntroNarrationActors english, string page)
     {
         japanese.AcceptPageTurn();
         english.AcceptPageTurn();
@@ -157,7 +157,7 @@ internal static class IntroNextPageArrowVerification
     }
 
     /// <summary>Runs one update of both narrations with <paramref name="newlyPressed"/>; the English one never shows the arrow.</summary>
-    private static void Step(IntroCinematicObjectSystem japanese, IntroCinematicObjectSystem english, ControllerButton newlyPressed)
+    private static void Step(IntroNarrationActors japanese, IntroNarrationActors english, ControllerButton newlyPressed)
     {
         japanese.Step(newlyPressed);
         english.Step(newlyPressed);
@@ -168,7 +168,7 @@ internal static class IntroNextPageArrowVerification
     private static CinematicSpritePose LoopPose(int update) => LoopPoses[update / LoopFrameUpdates % LoopPoses.Length];
 
     /// <summary>Requires the Japanese arrow present and showing <paramref name="expected"/>.</summary>
-    private static void AssertArrowShows(IntroCinematicObjectSystem japanese, CinematicSpritePose expected, string at)
+    private static void AssertArrowShows(IntroNarrationActors japanese, CinematicSpritePose expected, string at)
     {
         IntroDiscoverySprite arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"The Japanese next-page arrow is gone at {at}.");
@@ -187,5 +187,5 @@ internal static class IntroNextPageArrowVerification
     /// <param name="Japanese">The narration with Japanese text.</param>
     /// <param name="English">The narration with English text.</param>
     /// <param name="Subtitles">The Japanese narration's subtitles, whose hold the page's input wait checks.</param>
-    private sealed record NarrationPair(IntroCinematicObjectSystem Japanese, IntroCinematicObjectSystem English, IntroJapaneseSubtitles Subtitles);
+    private sealed record NarrationPair(IntroNarrationActors Japanese, IntroNarrationActors English, IntroJapaneseSubtitles Subtitles);
 }

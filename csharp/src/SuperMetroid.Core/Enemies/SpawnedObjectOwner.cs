@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Whose spawned-object sheet a projectile or sprite object draws from (#1392, #1513): the room's shared sheet, which
+/// Whose spawned-object sheet a projectile or effect actor draws from (#1392, #1513): the room's shared sheet, which
 /// holds the objects any room spawns and the frames encounters draw themselves; the sheet of the enemy that spawned it,
 /// which holds that enemy's objects in its colours; or the sheet of the shards and sparkles Mother Brain's tank glass
 /// throws. The import composes each sheet; where its pictures come from is the import's knowledge alone.

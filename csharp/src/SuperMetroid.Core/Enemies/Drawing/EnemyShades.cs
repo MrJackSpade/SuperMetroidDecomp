@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
-/// The shades every enemy picture, and every projectile and sprite object picture an enemy spawns, is pre-coloured in
+/// The shades every enemy picture, and every projectile and effect actor picture an enemy spawns, is pre-coloured in
 /// (#1512, #1544): the looks any enemy can be drawn in besides its own colours. The import pre-colours each installed
 /// spawned-object sheet in all of them, and each enemy sheet in those its enemy can be drawn in (#1643): an enemy that is
 /// never frozen has no frozen look, so a draw asking its sheet for one fails.

@@ -18,7 +18,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
-    internal readonly ScreenSprites objects;
+    internal readonly ScreenSprites screenSprites;
     /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
     private SpriteSheet? flightSprites;
     /// <summary>
@@ -87,7 +87,7 @@ internal sealed class IntroCeresFlightState
             "Ceres approach requires installed cinematic artwork.");
 
         // Setup loads the floor's front view and the actors' artwork; the scene shows the front view's installed floor (#1467).
-        objects = new ScreenSprites();
+        screenSprites = new ScreenSprites();
         Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.
         // The display setup itself runs as the next update's cinematic phase.
@@ -188,7 +188,7 @@ internal sealed class IntroCeresFlightState
         else if (Phase is not (IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished))
             stars.Step();
 
-        // The cinematic's game state runs the colour effects after its sprite objects, including on the update that
+        // The cinematic's game state runs the colour effects after its actors, including on the update that
         // starts one; their frames are shades the import pre-colours the flight's sheet in (#1733).
         ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
     }
@@ -204,7 +204,7 @@ internal sealed class IntroCeresFlightState
         // The stars, the station, its asteroids and the vortex lie beyond the gunship: they are drawn behind its floor.
         // The per-sprite-part priority tiers that once interleaved them with the floor are a presentation quirk the model
         // does not keep.
-        var sprites = new SpritesLayer(objects.Draws);
+        var sprites = new SpritesLayer(screenSprites.Draws);
         var layers = new List<DisplayLayer> { sprites };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
@@ -240,14 +240,14 @@ internal sealed class IntroCeresFlightState
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
     private void PrepareRenderSprites()
     {
-        objects.BeginFrame();
+        screenSprites.BeginFrame();
         CinematicSpriteSheet? spriteArtwork = flightSprites is null ? null
             : new CinematicSpriteSheet(flightSprites, CinematicSpriteFamily.CeresFlight, ActorShading);
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
             foreach (CeresRearViewActor actor in RearViewActors)
-                actor.Sprite.Draw(objects, installedArt: spriteArtwork);
-        else stars.Draw(objects, installedArt: spriteArtwork);
-        objects.FinishFrame();
+                actor.Sprite.Draw(screenSprites, installedArt: spriteArtwork);
+        else stars.Draw(screenSprites, installedArt: spriteArtwork);
+        screenSprites.FinishFrame();
     }
 
     /// <summary>

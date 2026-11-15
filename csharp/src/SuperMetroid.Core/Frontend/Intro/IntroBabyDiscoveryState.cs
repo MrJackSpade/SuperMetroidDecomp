@@ -85,16 +85,16 @@ internal sealed class IntroBabyDiscoveryState
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
-    /// How this scene shows Samus. Scene setup shows her under the cinematic objects; the egg's and the dancing
+    /// How this scene shows Samus. Scene setup shows her under the cinematic actors; the egg's and the dancing
     /// baby's behaviours later reorder or clear it.
     /// </summary>
-    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ObjectsFirst;
+    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ActorsFirst;
 
     /// <summary>True once the scene's end has stopped both phases of Samus's update.</summary>
     private bool samusUpdateStopped;
 
     /// <summary>
-    /// Samus, her demo input and the cinematic sprite objects for one update. All run after
+    /// Samus, her demo input and the cinematic actors for one update. All run after
     /// the cinematic phase, so the setup update already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
@@ -163,19 +163,19 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Step();
     }
 
-    /// <summary>Draws egg, baby, and hatch effects in the cinematic object order used by this scene.</summary>
-    public void DrawActors(ScreenSprites objects,
+    /// <summary>Draws egg, baby, and hatch effects in the cinematic actor order used by this scene.</summary>
+    public void DrawActors(ScreenSprites screenSprites,
         IIntroCinematicSpritePresentation? eggEffectArt = null,
         IIntroCinematicSpritePresentation? actorArt = null)
     {
-        // With objects drawn first, the cinematic objects draw before Samus. The egg
+        // With objects drawn first, the cinematic actors draw before Samus. The egg
         // was spawned before the confused-baby object and retains its own animation and timer.
-        egg.Draw(objects, installedArt: actorArt);
-        confusedBaby.Draw(objects, installedArt: actorArt);
+        egg.Draw(screenSprites, installedArt: actorArt);
+        confusedBaby.Draw(screenSprites, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
-            particle.Draw(objects, eggEffectArt);
+            particle.Draw(screenSprites, eggEffectArt);
         foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
-            slimeDrop.Draw(objects, eggEffectArt);
+            slimeDrop.Draw(screenSprites, eggEffectArt);
     }
 
     /// <summary>
@@ -233,8 +233,8 @@ internal sealed class IntroBabyDiscoveryState
                 foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
                     eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
                 audio.QueueSound(
-                    IntroCinematicDefinitions.Objects.EggHatch,
-                    priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                    IntroCinematicDefinitions.Sounds.EggHatch,
+                    priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
                 return;
 
             case CinematicSpriteCueKind.StartIntroPage3:
@@ -349,8 +349,8 @@ internal sealed class IntroBabyDiscoveryState
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio.QueueSound(
-                IntroCinematicDefinitions.Objects.BabyCry1,
-                priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                IntroCinematicDefinitions.Sounds.BabyCry1,
+                priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
         }
 
         // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 1/256 pixels.
@@ -388,8 +388,8 @@ internal sealed class IntroBabyDiscoveryState
             // The dancing baby cries when its count of frames danced reaches 64 and 128.
             if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyDanceFrames))
                 audio.QueueSound(
-                    IntroCinematicDefinitions.Objects.BabyCry1,
-                    priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                    IntroCinematicDefinitions.Sounds.BabyCry1,
+                    priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
         }
 
         BabyVelocity = BabyVelocity.WithX(AccelerateToward(
@@ -399,7 +399,7 @@ internal sealed class IntroBabyDiscoveryState
             limit: HorizontalSpeedLimit));
         // A baby moving left draws over Samus; otherwise Samus draws first.
         SamusDisplay = BabyVelocity.X.IsNegative
-            ? IntroSamusDisplay.ObjectsFirst
+            ? IntroSamusDisplay.ActorsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
 

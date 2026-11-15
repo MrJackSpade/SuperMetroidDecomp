@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
-    /// <summary>The cinematic sprite object running the Mother Brain's typed animation (#641).</summary>
+    /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
     private readonly IntroDiscoverySprite actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
@@ -94,7 +94,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (explodingTimer >= 128)
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
-            // starts the cross-fade during this same cinematic-object call.
+            // starts the cross-fade during this same cinematic-actor call.
             actor.Start(CinematicSpriteSegment.IntroMotherBrainStartPage2);
             pageTwoAnimationStarted = true;
         }
@@ -136,7 +136,7 @@ internal sealed class IntroMotherBrainSpriteState
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The
-        // explosion behaviour does not run until the next cinematic-object frame.
+        // explosion behaviour does not run until the next cinematic-actor frame.
         explodingTimer = 0;
         ExplosionStarted = true;
         return true;

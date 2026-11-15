@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -12,17 +12,17 @@ internal sealed class DraygonDeath
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Applies common death and drop behavior after Draygon's special sequence.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonDeath(EnemyRoomBinding room, RoomSpriteObjects spriteObjects, EnemyDeathsAndDrops deathsAndDrops, DraygonParts parts)
+    internal DraygonDeath(EnemyRoomBinding room, RoomEffectActors effectActors, EnemyDeathsAndDrops deathsAndDrops, DraygonParts parts)
     {
         _room = room;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _deathsAndDrops = deathsAndDrops;
         _parts = parts;
     }
@@ -46,9 +46,9 @@ internal sealed class DraygonDeath
         RoomEnemySlot body = state.Body;
         if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
         {
-            _spriteObjects.SpawnRoomSpriteObject(
+            _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
-                RoomSpriteObjectKind.DraygonSpiralFoam,
+                RoomEffectActorKind.DraygonSpiralFoam,
                 graphics: default);
         }
 
@@ -131,7 +131,7 @@ internal sealed class DraygonDeath
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
             state.BossDefeatPersisted = true;
         }
-        _spriteObjects.EndAll();
+        _effectActors.EndAll();
     }
 
     /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
@@ -142,13 +142,13 @@ internal sealed class DraygonDeath
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = new(DraygonRandomDefinitions.DeathSmokeX.Of(random) + 192, DraygonRandomDefinitions.DeathSmokeY.Of(random) + 400);
-        _spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default);
+        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.DustCloud, graphics: default);
     }
 
-    /// <summary>Ends every room sprite object and spawns six burial Evirs, each carrying the definition that moves it.</summary>
+    /// <summary>Ends every room effect actor and spawns six burial Evirs, each carrying the definition that moves it.</summary>
     private void SpawnDraygonDeathEvirs(DraygonEnemyState state)
     {
-        _spriteObjects.EndAll();
+        _effectActors.EndAll();
 
         // Three left-facing Evirs on the right of the circle, then three right-facing ones on its left.
         foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirs.InSpawnOrder)
@@ -162,7 +162,7 @@ internal sealed class DraygonDeath
     internal void SpawnDraygonDeathEvir(DraygonEnemyState state, DraygonBurialEvirDefinition definition)
     {
         Ensure.NotNull(state);
-        RoomSpriteObject sprite = _spriteObjects.SpawnRoomSpriteObject(
+        RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
             definition.Initial,
             definition.Kind,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Evirs));
@@ -174,10 +174,10 @@ internal sealed class DraygonDeath
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
         {
-            RoomSpriteObject sprite = evir.Sprite;
+            RoomEffectActor sprite = evir.Sprite;
             if (!sprite.IsActive || sprite.Kind is not (
-                    RoomSpriteObjectKind.DraygonIntroEvir or
-                    RoomSpriteObjectKind.DraygonDeathEvirFacingRight))
+                    RoomEffectActorKind.DraygonIntroEvir or
+                    RoomEffectActorKind.DraygonDeathEvirFacingRight))
             {
                 throw new InvalidDataException(
                     $"Draygon burial movement expected the burial Evir at angle {evir.Definition.Angle} to be live.");

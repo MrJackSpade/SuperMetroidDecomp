@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
@@ -13,15 +13,15 @@ internal sealed class FallingSparksBehavior
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates sparks and applies their projectile definition and motion.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Allocates the periodic sprite-object trail.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Allocates the periodic effect-actor trail.</summary>
+    private readonly RoomEffectActors _effectActors;
 
-    /// <summary>Binds room RNG, projectile allocation, and sprite-object trail ownership.</summary>
-    internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects)
+    /// <summary>Binds room RNG, projectile allocation, and effect-actor trail ownership.</summary>
+    internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEffectActors effectActors)
     {
         _room = room;
         _projectiles = projectiles;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
@@ -134,9 +134,9 @@ internal sealed class FallingSparksBehavior
     /// <summary>Spawns a trail object at the spark's current whole-pixel position.</summary>
     private void SpawnFallingSparkTrail(EnemyProjectile projectile)
     {
-        _ = _spriteObjects.SpawnRoomSpriteObject(
+        _ = _effectActors.SpawnRoomEffectActor(
             projectile.Position.Whole,
-            RoomSpriteObjectKind.FallingSparkTrail,
+            RoomEffectActorKind.FallingSparkTrail,
             projectile.Graphics);
     }
 

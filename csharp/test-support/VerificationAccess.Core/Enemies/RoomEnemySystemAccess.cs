@@ -55,7 +55,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
@@ -208,7 +208,7 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FirefleaEntity, FirefleaEnemyState>())];
 
         /// <summary>The room's live sprite objects, in spawn order.</summary>
-        internal IReadOnlyList<RoomSpriteObject> RoomSpriteObjects => [.. self.SpriteObjects.Live];
+        internal IReadOnlyList<RoomEffectActor> RoomEffectActors => [.. self.EffectActors.Live];
 
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
         internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior.SporeSpawn;
@@ -386,7 +386,7 @@ internal static class RoomEnemySystemAccess
         {
             Ensure.NotNull(oam);
 
-            self.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
+            self.EffectActors.DrawRoomEffectActorsAsOam(oam, camera);
             self.Projectiles.DrawEnemyProjectilesAtAsOam(oam, camera, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen);
             self.Projectiles.DrawEnemyProjectilesAtAsOam(oam, camera, EnemyProjectileDepth.BehindSamus, timeIsFrozen);
         }

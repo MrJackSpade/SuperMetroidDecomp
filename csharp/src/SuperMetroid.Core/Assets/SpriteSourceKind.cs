@@ -35,8 +35,8 @@ public enum SpriteSourceKind
     Enemy,
     /// <summary>An enemy projectile.</summary>
     EnemyProjectile,
-    /// <summary>A room sprite object: an explosion, dust or a splash.</summary>
-    RoomSpriteObject,
+    /// <summary>A room effect actor: an explosion, dust or a splash.</summary>
+    RoomEffectActor,
     /// <summary>The Ceres elevator arrival's moving pad or its platform.</summary>
     CeresElevatorArrival,
     /// <summary>Dead Torizo's sand heap, drawn after the enemy queue.</summary>

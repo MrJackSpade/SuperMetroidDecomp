@@ -55,7 +55,7 @@ internal static class EnemyCompositionBanksTooling
         internal static byte ElevatorBank => 0xa3;
 
         /// <summary>Bank $B4 containing room sprite-object composition pointers.</summary>
-        internal static byte RoomSpriteObjectBank => 0xb4;
+        internal static byte RoomEffectActorBank => 0xb4;
 
         /// <summary>Bank $A3 containing Skultera composition pointers.</summary>
         internal static byte SkulteraBank => 0xa3;

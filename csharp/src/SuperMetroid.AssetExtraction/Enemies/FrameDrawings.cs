@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -11,10 +11,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal sealed class FrameDrawings
 {
-    /// <summary>Every catalogue entry with the frames it lists resolved, its sprite objects' frames among them.</summary>
+    /// <summary>Every catalogue entry with the frames it lists resolved, its effect actors' frames among them.</summary>
     private static readonly ResolvedDrawing[] Entries = [.. EncounterArtworkDrawingDefinitions.All.Select(drawing => new ResolvedDrawing(drawing,
-        new HashSet<EnemyFrameId>(drawing.Frames.Concat(drawing.SpriteObjects.SelectMany(kind =>
-            RoomSpriteObjectAnimations.Segments.FramesOf(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Animations[kind]))).Select(picture => picture.RequireEnemyFrame()))),
+        new HashSet<EnemyFrameId>(drawing.Frames.Concat(drawing.EffectActors.SelectMany(kind =>
+            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(RoomEffectActorDefinitions.Animations[kind]))).Select(picture => picture.RequireEnemyFrame()))),
         new HashSet<EnemyProjectileFrameId>(drawing.Projectiles)))];
 
     /// <summary>The entries listing the frame.</summary>
@@ -50,7 +50,7 @@ internal sealed class FrameDrawings
 
     /// <summary>A catalogue entry with the frames it lists resolved.</summary>
     /// <param name="Drawing">The entry.</param>
-    /// <param name="Frames">The enemy frames it lists, its sprite objects' frames among them.</param>
+    /// <param name="Frames">The enemy frames it lists, its effect actors' frames among them.</param>
     /// <param name="Projectiles">The projectile frames it lists.</param>
     private sealed record ResolvedDrawing(EncounterArtworkDrawing Drawing, IReadOnlySet<EnemyFrameId> Frames, IReadOnlySet<EnemyProjectileFrameId> Projectiles);
 }

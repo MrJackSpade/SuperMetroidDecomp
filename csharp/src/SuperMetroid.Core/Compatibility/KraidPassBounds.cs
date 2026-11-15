@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with wrapped signed comparisons:
 /// <list type="bullet">
 /// <item>a damaging mouth hit leaves the bottom <see cref="KraidMouthHitBound"/> gives and a top far above the room;</item>
-/// <item>a mouth hit that does no damage leaves twice the place its dud flash takes (<see cref="SpriteObjectPlaces"/>) as
+/// <item>a mouth hit that does no damage leaves twice the place its dud flash takes (<see cref="EffectActorPlaces"/>) as
 /// the bottom, or the projectile's X when the flash took no place, the projectile's Y as the top, and a fixed left bound;</item>
 /// <item>a body hit leaves the projectile's X as the bottom and its Y as the top;</item>
 /// <item>testing a projectile that lies below the bottom against the body's contour leaves the projectile's right edge

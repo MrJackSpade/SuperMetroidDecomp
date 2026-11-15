@@ -24,7 +24,7 @@ internal static class IntroEyeInstructionsVerification
     {
         var narration = IntroNarrationFile.Read(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
-        var objects = new IntroCinematicObjectSystem(new IntroNarrationText(),
+        var objects = new IntroNarrationActors(new IntroNarrationText(),
             new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
@@ -39,7 +39,7 @@ internal static class IntroEyeInstructionsVerification
     /// Steps the objects and the native reader together, comparing the eye frame the portrait shows (#1467: the frame's
     /// installed picture, in the cartridge's draw-record order) and the eye countdown.
     /// </summary>
-    private static void Compare(IntroCinematicObjectSystem objects, NativeEyeReader native, int updates, string phase)
+    private static void Compare(IntroNarrationActors objects, NativeEyeReader native, int updates, string phase)
     {
         IntroEyeFrame[] frames = Enum.GetValues<IntroEyeFrame>();
         for (int update = 0; update < updates; update++)

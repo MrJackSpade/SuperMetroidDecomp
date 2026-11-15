@@ -3,30 +3,30 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.World;
 
-namespace SuperMetroid.Core.Enemies.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
 /// Verification's native view of room sprite objects: the bank-$B4 address of the record an object shows, derived from the
 /// segments' list addresses (a timed record takes four bytes, and the lists' frames come first), and the native words of
 /// its timer, spritemap, attributes and disable flag.
 /// </summary>
-internal static class RoomSpriteObjectAccess
+internal static class RoomEffectActorAccess
 {
     /// <summary>The bytes a beat occupies in its native list: only timed frames, four bytes each.</summary>
-    private static int BeatBytes(AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue> beat) => beat switch
+    private static int BeatBytes(AnimationBeat<RoomEffectActorPicture, NoAnimationCue> beat) => beat switch
     {
-        AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame => 4,
-        AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Pause or AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
+        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame => 4,
+        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Pause or AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
         _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
     };
 
     /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="segment"/>.</summary>
-    internal static ushort RecordAddress(RoomSpriteObjectSegment segment, int beat) =>
-        checked((ushort)(RoomSpriteObjectProgramAddresses.Entries[segment] +
-            RoomSpriteObjectAnimations.Segments.Beats(segment).Take(beat).Sum(BeatBytes)));
+    internal static ushort RecordAddress(RoomEffectActorSegment segment, int beat) =>
+        checked((ushort)(RoomEffectActorProgramAddresses.Entries[segment] +
+            RoomEffectActorAnimations.Segments.Beats(segment).Take(beat).Sum(BeatBytes)));
 
     /// <summary>Native views of a sprite object.</summary>
-    extension(RoomSpriteObject self)
+    extension(RoomEffectActor self)
     {
         /// <summary>
         /// The bank-$B4 address of the record the object shows, or zero once it has ended: the beat before the place its
@@ -45,7 +45,7 @@ internal static class RoomSpriteObjectAccess
             : checked((ushort)self.Timer);
 
         /// <summary>The bank-$B4 spritemap the object shows, or zero once it has ended.</summary>
-        internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
+        internal ushort SpritemapPointer => self.IsActive ? RoomEffectActorVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
 
         /// <summary>
         /// The native OBJ attribute word the character index the object's owner draws from and the row holding its colours
@@ -59,10 +59,10 @@ internal static class RoomSpriteObjectAccess
     }
 
     /// <summary>Native views of the kind selection.</summary>
-    extension(RoomSpriteObjectDefinitions)
+    extension(RoomEffectActorDefinitions)
     {
         /// <summary>The bank-$B4 list address <paramref name="kind"/> starts.</summary>
-        internal static ushort InstructionPointer(RoomSpriteObjectKind kind) => RoomSpriteObjectProgramAddresses.Entries[RoomSpriteObjectDefinitions.Animations[kind]];
+        internal static ushort InstructionPointer(RoomEffectActorKind kind) => RoomEffectActorProgramAddresses.Entries[RoomEffectActorDefinitions.Animations[kind]];
     }
 
 }

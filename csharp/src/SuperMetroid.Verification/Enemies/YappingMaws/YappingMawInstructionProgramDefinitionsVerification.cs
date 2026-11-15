@@ -103,7 +103,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 $"Yapping Maw {name} initializer program");
             AssertEqual(4, state.BodyProjectiles.Count(projectile => projectile is not null),
                 $"Yapping Maw {name} initializer body links");
-            AssertTrue(state.RootSpriteObject is not null,
+            AssertTrue(state.RootEffectActor is not null,
                 $"Yapping Maw {name} initializer root sprite object");
         }
     }

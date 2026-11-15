@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -16,7 +16,7 @@ internal sealed class DraygonGrab
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Restricts camera scrolling while Draygon controls the arena.</summary>
     private readonly SamusScrollCap _scrollCap;
     /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
@@ -25,11 +25,11 @@ internal sealed class DraygonGrab
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomSpriteObjects spriteObjects, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
+    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomEffectActors effectActors, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
     {
         _frameResults = frameResults;
         _room = room;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _scrollCap = scrollCap;
         _parts = parts;
         _turrets = turrets;
@@ -173,9 +173,9 @@ internal sealed class DraygonGrab
 
         if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
         {
-            _spriteObjects.SpawnRoomSpriteObject(
+            _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + new Offset16<RoomPixels>(state.FacingRight ? 32 : -32, -16),
-                RoomSpriteObjectKind.DraygonSpiralFoam,
+                RoomEffectActorKind.DraygonSpiralFoam,
                 graphics: default);
         }
 

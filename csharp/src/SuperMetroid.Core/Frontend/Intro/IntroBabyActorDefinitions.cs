@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Fixed cinematic-object definitions for the SR388 egg and baby-Metroid scenes.</summary>
+/// <summary>Fixed cinematic-actor definitions for the SR388 egg and baby-Metroid scenes.</summary>
 internal static class IntroBabyActorDefinitions
 {
 
@@ -12,11 +12,11 @@ internal static class IntroBabyActorDefinitions
 
     /// <summary>The delivered baby Metroid at (84,139).</summary>
     public static IntroBabyActorDefinition DeliveredBaby =>
-        new(CinematicSpriteSegment.BabyMetroidBeingDelivered, new(84, 139), IntroSpriteColouring.CrossFadeObjects);
+        new(CinematicSpriteSegment.BabyMetroidBeingDelivered, new(84, 139), IntroSpriteColouring.CrossFadeActors);
 
     /// <summary>The examined baby Metroid at (112,111).</summary>
     public static IntroBabyActorDefinition ExaminedBaby =>
-        new(CinematicSpriteSegment.BabyMetroidBeingExamined, new(112, 111), IntroSpriteColouring.CrossFadeObjects);
+        new(CinematicSpriteSegment.BabyMetroidBeingExamined, new(112, 111), IntroSpriteColouring.CrossFadeActors);
 
     /// <summary>The newly hatched confused baby at (112,155).</summary>
     public static IntroBabyActorDefinition ConfusedBaby =>

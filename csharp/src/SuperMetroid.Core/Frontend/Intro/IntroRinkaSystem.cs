@@ -62,11 +62,11 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>Adds each visible Rinka in spawn order.</summary>
-    public void Draw(ScreenSprites objects,
+    public void Draw(ScreenSprites screenSprites,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
         foreach (IntroRinka rinka in rinkas)
-            rinka.Sprite.Draw(objects, installedArt: installedArt);
+            rinka.Sprite.Draw(screenSprites, installedArt: installedArt);
     }
 
     /// <summary>Handles the two spawner cues, launching the striking pair or the missing pair.</summary>

@@ -5,8 +5,6 @@ public static class KiHunterMotionDefinitions
 {
     /// <summary>Tested with signed distance comparison.</summary>
     public const int SwoopTriggerDistance = 96;
-    /// <summary>An eighth of a step (a 256th of a turn), in the 65536ths of a step a swoop's angular speed counts below its whole steps.</summary>
-    private const int EighthOfAStep = 65536 / 8;
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(14);
@@ -21,11 +19,38 @@ public static class KiHunterMotionDefinitions
 
 
 
-    /// <summary>A rightward swoop's angular acceleration: an eighth of a step per frame.</summary>
-    public static SignedSixteenSixteen RightSwoopAcceleration { get; } = SignedSixteenSixteen.FromParts(0, EighthOfAStep);
+    /// <summary>A rightward swoop's angular acceleration: its turning speed grows an eighth of a step each update.</summary>
+    public static AngularSpeed RightSwoopAcceleration { get; } = AngularSpeed.FromSteps(1).DividedBy(8);
 
-    /// <summary>A leftward swoop's angular acceleration: minus an eighth of a step per frame.</summary>
-    public static SignedSixteenSixteen LeftSwoopAcceleration { get; } = -RightSwoopAcceleration;
+    /// <summary>A leftward swoop's angular acceleration: its turning speed grows an eighth of a step each update toward decreasing angles.</summary>
+    public static AngularSpeed LeftSwoopAcceleration { get; } = -RightSwoopAcceleration;
+
+    /// <summary>The fastest a rightward swoop turns: its whole steps are held to two steps an update.</summary>
+    public static AngularSpeed RightSwoopMaximumAngularVelocity { get; } = AngularSpeed.FromSteps(2);
+
+    /// <summary>The fastest a leftward swoop turns: its whole steps are held to two steps an update toward decreasing angles.</summary>
+    public static AngularSpeed LeftSwoopMaximumAngularVelocity { get; } = -RightSwoopMaximumAngularVelocity;
+
+    /// <summary>
+    /// Where a rightward swoop starts: a half turn, the left end of its ellipse at the Ki-Hunter's height, from which its
+    /// angle climbs through the bottom of the ellipse toward the full turn at its right end that ends the swoop.
+    /// </summary>
+    public static RotationAngle RightSwoopStartAngle { get; } = RotationAngle.HalfTurn;
+
+    /// <summary>
+    /// Where a leftward swoop starts: one step short of a full turn, as the game's does, near the right end of its
+    /// ellipse, from which its angle falls through the bottom of the ellipse toward the half turn that ends the swoop.
+    /// </summary>
+    public static RotationAngle LeftSwoopStartAngle { get; } = RotationAngle.WrappedSteps(-1);
+
+    /// <summary>The angle a rightward swoop changes to its swipe animation at: a sixteenth of a turn on from its start.</summary>
+    public static RotationAngle RightSwoopAnimationChangeAngle { get; } = RotationAngle.HalfTurn.TurnedBySteps(RotationAngle.StepsPerTurn / 16);
+
+    /// <summary>
+    /// The angle a leftward swoop changes to its swipe animation once it falls below: a sixteenth of a turn short of a
+    /// full turn.
+    /// </summary>
+    public static RotationAngle LeftSwoopAnimationChangeAngle { get; } = RotationAngle.WrappedSteps(-RotationAngle.StepsPerTurn / 16);
 
     /// <summary>The detached wing orbit's offset angle, seven-eighths of a turn.</summary>
     public static TrigonometryAngle DetachedOrbitOffsetAngle { get; } = new(224);

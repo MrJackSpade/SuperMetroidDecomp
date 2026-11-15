@@ -31,28 +31,31 @@ public sealed class KiHunterBodyState
     }
 
     /// <summary>
-    /// The animation-change angle, in whole steps (256ths of a turn) of the swoop angle: 240 for a leftward swoop or 144 for a
-    /// rightward one. Passing it installs the swoop animation.
+    /// The swoop angle at which the swoop's swipe animation starts: a sixteenth of a turn short of a full turn for a
+    /// leftward swoop, a sixteenth of a turn past the half turn for a rightward one. Passing it installs the swoop
+    /// animation.
     /// </summary>
-    public int AnimationChangeAngle { get; internal set; }
+    public RotationAngle AnimationChangeAngle { get; internal set; }
 
     /// <summary>
-    /// The swoop angle, in whole steps (256ths of a turn): 128 or 255 when a swoop begins, stepped by the whole angular velocity, and
-    /// ending the swoop at 256 or below 128, so it stays from zero to 257.
+    /// The swoop angle, in whole steps: a half turn, or one step short of a full turn, when a swoop begins, stepped by the
+    /// whole steps of the angular velocity. While the swoop runs the angle lies in the second half of the turn; a rightward
+    /// swoop ends as its angle comes round past the full turn onto the first half, a leftward one as it falls below the
+    /// half turn, so the angle is read again only once the next swoop has set it.
     /// </summary>
-    public int SwoopAngle { get; internal set; }
+    public RotationAngle SwoopAngle { get; internal set; }
 
-    /// <summary>The whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
-    public int MaximumAngularVelocity { get; internal set; }
+    /// <summary>The fastest the swoop turns, whose whole steps cap the angular velocity's: two steps an update either way.</summary>
+    public AngularSpeed MaximumAngularVelocity { get; internal set; }
 
     /// <summary>
-    /// The angular velocity in steps of a turn per update: zero when a swoop begins, accelerated each update with the
-    /// fraction carrying into the whole part, and capped on its whole part. Its whole part steps the swoop angle.
+    /// The swoop's turning speed: none when a swoop begins, accelerated each update with the fraction carrying into the
+    /// whole steps, and capped on its whole steps. Its whole steps step the swoop angle.
     /// </summary>
-    public SignedSixteenSixteen AngularVelocity { get; internal set; }
+    public AngularSpeed AngularVelocity { get; internal set; }
 
-    /// <summary>The angular acceleration: plus one eighth of a step of a turn per update squared for a rightward swoop, minus one eighth for a leftward one.</summary>
-    public SignedSixteenSixteen AngularAcceleration { get; internal set; }
+    /// <summary>The change in the swoop's turning speed each update: an eighth of a step, toward increasing angles for a rightward swoop and decreasing ones for a leftward one.</summary>
+    public AngularSpeed AngularAcceleration { get; internal set; }
 
     /// <summary>The upper patrol boundary, sixteen pixels above the spawn Y. Only the Y axis is stored and meaningful.</summary>
     public Position16<RoomPixels> UpperPatrol { get; internal set; }

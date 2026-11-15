@@ -108,7 +108,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
         state.HasLostWings = false;
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
-        state.SwoopAngle = 0;
+        state.SwoopAngle = RotationAngle.Zero;
         state.Action = KiHunterAction.FlyingPatrol;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
         state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - 16));
@@ -256,7 +256,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.AngularVelocity = SignedSixteenSixteen.Zero;
+        state.AngularVelocity = AngularSpeed.Zero;
         state.SwoopAnimationChanged = false;
         state.SwoopRadius = new Extent16<RoomPixels>(
             absoluteXDistance,
@@ -268,19 +268,18 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         bool swoopLeft = signedXDistance < 0;
         if (swoopLeft)
         {
-            state.MaximumAngularVelocity = -2;
+            state.MaximumAngularVelocity = KiHunterMotionDefinitions.LeftSwoopMaximumAngularVelocity;
             state.AngularAcceleration = KiHunterMotionDefinitions.LeftSwoopAcceleration;
-            // A leftward swoop starts one step short of the whole turn, as the game's does, and steps down to the half turn.
-            state.SwoopAngle = RotationAngle.StepsPerTurn - 1;
-            state.AnimationChangeAngle = 240;
+            state.SwoopAngle = KiHunterMotionDefinitions.LeftSwoopStartAngle;
+            state.AnimationChangeAngle = KiHunterMotionDefinitions.LeftSwoopAnimationChangeAngle;
             state.Velocity = state.Velocity.WithWholeX(-1);
         }
         else
         {
-            state.MaximumAngularVelocity = 2;
+            state.MaximumAngularVelocity = KiHunterMotionDefinitions.RightSwoopMaximumAngularVelocity;
             state.AngularAcceleration = KiHunterMotionDefinitions.RightSwoopAcceleration;
-            state.SwoopAngle = RotationAngle.StepsPerTurn / 2;
-            state.AnimationChangeAngle = 144;
+            state.SwoopAngle = KiHunterMotionDefinitions.RightSwoopStartAngle;
+            state.AnimationChangeAngle = KiHunterMotionDefinitions.RightSwoopAnimationChangeAngle;
             state.Velocity = state.Velocity.WithWholeX(1);
         }
         SetKiHunterPairFacing(body, movingRight: !swoopLeft);
@@ -307,23 +306,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                     : KiHunterSegment.SwoopRight);
         }
 
-        // The cap replaces only the whole part; the fraction keeps accumulating beneath it.
-        state.AngularVelocity += state.AngularAcceleration;
-        bool pastCap = leftArc
-            ? state.AngularVelocity.WholePixels < state.MaximumAngularVelocity
-            : state.AngularVelocity.WholePixels >= state.MaximumAngularVelocity;
-        if (pastCap)
-            state.AngularVelocity = state.AngularVelocity.WithWholePixels(state.MaximumAngularVelocity);
+        // The cap holds only the whole steps; the fraction keeps accumulating beneath it.
+        state.AngularVelocity = (state.AngularVelocity + state.AngularAcceleration)
+            .WithWholeStepsLimitedTo(state.MaximumAngularVelocity);
 
-        state.SwoopAngle += state.AngularVelocity.WholePixels;
-        if ((!leftArc && state.SwoopAngle >= RotationAngle.StepsPerTurn) ||
-            (leftArc && state.SwoopAngle < RotationAngle.StepsPerTurn / 2))
+        // The swoop runs through the second half of the turn: a rightward swoop ends as its angle comes round past the
+        // full turn onto the first half, a leftward one as it falls below the half turn. At two steps an update neither
+        // can cross the other end of that half.
+        state.SwoopAngle = state.SwoopAngle.TurnedBySteps(state.AngularVelocity.WholeSteps);
+        if (state.SwoopAngle < RotationAngle.HalfTurn)
         {
             state.Action = KiHunterAction.FlyingPatrol;
             return;
         }
 
-        TrigonometryAngle tableAngle = RotationAngle.WrappedSteps(state.SwoopAngle).ToTrigonometryAngle();
+        TrigonometryAngle tableAngle = state.SwoopAngle.ToTrigonometryAngle();
         int targetX = CoordinateAxis.Wrap(
             state.SwoopTarget.X +
             EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X));

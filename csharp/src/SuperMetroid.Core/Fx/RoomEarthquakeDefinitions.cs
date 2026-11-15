@@ -42,7 +42,6 @@ public static class RoomEarthquakeDefinitions
     /// have different successors. Live RNG supplies separate variation. Reciting
     /// these eight choices in cases or fitting them would merely disguise the
     /// same rhythmic content, while replacing the rhythm changes sound cadence.
-    /// This is the arbitrary-sequence/nonsense exception, not a cost or size exemption.
     /// </remarks>
     public static IReadOnlyList<int> RisingLiquidSoundBaseDelays { get; } =
         [1, 3, 2, 1, 1, 2, 2, 1];

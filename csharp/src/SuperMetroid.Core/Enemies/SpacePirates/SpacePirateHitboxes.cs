@@ -32,8 +32,8 @@ internal static class SpacePirateHitboxes
     }
 
     /// <summary>
-    /// Whether <paramref name="reaction"/> is one of the Pirate shot reactions the hitboxes select, which normal bombs
-    /// dispatch like the common one.
+    /// Whether <paramref name="reaction"/> is one of the Pirate shot reactions the hitboxes select, which a normal bomb
+    /// triggers as it does the common one.
     /// </summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     internal static bool OwnsShotReaction(EnemyReaction? reaction) =>

@@ -128,7 +128,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
             ? species.Combat.PhantoonBombReaction
             : base.CommonBombDamageReaction(context);
 
-    /// <summary>The body's shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The body's shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         IsBody && reaction == PhantoonReactions.Shot;

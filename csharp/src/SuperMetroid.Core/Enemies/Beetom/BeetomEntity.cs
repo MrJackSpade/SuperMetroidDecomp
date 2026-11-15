@@ -37,7 +37,7 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemySlot slot, E
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
         LeavesShotToSpecies && context.SelectedShot is null ? BeetomBehavior.BeetomBombReaction : base.CommonBombDamageReaction(context);
 
-    /// <summary>The Beetom's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The Beetom's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

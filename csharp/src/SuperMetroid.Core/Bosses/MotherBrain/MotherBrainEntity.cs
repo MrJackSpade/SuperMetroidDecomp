@@ -147,7 +147,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
-    /// <summary>The body's and head's own shot reactions, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The body's and head's own shot reactions, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         (Part == MotherBrainPart.Body && reaction == MotherBrainReactions.BodyShot) ||

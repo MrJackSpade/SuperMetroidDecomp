@@ -57,7 +57,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemySlot slot,
     public override EnemyPowerBombReaction? PowerBombReaction =>
         LeavesPowerBombToSpecies ? MetroidBehavior.PowerBombReaction : base.PowerBombReaction;
 
-    /// <summary>The Metroid's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>The Metroid's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path selects (none: the definition leaves shots to the Metroid), or the empty frame's.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

@@ -159,7 +159,7 @@ internal sealed class RidleyEntity(
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
-    /// <summary>Both Ridley bodies' shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <summary>Both Ridley bodies' shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         IsBody && reaction == RidleyReactions.Shot;

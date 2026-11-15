@@ -133,10 +133,8 @@ public sealed class CeresElevatorArrivalState
 
         Animation<CeresElevatorArrivalSegment> animation = projectile.Playback.Animation;
         AnimationPlace place = projectile.Playback.Place;
-        // The arrival animations play no counted phase; their repeat counter is never loaded.
-        WrappingCountdown repeats = WrappingCountdown.Start(0);
         AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose> shown = CeresElevatorArrivalAnimations.Segments.PlayToNextFrame(
-            animation, ref place, ref repeats,
+            animation, ref place,
             cue => throw new InvalidOperationException($"The Ceres elevator arrival animations raise no event; got {cue}."));
         projectile.Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(animation, place);
         switch (shown)

@@ -4,12 +4,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// A projectile animation that plays a family's typed animations (#1600): frames with durations, frames held for good
-/// (#1607), events, counted phases and a hold. Each event goes to the behaviour bound to the projectile (#1760), which
+/// (#1607), events, repeated phases and a hold. Each event goes to the behaviour bound to the projectile (#1760), which
 /// carries out its family's events as <see cref="IEnemyProjectileCues{TCue}"/>, or as
 /// <see cref="IEnemyProjectileBranchingCues{TSegment, TCue}"/> when its reaction continues the play elsewhere, as a
 /// conditional jump into another animation or a conditional replay of the cue's run does; the engine carries out the shared
-/// <see cref="EnemyProjectileCommonCue"/> events. Counted phases count the projectile's
-/// <see cref="EnemyProjectile.LoopCountdown"/>.
+/// <see cref="EnemyProjectileCommonCue"/> events. Repeated phases count their plays in the playback (#2006).
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
@@ -46,16 +45,11 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     /// <summary>Plays the animation on to its next frame, raising each event in the projectile's bound behaviour.</summary>
     private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
     {
-        EnemyProjectile projectile = context.Projectile;
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        var repeats = new HeldRepeats(projectile.LoopCountdown);
-        AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place, ref repeats,
+        AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place,
             (raised, pastCue) => RunCue(context, projectiles, raised, pastCue));
         Playback = new AnimationPlayback<TSegment>(animation, place);
-        // A projectile an event deleted keeps its cleared countdown.
-        if (projectile.Animation == this)
-            projectile.LoopCountdown = repeats.Repeats;
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:

@@ -525,7 +525,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " ExtraProperties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(actor),
                     SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(nativeProperties));
                 Check(owner + " AiStates", SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Encode(actor.AiStates), address + 18);
-                Check(owner + " Timer", actor.AnimationClock.Repeats.RawValue, address + 24);
+                // The timer word is the animation's loop counter: the plays a repeated phase has left, which the instruction
+                // pointer's progress through the counted list already compares (#2006).
                 // The port holds the colouring; the row holding it is compared as the native palette word that row is stored as.
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
@@ -791,8 +792,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // graphics word that stores them.
                 Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, runtime.Enemies, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
-                // The showcase's projectiles keep only their program's loop count in the native timer word.
-                Check(owner + " Timer", projectile.LoopCountdown.RemainingFrames, NativeSnapshotMemory.EnemyProjectileTimer + index);
+                // The showcase's projectiles keep only their program's loop count in the native timer word: the plays a
+                // repeated phase has left, which the instruction pointer's progress through the counted list compares (#2006).
                 Enum? nativeMotion = EnemyProjectileMotionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
                 if (!Equals(projectile.Motion, nativeMotion))
                     mismatches.Add($"{owner} Motion: native={nativeMotion?.ToString() ?? "holding still"} port={projectile.Motion?.ToString() ?? "holding still"}");

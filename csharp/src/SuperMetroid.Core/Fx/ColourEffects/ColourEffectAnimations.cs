@@ -934,7 +934,7 @@ internal static class ColourEffectAnimations
         [A.GoldenTorizoBelly] = new(ColourEffectStart.Plain, ColourEffectColours.TorizoBelly, ColourEffectCondition.EndsWhenTorizoDies.Instance,
             new([new(A.GoldenTorizoBelly, 0, 6, 1)], AnimationEnd.LoopsFrom(0))),
         [A.CrateriaLightning] = new(ColourEffectStart.Plain, ColourEffectColours.LandingSiteLightning, new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight),
-            new([new(A.CrateriaLightning, 0, 1, 1), new(A.CrateriaLightning, 1, 7, 2), new(A.CrateriaLightning, 8, 1, 1), new(A.CrateriaLightning, 9, 4, 1, AnimationPhaseCounting.EveryPlay)], AnimationEnd.LoopsFrom(0))),
+            new([new(A.CrateriaLightning, 0, 1, 1), new(A.CrateriaLightning, 1, 7, 2), new(A.CrateriaLightning, 8, 1, 1), new(A.CrateriaLightning, 9, 4, 1)], AnimationEnd.LoopsFrom(0))),
         [A.WreckedShipGreenLights] = new(ColourEffectStart.Plain, ColourEffectColours.WreckedShipGreenLights, null,
             new([new(A.WreckedShipGreenLights, 0, 8, 1)], AnimationEnd.LoopsFrom(0))),
         [A.BrinstarBlueBackgroundSpores] = new(ColourEffectStart.Plain, ColourEffectColours.BrinstarBlueSpores, null,

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>
 /// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EnemyFrameId"/> and
 /// each cue is a <see cref="EscapeDachoraCue"/> with the values it acts on. Around the shaft it runs five laps
-/// left and five right, counted on its timer; a branch continues the play where <see cref="BranchTargets"/> says.
+/// left and five right, counting its laps; a branch continues the play where <see cref="BranchTargets"/> says.
 /// </summary>
 internal static class EscapeDachoraAnimations
 {
@@ -142,11 +142,11 @@ internal static class EscapeDachoraAnimations
         ],
     });
 
-    /// <summary>Five laps left then five right at low tide, each lap counted on the timer, over and over.</summary>
+    /// <summary>Five laps left then five right at low tide, each lap counted, over and over.</summary>
     private static readonly Animation<P> RunningAroundLowTide =
         new([new(P.RunningAroundLowTideLeft, 0, 14, 5), new(P.RunningAroundLowTideRight, 0, 14, 5)], AnimationEnd.LoopsFrom(0));
 
-    /// <summary>Five quicker laps left then five right at high tide, each lap counted on the timer, over and over.</summary>
+    /// <summary>Five quicker laps left then five right at high tide, each lap counted, over and over.</summary>
     private static readonly Animation<P> RunningAroundHighTide =
         new([new(P.RunningAroundHighTideLeft, 0, 13, 5), new(P.RunningAroundHighTideRight, 0, 13, 5)], AnimationEnd.LoopsFrom(0));
 
@@ -171,13 +171,13 @@ internal static class EscapeDachoraAnimations
 
     /// <summary>
     /// Where each branch target continues the play. A branch on high acid continues the high-tide laps at the end of a
-    /// lap in the same direction, so the lap count already on the timer counts on; a branch for the escape starts the run.
+    /// lap in the same direction, counting on the laps the low-tide run had left; a branch for the escape starts the run.
     /// </summary>
     internal static IReadOnlyDictionary<EscapeDachoraSegment, AnimationContinuation<EscapeDachoraSegment>> BranchTargets { get; } =
         new Dictionary<EscapeDachoraSegment, AnimationContinuation<EscapeDachoraSegment>>
         {
-            [P.RunningAroundHighTideLeftLoop] = new(RunningAroundHighTide, new AnimationPlace(0, 13)),
-            [P.RunningAroundHighTideRightLoop] = new(RunningAroundHighTide, new AnimationPlace(1, 13)),
+            [P.RunningAroundHighTideLeftLoop] = AnimationContinuation<P>.CountingOn(RunningAroundHighTide, new AnimationPlace(0, 13)),
+            [P.RunningAroundHighTideRightLoop] = AnimationContinuation<P>.CountingOn(RunningAroundHighTide, new AnimationPlace(1, 13)),
             [P.RunningForEscape] = new(RunningForEscape, AnimationPlace.StartOfAnimation),
             [P.RunningForEscapeAccelerating] = new(RunningForEscapeAccelerating, AnimationPlace.StartOfAnimation),
         };

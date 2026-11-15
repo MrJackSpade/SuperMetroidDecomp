@@ -146,7 +146,7 @@ internal sealed class DraygonParts
     /// <summary>
     /// Runs a Draygon part's animation where the shared enemy animation runs: the frame expires on the update
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
-    /// part. The part's loop counter is its frame timer.
+    /// part.
     /// </summary>
     internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState? samus)
     {
@@ -158,14 +158,12 @@ internal sealed class DraygonParts
         AnimationPlayback<DraygonSegment> playback = state.Playback(part);
         Animation<DraygonSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        WrappingCountdown counter = part.AnimationClock.Repeats;
-        AnimationShown<DraygonSegment, DraygonFrame> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
+        AnimationShown<DraygonSegment, DraygonFrame> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place,
             cue =>
             {
                 ApplyDraygonCue(state, part, samus, cue);
                 return null;
             });
-        part.AnimationClock.Repeats = counter;
         switch (shown)
         {
             case AnimationShown<DraygonSegment, DraygonFrame>.Frame frame:
@@ -300,7 +298,6 @@ internal sealed class DraygonParts
             _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest no straight direction."),
         };
         StartDraygonAnimation(eye, look);
-        eye.AnimationClock.ClearRepeats();
     }
 
     /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>

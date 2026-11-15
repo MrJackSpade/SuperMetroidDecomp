@@ -310,7 +310,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Action = PipeBugAction.BrinstarEmerge;
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-        slot.AnimationClock.ClearRepeats();
         SelectBrinstarPipeBugAnimation(slot, state, PipeBugAnimationChoices.Rising(
             IsStrong(slot), state.FliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
     }

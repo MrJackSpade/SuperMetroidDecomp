@@ -48,7 +48,6 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
                 actor.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-                actor.AnimationClock.Repeats = WrappingCountdown.Start(0xffff);
                 actor.AnimationClock.HoldFor(0xffff);
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
@@ -69,7 +68,6 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual((ushort)1, actor.AnimationClock.Hold.RawValue, "Initial instruction timer");
-                AssertEqual((ushort)0, actor.AnimationClock.Repeats.RawValue, "Initial actor timer");
                 var state = variant == 0 ? enemies.BombTorizo : enemies.TorizoBehavior.Access.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual(state.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");

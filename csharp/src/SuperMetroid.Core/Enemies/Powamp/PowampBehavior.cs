@@ -56,7 +56,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePowamp(RoomEnemySlot slot)
     {
         // The initializer forces animation processing for both halves and clears the
-        // animation's loop counter before choosing the half-specific animation.
+        // animation's clock before choosing the half-specific animation.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.Restart();

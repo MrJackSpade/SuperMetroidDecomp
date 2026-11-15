@@ -98,7 +98,7 @@ internal static class ZoaAnimationDefinitionsVerification
 
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
     private static RoomEnemySlot NewZoaAnimationSlot() =>
-        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
+        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Checks requested and installed selectors, the started animation, and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(
@@ -115,7 +115,6 @@ internal static class ZoaAnimationDefinitionsVerification
             state.Playback,
             $"{context} animation");
         AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
-        AssertEqual(0, slot.AnimationClock.Repeats.RawValue, $"{context} loop timer");
     }
 
 }

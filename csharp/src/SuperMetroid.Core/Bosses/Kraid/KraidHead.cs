@@ -150,10 +150,8 @@ internal sealed class KraidHead
         AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback ?? throw new InvalidDataException(
             "Kraid's head animation has not been started.");
         AnimationPlace place = playback.Place;
-        // The head's animations count no repeats, so nothing reads or writes this counter.
-        WrappingCountdown repeats = WrappingCountdown.Start(0);
         AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
-            playback.Animation, ref place, ref repeats, PublishKraidHeadCue);
+            playback.Animation, ref place, PublishKraidHeadCue);
         state.HeadPlayback = playback with { Place = place };
         switch (outcome)
         {

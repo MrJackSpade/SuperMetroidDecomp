@@ -72,7 +72,7 @@ internal static class OldTourianEscapeShaftWallVerification
         ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
         var segments = OldTourianWallExplosionAnimation.AllSegments;
         Animation<OldTourianWallExplosionSegment> animation = OldTourianWallExplosionAnimation.AllAnimations[OldTourianWallExplosionSegment.Start];
-        AssertEqual(3, animation.Phases.Count, "the animation plays the setup, the counted burst and the delete");
+        AssertEqual(3, animation.Phases.Count, "the animation plays the setup, the burst and the delete");
 
         var start = segments.Beats(OldTourianWallExplosionSegment.Start);
         AssertEqual(1, start.Count, "the setup has one beat");
@@ -83,10 +83,9 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(OldTourianWallExplosionCue.StopMoving, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(start[0], "the setup raises an event").Raised, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
         AnimationPhase<OldTourianWallExplosionSegment> counted = animation.Phases[1];
-        AssertTrue(counted.CountsRepeats, "the burst counts its plays down the timer the list loads");
-        AssertEqual(Word(0xb447), counted.Plays, "the burst count");
+        AssertEqual(Word(0xb447), counted.Plays, "the burst plays as many times as the list's timer load counts");
         AssertEqual(OldTourianWallExplosionSegment.Burst, counted.Segment, "the setup runs on into the burst");
-        AssertEqual(0, counted.FirstBeat, "the counted burst plays from the burst's start");
+        AssertEqual(0, counted.FirstBeat, "the burst plays from the burst's start");
 
         var burst = segments.Beats(OldTourianWallExplosionSegment.Burst);
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");

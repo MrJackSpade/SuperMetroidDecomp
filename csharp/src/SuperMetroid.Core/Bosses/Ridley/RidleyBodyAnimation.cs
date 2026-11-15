@@ -35,7 +35,6 @@ internal sealed class RidleyBodyAnimation
             return;
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
         AnimationPlayback<RidleyBodySegment> playback = state.BodyPlayback;
-        // Ridley's body animations load no loop counter.
         EnemyAnimationPlayback.Play(slot, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
             cue => ApplyRidleyBodyCue(slot, state, samus, cue) is { } target
                 ? new AnimationContinuation<RidleyBodySegment>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -78,7 +78,7 @@ internal static class PhantoonFlameAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<PhantoonFlameSegment> Whole(PhantoonFlameSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>Falling phase <paramref name="phase"/>'s two poses, played four times on the flame's loop counter.</summary>
+    /// <summary>Falling phase <paramref name="phase"/>'s two poses, played four times.</summary>
     private static AnimationPhase<PhantoonFlameSegment> Falling(int phase) => new(P.CasualFalling, phase * FallingPoseCount, FallingPoseCount, FallingRepeatCount);
 
     /// <summary>The <paramref name="count"/> poses of <paramref name="kind"/>, each lasting the flame dwell.</summary>

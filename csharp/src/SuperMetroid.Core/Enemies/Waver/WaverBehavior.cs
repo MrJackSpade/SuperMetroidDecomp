@@ -122,7 +122,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts a changed facing or spin animation and restarts its frame and loop timers.</summary>
+    /// <summary>Starts a changed facing or spin animation and restarts its frame timer.</summary>
     internal static void SetWaverAnimation(RoomEnemySlot slot, WaverEnemyState state)
     {
         WaverSegment requested = state.RequestedAnimation;

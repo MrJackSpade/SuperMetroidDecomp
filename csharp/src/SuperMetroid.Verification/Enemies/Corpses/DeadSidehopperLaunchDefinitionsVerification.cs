@@ -36,7 +36,6 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 slot.AnimationClock.HoldFor(9);
-                slot.AnimationClock.Repeats = WrappingCountdown.Start(17);
                 dispatch(slot, state, null, null, default);
                 int timer = raw - 1;
                 bool expired = timer < 0;
@@ -49,7 +48,6 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(launch ? DeadTourianSegment.SidehopperIdle : DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation),
                     state.Playback, "Launch restarts the alive-idle animation");
                 AssertEqual(launch ? (ushort)1 : (ushort)9, slot.AnimationClock.Hold.RawValue, "Launch instruction timer");
-                AssertEqual(launch ? (ushort)0 : (ushort)17, slot.AnimationClock.Repeats.RawValue, "Launch clears instruction loop timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");
             }
         }

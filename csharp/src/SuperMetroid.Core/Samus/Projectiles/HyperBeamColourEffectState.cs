@@ -77,10 +77,8 @@ public sealed class HyperBeamColourEffectState
         }
 
         AnimationPlace place = Place;
-        // The Hyper Beam's cycle counts no repeats.
-        WrappingCountdown noRepeats = WrappingCountdown.Start(0);
         AnimationShown<ColourEffectId, int> next = ColourEffectAnimations.Steps.PlayToNextFrame(
-            definition.Animation, ref place, ref noRepeats,
+            definition.Animation, ref place,
             cue => throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform."));
         Place = place;
         if (next is not AnimationShown<ColourEffectId, int>.Frame shown)

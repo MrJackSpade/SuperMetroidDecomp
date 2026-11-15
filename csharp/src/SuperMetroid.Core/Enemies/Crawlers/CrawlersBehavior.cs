@@ -281,7 +281,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 : CrawlerSurfaceAnimations.AnimationFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
-    /// <summary>Starts the chosen orange-Zoomer animation with fresh frame and loop timers.</summary>
+    /// <summary>Starts the chosen orange-Zoomer animation with a fresh frame timer.</summary>
     private static void SetHZoomerAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state,

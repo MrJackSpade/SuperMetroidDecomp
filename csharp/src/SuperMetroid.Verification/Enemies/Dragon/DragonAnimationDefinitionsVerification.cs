@@ -144,7 +144,7 @@ internal static class DragonAnimationDefinitionsVerification
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemySlot NewDragonAnimationSlot(int index) =>
-        new RoomEnemySlot(index, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
+        new RoomEnemySlot(index, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
     private static DragonEnemyState NewDragonAnimationState() => new();
@@ -166,7 +166,6 @@ internal static class DragonAnimationDefinitionsVerification
             $"{context} animation");
         AssertEqual(expectedFrameHold, slot.AnimationClock.Hold.RawValue,
             $"{context} instruction timer");
-        AssertEqual(0, slot.AnimationClock.Repeats.RawValue, $"{context} loop timer");
     }
 
 }

@@ -15,10 +15,8 @@ internal static class SamusProjectilePlayback
     internal static SamusProjectileFrame? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
     {
         AnimationPlace place = playback.Place;
-        // The projectiles' animations count no repeats.
-        WrappingCountdown repeats = default;
         AnimationShown<SamusProjectileSegment, SamusProjectileFrame> shown =
-            SamusProjectileAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, ref repeats, static _ => { });
+            SamusProjectileAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, static _ => { });
         playback = playback with { Place = place };
         switch (shown)
         {

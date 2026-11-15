@@ -145,7 +145,6 @@ internal static class PaletteFxNativeProgramOracle
         IReadOnlyDictionary<ushort, PaletteFxNativeList> lists, ColourEffectId effect, ushort start)
     {
         var phases = new List<AnimationPhase<ColourEffectId>>();
-        bool counted = false;
         var entered = new Dictionary<ushort, int> { [start] = 0 };
         ushort segment = start;
         int runStart = 0, plays = 1;
@@ -155,11 +154,9 @@ internal static class PaletteFxNativeProgramOracle
             foreach (PaletteFxNativeControl control in lists[segment].Controls)
             {
                 if (control.AfterBeat > runStart)
-                    phases.Add(new(effect, FirstStep(effect, segment) + runStart, control.AfterBeat - runStart, plays,
-                        counted && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
+                    phases.Add(new(effect, FirstStep(effect, segment) + runStart, control.AfterBeat - runStart, plays));
                 runStart = control.AfterBeat;
                 plays = 1;
-                counted = false;
                 switch (control.Kind)
                 {
                     case PaletteFxNativeControlKind.SetCounter:
@@ -178,7 +175,6 @@ internal static class PaletteFxNativeProgramOracle
                         segment = target;
                         runStart = 0;
                         plays = pending ?? 1;
-                        counted = pending is not null;
                         pending = null;
                         break;
                     default:

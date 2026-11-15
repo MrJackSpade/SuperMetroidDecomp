@@ -602,10 +602,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
 
         AnimationPlace place = state.HeadPlayback.Place;
-        // No head animation counts its plays, so nothing reads or writes this counter.
-        WrappingCountdown uncounted = default;
         AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame> advance = BotwoonAnimations.HeadSegments.PlayToNextFrame(
-            state.HeadPlayback.Animation, ref place, ref uncounted, cue => ApplyBotwoonHeadCue(head, state, cue));
+            state.HeadPlayback.Animation, ref place, cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadPlayback = state.HeadPlayback with { Place = place };
         // A hold keeps the last frame shown: the head waits on it until a new animation is installed.
         if (advance is AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Held)

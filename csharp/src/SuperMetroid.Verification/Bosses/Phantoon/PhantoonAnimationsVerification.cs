@@ -138,7 +138,7 @@ internal static class PhantoonAnimationsVerification
 
     /// <summary>
     /// The real flame producers start the typed programs their native lists start, and every flame program matches
-    /// its bank-$86 list update by update: frames, timers, the falling loop counter, the drop request and deletion.
+    /// its bank-$86 list update by update: frames, timers, the falling plays left (#2006), the drop request and deletion.
     /// </summary>
     internal static void VerifyPhantoonFlameAnimations(CartridgeImportAddressSpace rom)
     {
@@ -162,7 +162,8 @@ internal static class PhantoonAnimationsVerification
                     break;
                 AssertEqual(native.Timer, flame.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, flame.PresentationOperandAddress, $"{at}: frame");
-                AssertEqual(native.Counter, flame.LoopCountdown.RemainingFrames, $"{at}: loop counter");
+                if (NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<PhantoonFlameAnimation>(flame.Animation, $"{at}: flame animation").Playback) is { } playsLeft)
+                    AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }
             AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Phantoon flame {program}: drop requests");
             bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.Dying or PhantoonFlameSegment.RainImpact

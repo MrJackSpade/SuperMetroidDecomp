@@ -63,7 +63,7 @@ internal static class RidleyPlayerOpeningVerification
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92));
         body.AnimationClock.HoldFor(W(seed, 0xf94));
-        body.AnimationClock.Repeats = WrappingCountdown.Start(W(seed, 0xf90)); body.FrameCounter = W(seed, 0xfa4);
+        body.FrameCounter = W(seed, 0xfa4);
         body.SpritemapPointer = W(seed, 0xf8e);
         body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;

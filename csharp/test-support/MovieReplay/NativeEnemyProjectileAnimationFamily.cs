@@ -36,11 +36,12 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     }
 
     /// <inheritdoc/>
-    internal override bool TryResumeAt(IImportCartridgeSource cartridge, EnemyProjectileAnimation animation, ushort nativePointer)
+    internal override bool TryResumeAt(IImportCartridgeSource cartridge, EnemyProjectileAnimation animation, ushort nativePointer, ushort nativeLoopCounter)
     {
         if (animation is not EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> typed)
             return false;
-        typed.Playback = NativeEnemyAnimationOracle.PlaybackAt(Lists(cartridge), entries, startingAt, nativePointer);
+        typed.Playback = NativeEnemyAnimationOracle.WithNativePlaysLeft(
+            NativeEnemyAnimationOracle.PlaybackAt(Lists(cartridge), entries, startingAt, nativePointer), nativeLoopCounter);
         return true;
     }
 

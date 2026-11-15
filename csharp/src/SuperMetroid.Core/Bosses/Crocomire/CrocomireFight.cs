@@ -148,10 +148,8 @@ internal sealed class CrocomireFight
             return;
 
         AnimationPlace place = state.TonguePlayback.Place;
-        // The tongue's animations count no repeats, so nothing reads or writes this counter.
-        WrappingCountdown repeats = WrappingCountdown.Start(0);
         AnimationShown<CrocomireTongueSegment, EnemyFrameId> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
-            state.TonguePlayback.Animation, ref place, ref repeats,
+            state.TonguePlayback.Animation, ref place,
             cue => throw new InvalidOperationException($"A Crocomire tongue animation raised event {cue}."));
         state.TonguePlayback = state.TonguePlayback with { Place = place };
         // A hold rests the animation: the timer wraps from zero and the last frame stays.
@@ -176,17 +174,15 @@ internal sealed class CrocomireFight
 
         Animation<CrocomireBodySegment> animation = state.BodyPlayback.Animation;
         AnimationPlace place = state.BodyPlayback.Place;
-        WrappingCountdown counter = body.AnimationClock.Repeats;
         // Each cue's reaction reads where the play stands just past the cue, which the play has written to these
         // locals by then: the fight AI compares the segment the body then rests in.
         AnimationShown<CrocomireBodySegment, CrocomireBodyFrame> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
-            ref animation, ref place, ref counter,
+            ref animation, ref place,
             cue => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
                     CrocomireEnemyState.ResidentSegment(new AnimationPlayback<CrocomireBodySegment>(animation, place))) is { } started
                 ? new AnimationContinuation<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(animation, place);
-        body.AnimationClock.Repeats = counter;
         // A hold rests the animation: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
         // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
         switch (outcome)

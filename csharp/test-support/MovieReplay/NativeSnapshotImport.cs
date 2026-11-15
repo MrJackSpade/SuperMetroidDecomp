@@ -107,7 +107,8 @@ internal static class NativeSnapshotImport
                 continue;
             ColourEffectId effect = PaletteFxObjectAccess.FromNative(id);
             // A live object resumes its typed animation where the recorded native pointer stands: in the animation its start
-            // plays, one of the heat shimmer's for an effect that chooses one; its native timer is its repeat counter.
+            // plays, one of the heat shimmer's for an effect that chooses one; its native timer counts the plays its repeated
+            // phase has left (#2006).
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
                 paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
                 PaletteFxNativeProgramOracle.AnimationsOf(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
@@ -120,9 +121,9 @@ internal static class NativeSnapshotImport
             IGlowingEnemy? glowingEnemy = effect == ColourEffectId.GunshipGlow ? runtime.Enemies.GunshipBehavior : null;
             var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo, glowingEnemy)
             {
-                Place = resumed.Place,
+                Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectId>(resumed.Animation, resumed.Place),
+                    W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)).Place,
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
-                Repeats = WrappingCountdown.Start(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
             };
             // The effect's colours and condition are its definition's (#1982). The native colour index names the colours the
             // object animates once its set-up has run, of the colour groups its programs name the one starting there; zero
@@ -347,8 +348,8 @@ internal static class NativeSnapshotImport
             slot.Health = W(address + 20);
             // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.
             slot.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
-            slot.AnimationClock.Repeats = WrappingCountdown.Start(W(address + 24));
-
+            // The timer word at +$18 is the loop counter of the occupant's animation; the imported playbacks play no repeated
+            // phase, so it counts nothing the port keeps (#2006).
             slot.AnimationClock.HoldFor(W(address + 28));
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
@@ -509,11 +510,12 @@ internal static class NativeSnapshotImport
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(
                 $"Initial enemy projectile {projectile.Place} kind {kind} starts no typed program.");
-            VerificationAssertions.AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
+            // The slot-only kinds keep nothing but their program's loop count in the native timer word: the plays its
+            // repeated phase has left (#2006).
+            ushort loopCounter = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
+            VerificationAssertions.AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction, loopCounter)),
                 $"initial enemy projectile {projectile.Place} resumes its typed program");
             projectile.FrameHold = WrappingCountdown.Start(W(NativeSnapshotMemory.EnemyProjectileFrameHold + index));
-            // The slot-only kinds keep nothing but their program's loop count in the native timer word.
-            projectile.LoopCountdown = WrappingCountdown.Start(W(NativeSnapshotMemory.EnemyProjectileTimer + index));
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))
                 .WithFractionY(W(NativeSnapshotMemory.EnemyProjectileYFraction + index));

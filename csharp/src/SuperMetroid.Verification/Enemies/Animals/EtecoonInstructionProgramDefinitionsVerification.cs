@@ -58,7 +58,6 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
                 "Etecoon flex stays asleep");
             AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
-            AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue, "Etecoon flex loop count expires");
         }
 
         AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonSegment>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(

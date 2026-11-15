@@ -266,9 +266,8 @@ internal sealed class CollectibleObject(
     private void ShowNextOrbImage(RoomObjectPlace place, RoomObjectStepContext context)
     {
         AnimationPlace orbPlace = OrbPlace;
-        WrappingCountdown repeats = default;
         AnimationShown<CollectibleOrbSegment, CollectibleDraw> shown = CollectibleOrbAnimation.Segments.PlayToNextFrame(
-            CollectibleOrbAnimation.Pulsing, ref orbPlace, ref repeats, static _ => { });
+            CollectibleOrbAnimation.Pulsing, ref orbPlace, static _ => { });
         if (shown is not AnimationShown<CollectibleOrbSegment, CollectibleDraw>.Frame image)
             throw new InvalidOperationException($"The Chozo orb's animation showed {shown} instead of its next image.");
         OrbPlace = orbPlace;

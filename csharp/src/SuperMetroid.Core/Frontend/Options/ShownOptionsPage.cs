@@ -22,11 +22,16 @@ internal sealed record ShownOptionsPage(GameOptionsScreen Page, bool JapaneseTex
     {
         GameOptionsScreen.Primary => [GameOptionsNames.PageFrame(Page), GameOptionsNames.LanguageFrame(JapaneseText)],
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese => [GameOptionsNames.PageFrame(Page),
-            .. GameOptionsLayout.ControllerActionRows.Select((action, row) => GameOptionsNames.ControllerLabelFrame(row,
-                ControllerBindings.IsAssignable(Bindings[action]) ? Bindings[action] : GameOptionsNames.ControllerLabelButton(0)))],
+            .. GameOptionsLayout.ControllerActionRows.Select(action => GameOptionsNames.ControllerLabelFrame(action, LabelledBinding(action)))],
         GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => [GameOptionsNames.PageFrame(Page),
             GameOptionsNames.ToggleFrame(Page, GameOptionsToggle.IconCancel, IconCancelEnabled),
             GameOptionsNames.ToggleFrame(Page, GameOptionsToggle.Moonwalk, MoonwalkEnabled)],
         _ => throw new InvalidOperationException($"Undefined options page {Page}."),
     };
+
+    /// <summary>The button bound to <paramref name="action"/>, which its label on the controller page names.</summary>
+    /// <exception cref="InvalidDataException">The binding is not an assignable button, which no label names.</exception>
+    private ControllerButton LabelledBinding(ControllerAction action) =>
+        ControllerBindings.IsAssignable(Bindings[action]) ? Bindings[action]
+            : throw new InvalidDataException($"{action} is bound to {Bindings[action]}, not an assignable button; the controller page has no label for it.");
 }

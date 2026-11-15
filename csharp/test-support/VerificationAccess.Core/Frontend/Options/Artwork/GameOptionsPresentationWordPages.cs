@@ -20,7 +20,7 @@ internal static class GameOptionsPresentationWordPages
         internal void ApplyLanguage(byte[] primaryPage, bool japanese) => Change(primaryPage, tiles => presentation.ApplyLanguage(tiles, japanese));
 
         /// <summary>Writes one controller label into a page held as tilemap word bytes.</summary>
-        internal void ApplyControllerLabel(byte[] page, int action, int button) => Change(page, tiles => presentation.ApplyControllerLabel(tiles, action, button));
+        internal void ApplyControllerLabel(byte[] page, int action, Input.ControllerButton button) => Change(page, tiles => presentation.ApplyControllerLabel(tiles, action, button));
 
         /// <summary>Recolours one special setting's labels in a page held as tilemap word bytes.</summary>
         internal void ApplySpecialToggle(byte[] page, GameOptionsToggle name, bool enabled) =>

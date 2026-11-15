@@ -34,14 +34,8 @@ internal static class HudNativeState
                 samus.MaxSuperMissiles, samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, highlighted, samus.ReserveEnergy,
                 samus.ReserveTankMode));
             hud.PreviousSelectedItem = highlighted;
-            int columns = GameplayHudPresentation.MinimapSize.X;
-            var cells = new MinimapCell[columns * GameplayHudPresentation.MinimapSize.Y];
-            for (int index = 0; index < cells.Length; index++)
-            {
-                var output = new Position16<MapTiles>(checked((ushort)(index % columns)), checked((ushort)(index / columns)));
-                cells[index] = Decode(new MapTileWord(words[artwork.MinimapCellIndex(output)]));
-            }
-            hud.Minimap = [.. cells];
+            ushort[] rows = words.ToArray();
+            hud.Minimap = MinimapGrid.Read(place => Decode(new MapTileWord(rows[artwork.MinimapCellIndex(MinimapGrid.Square(place))])));
         }
     }
 

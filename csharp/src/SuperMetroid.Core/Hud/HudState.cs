@@ -27,10 +27,10 @@ public sealed class HudState
     private HudSnapshot values;
 
     /// <summary>
-    /// What each of the minimap's cells shows as the minimap's last update read it, row by row; empty before the minimap has
-    /// been updated since the HUD was set up, while the template's starter picture shows.
+    /// What the minimap shows around Samus's cell as its last update read it; none before the minimap has been updated
+    /// since the HUD was set up, while the template's starter picture shows.
     /// </summary>
-    internal ImmutableArray<MinimapCell> Minimap { get; set; } = [];
+    internal MinimapGrid? Minimap { get; set; }
 
     /// <summary>Previous item selection used to detect a change of selection and its sound.</summary>
     internal HudItem PreviousSelectedItem { get; set; }
@@ -44,7 +44,7 @@ public sealed class HudState
     internal void DisableMinimapForBoss()
     {
         MinimapDisabled = true;
-        Minimap = [.. Enumerable.Repeat<MinimapCell>(MinimapHiddenCell.Instance, MinimapCellCount)];
+        Minimap = MinimapGrid.Hidden;
     }
 
     /// <summary>Restores minimap updates when leaving the room.</summary>
@@ -52,9 +52,6 @@ public sealed class HudState
 
     /// <summary>Whether the HUD has been set up from an inventory.</summary>
     public bool IsInitialized { get; private set; }
-
-    /// <summary>The minimap's cell count: its columns times its rows.</summary>
-    private static int MinimapCellCount => GameplayHudPresentation.MinimapSize.X * GameplayHudPresentation.MinimapSize.Y;
 
     /// <summary>Binds current host-owned HUD artwork; the HUD's images are chosen from its values whenever it is shown.</summary>
     public void BindPresentation(GameplayHudPresentation? value) => Presentation = value;
@@ -64,7 +61,7 @@ public sealed class HudState
     {
         _ = Presentation ?? throw new InvalidOperationException("HUD initialization requires installed presentation assets.");
         values = snapshot;
-        Minimap = [];
+        Minimap = null;
         // HUD setup initializes the previous selected item to zero. The HUD update
         // performs the first live comparison on the next gameplay pass.
         PreviousSelectedItem = HudItem.Beam;
@@ -139,56 +136,36 @@ public sealed class HudState
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
         // save/load or HUD reconstruction silently erased the visited route.
-        system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY)));
+        system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(centerX, centerY));
         bool hasAreaMap = system.HasAreaMap(frame.Area);
-        int columns = GameplayHudPresentation.MinimapSize.X;
-        var cells = new MinimapCell[MinimapCellCount];
-
-        for (int outputY = 0; outputY < GameplayHudPresentation.MinimapSize.Y; outputY++)
+        MinimapGrid minimap = MinimapGrid.Read(place =>
         {
-            int mapY = centerY + outputY - 1;
-            for (int outputX = 0; outputX < columns; outputX++)
-            {
-                int destination = outputY * columns + outputX;
-                int mapX = AreaMapSize.WrapColumn(centerX + outputX - 2);
-                if (!AreaMapSize.ContainsRow(mapY))
-                {
-                    cells[destination] = MinimapHiddenCell.Instance;
-                    continue;
-                }
-
-                var cell = new Position16<MapTiles>(CoordinateAxis.Wrap(mapX), CoordinateAxis.Wrap(mapY));
-                bool explored = system.IsMapTileExplored(frame.Area, cell);
-                if (!AreaMapVisibility.IsVisible(
-                        explored,
-                        hasAreaMap,
-                        frame.PresentationMap.IsRevealedByMapStation(cell),
-                        frame.PresentationMap.IsDiscoverable(cell),
-                        frame.MapRevealMode))
-                {
-                    cells[destination] = MinimapHiddenCell.Instance;
-                    continue;
-                }
-
-                cells[destination] = new MinimapMapCell(frame.PresentationMap.Cell(cell),
-                    explored ? MinimapShade.Explored : MinimapShade.Unexplored);
-                // The center slope also explores the corner above it. The top
-                // row has already been read, so that cell acquires the explored
-                // shade on the next minimap update.
-                if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
-                    frame.PresentationMap.RevealsCellAbove(cell))
-                    system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY - 1)));
-            }
-        }
+            int mapY = centerY + place.Y;
+            if (!AreaMapSize.ContainsRow(mapY))
+                return MinimapHiddenCell.Instance;
+            var cell = new Position16<MapTiles>(AreaMapSize.WrapColumn(centerX + place.X), mapY);
+            bool explored = system.IsMapTileExplored(frame.Area, cell);
+            if (!AreaMapVisibility.IsVisible(
+                    explored,
+                    hasAreaMap,
+                    frame.PresentationMap.IsRevealedByMapStation(cell),
+                    frame.PresentationMap.IsDiscoverable(cell),
+                    frame.MapRevealMode))
+                return MinimapHiddenCell.Instance;
+            // The center slope also explores the corner above it. The top row has already been read, so that cell
+            // acquires the explored shade on the next minimap update.
+            if (place == MinimapGrid.SamusCell && explored && centerY > 0 && frame.PresentationMap.RevealsCellAbove(cell))
+                system.MarkExploredMapTile(frame.Area, new Position16<MapTiles>(centerX, centerY - 1));
+            return new MinimapMapCell(frame.PresentationMap.Cell(cell), explored ? MinimapShade.Explored : MinimapShade.Unexplored);
+        });
 
         // Every eight frames the minimap turns the center cell to the Samus-location
         // shade. The other half-cycle leaves its explored shade intact, producing the
         // familiar blinking Samus location without a separate sprite. The center is always
         // the explored cell Samus stands in, so it is always a revealed map cell.
-        int center = columns + 2;
-        if (!HudCadenceDefinitions.SamusSquareShowsExploredShade.IsSetIn(frame.FrameCounter) && cells[center] is MinimapMapCell located)
-            cells[center] = located with { Shade = MinimapShade.SamusLocation };
-        Minimap = [.. cells];
+        if (!HudCadenceDefinitions.SamusSquareShowsExploredShade.IsSetIn(frame.FrameCounter) && minimap[MinimapGrid.SamusCell] is MinimapMapCell located)
+            minimap = minimap.WithSamusCell(located with { Shade = MinimapShade.SamusLocation });
+        Minimap = minimap;
     }
 
     /// <summary>
@@ -236,9 +213,11 @@ public sealed class HudState
         };
         if (reserve is { } indicator)
             images.Add(art.AutoReserve(indicator));
-        int columns = GameplayHudPresentation.MinimapSize.X;
-        for (int index = 0; index < Minimap.Length; index++)
-            images.Add(art.MinimapCell(new(index % columns, index / columns), Minimap[index]));
+        if (Minimap is { } shown)
+        {
+            foreach (Offset16<MapTiles> place in MinimapGrid.Places)
+                images.Add(art.MinimapCell(MinimapGrid.Square(place), shown[place]));
+        }
         return new ShownHud(images.ToImmutable());
     }
 

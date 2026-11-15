@@ -641,7 +641,7 @@ internal static class MapPresentationVerification
         Position16<MapTiles> samusCell = room.MapPosition + new Offset16<MapTiles>(
             RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.X.Whole),
             RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole) + 1);
-        AssertTrue(runtime.Hud.Minimap[SuperMetroid.Core.Hud.Artwork.GameplayHudPresentation.MinimapSize.X + 2] is SuperMetroid.Core.Hud.MinimapMapCell center &&
+        AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Position16<MapPixels> scroll = pause.MapScroll;

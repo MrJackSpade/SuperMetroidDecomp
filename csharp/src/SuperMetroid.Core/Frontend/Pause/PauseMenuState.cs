@@ -83,7 +83,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Counter inserted between brightness changes during fade-in.</summary>
     private int transitionFadeCounter;
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    internal int TransitionBrightness { get; private set; } = 15;
+    internal int TransitionBrightness { get; private set; } = DisplayBrightness.Full;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     internal PauseEquipmentControl SelectedControl { get; private set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
@@ -189,7 +189,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
                 SetPauseButtonLabelMode(PauseButtonHighlight.EquipmentPage);
                 Transition = PauseMenuTransition.MapToEquipmentFadeOut;
-                TransitionBrightness = 15;
+                TransitionBrightness = DisplayBrightness.Full;
             }
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller buttons, not the delayed chrome
@@ -209,7 +209,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
             Transition = PauseMenuTransition.EquipmentToMapFadeOut;
-            TransitionBrightness = 15;
+            TransitionBrightness = DisplayBrightness.Full;
         }
         return HandleStartButton(delayedPressed);
     }
@@ -277,7 +277,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-square and
         // per-sprite-part priority tiers that once interleaved them are a presentation quirk the model does not keep.
         DisplayLayer[] layers = [frame, page, screen.Sprites(), hud];
-        return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? 15 : TransitionBrightness);
+        return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? DisplayBrightness.Full : TransitionBrightness);
     }
 
     /// <summary>Assembles map markers or equipment sprites in their page-specific order.</summary>
@@ -348,9 +348,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (transitionFadeCounter-- > 0) return;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
                 TransitionBrightness++;
-                if (TransitionBrightness >= 15)
+                if (TransitionBrightness >= DisplayBrightness.Full)
                 {
-                    TransitionBrightness = 15;
+                    TransitionBrightness = DisplayBrightness.Full;
                     Transition = PauseMenuTransition.None;
                 }
                 return;
@@ -767,8 +767,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve transfer's step.</summary>
-    internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
+    /// <summary>
+    /// Updates left in the manual reserve transfer's sound cadence, zero while no transfer runs (#1985): it starts at the
+    /// reserve energy rounded up to a whole sound interval and the refill sound plays as it enters each interval's last
+    /// update. Each update moves one unit of reserve energy, so the reserves run out before the cadence does; a transfer
+    /// started with none (the cursor stays on the transfer when no beam can take it) takes its sound on its only update,
+    /// as the game's countdown from zero did.
+    /// </summary>
+    internal int ReserveRefillSoundDelay { get; private set; }
 
     /// <summary>Runs the reserve tank controls' input before their D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)
@@ -784,15 +790,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         // The manual transfer.
 
-        if (ReserveTransferSoundDelay.IsZero)
+        const int interval = PauseReserveEnergyDefinitions.RefillSoundInterval;
+        if (ReserveRefillSoundDelay == 0)
         {
             if ((pressed & ControllerButton.A) == ControllerButton.None) return;
-            ReserveTransferSoundDelay = WrappingCountdown.Start((samus.ReserveEnergy +
-                PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval);
+            ReserveRefillSoundDelay = (samus.ReserveEnergy + interval - 1) / interval * interval;
         }
-        ReserveTransferSoundDelay = ReserveTransferSoundDelay.Decrement().Remaining;
-        if (ReserveTransferSoundDelay.CyclePhase(1, PauseReserveEnergyDefinitions.RefillSoundInterval) ==
-            PauseReserveEnergyDefinitions.RefillSoundInterval - 1)
+        ReserveRefillSoundDelay--;
+        int placeInInterval = (ReserveRefillSoundDelay % interval + interval) % interval;
+        if (placeInInterval == interval - 1)
             audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.MaximumQueuedSounds);
 
         int amount = PauseEquipmentRules.ReserveEnergyPerFrame;
@@ -811,7 +817,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Retail exhausts ALL reserves even when only a small top-up was needed.
         // Preserve that behavior: the reserves empty and the selector returns to the reserve mode switch.
         samus.ReserveEnergy = 0;
-        ReserveTransferSoundDelay = WrappingCountdown.Start(0);
+        ReserveRefillSoundDelay = 0;
         SelectedControl = PauseEquipmentControls.ReserveMode;
     }
 }

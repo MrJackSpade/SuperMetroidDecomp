@@ -54,7 +54,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Remaining transition updates before load or return handoff.</summary>
     private int pendingFrames;
     /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
-    private int brightness = 15;
+    private int brightness = DisplayBrightness.Full;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
 
@@ -187,7 +187,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 pendingFrames++;
                 if (pendingFrames <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (brightness > 0) { brightness--; break; }
-                LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + 15 + FileSelectMapDefinitions.LoadBlackFrames;
+                LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + DisplayBrightness.Full + FileSelectMapDefinitions.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
             case FileSelectMapNavigationPhase.Area:

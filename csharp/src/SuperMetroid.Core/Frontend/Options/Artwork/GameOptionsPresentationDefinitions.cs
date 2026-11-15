@@ -44,6 +44,19 @@ public static class GameOptionsPresentationDefinitions
             [ControllerButton.R] = "R",
         };
 
+    /// <summary>The name each controller action's label is pictured under.</summary>
+    internal static readonly IReadOnlyDictionary<ControllerAction, string> ControllerActionNames =
+        new Dictionary<ControllerAction, string>
+        {
+            [ControllerAction.Shoot] = "Shoot",
+            [ControllerAction.Jump] = "Jump",
+            [ControllerAction.Dash] = "Dash",
+            [ControllerAction.ItemSelect] = "ItemSelect",
+            [ControllerAction.ItemCancel] = "ItemCancel",
+            [ControllerAction.AimUp] = "AimUp",
+            [ControllerAction.AimDown] = "AimDown",
+        };
+
     /// <summary>The JSON name of a special setting's visual.</summary>
     internal static readonly IReadOnlyDictionary<GameOptionsToggle, string> ToggleNames =
         new Dictionary<GameOptionsToggle, string>

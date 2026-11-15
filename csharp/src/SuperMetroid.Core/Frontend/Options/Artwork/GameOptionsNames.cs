@@ -35,12 +35,6 @@ public static class GameOptionsNames
     public static string CursorSpriteName(int frame) =>
         Ensure.Element(CursorSpriteNames, frame);
 
-    /// <summary>The assignable button a selector index names.</summary>
-    /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
-    public static ControllerButton ControllerLabelButton(int index) =>
-        Ensure.Element(ControllerLabelButtons, index);
-
     /// <summary>The menus' picture of the options screen's backdrop page (#1467).</summary>
     public const string BackgroundFrame = "Options.Background";
 
@@ -53,9 +47,9 @@ public static class GameOptionsNames
     /// </summary>
     public static string LanguageFrame(bool japanese) => $"Options.Language.{(japanese ? "Japanese" : "English")}";
 
-    /// <summary>The menus' picture of controller action <paramref name="action"/>'s label naming <paramref name="button"/> (#1467).</summary>
-    public static string ControllerLabelFrame(int action, ControllerButton button) =>
-        $"Options.Controller.{Ensure.BetweenInclusive(0, GameOptionsDefinitions.Rows.ControllerActionCount - 1, action)}.{ControllerLabelName(button)}";
+    /// <summary>The menus' picture of controller action <paramref name="action"/>'s label naming <paramref name="button"/> (#1467, #1985).</summary>
+    public static string ControllerLabelFrame(ControllerAction action, ControllerButton button) =>
+        $"Options.Controller.{Ensure.Listed(GameOptionsPresentationDefinitions.ControllerActionNames, action)}.{ControllerLabelName(button)}";
 
     /// <summary>
     /// The menus' picture of <paramref name="toggle"/>'s two choices on <paramref name="page"/>, the enabled one or the

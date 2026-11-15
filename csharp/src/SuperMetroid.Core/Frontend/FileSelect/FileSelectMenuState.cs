@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -58,7 +59,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
-    internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty, [], SaveSlot.A, SaveSlot.A);
+    internal ShownFileSelectPage ShownPage { get; private set; } = new(FileSelectPage.MainEmpty,
+        SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), SaveSlot.A, SaveSlot.A);
 
     /// <summary>Performs the menu's first three steps, including every artwork load.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
@@ -93,9 +95,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>True once a selected slot, empty or occupied, finishes its helmet turn and fade-out, requesting the game-options screen.</summary>
     public bool NewGameRequested { get; private set; }
 
-    /// <summary>Selected save slot, restricted to A-C once a game is requested; a command row reads as slot C.</summary>
-    public int SelectedSaveSlot =>
-        SaveSlots.StoreNumber(FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot slot) ? slot : SaveSlot.C);
+    /// <summary>The selected save slot, which a requested game always names (#1976).</summary>
+    /// <exception cref="InvalidDataException">A command row is selected, which names no save slot.</exception>
+    public SaveSlot SelectedSaveSlot => FileSelectItemRows.SaveSlotOf(SelectedItem);
 
     /// <summary>Whether the selected A-C slot holds a valid save.</summary>
     public bool SelectedSlotContainsSave =>
@@ -248,7 +250,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? HelmetAnimationFrame
                 : 0;
-            presentation.DrawHelmet(sprites, sheet, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), SaveSlots.StoreNumber(slot));
+            presentation.DrawHelmet(sprites, sheet, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
@@ -673,5 +675,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// </summary>
     private void RefreshShownPage() =>
         ShownPage = new ShownFileSelectPage(selectedPage,
-            [.. SaveSlots.All.Select(slot => saveSlots[slot] is { } save ? ShownFileSelectSave.Of(save) : null)], operationSourceSlot, copyTargetSlot);
+            SaveSlots.All.ToImmutableDictionary(slot => slot, slot => saveSlots[slot] is { } save ? ShownFileSelectSave.Of(save) : null),
+            operationSourceSlot, copyTargetSlot);
 }

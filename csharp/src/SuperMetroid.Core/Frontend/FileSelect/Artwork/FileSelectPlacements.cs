@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Saves;
+
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>
@@ -6,10 +8,10 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// </summary>
 public sealed record FileSelectPlacements
 {
-    /// <summary>Three dynamic save-field layouts in slot order for the main file-select page.</summary>
-    public required FileSelectSlotFieldDocument[] MainSlots { get; init; }
-    /// <summary>Three dynamic save-field layouts in slot order for copy and clear pages.</summary>
-    public required FileSelectSlotFieldDocument[] DataSlots { get; init; }
+    /// <summary>Each save slot's field layout on the main file-select page.</summary>
+    public required IReadOnlyDictionary<SaveSlot, FileSelectSlotFieldDocument> MainSlots { get; init; }
+    /// <summary>Each save slot's field layout on the copy and clear pages.</summary>
+    public required IReadOnlyDictionary<SaveSlot, FileSelectSlotFieldDocument> DataSlots { get; init; }
     /// <summary>Each bordered heading's origin in screen pixels.</summary>
     public required IReadOnlyDictionary<FileSelectBorder, Position16<SpritePixels>> BorderAnchors { get; init; }
     /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels.</summary>
@@ -18,8 +20,8 @@ public sealed record FileSelectPlacements
     public required Position16<SpritePixels>[] DataCursorAnchors { get; init; }
     /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels.</summary>
     public required Position16<SpritePixels>[] ConfirmationCursorAnchors { get; init; }
-    /// <summary>Three helmet origins in save-slot order, in screen pixels.</summary>
-    public required Position16<SpritePixels>[] HelmetAnchors { get; init; }
+    /// <summary>Each save slot's helmet origin, in screen pixels.</summary>
+    public required IReadOnlyDictionary<SaveSlot, Position16<SpritePixels>> HelmetAnchors { get; init; }
     /// <summary>The page pixel each copy or clear page's slot letter is shown at.</summary>
     public required IReadOnlyDictionary<FileSelectAnchor, Position16<PlanePixels>> DynamicAnchors { get; init; }
     /// <summary>Menu updates per missile-cursor animation frame, at least one.</summary>

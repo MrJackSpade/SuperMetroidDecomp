@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Saves;
+
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>The file-select menu's page dimensions, glyph counts and the names its pieces are pictured under.</summary>
@@ -9,8 +11,14 @@ public static class FileSelectPresentationDefinitions
     public const int PageHeightPixels = 256;
     /// <summary>Ten consecutive digit cells in the import's digit glyphs.</summary>
     public const int DigitCount = 10;
-    /// <summary>Three consecutive save-slot letters in the import's slot-letter glyphs.</summary>
-    public const int SlotLetterCount = 3;
+    /// <summary>The name each save slot's letter is pictured under.</summary>
+    internal static readonly IReadOnlyDictionary<SaveSlot, string> SlotLetterNames =
+        new Dictionary<SaveSlot, string>
+        {
+            [SaveSlot.A] = "A",
+            [SaveSlot.B] = "B",
+            [SaveSlot.C] = "C",
+        };
 
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
     internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <param name="Slots">Each slot's field, or none where the slot holds no save.</param>
 /// <param name="OperationSource">The slot a copy or clear names first.</param>
 /// <param name="CopyTarget">The slot a copy names as its destination.</param>
-internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<ShownFileSelectSave?> Slots, SaveSlot OperationSource, SaveSlot CopyTarget)
+internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, SaveSlot OperationSource, SaveSlot CopyTarget)
 {
     /// <summary>Whether the page lays its slots out as the main menu does, rather than as copy and clear do.</summary>
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;
@@ -27,13 +27,13 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
     {
         Ensure.NotNull(presentation);
         yield return new PlacedFrame(FileSelectParts.PageFrame(Page), default);
-        for (int slot = 0; slot < Slots.Length; slot++)
+        foreach (SaveSlot slot in SaveSlots.All)
         {
-            foreach (PlacedFrame field in Field(Slots[slot], presentation.Slot(!Main, slot)))
+            foreach (PlacedFrame field in Field(Ensure.Listed(Slots, slot), presentation.Slot(!Main, slot)))
                 yield return field;
         }
         foreach (FileSelectPromptLetter letter in Letters())
-            yield return new PlacedFrame(FileSelectParts.LetterFrame(SaveSlots.StoreNumber(letter.Slot)), presentation.DynamicAnchor(letter.Anchor));
+            yield return new PlacedFrame(FileSelectParts.LetterFrame(letter.Slot), presentation.DynamicAnchor(letter.Anchor));
     }
 
     /// <summary>The slot letters the page names and where.</summary>

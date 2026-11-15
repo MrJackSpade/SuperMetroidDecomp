@@ -930,7 +930,7 @@ internal static class LookupStream3Verification
             ushort expected = (ushort)(digit ? 0x2060 + index : 0x206a + index);
             var anchor = new Position16<CharacterCells>(4, 3);
             if (digit) fileSelect.WriteDigit(glyphTilemap, anchor, 2, index);
-            else fileSelect.WriteSlotLetter(glyphTilemap, anchor, index);
+            else fileSelect.WriteSlotLetter(glyphTilemap, anchor, SuperMetroid.Core.Saves.SaveSlots.All[index]);
             AssertEqual(expected, BackgroundTileWords.ToWord(glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)]), "stream 3 actual file-select calculated glyph write");
         }
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
@@ -2120,7 +2120,7 @@ internal static class LookupStream3Verification
                 AssertEqual(expectedParts.Part(part), selected.Part(part), "exact selected helmet part");
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, 0);
+            actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, SuperMetroid.Core.Saves.SaveSlot.A);
             var anchor = layout.HelmetAnchors[0];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();

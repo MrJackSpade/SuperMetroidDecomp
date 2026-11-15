@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
@@ -32,7 +33,7 @@ internal static class FileSelectSourcePresentationAccess
         internal void WriteDigit(Span<BackgroundTile> tilemap, Position16<CharacterCells> anchor, int offset, int digit) =>
             tilemap[anchor.Y * FileSelectPresentationFormat.PageColumns + anchor.X + offset] = self.Digit(digit);
         /// <summary>Writes the selected slot's letter at its dynamic tile anchor.</summary>
-        internal void WriteSlotLetter(Span<BackgroundTile> tilemap, Position16<CharacterCells> anchor, int slot) =>
+        internal void WriteSlotLetter(Span<BackgroundTile> tilemap, Position16<CharacterCells> anchor, SaveSlot slot) =>
             tilemap[anchor.Y * FileSelectPresentationFormat.PageColumns + anchor.X] = self.SlotLetter(slot);
         /// <summary>
         /// The tiles of <paramref name="shown"/>'s page, row by row, as the cartridge writes them: the page, each slot's field

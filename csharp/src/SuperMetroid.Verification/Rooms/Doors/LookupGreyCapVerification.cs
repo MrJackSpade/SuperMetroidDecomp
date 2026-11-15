@@ -33,7 +33,7 @@ internal static class LookupGreyCapVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, GreyDoorCaps.TryDescribe(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer), out var shape), "Grey cap descriptor domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer), out var shape), "Grey cap descriptor domain");
                 AssertEqual(owned, RoomObjectGreyDoorVisualFiles.TryGet(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer), out var dto), "Grey cap DTO domain");
                 if (!owned)
                 {
@@ -48,7 +48,7 @@ internal static class LookupGreyCapVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            GreyDoorCaps.TryDescribe(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer), out var shape);
+            RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer), out var shape);
             RoomObjectGreyDoorVisualFiles.TryGet(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer), out var dto);
             if (field == 0)
             {

@@ -46,7 +46,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
                 return;
             case NoobTubePhase.Starting:
                 Phase = NoobTubePhase.WaitingForPowerBomb;
-                Play([new(RoomObjectDraw.Of(NoobTubeObjectDefinitions.IntactImage), 1)], place, context);
+                Play([new(NoobTubeObjectDraws.Family.Of(NoobTubeObjectDefinitions.IntactImage), 1)], place, context);
                 return;
             case NoobTubePhase.WaitingForPowerBomb:
             case NoobTubePhase.WaitingForInput:

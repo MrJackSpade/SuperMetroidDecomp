@@ -62,8 +62,8 @@ public static class RoomObjectMotherBrainGlassVisualFiles
         var layouts = new Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
         {
-            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-            if (!MotherBrainGlassDraws.TryDescribe(draw, out RoomBlockShape? shape))
+            RoomObjectDraw draw = MotherBrainGlassDraws.Family.Of(frame);
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainGlassDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain glass frame {frame} has no shape.");
             layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame]));
         }

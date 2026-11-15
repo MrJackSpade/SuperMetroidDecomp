@@ -44,13 +44,13 @@ public static class RoomObjectNoobTubeVisualFiles
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!NoobTubeObjectDraws.TryDescribe(request, out RoomBlockShape? shape))
+        if (!RoomObjectDrawIdentity.TryShape(NoobTubeObjectDraws.Family, request, out RoomBlockShape? shape))
         {
             list = default;
             return false;
         }
         RoomObjectShapeRun glass = RoomObjectShapeRun.Row(new(0, 0), 1);
-        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDraw.FrameOf<NoobTubeDraw>(request, "n00b tube") switch
+        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDrawIdentity.FrameOf<NoobTubeDraw>(request, "n00b tube") switch
         {
             NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened => [glass],
             NoobTubeDraw.Cleared => TubeRows(0, 1, 2, 3),
@@ -67,7 +67,7 @@ public static class RoomObjectNoobTubeVisualFiles
 
     /// <summary>Converts a validated tube draw to its artwork catalog ID.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        VisualId(RoomObjectDraw.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
+        VisualId(RoomObjectDrawIdentity.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
 
     /// <summary>Names the typed intact, damaged, opened, cleared, or broken presentation state.</summary>
     internal static string VisualId(NoobTubeDraw frame) => frame switch
@@ -89,7 +89,7 @@ public static class RoomObjectNoobTubeVisualFiles
         {
             foreach (NoobTubeDraw frame in Draws())
             {
-                TryGet(RoomObjectDraw.Of(frame), out var list);
+                TryGet(NoobTubeObjectDraws.Family.Of(frame), out var list);
                 yield return list;
             }
         }

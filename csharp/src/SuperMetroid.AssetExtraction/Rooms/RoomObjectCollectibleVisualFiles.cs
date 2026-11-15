@@ -21,7 +21,7 @@ public static class RoomObjectCollectibleVisualFiles
     public const string VisualFileName = "collectibles.json";
     /// <summary>The collectibles as the import pictures them: every installed frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
-        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Collectible", Frames, draw => VisualId(RoomObjectDraw.FrameOf<CollectibleDraw>(draw, "collectible")));
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Collectible", Frames, draw => VisualId(RoomObjectDrawIdentity.FrameOf<CollectibleDraw>(draw, "collectible")));
 
     /// <summary>
     /// Checks the block pairs' frame selectors and the frames lying under the item's own picture against the cartridge,
@@ -64,16 +64,13 @@ public static class RoomObjectCollectibleVisualFiles
         get
         {
             foreach (CollectibleDraw draw in Enum.GetValues<CollectibleDraw>())
-            {
-                CollectibleObjectDraws.TryGetCollision(RoomObjectDraw.Of(draw), out RoomCollisionType collision);
-                yield return new(draw, collision, VisualId(draw));
-            }
+                yield return new(draw, CollectibleObjectDraws.CollisionOf(draw), VisualId(draw));
         }
     }
 
     /// <summary>Every installed frame's one-cell draw list, built from the collision the game writes.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> Frames =>
-        Editable.Select(frame => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame.Draw), RoomObjectRunDirection.Horizontal, [frame.Collision]));
+        Editable.Select(frame => RoomObjectDrawListExport.SingleRun(CollectibleObjectDraws.Family.Of(frame.Draw), RoomObjectRunDirection.Horizontal, [frame.Collision]));
 
     /// <summary>
     /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>),
@@ -98,9 +95,9 @@ public static class RoomObjectCollectibleVisualFiles
         }
         foreach (RoomObjectCollectibleDrawFrame frame in All.Where(frame => !IsEditable(frame.Draw)))
         {
-            int address = RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(frame.Draw));
-            if (!CollectibleObjectDraws.TryGetBlockPairTerrain(RoomObjectDraw.Of(frame.Draw), out RoomTerrainBlock terrain))
-                throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
+            int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(frame.Draw));
+            RoomTerrainBlock terrain = CollectibleObjectDraws.BlockPairTerrain(frame.Draw)
+                ?? throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
                 RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != terrain ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)

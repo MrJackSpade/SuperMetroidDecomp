@@ -39,7 +39,7 @@ public static class RoomObjectTourianAccessVisualFiles
     }
 
     /// <summary>Gets the stable artwork identity of a Tourian access draw.</summary>
-    internal static string VisualId(RoomObjectDraw draw) => VisualId(RoomObjectDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
+    internal static string VisualId(RoomObjectDraw draw) => VisualId(RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
 
     /// <summary>Names the empty, three crumble, or six-row clear frame for visual files.</summary>
     internal static string VisualId(TourianAccessDraw draw) =>
@@ -49,8 +49,8 @@ public static class RoomObjectTourianAccessVisualFiles
     /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
     internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw)
     {
-        RoomObjectDraw request = RoomObjectDraw.Of(draw);
-        if (!TourianAccessDraws.TryDescribe(request, out RoomBlockShape? shape))
+        RoomObjectDraw request = TourianAccessDraws.Family.Of(draw);
+        if (!RoomObjectDrawIdentity.TryShape(TourianAccessDraws.Family, request, out RoomBlockShape? shape))
             throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
         int rows = draw == TourianAccessDraw.Clear ? 6 : 1;
         return RoomObjectShapeRun.DrawList(request, shape,

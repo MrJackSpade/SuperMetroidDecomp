@@ -15,7 +15,7 @@ internal static class KraidRoomMutationDefinitions
     private static readonly Offset16<RoomBlocks> NextColumn = new(1, 0);
 
     /// <summary>One crumble image or final block, shown for the crumble's frame duration.</summary>
-    private static TerrainChangeFrame Shown(KraidRoomDraw draw) => new(RoomObjectDraw.Of(draw), CrumbleFrameDuration);
+    private static TerrainChangeFrame Shown(KraidRoomDraw draw) => new(KraidRoomObjectDraws.Family.Of(draw), CrumbleFrameDuration);
 
     /// <summary>The three crumble images and then <paramref name="final"/>, the first image drawn after <paramref name="moveBefore"/>.</summary>
     private static TerrainChangeFrame[] CrumbleInto(KraidRoomDraw final, Offset16<RoomBlocks> moveBefore) =>
@@ -42,8 +42,8 @@ internal static class KraidRoomMutationDefinitions
             [KraidRoomMutation.CrumbleCeilingInOddColumn] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundOddColumn, Offset16<RoomBlocks>.Zero)),
             [KraidRoomMutation.CrumblePlatformInEvenColumn] = new(1, [Shown(KraidRoomDraw.CeilingBackgroundEvenColumn)]),
             [KraidRoomMutation.CrumbleCeilingInEvenColumn] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundEvenColumn, Offset16<RoomBlocks>.Zero)),
-            [KraidRoomMutation.ClearCeiling] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(KraidRoomDraw.ClearCeiling)),
-            [KraidRoomMutation.ClearSpikes] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(KraidRoomDraw.ClearSpikes)),
+            [KraidRoomMutation.ClearCeiling] = TerrainChange.DrawnOnce(KraidRoomObjectDraws.Family.Of(KraidRoomDraw.ClearCeiling)),
+            [KraidRoomMutation.ClearSpikes] = TerrainChange.DrawnOnce(KraidRoomObjectDraws.Family.Of(KraidRoomDraw.ClearSpikes)),
             [KraidRoomMutation.CrumbleSpikes] = new(1,
             [
                 .. CrumbleInto(KraidRoomDraw.SpikeFirst, Offset16<RoomBlocks>.Zero),

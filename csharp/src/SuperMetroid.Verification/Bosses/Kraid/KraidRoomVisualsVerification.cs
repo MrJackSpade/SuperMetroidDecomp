@@ -39,7 +39,7 @@ internal static class KraidRoomVisualsVerification
                 new LookupEscapeGateStockFrame(0x939d, "clear-ceiling"), new LookupEscapeGateStockFrame(0x93bf, "clear-spikes")];
             AssertPicturedAsNative(rom, stock.Images, RoomObjectKraidVisualFiles.Family, frames, WrittenCells(RoomObjectKraidVisualFiles.Family));
             AssertImportAndRejections(rom, stock.Images, RoomObjectKraidVisualFiles.Family, installation.RoomObjectKraidVisualDirectory);
-            Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(KraidRoomMutation.CrumbleCeilingAtLeftEdge, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
+            Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(KraidRoomMutation.CrumbleCeilingAtLeftEdge, RoomObjectDrawAddressCodec.Of(KraidRoomObjectDraws.Family.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
 
             string stockPath = Path.Combine(
                 installation.RoomObjectKraidVisualDirectory,

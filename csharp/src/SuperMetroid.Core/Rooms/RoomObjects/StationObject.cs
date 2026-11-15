@@ -117,7 +117,7 @@ internal sealed class StationObject(
         // A looping animation of images always shows its next image, held for any positive count of updates (#1627).
         if (shown is not AnimationShown<StationAnimation, StationDraw>.Frame { Duration: > 0 } frame)
             throw new InvalidDataException($"{Kind} station animation {ShownAnimation} showed {shown} instead of a timed image.");
-        context.Draw(place, RoomObjectDraw.Of(frame.Shown));
+        context.Draw(place, StationObjectDraws.Family, frame.Shown);
         AnimationTimer = frame.Duration;
         InitialDrawCompleted = true;
     }
@@ -218,7 +218,7 @@ internal sealed class StationObject(
         switch (StationAnimationDefinitions.Segments.PlayToNextFrame(flash, ref _flashPlace, static _ => { }))
         {
             case AnimationShown<StationAnimation, StationDraw>.Frame frame:
-                Ensure.NotNull(drawing).Draw(level, block, RoomObjectDraw.Of(frame.Shown));
+                StationObjectDraws.Family.Draw(level, block, Ensure.NotNull(drawing), frame.Shown);
                 AnimationTimer = frame.Duration;
                 return true;
             case AnimationShown<StationAnimation, StationDraw>.Ended:
@@ -280,7 +280,7 @@ internal sealed class StationObject(
         StationAccessBehavior accessBehavior = AccessBehavior
             ?? throw new InvalidDataException("Station access has no behaviour owner.");
         StationAccessObjectDefinition definition = StationAccessObjects.Resolve(accessBehavior);
-        context.RoomObjects.Drawing.Draw(context.Level, AccessBlock ?? throw new InvalidOperationException("A station drew its access arm with no access active."),
-            RoomObjectDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));
+        StationObjectDraws.Family.Draw(context.Level, AccessBlock ?? throw new InvalidOperationException("A station drew its access arm with no access active."),
+            context.RoomObjects.Drawing, pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted);
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -35,7 +34,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
         {
             foreach (ElevatorPlatformDraw platform in Enum.GetValues<ElevatorPlatformDraw>())
             {
-                TryGetDraw(RoomObjectDraw.Of(platform), out var list);
+                TryGetDraw(ElevatorPlatformDraws.Family.Of(platform), out var list);
                 yield return list;
             }
         }
@@ -44,7 +43,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     /// <summary>Maps a platform draw to its stable artwork identifier.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
         RoomObjectVisualIdDefinitions.ElevatorPlatform.TryGetValue(
-            RoomObjectDraw.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"), out string? id)
+            RoomObjectDrawIdentity.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"), out string? id)
             ? id
             : throw new InvalidOperationException($"Undefined elevator-platform draw list {request}.");
 
@@ -54,7 +53,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     /// </summary>
     internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!ElevatorPlatformDraws.TryDescribe(request, out RoomBlockShape? shape))
+        if (!RoomObjectDrawIdentity.TryShape(ElevatorPlatformDraws.Family, request, out RoomBlockShape? shape))
         {
             list = default;
             return false;

@@ -16,7 +16,7 @@ internal static class SpeedBoosterBlockObjectDrawDefinitions
     }
 
     /// <summary>The draw that reveals a bombed Speed Booster block.</summary>
-    internal static RoomObjectFrameDraw<Draw> BombRevealDraw { get; } = RoomObjectDraw.Of(Draw.BombReveal);
+    internal static RoomObjectFrameDraw<Draw> BombRevealDraw { get; } = SpeedBoosterBlockObjectDraws.BombRevealFamily.Of(Draw.BombReveal);
 
     /// <summary>The revealed Speed Booster block (#1862): one special-block parent at the object's block.</summary>
     internal static RoomBlockShape BombRevealShape { get; } = RoomBlockShapes.Block(RoomCollisionType.SpecialBlock);

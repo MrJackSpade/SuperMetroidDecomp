@@ -63,7 +63,7 @@ internal static class SporeSpawnCeilingObjectsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryDescribe(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomBlockShape? described), "Spore ceiling shape ownership");
+            AssertEqual(index >= 0, RoomObjectDrawIdentity.TryShape(SporeSpawnCeilingDraws.Family, NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomBlockShape? described), "Spore ceiling shape ownership");
             AssertEqual(index >= 0, RoomObjectSporeSpawnCeilingVisualFiles.TryGet(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (described is null)
             {

@@ -21,7 +21,7 @@ internal static class OldTourianEscapeShaftWallObjectDefinitions
     }
 
     /// <summary>The draw that opens the shaft wall's two columns.</summary>
-    internal static RoomObjectFrameDraw<Draw> OpenWallDraw { get; } = RoomObjectDraw.Of(Draw.OpenWall);
+    internal static RoomObjectFrameDraw<Draw> OpenWallDraw { get; } = OldTourianEscapeShaftWallDraws.Family.Of(Draw.OpenWall);
 
     /// <summary>The opened wall (#1862): three air blocks down from the object's block, and the three beside them on its right.</summary>
     internal static RoomBlockShape OpenedWall { get; } = new(

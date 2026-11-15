@@ -97,7 +97,7 @@ internal static class PhantoonDoorObjectsVerification
         AssertImportAndRejections(rom, installed.Images, family, RepositoryInstallation.Installation.RoomObjectPhantoonDoorVisualDirectory);
         foreach (LookupEscapeGateStockFrame frame in Frames)
         {
-            if (!PhantoonDoorDraws.TryDescribe(NativeObjectDraws.At<PhantoonDoorDraw>(frame.Pointer), out RoomBlockShape? described))
+            if (!RoomObjectDrawIdentity.TryShape(PhantoonDoorDraws.Family, NativeObjectDraws.At<PhantoonDoorDraw>(frame.Pointer), out RoomBlockShape? described))
                 throw new InvalidOperationException($"Phantoon door frame {frame.Id} has no shape.");
             RoomBlockShape shape = described;
             Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> native = NativeTerrain(rom, frame.Pointer, out _);
@@ -105,7 +105,7 @@ internal static class PhantoonDoorObjectsVerification
             foreach ((Offset16<RoomBlocks> cell, RoomTerrainBlock terrain) in native)
                 AssertEqual(terrain.Collision, shape.CollisionAt(cell), $"Phantoon door {frame.Id} collides as its draw list at {cell}");
         }
-        AssertTrue(!PhantoonDoorDraws.TryDescribe(NativeObjectDraws.At<PhantoonDoorDraw>(0x93f1), out _),
+        AssertTrue(!RoomObjectDrawIdentity.TryShape(PhantoonDoorDraws.Family, NativeObjectDraws.At<PhantoonDoorDraw>(0x93f1), out _),
             "no Phantoon door frame starts inside the fight door's draw list");
     }
 

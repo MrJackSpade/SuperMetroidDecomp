@@ -28,7 +28,7 @@ internal static class ElevatorPlatformObjectDefinitionsConstants
         {
             int phase = offset / 4;
             int frame = 2 - Math.Abs(phase - 2);
-            value = RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(Enum.GetValues<ElevatorPlatformDraw>()[frame]));
+            value = RoomObjectDrawAddressCodec.Of(ElevatorPlatformDraws.Family.Of(Enum.GetValues<ElevatorPlatformDraw>()[frame]));
         }
         return true;
     }

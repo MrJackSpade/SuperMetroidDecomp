@@ -1,35 +1,32 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The breakup and restoration draws of the ordinary shot blocks and the block shape each draws (#1862, #1994).</summary>
+/// <summary>
+/// The breakup and restoration draws of the ordinary shot blocks (#1862, #1994, #2034): the block shape each draws and
+/// the installed picture each shows.
+/// </summary>
 internal static class ShotBlockObjectDraws
 {
+    /// <summary>The shot blocks' breakup frames, pictured by the installed shot-block frames.</summary>
+    internal static RoomObjectDrawFamily<BreakupDraw> BreakupFamily { get; } =
+        RoomObjectDrawFamily<BreakupDraw>.Pictured<InstalledRoomObjectShotBlockVisuals>("shot-block",
+            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+
+    /// <summary>The shot blocks' restoration frames, pictured by the installed shot-block frames.</summary>
+    internal static RoomObjectDrawFamily<RestorationDraw> RestorationFamily { get; } =
+        RoomObjectDrawFamily<RestorationDraw>.Pictured<InstalledRoomObjectShotBlockVisuals>("shot-block",
+            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+
     /// <summary>A shot block of <paramref name="shape"/> showing <paramref name="stage"/> of its breakup.</summary>
     internal static RoomObjectFrameDraw<BreakupDraw> Breakup(Shape shape, BlockBreakupStage stage) =>
-        RoomObjectDraw.Of(new BreakupDraw(shape, stage));
+        BreakupFamily.Of(new BreakupDraw(shape, stage));
 
     /// <summary>The draw that restores a broken shot block of <paramref name="shape"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> is a single block, which has no restoration draw.</exception>
     internal static RoomObjectFrameDraw<RestorationDraw> Restoration(Shape shape) =>
-        RoomObjectDraw.Of(new RestorationDraw(shape != Shape.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape))));
-
-    /// <summary>The block shape of <paramref name="request"/> when it is one of the shot blocks' breakup or restoration draws.</summary>
-    /// <param name="request">The draw to describe; draws of other families are not the shot blocks'.</param>
-    /// <param name="shape">The blocks the draw changes; null when the draw is not a shot block's.</param>
-    /// <returns>Whether the draw is one of the shot blocks'.</returns>
-    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
-    {
-        shape = request switch
-        {
-            RoomObjectFrameDraw<BreakupDraw> { Frame: var breakup } => breakup.Blocks,
-            RoomObjectFrameDraw<RestorationDraw> { Frame: var restoration } => restoration.Blocks,
-            _ => null,
-        };
-        return shape is not null;
-    }
+        RestorationFamily.Of(new RestorationDraw(shape != Shape.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape))));
 
     /// <summary>The blocks a shot block of each arrangement covers besides its first: the one right of it, below it, or both and the one diagonally between.</summary>
     private static readonly Dictionary<Shape, Offset16<RoomBlocks>[]> Children = new()

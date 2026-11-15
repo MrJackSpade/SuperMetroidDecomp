@@ -74,20 +74,22 @@ internal sealed class RoomObjectPopulationLoader
             Position16<RoomBlocks> block;
             try
             {
-                // A room-object spawn takes its place first and finds its block as its row times
-                // the room's width plus its column, without checking the room's
-                // dimensions. The bounded placement preserves that ordering for
-                // the two shipped off-room door objects, whose column past the room's width is the block that many
-                // columns into the following rows; setups that genuinely require authored terrain still
-                // validate when they consume the block.
-                block = room.Level.ObjectBlock(placed.Block);
+                // A placement stands on a block of the grid, or, as the two shipped off-room coloured doors do, on a block
+                // of the terrain beyond the room (#2034); setups that require the grid's terrain validate when they
+                // consume the block.
+                block = placement.Site switch
+                {
+                    RoomObjectSite.RoomGrid => room.Level.GridBlock(placed.Block),
+                    RoomObjectSite.BeyondTheRoom => room.Level.BlockBeyondRoom(placed.Block),
+                    _ => throw new InvalidDataException($"Undefined {nameof(RoomObjectSite)} {placement.Site}."),
+                };
             }
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
                     $"Room-object population {population.Name} placement {placementIndex} " +
-                    $"room object {objectKind} has block outside the room's allocated blocks " +
-                    $"({placed.Block.X},{placed.Block.Y}) and argument {placed.Argument}.",
+                    $"room object {objectKind} has block ({placed.Block.X},{placed.Block.Y}) outside its {placement.Site} " +
+                    $"and argument {placed.Argument}.",
                     error);
             }
 

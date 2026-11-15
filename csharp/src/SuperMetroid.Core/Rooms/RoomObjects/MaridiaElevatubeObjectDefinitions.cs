@@ -15,7 +15,7 @@ internal static class MaridiaElevatubeObjectDefinitions
     }
 
     /// <summary>The draw that places the elevatube's solid block.</summary>
-    internal static RoomObjectFrameDraw<Draw> BlockDraw { get; } = RoomObjectDraw.Of(Draw.Block);
+    internal static RoomObjectFrameDraw<Draw> BlockDraw { get; } = MaridiaElevatubeObjectDraws.Family.Of(Draw.Block);
 
     /// <summary>The elevatube's block (#1862): one solid block at the object's block. What it shows is its installed picture (#1557).</summary>
     internal static RoomBlockShape Shape { get; } = RoomBlockShapes.Block(RoomCollisionType.SolidBlock);

@@ -82,13 +82,13 @@ internal static class RoomObjectDefinitionMigrationVerification
         var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);
         AssertEqual(RoomCollisionType.BombableBlock, bombHorizontal.Blocks.CollisionAt(new(0, 0)), "bomb block parent");
         AssertEqual(RoomCollisionType.HorizontalExtension, bombHorizontal.Blocks.CollisionAt(new(1, 0)), "bomb block horizontal child");
-        RoomObjectFrameImage bombPicture = restorations.Image(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal));
+        RoomObjectFrameImage bombPicture = restorations.Image(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal));
         AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(0, 0)), "bomb block parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(1, 0)), "bomb block horizontal child picture");
         var crumbleVertical = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Vertical, LinkedRestoreObjectFamily.ContactCrumble);
         AssertEqual(RoomCollisionType.SpecialBlock, crumbleVertical.Blocks.CollisionAt(new(0, 0)), "contact crumble parent");
         AssertEqual(RoomCollisionType.VerticalExtension, crumbleVertical.Blocks.CollisionAt(new(0, 1)), "contact crumble vertical child");
-        RoomObjectFrameImage crumblePicture = restorations.Image(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Vertical));
+        RoomObjectFrameImage crumblePicture = restorations.Image(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical));
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 0)), "contact crumble parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 1)), "contact crumble vertical child picture");
 

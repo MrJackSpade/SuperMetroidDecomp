@@ -42,7 +42,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ElevatorPlatformDraws.TryDescribe(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryShape(ElevatorPlatformDraws.Family, NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
                 AssertEqual(owned, RoomObjectElevatorPlatformVisualFiles.TryGetDraw(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
                 if (!owned)
                 {
@@ -58,7 +58,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            RoomBlockShape shape = ElevatorPlatformDraws.TryDescribe(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out RoomBlockShape? described)
+            RoomBlockShape shape = RoomObjectDrawIdentity.TryShape(ElevatorPlatformDraws.Family, NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out RoomBlockShape? described)
                 ? described : throw new InvalidOperationException($"Elevator platform draw {pointer:X4} has no block shape.");
             RoomObjectElevatorPlatformVisualFiles.TryGetDraw(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
             RoomObjectDraw byId = RoomObjectElevatorPlatformVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;

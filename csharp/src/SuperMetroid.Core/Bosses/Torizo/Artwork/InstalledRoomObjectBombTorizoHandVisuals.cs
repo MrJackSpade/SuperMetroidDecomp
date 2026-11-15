@@ -16,9 +16,6 @@ public sealed class InstalledRoomObjectBombTorizoHandVisuals
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        BombTorizoHandDraws.TryDescribe(draw, out _)
-            ? Images.Image(draw)
-            : throw new InvalidDataException($"Bomb Torizo hand visuals lack frame {draw}.");
+    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

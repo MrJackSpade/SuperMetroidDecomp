@@ -36,16 +36,13 @@ internal static class LookupCollectibleDrawsVerification
             {
                 bool owned = expected.Any(entry => entry.Pointer == raw);
                 AssertEqual(owned, RoomObjectCollectibleDrawDefinitionsTooling.TryGet(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out var value), "Collectible complete pointer domain");
-                AssertEqual(owned, CollectibleObjectDraws.TryGetCollision(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out RoomCollisionType collision), "Collectible runtime block domain");
+                bool isCollectible = RoomObjectDrawIdentity.TryFrame(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out CollectibleDraw frame);
+                AssertEqual(owned, isCollectible, "Collectible runtime block domain");
                 AssertEqual(owned && expected.Single(entry => entry.Pointer == raw).Id.EndsWith("-frame", StringComparison.Ordinal),
-                    CollectibleObjectDraws.TryGetBlockPairTerrain(NativeObjectDraws.At<CollectibleDraw>((ushort)raw), out RoomTerrainBlock pairTerrain),
+                    isCollectible && CollectibleObjectDraws.BlockPairTerrain(frame) is not null,
                     "Collectible block-pair terrain domain");
                 if (!owned)
-                {
                     AssertEqual(default(RoomObjectCollectibleDrawFrame), value, "Collectible rejected output");
-                    AssertEqual(default(RoomCollisionType), collision, "Collectible rejected runtime output");
-                    AssertEqual(default(RoomTerrainBlock), pairTerrain, "Collectible rejected block-pair output");
-                }
             }
         for (int index = 0; index < expected.Length; index++)
         {
@@ -55,7 +52,7 @@ internal static class LookupCollectibleDrawsVerification
             if (RoomObjectCollectibleVisualFiles.IsEditable(direct.Draw))
             {
                 RoomObjectCollectibleDrawFrame named = RoomObjectCollectibleVisualFiles.Editable.Single(frame =>
-                    RoomObjectCollectibleVisualFiles.Family.Ids[RoomObjectDraw.Of(frame.Draw)] == entry.Id);
+                    RoomObjectCollectibleVisualFiles.Family.Ids[CollectibleObjectDraws.Family.Of(frame.Draw)] == entry.Id);
                 values = [direct, named, exported[index]];
             }
             else
@@ -65,7 +62,7 @@ internal static class LookupCollectibleDrawsVerification
             }
             foreach (var value in values)
             {
-                AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(value.Draw)), "Collectible original pointer and export order");
+                AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(value.Draw)), "Collectible original pointer and export order");
                 if (field == 0)
                 {
                     AssertEqual((ushort)1, ReadCollectibleDrawWord(rom, entry.Pointer), "Collectible original horizontal one-cell geometry");
@@ -76,7 +73,7 @@ internal static class LookupCollectibleDrawsVerification
                 {
                     RoomObjectDraw draw = NativeObjectDraws.At<CollectibleDraw>(entry.Pointer);
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadCollectibleDrawWord(rom, (ushort)(entry.Pointer + 2)));
-                    AssertTrue(CollectibleObjectDraws.TryGetCollision(draw, out RoomCollisionType runtimeCollision), "Collectible runtime word ownership");
+                    RoomCollisionType runtimeCollision = CollectibleObjectDraws.CollisionOf(RoomObjectDrawIdentity.FrameOf<CollectibleDraw>(draw, "collectible"));
                     if (field == 1)
                     {
                         AssertEqual(native.Collision, runtimeCollision, "Collectible original runtime collision");
@@ -88,8 +85,9 @@ internal static class LookupCollectibleDrawsVerification
                     else
                     {
                         // A block pair's frame writes its block number as gameplay terrain under the item's own picture (#1538).
-                        AssertTrue(CollectibleObjectDraws.TryGetBlockPairTerrain(draw, out RoomTerrainBlock pairWord), "Collectible block-pair terrain");
-                        AssertEqual(native, pairWord, "Collectible original block-pair terrain");
+                        RoomTerrainBlock? pairWord = CollectibleObjectDraws.BlockPairTerrain(RoomObjectDrawIdentity.FrameOf<CollectibleDraw>(draw, "collectible"));
+                        AssertTrue(pairWord is not null, "Collectible block-pair terrain");
+                        AssertEqual(native, pairWord!.Value, "Collectible original block-pair terrain");
                     }
 
                 }

@@ -14,9 +14,6 @@ public sealed class InstalledRoomObjectBotwoonWallVisuals
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        draw == BotwoonWallObjectDrawDefinitions.Clear
-            ? Images.Image(draw)
-            : throw new InvalidDataException($"Botwoon wall visuals lack frame {draw}.");
+    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

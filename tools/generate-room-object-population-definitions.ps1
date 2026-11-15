@@ -226,7 +226,29 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                     }
                 }
             }
-            $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $kindNames[$kindWord], $rom[$offset + 2], $rom[$offset + 3], $argumentText, $scrollProgram))
+            # The import decodes each placement to the block it occupies (#2034): the game finds it as its row times the
+            # room's width plus its column, so a column past the width is the block that many columns into the following
+            # rows, and a row past the room's last is a block of the terrain beyond the room.
+            $blockX = [int]$rom[$offset + 2]
+            $blockY = [int]$rom[$offset + 3]
+            $site = ''
+            [string[]] $placedRooms = @()
+            if ($populationRooms.ContainsKey($name)) { $placedRooms = [string[]] @($populationRooms[$name]) }
+            $decoded = @($placedRooms | ForEach-Object {
+                $screens = $roomScreens[$_]
+                $width = $screens.Width * 16
+                $index = $blockY * $width + $blockX
+                $row = [int][Math]::Floor($index / $width)
+                '{0},{1},{2}' -f ($index % $width), $row, ($row -ge $screens.Height * 16)
+            } | Sort-Object -Unique)
+            if ($decoded.Count -gt 1) { throw "Population $name places $($kindNames[$kindWord]) at ($blockX,$blockY), which its rooms decode to different blocks." }
+            if ($decoded.Count -eq 1) {
+                $parts = $decoded[0].Split(',')
+                $blockX = [int]$parts[0]
+                $blockY = [int]$parts[1]
+                if ($parts[2] -eq 'True') { $site = ', Site: RoomObjectSite.BeyondTheRoom' }
+            }
+            $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}{5}),' -f $kindNames[$kindWord], $blockX, $blockY, $argumentText, $scrollProgram, $site))
             $offset += 6
         }
         $recordTotal += $count

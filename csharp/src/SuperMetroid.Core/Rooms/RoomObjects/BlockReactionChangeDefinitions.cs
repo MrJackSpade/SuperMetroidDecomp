@@ -17,37 +17,37 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x1.</summary>
     internal static BlockReactionChange CrumbleReveal1x1 { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(RoomObjectBombedRevealDraw.CrumbleSingle), 1),
+        new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.CrumbleSingle), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x1.</summary>
     internal static BlockReactionChange CrumbleReveal2x1 { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 1),
+        new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Horizontal), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x2.</summary>
     internal static BlockReactionChange CrumbleReveal1x2 { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Vertical), 1),
+        new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x2.</summary>
     internal static BlockReactionChange CrumbleReveal2x2 { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Square), 1),
+        new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Square), 1),
     ]);
 
     /// <summary>A normal bomb's one-update reveal of a Power Bomb block, which it does not break.</summary>
     internal static BlockReactionChange BombedPowerBombBlockReveal { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(RoomObjectBombedRevealDraw.PowerBomb), 1),
+        new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.PowerBomb), 1),
     ]);
 
     /// <summary>A normal bomb's one-update reveal of a Super Missile block, which it does not break.</summary>
     internal static BlockReactionChange BombedSuperMissileBlockReveal { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(RoomObjectBombedRevealDraw.SuperMissile), 1),
+        new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.SuperMissile), 1),
     ]);
 
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, growing back.</summary>
@@ -73,7 +73,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Horizontal, Stage.Dust), 4),
         new(Breakup(Shape.Horizontal, Stage.Pieces), 4),
         new(Breakup(Shape.Horizontal, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 1),
+        new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Horizontal), 1),
     ]);
 
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x2 block, growing back.</summary>
@@ -86,7 +86,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Vertical, Stage.Dust), 4),
         new(Breakup(Shape.Vertical, Stage.Pieces), 4),
         new(Breakup(Shape.Vertical, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Vertical), 1),
+        new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical), 1),
     ]);
 
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x2 block, growing back.</summary>
@@ -99,7 +99,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Square, Stage.Dust), 4),
         new(Breakup(Shape.Square, Stage.Pieces), 4),
         new(Breakup(Shape.Square, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Square), 1),
+        new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Square), 1),
     ]);
 
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, gone for good.</summary>
@@ -319,7 +319,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Horizontal, Stage.Dust), 4),
         new(Breakup(Shape.Horizontal, Stage.Pieces), 4),
         new(Breakup(Shape.Horizontal, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal), 1),
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, growing back.</summary>
@@ -332,7 +332,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Horizontal, Stage.Dust), 4),
         new(Breakup(Shape.Horizontal, Stage.Pieces), 4),
         new(Breakup(Shape.Horizontal, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal), 1),
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, growing back.</summary>
@@ -345,7 +345,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Horizontal, Stage.Dust), 4),
         new(Breakup(Shape.Horizontal, Stage.Pieces), 4),
         new(Breakup(Shape.Horizontal, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal), 1),
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, growing back.</summary>
@@ -358,7 +358,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Vertical, Stage.Dust), 4),
         new(Breakup(Shape.Vertical, Stage.Pieces), 4),
         new(Breakup(Shape.Vertical, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Vertical), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Vertical), 1),
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, growing back.</summary>
@@ -371,7 +371,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Vertical, Stage.Dust), 4),
         new(Breakup(Shape.Vertical, Stage.Pieces), 4),
         new(Breakup(Shape.Vertical, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Vertical), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Vertical), 1),
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, growing back.</summary>
@@ -384,7 +384,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Vertical, Stage.Dust), 4),
         new(Breakup(Shape.Vertical, Stage.Pieces), 4),
         new(Breakup(Shape.Vertical, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Vertical), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Vertical), 1),
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, growing back.</summary>
@@ -397,7 +397,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Square, Stage.Dust), 4),
         new(Breakup(Shape.Square, Stage.Pieces), 4),
         new(Breakup(Shape.Square, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Square), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Square), 1),
     ]);
 
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, growing back.</summary>
@@ -410,7 +410,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Square, Stage.Dust), 4),
         new(Breakup(Shape.Square, Stage.Pieces), 4),
         new(Breakup(Shape.Square, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Square), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Square), 1),
     ]);
 
     /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, growing back.</summary>
@@ -423,7 +423,7 @@ internal static class BlockReactionChangeDefinitions
         new(Breakup(Shape.Square, Stage.Dust), 4),
         new(Breakup(Shape.Square, Stage.Pieces), 4),
         new(Breakup(Shape.Square, Stage.Rock), 4),
-        new(RoomObjectDraw.Of(BombBlockRestoreDraw.Square), 1),
+        new(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Square), 1),
     ]);
 
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, gone for good.</summary>
@@ -537,25 +537,25 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning breakable Grapple block: it holds, breaks up, grows back and breaks again.</summary>
     internal static BlockReactionChange RespawningBreakableGrappleBlock { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Intact), 240),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Pieces), 4),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Dust), 4),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Blank), 6),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Dust), 4),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Pieces), 4),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Rock), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Intact), 240),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Pieces), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Dust), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Blank), 6),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Dust), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Pieces), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Rock), 4),
         BlockReactionFrame.RestoredBlock,
     ]);
 
     /// <summary>A breakable Grapple block: it holds, then breaks up for good.</summary>
     internal static BlockReactionChange PermanentBreakableGrappleBlock { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Intact), 120),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Pieces), 4),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Dust), 4),
-        new(RoomObjectDraw.Of(GrappleBlockDraw.Blank), 1),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Intact), 120),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Pieces), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Dust), 4),
+        new(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Blank), 1),
     ]);
 
     /// <summary>The collision bomb block each bomb block's break sets off.</summary>

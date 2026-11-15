@@ -91,7 +91,7 @@ internal static class SamusEaterObjectDefinitionsVerification
                 string at = $"{(definition.Ceiling ? "ceiling" : "floor")} plant update {update + 1}";
                 AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is SamusEaterObject { } eater && eater.Holding == expected[update].Holding,
                     $"{at} holds Samus while it chews");
-                AssertEqual(pictures.Image(RoomObjectDraw.Of(expected[update].Image)).At(Offset16<RoomBlocks>.Zero),
+                AssertEqual(pictures.Image(SamusEaterObjectDraws.Family.Of(expected[update].Image)).At(Offset16<RoomBlocks>.Zero),
                     level.GetCollisionBlock(plantBlock).Terrain.Appearance, $"{at} shows {expected[update].Image}");
             }
             roomObjects.Step(level);

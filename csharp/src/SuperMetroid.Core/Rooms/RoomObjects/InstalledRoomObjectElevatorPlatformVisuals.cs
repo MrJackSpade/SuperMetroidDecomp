@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
-
-namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The installed pictures of the elevator platform's frames (#1557). The four-step loop, draw geometry and terrain stay
@@ -16,9 +14,6 @@ public sealed class InstalledRoomObjectElevatorPlatformVisuals
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        ElevatorPlatformDraws.TryDescribe(draw, out _)
-            ? Images.Image(draw)
-            : throw new InvalidDataException($"Elevator platform visuals lack frame {draw}.");
+    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

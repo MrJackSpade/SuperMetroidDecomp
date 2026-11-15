@@ -11,9 +11,11 @@ internal static class LinkedRestoreObjectFamilyAccess
         /// <summary>Converts a recognized restore drawing of this family into the shared verifier draw-list form.</summary>
         internal bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
         {
-            if (family.TryDescribe(request, out LinkedRestoreObjectFamily.Draw draw))
+            foreach (KeyValuePair<RoomObjectRestoreShape, RoomObjectDraw> shape in family.Draws)
             {
-                list = RoomObjectLinkedRestoreVisualFiles.Export(request, draw);
+                if (shape.Value != request)
+                    continue;
+                list = RoomObjectLinkedRestoreVisualFiles.Export(request, family.Describe(shape.Key));
                 return true;
             }
             list = default;

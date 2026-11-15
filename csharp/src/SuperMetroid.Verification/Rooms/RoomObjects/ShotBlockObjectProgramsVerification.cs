@@ -118,9 +118,12 @@ internal static class ShotBlockObjectProgramsVerification
         foreach (RoomObjectDrawLists.DrawList list in
                  RoomObjectShotBlockVisualFiles.All)
         {
-            RoomBlockShape blocks = ShotBlockObjectDraws.TryDescribe(list.Draw, out RoomBlockShape? described)
-                ? described
-                : throw new InvalidOperationException($"shot-block calculated draw {list.Draw} has no block shape.");
+            RoomBlockShape blocks = list.Draw switch
+            {
+                RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => breakup.Blocks,
+                RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => restoration.Blocks,
+                _ => throw new InvalidOperationException($"shot-block calculated draw {list.Draw} has no block shape."),
+            };
             RoomObjectShotBlockDrawDefinitions.Shape layout = list.Draw switch
             {
                 RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => breakup.Layout,

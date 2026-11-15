@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -33,23 +32,10 @@ internal static class NoobTubeObjectDraws
         [NoobTubeDraw.BrokenFull] = BrokenRows(3, 4, 5),
     };
 
-    /// <summary>The block shape of <paramref name="request"/> when it is one of the tube's draws.</summary>
-    /// <param name="request">The draw to describe.</param>
-    /// <param name="shape">The tube's blocks; null when the draw is not the tube's.</param>
-    /// <returns>Whether the draw is one of the tube's.</returns>
-    /// <exception cref="InvalidOperationException">The draw is a tube draw with no shape.</exception>
-    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
-    {
-        if (request is not RoomObjectFrameDraw<NoobTubeDraw> { Frame: var tube })
-        {
-            shape = null;
-            return false;
-        }
-        shape = Shapes.TryGetValue(tube, out RoomBlockShape? described)
-            ? described
-            : throw new InvalidOperationException($"Undefined NoobTubeDraw {tube}.");
-        return true;
-    }
+    /// <summary>The tube's seven frames (#2034), pictured by the installed n00b tube frames.</summary>
+    internal static RoomObjectDrawFamily<NoobTubeDraw> Family { get; } =
+        RoomObjectDrawFamily<NoobTubeDraw>.Pictured<InstalledRoomObjectNoobTubeVisuals>("n00b tube",
+            frame => RoomObjectDrawFamily<NoobTubeDraw>.Defined(Shapes, frame), (visuals, draw) => visuals.Image(draw));
 
     /// <summary>The tube's <paramref name="rows"/>, each twelve blocks wide from the object's column.</summary>
     private static RoomBlockShape Rows(params int[] rows) => new([.. RowCells(rows)]);

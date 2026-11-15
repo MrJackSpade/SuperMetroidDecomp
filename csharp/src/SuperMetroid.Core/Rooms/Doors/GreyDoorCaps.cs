@@ -30,7 +30,8 @@ internal static class GreyDoorCaps
         internal RoomBlockShape Blocks => Shapes[this];
     }
 
-    /// <summary>Describes a grey door cap's draw: its orientation and the cleared opening or the cap closed or sliding aside.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
-        RoomObjectDraw.TryFrame(request, static (Draw cap) => cap.IsCleared || DoorCaps.IsOpeningLook(cap.Look), out draw);
+    /// <summary>The grey caps and the cleared openings (#2034), pictured by the installed grey-door frames.</summary>
+    internal static RoomObjectDrawFamily<Draw> Family { get; } =
+        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectGreyDoorVisuals>("grey-door", cap => cap.Blocks,
+            (visuals, draw) => visuals.Image(draw));
 }

@@ -15,7 +15,7 @@ internal static class SporeSpawnCeilingMutationDefinitions
     internal const int FrameDuration = 4;
 
     /// <summary>The cleared ceiling, the last image of both changes.</summary>
-    private static readonly TerrainChangeFrame Cleared = new(RoomObjectDraw.Of(SporeSpawnCeilingDraw.Clear), FrameDuration);
+    private static readonly TerrainChangeFrame Cleared = new(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.Clear), FrameDuration);
 
     /// <summary>
     /// The change each mutation makes: the crumble plays its sound with the first of three crumble images and ends on
@@ -26,9 +26,9 @@ internal static class SporeSpawnCeilingMutationDefinitions
         {
             [SporeSpawnCeilingMutation.Crumble] = new(1,
             [
-                new TerrainChangeFrame(RoomObjectDraw.Of(SporeSpawnCeilingDraw.CrumbleFirst), FrameDuration, SoundBefore: CrumbleSoundId),
-                new TerrainChangeFrame(RoomObjectDraw.Of(SporeSpawnCeilingDraw.CrumbleSecond), FrameDuration),
-                new TerrainChangeFrame(RoomObjectDraw.Of(SporeSpawnCeilingDraw.CrumbleThird), FrameDuration),
+                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CrumbleFirst), FrameDuration, SoundBefore: CrumbleSoundId),
+                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CrumbleSecond), FrameDuration),
+                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CrumbleThird), FrameDuration),
                 Cleared,
             ]),
             [SporeSpawnCeilingMutation.Clear] = new(1, [Cleared]),

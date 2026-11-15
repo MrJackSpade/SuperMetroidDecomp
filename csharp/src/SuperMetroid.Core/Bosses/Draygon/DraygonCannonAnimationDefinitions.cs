@@ -22,36 +22,36 @@ internal static class DraygonCannonAnimationDefinitions
         new Dictionary<DraygonCannonOrientation, DraygonCannonLook>
         {
             [DraygonCannonOrientation.Right] = new(
-                new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldA), ShieldDuration),
+                new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldA), ShieldDuration),
                 [
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldA), FlashDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldB), FlashAlternateDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldA), FlashDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldB), FlashAlternateDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldA), FlashDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightShieldB), FlashAlternateDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldA), FlashDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldB), FlashAlternateDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldA), FlashDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldB), FlashAlternateDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldA), FlashDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightShieldB), FlashAlternateDuration),
                 ],
                 [
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightDamagedA), SmokeDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightDamagedB), SmokeDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightDamagedC), SmokeDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.RightDamagedD), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightDamagedA), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightDamagedB), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightDamagedC), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.RightDamagedD), SmokeDuration),
                 ]),
             [DraygonCannonOrientation.Left] = new(
-                new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldA), ShieldDuration),
+                new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldA), ShieldDuration),
                 [
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldA), FlashDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldB), FlashAlternateDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldA), FlashDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldB), FlashAlternateDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldA), FlashDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldB), FlashAlternateDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldA), FlashDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldB), FlashAlternateDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldA), FlashDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldB), FlashAlternateDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldA), FlashDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftShieldB), FlashAlternateDuration),
                 ],
                 [
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftDamagedA), SmokeDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftDamagedB), SmokeDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftDamagedC), SmokeDuration),
-                    new(RoomObjectDraw.Of(DraygonCannonDraw.LeftDamagedD), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftDamagedA), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftDamagedB), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftDamagedC), SmokeDuration),
+                    new(DraygonCannonDraws.Family.Of(DraygonCannonDraw.LeftDamagedD), SmokeDuration),
                 ]),
         };
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Samus;
 using System.Text;

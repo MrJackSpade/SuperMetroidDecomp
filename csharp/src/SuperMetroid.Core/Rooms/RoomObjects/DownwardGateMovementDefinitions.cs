@@ -20,19 +20,19 @@ internal static class DownwardGateMovementDefinitions
     internal static readonly SoundRequestPriority MovementSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>The open gate, shown for one update before it rests open.</summary>
-    internal static RoomObjectDraw OpenImage { get; } = RoomObjectDraw.Of(DownwardGateDraw.Open);
+    internal static RoomObjectDraw OpenImage { get; } = DownwardGateObjectDraws.Family.Of(DownwardGateDraw.Open);
 
     /// <summary>The closed gate, shown for one update before it rests closed.</summary>
-    internal static RoomObjectDraw ClosedImage { get; } = RoomObjectDraw.Of(DownwardGateDraw.Closed);
+    internal static RoomObjectDraw ClosedImage { get; } = DownwardGateObjectDraws.Family.Of(DownwardGateDraw.Closed);
 
     /// <summary>The closing, in order; the gate's movement starts with <see cref="ClosingMovementStart"/>.</summary>
     internal static IReadOnlyList<TerrainChangeFrame> Closing { get; } =
     [
-        new(RoomObjectDraw.Of(DownwardGateDraw.Open), CloseDelay),
-        new(RoomObjectDraw.Of(DownwardGateDraw.QuarterLowered), MovementFrameDuration),
-        new(RoomObjectDraw.Of(DownwardGateDraw.HalfLowered), MovementFrameDuration),
-        new(RoomObjectDraw.Of(DownwardGateDraw.ThreeQuartersLowered), MovementFrameDuration),
-        new(RoomObjectDraw.Of(DownwardGateDraw.FullyLowered), LastMovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.Open), CloseDelay),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.QuarterLowered), MovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.HalfLowered), MovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.ThreeQuartersLowered), MovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.FullyLowered), LastMovementFrameDuration),
     ];
 
     /// <summary>The closing image the gate's moving projectile and movement sound start with.</summary>
@@ -41,9 +41,9 @@ internal static class DownwardGateMovementDefinitions
     /// <summary>The reopening, in order; the gate's projectile is woken and the movement sound plays with the first image.</summary>
     internal static IReadOnlyList<TerrainChangeFrame> Reopening { get; } =
     [
-        new(RoomObjectDraw.Of(DownwardGateDraw.FullyLowered), MovementFrameDuration),
-        new(RoomObjectDraw.Of(DownwardGateDraw.ThreeQuartersLowered), MovementFrameDuration),
-        new(RoomObjectDraw.Of(DownwardGateDraw.HalfLowered), MovementFrameDuration),
-        new(RoomObjectDraw.Of(DownwardGateDraw.QuarterLowered), LastMovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.FullyLowered), MovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.ThreeQuartersLowered), MovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.HalfLowered), MovementFrameDuration),
+        new(DownwardGateObjectDraws.Family.Of(DownwardGateDraw.QuarterLowered), LastMovementFrameDuration),
     ];
 }

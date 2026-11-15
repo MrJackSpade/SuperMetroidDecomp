@@ -25,7 +25,8 @@ internal static class ColoredDoorCaps
         internal RoomBlockShape Blocks => Shapes[this];
     }
 
-    /// <summary>Describes a coloured door cap's draw: its colour, orientation and the cap closed or sliding aside.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
-        RoomObjectDraw.TryFrame(request, static (Draw cap) => DoorCaps.IsOpeningLook(cap.Look), out draw);
+    /// <summary>The coloured caps (#2034), pictured by the installed coloured-door frames.</summary>
+    internal static RoomObjectDrawFamily<Draw> Family { get; } =
+        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectColoredDoorVisuals>("colored-door", cap => cap.Blocks,
+            (visuals, draw) => visuals.Image(draw));
 }

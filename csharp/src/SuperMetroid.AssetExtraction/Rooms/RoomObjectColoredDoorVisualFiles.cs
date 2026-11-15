@@ -43,7 +43,7 @@ public static class RoomObjectColoredDoorVisualFiles
     /// <summary>Builds the draw list of a recognized colored cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = ColoredDoorCaps.TryDescribe(request, out ColoredDoorCaps.Draw cap);
+        bool found = RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out ColoredDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
         return found;
     }
@@ -51,7 +51,7 @@ public static class RoomObjectColoredDoorVisualFiles
     /// <summary>Names a compiled cap frame by color, direction, and what it shows for editable artwork (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
-        if (!ColoredDoorCaps.TryDescribe(request, out var draw))
+        if (!RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Colored-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         string color = draw.Color switch
@@ -70,6 +70,6 @@ public static class RoomObjectColoredDoorVisualFiles
         foreach (ColoredDoorColor color in Enum.GetValues<ColoredDoorColor>())
             for (int orientation = 0; orientation < 4; orientation++)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                    yield return RoomObjectDraw.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));
+                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));
     }
 }

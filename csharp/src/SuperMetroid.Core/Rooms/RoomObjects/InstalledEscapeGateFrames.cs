@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
-
-namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The installed pictures of the open, half-closed and closed frames of the gate in Mother Brain's escape room (#1557),

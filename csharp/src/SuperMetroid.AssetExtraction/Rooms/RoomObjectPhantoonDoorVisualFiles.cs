@@ -39,8 +39,8 @@ public static class RoomObjectPhantoonDoorVisualFiles
         var layouts = new Dictionary<PhantoonDoorDraw, RoomObjectFrameLayout>();
         foreach (PhantoonDoorDraw frame in Enum.GetValues<PhantoonDoorDraw>())
         {
-            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-            if (!PhantoonDoorDraws.TryDescribe(draw, out RoomBlockShape? described))
+            RoomObjectDraw draw = PhantoonDoorDraws.Family.Of(frame);
+            if (!RoomObjectDrawIdentity.TryShape(PhantoonDoorDraws.Family, draw, out RoomBlockShape? described))
                 throw new InvalidOperationException($"Phantoon door frame {frame} has no shape.");
             RoomBlockShape shape = described;
             int[] columns = [.. shape.Cells.Select(cell => cell.Cell.X).Distinct().Order()];

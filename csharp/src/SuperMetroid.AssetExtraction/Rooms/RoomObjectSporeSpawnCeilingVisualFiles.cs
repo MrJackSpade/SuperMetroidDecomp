@@ -36,7 +36,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         {
             foreach (SporeSpawnCeilingDraw frame in Enum.GetValues<SporeSpawnCeilingDraw>())
             {
-                TryGet(RoomObjectDraw.Of(frame), out var list);
+                TryGet(SporeSpawnCeilingDraws.Family.Of(frame), out var list);
                 yield return list;
             }
         }
@@ -44,7 +44,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
 
     /// <summary>Selects a ceiling draw's published artwork key.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        VisualId(RoomObjectDraw.FrameOf<SporeSpawnCeilingDraw>(request, "Spore Spawn ceiling draw with a visual ID"));
+        VisualId(RoomObjectDrawIdentity.FrameOf<SporeSpawnCeilingDraw>(request, "Spore Spawn ceiling draw with a visual ID"));
 
     /// <summary>Names the clear layout and the three successive crumble appearances for visual editing.</summary>
     internal static string VisualId(SporeSpawnCeilingDraw frame) =>
@@ -59,7 +59,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!SporeSpawnCeilingDraws.TryDescribe(request, out RoomBlockShape? described))
+        if (!RoomObjectDrawIdentity.TryShape(SporeSpawnCeilingDraws.Family, request, out RoomBlockShape? described))
         {
             list = default;
             return false;

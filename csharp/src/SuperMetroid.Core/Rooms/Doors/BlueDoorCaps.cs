@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The blue-door caps: each facing's cap closed and sliding aside, and its closed cap drawn solid, and the block shape
-/// each draws from <see cref="BlueDoorObjectDrawDefinitions"/> (#1862, #1994).
+/// The blue-door caps: each facing's cap closed and sliding aside, and its closed cap drawn solid, the block shape each
+/// draws from <see cref="BlueDoorObjectDrawDefinitions"/> (#1862, #1994) and the installed picture each shows (#2034).
 /// </summary>
 internal static class BlueDoorCaps
 {
@@ -27,17 +27,18 @@ internal static class BlueDoorCaps
         internal RoomBlockShape Blocks => Shapes[this];
     }
 
+    /// <summary>The blue caps (#2034), pictured by the installed blue-door frames; the closed cap drawn solid shows the closed cap's.</summary>
+    internal static RoomObjectDrawFamily<Draw> Family { get; } =
+        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectBlueDoorVisuals>("blue-door", cap => cap.Blocks,
+            (visuals, draw) => visuals.Image(draw));
+
     /// <summary>The closed cap drawn solid facing <paramref name="orientation"/>, which shows the closed cap's picture.</summary>
     internal static RoomObjectDraw ClosedSolid(ColoredDoorOrientation orientation) =>
-        RoomObjectDraw.Of(new Draw(orientation, DoorCapLook.ClosedSolid));
-
-    /// <summary>Accepts a blue-cap draw: the cap closed or sliding aside, or closed and solid.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
-        RoomObjectDraw.TryFrame(request, static (Draw cap) => cap.Look == DoorCapLook.ClosedSolid || DoorCaps.IsOpeningLook(cap.Look), out draw);
+        Family.Of(new Draw(orientation, DoorCapLook.ClosedSolid));
 
     /// <summary>The draw whose installed picture <paramref name="request"/> shows: the closed cap drawn solid shows the closed cap's.</summary>
     internal static RoomObjectDraw VisualSource(RoomObjectDraw request) =>
         request is RoomObjectFrameDraw<Draw> { Frame: { Look: DoorCapLook.ClosedSolid } solid }
-            ? RoomObjectDraw.Of(solid with { Look = DoorCapLook.Closed })
+            ? Family.Of(solid with { Look = DoorCapLook.Closed })
             : request;
 }

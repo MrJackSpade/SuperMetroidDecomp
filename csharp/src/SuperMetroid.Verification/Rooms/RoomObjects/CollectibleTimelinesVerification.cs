@@ -30,7 +30,7 @@ internal static class CollectibleTimelinesVerification
         SeedCollectibleRom(bus);
         InstalledRoomObjectCollectibleVisuals collectibles = InstalledRoomObjectCollectibleVisuals.Stock();
         InstalledRoomObjectShotBlockVisuals shotBlocks = InstalledRoomObjectShotBlockVisuals.Stock();
-        RoomBlockAppearance Collectible(CollectibleDraw draw) => collectibles.Image(RoomObjectDraw.Of(draw)).At(Offset16<RoomBlocks>.Zero);
+        RoomBlockAppearance Collectible(CollectibleDraw draw) => collectibles.Image(CollectibleObjectDraws.Family.Of(draw)).At(Offset16<RoomBlocks>.Zero);
         RoomBlockAppearance Breakup(BlockBreakupStage stage) =>
             shotBlocks.Image(ShotBlockObjectDraws.Breakup(Shape.Single, stage)).At(Offset16<RoomBlocks>.Zero);
 

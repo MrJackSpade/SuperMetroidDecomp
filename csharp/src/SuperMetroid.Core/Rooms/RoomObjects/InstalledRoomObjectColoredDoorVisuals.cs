@@ -15,9 +15,6 @@ public sealed class InstalledRoomObjectColoredDoorVisuals
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The draw is not a coloured-cap frame, or the installation lacks it.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        ColoredDoorCaps.TryDescribe(draw, out _)
-            ? Images.Image(draw)
-            : throw new InvalidDataException($"Colored-door visuals lack frame {draw}.");
+    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

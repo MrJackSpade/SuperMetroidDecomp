@@ -17,8 +17,8 @@ internal static class PhantoonDoorChangeDefinitions
         new Dictionary<PhantoonDoorChange, TerrainChange>
         {
             [PhantoonDoorChange.FightDoor] = new(PhantoonDoorBlockHeldSolid.HeldUpdates,
-                [new TerrainChangeFrame(RoomObjectDraw.Of(PhantoonDoorDraw.FightDoor), 1)]),
+                [new TerrainChangeFrame(PhantoonDoorDraws.Family.Of(PhantoonDoorDraw.FightDoor), 1)]),
             [PhantoonDoorChange.RestoredDoor] = new(PhantoonDoorBlockHeldSolid.HeldUpdates,
-                [new TerrainChangeFrame(RoomObjectDraw.Of(PhantoonDoorDraw.RestoredDoor), 1)]),
+                [new TerrainChangeFrame(PhantoonDoorDraws.Family.Of(PhantoonDoorDraw.RestoredDoor), 1)]),
         };
 }

@@ -57,9 +57,9 @@ internal static class RoomObjectBombBlockProgramDefinitions
             {
                 value = dimension switch
                 {
-                    1 => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal)),
-                    2 => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(BombBlockRestoreDraw.Vertical)),
-                    3 => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(BombBlockRestoreDraw.Square)),
+                    1 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal)),
+                    2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Vertical)),
+                    3 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Square)),
                     _ => throw new InvalidDataException("Linked bomb-block program has no restore shape."),
                 };
                 return true;

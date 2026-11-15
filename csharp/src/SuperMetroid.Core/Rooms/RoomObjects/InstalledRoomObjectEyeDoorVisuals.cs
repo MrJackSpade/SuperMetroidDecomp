@@ -24,11 +24,7 @@ public sealed class InstalledRoomObjectEyeDoorVisuals
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <summary>The picture <paramref name="draw"/> shows; the mirrored opening clear shows the shared clear mirrored.</summary>
-    /// <exception cref="InvalidDataException">The draw is not an eye-door frame, or the installation lacks it.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw)
-    {
-        if (!EyeDoorDraws.TryDescribe(draw, out _))
-            throw new InvalidDataException($"Eye-door visuals lack frame {draw}.");
-        return EyeDoorDraws.VisualSource(draw) == draw ? Images.Image(draw) : mirroredClear;
-    }
+    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
+        Ensure.NotNull(draw) == EyeDoorObjectDrawDefinitions.MirroredOpeningClear ? mirroredClear : Images.Image(draw);
 }

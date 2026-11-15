@@ -91,7 +91,7 @@ internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObject
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusEaterBite)} {step.BiteBefore}.");
         }
-        context.Draw(place, RoomObjectDraw.Of(step.Image));
+        context.Draw(place, SamusEaterObjectDraws.Family, step.Image);
         return step.Updates;
     }
 }

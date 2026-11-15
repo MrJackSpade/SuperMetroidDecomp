@@ -16,9 +16,6 @@ public sealed class InstalledRoomObjectBlueDoorVisuals
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
     /// <summary>The picture <paramref name="draw"/> shows; the closed cap drawn solid shows its facing's closed cap.</summary>
-    /// <exception cref="InvalidDataException">The draw is not a blue-door frame, or the installation lacks it.</exception>
-    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        BlueDoorCaps.TryDescribe(draw, out _)
-            ? Images.Image(BlueDoorCaps.VisualSource(draw))
-            : throw new InvalidDataException($"Blue-door visuals lack frame {draw}.");
+    /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(BlueDoorCaps.VisualSource(draw));
 }

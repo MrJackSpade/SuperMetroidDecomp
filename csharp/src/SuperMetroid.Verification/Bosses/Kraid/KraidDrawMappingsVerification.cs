@@ -53,7 +53,7 @@ internal static class KraidDrawMappingsVerification
         {
             bool exists = pointers.Contains((ushort)pointer);
             RoomObjectDraw native = NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer);
-            AssertEqual(exists, KraidRoomObjectDraws.TryDescribe(native, out RoomBlockShape? shape),
+            AssertEqual(exists, RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, native, out RoomBlockShape? shape),
                 "Kraid full draw-pointer domain");
             if (exists)
                 AssertEqual((ushort)pointer, RoomObjectDrawAddressCodec.Of(native), "Kraid draw address");
@@ -74,7 +74,7 @@ internal static class KraidDrawMappingsVerification
         var exported = RoomObjectKraidVisualFiles.All.ToDictionary(draw => RoomObjectDrawAddressCodec.Of(draw.Draw));
         foreach (var expected in KraidDrawOracle())
         {
-            AssertTrue(KraidRoomObjectDraws.TryDescribe(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid draw exists");
+            AssertTrue(RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid draw exists");
             RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
             ushort directionCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
             AssertEqual((ushort)expected.Count, directionCount, "Kraid native horizontal run count");
@@ -122,7 +122,7 @@ internal static class KraidDrawMappingsVerification
         InstalledRoomObjectKraidVisuals pictures = InstalledRoomObjectKraidVisuals.Stock();
         foreach (var expected in definitions)
         {
-            AssertTrue(KraidRoomObjectDraws.TryDescribe(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid word owner exists");
+            AssertTrue(RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid word owner exists");
             RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
             for (int block = 0; block < expected.Count; block++)
             {

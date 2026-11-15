@@ -88,16 +88,15 @@ internal static class ContactCrumbleProgramsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = LinkedRestoreObjectFamily.ContactCrumble.TryDescribe(NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer), out var draw);
-            bool exported = LinkedRestoreObjectFamily.ContactCrumble.TryGet(NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer), out var list);
-            AssertEqual(expected, found, "contact restoration full native pointer domain");
-            AssertEqual(expected, exported, "contact restoration export pointer domain");
+            bool found = LinkedRestoreObjectFamily.ContactCrumble.TryGet(NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer), out var list);
+            AssertEqual(expected, found, "contact restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(LinkedRestoreObjectFamily.Draw), draw, "missing restoration descriptor cleared");
                 AssertEqual(default(RoomObjectDrawLists.DrawList), list, "missing restoration export cleared");
                 continue;
             }
+            LinkedRestoreObjectFamily.Draw draw = LinkedRestoreObjectFamily.ContactCrumble.Describe(LinkedRestoreObjectFamily.ContactCrumble.Draws
+                .Single(shape => shape.Value == NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer)).Key);
             int cursor = pointer;
             int run = 0;
             while (true)

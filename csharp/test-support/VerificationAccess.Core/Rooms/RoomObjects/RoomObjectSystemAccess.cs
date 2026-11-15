@@ -148,7 +148,7 @@ internal static class RoomObjectSystemAccess
             RoomObjectPlace[] active = [.. ActivePlaces(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.Draw(level, active[0].Block, draw);
+            draw.Draw(level, active[0].Block, self.Drawing);
         }
 
         /// <summary>

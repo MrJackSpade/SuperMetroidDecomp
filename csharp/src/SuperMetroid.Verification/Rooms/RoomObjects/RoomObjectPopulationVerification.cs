@@ -780,7 +780,8 @@ internal static class RoomObjectPopulationVerification
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
+                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
+            { Site = RoomObjectSite.BeyondTheRoom },
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
                 new(inRoomX, inRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
@@ -810,11 +811,24 @@ internal static class RoomObjectPopulationVerification
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
-                new(offRoomX, offRoomY), null, Array.Empty<ScreenScrollChange>()),
+                new(offRoomX, offRoomY), null, Array.Empty<ScreenScrollChange>()) { Site = RoomObjectSite.BeyondTheRoom },
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room scroll owner fails when setup consumes a required logical block");
+
+        // The import decodes each placement to the block it occupies (#2034): one off the grid that it did not decode as a
+        // block beyond the room is refused, and one decoded beyond the room must lie past the grid.
+        var undecoded = new RoomObjectPopulation("undecoded off-room door",
+        [
+            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
+                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
+        ]);
+        AssertThrows<InvalidDataException>(
+            () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), undecoded, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            "a grid placement off the grid is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => level.BlockBeyondRoom(new(inRoomX, inRoomY)),
+            "a block of the grid is not a block beyond the room");
     }
 
     /// <summary>

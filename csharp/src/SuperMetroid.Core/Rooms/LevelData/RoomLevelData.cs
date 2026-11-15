@@ -139,17 +139,21 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// The block a room object placed at <paramref name="placed"/> sits on, as its own position: a placement whose column
-    /// lies past the room's width is the block that many columns into the following rows, as the two shipped off-room
-    /// coloured doors are placed, and a row past the room's height lands in the terrain beyond the room.
+    /// <paramref name="block"/>, which must be a block of the terrain beyond the room: a column of the room's width in a row
+    /// past its height that the terrain beyond the room reaches, as the two shipped off-room coloured doors are placed
+    /// (#2034).
     /// </summary>
-    /// <remarks>
-    /// A room object that requires a block of the grid uses <see cref="GridBlock"/> and fails at that point; setup and
-    /// draws reach the terrain beyond the room through this one, as the two shipped off-room coloured doors do.
-    /// </remarks>
-    /// <exception cref="ArgumentOutOfRangeException">The block lies past the terrain beyond the room.</exception>
-    internal Position16<RoomBlocks> ObjectBlock(Position16<RoomBlocks> placed) =>
-        Size.CellAtRowMajorIndex(ObjectPlace(placed));
+    /// <exception cref="ArgumentOutOfRangeException">The block lies in the grid, past the room's width, or past the terrain beyond the room.</exception>
+    internal Position16<RoomBlocks> BlockBeyondRoom(Position16<RoomBlocks> block)
+    {
+        if (block.X >= Size.X)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
+        if (block.Y < Size.Y)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies in the room's {Size.Y}-row grid, not beyond it.");
+        if (BeyondPlace(Size.RowMajorIndex(block)) >= BeyondRoom.Count)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies past the {BeyondRoom.Count} blocks beyond the room.");
+        return block;
+    }
 
     /// <summary>
     /// The block <paramref name="step"/> blocks from a room object's <paramref name="block"/>, as the game's room objects
@@ -343,26 +347,6 @@ public sealed class RoomLevelData
         if (block.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
         return Size.RowMajorIndex(block);
-    }
-
-    /// <summary>
-    /// The place of a room object's block in the room's level space, the grid's planes and then the terrain beyond the
-    /// room, without the room's width or height bounds: a column past the width runs into the next row, and a row past
-    /// the height lands in the terrain beyond the room.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The block lies past the terrain beyond the room.</exception>
-    private int ObjectPlace(Position16<RoomBlocks> block)
-    {
-        int place = Size.RowMajorIndex(block);
-        if (place >= Terrain.Length + BeyondRoom.Count)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(block),
-                $"Room-object block ({block.X},{block.Y}) lies at place {place}, past the room's " +
-                $"{Terrain.Length}-block grid and the {BeyondRoom.Count} blocks beyond it.");
-        }
-
-        return place;
     }
 
     /// <summary>The block of the grid at <paramref name="place"/> in its planes, as collision reads it.</summary>

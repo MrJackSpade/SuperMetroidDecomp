@@ -37,7 +37,7 @@ internal static class LookupColoredCapVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ColoredDoorCaps.TryDescribe(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer), out var shape), "Colored cap descriptor domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer), out var shape), "Colored cap descriptor domain");
                 AssertEqual(owned, RoomObjectColoredDoorVisualFiles.TryGet(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer), out var dto), "Colored cap DTO domain");
                 if (!owned)
                 {
@@ -52,7 +52,7 @@ internal static class LookupColoredCapVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ColoredDoorCaps.TryDescribe(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer), out var shape);
+            RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer), out var shape);
             RoomObjectColoredDoorVisualFiles.TryGet(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer), out var dto);
             if (field == 0)
             {

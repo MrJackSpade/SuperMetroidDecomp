@@ -38,8 +38,8 @@ public static class RoomObjectEscapeGateVisualFiles
         var layouts = new Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
         {
-            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-            if (!MotherBrainEscapeGateDraws.TryDescribe(draw, out RoomBlockShape? shape))
+            RoomObjectDraw draw = MotherBrainEscapeGateDraws.Family.Of(frame);
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainEscapeGateDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Escape-gate frame {frame} has no shape.");
             layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4)));
         }

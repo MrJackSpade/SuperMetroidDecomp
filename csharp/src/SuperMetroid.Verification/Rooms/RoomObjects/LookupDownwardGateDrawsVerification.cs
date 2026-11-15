@@ -40,11 +40,9 @@ internal static class LookupDownwardGateDrawsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, DownwardGateObjectDraws.TryDescribe(NativeObjectDraws.At<DownwardGateDraw>(pointer), out var shape), "Gate descriptor ownership");
                 AssertEqual(owned, RoomObjectDownwardGateVisualFiles.TryGet(NativeObjectDraws.At<DownwardGateDraw>(pointer), out var dto), "Gate DTO ownership");
                 if (!owned)
                 {
-                    AssertEqual(default(DownwardGateObjectDraws.Draw), shape, "Gate missing descriptor");
                     AssertEqual(default(RoomObjectDrawLists.DrawList), dto, "Gate missing DTO");
                     AssertThrows<InvalidDataException>(() => RoomObjectDownwardGateVisualFiles.VisualId(NativeObjectDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
                 }
@@ -56,7 +54,7 @@ internal static class LookupDownwardGateDrawsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            DownwardGateObjectDraws.TryDescribe(NativeObjectDraws.At<DownwardGateDraw>(pointer), out var shape);
+            DownwardGateObjectDraws.Draw shape = DownwardGateObjectDraws.Describe(RoomObjectDrawIdentity.FrameOf<DownwardGateDraw>(NativeObjectDraws.At<DownwardGateDraw>(pointer), "downward gate"));
             RoomObjectDownwardGateVisualFiles.TryGet(NativeObjectDraws.At<DownwardGateDraw>(pointer), out var dto);
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Gate export order");
             AssertEqual(ids[index], RoomObjectDownwardGateVisualFiles.VisualId(NativeObjectDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");

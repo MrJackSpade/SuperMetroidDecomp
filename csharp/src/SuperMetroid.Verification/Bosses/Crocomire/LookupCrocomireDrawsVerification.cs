@@ -26,7 +26,7 @@ internal static class LookupCrocomireDrawsVerification
         {
             ushort pointer = (ushort)value;
             bool owned = Array.IndexOf(pointers, pointer) >= 0;
-            AssertEqual(owned, CrocomireArenaDraws.TryDescribe(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out RoomBlockShape? shape),
+            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out RoomBlockShape? shape),
                 $"Crocomire shape ownership {value:X4}");
             AssertEqual(owned, RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var dto),
                 $"Crocomire DTO ownership {value:X4}");
@@ -42,7 +42,7 @@ internal static class LookupCrocomireDrawsVerification
         {
             ushort pointer = pointers[index];
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Crocomire export order");
-            if (!CrocomireArenaDraws.TryDescribe(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out RoomBlockShape? described))
+            if (!RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out RoomBlockShape? described))
                 throw new InvalidOperationException($"Crocomire frame {pointer:X4} has no shape.");
             RoomBlockShape shape = described;
             RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var dto);

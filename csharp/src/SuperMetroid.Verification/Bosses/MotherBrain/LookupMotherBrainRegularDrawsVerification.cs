@@ -27,7 +27,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
     {
         foreach (LookupEscapeGateStockFrame frame in Regular)
         {
-            if (!MotherBrainFakeDeathDraws.TryDescribe(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer), out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain tube clear {frame.Id} has no shape.");
             AssertShapeAsNative(rom, shape, frame.Pointer, frame.Id);
         }

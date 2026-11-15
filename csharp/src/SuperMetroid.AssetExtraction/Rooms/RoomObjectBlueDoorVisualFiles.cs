@@ -35,7 +35,7 @@ public static class RoomObjectBlueDoorVisualFiles
             for (int orientation = 0; orientation < 4; orientation++)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
                 {
-                    TryGet(RoomObjectDraw.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)), out var draw);
+                    TryGet(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)), out var draw);
                     yield return draw;
                 }
         }
@@ -44,7 +44,7 @@ public static class RoomObjectBlueDoorVisualFiles
     /// <summary>Builds the draw list of a recognized blue cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = BlueDoorCaps.TryDescribe(request, out BlueDoorCaps.Draw cap);
+        bool found = RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(request, out BlueDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
         return found;
     }
@@ -52,7 +52,7 @@ public static class RoomObjectBlueDoorVisualFiles
     /// <summary>Names an editable cap frame by direction and what it shows (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
-        if (!BlueDoorCaps.TryDescribe(request, out var draw))
+        if (!RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         // The closed cap drawn solid shows the closed cap's artwork, so it shares that frame's name.

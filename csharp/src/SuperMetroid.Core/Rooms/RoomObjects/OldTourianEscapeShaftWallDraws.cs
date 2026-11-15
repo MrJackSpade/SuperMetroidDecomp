@@ -1,18 +1,12 @@
-using System.Diagnostics.CodeAnalysis;
 using static SuperMetroid.Core.Rooms.RoomObjects.OldTourianEscapeShaftWallObjectDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The open-wall draw of the old Tourian escape shaft and its block shape (#1862).</summary>
+/// <summary>The open-wall draw of the old Tourian escape shaft: its family and block shape (#1862, #2034).</summary>
 internal static class OldTourianEscapeShaftWallDraws
 {
-    /// <summary>The wall's opened blocks when <paramref name="request"/> is the wall's draw.</summary>
-    /// <param name="request">The draw to describe.</param>
-    /// <param name="shape">The opened blocks; null when the draw is not the wall's.</param>
-    /// <returns>Whether the draw is the wall's.</returns>
-    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
-    {
-        shape = request == OpenWallDraw ? OpenedWall : null;
-        return shape is not null;
-    }
+    /// <summary>The wall's draw: its opened blocks, pictured by the installed reveals and walls.</summary>
+    internal static RoomObjectDrawFamily<Draw> Family { get; } =
+        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectRevealAndWallVisuals>("reveal and wall",
+            _ => OpenedWall, (visuals, draw) => visuals.Image(draw));
 }

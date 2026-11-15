@@ -2,11 +2,17 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Turns room-object draws into level changes and background picture updates, as room-level families draw (#1395).</summary>
+/// <summary>
+/// The room's installed room-object pictures (#1395, #1557), which each family's drawing draws its frames with
+/// (<see cref="RoomObjectDrawFamily{TFrame}"/>, #2034), and the pictures of the blocks setups write of their own accord.
+/// </summary>
 internal interface IRoomObjectDrawing
 {
-    /// <summary>Draws <paramref name="draw"/> with its block origin at <paramref name="origin"/>, with its family's installed visuals and its compiled collision.</summary>
-    void Draw(RoomLevelData level, Position16<RoomBlocks> origin, RoomObjectDraw draw);
+    /// <summary>The installed pictures of type <typeparamref name="TCatalog"/>, one family's catalog.</summary>
+    /// <typeparam name="TCatalog">The catalog's type.</typeparam>
+    /// <param name="family">The family's name, which a failure names.</param>
+    /// <exception cref="InvalidDataException">The catalog is not installed.</exception>
+    TCatalog Installed<TCatalog>(string family) where TCatalog : class;
 
     /// <summary>
     /// What <paramref name="block"/>, a block a setup or a reaction writes of its own accord, shows: its installed picture

@@ -62,9 +62,9 @@ internal static class StationAccessObjectDefinitionsVerification
                 // lists first have a four-byte full-resource branch, then the sound.
                 int operand = program + (raw <= 0x48 ? 5 : 9) + (extended ? 4 : 0);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | operand));
-                AssertEqual(expected, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(extended ? selected.Extended : selected.Retracted)),
+                AssertEqual(expected, RoomObjectDrawAddressCodec.Of(StationObjectDraws.Family.Of(extended ? selected.Extended : selected.Retracted)),
                     "Station native access draw operand");
-                AssertEqual(expected, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(extended ? selected.Extended : selected.Retracted)), "Station public phase selection");
+                AssertEqual(expected, RoomObjectDrawAddressCodec.Of(StationObjectDraws.Family.Of(extended ? selected.Extended : selected.Retracted)), "Station public phase selection");
                 AssertTrue(RoomObjectStationVisualFiles.TryGet(NativeObjectDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
             }
         }

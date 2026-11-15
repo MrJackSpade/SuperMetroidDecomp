@@ -39,39 +39,39 @@ internal static class DoorCapAbsentFramesVerification
         foreach ((ColoredDoorOrientation facing, ushort solid, string solidId, ushort cleared, string clearedId) in Facings)
         {
             RoomObjectDraw solidDraw = BlueDoorCaps.ClosedSolid(facing);
-            AssertTrue(BlueDoorCaps.TryDescribe(solidDraw, out BlueDoorCaps.Draw blue) && blue.Look == DoorCapLook.ClosedSolid,
+            AssertTrue(RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(solidDraw, out BlueDoorCaps.Draw blue) && blue.Look == DoorCapLook.ClosedSolid,
                 $"{facing} solid blue cap is its own look");
             AssertEqual(solid, RoomObjectDrawAddressCodec.Of(solidDraw), $"{facing} solid blue cap is the facing's first cartridge record");
             AssertEqual(solidId, RoomObjectBlueDoorVisualFiles.VisualId(solidDraw), $"{facing} solid blue cap shares the closed cap's name");
-            AssertEqual(RoomObjectDraw.Of(new BlueDoorCaps.Draw(facing, DoorCapLook.Closed)), BlueDoorCaps.VisualSource(solidDraw),
+            AssertEqual(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(facing, DoorCapLook.Closed)), BlueDoorCaps.VisualSource(solidDraw),
                 $"{facing} solid blue cap shows the closed cap's picture");
             for (int step = 0; step < Openings.Length; step++)
             {
-                RoomObjectDraw opening = RoomObjectDraw.Of(new BlueDoorCaps.Draw(facing, Openings[step].Look));
-                AssertTrue(BlueDoorCaps.TryDescribe(opening, out BlueDoorCaps.Draw shown) && shown.Look == Openings[step].Look,
+                RoomObjectDraw opening = BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(facing, Openings[step].Look));
+                AssertTrue(RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(opening, out BlueDoorCaps.Draw shown) && shown.Look == Openings[step].Look,
                     $"{facing} blue {Openings[step].Look} is a blue cap draw");
                 AssertEqual(solid + (1 + step) * 12, (int)RoomObjectDrawAddressCodec.Of(opening),
                     $"{facing} blue {Openings[step].Look} follows the solid cap in the cartridge");
                 AssertEqual(opening, BlueDoorCaps.VisualSource(opening), $"{facing} blue {Openings[step].Look} shows its own picture");
             }
-            AssertTrue(!BlueDoorCaps.TryDescribe(RoomObjectDraw.Of(new BlueDoorCaps.Draw(facing, DoorCapLook.Cleared)), out _),
+            AssertTrue(!BlueDoorObjectDrawDefinitions.Collisions.ContainsKey(new BlueDoorCaps.Draw(facing, DoorCapLook.Cleared)),
                 $"{facing} blue cap draws no cleared opening of its own");
 
             RoomObjectDraw clearedDraw = DoorCaps.Image(DoorCapPaint.Grey, facing, DoorCapFrame.Clear);
-            AssertEqual(RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(facing)), clearedDraw, $"{facing} cleared image is the grey cleared opening");
-            AssertTrue(GreyDoorCaps.TryDescribe(clearedDraw, out GreyDoorCaps.Draw grey) && grey.IsCleared,
+            AssertEqual(GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(facing)), clearedDraw, $"{facing} cleared image is the grey cleared opening");
+            AssertTrue(RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(clearedDraw, out GreyDoorCaps.Draw grey) && grey.IsCleared,
                 $"{facing} cleared opening is its own look");
             AssertEqual(cleared, RoomObjectDrawAddressCodec.Of(clearedDraw), $"{facing} cleared opening's cartridge record");
             AssertEqual(clearedId, RoomObjectGreyDoorVisualFiles.VisualId(clearedDraw), $"{facing} cleared opening's published name");
             foreach ((DoorCapLook look, DoorCapFrame frame, string name) in Openings)
             {
                 RoomObjectDraw closing = DoorCaps.Image(DoorCapPaint.Grey, facing, frame);
-                AssertTrue(GreyDoorCaps.TryDescribe(closing, out GreyDoorCaps.Draw shown) && !shown.IsCleared && shown.Look == look,
+                AssertTrue(RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(closing, out GreyDoorCaps.Draw shown) && !shown.IsCleared && shown.Look == look,
                     $"{facing} grey {frame} shows the grey cap {look}");
                 AssertEqual($"grey-{DoorCapOrientations.VisualName(facing)}-{name}", RoomObjectGreyDoorVisualFiles.VisualId(closing),
                     $"{facing} grey {look}'s published name");
             }
-            AssertTrue(!GreyDoorCaps.TryDescribe(RoomObjectDraw.Of(new GreyDoorCaps.Draw(facing, DoorCapLook.ClosedSolid)), out _),
+            AssertTrue(!GreyDoorObjectDrawDefinitions.Collisions.ContainsKey(new GreyDoorCaps.Draw(facing, DoorCapLook.ClosedSolid)),
                 $"{facing} grey cap draws no solid closed cap");
         }
         Console.WriteLine("Door cap absent frames: each facing's solid blue cap and grey cleared opening are named looks and keep their cartridge places and names.");

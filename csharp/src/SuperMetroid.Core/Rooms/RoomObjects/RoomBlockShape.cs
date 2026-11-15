@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <remarks>
 /// A shape is a set: no two cells share a place, so drawing it writes each block once and the order the cells are
 /// written in is unobservable. The cells keep the order they were listed in only so a shape reads as it was authored;
-/// nothing depends on it. The room-object draw path (<see cref="IRoomObjectDrawing.Draw"/>) draws a shape cell by cell at
+/// nothing depends on it. A family's drawing (<see cref="RoomObjectDrawFamily{TFrame}"/>) draws a shape cell by cell at
 /// a place's block; a cell that reaches past a row's last block runs into the next row, as every room-object draw does.
 /// </remarks>
 internal sealed class RoomBlockShape

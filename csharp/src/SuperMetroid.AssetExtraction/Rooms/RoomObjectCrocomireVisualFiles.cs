@@ -36,7 +36,7 @@ public static class RoomObjectCrocomireVisualFiles
         {
             foreach (CrocomireArenaDraw frame in Enum.GetValues<CrocomireArenaDraw>())
             {
-                TryGet(RoomObjectDraw.Of(frame), out var list);
+                TryGet(CrocomireArenaDraws.Family.Of(frame), out var list);
                 yield return list;
             }
         }
@@ -49,7 +49,7 @@ public static class RoomObjectCrocomireVisualFiles
     /// </summary>
     internal static bool TryGet(RoomObjectDraw draw, out RoomObjectDrawLists.DrawList list)
     {
-        if (!CrocomireArenaDraws.TryDescribe(draw, out RoomBlockShape? described))
+        if (!RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, draw, out RoomBlockShape? described))
         {
             list = default;
             return false;
@@ -75,5 +75,5 @@ public static class RoomObjectCrocomireVisualFiles
 
     /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
     internal static string VisualId(RoomObjectDraw draw) =>
-        RoomObjectVisualIdDefinitions.CrocomireArena[RoomObjectDraw.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena")];
+        RoomObjectVisualIdDefinitions.CrocomireArena[RoomObjectDrawIdentity.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena")];
 }

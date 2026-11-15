@@ -62,7 +62,7 @@ internal static class LookupEscapeGateVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = Frames.Any(frame => frame.Pointer == raw);
-            AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(raw), out RoomBlockShape? shape), "Escape gate descriptor domain");
+            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(MotherBrainEscapeGateDraws.Family, NativeObjectDraws.At<MotherBrainEscapeGateDraw>(raw), out RoomBlockShape? shape), "Escape gate descriptor domain");
             if (!owned) AssertTrue(shape is null, "Escape gate missing descriptor");
         }
         AssertLayoutsAsNative(rom, RoomObjectEscapeGateVisualFiles.Family, Frames, collision: false);
@@ -70,7 +70,7 @@ internal static class LookupEscapeGateVerification
         {
             AssertEqual((ushort)0x8004, ReadSamusEaterObjectWord(rom, 0x840000 | frame.Pointer), "Escape gate native vertical geometry");
             AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (frame.Pointer + 10)), "Escape gate native final offset");
-            if (!MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer), out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainEscapeGateDraws.Family, NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Escape gate frame {frame.Id} has no shape.");
             RoomBlockShape described = shape;
             AssertShapeAsNative(rom, described, frame.Pointer, frame.Id);

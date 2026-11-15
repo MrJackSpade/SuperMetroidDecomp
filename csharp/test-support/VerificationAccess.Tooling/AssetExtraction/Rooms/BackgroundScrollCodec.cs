@@ -8,8 +8,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <remarks>
 /// Each byte decodes one axis: zero copies the foreground, one fixes the axis, and any other value is a parallax
-/// multiplier over 256 whose lowest bit, when set, stops the background streamer refreshing that axis's tilemap. The
-/// background shows the room's level data when either axis streams (the two agree in every retail room state);
+/// multiplier over 256 whose lowest bit, when set, stops the background streamer refreshing that axis's tilemap. That
+/// bit is why every cartridge multiplier is even: the import splits it off here, so the game's parallax rate is any whole
+/// number of 256ths and carries no parity rule (#2046). The background shows the room's level data when either axis streams (the two agree in every retail room state);
 /// otherwise it shows what its owner places there.
 /// </remarks>
 internal static class BackgroundScrollCodec
@@ -26,8 +27,11 @@ internal static class BackgroundScrollCodec
     {
         0 => BackgroundAxisScroll.FollowsForeground,
         1 => BackgroundAxisScroll.Fixed,
-        _ => BackgroundAxisScroll.Parallax(mode - mode % 2),
+        _ => BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(mode - mode % 2, MultiplierDenominator)),
     };
+
+    /// <summary>The denominator of a scroll byte's parallax multiplier: the byte counts 256ths.</summary>
+    private const int MultiplierDenominator = 256;
 
     /// <summary>Whether the background streamer refreshes the axis's tilemap: the byte's lowest bit is clear.</summary>
     private static bool Streams(byte mode) => mode % 2 == 0;

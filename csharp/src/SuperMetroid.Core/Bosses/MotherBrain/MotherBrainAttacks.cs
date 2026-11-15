@@ -466,7 +466,7 @@ internal sealed class MotherBrainAttacks
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // The backward walk alters only the walk credit and starts an authored body animation;
-        // actual displacement remains owned by the body animation, which also keeps the background scroll aligned.
+        // the body animation moves her, and her body's pictures follow her.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
         if (state.WalkCounter.IsEmpty)

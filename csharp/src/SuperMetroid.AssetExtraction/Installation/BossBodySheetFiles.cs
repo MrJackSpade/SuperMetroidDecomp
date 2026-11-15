@@ -27,9 +27,10 @@ public static class BossBodySheetFiles
     /// pictures laid over a frame (#1513) or frames pictured again to be drawn in front of the sprites; 7 pictures each of
     /// Crocomire's melt images once, with the cells its dissolve erases, and no step of it (#1652); 8 keys each frame by the
     /// animation segment or table key that first shows it (#1623); 10 places Crocomire's lowered charging and clawing poses
-    /// where they lie on his body's area (#1802).
+    /// where they lie on his body's area (#1802); 11 places Mother Brain's posture poses where they lie on her body's area,
+    /// which follows her (#1949).
     /// </summary>
-    private const int ManifestVersion = 10;
+    private const int ManifestVersion = 11;
 
     /// <summary>
     /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write

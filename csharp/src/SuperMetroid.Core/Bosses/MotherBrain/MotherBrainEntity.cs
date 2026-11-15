@@ -140,7 +140,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(selected)
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
     /// <summary>Shots meet the body's and head's frames' hitboxes; their contact and the tubes' use the definition's radius.</summary>

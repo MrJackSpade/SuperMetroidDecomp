@@ -12,6 +12,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
@@ -215,7 +216,8 @@ internal static class BossBodySheetComposer
         return written.Keys.OrderBy(frame => frame.ToString(), StringComparer.Ordinal)
             .Select(frame => new BossBodyFrameSource(BossBodyFrameNames.Of(frame), Whole(frame))
             {
-                LoweredPixels = BossBodySourceDefinitions.FramesLowered.GetValueOrDefault(frame),
+                PictureShift = new(MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(frame),
+                    BossBodySourceDefinitions.FramesLowered.GetValueOrDefault(frame)),
             });
 
         // The frame's cells written over the whole frame it is drawn over, with the part that fills its gap written over them.

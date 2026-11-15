@@ -105,12 +105,14 @@ internal static class MotherBrainNativeListAddresses
     private static readonly Dictionary<ushort, BodyOp> BodyOps = new()
     {
         [0x95fc] = new BodyOp(0, _ => new B.Move(new(1, -2))),
-        [0x95b6] = new BodyOp(0, _ => new B.MoveWithScrollBias(-10, 4)),
-        [0x95c0] = new BodyOp(0, _ => new B.MoveWithScrollBias(-16, 4)),
-        [0x95ca] = new BodyOp(0, _ => new B.MoveWithScrollBias(-12, -2)),
-        [0x95de] = new BodyOp(0, _ => new B.MoveWithScrollBias(12, 4)),
-        [0x95e8] = new BodyOp(0, _ => new B.MoveWithScrollBias(16, -2)),
-        [0x95f2] = new BodyOp(0, _ => new B.MoveWithScrollBias(10, -2)),
+        // The six posture changes move her vertically; the shift each also gave her body's area is placed on the pose it
+        // shows at import (#1949, MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight).
+        [0x95b6] = new BodyOp(0, _ => new B.Move(new(0, -10))),
+        [0x95c0] = new BodyOp(0, _ => new B.Move(new(0, -16))),
+        [0x95ca] = new BodyOp(0, _ => new B.Move(new(0, -12))),
+        [0x95de] = new BodyOp(0, _ => new B.Move(new(0, 12))),
+        [0x95e8] = new BodyOp(0, _ => new B.Move(new(0, 16))),
+        [0x95f2] = new BodyOp(0, _ => new B.Move(new(0, 10))),
         [0x960c] = new BodyOp(0, _ => new B.Move(new(2, 0))),
         [0x961c] = new BodyOp(0, _ => new B.Move(new(0, 1))),
         [0x9622] = new BodyOp(0, _ => new B.StepAndMove(new(3, 1))),

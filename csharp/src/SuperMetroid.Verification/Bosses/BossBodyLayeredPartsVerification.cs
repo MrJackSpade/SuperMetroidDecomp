@@ -209,8 +209,8 @@ internal static class BossBodyLayeredPartsVerification
             bool inFront = raised.Contains(frame.Name, StringComparer.Ordinal);
             foreach ((int cell, BackgroundTile tile) in source.Cells)
             {
-                // A frame lying lower on the body's area than its cells shows them that much lower (#1802).
-                Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(cell) + new Offset16<BackgroundPixels>(0, source.LoweredPixels);
+                // A frame lying away from its cells on the body's area shows them that far away (#1802, #1949).
+                Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(cell) + source.PictureShift;
                 BossBodyDepth depth = inFront || tile.HighPriority ? BossBodyDepth.InFrontOfSprites : BossBodyDepth.BehindSprites;
                 for (int y = at.Y; y < at.Y + CellPixels && y < area.Y; y++)
                 for (int x = at.X; x < at.X + CellPixels && x < area.X; x++)

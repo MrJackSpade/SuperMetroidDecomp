@@ -122,7 +122,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 : new(EscapeTypewriterMessageId.Zebes);
             // The warning shows over the background from the room's top-left corner, where her locked arena's camera stays
             // (#1802).
-            state.BodyOrigin = Position16<RoomPixels>.Zero;
+            state.BodyArea = MotherBrainBodyAreaPlacement.AtRoomCorner;
         }
         if (step.EscapeDoorExplosion is { } doorDust)
         {

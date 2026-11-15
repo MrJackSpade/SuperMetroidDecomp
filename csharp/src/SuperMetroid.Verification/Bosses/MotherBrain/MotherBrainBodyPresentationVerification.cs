@@ -67,7 +67,12 @@ internal static class MotherBrainBodyPresentationVerification
                 baseline.Draw();
             }
         }
-        AssertTrue(baseline.BodyOrigins.Count > 0, "production body bytecode actually moves and places her body");
+        AssertTrue(baseline.BodyPositions.Distinct().Count() > 1, "production body animations actually move her body");
+        // Each pose's picture lies where the import places it on her body's area, which follows her (#1949): the fixture
+        // writes every frame from the area's corner, so a frame's corner is how far right the import places it.
+        foreach (EnemyFrameId pose in MotherBrainBodyVisualDefinitions.BodyPictureFrames)
+            AssertEqual(new Position16<BackgroundPixels>(MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(pose), 0),
+                baseline.MotherBrainSheet.Frame(pose).Corner, $"{pose} lies where the import places it against her");
         // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
         // boss artwork is composed, so the enemy artwork is not read again for it.
         AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(new BossSourceArtwork { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),
@@ -75,7 +80,7 @@ internal static class MotherBrainBodyPresentationVerification
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
         // reinstalls it after a restore.
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, new-frame gating, " +
-            $"{steps} production instruction steps with counter-scroll, and missing-art rejection. RAM-only.");
+            $"{steps} production instruction steps moving her, and missing-art rejection. RAM-only.");
 
         // She draws from sheets composed over the installed enemy artwork, so the fixture starts from it and replaces only
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
@@ -179,7 +184,7 @@ internal static class MotherBrainBodyPresentationVerification
         // Her body shows each of her frames whole (#1459, #1515): every word a frame writes shows, and a frame the cartridge
         // writes over another shows that frame elsewhere, so only the written cells are compared. Only the sprite-only
         // initial dummy writes no BG2; every body-layer frame has its authored writes under its installed BG2 name.
-        if (!MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(shown))
+        if (!MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(shown))
             return;
         string name = MotherBrainBodyBg2FrameDefinitions.Frames.Single(frame => frame.Frame == shown).Name;
         foreach (EnemyBg2WriteDocument write in authored.Frames[name])

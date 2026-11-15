@@ -3,14 +3,16 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Complete body-frame roots selected by the compiled Mother Brain locomotion,
-/// posture, initial-dummy and hand-beam animations. Roots interleave sprite
-/// limbs and body-layer pictures; their hitboxes never enter either visual asset.
+/// Mother Brain's body frames: the installed frame each of her walking, posture, initial and hand-beam poses shows, and
+/// which of them show a picture of her body on her body's area beside her limbs. Their hitboxes are not artwork.
 /// </summary>
 internal static class MotherBrainBodyVisualDefinitions
 {
-    /// <summary>The body frames drawn on Mother Brain's body layer: every pose but the sprite-only initial dummy (#1466).</summary>
-    internal static IReadOnlySet<EnemyFrameId> BodyLayerFrames { get; } = new HashSet<EnemyFrameId>
+    /// <summary>
+    /// The body frames that show a picture of her body (#1466, #1949): every pose but the initial dummy, which shows only
+    /// limbs. Each picture lies where the import places its frame on her body's area, which follows her.
+    /// </summary>
+    internal static IReadOnlySet<EnemyFrameId> BodyPictureFrames { get; } = new HashSet<EnemyFrameId>
     {
         EnemyFrameId.MotherBrainBodyStanding,
         EnemyFrameId.MotherBrainBodyWalkingFirst,

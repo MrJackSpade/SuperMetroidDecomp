@@ -27,12 +27,12 @@ internal static class MotherBrainAnimations
         [
             .. Crouch(8, 8),
             BodyShow(MotherBrainBodyFrame.Crouched, 8),
-            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-10, 4)),
+            BodyCue(new MotherBrainBodyCue.Move(new(0, -10))),
             Pose(MotherBrainBodyPose.CrouchingTransition),
             BodyShow(MotherBrainBodyFrame.Uncrouching, 8),
-            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-16, 4)),
+            BodyCue(new MotherBrainBodyCue.Move(new(0, -16))),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
-            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
+            BodyCue(new MotherBrainBodyCue.Move(new(0, -12))),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
             Pose(MotherBrainBodyPose.Standing),
         ],
@@ -42,7 +42,7 @@ internal static class MotherBrainAnimations
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
-            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
+            BodyCue(new MotherBrainBodyCue.Move(new(0, -12))),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
             Pose(MotherBrainBodyPose.Standing),
         ],
@@ -50,7 +50,7 @@ internal static class MotherBrainAnimations
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
             BodyShow(MotherBrainBodyFrame.Standing, 8),
-            BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
+            BodyCue(new MotherBrainBodyCue.Move(new(0, 12))),
             Pose(MotherBrainBodyPose.LeaningDown),
             BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
         ],
@@ -128,11 +128,11 @@ internal static class MotherBrainAnimations
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
         BodyShow(MotherBrainBodyFrame.Standing, 8),
-        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(12, 4)),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, 12))),
         BodyShow(MotherBrainBodyFrame.LeaningDown, lean),
-        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(16, -2)),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, 16))),
         BodyShow(MotherBrainBodyFrame.Uncrouching, uncrouch),
-        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(10, -2)),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, 10))),
         Pose(MotherBrainBodyPose.Crouched),
         BodyShow(MotherBrainBodyFrame.Crouched, 8),
     ];
@@ -142,11 +142,11 @@ internal static class MotherBrainAnimations
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
         BodyShow(MotherBrainBodyFrame.Crouched, duration),
-        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-10, 4)),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, -10))),
         BodyShow(MotherBrainBodyFrame.Uncrouching, duration),
-        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-16, 4)),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, -16))),
         BodyShow(MotherBrainBodyFrame.LeaningDown, duration),
-        BodyCue(new MotherBrainBodyCue.MoveWithScrollBias(-12, -2)),
+        BodyCue(new MotherBrainBodyCue.Move(new(0, -12))),
         BodyShow(MotherBrainBodyFrame.Standing, duration),
         Pose(MotherBrainBodyPose.Standing),
     ];

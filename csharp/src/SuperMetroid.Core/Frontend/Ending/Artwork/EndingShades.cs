@@ -33,7 +33,7 @@ public static class EndingShades
     /// <summary>
     /// What a screen shade <paramref name="shown"/> authored for the actors drawn in <paramref name="drawn"/> gives their
     /// pictures (#1544): the colours it shows in that colouring's colours over their palette-inheriting parts' inks, and
-    /// over their own-palette parts' inks in those parts' own colours.
+    /// over their own-colour parts' inks in those parts' own colours.
     /// </summary>
     public static PictureShade Under(PictureShade drawn, PictureShade shown) => new($"{drawn.Effect}.{shown.Effect}", shown.Step);
 }

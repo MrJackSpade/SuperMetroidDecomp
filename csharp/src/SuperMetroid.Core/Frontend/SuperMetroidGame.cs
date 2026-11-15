@@ -163,7 +163,7 @@ public sealed class SuperMetroidGame
         Session.audio.DoorTransitionSoundsDisabled = phaseAudio == GamePhaseAudio.DoorTransitionSoundsDisabled;
         bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
-        bool doorAudioDispatch = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
+        bool doorAudioUpdate = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         // Whether this update continues the door's destination load, and whether it leaves the load running, are read
         // before the phase steps.
         bool continuesDoorLoad = Session.doorTransition.ContinuesDestinationLoad;
@@ -175,12 +175,12 @@ public sealed class SuperMetroidGame
         // sees this update's queue; sound processing runs after the phase returns. A
         // message box's updates run only the box's own audio processing (below).
         bool prologueMusicDispatch = runsAudioProcessing && !messageWasActive &&
-            (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled || !continuesDoorLoad);
+            (!doorAudioUpdate || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled || !continuesDoorLoad);
         IReadOnlyList<AudioRequest> prologueMusicRequests = prologueMusicDispatch
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<AudioRequest>();
         // Frames pass on the frame counters while a door loads a new music data set
         // (IDoorMusicLoadFrames); nothing between this update's frame boundary and the load reads them.
-        if (doorAudioDispatch && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
+        if (doorAudioUpdate && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
             Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         FrameNumber = checked(FrameNumber + 1);
         Session.display.BeginUpdate(FrameNumber);
@@ -200,7 +200,7 @@ public sealed class SuperMetroidGame
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool runsMusicQueue = false;
-        int soundQueuePasses = runsAudioProcessing && (!doorAudioDispatch || !leavesDoorLoadRunning) ? 1 : 0;
+        int soundQueuePasses = runsAudioProcessing && (!doorAudioUpdate || !leavesDoorLoadRunning) ? 1 : 0;
         if (messageWasActive)
         {
             // A message-box update runs exactly the box's own audio processing.

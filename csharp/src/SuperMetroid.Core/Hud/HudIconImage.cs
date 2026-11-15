@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hud.Artwork;
-
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
@@ -16,5 +14,5 @@ public sealed record HudIconImage(HudIcon Item, HudIconCover Cover, HudIconShade
 
     /// <inheritdoc/>
     public override string FrameName =>
-        $"Hud.{GameplayHudDefinitions.IconNames[GameplayHudPresentation.IconOrder(Item)]}.{Cover}.{Shade?.ToString() ?? "Unshaded"}";
+        $"Hud.{Item}.{Cover}.{Shade?.ToString() ?? "Unshaded"}";
 }

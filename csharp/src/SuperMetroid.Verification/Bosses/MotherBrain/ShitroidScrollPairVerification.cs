@@ -25,7 +25,7 @@ internal static class ShitroidScrollPairVerification
     internal static void VerifyShitroidScrollPair()
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);

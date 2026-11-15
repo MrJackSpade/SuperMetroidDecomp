@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <remarks>
 /// This is deliberately a cinematic state machine rather than a video or an invented
-/// slideshow. Backgrounds, pictures, palettes, sprite frames, and animation durations
+/// slideshow. Backgrounds, pictures, colours, sprite frames, and animation durations
 /// preserve the game's behavior; editable text and fonts come from installed assets. The named phases follow the
 /// game's cinematic steps one for one, so the scene steps through the same boundaries the game does.
 /// </remarks>
@@ -70,19 +70,19 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Zebes exploding in the ending: the finale and burst displays and the crossfade between them.</summary>
     internal EndingZebesExplosion Explosion { get; }
 
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     internal EndingStage Stage { get; }
 
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
     internal EndingFlyaway Flyaway { get; }
 
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and colour assets.</summary>
     internal EndingArtwork InstalledArtwork { get; }
 
     /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
     internal EndingEscapeScenes EscapeScenes { get; }
 
-    /// <summary>The staff credits and what follows them: the reward copyright and palette, the white flash and the post-credits logo.</summary>
+    /// <summary>The staff credits and what follows them: the reward copyright and colours, the white flash and the post-credits logo.</summary>
     internal EndingCreditsRoll CreditsRoll { get; }
 
     /// <summary>Initializes the ending and credits from the saved clear-time and ending setup snapshot.</summary>
@@ -268,17 +268,17 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsFadeIn:
                 if (Stage.StepSlowFadeIn())
                 {
-                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames;
                     CreditsRoll.FadeWaitingBackdrop(0);
                     Stage.Phase = EndingCreditsPhase.PostCreditsShootingStars;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsShootingStars:
-                CreditsRoll.FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - Stage.PhaseTimer + 1);
+                CreditsRoll.FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - Stage.PhaseTimer + 1);
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // The palette fade finishes, then the waiting phase holds the
+                    // The colour fade finishes, then the waiting phase holds the
                     // backdrop for three seconds before displaying the producer panel.
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingBackdropFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
@@ -309,7 +309,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.PostCreditsReward:
                 // Both fade halves test their counter before the decrement. Both 64-frame halves advance
-                // their shared palette step on the fourth, eighth, ... calls.
+                // their shared colour step on the fourth, eighth, ... calls.
                 if (EndingCadenceDefinitions.RewardColourStepEveryFourthUpdate.IsDue(Stage.PhaseTimer))
                 {
                     CreditsRoll.AdvanceRewardFade();
@@ -352,7 +352,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsShot:
-                // The cinematic phase runs before actors; palette fades and queued
+                // The cinematic phase runs before actors; colour fades and queued
                 // picture replacements therefore precede the next sprite cue.
                 PostShot.Step(screen);
                 RewardJump.Step();
@@ -372,7 +372,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.PostCreditsCopyright:
                 // The sprites keep animating while only the first background layer shows; hiding the actors
-                // must not reset their animations or their reveal palette state.
+                // must not reset their animations or their reveal colour state.
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {

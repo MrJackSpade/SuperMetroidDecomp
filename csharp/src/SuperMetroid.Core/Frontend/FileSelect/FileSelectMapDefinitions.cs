@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
 /// The saved-game area and room maps' definitions (#1416): the entry and return windows' geometry and timing, the room
-/// view's frame offset and the markers' draw palettes.
+/// view's frame offset and the markers' colourings.
 /// </summary>
 public static class FileSelectMapDefinitions
 {
@@ -25,7 +25,7 @@ public static class FileSelectMapDefinitions
     public const int ReturnSetupFrames = 6;
 
     /// <summary>Steps the entry fade divides its colour change into.</summary>
-    public const int EntryPaletteDenominator = 15;
+    public const int EntryFadeSteps = 15;
 
     /// <summary>The entry window's upper margin when it opens, in screen rows.</summary>
     public const int EntryWindowTop = 111;

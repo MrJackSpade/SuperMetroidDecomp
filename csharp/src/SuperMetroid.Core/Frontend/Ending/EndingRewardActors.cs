@@ -9,21 +9,21 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingRewardActors
 {
     /// <summary>
-    /// Resolves one complete initialization/frame-behaviour/animation record. The
+    /// Resolves one reward actor's initialization and animation. The
     /// selected animation is a typed cinematic sprite animation (#641).
     /// </summary>
     public static EndingRewardActorDefinition Get(EndingRewardActor definition) => definition switch
     {
-        EndingRewardActor.SuitlessUpper => new(EndingRewardInitialization.Suitless, CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp, CinematicSpriteSegment.HairRelease),
-        EndingRewardActor.SuitlessLower => new(EndingRewardInitialization.Suitless, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.HairReleaseLegs),
-        EndingRewardActor.SuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.GestureBody),
-        EndingRewardActor.SuitedArm => new(EndingRewardInitialization.SuitedBody, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.GestureArm),
-        EndingRewardActor.HelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.GestureHelmet),
-        EndingRewardActor.HelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.GestureHead),
-        EndingRewardActor.JumpSuitlessBody => new(EndingRewardInitialization.Suitless, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.SuitlessJump),
-        EndingRewardActor.JumpSuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.SuitedJump),
-        EndingRewardActor.JumpHelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.HelmetJump),
-        EndingRewardActor.JumpHelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.HeadJump),
+        EndingRewardActor.SuitlessUpper => new(EndingRewardInitialization.Suitless, CinematicSpriteSegment.HairRelease),
+        EndingRewardActor.SuitlessLower => new(EndingRewardInitialization.Suitless, CinematicSpriteSegment.HairReleaseLegs),
+        EndingRewardActor.SuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpriteSegment.GestureBody),
+        EndingRewardActor.SuitedArm => new(EndingRewardInitialization.SuitedBody, CinematicSpriteSegment.GestureArm),
+        EndingRewardActor.HelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpriteSegment.GestureHelmet),
+        EndingRewardActor.HelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpriteSegment.GestureHead),
+        EndingRewardActor.JumpSuitlessBody => new(EndingRewardInitialization.Suitless, CinematicSpriteSegment.SuitlessJump),
+        EndingRewardActor.JumpSuitedBody => new(EndingRewardInitialization.SuitedBody, CinematicSpriteSegment.SuitedJump),
+        EndingRewardActor.JumpHelmetedHead => new(EndingRewardInitialization.HelmetedHead, CinematicSpriteSegment.HelmetJump),
+        EndingRewardActor.JumpHelmetlessHead => new(EndingRewardInitialization.HelmetlessHead, CinematicSpriteSegment.HeadJump),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {definition}."),
     };
 

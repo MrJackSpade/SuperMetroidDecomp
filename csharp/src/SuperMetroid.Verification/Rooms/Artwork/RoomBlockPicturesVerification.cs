@@ -275,7 +275,7 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded and Samus held still.</summary>
-    private static SuperMetroidRuntime LoadRoom(RoomDefinition room) => LoadRoom(room, HudSnapshot.CeresDebug);
+    private static SuperMetroidRuntime LoadRoom(RoomDefinition room) => LoadRoom(room, HudSnapshot.NewGame);
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded, the HUD showing <paramref name="hud"/> and Samus held still.</summary>
     private static SuperMetroidRuntime LoadRoom(RoomDefinition room, HudSnapshot hud)
@@ -550,7 +550,7 @@ internal static class RoomBlockPicturesVerification
     private static void CheckBackground(RoomDefinition room, bool expectRebound)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room);
@@ -641,7 +641,7 @@ internal static class RoomBlockPicturesVerification
         Action<SuperMetroidRuntime>? progress = null)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         progress?.Invoke(runtime);

@@ -20,7 +20,7 @@ internal static class GameplayHudArtworkWords
         internal void ApplyTemplate(Span<ushort> words) => Edit(words, tiles => artwork.ApplyTemplate(tiles));
 
         /// <summary>Draws an item icon into packed words when its anchor cell is blank.</summary>
-        internal void TryApplyIcon(Span<ushort> words, int itemIndex) => Edit(words, tiles => artwork.TryApplyIcon(tiles, itemIndex));
+        internal void TryApplyIcon(Span<ushort> words, HudIcon item) => Edit(words, tiles => artwork.TryApplyIcon(tiles, item));
 
         /// <summary>Draws energy tanks and the energy remainder into packed words, as the HUD draws a health update.</summary>
         internal void ApplyEnergy(Span<ushort> words, int health, int maxHealth) => Edit(words, tiles =>

@@ -13,7 +13,7 @@ internal sealed class EndingFlyaway
     private readonly bool crittersEscaped;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -31,26 +31,26 @@ internal sealed class EndingFlyaway
     /// </summary>
     internal int CinematicFrame { get; set; }
 
-    /// <summary>Position in the current planet-escape shake pattern, cycling through its entries.</summary>
-    internal int PlanetMotionIndex { get; set; }
+    /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
+    internal EndingShipShakeCursor ShipShake { get; set; }
 
     /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
 
-    /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored palette effects.</summary>
+    /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored colour effects.</summary>
     internal void SetupPlanetEscape()
     {
         // The flyaway's setup clears the explosion flash from the backdrop and the transparent colours.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, 0);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(-72), SignedSixteenSixteen.FromWholePixels(-104));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.WrappedSteps(-112);
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
-        PlanetMotionIndex = 0;
+        ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Fast);
         _stage.Phase = EndingCreditsPhase.PlanetEscapeFast;
     }
 
@@ -61,12 +61,11 @@ internal sealed class EndingFlyaway
             _stage.PhaseTimer--;
         else StepFlyawayFade();
         _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-4);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
-        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetFastPatternLength;
+        ShakeShip();
         _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetFastZoomStep);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetFastEndZoom)
         {
-            PlanetMotionIndex = 0;
+            ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Slow);
             _stage.Phase = EndingCreditsPhase.PlanetEscapeSlow;
         }
     }
@@ -77,8 +76,7 @@ internal sealed class EndingFlyaway
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
             _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-1);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
-        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetSlowPatternLength;
+        ShakeShip();
         _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetSlowZoomStep);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndZoom)
         {
@@ -89,12 +87,19 @@ internal sealed class EndingFlyaway
                 EndingSprite podActor = _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
                     EndingAnimalEscapeDefinitions.Colouring, EndingAnimalEscapeDefinitions.Animation,
                     EndingSpriteRole.AnimalEscape);
-                // Cinematic dispatch precedes actors, so a newly spawned pod
+                // The cinematic phase runs before the actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
-                _stage.StepEndingSpriteFrameBehavior(podActor);
+                _stage.StepEndingSpriteMotion(podActor);
                 podActor.Sprite.Step();
             }
         }
+    }
+
+    /// <summary>Moves the gunship by its shake's next displacement and moves the shake on.</summary>
+    private void ShakeShip()
+    {
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X + ShipShake.Displacement);
+        ShipShake = ShipShake.Advanced();
     }
 
     /// <summary>Accumulates split planet velocity and turns toward the final gunship text at the exit scale.</summary>
@@ -102,7 +107,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(PlanetVelocity));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X + PlanetVelocity);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartZoom &&
             EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(CinematicFrame) &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)

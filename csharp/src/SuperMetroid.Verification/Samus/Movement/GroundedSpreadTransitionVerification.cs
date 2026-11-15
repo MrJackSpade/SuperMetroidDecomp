@@ -33,7 +33,7 @@ internal static class GroundedSpreadTransitionVerification
     private static void VerifyGroundedSpreadTransitionCase(bool left, int scenario, StreamReader? trace)
     {
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);

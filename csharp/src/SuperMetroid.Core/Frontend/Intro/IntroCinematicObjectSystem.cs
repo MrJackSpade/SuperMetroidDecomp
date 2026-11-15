@@ -111,10 +111,10 @@ internal sealed class IntroCinematicObjectSystem
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>
-    /// Takes the intro text caret off the screen while a gameplay or scientist illustration owns it: the caret is not
+    /// Hides the intro text caret while a gameplay or scientist illustration owns the screen: the caret is not
     /// drawn until the next narration page restores it (#1625).
     /// </summary>
-    public void PlaceCaretOffScreen() => caretHidden = true;
+    public void HideCaret() => caretHidden = true;
 
     /// <summary>
     /// Starts the letter-by-letter narration stream. The eye-blink
@@ -175,7 +175,7 @@ internal sealed class IntroCinematicObjectSystem
         IntroFinishRequested = false;
         ResetCaret();
 
-        // The eye's frame behaviour observes the page-six cinematic phase and permanently changes the eye
+        // The eye observes the page-six cinematic phase and permanently changes the eye
         // object to its closed/half-open/deadpan animation.
         EyePlayback = new AnimationPlayback<IntroEyeSegment>(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing), AnimationPlace.StartOfAnimation);
         EyeFrameHold = 1;
@@ -209,7 +209,7 @@ internal sealed class IntroCinematicObjectSystem
         if (narrationAnimation is not null && narrationCharacterIndex > narrationAnimation.Length)
         {
             throw new InvalidDataException(
-                $"Saved narration cursor {narrationCharacterIndex} exceeds the rebound {narrationPage} program.");
+                $"Saved narration cursor {narrationCharacterIndex} exceeds the rebound {narrationPage} narration.");
         }
     }
 

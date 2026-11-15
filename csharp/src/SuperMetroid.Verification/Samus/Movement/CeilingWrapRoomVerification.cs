@@ -28,7 +28,7 @@ internal static class CeilingWrapRoomVerification
         int expectedFrames = beams == 11 ? (dash ? 349 : 412) : 900;
         AssertEqual(expectedFrames, native.Length, "Native Speedway setup trace length");
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.FrogSpeedway);
@@ -59,7 +59,7 @@ internal static class CeilingWrapRoomVerification
     internal static void VerifyFrogSpeedwayPoolCollision()
     {
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.FrogSpeedway);

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+/// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingStage
 {
@@ -30,7 +30,7 @@ internal sealed class EndingStage
     /// <summary>Countdown read by the current cinematic phase.</summary>
     internal int PhaseTimer { get; set; }
 
-    /// <summary>Shared fade progression through scene and palette handoffs.</summary>
+    /// <summary>Shared fade progression through scene and colour handoffs.</summary>
     private int fadeCounter;
 
     /// <summary>Master brightness during cinematic fades, from 0 (black) through 15 (full); every fade step clamps to that range.</summary>
@@ -38,7 +38,7 @@ internal sealed class EndingStage
     internal int Brightness { get; set; }
 
     /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
-    internal FixedPosition<FloorPixels> FloorPosition { get; set; }
+    internal FixedVector<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
     /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
@@ -81,7 +81,7 @@ internal sealed class EndingStage
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
         if (role == EndingSpriteRole.ExplosionStarsLeft)
-            added.Sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway);
+            added.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
         return added;
     }
 
@@ -95,13 +95,13 @@ internal sealed class EndingStage
     /// <returns>The actor added.</returns>
     internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
-            definition.Position,
+            Position16<ScreenPixels>.Zero + definition.Position,
             definition.Colouring,
             definition.Animation,
             role);
 
     /// <summary>
-    /// Scene boundaries clear the palette effects' slots (#1544): the records they showed stop showing, as the effects
+    /// Scene boundaries end the running colour effects (#1544): the steps they showed stop showing, as the effects
     /// that showed them have ended.
     /// </summary>
     internal void ResetColourEffects() => screen.Colours.ResetColourEffects();
@@ -127,14 +127,14 @@ internal sealed class EndingStage
         Backdrops ?? throw new InvalidOperationException("Ending scenes require their installed backdrops.");
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
-    internal void StepEndingSpriteFrameBehavior(EndingSprite wrapper)
+    internal void StepEndingSpriteMotion(EndingSprite wrapper)
     {
         IntroDiscoverySprite sprite = wrapper.Sprite;
         switch (wrapper.Role)
         {
             case EndingSpriteRole.AnimalEscape:
                 sprite.Position = new(
-                    sprite.Position.X.WithWhole(CoordinateAxis.Wrap(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity)),
+                    sprite.Position.X.WithWhole(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity),
                     IntroCinematicMotion.AddFraction(sprite.Position.Y, EndingAnimalEscapeDefinitions.YFractionVelocity));
                 if (sprite.Position.X.Whole >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();
@@ -149,9 +149,9 @@ internal sealed class EndingStage
                 break;
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
-                // The right starfield runs no flyaway frame behaviour until its animation installs one.
-                if (sprite.FrameBehavior is CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway or CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving)
-                    StepFlyawayStars(wrapper, sprite.FrameBehavior.Value);
+                // The right starfield does not wait for the flyaway until its animation has it wait.
+                if (wrapper.StarsMotion is { } starsMotion)
+                    StepFlyawayStars(wrapper, starsMotion);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -160,7 +160,7 @@ internal sealed class EndingStage
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
-            // These actors run no frame behaviour.
+            // These actors have no motion of their own.
             case EndingSpriteRole.SideCloudRightLeading:
             case EndingSpriteRole.SideCloudLeftLeading:
             case EndingSpriteRole.SideCloudRightTrailing:
@@ -183,63 +183,28 @@ internal sealed class EndingStage
     }
 
     /// <summary>Starts starfield motion at flyaway and advances its velocity, which slows on every update.</summary>
-    private void StepFlyawayStars(EndingSprite stars, CinematicSpriteFrameBehavior frameBehavior)
+    private void StepFlyawayStars(EndingSprite stars, EndingStarsMotion motion)
     {
         IntroDiscoverySprite sprite = stars.Sprite;
-        switch (frameBehavior)
+        switch (motion)
         {
-            case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
+            case EndingStarsMotion.WaitingForFlyaway:
                 if (Phase == EndingCreditsPhase.PlanetEscapeFast)
                 {
-                    sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving);
+                    stars.StarsMotion = EndingStarsMotion.Moving;
                     stars.FlyawayVelocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
                 }
                 break;
-            case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
+            case EndingStarsMotion.Moving:
                 stars.FlyawayVelocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
                 sprite.Position = sprite.Position.WithX(sprite.Position.X.MovedBy(stars.FlyawayVelocity));
                 break;
-            case CinematicSpriteFrameBehavior.NoOp:
-            case CinematicSpriteFrameBehavior.MetroidEgg:
-            case CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade:
-            case CinematicSpriteFrameBehavior.MetroidEggParticle:
-            case CinematicSpriteFrameBehavior.MetroidEggSlimeDrops:
-            case CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered:
-            case CinematicSpriteFrameBehavior.BabyMetroidBeingExamined:
-            case CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading:
-            case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
-            case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
-            case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
-            case CinematicSpriteFrameBehavior.ConfusedBabyHatched:
-            case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
-            case CinematicSpriteFrameBehavior.ConfusedBabyDancing:
-            case CinematicSpriteFrameBehavior.CeresStars:
-            case CinematicSpriteFrameBehavior.CeresLargeAsteroids:
-            case CinematicSpriteFrameBehavior.CeresUnderAttack:
-            case CinematicSpriteFrameBehavior.CeresSmallAsteroid:
-            case CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex:
-            case CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp:
-            case CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating:
-            case CinematicSpriteFrameBehavior.CeresExplosion:
-            case CinematicSpriteFrameBehavior.Zebes:
-            case CinematicSpriteFrameBehavior.ZebesSlideSceneAway:
-            case CinematicSpriteFrameBehavior.ZebesStarsCompletionWait:
-            case CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway:
-            case CinematicSpriteFrameBehavior.ZebesStarsWait:
-            case CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway:
-            case CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf:
-            case CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf:
-            case CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp:
-            case CinematicSpriteFrameBehavior.RewardBodyFlight:
-            case CinematicSpriteFrameBehavior.RewardHeadFlight:
-            case CinematicSpriteFrameBehavior.RewardLanding:
             default:
-                throw new InvalidOperationException(
-                    $"Flyaway stars do not run {frameBehavior}.");
+                throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {motion}.");
         }
     }
 
-    /// <summary>The palette effects the ending runs, which its colours own (#1597).</summary>
+    /// <summary>The colour effects the ending runs, which its colours own (#1597).</summary>
     internal ColourEffectSystem ColourEffects => screen.Colours.ColourEffects;
 
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>

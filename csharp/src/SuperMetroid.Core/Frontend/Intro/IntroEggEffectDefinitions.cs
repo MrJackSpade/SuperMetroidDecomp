@@ -27,5 +27,5 @@ internal static class IntroEggEffectDefinitions
     /// A landed drop shows the four pictures of its puddle instead, each in the egg's colours in front of the scene.
     /// </remarks>
     public static CinematicActorDefinition SlimeDrop =>
-        new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteSegment.MetroidEggSlimeDrop);
+        new(CinematicSpriteSegment.MetroidEggSlimeDrop);
 }

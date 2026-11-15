@@ -34,7 +34,7 @@ internal static class MoatFirstEntryVerification
             // Each history starts with fresh mutable WRAM as well as fresh owners.
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source));

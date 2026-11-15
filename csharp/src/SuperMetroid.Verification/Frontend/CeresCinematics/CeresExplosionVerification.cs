@@ -38,7 +38,7 @@ internal static class CeresExplosionVerification
             {
                 AssertTrue(!spawned, "station explosion spawns only once");
                 reference.Spawn(
-                    new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - scene.Background.X.Whole)), unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - scene.Background.Y.Whole))));
+                    new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - scene.Background.X.WholePixels)), unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - scene.Background.Y.WholePixels))));
                 spawned = true;
             }
 

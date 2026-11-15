@@ -18,8 +18,7 @@ public sealed class GameplayHudPresentation
     {
         this.parts = Ensure.NotNull(parts);
         if (parts.EnergyTankCorners.Length != GameplayHudDefinitions.EnergyTankCount ||
-            parts.AutoReserveCorners.Length != GameplayHudDefinitions.AutoReserveCellCount ||
-            parts.IconAnchors.Length != GameplayHudDefinitions.ItemCount || parts.IconsShowOverTemplate.Length != GameplayHudDefinitions.ItemCount)
+            parts.Icons.Count != Enum.GetValues<HudIcon>().Length || !Enum.GetValues<HudIcon>().All(parts.Icons.ContainsKey))
             throw new ArgumentException("The gameplay HUD's layout does not place each of its elements.", nameof(parts));
     }
 
@@ -43,10 +42,12 @@ public sealed class GameplayHudPresentation
     /// <param name="shade">The shade the current selection gives the icon's place, or null.</param>
     public PlacedHudImage? Icon(HudIcon icon, bool added, HudIconShade? shade)
     {
-        int order = IconOrder(icon);
-        HudIconCover cover = added && parts.IconsShowOverTemplate[order] ? HudIconCover.Icon : HudIconCover.Template;
+        HudIconPlacement placement = parts.Icons.TryGetValue(icon, out HudIconPlacement placed)
+            ? placed
+            : throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon.");
+        HudIconCover cover = added && placement.ShowsOverTemplate ? HudIconCover.Icon : HudIconCover.Template;
         return cover == HudIconCover.Template && shade is null ? null
-            : new PlacedHudImage(new HudIconImage(icon, cover, shade), parts.IconAnchors[order]);
+            : new PlacedHudImage(new HudIconImage(icon, cover, shade), placement.Anchor);
     }
 
     /// <summary>One energy tank full or empty.</summary>
@@ -77,15 +78,10 @@ public sealed class GameplayHudPresentation
             .Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Corner));
     }
 
-    /// <summary>The AUTO reserve indicator's parts as <paramref name="indicator"/> shows them; a cleared indicator shows them blank.</summary>
+    /// <summary>The AUTO reserve indicator as <paramref name="indicator"/> shows it; a cleared indicator shows its place blank.</summary>
     /// <param name="indicator">What the indicator shows.</param>
-    public IEnumerable<PlacedHudImage> AutoReserve(HudReserveIndicator indicator)
-    {
-        if (!Enum.IsDefined(indicator))
-            throw new ArgumentOutOfRangeException(nameof(indicator), indicator, "Undefined reserve indicator.");
-        for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
-            yield return new PlacedHudImage(new HudReserveCellImage(indicator, cell), parts.AutoReserveCorners[cell]);
-    }
+    public PlacedHudImage AutoReserve(HudReserveIndicator indicator) =>
+        new(new HudReserveIndicatorImage(indicator), parts.AutoReserveCorner);
 
     /// <summary>One minimap square: a revealed map square in its shade, or the empty square.</summary>
     /// <param name="output">The minimap square, counted in area-map squares from the minimap's upper-left square.</param>
@@ -101,14 +97,6 @@ public sealed class GameplayHudPresentation
         };
         const int square = GameplayHudDefinitions.MinimapSquarePixels;
         return new PlacedHudImage(image, parts.MinimapAnchor + new Offset16<ScreenPixels>(output.X * square, output.Y * square));
-    }
-
-    /// <summary>Where <paramref name="icon"/> stands in <see cref="GameplayHudDefinitions.IconNames"/> order, the order the layout lists the icons in.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="icon"/> names no item icon.</exception>
-    internal static int IconOrder(HudIcon icon)
-    {
-        int order = Array.IndexOf(GameplayHudDefinitions.Icons, icon);
-        return order >= 0 ? order : throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon.");
     }
 
     /// <summary>Each digit of <paramref name="value"/>'s last <paramref name="count"/> decimal digits and where it is shown.</summary>

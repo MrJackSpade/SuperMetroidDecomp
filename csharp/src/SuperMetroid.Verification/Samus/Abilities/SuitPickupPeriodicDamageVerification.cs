@@ -29,7 +29,7 @@ internal static class SuitPickupPeriodicDamageVerification
     internal static void VerifySuitPickupPeriodicDamage()
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);

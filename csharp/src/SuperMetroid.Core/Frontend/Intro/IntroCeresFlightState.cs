@@ -36,7 +36,7 @@ internal sealed class IntroCeresFlightState
     private SignedEightEight starsVelocity = CeresFlightActorDefinitions.FrontStars.InitialVelocity;
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
-    private FixedPosition<FloorPixels> background = new(new(CoordinateAxis.Wrap(-72), 0), new(CoordinateAxis.Wrap(-104), 0));
+    private FixedVector<FloorPixels> background = new(SignedSixteenSixteen.FromWholePixels(-72), SignedSixteenSixteen.FromWholePixels(-104));
     /// <summary>
     /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
     /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
@@ -90,7 +90,7 @@ internal sealed class IntroCeresFlightState
         objects = new ScreenSprites();
         Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.
-        // The display setup itself runs as the next dispatch's cinematic phase.
+        // The display setup itself runs as the next update's cinematic phase.
         Phase = IntroCeresFlightPhase.Initial;
     }
 
@@ -112,13 +112,13 @@ internal sealed class IntroCeresFlightState
         Backdrop = artwork.Backdrop;
     }
 
-    /// <summary>Current cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
+    /// <summary>Current cinematic phase, including the final handoff to Ceres gameplay.</summary>
     public IntroCeresFlightPhase Phase { get; private set; }
 
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
-    /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one dispatch.</summary>
+    /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one update.</summary>
     public void Step()
     {
         switch (Phase)
@@ -218,7 +218,7 @@ internal sealed class IntroCeresFlightState
         else
         {
             layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
-                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedOffset()),
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole),
                 CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront).Shaded(FloorShading)));
         }
@@ -273,12 +273,12 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
-        background = new(new(CoordinateAxis.Wrap(-32), 0), new(CoordinateAxis.Wrap(-128), 0));
+        background = new(SignedSixteenSixteen.FromWholePixels(-32), SignedSixteenSixteen.FromWholePixels(-128));
         angle = RotationAngle.FromSteps(32);
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply behaviour identity,
-        // initializer results and the physical motion applied by StepRearViewActors.
+        // each actor's start and the physical motion applied by StepRearViewActors.
         // Each actor starts at its role's installed placement (#1596).
         CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
             "The Ceres approach's rear view requires the installed actor placements.");
@@ -294,7 +294,7 @@ internal sealed class IntroCeresFlightState
         ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, 0);
     }
 
-    /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored timing and active frame behaviour.</summary>
+    /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Position16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
@@ -304,7 +304,6 @@ internal sealed class IntroCeresFlightState
         {
             HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
         };
-        actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }
 
@@ -316,7 +315,7 @@ internal sealed class IntroCeresFlightState
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
-        background = background.WithX(background.X.MovedBy(-SignedSixteenSixteen.FromSixteenthsOfPixel(2)));
+        background = background.WithX(background.X - SignedSixteenSixteen.FromSixteenthsOfPixel(2));
         if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
             zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
         else if (zoom < CeresFlightRenderDefinitions.RearFastWideningLimit)
@@ -374,7 +373,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
-    /// <summary>Lowers brightness every other dispatch until the black screen permits the Ceres handoff.</summary>
+    /// <summary>Lowers brightness every other update until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
         // The fade step seeds both fade delays with one. The fade-out therefore removes one brightness level every
@@ -393,12 +392,6 @@ internal sealed class IntroCeresFlightState
         foreach ((CeresRearViewActorRole role, IntroDiscoverySprite actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
-            if (actor.FrameBehavior != definition.ActiveFrameBehavior)
-            {
-                throw new InvalidDataException(
-                    $"The Ceres flight's {role} actor names invalid frame behaviour " +
-                    $"{actor.FrameBehavior}.");
-            }
             if (definition.WrapX)
                 AddWrappedX(actor, definition.HorizontalDelta);
             else
@@ -413,7 +406,7 @@ internal sealed class IntroCeresFlightState
         // The wrapping star field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
         // whose fraction is the rest of a pixel, carries the actor right instead.
         FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
+        actor.Position = actor.Position.WithX(x.WithWhole(x.Whole % CeresDestructionSceneDefinitions.WorldWidth));
     }
 
     /// <summary>Applies signed horizontal motion without the front-star wrap.</summary>
@@ -427,13 +420,6 @@ internal sealed class IntroCeresFlightState
     {
         // The star field adds 128/256 to a signed 1/256-pixel speed, then applies that same growing delta to
         // the star actor and both turning-floor offsets. This is why the ship rush feels diagonal.
-        if (stars.FrameBehavior !=
-            CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
-        {
-            throw new InvalidDataException(
-                $"Ceres front stars name invalid frame behaviour " +
-                $"{stars.FrameBehavior}.");
-        }
         // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
         // pixels an update one way to at most twelve the other.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;
@@ -441,9 +427,8 @@ internal sealed class IntroCeresFlightState
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));
-        background = new(
-            IntroCinematicMotion.AddEightEight(background.X, velocity),
-            IntroCinematicMotion.AddEightEight(background.Y, velocity));
+        SignedSixteenSixteen rush = velocity.ToSixteenSixteenDelta();
+        background = new(background.X + rush, background.Y + rush);
     }
 
 }

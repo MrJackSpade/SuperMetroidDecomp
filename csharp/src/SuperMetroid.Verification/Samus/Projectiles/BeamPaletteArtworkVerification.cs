@@ -101,7 +101,7 @@ internal static class BeamPaletteArtworkVerification
     private static void VerifyBeamPaletteOwnership(InstalledBeamPalettes palettes)
     {
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;

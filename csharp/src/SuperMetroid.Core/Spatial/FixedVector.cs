@@ -23,6 +23,9 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>
         new(SignedSixteenSixteen.FromParts(offset.X, 0), SignedSixteenSixteen.FromParts(offset.Y, 0));
 
+    /// <summary>Both axes' whole pixels, -32768 through 32767, as a signed whole-pixel offset.</summary>
+    public Offset16<TSpace> Whole => new(X.WholePixels, Y.WholePixels);
+
     /// <summary>Replaces the X axis.</summary>
     public FixedVector<TSpace> WithX(SignedSixteenSixteen x) => this with { X = x };
 

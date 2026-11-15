@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>
 /// The opening narration's pictures (#1467): the first card, the final line, and each letter of the narration's alphabet,
 /// whose colour variants its glow shows are shades (#1512), which the import composes once from the narration font under the cinematic's
-/// palette. The cinematic places them at the screen pixels its text scene shows them at.
+/// colours. The cinematic places them at the screen pixels its text scene shows them at.
 /// </summary>
 public static class IntroNarrationPictures
 {

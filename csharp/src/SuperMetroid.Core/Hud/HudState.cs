@@ -37,7 +37,7 @@ public sealed class HudState
     /// <summary>The installed HUD layout the values are placed by.</summary>
     internal GameplayHudPresentation? Presentation { get; private set; }
 
-    /// <summary>Suppresses minimap updates after a boss initializer.</summary>
+    /// <summary>Suppresses minimap updates once a boss has set up its fight.</summary>
     public bool MinimapDisabled { get; internal set; }
 
     /// <summary>Hides the minimap's fifteen cells and disables updates.</summary>
@@ -205,12 +205,11 @@ public sealed class HudState
         if (!IsInitialized)
             return new ShownHud(images.ToImmutable());
         images.Add(GameplayHudPresentation.Template);
-        for (int order = 0; order < GameplayHudDefinitions.ItemCount; order++)
+        foreach (HudIcon item in Enum.GetValues<HudIcon>())
         {
-            HudIcon item = GameplayHudDefinitions.Icons[order];
             bool held = Holds(item);
             // The selected item's icon shows the selected shade, every other held item's the shade the selection leaves.
-            HudIconShade? shade = values.SelectedItem == GameplayHudDefinitions.IconItems[order] ? HudIconShade.Selected
+            HudIconShade? shade = values.SelectedItem == HudIconDefinitions.Items[item] ? HudIconShade.Selected
                 : held ? HudIconShade.Deselected : null;
             if (art.Icon(item, held, shade) is { } icon)
                 images.Add(icon);
@@ -227,7 +226,7 @@ public sealed class HudState
         if (values.MaxPowerBombs != 0)
             images.AddRange(art.Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs));
         // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
-        // clears its cells; before the first reserve tank the template shows.
+        // clears its place; before the first reserve tank the template shows.
         HudReserveIndicator? reserve = values.ReserveMode switch
         {
             ReserveTankMode.Auto => values.ReserveHealth != 0 ? HudReserveIndicator.Filled : HudReserveIndicator.Empty,
@@ -236,7 +235,7 @@ public sealed class HudState
             _ => throw new InvalidOperationException($"Undefined {nameof(ReserveTankMode)} {values.ReserveMode}."),
         };
         if (reserve is { } indicator)
-            images.AddRange(art.AutoReserve(indicator));
+            images.Add(art.AutoReserve(indicator));
         int columns = GameplayHudPresentation.MinimapSize.X;
         for (int index = 0; index < Minimap.Length; index++)
             images.Add(art.MinimapCell(new(index % columns, index / columns), Minimap[index]));

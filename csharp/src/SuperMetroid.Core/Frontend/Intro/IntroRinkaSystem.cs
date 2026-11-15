@@ -45,14 +45,14 @@ internal sealed class IntroRinkaSystem
         Ensure.NotNull(samus);
 
         spawnsForbidden = explosionsAllocated;
-        // The spawner updates before the Rinkas, so a Rinka it spawns runs its first frame behaviour and animation step in
+        // The spawner updates before the Rinkas, so a Rinka it spawns runs its first flight check and animation step in
         // this same update.
         if (spawner.IsActive)
             spawner.Step(HandleSpawnerCue);
 
         foreach (IntroRinka rinka in rinkas)
         {
-            RunFrameBehavior(rinka, samus, motherBrainExploding);
+            Fly(rinka, samus, motherBrainExploding);
             if (rinka.Sprite.IsActive)
             {
                 rinka.Sprite.Step(cue => HandleRinkaCue(rinka, cue));
@@ -82,7 +82,12 @@ internal sealed class IntroRinkaSystem
                 Spawn(IntroRinkaDefinitions.MissingPair);
                 return;
 
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.WaitForFlyaway:
+            case CinematicSpriteCueKind.StartBodyFlight:
+            case CinematicSpriteCueKind.StartHeadFlight:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionColours:
@@ -128,7 +133,7 @@ internal sealed class IntroRinkaSystem
         if (cue != CinematicSpriteCueKind.StartRinkaMoving)
             throw new InvalidOperationException($"The Rinka's animation publishes no {cue} cue.");
 
-        rinka.Sprite.InstallFrameBehavior(rinka.Flight);
+        rinka.StartMoving();
     }
 
     /// <summary>Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live.</summary>
@@ -144,20 +149,18 @@ internal sealed class IntroRinkaSystem
             rinkas.Add(new IntroRinka(launch));
     }
 
-    /// <summary>Moves a Rinka, publishes Samus knockback on the hit route, or deletes it at its exit bounds.</summary>
-    private static void RunFrameBehavior(
+    /// <summary>Moves a moving Rinka, publishes Samus knockback on the striking flight, or deletes it at its exit bounds.</summary>
+    private static void Fly(
         IntroRinka rinka,
         SamusState samus,
         bool motherBrainExploding)
     {
         IntroDiscoverySprite sprite = rinka.Sprite;
-        switch (sprite.FrameBehavior)
+        if (!rinka.IsMoving)
+            return;
+        switch (rinka.Flight)
         {
-            case null:
-            case CinematicSpriteFrameBehavior.NoOp:
-                return;
-
-            case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
+            case IntroRinkaFlight.StrikesSamus:
                 Drift(sprite, rinka.Drift);
 
                 // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
@@ -176,48 +179,15 @@ internal sealed class IntroRinkaSystem
                 sprite.Delete();
                 return;
 
-            case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
+            case IntroRinkaFlight.MissesSamus:
                 Drift(sprite, rinka.Drift);
                 int y = CoordinateAxis.AsSigned(sprite.WholePosition.Y);
                 if (y < 16 || y >= 208 || motherBrainExploding)
                     sprite.Delete();
                 return;
 
-            case CinematicSpriteFrameBehavior.MetroidEgg:
-            case CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade:
-            case CinematicSpriteFrameBehavior.MetroidEggParticle:
-            case CinematicSpriteFrameBehavior.MetroidEggSlimeDrops:
-            case CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered:
-            case CinematicSpriteFrameBehavior.BabyMetroidBeingExamined:
-            case CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading:
-            case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
-            case CinematicSpriteFrameBehavior.ConfusedBabyHatched:
-            case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
-            case CinematicSpriteFrameBehavior.ConfusedBabyDancing:
-            case CinematicSpriteFrameBehavior.CeresStars:
-            case CinematicSpriteFrameBehavior.CeresLargeAsteroids:
-            case CinematicSpriteFrameBehavior.CeresUnderAttack:
-            case CinematicSpriteFrameBehavior.CeresSmallAsteroid:
-            case CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex:
-            case CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp:
-            case CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating:
-            case CinematicSpriteFrameBehavior.CeresExplosion:
-            case CinematicSpriteFrameBehavior.Zebes:
-            case CinematicSpriteFrameBehavior.ZebesSlideSceneAway:
-            case CinematicSpriteFrameBehavior.ZebesStarsCompletionWait:
-            case CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway:
-            case CinematicSpriteFrameBehavior.ZebesStarsWait:
-            case CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway:
-            case CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf:
-            case CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf:
-            case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
-            case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
-            case CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp:
-            case CinematicSpriteFrameBehavior.RewardBodyFlight:
-            case CinematicSpriteFrameBehavior.RewardHeadFlight:
-            case CinematicSpriteFrameBehavior.RewardLanding:
             default:
-                throw new InvalidOperationException($"A Rinka does not run {sprite.FrameBehavior}.");
+                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaFlight)} {rinka.Flight}.");
         }
     }
 

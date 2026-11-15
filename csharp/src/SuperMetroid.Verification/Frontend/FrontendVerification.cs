@@ -399,10 +399,10 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     // removes four on an odd frame, oscillating around eight rather than around zero.
     for (int hit = 0; hit < 4; hit++)
         motherBrain.RecordMissileHit();
-    motherBrain.RunFrameBehavior(cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    motherBrain.RunBehavior(cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
     AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
-    motherBrain.RunFrameBehavior(cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    motherBrain.RunBehavior(cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
     AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
     AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");

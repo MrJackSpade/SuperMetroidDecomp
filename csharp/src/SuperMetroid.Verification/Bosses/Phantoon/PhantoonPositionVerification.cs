@@ -36,7 +36,7 @@ internal static class PhantoonPositionVerification
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
         {
             var boundary = CreateRetailRuntimeFixture();
-            boundary.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            boundary.HudSetup.InitializeHud(HudSnapshot.NewGame);
             boundary.RoomLoader.InitializeStartingCeresRoom();
             boundary.RoomLoader.InitializeCeresStartSamus();
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
@@ -49,7 +49,7 @@ internal static class PhantoonPositionVerification
                 boundaryState.BodyState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);

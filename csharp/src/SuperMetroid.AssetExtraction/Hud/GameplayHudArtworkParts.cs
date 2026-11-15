@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -52,7 +53,7 @@ internal sealed record GameplayHudArtworkParts
     /// <summary>The AUTO indicator's six tiles with the reserve empty.</summary>
     public required ImmutableArray<BackgroundTile> AutoReserveEmpty { get; init; }
 
-    /// <summary>The cell each of the AUTO indicator's six tiles sits in.</summary>
+    /// <summary>The cell each of the AUTO indicator's six tiles sits in, left to right and then top to bottom.</summary>
     public required ImmutableArray<Position16<CharacterCells>> AutoReserveCells { get; init; }
 
     /// <summary>The colour variant the selected item's icon is shown in.</summary>
@@ -61,8 +62,8 @@ internal sealed record GameplayHudArtworkParts
     /// <summary>The colour variant an item's icon returns to when another is selected.</summary>
     public required int DeselectedPalette { get; init; }
 
-    /// <summary>The five item icons, in Missile, Super Missile, Power Bomb, Grapple and X-Ray order.</summary>
-    public required ImmutableArray<GameplayHudIcon> Icons { get; init; }
+    /// <summary>Each item icon's cells and where they sit.</summary>
+    public required ImmutableDictionary<HudIcon, GameplayHudIcon> Icons { get; init; }
 
     /// <summary>The cell the minimap's upper-left cell sits in.</summary>
     public required Position16<CharacterCells> MinimapAnchor { get; init; }

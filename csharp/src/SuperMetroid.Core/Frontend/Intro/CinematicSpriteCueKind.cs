@@ -1,15 +1,25 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>What a cue of a cinematic sprite animation does: the shared frame-behaviour install and each owner cue the animations use.</summary>
+/// <summary>What a cue of a cinematic sprite animation does: each cue the animations raise, which the actor's owner carries out.</summary>
 internal enum CinematicSpriteCueKind
 {
-    /// <summary>Installs <see cref="CinematicSpriteCue.FrameBehavior"/> (the shared frame-behaviour install).</summary>
-    SetFrameBehavior,
+    /// <summary>Starts Mother Brain's cross-fade into page two: the room shakes, and she goes once the cross-fade ends.</summary>
+    StartMotherBrainCrossFade,
+    /// <summary>Has the Metroid egg wait for page three's cross-fade to end and then delete itself.</summary>
+    DeleteEggAfterCrossFade,
+    /// <summary>Starts the Ceres explosion spawner's repeating explosions.</summary>
+    StartRepeatingExplosions,
+    /// <summary>Has the right-hand explosion stars wait for the flyaway to carry them away.</summary>
+    WaitForFlyaway,
+    /// <summary>Starts the reward Samus's body flying up on her jump.</summary>
+    StartBodyFlight,
+    /// <summary>Starts the suited reward Samus's head flying up ahead of her body.</summary>
+    StartHeadFlight,
     /// <summary>Ends the Zebes explosion.</summary>
     EndZebesExplosion,
     /// <summary>Starts the explosion finale.</summary>
     ExplosionFinale,
-    /// <summary>Fades the exploding planet's palette.</summary>
+    /// <summary>Fades the exploding planet's colours.</summary>
     FadeExplosionColours,
     /// <summary>Fades the PLANET ZEBES title in.</summary>
     FadeInZebesText,

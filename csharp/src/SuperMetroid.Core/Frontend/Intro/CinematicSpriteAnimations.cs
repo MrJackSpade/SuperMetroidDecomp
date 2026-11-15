@@ -26,7 +26,7 @@ internal static class CinematicSpriteAnimations
         [P.IntroMotherBrainStartPage2] =
         [
             Cue(new(K.StartIntroPage2)),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading)),
+            Cue(new(K.StartMotherBrainCrossFade)),
         ],
         [P.IntroMotherBrainPageTwo] =
         [
@@ -68,7 +68,7 @@ internal static class CinematicSpriteAnimations
             Show(S.EggRemnant6, 10),
             Show(S.EggRemnant7, 320),
             Cue(new(K.StartIntroPage3)),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade)),
+            Cue(new(K.DeleteEggAfterCrossFade)),
         ],
         [P.MetroidEggHatched] =
         [
@@ -316,7 +316,7 @@ internal static class CinematicSpriteAnimations
             Show(S.Blank, 128),
             Cue(new(K.SpawnInitialExplosionWave)),
             Show(S.Blank, 80),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating)),
+            Cue(new(K.StartRepeatingExplosions)),
             Show(S.Blank, 64),
             Cue(new(K.SpawnFinalExplosionWave)),
         ],
@@ -374,7 +374,7 @@ internal static class CinematicSpriteAnimations
             Cue(new(K.ExplosionFinale)),
             Show(S.EndingStarfield, 332),
             Cue(new(K.EndZebesExplosion)),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway)),
+            Cue(new(K.WaitForFlyaway)),
         ],
         [P.ZebesExplosionLeftStars] =
         [
@@ -577,7 +577,7 @@ internal static class CinematicSpriteAnimations
             Show(S.SuitlessStanding, 48),
             Show(S.SuitlessPrepareJump, 10),
             Cue(new(K.Launch)),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardBodyFlight)),
+            Cue(new(K.StartBodyFlight)),
         ],
         [P.SuitlessJumpFlight] =
         [
@@ -647,7 +647,7 @@ internal static class CinematicSpriteAnimations
             Show(S.SuitedPrepareJump, 10),
             Cue(new(K.LaunchHead)),
             Cue(new(K.Launch)),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardBodyFlight)),
+            Cue(new(K.StartBodyFlight)),
         ],
         [P.SuitedJumpFlight] =
         [
@@ -656,7 +656,7 @@ internal static class CinematicSpriteAnimations
         [P.HelmetJump] =
         [
             Show(S.SuitedHelmetJumpHead1, 10),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardHeadFlight)),
+            Cue(new(K.StartHeadFlight)),
         ],
         [P.HelmetFlight] =
         [
@@ -665,7 +665,7 @@ internal static class CinematicSpriteAnimations
         [P.HeadJump] =
         [
             Show(S.HelmetlessJumpHead, 10),
-            Cue(new(K.SetFrameBehavior, CinematicSpriteFrameBehavior.RewardHeadFlight)),
+            Cue(new(K.StartHeadFlight)),
         ],
         [P.HeadFlight] =
         [

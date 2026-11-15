@@ -16,7 +16,7 @@ internal static class EndingWavySamusDefinitions
     /// </summary>
     internal static TrigonometryAngle InitialAngle { get; } = TrigonometryAngle.Wrapped(-1);
     /// <summary>
-    /// The wavy-Samus frame behaviour: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
+    /// The wavy Samus's motion: the screen lines of one whole cycle of the wave, a half cycle of 64 lines
     /// and its sign-inverted mirror.
     /// </summary>
     internal const int Period = 128;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 internal enum TitleCardCue
 {
     /// <summary>Removes the card.</summary>
-    RemoveCard = 1,
+    RemoveCard,
 
     /// <summary>Starts the lower pan.</summary>
     StartLowerPan,

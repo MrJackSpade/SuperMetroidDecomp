@@ -135,8 +135,8 @@ internal static class EndingLogoVerification
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.FrameBehavior.NativeAddress,
-                $"logo actor {index} pre-instruction callback");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
+                $"logo actor {index} routine: the S halves move into place, the circles hold still");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
                 $"logo actor {index} initial instruction list");
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);

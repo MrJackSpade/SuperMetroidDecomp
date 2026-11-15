@@ -63,7 +63,7 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Applies one blackout fade-out call after ordinary gameplay.
     /// </summary>
-    /// <returns>Whether brightness one went black and completed this timing owner; the caller owns checkpoint saving and cinematic dispatch.</returns>
+    /// <returns>Whether brightness one went black and completed this timing owner; the caller owns checkpoint saving and the next cinematic.</returns>
     /// <exception cref="InvalidOperationException">The blackout-fade phase is not active.</exception>
     public bool StepFadeAfterGameplay()
     {

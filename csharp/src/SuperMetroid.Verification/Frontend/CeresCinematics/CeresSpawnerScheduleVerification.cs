@@ -21,6 +21,13 @@ internal static class CeresSpawnerScheduleVerification
             ushort countdown = 0;
             int actualCountdown = 0;
             bool disabled = false;
+            bool repeating = false;
+            // The spawner's cue starts the repeating explosions; the events of its own update are unchanged.
+            CeresExplosionSpawnEvents StartRepeating(CeresExplosionSpawnEvents events)
+            {
+                repeating = true;
+                return events;
+            }
             for (int frame = 1; frame <= 300; frame++)
             {
                 if (frame == reseedFrame)
@@ -29,7 +36,7 @@ internal static class CeresSpawnerScheduleVerification
                     actualCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                 }
                 CeresExplosionSpawnEvents expected = default;
-                if (native.IsActive && native.ListFrameBehavior == CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating && !disabled)
+                if (native.IsActive && repeating && !disabled)
                 {
                     if (frame >= departure) disabled = true;
                     else
@@ -47,9 +54,14 @@ internal static class CeresSpawnerScheduleVerification
                 {
                     expected = cue switch
                     {
+                        CinematicSpriteCueKind.StartRepeatingExplosions => StartRepeating(expected),
                         CinematicSpriteCueKind.SpawnInitialExplosionWave => expected with { Initial = true },
                         CinematicSpriteCueKind.SpawnFinalExplosionWave => expected with { Final = true },
-                        CinematicSpriteCueKind.SetFrameBehavior or
+                        CinematicSpriteCueKind.StartMotherBrainCrossFade or
+                            CinematicSpriteCueKind.DeleteEggAfterCrossFade or
+                            CinematicSpriteCueKind.WaitForFlyaway or
+                            CinematicSpriteCueKind.StartBodyFlight or
+                            CinematicSpriteCueKind.StartHeadFlight or
                             CinematicSpriteCueKind.EndZebesExplosion or
                             CinematicSpriteCueKind.ExplosionFinale or
                             CinematicSpriteCueKind.FadeExplosionColours or

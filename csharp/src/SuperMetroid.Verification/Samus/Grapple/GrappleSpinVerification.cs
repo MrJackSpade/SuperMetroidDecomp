@@ -25,7 +25,7 @@ internal static class GrappleSpinVerification
         foreach (bool held in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean);

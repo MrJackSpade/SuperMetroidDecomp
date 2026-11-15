@@ -35,10 +35,10 @@ internal static class MapSpriteCasesVerification
             frames.Remove(changed.Name);
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
-        foreach (ushort invalid in new ushort[] { 0, MapSpriteFormat.FrameCount + 1, ushort.MaxValue })
+        foreach (int invalid in new[] { -1, MapSpriteFormat.FrameCount, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
                 ScreenSpritesFixtures.Blank(), new(0, 0), MapSpriteScreen.FileSelect, MapSpriteColouring.Labels), "undefined map sprite identity fails");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), 0, ScreenSpritesFixtures.Blank(),
+        AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)(-1), ScreenSpritesFixtures.Blank(),
             new(0, 0), MapSpriteScreen.FileSelect, (MapSpriteColouring)ushort.MaxValue), "undefined identity precedes an undefined colouring");
         MapSpriteCompositions Load(Dictionary<string, SpriteVisualPart[]> frames)
         {

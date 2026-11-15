@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Logo actors followed by sixteen palette loads.</summary>
+/// <summary>Logo actors followed by sixteen colour loads.</summary>
 internal sealed class EndingLogo
 {
     /// <summary>Scene cue fired when the top logo half reaches its landing point.</summary>
@@ -20,7 +20,7 @@ internal sealed class EndingLogo
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of crossfade steps already shown.</summary>
     public int CrossfadeStep { get; internal set; }
-    /// <summary>The logo hands off to percentage text after its sixteenth palette step.</summary>
+    /// <summary>The logo hands off to percentage text after its sixteenth colour step.</summary>
     public bool Completed => CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps;
 
     /// <summary>Creates four logo actors, blacks out the logo's background colours and shows its first sprite colours (#1512).</summary>
@@ -36,7 +36,6 @@ internal sealed class EndingLogo
                 EndingLogoActors.Origin(i),
                 EndingShades.Drawn(EndingLogoDefinitions.Colouring),
                 definition.Animation);
-            actors[i].InstallFrameBehavior(definition.FrameBehavior);
         }
         Ensure.NotNull(stage).Colours.Flash(EndingFlash.LogoBackground, null);
         stage.LoadColours(EndingColourLoad.LogoInitial);
@@ -47,7 +46,7 @@ internal sealed class EndingLogo
     public void Step(EndingColours colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
-        // The cinematic phase runs before sprite cues, so the first palette
+        // The cinematic phase runs before sprite cues, so the first colour
         // pair is copied on the call after the request, not during the call that requests it.
         if (CrossfadeStarted)
         {

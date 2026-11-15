@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingArtwork
 {
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -74,7 +74,7 @@ internal sealed class EndingArtwork
     /// <summary>Final logo actor created after the white flash.</summary>
     internal EndingLogo? CurrentEndingLogo { get; set; }
 
-    /// <summary>The installed backdrops of the space behind the exploding planet, one for each of its palette-effect records.</summary>
+    /// <summary>The installed backdrops of the space behind the exploding planet, one for each step of its colour effect.</summary>
     internal EndingSpaceBackdrops? SpaceBackdrops { get; private set; }
 
     /// <summary>The ending text's installed content.</summary>

@@ -100,7 +100,7 @@ internal static class PauseMenuVerification
         // The HUD gameplay latched, which pause keeps resident (#1466).
         var gameplayHud = new HudState();
         gameplayHud.BindPresentation(presentation.Game.GameplayHud);
-        gameplayHud.Initialize(HudSnapshot.CeresDebug);
+        gameplayHud.Initialize(HudSnapshot.NewGame);
         ShownHud retainedHud = gameplayHud.Shown();
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {

@@ -24,7 +24,7 @@ internal static class ShutterRepeatedBombsVerification
         foreach (int unmorphAt in new[] { -1, 45, 75, 105 })
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);

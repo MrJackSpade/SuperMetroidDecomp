@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The clouds' frame behaviours, including the one-call activation handoff.</summary>
+/// <summary>The clouds' motion, including the one-call activation handoff.</summary>
 internal static class EndingCloudMotion
 {
     /// <summary>
@@ -18,7 +18,7 @@ internal static class EndingCloudMotion
             throw new ArgumentException("Actor is not an escape cloud.", nameof(wrapper));
         if (!wrapper.CloudMoving)
         {
-            // Changing a frame behaviour does not run the new behaviour immediately.
+            // Changing a cloud's motion does not run the new motion immediately.
             // Once activated, movement no longer tests the zoom threshold.
             wrapper.CloudMoving = side ? zoom >= EndingMotionDefinitions.CloudMotionStartZoom
                 : zoom < EndingMotionDefinitions.TopAndBottomCloudZoomLimit;

@@ -28,7 +28,7 @@ internal static class DraygonGoopTouchOrderVerification
         foreach ((bool powerBombed, ushort goopX, ushort samusX) in new[] { new VerifyDraygonGoopTouchOrderCase(true, 170, 178), new VerifyDraygonGoopTouchOrderCase(false, 514, 504) })
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);

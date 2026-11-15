@@ -23,12 +23,11 @@ internal sealed class IntroScientistCutsceneState
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
             definition.Animation);
-        baby.InstallFrameBehavior(definition.FrameBehavior);
-        Background = delivery ? new(32, 8) : new(0, CoordinateAxis.Wrap(-24));
+        Background = delivery ? new(32, 8) : new(0, -24);
     }
 
     /// <summary>The laboratory page's scroll.</summary>
-    public Position16<RoomPixels> Background { get; private set; }
+    public Offset16<PlanePixels> Background { get; private set; }
 
     /// <summary>
     /// Which laboratory scene this is: it selects delivery's horizontal pan or examination's vertical pan, the page
@@ -69,15 +68,15 @@ internal sealed class IntroScientistCutsceneState
             {
                 // The delivery scene moves the camera left while keeping the delivered baby fixed
                 // relative to the laboratory subjects.
-                Background += new Offset16<RoomPixels>(-1, 0);
+                Background += new Offset16<PlanePixels>(-1, 0);
                 baby.WholePosition += new Offset16<ScreenPixels>(1, 0);
             }
             else if (Scene == IntroLaboratoryScene.Examination &&
-                CoordinateAxis.Difference(Background.Y, 8) < 0)
+                Background.Y < 8)
             {
                 // The examination scene moves the second laboratory page down from -24 to +8 while the
                 // examined baby rises by the same 32 pixels.
-                Background += new Offset16<RoomPixels>(0, 1);
+                Background += new Offset16<PlanePixels>(0, 1);
                 baby.WholePosition += new Offset16<ScreenPixels>(0, -1);
             }
         }
@@ -103,7 +102,12 @@ internal sealed class IntroScientistCutsceneState
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.WaitForFlyaway:
+            case CinematicSpriteCueKind.StartBodyFlight:
+            case CinematicSpriteCueKind.StartHeadFlight:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionColours:

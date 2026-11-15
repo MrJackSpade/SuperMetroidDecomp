@@ -25,8 +25,8 @@ internal static class IntroRinkaDefinitionsVerification
         {
             CinematicActorDefinition actual = actors[index].Actor;
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.FrameBehavior.NativeAddress,
-                $"intro Rinka actor {index} pre-instruction callback");
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.NoMotion,
+                $"intro Rinka actor {index} routine: it holds still until its animation starts it moving");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
                 $"intro Rinka actor {index} instruction list");
         }
@@ -43,7 +43,7 @@ internal static class IntroRinkaDefinitionsVerification
             // The cartridge adds a half-pixel fraction to each Rinka's signed whole-pixel sideways word.
             AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.XWholeVelocityReferenceAddress + launch * 2))), 0x8000),
                 actual.Drift, $"intro Rinka {launch} sideways drift");
-            AssertEqual(launch == 0 ? CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus : CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus,
+            AssertEqual(launch == 0 ? IntroRinkaFlight.StrikesSamus : IntroRinkaFlight.MissesSamus,
                 actual.Flight, $"intro Rinka {launch} strikes Samus only when launched first");
         }
 

@@ -26,7 +26,7 @@ internal static class MinimapColumnWrapVerification
         var system = new SharedGameState(new SharedRandom());
         var hud = new HudState();
         hud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
-        hud.Initialize(HudSnapshot.CeresDebug);
+        hud.Initialize(HudSnapshot.NewGame);
         hud.UpdateMinimap(system, Frame(roomColumn: 63, roomRow: 5));
         AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new Position16<MapTiles>(0, 6)),
             "the second screen of a room at the last column explores the left edge's column");

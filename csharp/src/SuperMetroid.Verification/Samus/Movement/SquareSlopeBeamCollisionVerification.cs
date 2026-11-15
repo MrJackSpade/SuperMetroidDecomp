@@ -42,7 +42,7 @@ internal static class SquareSlopeBeamCollisionVerification
     private static bool BeamExplodesAtSlope(byte slopeBts)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);

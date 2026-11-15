@@ -449,7 +449,7 @@ internal sealed class FrontendSession
         // loads the Ceres elevator room and finally runs Samus's new-game setup. This is the
         // same sequence used by the room diagnostic; there is no invented
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.PublishWhileLoading();
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

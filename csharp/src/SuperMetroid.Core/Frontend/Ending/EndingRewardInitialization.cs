@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal enum EndingRewardInitialization
 {
     /// <summary>Suitless actors, at (120,136) in the suitless colours.</summary>
-    Suitless = 1,
+    Suitless,
     /// <summary>The suited body and arm, at (120,152) in the suit's colours.</summary>
     SuitedBody,
     /// <summary>The helmeted head, at (124,108) in the suit's colours.</summary>

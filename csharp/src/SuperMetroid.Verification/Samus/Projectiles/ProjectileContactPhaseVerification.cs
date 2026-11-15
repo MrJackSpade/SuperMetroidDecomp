@@ -20,7 +20,7 @@ internal static class ProjectileContactPhaseVerification
     internal static void VerifyProjectileRuntimePhase()
     {
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -76,7 +76,7 @@ internal static class ProjectileContactPhaseVerification
         foreach (SamusEquipmentFlags suit in new[] { SamusEquipmentFlags.None, SamusEquipmentFlags.VariaSuit, SamusEquipmentFlags.GravitySuit })
         {
             var runtime = CreateRetailRuntimeFixture();
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             var samus = runtime.Player.IntroducedSamus;

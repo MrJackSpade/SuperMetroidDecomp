@@ -1,62 +1,37 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The gunship's horizontal shake while it emerges from the exploding planet: per-step signed 1/65536-pixel displacements whose
-/// fast and slow cycles each move the ship exactly two pixels (#1416: moved from the deleted ending catalog).
+/// The gunship's horizontal shake while it emerges from the exploding planet (#1902): the authored displacements the
+/// floor moves by, one per update, in the order the escape plays them. Each sequence repeats until its leg ends, and
+/// each full pass moves the ship exactly two pixels to the right.
 /// </summary>
-/// <remarks>Repeated samples, fixed-point sign assembly and amplitudes from the common cycle displacement calculate. The
-/// exact directional schedules and shared displacement are selected cinematic path content: the sequential consumer
-/// has no geometry/state rule choosing reversal phases. Generating a different schedule changes that composition.</remarks>
 public static class EndingShipShake
 {
-    /// <summary>Positive fast steps in each complete fast run.</summary>
-    private const int FastPositiveRun = 4;
-    /// <summary>Negative fast steps ending each fast run.</summary>
-    private const int FastNegativeRun = 2;
-    /// <summary>The first positive slow steps.</summary>
-    private const int SlowFirstPositiveRun = 3;
-    /// <summary>The negative slow steps that follow them.</summary>
-    private const int SlowFirstNegativeRun = 2;
-    /// <summary>The second positive slow steps before the terminal negative step.</summary>
-    private const int SlowSecondPositiveRun = 2;
+    /// <summary>Half a pixel to the right.</summary>
+    private static readonly SignedSixteenSixteen HalfRight = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
-    /// <summary>Length of a complete positive-then-negative fast run.</summary>
-    private const int FastRunPeriod = FastPositiveRun + FastNegativeRun;
-    /// <summary>Number of complete fast runs before the shortened final run.</summary>
-    private const int FastCompleteRunCount = EndingMotionDefinitions.PlanetFastPatternLength / FastRunPeriod;
-    /// <summary>Positive steps left in the final fast run after its terminal negative steps.</summary>
-    private const int FastFinalPositiveRun = EndingMotionDefinitions.PlanetFastPatternLength % FastRunPeriod - FastNegativeRun;
-    /// <summary>Total positive steps used to derive the fast amplitude from the net displacement.</summary>
-    private const int FastPositiveSteps = FastCompleteRunCount * FastPositiveRun + FastFinalPositiveRun;
-    /// <summary>Total positive steps in the two slow runs.</summary>
-    private const int SlowPositiveSteps = SlowFirstPositiveRun + SlowSecondPositiveRun;
+    /// <summary>Half a pixel to the left.</summary>
+    private static readonly SignedSixteenSixteen HalfLeft = -HalfRight;
 
-    /// <summary>The displacement of one whole cycle, fast or slow: two pixels.</summary>
-    private static readonly SignedSixteenSixteen CycleDisplacement = SignedSixteenSixteen.FromParts(2, 0);
-    /// <summary>The per-step fast delta that yields the cycle displacement.</summary>
-    private static readonly SignedSixteenSixteen FastAmplitude =
-        CycleDisplacement.DividedBy(2 * FastPositiveSteps - EndingMotionDefinitions.PlanetFastPatternLength);
-    /// <summary>The per-step slow delta that yields the cycle displacement.</summary>
-    private static readonly SignedSixteenSixteen SlowAmplitude =
-        CycleDisplacement.DividedBy(2 * SlowPositiveSteps - EndingMotionDefinitions.PlanetSlowPatternLength);
+    /// <summary>One pixel to the right.</summary>
+    private static readonly SignedSixteenSixteen OneRight = SignedSixteenSixteen.FromWholePixels(1);
 
-    /// <summary>Fast step <paramref name="index"/>'s displacement: repeated positive/negative runs and a shorter final positive run.</summary>
-    public static SignedSixteenSixteen PlanetFastDelta(int index)
-    {
-        if ((uint)index >= EndingMotionDefinitions.PlanetFastPatternLength) throw new ArgumentOutOfRangeException(nameof(index));
-        int completeRuns = EndingMotionDefinitions.PlanetFastPatternLength / FastRunPeriod * FastRunPeriod;
-        int positiveRun = index < completeRuns
-            ? FastPositiveRun
-            : EndingMotionDefinitions.PlanetFastPatternLength - completeRuns - FastNegativeRun;
-        return index % FastRunPeriod < positiveRun ? FastAmplitude : -FastAmplitude;
-    }
+    /// <summary>One pixel to the left.</summary>
+    private static readonly SignedSixteenSixteen OneLeft = -OneRight;
 
-    /// <summary>Slow step <paramref name="index"/>'s displacement: two positive runs separated by negative steps.</summary>
-    public static SignedSixteenSixteen PlanetSlowDelta(int index)
-    {
-        if ((uint)index >= EndingMotionDefinitions.PlanetSlowPatternLength) throw new ArgumentOutOfRangeException(nameof(index));
-        int secondStart = SlowFirstPositiveRun + SlowFirstNegativeRun;
-        bool positive = index < SlowFirstPositiveRun || index >= secondStart && index < secondStart + SlowSecondPositiveRun;
-        return positive ? SlowAmplitude : -SlowAmplitude;
-    }
+    /// <summary>
+    /// The fast spin's shake, half a pixel at a time: four steps right and two left, twice, then two right and two left.
+    /// </summary>
+    public static IReadOnlyList<SignedSixteenSixteen> Fast { get; } =
+    [
+        HalfRight, HalfRight, HalfRight, HalfRight, HalfLeft, HalfLeft,
+        HalfRight, HalfRight, HalfRight, HalfRight, HalfLeft, HalfLeft,
+        HalfRight, HalfRight, HalfLeft, HalfLeft,
+    ];
+
+    /// <summary>The slow spin's shake, a pixel at a time: three steps right, two left, two right and one left.</summary>
+    public static IReadOnlyList<SignedSixteenSixteen> Slow { get; } =
+    [
+        OneRight, OneRight, OneRight, OneLeft, OneLeft, OneRight, OneRight, OneLeft,
+    ];
 }

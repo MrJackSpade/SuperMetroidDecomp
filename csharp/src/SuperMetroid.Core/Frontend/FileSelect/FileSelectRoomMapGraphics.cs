@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
-    /// <summary>The room map's menu screen: its artwork, pictures, palette and sprite entries.</summary>
+    /// <summary>The room map's menu screen: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     internal readonly FileSelectMapIcons icons;
@@ -30,7 +30,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
-    /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
+    /// <param name="mapPresentation">Required installed map tiles, colours, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
     /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background pictures.</param>
     public FileSelectRoomMapGraphics(SharedGameState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? sheets = null)

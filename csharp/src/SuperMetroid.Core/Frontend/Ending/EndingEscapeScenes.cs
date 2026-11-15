@@ -18,9 +18,9 @@ internal sealed class EndingEscapeScenes
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and colour assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -44,7 +44,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftLeading, EndingSpriteRole.SideCloudLeftLeading);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightTrailing, EndingSpriteRole.SideCloudRightTrailing);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftTrailing, EndingSpriteRole.SideCloudLeftTrailing);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
@@ -57,7 +57,7 @@ internal sealed class EndingEscapeScenes
         _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 
-    /// <summary>Installs the top-and-bottom-cloud escape and its grey-cloud palette effect before its fade-in.</summary>
+    /// <summary>Installs the top-and-bottom-cloud escape and its grey-cloud colour effect before its fade-in.</summary>
     internal void SetupTopAndBottomCloudEscape()
     {
         _stage.ResetColourEffects();
@@ -67,7 +67,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudEdge, EndingSpriteRole.TopCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudEdge, EndingSpriteRole.BottomCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudPattern, EndingSpriteRole.BottomCloudPattern);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
@@ -97,8 +97,8 @@ internal sealed class EndingEscapeScenes
         {
             EndingSprite wrapper = sprites[place];
             if (!wrapper.Sprite.IsActive) continue;
-            _stage.StepEndingSpriteFrameBehavior(wrapper);
-            wrapper.Sprite.Step(HandleSpriteCue);
+            _stage.StepEndingSpriteMotion(wrapper);
+            wrapper.Sprite.Step(cue => HandleSpriteCue(wrapper, cue));
             place = sprites.IndexOf(wrapper);
             if (place < 0)
                 throw new InvalidOperationException($"The ending's {wrapper.Role} actor was replaced by its own step.");
@@ -106,11 +106,16 @@ internal sealed class EndingEscapeScenes
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    /// <summary>Carries out the ending sprite animations' cues that spawn actors, trigger palette effects or advance the cinematic phase.</summary>
-    private void HandleSpriteCue(CinematicSpriteCueKind cue)
+    /// <summary>Carries out the ending sprite animations' cues that spawn actors, start the stars' wait, trigger colour effects or advance the cinematic phase.</summary>
+    private void HandleSpriteCue(EndingSprite wrapper, CinematicSpriteCueKind cue)
     {
         switch (cue)
         {
+            case CinematicSpriteCueKind.WaitForFlyaway:
+                // The right-hand stars wait for the flyaway to carry them away.
+                wrapper.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
+                return;
+
             case CinematicSpriteCueKind.FadeExplosionColours:
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
@@ -191,7 +196,11 @@ internal sealed class EndingEscapeScenes
                 _stage.Phase = EndingCreditsPhase.FadeOutToCredits;
                 return;
 
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.StartBodyFlight:
+            case CinematicSpriteCueKind.StartHeadFlight:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:

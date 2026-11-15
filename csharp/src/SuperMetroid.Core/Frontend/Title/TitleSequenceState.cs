@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </summary>
 /// <remarks>
 /// This runs the visible title state chain. Installed sessions
-/// supply extracted graphics, palette, and gradient presentation. No original
+/// supply extracted graphics, colours, and gradient presentation. No original
 /// image is mapped during the title sequence.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
@@ -82,7 +82,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// </summary>
     internal bool CopyrightRestored { get; private set; }
     /// <summary>The floor's pan position, whose whole pixels are read as signed.</summary>
-    private FixedPosition<FloorPixels> panPosition;
+    private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
     internal FloorZoom Zoom { get; private set; }
     /// <summary>Current screen brightness applied after composing title layers.</summary>
@@ -112,7 +112,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
     }
 
-    /// <summary>Builds the initial title artwork and palette state, optionally queuing opening music for a new session.</summary>
+    /// <summary>Builds the initial title artwork and colour state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
         AudioQueues? audio,
         TitleOpeningMusic openingMusic,
@@ -140,8 +140,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects = new ScreenSprites();
         RestartColourEffects();
 
-        // The Year object's frame behaviour forces full brightness on the first
-        // processing frame; its position and palette come from its definition.
+        // The Year object forces full brightness on the first
+        // processing frame; its position and colouring come from its definition.
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
@@ -223,7 +223,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
         colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        // The skip's rebuild follows the palette effects for this frame. Restart
+        // The skip's rebuild follows the colour effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuiltTitleObjects)
             RestartColourEffects();
@@ -243,20 +243,20 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.LowerPan:
-                panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.LowerPanEndX)
+                panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
+                if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.LowerPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.UpperPan:
-                panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.UpperPanEndX)
+                panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
+                if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.UpperPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.DownwardPan:
-                panPosition = panPosition.WithY(panPosition.Y.MovedBy(TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
+                panPosition = panPosition.WithY(panPosition.Y + TitleSequenceDefinitions.Scenes.PanVelocity);
+                if (panPosition.Y.WholePixels >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;
 
@@ -400,7 +400,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return new(new FramePaint(Backdrop, objects.Draws),
             floorBackgroundEnabled
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
-                    panPosition.Whole.AsSignedOffset())
+                    panPosition.Whole)
                 : null,
             Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
@@ -408,7 +408,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 : null);
     }
 
-    /// <summary>The colour the title shows behind its floor and objects: the installed title palette's backdrop (#1512).</summary>
+    /// <summary>The colour the title shows behind its floor and objects: the installed title colours' backdrop (#1512).</summary>
     private RgbColor Backdrop => titleBackdrop ?? throw new InvalidOperationException(
         "Title rendering requires the installed title backdrop.");
 
@@ -571,7 +571,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
         ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
         floorBackgroundEnabled = true;
-        panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
+        panPosition = new(panPosition.X.WithWholePixels(0), panPosition.Y.WithWholePixels(0));
         Zoom = FloorZoom.OwnSize;
     }
 
@@ -600,8 +600,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         Phase = definition.Phase;
         floorBackgroundEnabled = true;
         Zoom = definition.Zoom;
-        panPosition = new(panPosition.X.WithWhole(CoordinateAxis.Wrap(definition.Position.X)),
-            panPosition.Y.WithWhole(CoordinateAxis.Wrap(definition.Position.Y)));
+        panPosition = panPosition.WithWhole(definition.Position);
         ActiveSprite = null;
     }
 }

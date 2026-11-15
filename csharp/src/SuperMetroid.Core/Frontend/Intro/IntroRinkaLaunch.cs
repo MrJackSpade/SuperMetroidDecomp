@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal readonly record struct IntroRinkaLaunch(
     Position16<ScreenPixels> Position,
     SignedSixteenSixteen Drift,
-    CinematicSpriteFrameBehavior Flight);
+    IntroRinkaFlight Flight);

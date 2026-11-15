@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 public enum MapSpriteId
 {
     /// <summary>The right scroll arrow.</summary>
-    ArrowRight = 1,
+    ArrowRight,
 
     /// <summary>The left scroll arrow.</summary>
     ArrowLeft,

@@ -123,7 +123,7 @@ internal static class IntroSamusDemoMovement
             samus.CommitPoseHistory();
     }
 
-    /// <summary>Dispatches only the retail left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>
+    /// <summary>Runs only the retail left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>
     private static void ApplyPoseTransition(
         SamusState samus,
         SamusPoseId sourcePose,

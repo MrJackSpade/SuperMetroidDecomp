@@ -49,7 +49,12 @@ internal sealed class EndingRewardGesture
             case CinematicSpriteCueKind.SpawnSuitedJump:
                 JumpRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.WaitForFlyaway:
+            case CinematicSpriteCueKind.StartBodyFlight:
+            case CinematicSpriteCueKind.StartHeadFlight:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionColours:
@@ -87,7 +92,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
-    /// <summary>Creates an actor from compiled initialization and binds its discovery frame behaviour.</summary>
+    /// <summary>Creates an actor from its compiled start and animation.</summary>
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
@@ -97,7 +102,6 @@ internal sealed class EndingRewardGesture
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
             authored.Animation);
-        actor.InstallFrameBehavior(authored.FrameBehavior);
         actors.Add(actor);
     }
 }

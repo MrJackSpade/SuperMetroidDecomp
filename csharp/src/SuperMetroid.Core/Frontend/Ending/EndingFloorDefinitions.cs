@@ -9,7 +9,7 @@ public static class EndingFloorDefinitions
     /// <summary>The name of the whole floor's picture in each ending floor sheet.</summary>
     public const string FrameName = "floor";
 
-    /// <summary>The installed sheet of each shot's floor, coloured with the palette its scene loads.</summary>
+    /// <summary>The installed sheet of each shot's floor, coloured with the colours its scene loads.</summary>
     public static IReadOnlyDictionary<EndingFloorShot, SpriteSheetId> Sheets { get; } = new Dictionary<EndingFloorShot, SpriteSheetId>
     {
         [EndingFloorShot.SideCloudEscape] = SpriteSheetId.EndingSideCloudEscapeFloor,

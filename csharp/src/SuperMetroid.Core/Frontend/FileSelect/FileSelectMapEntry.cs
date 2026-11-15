@@ -20,7 +20,7 @@ public sealed class FileSelectMapEntry
     private int revealSteps;
 
     /// <summary>Gets the current entry-coroutine stage.</summary>
-    public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.PaletteFade;
+    public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.EntryFade;
 
     /// <summary>Gets whether the reveal has finished and ordinary area-map input may begin.</summary>
     public bool IsComplete => Phase == FileSelectMapEntryPhase.Complete;
@@ -42,10 +42,10 @@ public sealed class FileSelectMapEntry
     {
         switch (Phase)
         {
-            case FileSelectMapEntryPhase.PaletteFade:
+            case FileSelectMapEntryPhase.EntryFade:
                 // The gradual colour change reaches its target at step denominator plus one and reports completion on
                 // the call after it.
-                if (fadeStep > FileSelectMapDefinitions.EntryPaletteDenominator + 1) Phase = FileSelectMapEntryPhase.LoadForeground;
+                if (fadeStep > FileSelectMapDefinitions.EntryFadeSteps + 1) Phase = FileSelectMapEntryPhase.LoadForeground;
                 else fadeStep++;
                 break;
             case FileSelectMapEntryPhase.LoadForeground:

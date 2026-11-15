@@ -13,11 +13,11 @@ internal static class FileSelectMapEntryVerification
     internal static void VerifyFileSelectMapEntry()
     {
         var entry = new FileSelectMapEntry();
-        AssertEqual(FileSelectMapEntryPhase.PaletteFade, entry.Phase, "entry starts in its forced-black palette fade");
+        AssertEqual(FileSelectMapEntryPhase.EntryFade, entry.Phase, "entry starts in its forced-black palette fade");
         for (int tick = 1; tick <= 16; tick++)
         {
             entry.Step();
-            AssertEqual(FileSelectMapEntryPhase.PaletteFade, entry.Phase, $"gradual step {tick} keeps the entry fading");
+            AssertEqual(FileSelectMapEntryPhase.EntryFade, entry.Phase, $"gradual step {tick} keeps the entry fading");
         }
         entry.Step();
         AssertEqual(FileSelectMapEntryPhase.LoadForeground, entry.Phase, "seventeenth call completes gradual palette fade");

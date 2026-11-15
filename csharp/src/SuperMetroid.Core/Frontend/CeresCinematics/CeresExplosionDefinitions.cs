@@ -8,7 +8,7 @@ internal static class CeresExplosionDefinitions
     /// <summary>Invisible wait before the first wave.</summary>
     public const int InitialWaitFrames = 128;
 
-    /// <summary>Wait before installing the repeating wave's frame behaviour.</summary>
+    /// <summary>Wait before the repeating wave starts.</summary>
     public const int RepeatingStartWaitFrames = 80;
 
     /// <summary>Final spawner lifetime before the final wave.</summary>
@@ -20,7 +20,7 @@ internal static class CeresExplosionDefinitions
     /// <summary>First host frame on which the initial wait has expired.</summary>
     public const int InitialSpawnFrame = InitialWaitFrames + 1;
 
-    /// <summary>First host frame on which the newly installed repeating behaviour runs.</summary>
+    /// <summary>First host frame on which the repeating wave runs.</summary>
     public const int RepeatingFirstFrame = InitialWaitFrames + RepeatingStartWaitFrames + 2;
 
     /// <summary>Last host frame owned by the spawner and its final-wave cue.</summary>
@@ -32,22 +32,22 @@ internal static class CeresExplosionDefinitions
     /// <summary>First delayed small-explosion actor.</summary>
     /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition InitialActor =>
-        new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresSmallExplosion);
+        new(CinematicSpriteSegment.CeresSmallExplosion);
 
     /// <summary>Cyclic repeating small-explosion actor.</summary>
     /// <remarks>Its animation repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition RepeatingActor =>
-        new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresRepeatingSmallExplosion);
+        new(CinematicSpriteSegment.CeresRepeatingSmallExplosion);
 
     /// <summary>Final delayed large-explosion actor.</summary>
     /// <remarks>Its animation repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition FinalWaveActor =>
-        new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresLargeExplosion);
+        new(CinematicSpriteSegment.CeresLargeExplosion);
 
     /// <summary>Final station blast actor created as the station explodes.</summary>
     /// <remarks>Its animation displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition StationBlastActor =>
-        new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresStationBlast);
+        new(CinematicSpriteSegment.CeresStationBlast);
 
     /// <summary>
     /// The first wave's five small blasts, in the order they appear: one at each corner of a square around the turning

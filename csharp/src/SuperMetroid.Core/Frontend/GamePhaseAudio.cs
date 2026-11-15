@@ -9,7 +9,7 @@ internal enum GamePhaseAudio
     /// <summary>A door-transition state, whose update can wait while a new music set loads.</summary>
     DoorTransition,
 
-    /// <summary>A door-transition state that has also disabled sound effects for this dispatch.</summary>
+    /// <summary>A door-transition state that has also disabled sound effects for this update.</summary>
     DoorTransitionSoundsDisabled,
 
     /// <summary>A pause state: held input is published after the pause phase returns.</summary>

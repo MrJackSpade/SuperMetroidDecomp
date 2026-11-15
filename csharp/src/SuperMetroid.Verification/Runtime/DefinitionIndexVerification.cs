@@ -36,7 +36,7 @@ internal static class DefinitionIndexVerification
     internal static void VerifyDebuggerStateIndexesReachedCatalogs()
     {
         SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);

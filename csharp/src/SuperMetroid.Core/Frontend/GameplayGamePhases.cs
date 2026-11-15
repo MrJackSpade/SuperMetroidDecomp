@@ -145,7 +145,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
     internal void RunTimeUp(ControllerButton controllerInput)
     {
-        // The time-up state runs the whole main-gameplay update, then advances every palette
+        // The time-up state runs the whole main-gameplay update, then advances every colour
         // toward the white target with denominator eight.
         RunMainGameplayState(controllerInput);
         if ((session.Runtime ?? throw new InvalidOperationException("Time-up white-out requires a gameplay runtime.")).FadeOut.Step())
@@ -312,9 +312,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else
         {
-            // Samus's death disables palette effects and locks her input and drawing.
+            // Samus's death disables colour effects and locks her input and drawing.
             // Locking the player out is the shared representation;
-            // the following named death states own palette and animation side effects.
+            // the following named death states own colour and animation side effects.
             samus.Control.LockOutPlayer();
             session.GameState = SuperMetroidGameState.DeathSequenceStart;
         }

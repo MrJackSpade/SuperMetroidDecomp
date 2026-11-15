@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The definition's initializer fixes the actor at (56,111) in her own colouring,
+/// The actor starts at (56,111) in her own colouring,
 /// in front of the scene. Its animation cycles four authored frames at
-/// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
+/// sixteen frames apiece. The actor also retains the hit counter, eight-frame colour
 /// flash, and the 128-frame exploding state and the room picture's shake.
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
@@ -19,7 +19,7 @@ internal sealed class IntroMotherBrainSpriteState
     private readonly IntroDiscoverySprite actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
-    /// <summary>Remaining palette alternations after a missile hit.</summary>
+    /// <summary>Remaining colour alternations after a missile hit.</summary>
     private int hurtFlashTimer;
     /// <summary>
     /// Updates since the fourth hit began the explosion phase: zero at the hit, counted up once per update to the
@@ -28,9 +28,8 @@ internal sealed class IntroMotherBrainSpriteState
     private int explodingTimer;
     /// <summary>Whether explosion timing has entered the page-two animation.</summary>
     private bool pageTwoAnimationStarted;
-    /// <summary>Whether the page-two animation's frame behaviour has replaced hit flashing.</summary>
-    private bool CrossfadingToPageTwo =>
-        actor.ListFrameBehavior == CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading;
+    /// <summary>Whether the page-two animation has started the cross-fade, which replaces hit flashing.</summary>
+    private bool crossfadingToPageTwo;
 
     /// <summary>Fixed cinematic screen origin from Mother Brain's definition.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
@@ -68,16 +67,16 @@ internal sealed class IntroMotherBrainSpriteState
     public bool IsVisible { get; private set; } = true;
 
     /// <summary>
-    /// Runs the actor's frame behaviour that precedes its animation's timer decrement.
+    /// Runs the actor's behaviour, which precedes its animation's timer decrement.
     /// </summary>
-    public void RunFrameBehavior(
+    public void RunBehavior(
         int cinematicFrameCounter,
         int introCrossfadeTimer)
     {
-        if (CrossfadingToPageTwo)
+        if (crossfadingToPageTwo)
         {
             ApplyScreenShake(cinematicFrameCounter);
-            // The cross-fade behaviour observes the timer after the cinematic phase has decremented it.
+            // The cross-fade observes the timer after the cinematic phase has decremented it.
             // At zero it redirects this actor to delete and clears Samus's intro display.
             if (introCrossfadeTimer == 0)
                 IsVisible = false;
@@ -94,7 +93,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (explodingTimer >= 128)
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
-            // frame behaviour install during this same cinematic-object call.
+            // starts the cross-fade during this same cinematic-object call.
             actor.Start(CinematicSpriteSegment.IntroMotherBrainStartPage2);
             pageTwoAnimationStarted = true;
         }
@@ -145,9 +144,12 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Runs one cinematic sprite update for Mother Brain's definition.</summary>
     public void Step() => actor.Step(cue =>
     {
-        if (cue != CinematicSpriteCueKind.StartIntroPage2)
+        if (cue == CinematicSpriteCueKind.StartIntroPage2)
+            PageTwoRequested = true;
+        else if (cue == CinematicSpriteCueKind.StartMotherBrainCrossFade)
+            crossfadingToPageTwo = true;
+        else
             throw new InvalidOperationException($"The intro Mother Brain's animations publish no {cue} cue.");
-        PageTwoRequested = true;
     });
 
     /// <summary>Alternates the room picture's scroll by four pixels from the inherited flashback offset.</summary>

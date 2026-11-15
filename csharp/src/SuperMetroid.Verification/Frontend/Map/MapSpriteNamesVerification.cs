@@ -53,7 +53,7 @@ internal static class MapSpriteNamesVerification
         for (int id = 0; id <= ushort.MaxValue; id++)
             AssertEqual(supported.Contains((ushort)id), MapSpriteOrdinals.Spritemaps.TryDecode((ushort)id, out _), "complete map sprite ordinal domain: the import's table holds the native ordinals; the identities' values are arbitrary");
         AssertEqual(MapSpriteFormat.FrameCount, Enum.GetValues<MapSpriteId>().Length, "one map sprite identity per role");
-        foreach (ushort invalid in new ushort[] { 0, MapSpriteFormat.FrameCount + 1, ushort.MaxValue })
+        foreach (int invalid in new[] { -1, MapSpriteFormat.FrameCount, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteNames.Name((MapSpriteId)invalid), "unsupported map sprite name");
     }
 

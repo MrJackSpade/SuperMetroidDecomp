@@ -115,18 +115,6 @@ internal static class ClosedPresentationContractChecks
             string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
         Require(report.Consumers.Count == 26, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/26; unbound: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
-
-        InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();
-
-        var extraUse = CSharpSyntaxTree.ParseText("class Mutator { void Change() { " +
-            "SuperMetroid.Core.Hud.Artwork.GameplayHudDefinitions.IconNames[0] = \"Other\"; } }", path: "fixture-mutator.cs");
-        var mutatedCompilation = compilation.AddSyntaxTrees(extraUse);
-        var mutatedExports = new ResourceIndex();
-        var mutated = new ClosedPresentationAudit(mutatedCompilation, mutatedExports);
-        var mutationReport = new AuditReport();
-        ConsumerAudit.Inspect(hudCall, mutatedCompilation.GetSemanticModel(calls), mutatedExports, mutationReport, mutated);
-        Require(mutationReport.UnresolvedCount == 1 && mutationReport.Classifications.Count == 0,
-            "an unreviewed use of the mutable definition array must invalidate closure" + " (" + mutationReport.Describe() + ")");
     }
 
     /// <summary>Reports the exact closed-provider contract predicate that failed.</summary>

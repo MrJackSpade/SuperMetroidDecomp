@@ -62,7 +62,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
-    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
+    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
     /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
@@ -136,7 +136,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
         {
-            // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it under its palette, so the energy and
+            // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it in its colours, so the energy and
             // ammo HUD stays over the area it covers instead of the map showing there.
             screen.ShowHud(entry.GameplayHud);
         }
@@ -243,10 +243,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
-        // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
+        // Only the stable map update moves the scroll arrows. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
         pauseFrameCycle = frameCycle;
-        // Stable pause dispatch advances the highlight cycle afterwards. The
+        // The stable pause update advances the highlight cycle afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && mapHighlight.Step())
             audio?.QueueSound(RoomSound.PauseBeep, priority: SoundRequestPriority.Normal);
@@ -318,7 +318,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 if (TransitionBrightness > 0)
                     return;
 
-                // The fade-out returns at black before the separate load dispatch.
+                // The fade-out returns at black before the separate load update.
                 Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
                 return;
@@ -345,7 +345,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
-                // Load dispatches set delay/counter to one; the fade-in spends a
+                // Load updates set delay/counter to one; the fade-in spends a
                 // counter-only update between brightness writes.
                 if (transitionFadeCounter-- > 0) return;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
@@ -850,7 +850,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Reserve-transfer sound cadence, advanced only by the selected reserve transfer's step.</summary>
     internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
-    /// <summary>Runs the tank subdispatcher before its D-pad response.</summary>
+    /// <summary>Runs the reserve tank controls' input before their D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)
     {
         if (SelectedControl == PauseEquipmentControls.ReserveMode)

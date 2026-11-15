@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// <summary>
 /// Immutable game-over screen anchors the game binds (#1616); the Baby's colourings are shades the import pre-colours (#1512).
 /// The page is a picture the import composes once (#1467); the actors are drawn from the installed game-over sheet, whose
-/// compositions, page layout and palette selectors belong to the import pipeline that reads the installed presentation
-/// (#1463). Menu control, answer semantics, music and Baby sequence dispatch stay compiled in the application.
+/// compositions, page layout and colourings belong to the import pipeline that reads the installed presentation
+/// (#1463). Menu control, answer semantics, music and the Baby sequence stay compiled in the application.
 /// </summary>
 public sealed class GameOverPresentation
 {
@@ -42,7 +42,7 @@ public sealed class GameOverPresentation
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.BabyFrameName(frame)), BabyAnchor,
             shading: PictureShading.Shaded(GameOverBabyShades.Colours(colours)));
 
-    /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
+    /// <summary>Appends the egg composition at the shared Baby anchor in the installed egg colouring.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawEgg(ScreenSprites screenSprites, SpriteSheet sheet) =>

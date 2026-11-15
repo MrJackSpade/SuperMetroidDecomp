@@ -50,7 +50,7 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsPresentationDefinitions.RowCount);
                     credits.GetRow(-1);
                     MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
-                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)0, objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
+                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)(-1), objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);

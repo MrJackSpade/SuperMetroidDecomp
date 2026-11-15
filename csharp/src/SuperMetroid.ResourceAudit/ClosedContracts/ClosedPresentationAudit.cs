@@ -58,15 +58,6 @@ internal sealed class ClosedPresentationAudit
             }
             if (valid) valid = InterfacePresentationDomainAudit.HasReviewedImplementations(compilation, contract);
             if (!valid) staleReason ??= "an implementation of its interface is not reviewed";
-            // This existing definition uses a readonly array reference, not an
-            // immutable array. Its reviewed reads are wholly inside these files;
-            // a new external use could mutate its keys and must revoke the proof.
-            if (valid && contract.Type == typeof(GameplayHudPresentation).FullName)
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "IconNames")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
-                            field.ContainingType.ToDisplayString() == typeof(GameplayHudDefinitions).FullName));
             // Partial fixture factories for credits, room layouts, X-ray overlays and enemy tile artwork live in
             // test-support, which Core and Tooling cannot reference, so no production caller can reach them.
             if (valid && contract.Type == typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).FullName)

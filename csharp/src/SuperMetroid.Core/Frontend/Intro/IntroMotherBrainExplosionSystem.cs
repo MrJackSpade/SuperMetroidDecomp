@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The eight cinematic sprite objects spawned by Mother Brain's fourth intro missile hit.
 /// </summary>
 /// <remarks>
-/// The large and small explosion definitions: initializer tables place each object and delay its first frame, and each runs its own
+/// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame, and each runs its own
 /// typed animation (#641). Every object keeps its own timer and animation, which is what creates the staggered blast
 /// pattern.
 /// </remarks>
@@ -25,8 +25,8 @@ internal sealed class IntroMotherBrainExplosionSystem
             throw new InvalidOperationException("The intro Mother Brain explosions were already spawned.");
 
         // Although their definitions are listed together, the retail game explicitly
-        // spawns three small actors first and five big actors second. Each initializer uses
-        // its parameter as an index into independent position and start-delay tables.
+        // spawns three small actors first and five big actors second. Each explosion's place
+        // in its spawn order selects its own position and start delay.
         for (int parameter = 0; parameter < IntroMotherBrainDefinitions.SmallExplosionCount; parameter++)
             actors.Add(ExplosionActor.CreateSmall(parameter));
         for (int parameter = 0; parameter < IntroMotherBrainDefinitions.BigExplosionCount; parameter++)

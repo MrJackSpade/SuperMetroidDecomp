@@ -66,7 +66,7 @@ internal static class GrappleEndpointGeometryVerification
     private static void VerifyGrappleEndpointActor()
     {
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var samus = runtime.Player.IntroducedSamus;

@@ -44,7 +44,7 @@ internal static class GameplaySnapshotTestsVerification
             new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "base cannot erase prior operations");
 
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

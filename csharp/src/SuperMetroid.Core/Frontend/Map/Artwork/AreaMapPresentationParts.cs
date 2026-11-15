@@ -83,7 +83,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>
     public required RgbColor TitleBackdrop { get; init; }
 
-    /// <summary>Title-screen gradient presentation, separate from its static palette and pictures.</summary>
+    /// <summary>Title-screen gradient presentation, separate from its static colours and pictures.</summary>
     public required TitleGradientPresentation TitleGradient { get; init; }
 
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
@@ -92,7 +92,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>The Ceres haze's installed tints.</summary>
     public required CeresHazeTints CeresHaze { get; init; }
 
-    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus palette colors.</summary>
+    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus's suit colours.</summary>
     public required InstalledPowerBombGlowColors PowerBombGlowColors { get; init; }
 
 

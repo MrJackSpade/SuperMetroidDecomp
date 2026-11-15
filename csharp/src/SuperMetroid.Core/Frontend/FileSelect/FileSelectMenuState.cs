@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 /// <remarks>
 /// This class deliberately models the game's menu steps and brightness transitions instead
-/// of replacing the screen with desktop widgets. Its pictures, starfield, text, palette,
+/// of replacing the screen with desktop widgets. Its pictures, starfield, text, colours,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
 /// validity and displayed energy/time are read from the saves themselves
 /// rather than from separately authored metadata.
@@ -37,7 +37,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private readonly AudioQueues? audio;
     /// <summary>Reads and changes the three save slots.</summary>
     private readonly SaveSlotStore saves;
-    /// <summary>The menu screen file select draws: its artwork, pictures, palette and sprite entries.</summary>
+    /// <summary>The menu screen file select draws: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
@@ -307,7 +307,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
     /// <summary>Updates remaining before the copy arrow rotates its colors.</summary>
-    private int copyArrowPaletteTimer;
+    private int copyArrowGlowTimer;
     /// <summary>
     /// How many places the copy arrows' colours have rotated, below <see cref="FileCopyArrowDefinitions.RotationSteps"/>
     /// (#1512). The rotation runs on from where it stopped each time a copy is confirmed, as the game's colours keep it.
@@ -440,7 +440,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Dispatches Copy and Clear selection, confirmation, and completed-page input.</summary>
+    /// <summary>Runs Copy and Clear selection, confirmation, and completed-page input.</summary>
     private void StepDataManagement(ControllerButton pressed)
     {
         switch (Phase)
@@ -452,7 +452,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 StepCopyDestination(pressed);
                 break;
             case FileSelectPhase.CopyConfirm:
-                StepCopyArrowPalette();
+                StepCopyArrowGlow();
                 StepConfirmation(pressed, FileSelectDataMode.Copy);
                 break;
             case FileSelectPhase.ClearSelectSlot:
@@ -543,17 +543,17 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
         copyTargetSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
         confirmationSelection = YesNoChoice.Yes;
-        copyArrowPaletteTimer = FileCopyArrowDefinitions.InitialPaletteDelay;
+        copyArrowGlowTimer = FileCopyArrowDefinitions.InitialGlowDelay;
         ShowPage(FileSelectPage.CopyConfirm);
         Phase = FileSelectPhase.CopyConfirm;
     }
 
-    /// <summary>Rotates the copy arrows' colours one place when their animation timer expires.</summary>
-    private void StepCopyArrowPalette()
+    /// <summary>Moves the copy arrows' glow on one colour when its timer expires.</summary>
+    private void StepCopyArrowGlow()
     {
-        if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
+        if (copyArrowGlowTimer == 0 || --copyArrowGlowTimer != 0)
             return;
-        copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
+        copyArrowGlowTimer = FileCopyArrowDefinitions.GlowDelay;
         CopyArrowRotation = (CopyArrowRotation + 1) % FileCopyArrowDefinitions.RotationSteps;
     }
 

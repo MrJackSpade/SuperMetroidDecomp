@@ -2,20 +2,15 @@
 # is left. trigger.ps1 starts the installed copy, <cleanup directory>\bin\service.ps1, detached at Idle priority.
 #
 # Each run fetches, resets the clone hard to the remote tip (the clone never holds local work) and runs the tree's own
-# tools/cleanup/run.ps1, which fixes, builds, commits and pushes. Requests that arrive during a run are coalesced: the
-# next run takes whatever the tip is then. A push rejected because the branch moved discards the commit and runs again
-# on the new tip; after MaxRejections consecutive rejections the service stops and notifies. A failed run writes STATUS,
-# raises a notification and is not retried on the same tip.
+# tools/cleanup/run.ps1, which fixes, builds, commits and pushes; when a developer push moved the branch during the
+# run, run.ps1 merges its commit onto the new tip and pushes that, so a run's work always lands. Requests that arrive
+# during a run are coalesced: the next run takes whatever the tip is then. A failed run writes STATUS, raises a
+# notification and is not retried on the same tip.
 param()
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 . (Join-Path $PSScriptRoot 'common.ps1')
 $paths = Get-CleanupPaths (Split-Path $PSScriptRoot -Parent)
-
-# Consecutive rejected pushes before the service stops. Each rejection is a developer push that landed during a run,
-# so this many in a row means something keeps the push from landing, not ordinary activity; it bounds a runaway loop
-# by count, not by time.
-$MaxRejections = 10
 
 function Invoke-Git([string[]]$Arguments) {
     # Runs git in the clone and returns its output, failing with the output on a nonzero exit.
@@ -47,18 +42,21 @@ function Save-ServiceState($State) {
     Write-AtomicText $paths.State ($State | ConvertTo-Json)
 }
 
-function Assert-InstalledScriptsCurrent([string]$Tip) {
-    # The installed service and trigger must be the ones the tree describes; otherwise a change to them would not run.
+function Update-InstalledScripts([string]$Tip) {
+    # The installed service and trigger follow the tree: a change to them committed to the branch installs itself here,
+    # instead of stopping the cleanup until someone reinstalls (owner, 2026-11-15). This process has already loaded its
+    # scripts, so the copies take effect from the next service start; run.ps1 always runs from the tree.
     $stale = @($InstalledScripts | Where-Object {
         (Get-ScriptHash (Join-Path $paths.Bin $_)) -ne (Get-ScriptHash (Join-Path $paths.Repository "tools/cleanup/$_"))
     })
-    if ($stale.Count -gt 0) {
-        throw "The installed $($stale -join ', ') differ from tools/cleanup at $Tip; run pwsh -File tools/cleanup/install.ps1 to update the installation."
+    foreach ($file in $stale) {
+        Copy-Item -LiteralPath (Join-Path $paths.Repository "tools/cleanup/$file") -Destination (Join-Path $paths.Bin $file) -Force
     }
+    if ($stale.Count -gt 0) { Write-LogLine $paths.ServiceLog "installed $($stale -join ', ') from tools/cleanup at $Tip" }
 }
 
 function Invoke-CleanupRun($Config, $State) {
-    # One run on the current remote tip. Returns already-clean, already-failed, nothing, pushed, rejected or failed.
+    # One run on the current remote tip. Returns already-clean, already-failed, nothing, pushed or failed.
     Invoke-Fetch $Config
     $tip = Invoke-Git @('rev-parse', "$($Config.remote)/$($Config.branch)")
     if ($tip -eq $State.lastCleanTip) {
@@ -80,7 +78,7 @@ function Invoke-CleanupRun($Config, $State) {
     Write-LogLine $paths.ServiceLog "run on $tip; log $log"
     $null = Invoke-Git @('reset', '--quiet', '--hard', $tip)
     $null = Invoke-Git @('clean', '--quiet', '-fd')
-    Assert-InstalledScriptsCurrent $tip
+    Update-InstalledScripts $tip
     $run = Join-Path $paths.Repository 'tools/cleanup/run.ps1'
     if (-not (Test-Path -LiteralPath $run)) { throw "$tip has no tools/cleanup/run.ps1." }
     $pwsh = (Get-Process -Id $PID).Path
@@ -121,43 +119,19 @@ function Invoke-CleanupRun($Config, $State) {
             }
             return 'pushed'
         }
-        'rejected' {
-            # Only a developer push that landed during the run may restart it; any other rejection is a failure.
-            Invoke-Fetch $Config
-            $moved = Invoke-Git @('rev-parse', "$($Config.remote)/$($Config.branch)")
-            if ($moved -eq $tip) { throw "The push of $($outcome.commit) was rejected, but $($Config.branch) is still at ${tip}: $($outcome.message)" }
-            Write-LogLine $paths.ServiceLog "push rejected: $($Config.branch) moved from $tip to $moved during the run; discarding $($outcome.commit)"
-            return 'rejected'
-        }
         default { throw "run.ps1 reported an unknown result '$($outcome.result)'." }
     }
 }
 
 function Invoke-Requests($Config) {
-    # Runs while requests are pending, restarting after a rejected push. Returns when none is left or after stopping.
+    # Runs while requests are pending. Returns when none is left.
     $state = Read-ServiceState
-    $rejections = 0
-    $restart = $false
     while ($true) {
         $length = Get-RequestLength $paths
-        if ($length -le $state.processedRequests -and -not $restart) { return }
+        if ($length -le $state.processedRequests) { return }
         $state.processedRequests = $length
         Save-ServiceState $state
-        $restart = $false
-        $outcome = Invoke-CleanupRun $Config $state
-        if ($outcome -ne 'rejected') {
-            $rejections = 0
-            continue
-        }
-        $rejections++
-        if ($rejections -ge $MaxRejections) {
-            $message = "Stopped after $rejections consecutive rejected pushes; the next trigger starts again."
-            Write-LogLine $paths.ServiceLog $message
-            Write-CleanupStatus $paths 'stopped' 'rejections' $message '' '' ''
-            Send-CleanupNotification $paths 'SuperMetroidDecomp cleanup stopped' $message
-            return
-        }
-        $restart = $true
+        $null = Invoke-CleanupRun $Config $state
     }
 }
 

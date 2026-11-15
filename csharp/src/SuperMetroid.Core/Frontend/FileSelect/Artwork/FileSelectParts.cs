@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Saves;
 using static SuperMetroid.Core.Frontend.FileSelect.Artwork.FileSelectPresentationDefinitions;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
@@ -30,9 +31,9 @@ public static class FileSelectParts
     public static string DigitFrame(int digit) =>
         $"FileSelect.Digit.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.DigitCount - 1, digit)}";
 
-    /// <summary>The menus' picture of save slot <paramref name="slot"/>'s letter (#1467).</summary>
-    public static string LetterFrame(int slot) =>
-        $"FileSelect.Letter.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.SlotLetterCount - 1, slot)}";
+    /// <summary>The menus' picture of save slot <paramref name="slot"/>'s letter (#1467, #1976).</summary>
+    public static string LetterFrame(SaveSlot slot) =>
+        $"FileSelect.Letter.{Ensure.Listed(FileSelectPresentationDefinitions.SlotLetterNames, slot)}";
 
     /// <summary>The menus' picture of a slot field's <paramref name="patch"/>, placed at the patch's anchor (#1467).</summary>
     public static string PatchFrame(FileSelectPatch patch) => $"FileSelect.Patch.{PatchName(patch)}";

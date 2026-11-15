@@ -31,8 +31,6 @@ public static class GameplayMessageBoxDefinitions
         public const int SecondBoxOpeningPauseUpdates = 5;
         /// <summary>Clearing the closed box takes one update.</summary>
         public const int ClearingUpdates = 1;
-        /// <summary>Updates gameplay stays paused after the box closes: clearing 1, restoring the screen 2, music and sound 2.</summary>
-        public const int ClosingPauseUpdates = 5;
         /// <summary>Maximum half-height reached by the expanding message window.</summary>
         public const int MaximumRadiusPixels = 24;
         /// <summary>Per-step change in message-window radius.</summary>

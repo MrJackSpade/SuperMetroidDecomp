@@ -86,12 +86,11 @@ public sealed class GameOptionsSourcePresentation
     private int[] LanguageCells() => [.. languageRegions.SelectMany(region => region.Cells)];
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
-    internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, int button)
+    internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, ControllerButton button)
     {
         if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
-        ControllerButton label = GameOptionsNames.ControllerLabelButton(button);
-        BackgroundTile[] cells = controllerLabels[label];
+        BackgroundTile[] cells = Ensure.Listed(controllerLabels, button);
         foreach (GameOptionsLabelCell cell in ControllerLabelCells(action))
             page[cell.PageCell] = cells[cell.GlyphCell];
     }
@@ -145,11 +144,11 @@ public sealed class GameOptionsSourcePresentation
         for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
         {
             int[] cells = [.. ControllerLabelCells(action).Select(cell => cell.PageCell)];
-            for (int button = 0; button < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; button++)
+            foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
             {
                 BackgroundTile[] controller = CreatePage(GameOptionsScreen.ControllerEnglish);
                 ApplyControllerLabel(controller, action, button);
-                yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(action, GameOptionsNames.ControllerLabelButton(button)),
+                yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(GameOptionsLayout.ControllerActionRows[action], button),
                     controller, width, cells);
             }
         }
@@ -176,8 +175,8 @@ public sealed class GameOptionsSourcePresentation
         foreach (bool japanese in new[] { false, true })
             yield return GameOptionsNames.LanguageFrame(japanese);
         for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
-            for (int button = 0; button < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; button++)
-                yield return GameOptionsNames.ControllerLabelFrame(action, GameOptionsNames.ControllerLabelButton(button));
+            foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
+                yield return GameOptionsNames.ControllerLabelFrame(GameOptionsLayout.ControllerActionRows[action], button);
         foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
         foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
         foreach (bool enabled in new[] { false, true })

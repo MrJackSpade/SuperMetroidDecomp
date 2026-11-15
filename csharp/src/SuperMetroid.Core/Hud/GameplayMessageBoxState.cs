@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -38,8 +39,40 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     private bool _savingSoundRequested;
     /// <summary>Remaining frames before the gunship's SAVE COMPLETED notice reopens the box.</summary>
     private int _savingFramesRemaining;
-    /// <summary>Updates left in the pause before the window opens or after it closes.</summary>
+    /// <summary>Updates left in the pause before the window opens.</summary>
     private int _pauseUpdatesRemaining;
+    /// <summary>Whether the next preparing update is the first of the screen's preparation, which processes no audio.</summary>
+    private bool _screenPreparationStarting;
+    /// <summary>The update of the pause after the window closes that the next restoring update runs.</summary>
+    private RestoringStep _restoringStep;
+
+    /// <summary>The updates gameplay stays paused for after the window closes, in order (#1985).</summary>
+    private enum RestoringStep
+    {
+        /// <summary>The update after the window has closed, before the box is cleared: music and sound.</summary>
+        WindowClosed,
+        /// <summary>Clearing the closed box: music and sound.</summary>
+        ClearingBox,
+        /// <summary>The first update restoring the screen, which processes no audio.</summary>
+        RestoringScreen,
+        /// <summary>The second update restoring the screen, which also advances the liquid wave and the statues' descent.</summary>
+        ScreenRestored,
+        /// <summary>An update of music and sound.</summary>
+        MusicAndSound,
+        /// <summary>The last update of music and sound, on which the box returns to gameplay, whose own sound processing follows.</summary>
+        ReturningToGameplay,
+    }
+
+    /// <summary>The restoring updates in the order they run; the box returns to gameplay on the last.</summary>
+    private static readonly ImmutableArray<RestoringStep> RestoringOrder =
+    [
+        RestoringStep.WindowClosed,
+        RestoringStep.ClearingBox,
+        RestoringStep.RestoringScreen,
+        RestoringStep.ScreenRestored,
+        RestoringStep.MusicAndSound,
+        RestoringStep.ReturningToGameplay,
+    ];
 
     /// <summary>The audio processing and liquid wave and statue advance of the update <see cref="Step"/> just ran.</summary>
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
@@ -143,14 +176,25 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
         _controller.Latch(controllerRead);
-        // The pause's first update is the gameplay update that opened the box.
-        BeginPreparing(GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates - 1);
+        BeginPreparingScreen();
     }
 
-    /// <summary>Enters the pause before the window opens, with <paramref name="pauseUpdates"/> updates of it left.</summary>
-    private void BeginPreparing(int pauseUpdates)
+    /// <summary>
+    /// Enters the pause before the window opens, which starts by preparing the screen. The pause's first update is the
+    /// gameplay update that opened the box.
+    /// </summary>
+    private void BeginPreparingScreen()
     {
-        _pauseUpdatesRemaining = pauseUpdates;
+        _pauseUpdatesRemaining = GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates - 1;
+        _screenPreparationStarting = true;
+        Phase = GameplayMessageBoxPhase.Preparing;
+    }
+
+    /// <summary>Enters the shorter pause before the gunship's second box opens, which needs no screen preparation or clearing.</summary>
+    private void BeginPreparingSecondBox()
+    {
+        _pauseUpdatesRemaining = GameplayMessageBoxDefinitions.Timing.SecondBoxOpeningPauseUpdates;
+        _screenPreparationStarting = false;
         Phase = GameplayMessageBoxPhase.Preparing;
     }
 
@@ -180,26 +224,22 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
             case GameplayMessageBoxPhase.Preparing:
                 // The first update of the screen preparation processes no audio.
-                if (_pauseUpdatesRemaining == GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates - 1)
+                if (_screenPreparationStarting)
+                {
                     LastFrameAudio = default;
+                    _screenPreparationStarting = false;
+                }
                 if (--_pauseUpdatesRemaining == 0)
                     Phase = GameplayMessageBoxPhase.Opening;
                 return;
 
             case GameplayMessageBoxPhase.Restoring:
-                LastFrameAudio = _pauseUpdatesRemaining switch
-                {
-                    // Restoring the screen takes two updates: the first processes no
-                    // audio, the second advances the liquid wave and statues and processes music
-                    // and sound.
-                    3 => default,
-                    2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesLiquidWaveAndStatueDescent = true },
-                    // The box returns to gameplay, whose own sound processing follows.
-                    0 => MessageBoxFrameAudio.MusicAndSounds with { SoundQueuePasses = 2 },
-                    _ => MessageBoxFrameAudio.MusicAndSounds,
-                };
-                if (_pauseUpdatesRemaining-- == 0)
+                LastFrameAudio = RestoringAudio(_restoringStep);
+                int next = RestoringOrder.IndexOf(_restoringStep) + 1;
+                if (next == RestoringOrder.Length)
                     Finish();
+                else
+                    _restoringStep = RestoringOrder[next];
                 return;
 
             case GameplayMessageBoxPhase.Opening:
@@ -296,7 +336,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     Begin(GameplayMessageId.SaveCompleted, _controller.Current);
                     // The second box needs no screen preparation or clearing, which
                     // preceded the saving sound.
-                    BeginPreparing(GameplayMessageBoxDefinitions.Timing.SecondBoxOpeningPauseUpdates);
+                    BeginPreparingSecondBox();
                     _gunshipCompletion = true;
                 }
                 return;
@@ -336,9 +376,19 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
             return;
         }
         // Clear the box, restore the screen, then two updates of music and sound.
-        _pauseUpdatesRemaining = GameplayMessageBoxDefinitions.Timing.ClosingPauseUpdates;
+        _restoringStep = RestoringOrder[0];
         Phase = GameplayMessageBoxPhase.Restoring;
     }
+
+    /// <summary>The music and sound processing of the restoring update <paramref name="step"/>.</summary>
+    private static MessageBoxFrameAudio RestoringAudio(RestoringStep step) => step switch
+    {
+        RestoringStep.WindowClosed or RestoringStep.ClearingBox or RestoringStep.MusicAndSound => MessageBoxFrameAudio.MusicAndSounds,
+        RestoringStep.RestoringScreen => default,
+        RestoringStep.ScreenRestored => MessageBoxFrameAudio.MusicAndSounds with { AdvancesLiquidWaveAndStatueDescent = true },
+        RestoringStep.ReturningToGameplay => MessageBoxFrameAudio.MusicAndSounds with { SoundQueuePasses = 2 },
+        _ => throw new InvalidDataException($"Unknown message-box restoring update {step}."),
+    };
 
     /// <summary>The box returns to the paused gameplay update.</summary>
     private void Finish()

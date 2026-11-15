@@ -6,6 +6,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Map.Artwork;
@@ -55,19 +56,26 @@ public sealed class FileSelectSourcePresentation
     /// <summary>The slot fields, anchors and durations of a validated document, which the game places its actors by.</summary>
     private static FileSelectPlacements Placements(FileSelectLayoutDocument document) => new()
     {
-        MainSlots = document.MainSlots,
-        DataSlots = document.DataSlots,
+        MainSlots = BySlot(document.MainSlots, "main slot fields"),
+        DataSlots = BySlot(document.DataSlots, "data slot fields"),
         BorderAnchors = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => document.BorderAnchors[FileSelectPresentationFormat.BorderName(border)]),
         MainCursorAnchors = document.MainCursorAnchors,
         DataCursorAnchors = document.DataCursorAnchors,
         ConfirmationCursorAnchors = document.ConfirmationCursorAnchors,
-        HelmetAnchors = document.HelmetAnchors,
+        HelmetAnchors = BySlot(document.HelmetAnchors, "helmet anchors"),
         DynamicAnchors = FileSelectPresentationFormat.Anchors.ToDictionary(anchor => anchor,
             anchor => document.DynamicAnchors[FileSelectPresentationFormat.AnchorName(anchor)]),
         CursorFrameDuration = document.CursorFrameDuration,
         HelmetFrameDuration = document.HelmetFrameDuration,
     };
+
+    /// <summary>Each save slot's entry of a document list that holds one per slot, top to bottom.</summary>
+    /// <exception cref="InvalidDataException">The list does not hold one entry per save slot.</exception>
+    private static Dictionary<SaveSlot, T> BySlot<T>(T[] inSlotOrder, string what) =>
+        inSlotOrder.Length == SaveSlots.All.Count
+            ? Enumerable.Range(0, inSlotOrder.Length).ToDictionary(index => SaveSlots.All[index], index => inSlotOrder[index])
+            : throw new InvalidDataException($"File select lists {inSlotOrder.Length} {what}, not one per save slot.");
 
     /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
     internal readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
@@ -78,7 +86,7 @@ public sealed class FileSelectSourcePresentation
     /// <summary>The installed digit glyphs, zero to nine.</summary>
     private readonly BackgroundTile[] digits;
     /// <summary>The installed slot-letter glyphs, one per save slot.</summary>
-    private readonly BackgroundTile[] slotLetters;
+    private readonly IReadOnlyDictionary<SaveSlot, BackgroundTile> slotLetters;
 
     /// <summary>The installed tile of decimal digit <paramref name="digit"/>.</summary>
     internal BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
@@ -86,9 +94,7 @@ public sealed class FileSelectSourcePresentation
         : throw new ArgumentOutOfRangeException(nameof(digit));
 
     /// <summary>The installed tile of save slot <paramref name="slot"/>'s letter.</summary>
-    internal BackgroundTile SlotLetter(int slot) => (uint)slot < FileSelectPresentationDefinitions.SlotLetterCount
-        ? slotLetters[slot]
-        : throw new ArgumentOutOfRangeException(nameof(slot));
+    internal BackgroundTile SlotLetter(SaveSlot slot) => Ensure.Listed(slotLetters, slot);
 
     /// <summary>The energy tank's tile, filled or empty, in the colour variant of health tens digit <paramref name="tensDigit"/>.</summary>
     private BackgroundTile Tank(bool filled, int tensDigit) => new(filled ? FileSelectFieldTileDefinitions.FilledTankTile
@@ -132,7 +138,7 @@ public sealed class FileSelectSourcePresentation
             foreach (bool filled in new[] { false, true })
                 yield return ScreenPictureSubject.Block(FileSelectParts.TankFrame(filled, digit), default, cell, new[] { Tank(filled, digit) });
         }
-        for (int slot = 0; slot < FileSelectPresentationDefinitions.SlotLetterCount; slot++)
+        foreach (SaveSlot slot in SaveSlots.All)
             yield return ScreenPictureSubject.Block(FileSelectParts.LetterFrame(slot), default, cell, new[] { SlotLetter(slot) });
     }
 
@@ -153,7 +159,7 @@ public sealed class FileSelectSourcePresentation
             foreach (bool filled in new[] { false, true })
                 yield return FileSelectParts.TankFrame(filled, digit);
         }
-        for (int slot = 0; slot < FileSelectPresentationDefinitions.SlotLetterCount; slot++)
+        foreach (SaveSlot slot in SaveSlots.All)
             yield return FileSelectParts.LetterFrame(slot);
     }
 
@@ -247,7 +253,7 @@ public sealed class FileSelectSourcePresentation
 
         ValidatePatchPlacements(layout, patches);
         return new(new FileSelectPresentation(Placements(layout)), document.ObjectPalette, new(pages, background, patches),
-            new(digits, letters), new(borderSprites, cursorSprites, helmetSprites),
+            new(digits, BySlot(letters, "slot letters")), new(borderSprites, cursorSprites, helmetSprites),
             Convert.ToHexString(SHA256.HashData(layoutBytes.Concat(artworkBytes).ToArray())));
     }
 
@@ -444,7 +450,7 @@ public sealed class FileSelectSourcePresentation
     /// <summary>The compiled digit and slot-letter glyphs.</summary>
     /// <param name="Digits">The ten digit glyphs.</param>
     /// <param name="SlotLetters">The three slot-letter glyphs.</param>
-    private sealed record FileSelectGlyphs(BackgroundTile[] Digits, BackgroundTile[] SlotLetters);
+    private sealed record FileSelectGlyphs(BackgroundTile[] Digits, IReadOnlyDictionary<SaveSlot, BackgroundTile> SlotLetters);
 
     /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
     /// <param name="Borders">Each bordered heading's composition.</param>

@@ -131,8 +131,8 @@ internal static class MapLoadAnchorsVerification
                     {
                         system.SetAreaMapAcquired(typedArea);
                     }
-                    var native = new FileSelectMapScroll(nativeMap, system, expected);
-                    var compiled = new FileSelectMapScroll(catalog.Get(typedArea), system, actual);
+                    var native = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(nativeMap, system), expected);
+                    var compiled = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(catalog.Get(typedArea), system), actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (ControllerButton input in MapScrollControls.Buttons)
                         for (int tick = 0; tick < 40; tick++)
@@ -192,9 +192,9 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
         byte[] ReadSram() => SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
-        static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.Scroll;
-        static ScrollStateResult ScrollState(FileSelectMapScroll value) =>
-            new ScrollStateResult(value.Scroll, value.Minimum, value.Maximum, value.Direction);
+        static MapScroll Scroll(FileSelectMapMenuState menu) => menu.Scroll;
+        static ScrollStateResult ScrollState(MapScroll value) =>
+            new ScrollStateResult(value.Scroll, value.Limits, value.Direction);
     }
 
     /// <summary>Derives a saved station's map pixel anchor directly from its native load record and room header.</summary>

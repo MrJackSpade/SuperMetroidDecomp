@@ -102,7 +102,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorDefinitions.AnimatedFrameCount),
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorFormat.ColorsPerFrame),
         ("CreditsPresentation", "GetRow", "index") => new(0, CreditsPresentationDefinitions.RowCount),
-        ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
+        ("MapArrowPresentation", "Get", "direction") => new(1, MapScrollControls.Directions.Length),
         ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.All.Count),
         ("PauseWireframePresentation", "ApplyTo", "kind") => new(0, PauseWireframeDefinitions.Count),
         ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),

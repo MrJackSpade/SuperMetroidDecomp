@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
@@ -24,15 +25,8 @@ public sealed class FileSelectPresentation
     public int HelmetFrameDuration => placements.HelmetFrameDuration;
 
     /// <summary>Selects the main or data-management field anchors for one save slot.</summary>
-    internal FileSelectSlotFieldDocument Slot(bool dataManagement, int slot)
-    {
-        FileSelectSlotFieldDocument[] layouts = dataManagement
-            ? placements.DataSlots
-            : placements.MainSlots;
-        return (uint)slot < layouts.Length
-            ? layouts[slot]
-            : throw new ArgumentOutOfRangeException(nameof(slot));
-    }
+    internal FileSelectSlotFieldDocument Slot(bool dataManagement, SaveSlot slot) =>
+        Ensure.Listed(dataManagement ? placements.DataSlots : placements.MainSlots, slot);
 
     /// <summary>The page pixel a copy or clear prompt's slot letter is shown at.</summary>
     internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
@@ -56,9 +50,9 @@ public sealed class FileSelectPresentation
         screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor, shading: PictureShading.Standard);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
-    internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
+    internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, SaveSlot slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
-            Point(placements.HelmetAnchors, slot, "helmet"), shading: PictureShading.Standard);
+            Ensure.Listed(placements.HelmetAnchors, slot), shading: PictureShading.Standard);
 
     /// <summary>Reads an indexed screen anchor, rejecting selections outside its layout.</summary>
     private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>

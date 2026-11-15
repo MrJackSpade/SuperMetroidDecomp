@@ -2,9 +2,8 @@ using SuperMetroid.Core.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>The first, second, third and fourth of one scroll state result.</summary>
-/// <param name="First">The first.</param>
-/// <param name="Second">The second.</param>
-/// <param name="Third">The third.</param>
-/// <param name="Fourth">The fourth.</param>
-internal readonly record struct ScrollStateResult(Position16<MapPixels> First, Position16<MapPixels> Second, Position16<MapPixels> Third, MapScrollDirection Fourth);
+/// <summary>A map scroll's state, compared between two scrolls framed from the same map.</summary>
+/// <param name="Scroll">The scroll position.</param>
+/// <param name="Limits">How far the revealed map reaches.</param>
+/// <param name="Direction">The step under way.</param>
+internal readonly record struct ScrollStateResult(Position16<MapPixels> Scroll, MapScrollLimits Limits, MapScrollDirection Direction);

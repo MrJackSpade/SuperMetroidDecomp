@@ -41,9 +41,9 @@ public static class GameOptionsPresentationExtractor
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
-        for (int index = 0; index < GameOptionsDefinitions.Rows.ControllerActionCount; index++)
+        for (int index = 0; index < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; index++)
         {
-            labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(index)), Cells(
+            labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[index]), Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));

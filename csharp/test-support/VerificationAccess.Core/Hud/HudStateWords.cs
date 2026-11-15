@@ -42,23 +42,22 @@ internal static class HudStateWords
         {
             Ensure.LengthEqual<ushort>(native, HudStateConstants.MutableTileCount);
             ushort[] port = hud.TileWords(artwork);
-            var minimapCells = new Dictionary<int, int>();
+            var minimapCells = new Dictionary<int, Offset16<MapTiles>>();
             // Before the minimap's first update its cells show the template, compared word for word like every other cell.
-            if (hud.Presentation is { } presentation && !hud.Minimap.IsEmpty)
+            MinimapGrid? minimap = hud.Minimap;
+            if (hud.Presentation is { } presentation && minimap is not null)
             {
-                int columns = GameplayHudPresentation.MinimapSize.X;
-                for (int index = 0; index < hud.Minimap.Length; index++)
-                    minimapCells.Add(presentation.MinimapCellIndex(
-                        new Position16<MapTiles>(checked((ushort)(index % columns)), checked((ushort)(index / columns)))), index);
+                foreach (Offset16<MapTiles> place in MinimapGrid.Places)
+                    minimapCells.Add(presentation.MinimapCellIndex(MinimapGrid.Square(place)), place);
             }
             var differences = new List<string>();
             for (int tile = 0; tile < native.Length; tile++)
             {
-                if (minimapCells.TryGetValue(tile, out int cell))
+                if (minimap is not null && minimapCells.TryGetValue(tile, out Offset16<MapTiles> place))
                 {
                     MinimapCell expected = HudNativeState.Decode(new MapTileWord(native[tile]));
-                    if (expected != hud.Minimap[cell])
-                        differences.Add($"HUD minimap cell {cell}: native={native[tile]:X4} ({expected}) port={hud.Minimap[cell]}");
+                    if (expected != minimap[place])
+                        differences.Add($"HUD minimap cell {place}: native={native[tile]:X4} ({expected}) port={minimap[place]}");
                 }
                 else if (port[tile] != native[tile])
                     differences.Add($"HUD tile {tile}: native={native[tile]:X4} port={port[tile]:X4}");

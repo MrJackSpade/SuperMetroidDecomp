@@ -134,6 +134,12 @@ internal static class LookupRoomFxFieldsVerification
     /// <summary>The record's liquid options byte, which the import reads into the liquid the effect fills its room with.</summary>
     private const int LiquidOptionsOffset = 12;
 
+    /// <summary>The record's block-animation byte, which the import reads into the block animations the effect starts.</summary>
+    private const int BlockAnimationsOffset = 14;
+
+    /// <summary>The record's bytes it holds no view of, holding what the import read from them instead.</summary>
+    private static readonly int[] ReadOffsets = [.. BlendOffsets, LiquidOptionsOffset, BlockAnimationsOffset];
+
     /// <summary>
     /// Checks that each record holds the liquid the import reads from its options byte at offset twelve (#1695), and that
     /// every decision the liquid's readers make is the one the byte's bits make; the record holds no byte there, as the
@@ -153,12 +159,46 @@ internal static class LookupRoomFxFieldsVerification
             AssertThrows<NotSupportedException>(() => actual.ReadByte(LiquidOptionsOffset), $"FX {pointer:X4} holds no options byte");
         }
     }
-    /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
-    private static void VerifyRoomFxPaletteFxBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
-        record => RoomFxRecordEncoding.PaletteEffectsByte(record.ColourEffects, record.HeaderArea));
-    /// <summary>Checks the animated tiles, encoded through the header's area's list, against the bits at offset fourteen.</summary>
-    private static void VerifyRoomFxBlockAnimationBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 14, 1,
-        record => RoomFxRecordEncoding.AnimatedTilesByte(record.BlockAnimations, record.HeaderArea));
+    /// <summary>
+    /// Checks that each record holds the colour effects the import reads, through its header's area's list, from the bits
+    /// at offset thirteen. The decode reads only the bits the byte sets, so the Tourian glow copy's bit, which no record
+    /// sets and whose selection the import rejects, is never consulted. A terminator is no record (#1546).
+    /// </summary>
+    private static void VerifyRoomFxPaletteFxBitset(CartridgeImportAddressSpace rom)
+    {
+        foreach (ushort pointer in OriginalFxRecordPointers)
+        {
+            int address = 0x830000 | pointer;
+            if (ReadVerificationWord(rom, address) == ushort.MaxValue)
+                continue;
+            RoomEffectDefinition actual = RoomFxDefinitions.RecordAt(pointer);
+            byte effects = RoomFxFieldRomByte(rom, address + PaletteEffectsOffset);
+            AssertTrue(RoomFxRecordCodec.PaletteEffects(actual.HeaderArea, effects).SequenceEqual(actual.ColourEffects),
+                $"FX {pointer:X4} colour effects");
+        }
+    }
+
+    /// <summary>The record's palette-effect byte, which the import reads into the colour effects the effect starts.</summary>
+    private const int PaletteEffectsOffset = 13;
+    /// <summary>
+    /// Checks that each record holds the block animations the import reads, through its header's area's list, from the bits
+    /// at offset fourteen; the record holds no byte there, as the import drops the bits of still objects, which start no
+    /// animation (#2054). A terminator is no record (#1546).
+    /// </summary>
+    private static void VerifyRoomFxBlockAnimationBitset(CartridgeImportAddressSpace rom)
+    {
+        foreach (ushort pointer in OriginalFxRecordPointers)
+        {
+            int address = 0x830000 | pointer;
+            if (ReadVerificationWord(rom, address) == ushort.MaxValue)
+                continue;
+            RoomEffectDefinition actual = RoomFxDefinitions.RecordAt(pointer);
+            byte animations = RoomFxFieldRomByte(rom, address + BlockAnimationsOffset);
+            AssertTrue(RoomFxRecordCodec.AnimatedTiles(actual.HeaderArea, animations).SequenceEqual(actual.BlockAnimations),
+                $"FX {pointer:X4} block animations");
+            AssertThrows<NotSupportedException>(() => actual.ReadByte(BlockAnimationsOffset), $"FX {pointer:X4} holds no block-animation byte");
+        }
+    }
     /// <summary>Checks the palette blend selector at offset fifteen.</summary>
     private static void VerifyRoomFxPaletteBlend(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.Tint));
     /// <summary>
@@ -184,8 +224,8 @@ internal static class LookupRoomFxFieldsVerification
             for (int index = offset; index < offset + width; index++)
             {
                 AssertEqual(OriginalByte(index), actual.ReadByte(index), "FX byte view");
-                // A word reaching a blend byte has no view: the record holds what the import read from it.
-                if (index < 15 && !BlendOffsets.Contains(index + 1))
+                // A word reaching a byte the import reads into a typed field has no view: the record holds what it read.
+                if (index < 15 && !ReadOffsets.Contains(index + 1))
                     AssertEqual(LittleEndianBytes.Word(OriginalByte(index), OriginalByte(index + 1)),
                         actual.ReadWord(index), "FX overlapping word view");
             }

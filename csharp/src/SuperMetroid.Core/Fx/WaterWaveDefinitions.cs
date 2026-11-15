@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How a water surface's waves and drift move (#1415).</summary>
@@ -12,8 +14,15 @@ public static class WaterWaveDefinitions
     /// <summary>The surface's sideways drift a frame when its water drifts: a quarter pixel.</summary>
     public static SignedEightEight SurfaceDriftSpeed { get; } = SignedEightEight.FromParts(0, 64);
 
+    /// <summary>
+    /// One period of the water wave, one row displacement in pixels per step (#1468, #2054): two identical eight-step
+    /// triangular half-periods, rising then falling, which a water surface's waves and the vertical heat haze are drawn
+    /// from.
+    /// </summary>
+    public static ImmutableArray<int> Waveform { get; } = [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+
     /// <summary>The steps in one cycle of the water wave.</summary>
-    public const int WaveDisplacementCount = 16;
+    public static int WaveDisplacementCount => Waveform.Length;
 
     /// <summary>
     /// The step of the cycle each water wave shows first, from the room's first update: the step after the cycle's start,

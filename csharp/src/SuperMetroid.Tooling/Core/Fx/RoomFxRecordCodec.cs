@@ -217,10 +217,11 @@ internal static class RoomFxRecordCodec
 
     /// <summary>
     /// The block animations a record's block-animation byte starts in a room of <paramref name="area"/>, in ascending
-    /// bit order. No retail record sets a bit that selects no object of the game (#1686), and the decode rejects one.
+    /// bit order. A bit that selects a still object starts nothing and is left out (#2054); no retail record sets a bit
+    /// that selects no object of the game (#1686), and the decode rejects one.
     /// </summary>
     internal static ImmutableArray<BlockAnimation> AnimatedTiles(AreaId area, byte value) =>
-        [.. SetBits(value).Select(bit => AreaBlockAnimations.Read(area, bit) ?? throw new InvalidDataException(
+        [.. SetBits(value).Where(bit => !AreaBlockAnimations.SelectsStillObject(area, bit)).Select(bit => AreaBlockAnimations.Read(area, bit) ?? throw new InvalidDataException(
             $"A {area} record sets block-animation bit {bit}, which selects no block animation of the game."))];
 
     /// <summary>The bits <paramref name="value"/> sets, lowest first.</summary>

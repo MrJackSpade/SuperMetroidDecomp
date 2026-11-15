@@ -127,8 +127,6 @@ public enum SamusSound
     DudShot,
     /// <summary>A Space Jump.</summary>
     SpaceJump,
-    /// <summary>A resumed Space Jump; no code plays it.</summary>
-    ResumedSpaceJump,
     /// <summary>Mother Brain's rainbow beam; a high-priority sound.</summary>
     MotherBrainRainbowBeam,
     /// <summary>The Charge Beam's charging sound resumed.</summary>

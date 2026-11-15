@@ -11,7 +11,6 @@ internal static class SpecialAirReactionNativeWords
     internal static readonly IReadOnlyDictionary<SpecialAirInsideReaction, ushort> InsideHeaders = new Dictionary<SpecialAirInsideReaction, ushort>
     {
         [SpecialAirInsideReaction.Nothing] = 0xb62f,
-        [SpecialAirInsideReaction.IcePhysics] = 0xb70f,
         [SpecialAirInsideReaction.BrinstarFloorPlant] = 0xb6cb,
         [SpecialAirInsideReaction.BrinstarCeilingPlant] = 0xb6cf,
         [SpecialAirInsideReaction.QuicksandSurface] = 0xb713,
@@ -24,7 +23,6 @@ internal static class SpecialAirReactionNativeWords
     internal static readonly IReadOnlyDictionary<SpecialAirInsideReaction, ushort> InsideSetups = new Dictionary<SpecialAirInsideReaction, ushort>
     {
         [SpecialAirInsideReaction.Nothing] = 0xb3cf,
-        [SpecialAirInsideReaction.IcePhysics] = 0xb3eb,
         [SpecialAirInsideReaction.BrinstarFloorPlant] = 0xb0dc,
         [SpecialAirInsideReaction.BrinstarCeilingPlant] = 0xb113,
         [SpecialAirInsideReaction.QuicksandSurface] = 0xb408,

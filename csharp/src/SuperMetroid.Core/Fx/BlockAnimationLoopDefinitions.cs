@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// What each frame pictures is installed artwork, which asset extraction pictures under the frame's name; this catalog
-/// owns only each loop's frames, their durations and its start. The vertical spikes, the Crateria lake, the Brinstar
-/// plant and the Wrecked Ship screen have no loop: their blocks show their still pictures.
+/// owns only each loop's frames, their durations and its start.
 /// </remarks>
 public static class BlockAnimationLoopDefinitions
 {

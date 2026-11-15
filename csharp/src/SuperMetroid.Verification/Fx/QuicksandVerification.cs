@@ -320,6 +320,9 @@ internal static class QuicksandVerification
         }
     }
 
+    /// <summary>The bank-$84 setup of Crateria's ice-floor inside header, which changes nothing while Samus is inside it.</summary>
+    private const ushort CrateriaIceInsideSetup = 0xb3eb;
+
     /// <summary>Compares one area entry's resolved reaction with the header and setup the cartridge's area table selects.</summary>
     private static void VerifySpecialAirEntry<TReaction>(CartridgeImportAddressSpace rom, TReaction actual,
         IReadOnlyDictionary<TReaction, ushort> headers, IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing,
@@ -329,6 +332,10 @@ internal static class QuicksandVerification
         ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
         ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
         ushort nativeSetup = ReadRomWord(rom, 0x840000 | header);
+        // Crateria's ice floor has a setup of its own that changes nothing inside it (#2054); the game passes through it,
+        // so the entry resolves to the one no-op reaction.
+        if (EqualityComparer<TReaction>.Default.Equals(actual, nothing) && nativeSetup == CrateriaIceInsideSetup)
+            return;
         AssertEqual(nativeSetup, setups[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} setup");
         // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has
         // one no-op reaction, so an entry resolving to it is compared by the setup its native header names alone.

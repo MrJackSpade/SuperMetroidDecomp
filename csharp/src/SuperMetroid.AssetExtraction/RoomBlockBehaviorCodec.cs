@@ -261,13 +261,12 @@ public static class RoomBlockBehaviorCodec
     };
 
     /// <summary>
-    /// What <paramref name="area"/>'s special-air table makes of its entry, or none past the table: Crateria's ice,
-    /// Brinstar's plants and Speed Booster blocks, the Chozo hands' triggers, Maridia's quicksand and sandfalls, and passing
-    /// through for every other entry.
+    /// What <paramref name="area"/>'s special-air table makes of its entry, or none past the table: Brinstar's plants and
+    /// Speed Booster blocks, the Chozo hands' triggers, Maridia's quicksand and sandfalls, and passing through for every
+    /// other entry. Crateria's ice entry changes nothing inside it or on contact, so Samus passes through it (#2054).
     /// </summary>
     private static SpecialAirReaction? AreaSpecialAirOf(AreaId area, int entry) => new AreaEntry(area, entry) switch
     {
-        (AreaId.Crateria, 0) => SpecialAirReaction.Ice,
         (AreaId.Brinstar, 0) => SpecialAirReaction.FloorPlant,
         (AreaId.Brinstar, 1) => SpecialAirReaction.CeilingPlant,
         (AreaId.Brinstar, 2) => SpecialAirReaction.SlowRespawningSpeedBlock,

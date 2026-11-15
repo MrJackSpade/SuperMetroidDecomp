@@ -49,8 +49,6 @@ public static class SamusInsideBlockReactions
             switch (reaction)
             {
                 case SpecialAirInsideReaction.Nothing:
-                case SpecialAirInsideReaction.IcePhysics:
-                    // Neither inside reaction changes Samus's motion here.
                     break;
                 case SpecialAirInsideReaction.BrinstarFloorPlant:
                     RequireRoomObjects().SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Floor, samus.RoomView);

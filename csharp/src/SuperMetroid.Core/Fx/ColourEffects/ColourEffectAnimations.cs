@@ -85,8 +85,31 @@ internal static class ColourEffectAnimations
         F(13, 2),
     ];
 
-    /// <summary>Each animation's steps.</summary>
-    /// <summary>Each effect's steps; the heat shimmer's hold one pulse for each suit, the Power Suit's first.</summary>
+    /// <summary>The frames <see cref="A.VariaSuitHeatPulse"/>, <see cref="A.GravitySuitHeatPulse"/> show alike.</summary>
+    private static readonly AnimationBeat<int, ColourEffectCue>[] SuitHeatPulseFrames =
+    [
+            F(0, 16),
+            F(1, 4),
+            F(2, 4),
+            F(3, 5),
+            F(4, 6),
+            F(5, 7),
+            F(6, 8),
+            F(7, 8),
+            F(8, 8),
+            F(9, 8),
+            F(10, 7),
+            F(11, 6),
+            F(12, 5),
+            F(13, 4),
+            F(14, 4),
+            F(15, 16),
+    ];
+
+    /// <summary>
+    /// Each effect's steps; each suit's heat pulse has its own (#2054), and Samus in heat, which plays her suit's pulse
+    /// (<see cref="HeatShimmers"/>), shows none of its own.
+    /// </summary>
     internal static AnimationSegments<ColourEffectId, int, ColourEffectCue> Steps { get; } = new(
         new Dictionary<ColourEffectId, AnimationBeat<int, ColourEffectCue>[]>
     {
@@ -445,7 +468,8 @@ internal static class ColourEffectAnimations
             F(4, 8),
             F(5, 8),
         ],
-        [A.SamusInHeat] =
+        [A.SamusInHeat] = [],
+        [A.PowerSuitHeatPulse] =
         [
             F(0, 16),
             F(1, 4),
@@ -463,39 +487,9 @@ internal static class ColourEffectAnimations
             F(13, 4),
             F(14, 4),
             F(15, 3),
-            F(16, 16),
-            F(17, 4),
-            F(18, 4),
-            F(19, 5),
-            F(20, 6),
-            F(21, 7),
-            F(22, 8),
-            F(23, 8),
-            F(24, 8),
-            F(25, 8),
-            F(26, 7),
-            F(27, 6),
-            F(28, 5),
-            F(29, 4),
-            F(30, 4),
-            F(31, 16),
-            F(32, 16),
-            F(33, 4),
-            F(34, 4),
-            F(35, 5),
-            F(36, 6),
-            F(37, 7),
-            F(38, 8),
-            F(39, 8),
-            F(40, 8),
-            F(41, 8),
-            F(42, 7),
-            F(43, 6),
-            F(44, 5),
-            F(45, 4),
-            F(46, 4),
-            F(47, 16),
         ],
+        [A.VariaSuitHeatPulse] = SuitHeatPulseFrames,
+        [A.GravitySuitHeatPulse] = SuitHeatPulseFrames,
         [A.CrateriaLightning] =
         [
             F(0, 240),
@@ -864,7 +858,8 @@ internal static class ColourEffectAnimations
     /// <summary>
     /// How each effect starts, the colours its frames show in, the condition it watches from the update after its first
     /// frame, and how it plays its steps: its phases, then whether it stops or loops. The heat shimmer's animation is the
-    /// Power Suit's; its start chooses the suit's (<see cref="HeatShimmers"/>).
+    /// Power Suit's pulse; its start chooses the suit's (<see cref="HeatShimmers"/>). Each suit's pulse plays as the heat
+    /// shimmer does, in the same colours and watching the same heat.
     /// </summary>
     private static readonly FrozenDictionary<ColourEffectId, ColourEffectDefinition> Definitions =
         new Dictionary<ColourEffectId, ColourEffectDefinition>
@@ -983,6 +978,12 @@ internal static class ColourEffectAnimations
             new([new(A.ParlorEscapeSkyFlicker, 0, 11, 1)], AnimationEnd.LoopsFrom(0))),
         [A.SamusInHeat] = new(ColourEffectStart.ChoosesHeatAnimationForSuit, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
             HeatShimmer.Power),
+        [A.PowerSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
+            HeatShimmer.Power),
+        [A.VariaSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
+            HeatShimmer.Varia),
+        [A.GravitySuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
+            HeatShimmer.Gravity),
     }.ToFrozenDictionary();
 
     /// <summary>The heat shimmer's animation for each suit: its suit's pulse, which it loops.</summary>
@@ -994,13 +995,13 @@ internal static class ColourEffectAnimations
         [ColourEffectHeatSuit.Gravity] = HeatShimmer.Gravity,
     }.ToFrozenDictionary();
 
-    /// <summary>The heat shimmer's frame each suit's pulse starts on: its frame for the first heat phase.</summary>
-    internal static FrozenDictionary<ColourEffectHeatSuit, int> HeatPulseFirstFrames { get; } =
-        new Dictionary<ColourEffectHeatSuit, int>
+    /// <summary>Each suit's heat pulse, whose sixteen frames are the heat phases' looks in that suit.</summary>
+    internal static FrozenDictionary<ColourEffectHeatSuit, ColourEffectId> HeatPulses { get; } =
+        new Dictionary<ColourEffectHeatSuit, ColourEffectId>
     {
-        [ColourEffectHeatSuit.Power] = 0,
-        [ColourEffectHeatSuit.Varia] = 16,
-        [ColourEffectHeatSuit.Gravity] = 32,
+        [ColourEffectHeatSuit.Power] = A.PowerSuitHeatPulse,
+        [ColourEffectHeatSuit.Varia] = A.VariaSuitHeatPulse,
+        [ColourEffectHeatSuit.Gravity] = A.GravitySuitHeatPulse,
     }.ToFrozenDictionary();
 
     /// <summary>How <paramref name="effect"/> starts, the colours it shows its frames in, what it watches and how it plays.</summary>
@@ -1016,10 +1017,10 @@ internal static class ColourEffectAnimations
     private static class HeatShimmer
     {
         /// <summary>The Power Suit's shimmer: its pulse, looped.</summary>
-        internal static readonly Animation<ColourEffectId> Power = new([new(A.SamusInHeat, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
+        internal static readonly Animation<ColourEffectId> Power = new([new(A.PowerSuitHeatPulse, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
         /// <summary>The Varia Suit's shimmer: its pulse, looped.</summary>
-        internal static readonly Animation<ColourEffectId> Varia = new([new(A.SamusInHeat, 16, 16, 1)], AnimationEnd.LoopsFrom(0));
+        internal static readonly Animation<ColourEffectId> Varia = new([new(A.VariaSuitHeatPulse, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
         /// <summary>The Gravity Suit's shimmer: its pulse, looped.</summary>
-        internal static readonly Animation<ColourEffectId> Gravity = new([new(A.SamusInHeat, 32, 16, 1)], AnimationEnd.LoopsFrom(0));
+        internal static readonly Animation<ColourEffectId> Gravity = new([new(A.GravitySuitHeatPulse, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
     }
 }

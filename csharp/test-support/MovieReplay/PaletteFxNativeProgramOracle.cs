@@ -49,16 +49,17 @@ internal static class PaletteFxNativeProgramOracle
     }
 
     /// <summary>
-    /// The animations <paramref name="effect"/> can play, each with the native list it starts at: its definition's, or each
-    /// suit's heat shimmer for an effect whose start chooses one.
+    /// The animations <paramref name="effect"/> can play, each with the effect whose steps it plays and the native list it
+    /// starts at: its definition's, or each suit's heat shimmer, which plays that suit's pulse (#2054), for an effect whose
+    /// start chooses one.
     /// </summary>
     internal static IEnumerable<PaletteFxTypedAnimation> AnimationsOf(ColourEffectId effect)
     {
         SuperMetroid.Core.Fx.ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
         return definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-            ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(suit => new PaletteFxTypedAnimation(effect,
+            ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(suit => new PaletteFxTypedAnimation(ColourEffectAnimations.HeatPulses[suit],
                 ColourEffectHeatAnimations.Shimmer(suit),
-                PaletteFxNativeListAddresses.Entry(effect, ColourEffectAnimations.HeatPulseFirstFrames[suit])))]
+                PaletteFxNativeListAddresses.Entry(ColourEffectAnimations.HeatPulses[suit])))]
             : [new PaletteFxTypedAnimation(effect, definition.Animation, PaletteFxNativeListAddresses.Entry(effect))];
     }
 

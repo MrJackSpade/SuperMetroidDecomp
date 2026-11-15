@@ -8,16 +8,14 @@ namespace SuperMetroid.Verification.Fx;
 /// <summary>Checks horizontal lava/acid wave samples and their renderer phase arithmetic.</summary>
 internal static class LookupHorizontalHeatWaveVerification
 {
-    /// <summary>Compares 16 retail offsets, bounds rejection, camera-phase addition, and 16-bit scroll wrap.</summary>
+    /// <summary>Compares 16 retail offsets, the span, camera-phase addition, and 16-bit scroll wrap.</summary>
     internal static void VerifyHorizontalHeatWave(CartridgeImportAddressSpace rom)
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));
         for (int index = 0; index < 16; index++)
-            AssertEqual(Original(index), LiquidEffects.HeatHorizontalWaveDisplacement(index),
+            AssertEqual(Original(index), LavaAcidWaveDefinitions.HorizontalHazeWaveform[index],
                 "Original horizontal heat wave including unequal zero gaps");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => LiquidEffects.HeatHorizontalWaveDisplacement(invalid),
-                "Horizontal wave retains original span bounds");
+        AssertEqual(16, LavaAcidWaveDefinitions.HorizontalHazeWaveform.Length, "Horizontal wave retains original span");
 
         for (int phase = 0; phase < 16; phase++)
         for (int cameraPhase = 0; cameraPhase < 16; cameraPhase++)

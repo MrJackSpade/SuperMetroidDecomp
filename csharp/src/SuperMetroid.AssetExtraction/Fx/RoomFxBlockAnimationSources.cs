@@ -35,8 +35,6 @@ internal static class RoomFxBlockAnimationSources
                 RoomFxBlockAnimationSourceDefinitions.WreckedShipTreadmill, RoomFxBlockAnimationLoops.TreadmillFrameByteCount),
             BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
                 or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
-                or BlockAnimation.VerticalSpikes or BlockAnimation.CrateriaLake
-                or BlockAnimation.BrinstarPlant or BlockAnimation.WreckedShipScreen
                 => throw new InvalidDataException($"{image.Object} has no pictures in the room-FX atlas."),
             _ => throw new InvalidDataException($"Undefined room-FX object {image.Object}."),
         };

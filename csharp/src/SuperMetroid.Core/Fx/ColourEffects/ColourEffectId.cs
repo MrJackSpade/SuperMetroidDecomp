@@ -71,8 +71,17 @@ public enum ColourEffectId
     BombTorizoBelly,
     /// <summary>The Golden Torizo's glowing belly.</summary>
     GoldenTorizoBelly,
-    /// <summary>Samus's heat shimmer in a heated room, which also burns her without a heat-protecting suit.</summary>
+    /// <summary>
+    /// Samus's heat shimmer in a heated room, which also burns her without a heat-protecting suit. It plays the pulse of
+    /// the suit she wears (<see cref="PowerSuitHeatPulse"/>, <see cref="VariaSuitHeatPulse"/>, <see cref="GravitySuitHeatPulse"/>).
+    /// </summary>
     SamusInHeat,
+    /// <summary>The heat shimmer's pulse in the Power Suit's colours: one look per heat phase.</summary>
+    PowerSuitHeatPulse,
+    /// <summary>The heat shimmer's pulse in the Varia Suit's colours: one look per heat phase.</summary>
+    VariaSuitHeatPulse,
+    /// <summary>The heat shimmer's pulse in the Gravity Suit's colours: one look per heat phase.</summary>
+    GravitySuitHeatPulse,
     /// <summary>The lightning flashing over the Crateria surface.</summary>
     CrateriaLightning,
     /// <summary>The Wrecked Ship's pulsing green lights.</summary>

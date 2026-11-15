@@ -19,7 +19,8 @@ internal static class PaletteFxProgramsVerification
     internal static void VerifyPaletteFxPrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertTrue(Enum.GetValues<ColourEffectId>().All(effect => PaletteFxNativeListAddresses.Entries.Any(entry => entry.Effect == effect && entry.FirstStep == 0)),
+        AssertTrue(Enum.GetValues<ColourEffectId>().SelectMany(PaletteFxNativeProgramOracle.AnimationsOf)
+                .All(typed => PaletteFxNativeListAddresses.Entries.Any(entry => entry.Effect == typed.Effect && entry.FirstStep == 0 && entry.Entry == typed.Start)),
             "every typed colour effect starts at a native list");
         Dictionary<ushort, PaletteFxNativeList> lists = PaletteFxNativeProgramOracle.Lists(cartridge);
         // Every animation plays the phases its native lists' control flow plays (#1600).

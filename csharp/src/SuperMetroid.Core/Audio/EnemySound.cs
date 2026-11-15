@@ -162,8 +162,6 @@ public enum EnemySound
     ShotCoven,
     /// <summary>The Baby Metroid's remorse.</summary>
     BabyMetroidRemorse,
-    /// <summary>Crocomire hit; no code plays it; a high-priority sound.</summary>
-    ShotCrocomire,
     /// <summary>A Beetom hit.</summary>
     ShotBeetom,
     /// <summary>A suit acquired: the Varia or Gravity Suit's transformation.</summary>

@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.AssetExtraction.Video;
@@ -57,6 +58,34 @@ internal static class ColorWindowSmokeTests
                     new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)tall))));
         }
         CheckOvalEdge(new WindowOval(Offset16<ScreenPixels>.Of(40, 112), 100, new Extent16<ScreenPixels>(24, 112)));
+        // Every cone the game draws (#2009): each aim with each half-width the X-ray scope reaches, which hold the Morph
+        // Ball eye beam's and Mother Brain's rainbow beam's, from the middle of the screen; and cones from the farthest
+        // apexes a cone takes, whose offsets are the largest its whole-number test meets. Every device lights exactly
+        // the pixels each cone's rule covers.
+        var cones = new List<WindowCone>();
+        TrigonometryAngle widest = XrayScopeDefinitions.Window.WidestHalfWidth.ToTrigonometryAngle();
+        for (TrigonometryAngle halfWidth = TrigonometryAngle.Zero; halfWidth <= widest; halfWidth = halfWidth.TurnedBySteps(1))
+        for (int step = 0; step < RotationAngle.StepsPerTurn; step++)
+        {
+            var aim = new TrigonometryAngle(step);
+            cones.Add(new WindowCone(Offset16<ScreenPixels>.Of(DisplayScreen.Width / 2, DisplayScreen.Height / 2),
+                aim - halfWidth, aim + halfWidth));
+        }
+        foreach (Offset16<ScreenPixels> apex in new[] { Offset16<ScreenPixels>.Of(short.MinValue, short.MinValue),
+            Offset16<ScreenPixels>.Of(short.MaxValue, short.MinValue), Offset16<ScreenPixels>.Of(short.MinValue, short.MaxValue),
+            Offset16<ScreenPixels>.Of(short.MaxValue, short.MaxValue) })
+        {
+            // One frame of the widest cones, aimed two steps apart either side of the way to the screen's middle, so
+            // some cover the screen and some miss it.
+            TrigonometryAngle toScreen = TowardScreenMiddle(apex);
+            for (int mark = 0; mark < ConeMarks; mark++)
+            {
+                TrigonometryAngle aim = toScreen.TurnedBySteps(2 * mark - (ConeMarks - 1));
+                cones.Add(new WindowCone(apex, aim - widest, aim + widest));
+            }
+        }
+        for (int first = 0; first < cones.Count; first += ConeMarks)
+            CheckConeEdges(cones.GetRange(first, Math.Min(ConeMarks, cones.Count - first)));
         // The haze in the tints the import installs (#1596).
         var hazeTints = new SuperMetroid.Core.Fx.Artwork.CeresHazeTints(
             SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeBlue,
@@ -129,6 +158,91 @@ internal static class ColorWindowSmokeTests
                         $"which lies {(covered ? "within or on" : "outside")} its edge.");
             }
         }
+
+        // Draws up to ConeMarks cones over a dark screen, each adding its own mark, and checks each pixel shows exactly
+        // the marks of the cones that cover it.
+        void CheckConeEdges(IReadOnlyList<WindowCone> group)
+        {
+            count++;
+            var layers = new DisplayLayer[group.Count];
+            for (int index = 0; index < group.Count; index++)
+                layers[index] = new ColourAddWindowLayer(ScreenWindow.Of(group[index]), ConeMark(index));
+            var frame = new DisplayPacket(0, new LayeredScene(dark, layers, DisplayBrightness.Full));
+            RgbaPixel[] drawn = renderer.RenderForReadback(frame);
+            ConeEdgeDirection[] firsts = [.. group.Select(cone => cone.FirstEdgeDirection)];
+            ConeEdgeDirection[] seconds = [.. group.Select(cone => cone.SecondEdgeDirection)];
+            for (int y = 0; y < DisplayScreen.Height; y++)
+            for (int x = 0; x < DisplayScreen.Width; x++)
+            {
+                RgbaPixel pixel = drawn[y * DisplayScreen.Width + x];
+                int shown = ShownMarks(pixel.R) | ShownMarks(pixel.G) << ConeMarksPerChannel
+                    | ShownMarks(pixel.B) << 2 * ConeMarksPerChannel;
+                for (int index = 0; index < group.Count; index++)
+                {
+                    bool lit = (shown >> index & 1) != 0, covered = ConeCovers(group[index].Apex, firsts[index], seconds[index], x, y);
+                    if (lit != covered)
+                        throw new InvalidOperationException($"{device.Kind}: {group[index]} {(lit ? "lights" : "leaves dark")} " +
+                            $"({x},{y}), which lies {(covered ? "within" : "outside")} it.");
+                }
+            }
+        }
+    }
+
+    /// <summary>The cones one frame checks together: one mark for each level bit of each colour channel.</summary>
+    private const int ConeMarks = 3 * ConeMarksPerChannel;
+
+    /// <summary>The marks one colour channel holds: one for each bit of its five-bit level.</summary>
+    private const int ConeMarksPerChannel = 5;
+
+    /// <summary>
+    /// The colour the cone drawn <paramref name="index"/>th in a frame adds: a level of one bit, alone in its channel, so
+    /// the added colours of the cones covering a pixel sum without carrying into one another.
+    /// </summary>
+    private static RgbColor ConeMark(int index)
+    {
+        int level = 1 << index % ConeMarksPerChannel, channel = index / ConeMarksPerChannel;
+        return new FadeLevelColour(channel == 0 ? level : 0, channel == 1 ? level : 0, channel == 2 ? level : 0).ToColour();
+    }
+
+    /// <summary>
+    /// The marks an eight-bit channel shows, as bits of its five-bit level. Each mark's eight-bit share is more than all
+    /// the smaller marks' together, so the largest marks are taken off first.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The channel holds a value no set of marks adds up to.</exception>
+    private static int ShownMarks(byte channel)
+    {
+        int left = channel, marks = 0;
+        for (int bit = ConeMarksPerChannel - 1; bit >= 0; bit--)
+        {
+            int share = EightBitLevel(1 << bit);
+            if (left < share) continue;
+            left -= share;
+            marks |= 1 << bit;
+        }
+        return left == 0 ? marks : throw new InvalidOperationException($"Channel value {channel} is no sum of cone marks.");
+    }
+
+    /// <summary>A five-bit level as the eight-bit channel the backend adds for it.</summary>
+    private static int EightBitLevel(int level) => level << 3 | level >> 2;
+
+    /// <summary>The step, clockwise from straight up, nearest the way from <paramref name="apex"/> to the screen's middle.</summary>
+    private static TrigonometryAngle TowardScreenMiddle(Offset16<ScreenPixels> apex)
+    {
+        double turn = Math.Atan2(DisplayScreen.Width / 2 - apex.X, apex.Y - DisplayScreen.Height / 2) / (2 * Math.PI);
+        return TrigonometryAngle.Wrapped((int)Math.Round(turn * RotationAngle.StepsPerTurn));
+    }
+
+    /// <summary>
+    /// Whether the pixel at <paramref name="x"/>, <paramref name="y"/> lies within the cone from <paramref name="apex"/>
+    /// between edges leaving it toward <paramref name="first"/> and <paramref name="second"/>, worked in whole numbers: at
+    /// most the cone's allowance outside either edge, and not behind its apex.
+    /// </summary>
+    private static bool ConeCovers(Offset16<ScreenPixels> apex, ConeEdgeDirection first, ConeEdgeDirection second, int x, int y)
+    {
+        long across = x - apex.X, down = y - apex.Y;
+        return first.Across * down - first.Down * across >= -WindowCone.EdgeAllowance
+            && across * second.Down - down * second.Across >= -WindowCone.EdgeAllowance
+            && across * (first.Across + second.Across) + down * (first.Down + second.Down) >= 0;
     }
 
     /// <summary>

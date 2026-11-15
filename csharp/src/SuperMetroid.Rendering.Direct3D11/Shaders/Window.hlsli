@@ -2,23 +2,27 @@
 // the first line and the line after the last; each shape then takes two rows, its kind and parameters, signed.
 //   Rectangle: left, top, right, bottom, both corners included.
 //   Oval: its core's left end x and y, the core's width, then the horizontal and vertical radii.
-//   Cone: its apex x and y, then the edges it sweeps clockwise from and to, in 256ths of a turn clockwise from up.
+//   Cone: its apex x and y, the directions of the edges it sweeps clockwise from and to, each across then down in
+//   whole steps of the game's fine sine (WindowCone.EdgeDirection), then how far outside an edge a pixel may lie, in
+//   the same measure.
 static const uint WindowRectangle = 1, WindowOval = 2, WindowCone = 3;
-// A cone's edge keeps the pixels whose centres lie within half a pixel outside it, so a zero-width cone is a ray one
-// pixel wide.
-static const float ConeEdgeTolerance = 0.5;
-static const float TurnRadians = 6.28318530718;
-static const float AngleUnitsPerTurn = 256.0;
 
-// The direction an edge angle points on the screen, x right and y down.
-float2 ConeEdge(int angle)
+// How far a point lies clockwise of a direction, times the direction's length: positive to its right on the screen.
+// A direction no longer than the fine sine's peak and an offset from a sixteen-bit apex to a screen pixel keep the
+// result within one signed word, and integer arithmetic is exact on every device, where sine, cosine and
+// floating-point rounding may differ (#2009).
+int Clockwise(int2 direction, int2 offset) { return direction.x * offset.y - direction.y * offset.x; }
+
+// How far a point lies along a direction, times the direction's length.
+int Along(int2 direction, int2 offset) { return direction.x * offset.x + direction.y * offset.y; }
+
+// Whether a pixel offset from a cone's apex lies within the cone (WindowCone): at most the allowance outside either edge
+// and not behind the apex, the two edges' distances along compared rather than summed so neither leaves its word.
+bool InCone(int2 offset, int2 first, int2 second, int allowance)
 {
-    float turned = angle * (TurnRadians / AngleUnitsPerTurn);
-    return float2(sin(turned), -cos(turned));
+    return Clockwise(first, offset) >= -allowance && Clockwise(offset, second) >= -allowance
+        && Along(first, offset) >= -Along(second, offset);
 }
-
-// How far a point lies clockwise of a direction: positive to its right on the screen.
-float Clockwise(float2 direction, float2 offset) { return direction.x * offset.y - direction.y * offset.x; }
 
 // The whole product of two words as a pair, its high word then its low word: integer arithmetic is exact on every
 // device, where floating-point division may round either way on the graphics card.
@@ -53,12 +57,7 @@ bool InWindowShape(int4 head, int4 tail, int2 pixel)
         return InOval((uint)max(0, max(head.y - pixel.x, pixel.x - (head.y + head.w))), (uint)abs(pixel.y - head.z),
             (uint)tail.x, (uint)tail.y);
     if (kind == WindowCone)
-    {
-        float2 offset = float2(pixel - head.yz);
-        float2 first = ConeEdge(head.w), second = ConeEdge(tail.x);
-        return Clockwise(first, offset) >= -ConeEdgeTolerance && Clockwise(offset, second) >= -ConeEdgeTolerance
-            && dot(offset, first + second) >= 0.0;
-    }
+        return InCone(pixel - head.yz, int2(head.w, tail.x), tail.yz, tail.w);
     return false;
 }
 

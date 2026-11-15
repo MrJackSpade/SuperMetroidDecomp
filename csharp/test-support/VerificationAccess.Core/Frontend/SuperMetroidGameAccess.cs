@@ -37,9 +37,12 @@ internal static class SuperMetroidGameAccess
 
         /// <summary>
         /// Installs a prepared runtime as the session's live runtime. A session has one random-number word (#1330), so
-        /// the runtime must be built over the game's word.
+        /// the runtime must be built over the game's word, and one set of sound and music queues (#2057), so it must be
+        /// built over the game's queues (the runtime fixture's <c>audio</c>). The queues return to the state the game's
+        /// power-on left them in: what the runtime requested while it was prepared reaches no game, as a runtime the session
+        /// creates requests nothing before the game runs it.
         /// </summary>
-        /// <param name="runtime">A runtime built over <c>Session.Random</c>.</param>
+        /// <param name="runtime">A runtime built over <c>Session.Random</c> and <c>Session.audio</c>.</param>
         /// <exception cref="InvalidOperationException">The runtime was built over a different word.</exception>
         internal void AdoptRuntime(SuperMetroidRuntime runtime)
         {
@@ -47,8 +50,7 @@ internal static class SuperMetroidGameAccess
             if (!ReferenceEquals(runtime.System.Random, self.Session.Random))
                 throw new InvalidOperationException(
                     "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
-            // The adopted runtime's later gameplay requests go straight into the game's queues, as a session-built runtime's do.
-            runtime.AttachSessionAudio(self.Session.audio);
+            self.Session.audio.Reset();
             self.Session.Runtime = runtime;
         }
 

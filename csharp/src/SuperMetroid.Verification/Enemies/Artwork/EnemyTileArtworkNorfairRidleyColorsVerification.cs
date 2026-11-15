@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Verification.Bosses.Ridley;
@@ -58,7 +59,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             RidleyEnemyState installedState) = Create(guard, stock);
         // The reveal's terminator hands the battle liquid height to the room's liquid.
         var installedLiquid = new RoomFxOverlayState();
-        installedLiquid.BindAudioRequests(new GameplayAudioRequests());
+        installedLiquid.BindAudioRequests(GameplayAudioRequests.Standalone());
         installed.RoomFx.BindRoomFx(installedLiquid);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");

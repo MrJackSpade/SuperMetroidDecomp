@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -11,9 +12,9 @@ internal static class RidleyNeutralTailVerification
     internal static void VerifyRidleyPowerBombNeutralTail()
     {
         Action<RidleyEnemyState, SamusBombProjectileSystem> prepare = NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame;
-        var armed = new SamusBombProjectileSystem();
+        var armed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
         armed.PowerBombExplosion.Arm();
-        var unarmed = new SamusBombProjectileSystem();
+        var unarmed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var state = new RidleyEnemyState

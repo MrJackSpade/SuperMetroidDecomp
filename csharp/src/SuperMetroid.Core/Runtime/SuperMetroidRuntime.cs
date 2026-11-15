@@ -86,14 +86,10 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The sound and music requests the current update makes, in the order its systems make them (#1620): every room
-    /// system and Samus queue theirs here as they run, and a session's go straight on into its queues.
+    /// system and Samus take it as they are built and queue theirs here as they run, and they go straight on into the
+    /// session's queues (#2057).
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; }
-
-    /// <summary>Sends the runtime's later audio requests straight on into <paramref name="audio"/>, the queues of the session running it.</summary>
-    /// <exception cref="InvalidOperationException">The runtime's requests already reach a session's queues.</exception>
-    internal void AttachSessionAudio(AudioQueues audio) =>
-        AudioRequests.AttachTo(new SessionGameplayAudioQueues(audio, AttractSession));
 
     /// <summary>What the gameplay display shows: the turning floor's and the elevator shaft's transforms and the latched scene.</summary>
     internal GameplayDisplayState Display { get; }
@@ -208,10 +204,9 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        AudioRequests = new GameplayAudioRequests();
-        if (session.Audio is { } audio)
-            AttachSessionAudio(audio);
+        AudioRequests = new GameplayAudioRequests(new SessionGameplayAudioQueues(session.Audio, AttractSession));
         EnemySession = new EnemySession(
+            AudioRequests,
             artwork.EnemyOverreads ?? throw new InvalidOperationException("Gameplay requires the installed enemy overread services."),
             artwork.BossAndIntroOverreads ?? throw new InvalidOperationException("Gameplay requires the installed boss and intro overread services."),
             RainbowBeamCameraCheckpoint,
@@ -517,8 +512,6 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        scope.BindAudioRequests(AudioRequests);
-        Player.Samus?.BindAudioRequests(AudioRequests);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 

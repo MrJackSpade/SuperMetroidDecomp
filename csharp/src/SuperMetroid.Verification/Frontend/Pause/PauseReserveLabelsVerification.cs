@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -26,7 +27,7 @@ internal static class PauseReserveLabelsVerification
         foreach (ushort capacity in new ushort[] { 0, 100 })
         foreach (ushort mode in new ushort[] { 0, 1, 2 })
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { MaxReserveEnergy = capacity, ReserveTankMode = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedReserveMode(mode),
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { MaxReserveEnergy = capacity, ReserveTankMode = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedReserveMode(mode),
                 CollectedItems = SamusEquipmentFlags.MorphBall };
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
             EnterPauseEquipment(pause);

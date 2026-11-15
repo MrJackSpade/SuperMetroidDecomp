@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -28,7 +29,8 @@ internal static class XrayGameStateVerification
         CreateWithXraySelectedResult CreateWithXraySelected()
         {
             var random = new SharedRandom();
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random);
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -42,7 +44,6 @@ internal static class XrayGameStateVerification
             samus.Position = samus.Position.WithWhole(new(128, 139));
             samus.EquippedItems = SamusEquipmentFlags.XrayScope;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;

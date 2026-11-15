@@ -265,7 +265,7 @@ internal static class RoomFxRetailInventoryVerification
         var actual = RoomFxOverlayState.ForRoom(room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
-        actual.BindAudioRequests(new GameplayAudioRequests());
+        actual.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertEqual(expectedRecord,
             RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, EntryDoor(doorPointer)),
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
@@ -417,7 +417,7 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
         var fx = RoomFxOverlayState.ForRoom(room.State.Fx, door: null, randomNumber: 0);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -735,7 +735,7 @@ internal static class RoomFxRetailInventoryVerification
             door,
             randomNumber: 0,
             room: room.Definition);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room.Name} rising FX type");
         AssertEqual(definition.InitialY, fx.NamedBaseY.Whole,
             $"room {definition.Room.Name} initial lava Y");
@@ -927,7 +927,7 @@ internal static class RoomFxRetailInventoryVerification
         fx = RoomFxOverlayState.ForRoom(room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
 
         int maximumAbsoluteOffset = 0;
@@ -969,7 +969,7 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
         var fx = RoomFxOverlayState.ForRoom(visibleRoom.State.Fx, door: null, randomNumber: 0);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
@@ -977,14 +977,14 @@ internal static class RoomFxRetailInventoryVerification
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
         fx = RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
         fx = RoomFxOverlayState.ForRoom(hiddenRoom.State.Fx, door: null, randomNumber: 0);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         ushort[] hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false });

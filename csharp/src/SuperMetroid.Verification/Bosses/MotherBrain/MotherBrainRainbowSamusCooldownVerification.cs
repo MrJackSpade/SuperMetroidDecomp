@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -18,7 +19,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
     internal static void VerifyMotherBrainRainbowSamusCooldown()
     {
         var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Health = 999,
             Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
@@ -44,7 +45,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = MotherBrainForm.SecondPhase };
         enemies.MotherBrainEncounter.MotherBrain = state;
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
         bombs.SetSharedCooldown(20);
         enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainRainbowState(state, attack, neckLowered, samus, bombs);
         AssertEqual((ushort)MotherBrainBeamDefinitions.NeckLoweredSamusCooldown, bombs.CooldownTimer.RawValue,

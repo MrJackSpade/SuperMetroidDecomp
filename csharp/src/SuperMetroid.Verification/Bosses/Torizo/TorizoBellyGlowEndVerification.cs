@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -81,7 +82,7 @@ internal static class TorizoBellyGlowEndVerification
         AssertTrue(ReferenceEquals(torizo.Entity, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
 
         var fx = new ColourEffectSystem(new ColourEffectSessionState());
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         fx.StartTorizoBellyGlow(request.Glow, request.Torizo, equippedItems: 0);
         var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         bool originalEnded = false;

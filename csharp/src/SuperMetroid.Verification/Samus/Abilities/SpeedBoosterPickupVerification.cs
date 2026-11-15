@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
@@ -23,7 +24,7 @@ internal static class SpeedBoosterPickupVerification
             SeedCollectibleRom(bus);
             var vram = new SnesVram();
             var fx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0);
-            fx.BindAudioRequests(new GameplayAudioRequests());
+            fx.BindAudioRequests(GameplayAudioRequests.Standalone());
             // The room's first update begins its liquid's motion, long before Samus reaches the item.
             var system = new SharedGameState(new SuperMetroid.Core.Compatibility.SharedRandom());
             fx.AdvanceLiquidMotion(system, timeIsFrozen: false);

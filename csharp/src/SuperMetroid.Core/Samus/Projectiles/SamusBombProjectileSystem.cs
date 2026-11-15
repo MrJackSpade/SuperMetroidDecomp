@@ -107,14 +107,12 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     internal void SetSharedBombCounter(int value) => BombCounter = value;
 
-    /// <summary>
-    /// The update's audio requests the bombs' sounds join as they are made: the runtime's, once it points the room's
-    /// systems at it; the bombs' own record before that.
-    /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+    /// <summary>Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057).</summary>
+    /// <param name="audioRequests">The update's audio requests the bombs' sounds join: the runtime's, or a cinematic's.</param>
+    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests) => AudioRequests = Ensure.NotNull(audioRequests);
 
-    /// <summary>Points the bombs' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
+    /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.

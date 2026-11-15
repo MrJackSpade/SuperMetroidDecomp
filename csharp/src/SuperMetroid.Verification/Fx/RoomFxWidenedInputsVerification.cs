@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -44,7 +45,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertTrue(CoordinateAxis.AsSigned(deepest) >= 0 && CoordinateAxis.AsSigned(deepest + 1) < 0,
             "the deepest named line is the last a signed reading finds at or below the room's top");
         var liquid = new RoomFxOverlayState();
-        liquid.BindAudioRequests(new GameplayAudioRequests());
+        liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertTrue(liquid.BaseY is null && liquid.TargetSurface is null && liquid.Surface is null,
             "a room with no effect has no liquid surface or target (#1987)");
         liquid.SetLiquidLevel(deepest);

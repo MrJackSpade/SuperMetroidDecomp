@@ -13,14 +13,11 @@ namespace SuperMetroid.Core.Enemies;
 /// </remarks>
 internal sealed class EnemyAudioQueue
 {
-    /// <summary>
-    /// The update's audio requests the enemies' requests join: the runtime's, once it points the room's systems at it; the
-    /// enemies' own requests before that.
-    /// </summary>
-    internal GameplayAudioRequests Requests { get; private set; } = new();
+    /// <summary>Creates the room's enemy audio, whose requests join <paramref name="requests"/>, the runtime's update's (#2057).</summary>
+    internal EnemyAudioQueue(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
 
-    /// <summary>Points the enemies' requests at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
+    /// <summary>The update's audio requests the enemies' requests join: the runtime's.</summary>
+    internal GameplayAudioRequests Requests { get; }
 
     /// <summary>The music the loading room's enemies start, consumed in the same update outside the enemy pass.</summary>
     /// <remarks>The requests do not outlive the update that makes them, so a saved game state never holds any.</remarks>

@@ -143,17 +143,4 @@ internal sealed record RoomScope
         CeresElevatorArrival = Ensure.NotNull(arrival);
     }
 
-    /// <summary>
-    /// Points every system of the room that makes sounds or music at <paramref name="requests"/>: its effect overlay, its
-    /// colour effects, Samus's projectiles and bombs, its room objects and its enemies.
-    /// </summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests)
-    {
-        FxOverlay.BindAudioRequests(requests);
-        ColourEffects.BindAudioRequests(requests);
-        Projectiles.BindAudioRequests(requests);
-        BombProjectiles.BindAudioRequests(requests);
-        RoomObjects.Sounds.BindAudioRequests(requests);
-        Enemies.Audio.BindAudioRequests(requests);
-    }
 }

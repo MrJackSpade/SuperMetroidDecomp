@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Input;
@@ -39,7 +40,7 @@ internal static class ElevatorInputDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Elevator, direction);
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
             samus.BindBodyFixture(bodyArtwork);
             initialize(slot, samus);
             ElevatorEnemyState elevator = enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].");

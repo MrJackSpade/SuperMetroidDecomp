@@ -10,10 +10,7 @@ internal sealed class ProjectileImpactAudio
     internal ProjectileImpactAudio(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
 
     /// <summary>The update's audio requests the impacts' sounds join, the same as their projectile system's.</summary>
-    internal GameplayAudioRequests Requests { get; private set; }
-
-    /// <summary>Points the impacts' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
+    internal GameplayAudioRequests Requests { get; }
 
     /// <summary>Marks whose frame the impacts belong to: a cinematic's suppresses missile impact sounds.</summary>
     public void BeginImpactAudioFrame(ImpactAudioContext context) =>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
@@ -21,7 +22,7 @@ internal static class RetailPauseTests
         system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {
-            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 1),
+            Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 1),
             MapPresentation = InstalledFixtures.Maps, SpriteSheets = InstalledFixtures.SpriteSheets,
         });
         void Compare(string page)

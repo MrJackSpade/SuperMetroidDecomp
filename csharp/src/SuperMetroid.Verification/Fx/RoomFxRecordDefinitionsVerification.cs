@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -60,10 +61,10 @@ internal static class RoomFxRecordDefinitionsVerification
         RoomFxOverlayState compiledFx;
         nativeFx = RoomFxOverlayState.ForRoom(room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        nativeFx.BindAudioRequests(new GameplayAudioRequests());
+        nativeFx.BindAudioRequests(GameplayAudioRequests.Standalone());
         compiledFx = RoomFxOverlayState.ForRoom(room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        compiledFx.BindAudioRequests(new GameplayAudioRequests());
+        compiledFx.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");

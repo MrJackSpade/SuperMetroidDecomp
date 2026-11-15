@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpriteObjects;
@@ -39,13 +40,13 @@ internal static class EnemyBombShotReactionVerification
         })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = LoadedRoomWithMellow(definition, frozenTimer);
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
                 new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
@@ -93,13 +94,13 @@ internal static class EnemyBombShotReactionVerification
             slot.CollidesByFrameHitboxes = frameHitboxes;
             if (frameHitboxes)
                 slot.Frame = EnemyFrameId.Empty;
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
                 new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();

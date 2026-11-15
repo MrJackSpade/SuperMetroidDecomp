@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.WreckedShip;
@@ -27,7 +28,7 @@ internal static class TreadmillPhysicsVerification
         }
         for (int i = 12; i < 16; i++) terrain[i] = Solid;
         var level = CreateRoom(new(4, 4), terrain, behavior);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = new(new(24, 0), new(40, 0))};
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = new(new(24, 0), new(40, 0))};
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(2 << 16, samus.Kinematics.ExtraDisplacement.X.RawValue, "treadmill inside reaction publishes carry");
@@ -40,7 +41,7 @@ internal static class TreadmillPhysicsVerification
         foreach (ushort verticalSpeed in new ushort[] { 0, 1 })
         {
             for (int i = 8; i < 12; i++) level.SetBehavior(i, conveyor.Behavior);
-            samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 40)) };
+            samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 40)) };
             var body = samus.Kinematics;
             body.Radius = body.Radius.WithY(8);
             body.YSpeed = new UnsignedSixteenSixteen(verticalSpeed, 0xffff); // Native admission does not inspect the fractional word.
@@ -64,7 +65,7 @@ internal static class TreadmillPhysicsVerification
         // A solid obstruction must clip the carried displacement through the ordinary mover.
         level.SetTerrain(10, Solid);
         level.SetBehavior(9, WreckedShipTreadmillBlockDefinitions.RightwardsBehavior);
-        samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(27, 40)) };
+        samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(27, 40)) };
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Crateria, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         SamusGroundedMovement.StepStanding(level, samus, 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);

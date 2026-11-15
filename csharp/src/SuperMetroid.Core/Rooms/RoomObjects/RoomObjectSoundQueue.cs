@@ -6,14 +6,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal sealed class RoomObjectSoundQueue
 {
-    /// <summary>
-    /// The update's audio requests the room objects' requests join: the runtime's, once it points the room's systems at it;
-    /// the room objects' own record before that.
-    /// </summary>
-    internal GameplayAudioRequests Requests { get; private set; } = new();
+    /// <summary>Creates the room objects' sound queue, whose requests join <paramref name="requests"/>, the runtime's update's (#2057).</summary>
+    internal RoomObjectSoundQueue(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
 
-    /// <summary>Points the room objects' requests at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
+    /// <summary>The update's audio requests the room objects' requests join: the runtime's.</summary>
+    internal GameplayAudioRequests Requests { get; }
 
     /// <summary>Queues <paramref name="soundEffect"/> at <paramref name="Priority"/> now.</summary>
     internal void Queue(SoundEffectId soundEffect, SoundRequestPriority Priority) => Requests.QueueSound(soundEffect, Priority);

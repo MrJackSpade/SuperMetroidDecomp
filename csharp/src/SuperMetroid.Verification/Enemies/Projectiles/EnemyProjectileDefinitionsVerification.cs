@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Doors;
@@ -87,7 +88,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Radius = new(1, 1);
             projectile.CanDamageSamus = true;
             projectile.PersistsOnSamusContact = true;
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0100)),
                 Health = ushort.MaxValue,
@@ -128,7 +129,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             SamusProjectile shot = shots.Shots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);
             shot.Damage = 1;
@@ -136,7 +137,7 @@ internal static class EnemyProjectileDefinitionsVerification
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
             int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,
-                new SamusBombProjectileSystem());
+                new SamusBombProjectileSystem(GameplayAudioRequests.Standalone()));
             AssertEqual(1, hits, $"{kind} production shot admitted");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {

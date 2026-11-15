@@ -23,7 +23,8 @@ internal static class GrappleTileBindingVerification
     internal static void VerifyGrappleTileBinding()
     {
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(random: random);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
+        var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var samus = runtime.Player.IntroducedSamus;
@@ -36,7 +37,6 @@ internal static class GrappleTileBindingVerification
         // A connected rope with on-screen endpoint, so the beam's draws exist to bind.
         samus.Grapple.RopeLength = 32;
         samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
         game.AdoptRuntime(runtime);
         InstalledSpriteSheets stock = InstalledFixtures.SpriteSheets, rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.Grapple);
         game.BindArtwork(game.Artwork with { SpriteSheets = stock });

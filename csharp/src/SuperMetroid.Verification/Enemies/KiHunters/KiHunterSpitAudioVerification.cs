@@ -33,7 +33,9 @@ internal static class KiHunterSpitAudioVerification
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),
             "the spit instruction requests the acid-spit sound once");
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
+            hostServices: SuperMetroidGameHostServices.Default with { SoundAcceptance = NextUpdateSoundAcceptance.Instance }, random: random);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -52,8 +54,6 @@ internal static class KiHunterSpitAudioVerification
         // The spit cue, four poses into the right spit animation.
         state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
         body.AnimationClock.StepOnNextUpdate();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { SoundAcceptance = NextUpdateSoundAcceptance.Instance }, random: random);
         game.EnterMainGameplay(runtime);
         var spit = EnemySound.AcidSpit;
         int requests = 0, starts = 0;

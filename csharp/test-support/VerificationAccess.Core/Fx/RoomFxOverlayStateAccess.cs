@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Reflection;
 
 namespace SuperMetroid.Core.Fx;
@@ -23,7 +24,7 @@ internal static class RoomFxOverlayStateAccess
                 Room = null,
                 SuppliedDefinition = definition,
             });
-            fx.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
+            fx.BindAudioRequests(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             return fx;
         }
     }

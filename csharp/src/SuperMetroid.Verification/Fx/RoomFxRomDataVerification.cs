@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Fx.AreaBlockAnimationDefinitionsVerification;
@@ -171,7 +172,7 @@ internal static class RoomFxRomDataVerification
     {
         var bus = new TestAddressSpace();
         var state = new RoomFxOverlayState();
-        state.BindAudioRequests(new GameplayAudioRequests());
+        state.BindAudioRequests(GameplayAudioRequests.Standalone());
         const ushort record = 0x9400;
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,

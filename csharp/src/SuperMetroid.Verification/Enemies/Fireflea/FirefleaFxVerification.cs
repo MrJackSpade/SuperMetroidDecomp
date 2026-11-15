@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rendering;
@@ -76,7 +77,7 @@ internal static class FirefleaFxVerification
         }
         // A room without the effect has no Fireflea darkness and shows no Fireflea shade; the darkness lives with its room.
         fx = RoomFxOverlayState.ForRoom(null, null, 0);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
         AssertTrue(fx.Fireflea is null, "a non-Fireflea room has no Fireflea darkness");
         AssertEqual<RgbColor?>(null, fx.FirefleaTint, "non-Fireflea room shows no Fireflea shade");

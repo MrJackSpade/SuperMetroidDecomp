@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -92,7 +93,7 @@ internal static class EnemyHitBurstVerification
         })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health: 1000, frozenTimer);
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
@@ -327,14 +328,14 @@ internal static class EnemyHitBurstVerification
     /// <summary>One uncharged beam of <paramref name="beam"/> at <see cref="Place"/>, flying right.</summary>
     private static (SamusProjectileSystem Shots, SamusBombProjectileSystem Bombs) ShotAt(SamusBeamCombination beam)
     {
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(beam, charged: false);
         shot.Damage = 20;
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(Place);
         shot.Radius = new(4, 4);
-        return (shots, new SamusBombProjectileSystem());
+        return (shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone()));
     }
 
     /// <summary>Runs the enemy hit burst checks.</summary>

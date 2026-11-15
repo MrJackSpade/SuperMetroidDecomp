@@ -70,8 +70,10 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     /// <param name="effectWaits">The waits her breath bubbles and lava spray keep for the effects that shared their places.</param>
     /// <param name="particles">The splashes, bubbles, spray and dust her presentation shows.</param>
-    public SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles)
+    /// <param name="audioRequests">Samus's audio requests, which her movement, liquid, landing and footstep sounds join.</param>
+    internal SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles, GameplayAudioRequests audioRequests)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         EffectWaits = Ensure.NotNull(effectWaits);
         _particles = Ensure.NotNull(particles);
     }
@@ -92,10 +94,9 @@ public sealed class SamusLiquidPhysicsState
     public BreathBubbleAndLavaSprayWaits EffectWaits { get; }
 
     /// <summary>
-    /// The update's audio requests her movement, liquid, landing and footstep sounds join as they are made: Samus's, which
-    /// her runtime points at its own.
+    /// The update's audio requests her movement, liquid, landing and footstep sounds join as they are made: Samus's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// Exclusive liquid effect identity: lava, acid,
@@ -138,9 +139,6 @@ public sealed class SamusLiquidPhysicsState
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
-
-    /// <summary>Points her sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
     /// Queues a sound selected by a movement behaviour now, beside those of liquid entry, footsteps and landing impact.

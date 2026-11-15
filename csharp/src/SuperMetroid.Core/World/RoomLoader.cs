@@ -271,7 +271,8 @@ internal sealed class RoomLoader
     internal SamusState InitializeSamus()
     {
         _yardKickDistance.RecordSamusInitialization();
-        return new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge, _artwork.SamusArtwork);
+        return new SamusState(_audioRequests, _samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge,
+            _artwork.SamusArtwork);
     }
 
     /// <summary>
@@ -286,7 +287,6 @@ internal sealed class RoomLoader
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
         _player.Samus = samus;
-        _player.Samus.BindAudioRequests(_audioRequests);
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
         StoredExploredMapLoads.LoadFile(_system.StoredExploredMaps, slot.Progression);
@@ -321,7 +321,6 @@ internal sealed class RoomLoader
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
         samus.AnimationFrame = 0;
         samus.CopyInventoryFrom(carried);
-        samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
 
@@ -928,13 +927,11 @@ internal sealed class RoomLoader
             loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(_audioRequests);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
-        var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
+        var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         projectiles.TakeOverFrom(_room.HandOver);
-        bombs.BindAudioRequests(_audioRequests);
-        projectiles.BindAudioRequests(_audioRequests);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
@@ -963,9 +960,9 @@ internal sealed class RoomLoader
         // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
-            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft));
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft),
+            _audioRequests);
         scope.RoomObjects = roomObjects;
-        roomObjects.Sounds.BindAudioRequests(_audioRequests);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
@@ -1014,7 +1011,6 @@ internal sealed class RoomLoader
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             room.Area, _bossArtwork, roomObjects.BreakableTerrain);
         enemies.TakeOverFrom(_room.HandOver);
-        enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which
         // leave with it.
@@ -1153,7 +1149,6 @@ internal sealed class RoomLoader
         samus.AnimationFrame = 0;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
-        _player.Samus.BindAudioRequests(_audioRequests);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Runtime;
@@ -28,7 +29,11 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
+        var progress = new CameraReachedLoaderProgress(0x038c);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
+            hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = progress }, random: random);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
+        progress.Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -39,8 +44,6 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.Control.LockOutPlayer();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = new CameraReachedLoaderProgress(runtime, 0x038c) }, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
 
@@ -79,10 +82,15 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     }
 
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
-    internal sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IRoomLoadProgress
+    internal sealed class CameraReachedLoaderProgress(ushort cameraX) : IRoomLoadProgress
     {
+        /// <summary>The runtime whose camera the progress follows, built over the game that reports it.</summary>
+        internal SuperMetroidRuntime? Runtime { get; set; }
+
         /// <summary>Allows enemy initialization once scrolling reaches the recorded layer-1 X.</summary>
-        public bool HasInitializedEnemySlot(int slot) => runtime.Room.LoadedCamera.PixelPosition.X <= cameraX;
+        /// <exception cref="InvalidOperationException">No runtime has been given.</exception>
+        public bool HasInitializedEnemySlot(int slot) =>
+            (Runtime ?? throw new InvalidOperationException("The loader progress follows no runtime.")).Room.LoadedCamera.PixelPosition.X <= cameraX;
     }
 
     /// <summary>Runs the focused scrolling-camera Rinka spawn check.</summary>

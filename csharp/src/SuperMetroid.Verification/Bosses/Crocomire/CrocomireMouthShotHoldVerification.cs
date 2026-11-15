@@ -86,7 +86,7 @@ internal static class CrocomireMouthShotHoldVerification
     /// <summary>A room enemy system whose first actor is Crocomire's body, standing at column 576.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Body) NewCrocomireBody()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);

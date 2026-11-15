@@ -147,7 +147,6 @@ internal sealed class CeresRidleyHits
     internal bool ResolveRidleyBodySamusContact(SamusState samus)
     {
         Ensure.NotNull(samus);
-        _room.EnsureLoaded();
         // Samus contact gates ordinary contact only on the contact-damage mode and Samus's invincibility timer, never on
         // whether her knockback is still running.
         if (_ridleyEncounter.Ridley is null)

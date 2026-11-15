@@ -14,7 +14,7 @@ internal static class BoulderBounceDefinitionsVerification
     /// <summary>Compares the three native words and verifies the zero-counter bounce enters rolling with Y position preserved.</summary>
     internal static void VerifyCompiledBoulderBounces(CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];

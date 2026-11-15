@@ -39,17 +39,12 @@ internal static class SpeedBoosterStageFiveResidueVerification
         }
 
         // The getaway writes its transfer lists into the room's Mode 7 map (#1349).
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(new SharedFadeStepCount(), cadence), definitions: CompiledRoomEnemyDefinitions.Instance,
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(new SharedFadeStepCount(), cadence), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here."))
             {
                 Floor = RoomBackgroundsFixtures.CeresFloor(),
-            })
-        {
-            BossArtworkBinding =
-            {
-                CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus))),
-            },
-        };
+            });
+        enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus)));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
 

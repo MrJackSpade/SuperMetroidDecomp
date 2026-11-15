@@ -20,6 +20,21 @@ internal static class GunshipTakeoffDefinitions
     /// <summary>The frames the fired-up engines rumble before the steady liftoff begins.</summary>
     internal const int EngineRumbleFrames = 128;
 
+    /// <summary>
+    /// The rumble frame on which the rumble strengthens: before it the rumble shakes Samus and the gunship one pixel, from
+    /// it two, and on it the liftoff's dust clouds rise.
+    /// </summary>
+    internal const int RumbleStrengthensFrame = 64;
+
+    /// <summary>How far the steady liftoff raises Samus and the gunship each update, in pixels.</summary>
+    internal const int SteadyLiftoffRise = 2;
+
+    /// <summary>The top hull's Y above which the steady liftoff starts accelerating.</summary>
+    internal const int AcceleratingLiftoffY = 896;
+
+    /// <summary>The top hull's Y above which the accelerating takeoff completes and the gunship flies off.</summary>
+    internal const int TakeoffCompleteY = 256;
+
     /// <summary>The gunship's look once its engines are readied for the takeoff, which its hull and the takeoff's dust show.</summary>
     internal static EncounterLook TakeoffLook { get; } = new(EncounterArtwork.Gunship, "Takeoff");
 }

@@ -51,7 +51,7 @@ internal static class ShaktoolOwnedStateVerification
         }
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
-        var misplacedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var misplacedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot misplaced = misplacedEnemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
         misplaced.Bind(misplaced.DefinitionId, default(RoomEnemyDefinition));
@@ -64,7 +64,7 @@ internal static class ShaktoolOwnedStateVerification
     /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>
     private static RoomEnemySystem CreateShaktoolGroup()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 7; index++)
         {
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];

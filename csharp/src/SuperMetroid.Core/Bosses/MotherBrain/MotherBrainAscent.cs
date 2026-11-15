@@ -191,7 +191,7 @@ internal sealed class MotherBrainAscent
         int place = state.Bursts.NextPlace(MotherBrainAscentDustDefinitions.DustPositions.Length);
         int random = _room.Random.Read();
         MiscDustAnimation animation = MotherBrainRandomDefinitions.AscentDustBig.IsSetIn(random) ? MiscDustAnimation.ShortBigDustCloud : MiscDustAnimation.SmallDustCloud;
-        _projectiles.SpawnRoomGraphicsDustExplosion(
+        _projectiles.SpawnDustOrExplosion(
             MotherBrainAscentDustDefinitions.DustPositions[place], animation);
         _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.AscentDust);
     }

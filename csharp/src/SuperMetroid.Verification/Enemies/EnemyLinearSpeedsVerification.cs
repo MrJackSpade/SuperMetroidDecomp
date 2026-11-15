@@ -34,7 +34,7 @@ internal static class EnemyLinearSpeedsVerification
 
         if (definitionsOnly) return;
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Ripper does not need any bus for its speed setup.
         var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);

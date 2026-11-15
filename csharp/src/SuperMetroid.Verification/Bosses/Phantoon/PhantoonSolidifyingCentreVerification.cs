@@ -32,7 +32,7 @@ internal static class PhantoonSolidifyingCentreVerification
     /// <summary>Fires one uncharged Power Beam shot at <paramref name="at"/>; returns the hits his resolver reports.</summary>
     private static int Fire(Position16<RoomPixels> at)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);

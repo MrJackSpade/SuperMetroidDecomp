@@ -22,7 +22,7 @@ internal static class MotherBrainGlassSuperMissileVerification
     /// </summary>
     internal static void VerifyMotherBrainGlassSuperMissile()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int glassHits = 0;
         enemies.VerificationServices().HeadShotOnGlassCounted = () => glassHits++;
         var head = enemies.SlotTable.Slots[1];

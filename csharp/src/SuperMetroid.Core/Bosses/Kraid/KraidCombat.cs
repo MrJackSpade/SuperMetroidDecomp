@@ -108,7 +108,7 @@ internal sealed class KraidCombat
                 SamusProjectileFamily.PowerBomb or SamusProjectileFamily.BeamExplosion
             ? MiscDustAnimation.BigExplosion
             : MiscDustAnimation.DudShotTinyExplosion;
-        _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex);
+        _projectiles.SpawnDustOrExplosion(position, animationIndex);
         _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Normal);
     }
 

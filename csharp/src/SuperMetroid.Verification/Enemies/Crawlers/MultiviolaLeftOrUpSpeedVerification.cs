@@ -35,7 +35,7 @@ internal static class MultiviolaLeftOrUpSpeedVerification
         if (!placements.Any(placement => placement.Heading.RawValue % TrigonometryAngle.QuarterTurn.RawValue == 0))
             throw new InvalidOperationException("No authored Multiviola heads along an axis, so none reaches a speed of nothing turned left or up.");
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         RoomEnemyDefinition definition = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.Multiviola);
         slot.Bind(EnemyDefinitionId.Multiviola, definition);

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Cacatac;
 /// <summary>Compares compiled Cacatac travel distances and initialized movement bounds with the pinned retail table.</summary>
 internal static class CacatacMovementDefinitionsVerification
@@ -12,7 +13,7 @@ internal static class CacatacMovementDefinitionsVerification
     {
         const int distanceTable = 0xa29f36;
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = CacatacBehavior.InitializeCacatac;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);

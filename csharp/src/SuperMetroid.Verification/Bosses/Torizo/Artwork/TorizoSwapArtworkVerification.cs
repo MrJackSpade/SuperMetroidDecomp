@@ -12,6 +12,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 
@@ -33,7 +34,7 @@ internal static class TorizoSwapArtworkVerification
         var copiesSeen = new Dictionary<(EncounterArtwork Torizo, TorizoArtworkLook Look), int>();
         AssertTrue(stock.Bosses.TorizoSwaps is not null,
             "installed Torizo instruction tile pages exist");
-        var installedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+        var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
         installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition));
@@ -103,7 +104,7 @@ internal static class TorizoSwapArtworkVerification
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> stockBytes),
             "stock Golden Torizo upload remains addressable");
-        var goldenEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+        var goldenEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemySlot goldenSlot = goldenEnemies.SlotTable.Slots[0];
         goldenSlot.Bind(EnemyDefinitionId.GoldenTorizo, goldenSlot.Definition);
         goldenSlot.Bind(goldenSlot.DefinitionId, installedSlot.Definition);

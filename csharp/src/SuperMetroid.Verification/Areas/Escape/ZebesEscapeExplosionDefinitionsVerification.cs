@@ -7,6 +7,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 
@@ -49,7 +50,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         for (ushort random = 0; random < 16; random++)
         foreach (RoomSpriteObjectKind kindLeftOpen in kindsLeftOpen)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(new(0x1234, 0x5678), random, kindLeftOpen);
 
             ZebesEscapeExplosionDefinition? drawn = random < 8 ? ZebesEscapeExplosionDefinitions.Drawn[random] : null;

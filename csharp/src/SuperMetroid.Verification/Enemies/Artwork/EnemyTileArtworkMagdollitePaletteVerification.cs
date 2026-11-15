@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -47,7 +48,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             throw new InvalidDataException("Stock Magdollite palette JSON is null.");
         PaletteRgb5 original = document.Frames[1][0];
         // Exercise the room's production glow step. Forbid all bus reads: installed artwork must be sufficient on every tick.
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         // The glow names the frame every Magdollite shows (#1512); the frame's colours are the import's shade. A restarted
         // glow shows its first frame at once.
         enemies.MagdolliteBehavior.RestartGlow();

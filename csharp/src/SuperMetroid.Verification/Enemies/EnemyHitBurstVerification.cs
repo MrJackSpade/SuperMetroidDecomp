@@ -116,7 +116,7 @@ internal static class EnemyHitBurstVerification
     /// </summary>
     internal static void VerifyPirateHitBursts()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot silver = enemies.SlotTable.Slots[0];
         silver.Bind(EnemyDefinitionId.PirateSilverNinja, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PirateSilverNinja));
@@ -311,7 +311,7 @@ internal static class EnemyHitBurstVerification
     /// <summary>A room with an enemy of <paramref name="definition"/> placed at <see cref="Place"/> among its interactive enemies.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) RoomWith(EnemyDefinitionId id, RoomEnemyDefinition definition, int health, int frozenTimer)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(id, definition);

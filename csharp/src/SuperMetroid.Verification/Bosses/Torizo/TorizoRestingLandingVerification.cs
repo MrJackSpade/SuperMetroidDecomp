@@ -96,7 +96,7 @@ internal static class TorizoRestingLandingVerification
     /// <summary>A Torizo of a fresh room's enemies at <paramref name="at"/>, facing left, with Bomb Torizo's radii.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, TorizoEnemyState State) NewTorizo(Position16<RoomPixels> at)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = FixedPosition<RoomPixels>.FromWhole(at);
         slot.Radius = Radius;

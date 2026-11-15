@@ -14,17 +14,17 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyPresentation
 {
-    /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
-    private readonly EnemyRoomBinding _room;
+    /// <summary>The enemy session, which holds the installed sheets and the encounters' looks.</summary>
+    private readonly EnemySession _session;
 
-    /// <summary>Binds enemy presentation to its room's installed artwork catalog and the runtime's shared fade step count.</summary>
-    /// <param name="room">The room's bindings, whose session holds the installed sheets and the encounters' looks.</param>
+    /// <summary>Binds enemy presentation to its session's installed artwork and the runtime's shared fade step count.</summary>
+    /// <param name="session">The enemy session, which holds the installed sheets and the encounters' looks.</param>
     /// <param name="fadeStepCount">
     /// The runtime's shared fade step count, which its door, death and time-up fades also count their steps on.
     /// </param>
-    internal EnemyPresentation(EnemyRoomBinding room, SharedFadeStepCount fadeStepCount)
+    internal EnemyPresentation(EnemySession session, SharedFadeStepCount fadeStepCount)
     {
-        _room = room;
+        _session = Ensure.NotNull(session);
         FadeStepCount = Ensure.NotNull(fadeStepCount);
     }
 
@@ -68,7 +68,7 @@ internal sealed class EnemyPresentation
         BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
     /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
-    internal EncounterLooks Looks => _room.Session.Looks;
+    internal EncounterLooks Looks => _session.Looks;
 
     /// <summary>Shows <paramref name="look"/> on its encounter's frames from this update on (#1538).</summary>
     internal void ShowLook(EncounterLook look) => Looks.Show(look);
@@ -177,5 +177,5 @@ internal sealed class EnemyPresentation
         Artwork.Enemy(enemy).Sheet.Frame(EnemySheetDefinitions.FrameName(frame));
 
     /// <summary>The installed enemy sheets.</summary>
-    private IEnemySheetSource Sheets => _room.Session.Sheets;
+    private IEnemySheetSource Sheets => _session.Sheets;
 }

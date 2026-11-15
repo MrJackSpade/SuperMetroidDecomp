@@ -136,7 +136,7 @@ internal static class KraidAnimationsVerification
     /// <summary>Creates Kraid's body and arm in a fresh enemy system.</summary>
     private static NewKraidResult NewKraid()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState { InitialHealth = 104 };
         enemies.KraidBehavior.Access.Kraid = state;
         enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);

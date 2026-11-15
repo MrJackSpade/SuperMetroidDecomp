@@ -44,7 +44,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var samusColours = new SamusColours();
         assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState(new SharedRandom());
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices((installedArt ?? InstalledFixtures.EnemyArtwork).Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices((installedArt ?? InstalledFixtures.EnemyArtwork).Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }, installedBosses: (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses);
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
@@ -83,7 +83,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
-                (state.WalkingSpeed < 0 ? -32 : 32))), state.LandingPosition.Y));
+                (state.WalkingDirection == HorizontalDirection.Left ? -32 : 32))), state.LandingPosition.Y));
             foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {

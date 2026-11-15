@@ -17,7 +17,7 @@ internal static class DeadCorpseCounterVerification
     /// </summary>
     internal static void VerifyDeadSidehopperPreRotDelay()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
 
@@ -37,7 +37,7 @@ internal static class DeadCorpseCounterVerification
     /// <summary>Counts a dead Zoomer's pre-rot calls through the named operation, one call at a time.</summary>
     internal static void VerifyDeadTourianPreRotDelay()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianCorpseProfileDefinitions.DeadZoomerProfile;
         var state = new DeadTourianCorpseEnemyState(slot, profile,

@@ -14,7 +14,7 @@ internal static class CrocomireSeparateValuesVerification
     /// </summary>
     internal static void VerifyCrocomireSeparateValues()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new CrocomireEnemyState(body);
         body.SetSpeciesState(state);

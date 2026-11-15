@@ -26,7 +26,6 @@ internal sealed class SaveStationElectricity
     /// </summary>
     internal void Spawn(Position16<RoomBlocks> roomObjectBlock)
     {
-        _room.EnsureLoaded();
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

@@ -14,7 +14,7 @@ internal static class EnemyRoomCountersVerification
     /// <summary>Checks the darkness, slot-table and kill-count ranges.</summary>
     internal static void VerifyEnemyRoomCounters()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
 
         enemies.RoomStatus.FirefleaDarknessStep = EnemyRoomStatus.MaximumFirefleaDarknessStep;
         AssertEqual(6, enemies.RoomStatus.FirefleaDarknessStep, "darkness reaches its last step");

@@ -1294,7 +1294,7 @@ internal static class RoomObjectPopulationVerification
             ProjectileSpritemaps = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
                 EnemyProjectileSpritemapDocuments.Write(artworkDocument))) });
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(tiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(tiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
         // The fixture room places no enemies, so loading it keeps the session's first set; a save room's own set holds
         // the electricity on its shared sheet, as entering a save room loads it (#1513).

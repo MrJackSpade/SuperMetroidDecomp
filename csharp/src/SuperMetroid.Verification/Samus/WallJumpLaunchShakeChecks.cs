@@ -15,7 +15,7 @@ internal static class WallJumpLaunchShakeChecks
     /// <summary>A room whose every enemy place is filled, so its enemy pass takes a waiting shake.</summary>
     internal static RoomEnemySystem CreateFilledRoom()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.SlotTable.CoverSpawn(enemies.SlotTable.Slots[enemies.SlotTable.Slots.Count - 1]);
         return enemies;
     }

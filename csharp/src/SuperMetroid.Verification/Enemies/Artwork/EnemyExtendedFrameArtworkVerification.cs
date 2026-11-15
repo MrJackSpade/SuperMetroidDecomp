@@ -28,6 +28,7 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed extended enemy OAM compositions and guarded visual reads against native data.</summary>
 internal static class EnemyExtendedFrameArtworkVerification
 {
@@ -263,7 +264,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
     {
-        var enemies = new RoomEnemySystem((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = art?.Bosses };
+        var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         // A boss frame names its body frame through the installed body sheets (#1466), as a room loading the boss binds them.
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);

@@ -33,7 +33,7 @@ internal static class MiscDustProjectileBehaviorVerification
         foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
-            enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>(128, 96), animation);
+            enemies.Projectiles.SpawnDustOrExplosion(new Position16<RoomPixels>(128, 96), animation);
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
             MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
@@ -86,7 +86,7 @@ internal static class MiscDustProjectileBehaviorVerification
     /// <summary>A room enemy system whose random reads and draws return zero.</summary>
     internal static RoomEnemySystem CreateRoomEnemySystem()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
         return enemies;

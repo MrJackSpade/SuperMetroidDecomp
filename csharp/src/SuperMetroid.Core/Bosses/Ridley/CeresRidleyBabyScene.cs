@@ -152,7 +152,6 @@ internal sealed class CeresRidleyBabyScene
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        _room.EnsureLoaded();
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
@@ -172,7 +171,6 @@ internal sealed class CeresRidleyBabyScene
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
             !_ridleyEncounter.Parts.HoldsCeresRidley ||
             !_ridleyEncounter.Ridley.MovementAnimationEnabled)

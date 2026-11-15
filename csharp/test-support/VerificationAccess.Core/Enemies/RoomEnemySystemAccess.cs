@@ -379,7 +379,6 @@ internal static class RoomEnemySystemAccess
         internal void DrawEnemyProjectiles(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false)
         {
             Ensure.NotNull(oam);
-            self.Room.EnsureLoaded();
 
             self.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
             self.Projectiles.DrawEnemyProjectilesAtAsOam(oam, camera, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen);

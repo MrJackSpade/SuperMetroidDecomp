@@ -15,7 +15,7 @@ internal static class MultiviolaBehaviorVerification
     /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
     internal static void VerifyMultiviolaBehavior()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

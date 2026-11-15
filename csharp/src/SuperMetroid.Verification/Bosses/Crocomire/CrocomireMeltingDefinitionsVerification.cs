@@ -170,7 +170,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         CrocomireMeltingIllustration source, CrocomireBodySegment bodyProgram, bool compareRom = true)
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));

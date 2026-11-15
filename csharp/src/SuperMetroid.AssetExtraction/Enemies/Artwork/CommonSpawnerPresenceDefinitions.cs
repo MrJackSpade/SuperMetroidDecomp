@@ -118,7 +118,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.CreateBombDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
-        [Engine(nameof(EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion))] = new()
+        [Engine(nameof(EnemyProjectileEngine.SpawnDustOrExplosion))] = new()
         {
             Enemies = DustRaisers, Mains = FallingDebris, Shades = [CommonSpawnerShades.CeresDoorLooks],
         },

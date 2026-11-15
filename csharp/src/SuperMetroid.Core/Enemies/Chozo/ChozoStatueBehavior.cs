@@ -123,7 +123,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks>? handBlock = null)
     {
         Ensure.NotNull(level);
-        _room.EnsureLoaded();
         RoomEnemySlot statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
         if (statue.DefinitionId != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");

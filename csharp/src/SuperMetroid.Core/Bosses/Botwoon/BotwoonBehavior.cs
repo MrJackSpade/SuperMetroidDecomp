@@ -678,7 +678,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         head.Position = head.Position.WithWholeY(200);
         state.Phase = BotwoonPhase.WaitForBody;
-        _projectiles.SpawnRoomGraphicsDustExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
+        _projectiles.SpawnDustOrExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);

@@ -110,19 +110,22 @@ internal static class CompiledProjectileMathVerification
         // equivalent to adding a quarter-turn. Check every sway phase, both step
         // sizes, carry/borrow, low subpixel preservation and the swing's wrap.
         var projectile = new EnemyProjectile(0, default);
-        foreach (ushort step in new ushort[] { 2, 4 })
+        foreach (int swaySteps in new[] { 1, 2 })
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xfffffff1 })
         for (int phase = 0; phase < 512; phase++)
         {
             int sampleIndex = (((phase & 510) | 128) / 2) + 64;
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
-            var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial), SwayPhase = phase };
+            var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial) };
+            debris.StartSway(phase);
             projectile.State = debris;
-            arc(projectile, step);
+            arc(projectile, swaySteps);
+            var after = new NoobTubeDebrisState(column: 0);
+            after.StartSway((phase + 2 * swaySteps) % 512);
             if (debris.X.Whole != SixteenSixteenWords.WholeOf(expected) || debris.X.Fraction != SixteenSixteenWords.FractionOf(expected) ||
-                debris.SwayPhase != (phase + step) % 512)
-                throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
+                debris.Sway != after.Sway)
+                throw new InvalidDataException($"N00b tube arc differs: phase={phase}, steps={swaySteps}, initial={initial:X8}.");
         }
         Console.WriteLine("Compiled projectile math: every signed sample times every speed-word boundary class across five production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, every Shinespark angle byte and radius, and 3,072 N00b-tube sway steps match without a production bus.");
     }

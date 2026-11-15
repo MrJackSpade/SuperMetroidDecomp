@@ -19,7 +19,7 @@ internal static class KagoBugProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KagoBugProjectileNativeListAddresses.Extent, "Kago bug");
         foreach (KagoBugProjectileSegment program in new[] { KagoBugProjectileSegment.Landed, KagoBugProjectileSegment.Falling, KagoBugProjectileSegment.JumpStart })
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 1;
             // The shell releases the bug with the typed state its cues keep: the source shell and its countdowns.
             AssertTrue(enemies.KagoBehavior.SpawnKagoBug(new RoomEnemySlot(0, EnemySlotFixtures.Registry)), "the real Kago producer allocates its bug");

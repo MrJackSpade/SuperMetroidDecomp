@@ -17,7 +17,7 @@ internal static class SpriteObjectPlacesVerification
     /// </summary>
     internal static void VerifySpriteObjectPlaces()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomSpriteObjects objects = enemies.SpriteObjects;
         var spawned = new List<RoomSpriteObject>();
         for (int spawn = 0; spawn < SpriteObjectPlaces.PlaceCount; spawn++)

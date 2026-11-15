@@ -18,7 +18,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
         gravity.ApplyGravity(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(56));
         AssertEqual(36, gravity.YVelocity.InTwoHundredFiftySixthsOfPixel, "gravity carries the velocity through zero");
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);

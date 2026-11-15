@@ -115,7 +115,6 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
-        _room.EnsureLoaded();
 
         int hitCount = 0;
         for (int enemyProjectileIndex = _places.Length - 1;
@@ -214,7 +213,6 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
     public void ResolveEnemyProjectileSamusHits(SamusState? samus)
     {
-        _room.EnsureLoaded();
         // Gameplay runs every projectile's update first, then enters the
         // separate Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
@@ -261,7 +259,6 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
-        _room.EnsureLoaded();
 
         // Sprite objects are drawn once, with the projectiles in front of Samus. Drawing them again with the
         // projectiles behind her would duplicate explosions, dust, and Spark's trail in the same frame.
@@ -282,7 +279,6 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
-        _room.EnsureLoaded();
 
         DrawEnemyProjectilesAt(
             sprites,
@@ -735,12 +731,10 @@ internal sealed class EnemyProjectileEngine
     private const int LowHalfBits = 8;
 
     /// <summary>
-    /// Allocates the shared room-graphics dust/explosion actor.
-    /// The caller selects the animation the spawn parameter indexes; this is shared by
-    /// special Rinka deaths, Boulder's impact clouds, and later families that invoke the same
-    /// engine primitive.
+    /// Spawns a dust cloud, smoke or an explosion, drawn from the pictures every room shares, playing the animation the
+    /// caller chooses: Rinka deaths, Boulder's impact clouds, the bosses' explosions and every other spawner share it.
     /// </summary>
-    internal void SpawnRoomGraphicsDustExplosion(
+    internal void SpawnDustOrExplosion(
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
@@ -756,9 +750,7 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
-        // The dust-cloud-or-explosion initializer ignores the definition's placeholder animation and
-        // starts the animation the spawner chooses: the Rinka's
-        // is the small explosion, and the Boulder's its impact cloud.
+        // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }
 

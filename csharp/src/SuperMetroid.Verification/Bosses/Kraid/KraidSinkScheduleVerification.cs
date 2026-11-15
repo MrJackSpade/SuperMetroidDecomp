@@ -69,7 +69,7 @@ internal static class KraidSinkScheduleVerification
     private static void VerifyKraidSinkRockPlacement(CartridgeImportAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
         var requests = enemies.BossFrameResults.KraidObjects;
@@ -114,7 +114,7 @@ internal static class KraidSinkScheduleVerification
             Console.WriteLine("Kraid sinking: full Y selection, native PLM fields and all seven production rock/mutation callbacks pass.");
             return;
         }
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
         var requests = enemies.BossFrameResults.KraidObjects;

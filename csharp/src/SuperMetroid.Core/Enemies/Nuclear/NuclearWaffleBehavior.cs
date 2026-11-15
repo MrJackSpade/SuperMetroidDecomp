@@ -61,7 +61,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
         state.InitialHead = slot.Position.Whole;
-        state.GraphicsAttributes = SpriteGraphics.SpawnedBy(slot);
+        state.Graphics = SpriteGraphics.SpawnedBy(slot);
 
         SpawnNuclearWaffleProjectileSegments(slot, state);
         SpawnNuclearWaffleSpriteSegments(slot, state);
@@ -113,7 +113,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SpawnNuclearWaffleTurnObjects(
                 slot.Position.Whole,
-                state.GraphicsAttributes,
+                state.Graphics,
                 headOrientation);
             state.HeadOrientationState = headOrientation.State;
         }
@@ -153,7 +153,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
                 EnemyProjectileBehavior.Still,
-                state.GraphicsAttributes);
+                state.Graphics);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial));
             segment.Position = owner.Position.WithWhole(state.InitialHead);
             // The initializer makes these four links indestructible duds. Their
@@ -174,7 +174,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             state.SpriteSegments[segmentIndex] = _spriteObjects.SpawnRoomSpriteObject(
                 slot.Position.Whole,
                 RoomSpriteObjectKind.NuclearWaffleBody,
-                state.GraphicsAttributes);
+                state.Graphics);
         }
     }
 
@@ -193,7 +193,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 SpawnNuclearWaffleTurnObjects(
                     segment.Position.Whole,
-                    state.GraphicsAttributes,
+                    state.Graphics,
                     orientation);
                 state.ProjectileOrientationStates[index] = orientation.State;
             }
@@ -223,7 +223,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 SpawnNuclearWaffleTurnObjects(
                     segment.Position.Whole,
-                    state.GraphicsAttributes,
+                    state.Graphics,
                     orientation);
                 state.SpriteOrientationStates[index] = orientation.State;
             }

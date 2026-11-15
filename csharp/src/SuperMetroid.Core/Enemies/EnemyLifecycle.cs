@@ -89,7 +89,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     {
         if (_slotTable.FindFreeSlot() is not { } slot)
             return null;
-        InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
+        InitializeSlotFromDefinition(slot, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         slot.Frame = slot.Processing.HasAny(EnemyProcessing.Animates)

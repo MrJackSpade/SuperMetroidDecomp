@@ -10,21 +10,6 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 [RoomLifetime]
 internal sealed class NoobTubeBehavior
 {
-    /// <summary>The animation each shard of the burst runs, in burst order.</summary>
-    private static readonly NoobTubeProjectileSegment[] ShardAnimations =
-    [
-        NoobTubeProjectileSegment.ShardDownOutward,
-        NoobTubeProjectileSegment.ShardUpOutward,
-        NoobTubeProjectileSegment.ShardUpSteep,
-        NoobTubeProjectileSegment.ShardUpDiagonalInner,
-        NoobTubeProjectileSegment.ShardUpDiagonalOuter,
-        NoobTubeProjectileSegment.ShardDownDiagonal,
-        NoobTubeProjectileSegment.ShardDownOuter,
-        NoobTubeProjectileSegment.ShardOutward,
-        NoobTubeProjectileSegment.ShardUp,
-        NoobTubeProjectileSegment.ShardDownInner,
-    ];
-
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
         SpriteGraphics.SharedIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
@@ -49,16 +34,16 @@ internal sealed class NoobTubeBehavior
     public void SpawnNoobTubeProjectile(
         NoobTubeProjectileRequest request)
     {
-        _room.EnsureLoaded();
 
-        RoomEnemyProjectileKind kind = request.Definition switch
+        NoobTubePiece piece = request.Piece;
+        RoomEnemyProjectileKind kind = piece.Definition switch
         {
             NoobTubeProjectileDefinition.Crack => RoomEnemyProjectileKind.NoobTubeCrack,
             NoobTubeProjectileDefinition.Shard => RoomEnemyProjectileKind.NoobTubeShard,
             NoobTubeProjectileDefinition.ReleasedAirBubble =>
                 RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
             _ => throw new InvalidOperationException(
-                $"Undefined n00b-tube projectile definition {request.Definition}."),
+                $"Undefined n00b-tube projectile definition {piece.Definition}."),
         };
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -67,69 +52,30 @@ internal sealed class NoobTubeBehavior
         // The tube's pieces draw from the shared sheet in the crack colours the room's crack initializer installs (#1512).
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
-        int blockX = request.RoomObjectBlock.X;
-        int blockY = request.RoomObjectBlock.Y;
-        switch (request.Definition)
+        Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
+        projectile.StartAnimation(new NoobTubeProjectileAnimation(piece.Animation));
+        switch (piece.Definition)
         {
             case NoobTubeProjectileDefinition.Crack:
-                projectile.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Crack));
-                if (request.Piece is not null)
-                    throw new InvalidDataException("The n00b tube has one crack; a crack names no piece.");
-                projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
-                    blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset), CoordinateAxis.Wrap(
-                    blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset)));
+                projectile.Position = projectile.Position.WithWhole(place);
                 return;
 
             case NoobTubeProjectileDefinition.Shard:
-            {
-                int index = RequireNoobTubePiece(
-                    request.Piece,
-                    NoobTubeDebrisDefinitions.ShardOffsets.Length,
-                    "shard");
-                projectile.State = new NoobTubeDebrisState(
-                    blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset +
-                    NoobTubeDebrisDefinitions.ShardOffsets[index].X);
-                projectile.Position = projectile.Position.WithWrappedWholeY(
-                    blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset +
-                    NoobTubeDebrisDefinitions.ShardOffsets[index].Y);
-                projectile.StartAnimation(new NoobTubeProjectileAnimation(ShardAnimations[index]));
-                projectile.Velocity = NoobTubeDebrisDefinitions.ShardVelocities[index];
+                projectile.State = new NoobTubeDebrisState(place.X);
+                projectile.Position = projectile.Position.WithWholeY(place.Y);
+                projectile.Velocity = piece.Velocity;
                 return;
-            }
 
             case NoobTubeProjectileDefinition.ReleasedAirBubble:
-            {
-                projectile.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.ReleasedAirBubble));
-                int index = RequireNoobTubePiece(
-                    request.Piece,
-                    NoobTubeDebrisDefinitions.BubbleOffsets.Length,
-                    "released-air bubble");
-                projectile.State = new NoobTubeDebrisState(
-                    blockX * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].X);
-                projectile.Position = projectile.Position.WithWrappedWholeY(
-                    blockY * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].Y);
-                projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.BubbleInitialYVelocity);
+                projectile.State = new NoobTubeDebrisState(place.X);
+                projectile.Position = projectile.Position.WithWholeY(place.Y);
+                projectile.Velocity = projectile.Velocity.WithY(piece.Velocity.Y);
                 return;
-            }
 
             default:
                 throw new InvalidDataException(
-                    $"N00b-tube initializer lost projectile definition {request.Definition}.");
+                    $"N00b-tube initializer lost projectile definition {piece.Definition}.");
         }
-    }
-
-    /// <summary>Requires the shard or bubble a request names to be one of the <paramref name="pieceCount"/> the burst has.</summary>
-    private static int RequireNoobTubePiece(
-        int? piece,
-        int pieceCount,
-        string family)
-    {
-        if (piece is not { } named || named < 0 || named >= pieceCount)
-        {
-            throw new InvalidDataException(
-                $"N00b-tube {family} piece '{piece}' is not one of the burst's {pieceCount}.");
-        }
-        return named;
     }
 
     /// <summary>Drops the detached crack at its fixed fall speed.</summary>
@@ -147,7 +93,7 @@ internal sealed class NoobTubeBehavior
     /// <summary>Sways a falling shard along its arc, drops it, and deletes it once it leaves the screen vertically.</summary>
     private static void DropNoobTubeShard(EnemyProjectile projectile, int cameraY)
     {
-        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 2);
+        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, swaySteps: 1);
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
     }
@@ -155,7 +101,7 @@ internal sealed class NoobTubeBehavior
     /// <summary>Sways a falling bubble along its arc, then moves it vertically once as a flying bubble does.</summary>
     private static void DropNoobTubeBubble(EnemyProjectile projectile)
     {
-        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 4);
+        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, swaySteps: 2);
         MoveNoobTubeBubbleVertically(projectile);
     }
 
@@ -169,11 +115,11 @@ internal sealed class NoobTubeBehavior
     /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         EnemyProjectile projectile,
-        int angleStep)
+        int swaySteps)
     {
         NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
         AdvanceNoobTubeShardX(projectile, SwayVelocity(debris.SwayAngle));
-        debris.AdvanceSway(angleStep);
+        debris.AdvanceSway(swaySteps);
     }
 
     /// <summary>
@@ -264,11 +210,11 @@ internal sealed class NoobTubeBehavior
                     projectile.IsHidden = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                    projectile.StateOf<NoobTubeDebrisState>().SwayPhase = room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayPhase);
+                    projectile.StateOf<NoobTubeDebrisState>().StartSway(room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayStart));
                     projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
                     break;
                 case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                    projectile.StateOf<NoobTubeDebrisState>().SwayPhase = room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayPhase);
+                    projectile.StateOf<NoobTubeDebrisState>().StartSway(room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayStart));
                     break;
                 case NoobTubeProjectileCueKind.StartCrackFlicker:
                     projectile.StartMotion(NoobTubePieceMotion.CrackFlickering);

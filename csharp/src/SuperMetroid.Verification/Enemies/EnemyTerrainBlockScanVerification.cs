@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -16,7 +17,7 @@ internal static class EnemyTerrainBlockScanVerification
     /// </summary>
     internal static void VerifyEnemyTerrainBlockScan()
     {
-        var terrain = new EnemyTerrain(breakableTerrain: null);
+        var terrain = new EnemyTerrain(new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())));
         SignedSixteenSixteen eightPixels = SignedSixteenSixteen.FromWholePixels(8);
 
         RoomLevelData tall = Room(2, 260, new EnemyTerrainScanBlock(1, 0, RoomCollisionType.SolidBlock, RoomBlockBehavior.None));

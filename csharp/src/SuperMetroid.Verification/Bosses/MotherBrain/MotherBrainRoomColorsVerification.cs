@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -129,7 +130,8 @@ internal static class MotherBrainRoomColorsVerification
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>
     private static RoomEnemySystem CreateEnemy()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { BodySheets = BossBodySheetFixtures.Stock.Sheets } };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;
     }

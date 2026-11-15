@@ -254,7 +254,7 @@ internal sealed class TorizoAttacks
                 ? EnemyDefinitionId.GoldenTorizoOrb
                 : EnemyDefinitionId.BombTorizoOrb;
 
-            RoomEnemyDefinition definition = room.LoadedDefinitions.ReadEnemyDefinition(definitionId);
+            RoomEnemyDefinition definition = room.Definitions.ReadEnemyDefinition(definitionId);
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 projectile.Position.Whole,
                 definition.DropChances);
@@ -858,7 +858,6 @@ internal sealed class TorizoAttacks
     public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
     {
-        _room.EnsureLoaded();
         BombTorizoStatueFragmentDefinition definition =
             BombTorizoStatueFragments.ForFragment(request.Fragment);
 

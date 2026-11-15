@@ -142,7 +142,7 @@ internal static class ZebetiteDefinitionsVerification
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
         ushort generation)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadZebetitesDestroyed = () => generation;
         enemies.VerificationServices().HasEvent = _ => false;
         return enemies;

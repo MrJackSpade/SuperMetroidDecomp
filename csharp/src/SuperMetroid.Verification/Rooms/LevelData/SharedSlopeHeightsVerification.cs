@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.LevelData;
 
@@ -31,7 +32,7 @@ internal static class SharedSlopeHeightsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => shape.HeightAt(16), "column cannot cross profile seam");
         AssertThrows<ArgumentOutOfRangeException>(() => RoomBlockBehaviorCodec.SlopeShapeOf(32), "shape cannot exceed catalog");
         var forbidden = NewSlopeHeightNoReadBus();
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var enemy = enemies.SlotTable.Slots[0];
         var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
         var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);

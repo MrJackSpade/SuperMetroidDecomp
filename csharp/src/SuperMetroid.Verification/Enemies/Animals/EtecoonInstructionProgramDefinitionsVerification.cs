@@ -72,7 +72,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     /// <summary>An initialized Etecoon in the first enemy slot.</summary>
     private static NewEtecoonResult NewEtecoon()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

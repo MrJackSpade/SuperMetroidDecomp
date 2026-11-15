@@ -31,7 +31,6 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()
     {
-        _room.EnsureLoaded();
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return; // Spawning fails when all eighteen projectile slots are live.

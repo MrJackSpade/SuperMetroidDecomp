@@ -10,7 +10,7 @@ internal static class RoomEnemyServicesAccess
     {
         /// <summary>The case's own services, which the enemy system was built with.</summary>
         internal VerificationRoomEnemyServices VerificationServices() =>
-            self.Room.InstalledServices as VerificationRoomEnemyServices ?? throw new InvalidOperationException(
+            self.Room.Services as VerificationRoomEnemyServices ?? throw new InvalidOperationException(
                 "A case changes its enemy services only when it builds the enemy system with VerificationRoomEnemyServices.");
     }
 }

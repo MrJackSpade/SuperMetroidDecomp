@@ -12,18 +12,14 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyTerrain
 {
-    /// <summary>
-    /// The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into; null
-    /// for terrain built without them, which refuses an enemy's break.
-    /// </summary>
-    private readonly EnemyBreakableTerrainObjects? _breakableTerrain;
+    /// <summary>The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into.</summary>
+    private readonly EnemyBreakableTerrainObjects _breakableTerrain;
 
     /// <summary>Moves the room's enemies against its terrain, breaking its enemy-breakable blocks into <paramref name="breakableTerrain"/>.</summary>
     /// <param name="breakableTerrain">
-    /// The room's room objects that show an enemy-breakable block breaking, which live as long as the room; null for terrain
-    /// whose enemies never break a block.
+    /// The room's room objects that show an enemy-breakable block breaking, which live as long as the room.
     /// </param>
-    internal EnemyTerrain(EnemyBreakableTerrainObjects? breakableTerrain) => _breakableTerrain = breakableTerrain;
+    internal EnemyTerrain(EnemyBreakableTerrainObjects breakableTerrain) => _breakableTerrain = Ensure.NotNull(breakableTerrain);
 
     /// <summary>Moves the enemy horizontally, ignoring non-square slopes.</summary>
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -594,9 +590,7 @@ internal sealed class EnemyTerrain
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
-        var roomObjects = _breakableTerrain ?? throw new InvalidOperationException(
-            "An enemy broke an enemy-breakable block in terrain built without the room's room objects.");
-        roomObjects.TrySpawnEnemyBreakableBlock(level, position);
+        _breakableTerrain.TrySpawnEnemyBreakableBlock(level, position);
         return false; // The block reaction reports no collision even if the room-object pool was full.
     }
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 public enum NoobTubeProjectileDefinition
 {
     /// <summary>The tube's crack.</summary>
-    Crack = 1,
+    Crack,
 
     /// <summary>A glass shard.</summary>
     Shard,

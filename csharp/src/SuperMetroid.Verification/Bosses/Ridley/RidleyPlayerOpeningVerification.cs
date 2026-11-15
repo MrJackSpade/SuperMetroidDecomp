@@ -27,7 +27,7 @@ internal static class RidleyPlayerOpeningVerification
     internal static void VerifyRidleyPlayerOpening()
     {
         Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyFlight.IsWithinRidleyRectangle;
-        var bounds = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
+        var bounds = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
         foreach (ushort targetRadius in new ushort[] { 2, 4, 8 })

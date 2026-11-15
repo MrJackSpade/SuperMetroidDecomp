@@ -101,7 +101,7 @@ internal sealed class MotherBrainFakeDeath
         MiscDustAnimation animation = MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(_room.Random.Read())
             ? MiscDustAnimation.Smoke
             : MiscDustAnimation.SmallExplosion;
-        _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
+        _projectiles.SpawnDustOrExplosion(explosion, animation);
         _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
 
@@ -258,7 +258,7 @@ internal sealed class MotherBrainFakeDeath
     internal void SpawnMotherBrainFallingTube(MotherBrainTubePiece piece)
     {
         // The bound source supplies the fixed cutscene placement; retail rooms resolve it from the loaded definitions.
-        RoomEnemyPlacement population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
+        RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(
@@ -381,7 +381,7 @@ internal sealed class MotherBrainFakeDeath
 
         tubeState.SmokeDelay = 8;
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets.Length;
-        _projectiles.SpawnRoomGraphicsDustExplosion(
+        _projectiles.SpawnDustOrExplosion(
             new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), 208),
             MiscDustAnimation.SmallDustCloud);
     }
@@ -391,7 +391,7 @@ internal sealed class MotherBrainFakeDeath
     {
         Position16<RoomPixels> position = tube.Position.Whole;
         tube.Presence = tube.Presence.With(EnemyPresence.Deleted);
-        _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
+        _projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallExplosion);
         if (_motherBrainEncounter.MotherBrain is not null)
             _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }

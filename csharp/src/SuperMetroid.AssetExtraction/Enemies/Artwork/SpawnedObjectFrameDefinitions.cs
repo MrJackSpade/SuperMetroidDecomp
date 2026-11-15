@@ -4684,8 +4684,8 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.EnemyProjectileDud,
     ];
 
-    /// <summary>The projectile frames <c>EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionProjectiles =
+    /// <summary>The projectile frames <c>EnemyProjectileEngine.SpawnDustOrExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly EnemyProjectileFrameId[] CommonEnemyProjectileEngineSpawnDustOrExplosionProjectiles =
     [
         EnemyProjectileFrameId.MiscDustElbowChargeParticleFirst,
         EnemyProjectileFrameId.MiscDustElbowChargeParticleSecond,
@@ -4779,8 +4779,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
-    /// <summary>The room sprite objects <c>EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionSpriteObjects = [];
+    /// <summary>The room sprite objects <c>EnemyProjectileEngine.SpawnDustOrExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineSpawnDustOrExplosionSpriteObjects = [];
 
     /// <summary>The projectile frames <c>EscapeExplosionsBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEscapeExplosionsBehaviorProjectiles = [];
@@ -5243,7 +5243,7 @@ internal static class SpawnedObjectFrameDefinitions
         new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsSpriteObjects)),
         new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotSpriteObjects)),
         new("EnemyProjectileEngine.CreateEnemyProjectileDudShot", new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotSpriteObjects)),
-        new("EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion", new(CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionProjectiles, CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionSpriteObjects)),
+        new("EnemyProjectileEngine.SpawnDustOrExplosion", new(CommonEnemyProjectileEngineSpawnDustOrExplosionProjectiles, CommonEnemyProjectileEngineSpawnDustOrExplosionSpriteObjects)),
         new("EscapeExplosionsBehavior", new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorSpriteObjects)),
         new("EyeDoorBehavior", new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorSpriteObjects)),
         new("NoobTubeBehavior", new(CommonNoobTubeBehaviorProjectiles, CommonNoobTubeBehaviorSpriteObjects)),

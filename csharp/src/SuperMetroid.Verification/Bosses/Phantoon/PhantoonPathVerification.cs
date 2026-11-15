@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
@@ -18,7 +19,7 @@ internal static class PhantoonPathVerification
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d2 + index * 2)), delta.X, "Exact Phantoon path X byte");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d3 + index * 2)), delta.Y, "Exact Phantoon path Y byte");
         }
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = enemies.SlotTable.Slots[0];
         var eye = enemies.SlotTable.Slots[1];
         Action<RoomEnemySlot, PhantoonFigureEightState> step = PhantoonPatterns.StepPhantoonFigureEight;

@@ -35,7 +35,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(program), $"misc-dust instruction selector {index}");
 
             var enemies = CreateMiscDustEnemySystem();
-            var spawn = new Action<Position16<RoomPixels>, MiscDustAnimation>(enemies.Projectiles.SpawnRoomGraphicsDustExplosion);
+            var spawn = new Action<Position16<RoomPixels>, MiscDustAnimation>(enemies.Projectiles.SpawnDustOrExplosion);
             spawn(new(0x1234, 0x5678), animation);
             EnemyProjectile roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
             AssertTrue(roomSlot.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
@@ -89,7 +89,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             "Ridley production dust starts the requested animation's program");
 
         var invalidRoom = CreateMiscDustEnemySystem();
-        var spawnInvalidRoom = new Action<Position16<RoomPixels>, MiscDustAnimation>(invalidRoom.Projectiles.SpawnRoomGraphicsDustExplosion);
+        var spawnInvalidRoom = new Action<Position16<RoomPixels>, MiscDustAnimation>(invalidRoom.Projectiles.SpawnDustOrExplosion);
         AssertThrows<ArgumentOutOfRangeException>(
             () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (MiscDustAnimation)byte.MaxValue),
             "room-graphics selector beyond authored table");
@@ -106,7 +106,7 @@ internal static class MiscDustProjectileDefinitionsVerification
     /// <summary>Builds an enemy fixture that forbids runtime access to compiled misc-dust tables.</summary>
     private static RoomEnemySystem CreateMiscDustEnemySystem()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         return enemies;
     }
 

@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Enemies.Choot.ChootFallingPathDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>Where a falling Choot is: its pattern, and the sample of its path at each fall frame.</summary>
+/// <summary>Where a falling Choot is: its pattern, and the sample of its path at each update of its fall.</summary>
 internal static class ChootFalls
 {
     /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
@@ -13,42 +13,27 @@ internal static class ChootFalls
             : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 
     /// <summary>
-    /// The offset from the falling origin of one falling path at one frame, or null at the frame after the path's last
-    /// sample, which ends one loop of the path.
+    /// The offset from the falling origin of one falling path at <paramref name="update"/> updates into a loop, or null on
+    /// the update after the path's last sample, which ends one loop of the path.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="frameIndex"/> lies past the loop's end.</exception>
-    internal static Offset16<RoomPixels>? At(ChootFallingPath fallingPath, int frameIndex)
+    /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="update"/> is negative or lies past the loop's end.</exception>
+    internal static Offset16<RoomPixels>? At(ChootFallingPath fallingPath, int update)
     {
-        if (!Paths.TryGetValue(fallingPath, out Offset16<RoomPixels>[]? path))
-            throw new InvalidOperationException($"Undefined ChootFallingPath {fallingPath}.");
+        if (!Paths.TryGetValue(fallingPath, out ChootFallSample[]? path))
+            throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
+        if (update < 0)
+            throw new InvalidDataException($"Choot falling-pattern update {update} lies before falling path {fallingPath}.");
 
-        int sourceFrame = CollapseExpandedPlateaus(frameIndex, PlateauHolds[fallingPath]);
-        if (sourceFrame == path.Length)
-            return null;
-        if ((uint)sourceFrame > (uint)path.Length)
+        int remaining = update;
+        foreach (ChootFallSample sample in path)
         {
-            throw new InvalidDataException(
-                $"Choot falling-pattern frame {frameIndex} lies past falling path {fallingPath}.");
+            if (remaining < sample.Updates)
+                return sample.Offset;
+            remaining -= sample.Updates;
         }
-
-        return path[sourceFrame];
-    }
-
-    /// <summary>Maps a slow-path physical frame back to the normal path, repeating the two authored plateau samples.</summary>
-    private static int CollapseExpandedPlateaus(int frameIndex, int expandedFrames)
-    {
-        if (frameIndex < 0)
-            return frameIndex;
-        if (frameIndex < PositivePlateauIndex)
-            return frameIndex;
-        if (frameIndex < PositivePlateauIndex + expandedFrames)
-            return PositivePlateauIndex - 1;
-
-        frameIndex -= expandedFrames;
-        if (frameIndex < NegativePlateauIndex)
-            return frameIndex;
-        if (frameIndex < NegativePlateauIndex + expandedFrames)
-            return NegativePlateauIndex - 1;
-        return frameIndex - expandedFrames;
+        if (remaining == 0)
+            return null;
+        throw new InvalidDataException($"Choot falling-pattern update {update} lies past falling path {fallingPath}.");
     }
 }

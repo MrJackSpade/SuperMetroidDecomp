@@ -17,7 +17,7 @@ internal static class TorizoStateQuantitiesVerification
     /// <summary>Runs the count, lock, acceleration and flag-word checks.</summary>
     internal static void VerifyTorizoStateQuantities()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new TorizoEnemyState(slot, isGolden: true);
         enemies.TorizoBehavior.Access.TorizoState = state;

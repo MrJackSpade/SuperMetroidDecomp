@@ -40,7 +40,7 @@ internal static class SolidEnemyContactRecordsVerification
     /// </summary>
     private static void VerifyEveryContactCombination()
     {
-        RoomEnemySystem room = new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        RoomEnemySystem room = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         IReadOnlyList<RoomEnemySlot> places = room.SlotTable.Slots;
         var kinematics = new SamusKinematicsState();

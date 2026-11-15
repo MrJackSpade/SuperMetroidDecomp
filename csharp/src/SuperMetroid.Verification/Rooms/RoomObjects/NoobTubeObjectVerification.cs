@@ -172,7 +172,7 @@ internal static class NoobTubeObjectVerification
             AssertTrue(restored.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "generic unlock clears stale stationary ownership");
         }
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
-        AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].Definition,
+        AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].Piece.Definition,
             "first spawned actor is the n00b-tube crack");
 
         // The first broken image lasts $30 frames. Two one-frame images follow, after which
@@ -182,14 +182,14 @@ internal static class NoobTubeObjectVerification
         AssertEqual(17, projectiles.Count,
             "break burst contains one crack, ten shards, and six bubbles");
         AssertEqual(NoobTubeProjectileDefinition.Shard,
-            projectiles[1].Definition, "burst begins with the first shard");
-        AssertEqual<int?>(0, projectiles[1].Piece, "the first shard names the burst's first piece");
-        AssertEqual<int?>(9, projectiles[10].Piece,
-            "the tenth shard names the burst's last shard");
+            projectiles[1].Piece.Definition, "burst begins with the first shard");
+        AssertTrue(ReferenceEquals(NoobTubeDebrisDefinitions.Shards[0], projectiles[1].Piece), "the first shard is the burst's first piece");
+        AssertTrue(ReferenceEquals(NoobTubeDebrisDefinitions.Shards[^1], projectiles[10].Piece),
+            "the tenth shard is the burst's last shard");
         AssertEqual(NoobTubeProjectileDefinition.ReleasedAirBubble,
-            projectiles[11].Definition, "six bubbles follow all shards");
-        AssertEqual<int?>(5, projectiles[^1].Piece,
-            "the sixth bubble names the burst's last bubble");
+            projectiles[11].Piece.Definition, "six bubbles follow all shards");
+        AssertTrue(ReferenceEquals(NoobTubeDebrisDefinitions.Bubbles[^1], projectiles[^1].Piece),
+            "the sixth bubble is the burst's last bubble");
         AssertEqual(1, earthquakeShakes.Count,
             "break burst starts one earthquake");
         AssertEqual(11, NativeEarthquakeTypes.TypeOf(earthquakeShakes[0]),
@@ -245,7 +245,7 @@ internal static class NoobTubeObjectVerification
         IReadOnlyList<NoobTubeProjectileRequest> requests)
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
 
         foreach (NoobTubeProjectileRequest request in requests)

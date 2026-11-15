@@ -47,7 +47,6 @@ internal sealed class CeresFallingTiles
     /// </summary>
     internal void Spawn(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
-        _room.EnsureLoaded();
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -69,7 +68,7 @@ internal sealed class CeresFallingTiles
         {
             Position16<RoomPixels> impact = projectile.Position.Whole;
             projectile.Delete();
-            _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
+            _projectiles.SpawnDustOrExplosion(impact, MiscDustAnimation.SmallDustCloud);
             _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
         }
     }

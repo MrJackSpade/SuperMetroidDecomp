@@ -12,33 +12,26 @@ internal sealed class EnemyRoomBinding
 {
     /// <summary>Binds the room to its enemy definitions and services and to the session whose enemy state outlives it.</summary>
     /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
-    /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
-    /// <param name="services">The game-state services the room's AI calls, or null when none is supplied.</param>
-    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource? definitions, IRoomEnemyServices? services)
+    /// <param name="definitions">The room's enemy definition source.</param>
+    /// <param name="services">The game-state services the room's AI calls.</param>
+    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services)
     {
         Session = Ensure.NotNull(session);
-        Definitions = definitions;
-        InstalledServices = services;
+        Definitions = Ensure.NotNull(definitions);
+        Services = Ensure.NotNull(services);
     }
 
     /// <summary>The enemy state and installed artwork that outlive each room.</summary>
     internal EnemySession Session { get; }
 
-    /// <summary>The room's enemy definition source; null for an enemy system built without one.</summary>
-    internal IRoomEnemyDefinitionSource? Definitions { get; }
-
-    /// <summary>Whether a room population (or a verification fixture source) is bound.</summary>
-    internal bool IsLoaded => Definitions is not null;
+    /// <summary>The room's enemy definition source.</summary>
+    internal IRoomEnemyDefinitionSource Definitions { get; }
 
     /// <summary>
     /// The game-state services the room's AI calls, which the room's enemy system was built with. A host without
     /// a service supplies one that fails at the exact dependency.
     /// </summary>
-    internal IRoomEnemyServices Services => InstalledServices ?? throw new InvalidOperationException(
-        "Room enemy AI ran in an enemy system built without services.");
-
-    /// <summary>The services <see cref="Services"/> returns; null for an enemy system built without them.</summary>
-    internal IRoomEnemyServices? InstalledServices { get; }
+    internal IRoomEnemyServices Services { get; }
 
     /// <summary>The game random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;
@@ -54,11 +47,4 @@ internal sealed class EnemyRoomBinding
 
     /// <summary>The session's installed services reproducing what Kraid's nails and Crocomire's volley read past their data.</summary>
     internal BossAndIntroOverreadServices BossOverreads => Session.BossOverreads;
-
-    /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
-    internal IRoomEnemyDefinitionSource LoadedDefinitions =>
-        Definitions ?? throw new InvalidOperationException("A room enemy population must be loaded first.");
-
-    /// <summary>Rejects enemy work before a population is bound.</summary>
-    internal void EnsureLoaded() => _ = LoadedDefinitions;
 }

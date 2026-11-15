@@ -68,7 +68,7 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>Which turn threshold the head last crossed; a change spawns two turn sprite objects at the head's previous position.</summary>
     public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
     /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>
-    public SpriteGraphics GraphicsAttributes { get; internal set; }
+    public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>Four persistent, damaging links.</summary>
     public EnemyProjectile?[] ProjectileSegments { get; } =

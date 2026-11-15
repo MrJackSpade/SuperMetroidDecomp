@@ -23,7 +23,6 @@ internal sealed class DownwardGateBehavior
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request)
     {
-        _room.EnsureLoaded();
 
         switch (request.Operation)
         {

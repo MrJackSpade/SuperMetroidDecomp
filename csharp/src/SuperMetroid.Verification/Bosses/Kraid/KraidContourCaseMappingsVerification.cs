@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -38,7 +39,7 @@ internal static class KraidContourCaseMappingsVerification
             AssertEqual(NativeKraidBodyLeftEdge(rom, (short)relativeY), KraidBodyContour.LeftEdge(relativeY),
                 $"Kraid contour native CMP/BPL selection at Y={relativeY}");
         }
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
         var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)).Shots[0];

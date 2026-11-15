@@ -19,7 +19,7 @@ internal static class FollowUpAfterStruckPartVerification
     /// </summary>
     internal static void VerifyFollowUpAfterStruckPart()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         EnemySlotTable table = enemies.SlotTable;
         IReadOnlyList<RoomEnemySlot> slots = table.Slots;
         AssertEqual(EnemySlotOrder.Capacity, slots.Count, "the room has every enemy place");

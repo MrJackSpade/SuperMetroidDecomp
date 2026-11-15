@@ -35,7 +35,7 @@ internal static class MamaTurtleOwnedStateVerification
 
         // Mama links the four babies her room lists right after her when she is placed, wherever she is listed (#1816):
         // one listed second still finds them on her first step and falls asleep.
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int place = 2; place < 6; place++)
         {
             RoomEnemySlot baby = enemies.SlotTable.Slots[place];

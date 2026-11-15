@@ -29,7 +29,7 @@ internal static class ElevatorInputDefinitionsVerification
             ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
             GameplayAction native = GameplayActionWordCodec.FromJoypadWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
 
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, GameplayAction,

@@ -175,7 +175,7 @@ internal sealed class CrocomireCombat
             projectile.Delete();
             if (crumbles)
                 access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
-            projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
+            projectiles.SpawnDustOrExplosion(impact, MiscDustAnimation.BigDustCloud);
             access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         }
     }
@@ -330,7 +330,7 @@ internal sealed class CrocomireCombat
         MiscDustAnimation animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
             ? MiscDustAnimation.DudShotTinyExplosion
             : MiscDustAnimation.BigExplosion;
-        _projectiles.SpawnRoomGraphicsDustExplosion(projectile, animationIndex);
+        _projectiles.SpawnDustOrExplosion(projectile, animationIndex);
     }
 
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>

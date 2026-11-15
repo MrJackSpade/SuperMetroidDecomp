@@ -14,7 +14,7 @@ internal static class NuclearWaffleOwnedStateVerification
     /// </summary>
     internal static void VerifyNuclearWaffleOwnedState()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(24, 32));

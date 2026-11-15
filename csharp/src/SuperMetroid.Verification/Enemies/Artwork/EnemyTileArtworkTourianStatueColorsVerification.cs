@@ -24,6 +24,7 @@ using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Native colour-write and guarded-source checks for installed Tourian entrance statue colors (#1512).</summary>
@@ -177,10 +178,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static RoomEnemySystem CreateEnemy(ImportEnemyArtwork artwork) =>
-            new(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
-            {
-                BossArtwork = artwork.Bosses,
-            };
+            EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {

@@ -321,7 +321,7 @@ internal sealed class MotherBrainProjectiles
 
                 Position16<RoomPixels> position = bomb.Position.Whole;
                 DeleteMotherBrainBomb(bomb, state);
-                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallDustCloud);
+                dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
                     state.Head.DefinitionId);
@@ -348,7 +348,7 @@ internal sealed class MotherBrainProjectiles
                 Axis.Horizontal,
                 impact,
                 afterburnCount);
-            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
+            dependencies.Projectiles.SpawnDustOrExplosion(impact, MiscDustAnimation.SmallExplosion);
             dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
         }
 
@@ -372,7 +372,7 @@ internal sealed class MotherBrainProjectiles
             if (--fragmentState.Lifetime >= 0) return;
             Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
             fragment.Delete();
-            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
+            dependencies.Projectiles.SpawnDustOrExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
         }
 
         /// <summary>Moves the four falling ceiling-tube pieces.</summary>
@@ -381,7 +381,7 @@ internal sealed class MotherBrainProjectiles
             MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
             if (tube.DustPending)
             {
-                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(
+                dependencies.Projectiles.SpawnDustOrExplosion(
                     new(projectile.Position.X.Whole, CoordinateAxis.Wrap(projectile.Position.Y.Whole + 8)),
                     MiscDustAnimation.SmallDustCloud);
                 tube.DustPending = false;
@@ -395,7 +395,7 @@ internal sealed class MotherBrainProjectiles
 
             Position16<RoomPixels> position = projectile.Position.Whole;
             projectile.Delete();
-            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
+            dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.Smoke);
         }
 
         /// <summary>Moves the glass shard.</summary>
@@ -481,7 +481,7 @@ internal sealed class MotherBrainProjectiles
             {
                 Position16<RoomPixels> impact = beam.Position.Whole;
                 beam.Delete();
-                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(
+                dependencies.Projectiles.SpawnDustOrExplosion(
                     impact,
                     MiscDustAnimation.BigExplosion);
                 dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
@@ -589,7 +589,7 @@ internal sealed class MotherBrainProjectiles
             // allocator reuses this place in the projectile pool, the outer projectile pass will advance
             // the newborn dust animation during the same pass.
             ring.Delete();
-            dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
+            dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallExplosion);
             dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
         }
 
@@ -615,7 +615,7 @@ internal sealed class MotherBrainProjectiles
             {
                 Position16<RoomPixels> position = turret.Position.Whole;
                 turret.Delete();
-                dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
+                dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.Smoke);
                 return;
             }
 
@@ -738,7 +738,6 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        _room.EnsureLoaded();
         if (request.Kind != RoomEnemyProjectileKind.MotherBrainGlassShard)
         {
             throw new ArgumentOutOfRangeException(

@@ -19,6 +19,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
@@ -175,7 +176,7 @@ internal static class CrocomireBodyVisualsVerification
         static DrawNativeResult Draw(ImportEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = art.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             // His fight binds the installed body sheets and attaches the body his body frames show on.

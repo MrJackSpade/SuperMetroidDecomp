@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -39,7 +40,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         }
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Draygon dies on a white hurt frame here; his burial Evirs spawn in their own colours, not in his flash (#1544).
         var draygon = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         draygon.Colours.ShowHurt(true);

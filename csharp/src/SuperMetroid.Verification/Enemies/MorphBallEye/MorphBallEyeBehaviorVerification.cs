@@ -77,7 +77,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// </summary>
     internal static void VerifyMorphBallEyeBeamWideningAndFade()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         MorphBallEyeBeamState beam = enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
         beam.Phase = MorphBallEyeBeamPhase.Widening;
         int[] widths = [0, 0, 1, 2, 3, 4];
@@ -126,7 +126,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// </summary>
     internal static void VerifyMorphBallEyeBeamFollowsEyeListedAfterMount()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1));
         enemies.Load(new RoomEnemyLoadRequest(BrinstarRoomStateDefinitions.MorphBallDefault.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));
         RoomEnemySlot mount = enemies.SlotTable.Slots.Single(slot => slot.DefinitionId == EnemyDefinitionId.Eye
@@ -141,7 +141,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// <summary>An eye body or mount after its real initializer.</summary>
     private static MorphBallEyeBehaviorCreateResult Create(ushort parameter1, ushort parameter2)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // A mount's beam follows the eye its room lists right after it (#1835).
         RoomEnemySlot followed = enemies.SlotTable.Slots[1];
         followed.Bind(EnemyDefinitionId.Eye, followed.Definition);

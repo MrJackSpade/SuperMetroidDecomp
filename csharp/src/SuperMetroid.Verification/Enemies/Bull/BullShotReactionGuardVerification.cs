@@ -19,7 +19,7 @@ internal static class BullShotReactionGuardVerification
     internal static void VerifyBullShotReactionGuardWrap()
     {
         RoomEnemyCompatibility compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom();
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), compatibility);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), compatibility);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         SlotInheritance<BullEnemyState> inheritance = compatibility.BullInheritance;
         BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous)

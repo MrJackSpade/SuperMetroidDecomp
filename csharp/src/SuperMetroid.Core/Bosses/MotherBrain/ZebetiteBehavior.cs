@@ -235,7 +235,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"{population.DefinitionId}.");
         }
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
+        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializeSlotFromDefinition(spawned, population, definition);
         _lifecycle.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.CoverSpawn(spawned);

@@ -13,6 +13,7 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Builds a RAM-only boss actor fixture for queued OAM checks.</summary>
@@ -60,10 +61,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, ImportEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
-            Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
-            {
-                BossArtwork = artwork.Bosses,
-            };
+            Enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             bodyOwner = BodyOwnerOf(definition);
             bodies = bodyOwner is { } drawn ? BossBodySheetFixtures.For(artwork.Bosses, drawn) : BossBodySheetFixtures.Stock;

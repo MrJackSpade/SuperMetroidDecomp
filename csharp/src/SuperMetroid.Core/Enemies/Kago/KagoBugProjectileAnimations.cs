@@ -12,11 +12,11 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal static class KagoBugProjectileAnimations
 {
     /// <summary>
-    /// The updates a landed bug's idle pose shows before its animation starts the landing again (#1607), kept exact (#1627):
-    /// when it runs out the landing replays and raises its idle cue again, which gameplay sees. The falling and jumping poses
-    /// are held instead: their animations show the same pose again, so they rest on it for good.
+    /// How long a landed bug idles, 32767 updates (just over nine minutes), before its animation starts the landing again
+    /// (#1607), kept exact (#1627): when it runs out the landing replays and raises its idle cue again, which gameplay sees.
+    /// The falling and jumping poses are held instead: their animations show the same pose again, so they rest on it for good.
     /// </summary>
-    private const int LongestPose = 32767;
+    private const int LandedIdleDuration = 32767;
 
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments { get; } = new(
@@ -30,7 +30,7 @@ internal static class KagoBugProjectileAnimations
         [
             Show(EnemyProjectileFrameId.KagoBugLandedFirst, 5),
             Cue(new(K.StartIdle)),
-            Show(EnemyProjectileFrameId.KagoBugLandedSecond, LongestPose),
+            Show(EnemyProjectileFrameId.KagoBugLandedSecond, LandedIdleDuration),
         ],
         [P.Falling] =
         [

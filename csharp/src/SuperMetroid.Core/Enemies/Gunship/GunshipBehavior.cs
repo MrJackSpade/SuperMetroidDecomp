@@ -567,7 +567,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         }
     }
 
-    /// <summary>Runs the shared 1/256-pixel velocity integrator.</summary>
+    /// <summary>Carries the escaping ship and Samus on up, faster each update.</summary>
     private void MoveEscapingGunship(RoomEnemySlot top, SamusState samus)
     {
         RoomEnemySlot bottom = Pieces(top).Bottom;

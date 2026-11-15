@@ -82,12 +82,12 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustCorpseDustCloudFourth, 3),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
-        [P.EyeDoorSweatDrop] =
+        [P.EyeDoorSmokePuff] =
         [
-            Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropFirst, 5),
-            Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropSecond, 5),
-            Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropThird, 5),
-            Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropFourth, 5),
+            Show(EnemyProjectileFrameId.MiscDustEyeDoorSmokePuffFirst, 5),
+            Show(EnemyProjectileFrameId.MiscDustEyeDoorSmokePuffSecond, 5),
+            Show(EnemyProjectileFrameId.MiscDustEyeDoorSmokePuffThird, 5),
+            Show(EnemyProjectileFrameId.MiscDustEyeDoorSmokePuffFourth, 5),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.Smoke] =
@@ -173,7 +173,7 @@ internal static class MiscDustProjectileAnimations
         [P.DudShot] = new([new(P.DudShot, 0, 7, 1)], AnimationEnd.Holds),
         [P.SmallDustCloud] = new([new(P.SmallDustCloud, 0, 6, 1)], AnimationEnd.Holds),
         [P.CorpseDustCloud] = new([new(P.CorpseDustCloud, 0, 5, 1)], AnimationEnd.Holds),
-        [P.EyeDoorSweatDrop] = new([new(P.EyeDoorSweatDrop, 0, 5, 1)], AnimationEnd.Holds),
+        [P.EyeDoorSmokePuff] = new([new(P.EyeDoorSmokePuff, 0, 5, 1)], AnimationEnd.Holds),
         [P.Smoke] = new([new(P.Smoke, 0, 5, 1)], AnimationEnd.Holds),
         [P.BigExplosion] = new([new(P.BigExplosion, 0, 7, 1)], AnimationEnd.Holds),
         [P.RockParticles] = new([new(P.RockParticles, 0, 17, 1)], AnimationEnd.Holds),

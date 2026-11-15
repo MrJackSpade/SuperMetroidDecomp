@@ -82,7 +82,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         StartFuneNamiheAnimation(slot, state);
     }
 
-    /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active animations own the return to idle.</summary>
+    /// <summary>Starts Fune's activity after its cooldown or Namihe's after strict modular Y proximity; active animations own the return to idle.</summary>
     internal static void RunFuneNamiheMain(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state,
@@ -91,11 +91,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case FuneNamiheAction.FuneWaitForCooldown:
-                // The counter steps before the comparison. The comparison checks whether the difference is negative rather
-                // than comparing unsigned; ordinary room parameters are small,
-                // but the distinction remains visible at the 32768 wrap boundary.
-                state.CooldownTimer = WrappingCounter.IncrementCount(state.CooldownTimer);
-                if (WrappingCounter.IsBehind(state.CooldownTimer, state.CooldownTime))
+                // The count steps before the comparison; a cooldown of nothing spits on the first waiting update.
+                state.CooldownTimer++;
+                if (state.CooldownTimer < state.CooldownTime)
                     return;
 
                 state.ShowsActiveAnimation = true;

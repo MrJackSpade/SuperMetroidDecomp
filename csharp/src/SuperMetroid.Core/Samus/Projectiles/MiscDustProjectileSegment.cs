@@ -22,8 +22,8 @@ internal enum MiscDustProjectileSegment
     SmallDustCloud,
     /// <summary>The corpse dust cloud animation.</summary>
     CorpseDustCloud,
-    /// <summary>The eye door sweat drop animation.</summary>
-    EyeDoorSweatDrop,
+    /// <summary>The eye door's centred smoke puff animation.</summary>
+    EyeDoorSmokePuff,
     /// <summary>The smoke animation.</summary>
     Smoke,
     /// <summary>The big explosion animation.</summary>

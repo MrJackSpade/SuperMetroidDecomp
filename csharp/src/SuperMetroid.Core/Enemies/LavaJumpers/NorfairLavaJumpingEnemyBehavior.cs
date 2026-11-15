@@ -118,10 +118,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             case NorfairLavaJumpingEnemyAction.FallBackIntoLava:
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
 
-                // Reaching a screen's last block row is how the jumper knows it is back in the lava. Once the
-                // actor reaches that row it snaps to its exact population origin, restores
-                // the hidden animation, and rests off-screen until the next jump begins.
-                if (RoomGridConversions.BlockRowWithinScreen(slot.Position.Y.Whole) == 15)
+                // Reaching the bottom block row of any room screen is how the jumper knows it is back in the lava,
+                // wherever the lava lies (gameplay-observable: a jumper whose fall crosses a screen's bottom row
+                // higher up is back in the lava there). Once the actor reaches that row it snaps to its exact
+                // population origin, restores the hidden animation, and rests off-screen until the next jump begins.
+                if (RoomGridConversions.LiesOnScreensBottomBlockRow(slot.Position.Y.Whole))
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);
                     StartNorfairLavaJumpingEnemyAnimation(slot, state, NorfairLavaJumperSegment.Hidden);

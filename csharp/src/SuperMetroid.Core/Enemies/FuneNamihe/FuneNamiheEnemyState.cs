@@ -20,14 +20,22 @@ public sealed class FuneNamiheEnemyState
     public int YProximity { get; internal set; }
 
     /// <summary>
-    /// Fune's incrementing cooldown count of waiting updates, 0 through 65535, compared with <see cref="CooldownTime"/>
-    /// as a signed difference and reset to zero when the wait ends; the waiting step's increment wraps it past
-    /// 65535.
+    /// Fune's count of waiting updates, reset to zero when the wait ends: it counts up to <see cref="CooldownTime"/>, a
+    /// spawn setting of at most 255 updates, so it never reaches the 32768 at which the game's signed comparison of the
+    /// two would differ from a plain one, and never wraps (#2045).
     /// </summary>
-    public int CooldownTimer { get; internal set; }
+    public int CooldownTimer
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
-    /// <summary>The number of updates Fune waits, from the spawn settings.</summary>
-    public int CooldownTime { get; internal set; }
+    /// <summary>The number of updates Fune waits, from the spawn settings, 0 through 255.</summary>
+    public int CooldownTime
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
     /// <summary>Whether it is a Namihe, which waits for Samus, rather than a Fune, which spits on its cooldown.</summary>
     public bool IsNamihe { get; internal set; }

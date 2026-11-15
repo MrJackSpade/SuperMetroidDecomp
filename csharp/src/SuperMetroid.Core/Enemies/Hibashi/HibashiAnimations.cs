@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
-/// The Hibashi fire pillar's eruption graphics and its collision part as typed animations (#641). Each
+/// The Hibashi fire pillar's erupting flame and its collision part as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="HibashiCue"/> with the values it acts on.
 /// </summary>
 internal static class HibashiAnimations
@@ -18,7 +18,7 @@ internal static class HibashiAnimations
     internal static AnimationSegments<HibashiSegment, EnemyFrameId, HibashiCue> Segments { get; } = new(
         new Dictionary<HibashiSegment, AnimationBeat<EnemyFrameId, HibashiCue>[]>
     {
-        [P.Graphics] =
+        [P.Flame] =
         [
             Cue(new(K.PlayEruptionSound)),
             Show(EnemyFrameId.HibashiEruptionFirst, 2),
@@ -77,7 +77,7 @@ internal static class HibashiAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
     {
-        [P.Graphics] = new([new(P.Graphics, 0, 47, 1)], AnimationEnd.Holds),
+        [P.Flame] = new([new(P.Flame, 0, 47, 1)], AnimationEnd.Holds),
         [P.Hitbox] = new([new(P.Hitbox, 0, 1, 1)], AnimationEnd.Holds),
     };
 

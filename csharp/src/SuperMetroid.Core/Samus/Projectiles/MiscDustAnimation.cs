@@ -20,8 +20,8 @@ public enum MiscDustAnimation
     SmallDustCloud,
     /// <summary>Corpse dust cloud.</summary>
     CorpseDustCloud,
-    /// <summary>Eye-door sweat drop.</summary>
-    EyeDoorSweatDrop,
+    /// <summary>The smoke puff an opening eye door shows at its centre.</summary>
+    EyeDoorSmokePuff,
     /// <summary>Smoke.</summary>
     Smoke,
     /// <summary>Rock particles.</summary>

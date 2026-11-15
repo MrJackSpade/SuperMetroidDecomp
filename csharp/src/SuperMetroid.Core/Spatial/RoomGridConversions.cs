@@ -158,6 +158,9 @@ public static class RoomGridConversions
     /// <summary>The block row, 0 through 15, that an unsigned room pixel coordinate lies on within its room screen.</summary>
     public static int BlockRowWithinScreen(int pixel) => OffsetWithinScreen(pixel) / BlockPixels;
 
+    /// <summary>Whether an unsigned room pixel coordinate lies on the bottom block row of its room screen.</summary>
+    public static bool LiesOnScreensBottomBlockRow(int pixel) => BlockRowWithinScreen(pixel) == BlocksPerScreen - 1;
+
     /// <summary>A room pixel coordinate checked to be an unsigned sixteen-bit coordinate.</summary>
     private static int RequirePixel(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);
 

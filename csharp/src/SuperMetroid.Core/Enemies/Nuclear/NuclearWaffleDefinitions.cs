@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal static class NuclearWaffleDefinitions
 {
 
-    /// <summary>The Sidehopper landing sound, queued when a joint makes its rising turn.</summary>
+    /// <summary>The low thud a joint makes as it turns, queued at each turn but the silent falling one.</summary>
     internal static readonly SoundEffectId TurnSoundEffect = EnemySound.LowThud;
 
     /// <summary>

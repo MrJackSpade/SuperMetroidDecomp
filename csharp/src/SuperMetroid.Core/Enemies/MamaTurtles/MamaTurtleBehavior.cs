@@ -625,15 +625,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartMamaTurtleEnteringShell(MamaTurtleEnemyState state) =>
         state.Action = MamaTurtleAction.EnteringShell;
 
-    /// <summary>Animation cues: begin rising with selected X direction.</summary>
+    /// <summary>Animation cues: begin rising toward <paramref name="direction"/>.</summary>
     private static void StartMamaTurtleRisingToHover(
         MamaTurtleEnemyState state,
         HorizontalDirection direction)
     {
-        // The authored cue names describe the visual facing, while the stored velocity is the
-        // opposite sign: the facing-left cue writes -1 and the facing-right cue writes +1.
         state.Action = MamaTurtleAction.RisingToHover;
-        state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? -1 : 1);
+        state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? 1 : -1);
         state.ActionTimer = MamaTurtleMotionDefinitions.RiseToHoverDuration;
     }
 

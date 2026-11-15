@@ -13,7 +13,7 @@ internal static class MiscDustProjectiles
         MiscDustAnimation.DudShotTinyExplosion => MiscDustProjectileSegment.DudShot,
         MiscDustAnimation.SmallDustCloud => MiscDustProjectileSegment.SmallDustCloud,
         MiscDustAnimation.CorpseDustCloud => MiscDustProjectileSegment.CorpseDustCloud,
-        MiscDustAnimation.EyeDoorSweatDrop => MiscDustProjectileSegment.EyeDoorSweatDrop,
+        MiscDustAnimation.EyeDoorSmokePuff => MiscDustProjectileSegment.EyeDoorSmokePuff,
         MiscDustAnimation.Smoke => MiscDustProjectileSegment.Smoke,
         MiscDustAnimation.RockParticles => MiscDustProjectileSegment.RockParticles,
         MiscDustAnimation.ShortBigDustCloud => MiscDustProjectileSegment.ShortBigDustCloud,

@@ -45,7 +45,7 @@ internal sealed class RoomLoader
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
-    private readonly ControllerInputState _controller1;
+    private readonly GameplayActionInput _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Coordinates the door loader's transition steps.</summary>

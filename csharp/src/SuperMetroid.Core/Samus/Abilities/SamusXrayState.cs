@@ -319,7 +319,7 @@ public sealed class SamusXrayState
     /// </summary>
     public void HandlePoseInput(
         SamusState samus,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -328,10 +328,10 @@ public sealed class SamusXrayState
         if (movementType != SamusMovementType.TurningOnGround)
         {
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-            ControllerButton turnBinding = facingLeft
-                ? ControllerButton.Right
-                : ControllerButton.Left;
-            if ((controllerInput & turnBinding) == ControllerButton.None)
+            GameplayAction turnBinding = facingLeft
+                ? GameplayAction.Right
+                : GameplayAction.Left;
+            if ((controllerInput & turnBinding) == GameplayAction.None)
                 return;
 
             // Mirroring through `256 - angle` turns right-space 0-127 into its exact
@@ -395,8 +395,8 @@ public sealed class SamusXrayState
     /// </summary>
     public XrayBeamStepResult StepBeam(
         SamusState samus,
-        ControllerButton controllerInput,
-        ControllerButton dashBinding = ControllerButton.B)
+        GameplayAction controllerInput,
+        GameplayAction dashBinding = GameplayAction.Dash)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -411,7 +411,7 @@ public sealed class SamusXrayState
             return SnapshotBeamStep(phaseAtStart, completed: false);
         }
 
-        bool holdingDash = (controllerInput & dashBinding) != ControllerButton.None;
+        bool holdingDash = (controllerInput & dashBinding) != GameplayAction.None;
         switch (BeamPhase)
         {
             case XrayBeamPhase.NoBeam:
@@ -449,9 +449,9 @@ public sealed class SamusXrayState
 
                 // Aiming gives Up priority when opposite directions are both held, turning the beam one angle unit
                 // while keeping its edge within the facing-dependent limit.
-                if ((controllerInput & ControllerButton.Up) != ControllerButton.None)
+                if ((controllerInput & GameplayAction.Up) != GameplayAction.None)
                     Angle = AimedUp(Angle, AngularWidth);
-                else if ((controllerInput & ControllerButton.Down) != ControllerButton.None)
+                else if ((controllerInput & GameplayAction.Down) != GameplayAction.None)
                     Angle = AimedDown(Angle, AngularWidth);
                 break;
 

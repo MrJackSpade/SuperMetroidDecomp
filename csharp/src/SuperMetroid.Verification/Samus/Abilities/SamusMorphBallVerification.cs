@@ -240,7 +240,7 @@ empty, samus, frameCounter: 1);
 
         empty,
         boostedFall,
-        controllerInput: ControllerButton.Left,
+        controllerInput: GameplayAction.Left,
         frameCounter: 0);
     AssertEqual(29, boostedFall.Position.X.Whole,
         "held-left falling ball subtracts inherited 1.8000 extra speed");
@@ -261,7 +261,7 @@ empty, samus, frameCounter: 1);
 
         empty,
         opposedDirectionFall,
-        controllerInput: (ControllerButton.Left | ControllerButton.Right),
+        controllerInput: (GameplayAction.Left | GameplayAction.Right),
         frameCounter: 0);
     AssertEqual(boostedFall.Kinematics.Position.X, opposedDirectionFall.Kinematics.Position.X,
         "Left+Right falling ball follows its pose direction instead of cancelling motion");
@@ -281,7 +281,7 @@ empty, samus, frameCounter: 1);
 
         empty,
         boostedSpring,
-        controllerInput: ControllerButton.Right,
+        controllerInput: GameplayAction.Right,
         frameCounter: 0);
     AssertEqual(34, boostedSpring.Position.X.Whole,
         "Spring-Ball air handler adds inherited extra-run speed through shared jump movement");
@@ -546,7 +546,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "Spring Ball hard impact rebounds");
     AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
     var springLandingAnimation = new AnimationResult(spring.AnimationFrame, spring.AnimationFrameTimer.RawValue);
-    AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, ControllerButton.A),
+    AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, GameplayAction.Jump),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
@@ -598,7 +598,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     };
     SamusPoseMetadata.RefreshCollisionRadii(noBombItemSamus);
     var noBombItemSystem = CreateBombFixture();
-    noBombItemSystem.StepFrame(new SamusTerrain { Level = floor }, noBombItemSamus, ControllerButton.X, ControllerButton.X);
+    noBombItemSystem.StepFrame(new SamusTerrain { Level = floor }, noBombItemSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     AssertTrue(noBombItemSystem.BombCounter == 0 && noBombItemSystem.Bombs.All(slot => !slot.IsActive),
         "bomb item bit gates placement");
 
@@ -610,7 +610,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     };
     SamusPoseMetadata.RefreshCollisionRadii(bombProjectileSamus);
     var bombs = CreateBombFixture();
-    bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, ControllerButton.X, ControllerButton.X);
+    bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     AssertTrue(bombs.Bombs[0].IsActive && bombs.Bombs.Skip(1).All(slot => !slot.IsActive),
         "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
@@ -630,7 +630,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // aggregate. Release is a separate frame so ControllerInputState-like edge semantics
     // are represented explicitly in this direct subsystem test.
     bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
-    bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, ControllerButton.X, ControllerButton.X);
+    bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     AssertTrue(bombs.Bombs.Skip(1).All(slot => !slot.IsActive),
         "active bomb cooldown rejects another edge");
     AssertEqual(1, bombs.BombCounter, "rejected edge does not alter bomb counter");
@@ -649,7 +649,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         };
         SamusPoseMetadata.RefreshCollisionRadii(fixtureSamus);
         var fixtureSystem = CreateBombFixture();
-        fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, ControllerButton.X, ControllerButton.X);
+        fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, GameplayAction.Shoot, GameplayAction.Shoot);
         while (fixtureSystem.Bombs[0].BombTimer.RawValue > 9)
             fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, 0, 0);
         return new MakeDirectionFixtureResult(fixtureSystem, fixtureSamus);
@@ -727,14 +727,14 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
     SamusPoseMetadata.RefreshCollisionRadii(spreadSamus);
     var spreadBombs = CreateBombFixture();
-    spreadBombs.StepFrame(new SamusTerrain { Level = empty }, spreadSamus, (ControllerButton.X | ControllerButton.Down), 0);
+    spreadBombs.StepFrame(new SamusTerrain { Level = empty }, spreadSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
     AssertTrue(spreadBombs.Bombs.All(slot => !slot.IsActive),
         "held Down charges bomb spread without spawning");
     AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
         "held Down advances native bomb-spread timeout");
 
     spreadBombs.AudioRequests.BeginUpdate();
-    bool spreadReleasedCharge = spreadBombs.StepFrameConsumingCharge(new SamusTerrain { Level = empty }, spreadSamus, ControllerButton.X, 0);
+    bool spreadReleasedCharge = spreadBombs.StepFrameConsumingCharge(new SamusTerrain { Level = empty }, spreadSamus, GameplayAction.Shoot, 0);
     AssertTrue(spreadBombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread),
         "releasing Down while holding charged Shoot starts bomb spread");
     AssertTrue(spreadReleasedCharge,
@@ -769,7 +769,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
     SamusPoseMetadata.RefreshCollisionRadii(selectedPowerBombSpreadSamus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
-    selectedPowerBombSpreadBombs.StepFrame(new SamusTerrain { Level = empty }, selectedPowerBombSpreadSamus, ControllerButton.X, 0);
+    selectedPowerBombSpreadBombs.StepFrame(new SamusTerrain { Level = empty }, selectedPowerBombSpreadSamus, GameplayAction.Shoot, 0);
     AssertTrue(selectedPowerBombSpreadBombs.Bombs.All(slot => !slot.IsBombSpread),
         "selected Power Bomb bypasses charged regular-bomb spread");
     AssertTrue(selectedPowerBombSpreadBombs.Bombs.All(slot => !slot.IsActive),
@@ -828,12 +828,12 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
     SamusPoseMetadata.RefreshCollisionRadii(timeoutSamus);
     var timeoutBombs = CreateBombFixture();
-    timeoutBombs.StepFrame(new SamusTerrain { Level = empty }, timeoutSamus, (ControllerButton.X | ControllerButton.Down), 0);
+    timeoutBombs.StepFrame(new SamusTerrain { Level = empty }, timeoutSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
     AssertTrue(timeoutBombs.Bombs.All(slot => !slot.IsActive),
         "timeout `$BF` advances to `$C0` before forced launch");
     AssertEqual(0x00c0, timeoutSamus.BombSpreadChargeTimeoutCounter,
         "last held charging frame reaches timeout threshold");
-    timeoutBombs.StepFrame(new SamusTerrain { Level = empty }, timeoutSamus, (ControllerButton.X | ControllerButton.Down), 0);
+    timeoutBombs.StepFrame(new SamusTerrain { Level = empty }, timeoutSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
     AssertTrue(timeoutBombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread),
         "timeout `$C0` forces launch even while Down remains held");
 
@@ -864,7 +864,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     };
     SamusPoseMetadata.RefreshCollisionRadii(powerBombSamus);
     var powerBombs = CreateBombFixture();
-    powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, ControllerButton.X, ControllerButton.X);
+    powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     AssertTrue(powerBombs.Bombs[0].IsActive && powerBombs.Bombs.Skip(1).All(slot => !slot.IsActive),
         "selected power bomb uses first physical bomb slot");
     AssertEqual(1, powerBombSamus.PowerBombs,
@@ -888,7 +888,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     // instruction pointer. A second selected-item edge is rejected by the armed flag
     // before helper two can perturb either aggregate counter.
     powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
-    powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, ControllerButton.X, ControllerButton.X);
+    powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     AssertTrue(powerBombs.Bombs.Skip(1).All(slot => !slot.IsActive),
         "negative power-bomb flag rejects a second placement");
     AssertEqual(1, powerBombs.BombCounter,
@@ -1036,7 +1036,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(reactionSamus);
-    reactionBombs.StepFrame(new SamusTerrain { Level = reactionLevel, RoomObjects = reactionObjects }, reactionSamus, ControllerButton.X, ControllerButton.X);
+    reactionBombs.StepFrame(new SamusTerrain { Level = reactionLevel, RoomObjects = reactionObjects }, reactionSamus, GameplayAction.Shoot, GameplayAction.Shoot);
 
     while (!reactionBombs.Bombs[0].IsExploding)
     {
@@ -1107,7 +1107,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(integratedRevealSamus);
-    integratedRevealBombs.StepFrame(new SamusTerrain { Level = integratedRevealLevel, RoomObjects = integratedRevealObjects }, integratedRevealSamus, ControllerButton.X, ControllerButton.X);
+    integratedRevealBombs.StepFrame(new SamusTerrain { Level = integratedRevealLevel, RoomObjects = integratedRevealObjects }, integratedRevealSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     while (!integratedRevealBombs.Bombs[0].IsExploding)
     {
         integratedRevealBombs.StepFrame(new SamusTerrain { Level = integratedRevealLevel, RoomObjects = integratedRevealObjects }, integratedRevealSamus, 0, 0);
@@ -1147,7 +1147,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(bombDoorSamus);
-    bombDoorBombs.StepFrame(new SamusTerrain { Level = bombDoorLevel, RoomObjects = bombDoorObjects }, bombDoorSamus, ControllerButton.X, ControllerButton.X);
+    bombDoorBombs.StepFrame(new SamusTerrain { Level = bombDoorLevel, RoomObjects = bombDoorObjects }, bombDoorSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     while (!bombDoorBombs.Bombs[0].IsExploding)
     {
         bombDoorBombs.StepFrame(new SamusTerrain { Level = bombDoorLevel, RoomObjects = bombDoorObjects }, bombDoorSamus, 0, 0);
@@ -1263,7 +1263,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(integratedPowerBombSamus);
-    integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, RoomObjects = integratedPowerBombObjects }, integratedPowerBombSamus, ControllerButton.X, ControllerButton.X);
+    integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, RoomObjects = integratedPowerBombObjects }, integratedPowerBombSamus, GameplayAction.Shoot, GameplayAction.Shoot);
     while (!integratedPowerBombs.PowerBombExplosion.IsActive)
     {
         integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, RoomObjects = integratedPowerBombObjects }, integratedPowerBombSamus, 0, 0);
@@ -1631,7 +1631,7 @@ private static void RunPowerBombToInitialBoundary(
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     var bombs = CreateBombFixture();
-    bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, ControllerButton.X, ControllerButton.X);
+    bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, GameplayAction.Shoot, GameplayAction.Shoot);
 
     while (!bombs.PowerBombExplosion.IsActive)
         bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, 0, 0);

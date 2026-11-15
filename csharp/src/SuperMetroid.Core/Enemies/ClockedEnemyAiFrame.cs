@@ -18,10 +18,10 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public SamusState? Samus => frame.Samus;
 
     /// <inheritdoc/>
-    public ControllerButton NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
+    public GameplayAction NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
 
     /// <inheritdoc/>
-    public ControllerButton ControllerInput => frame.ControllerInput;
+    public GameplayAction ControllerInput => frame.ControllerInput;
 
     /// <inheritdoc/>
     public RoomLevelData Level => frame.Level;

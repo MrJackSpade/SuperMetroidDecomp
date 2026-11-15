@@ -180,11 +180,11 @@ public sealed class SamusHorizontalSpeedState
     [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
         SamusMovementType movementType,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         bool speedBoosterEquipped,
         bool liquidImpeded = false)
     {
-        const ControllerButton dashButton = ControllerButton.B;
+        const GameplayAction dashButton = GameplayAction.Dash;
         // Diverts a non-Gravity submerged body to the same no-acceleration
         // branch as releasing Dash. Existing momentum retains its numeric extra component;
         // without momentum, both values are cleared. This is not a multiplier or hard reset.
@@ -263,7 +263,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running takes this cue.</param>
-    /// <param name="controllerInput">Current held buttons; the dash button must be held.</param>
+    /// <param name="controllerInput">Current held actions; Dash must be held.</param>
     /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call takes the cue.</param>
     /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
@@ -275,7 +275,7 @@ public sealed class SamusHorizontalSpeedState
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
         SamusMovementType movementType,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int animationFrameBuffer,
         ref int animationFrame,
         out int animationFrameTimer,
@@ -283,8 +283,8 @@ public sealed class SamusHorizontalSpeedState
     {
         Ensure.NotNull(requestEchoSound);
         animationFrameTimer = 0;
-        const ControllerButton dashButton = ControllerButton.B;
-        ControllerButton heldButtons = controllerInput;
+        const GameplayAction dashButton = GameplayAction.Dash;
+        GameplayAction heldButtons = controllerInput;
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 

@@ -505,7 +505,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3); samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0xc000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-        runtime.Controller1.Latch(ControllerButton.Left);
+        runtime.Controller1.Latch(GameplayAction.Left);
         // Original movie source 1616 -> 1617: release Left while rolling.
         runtime.StepFrame(0);
         AssertEqual(FixedCoordinate.Of(0x004c, 0x4000), samus.Kinematics.Position.X, "spring release retains native final displacement");

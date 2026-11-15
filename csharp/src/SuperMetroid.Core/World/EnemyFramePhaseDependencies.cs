@@ -14,7 +14,7 @@ internal sealed record EnemyFramePhaseDependencies
 
 
     /// <summary>Controller1.</summary>
-    public required ControllerInputState Controller1 { get; init; }
+    public required GameplayActionInput Controller1 { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }

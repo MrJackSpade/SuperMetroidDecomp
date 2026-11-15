@@ -19,5 +19,5 @@ internal readonly record struct EnemyAnimationCueContext
     public required Position16<RoomPixels> Camera { get; init; }
 
     /// <summary>Controller input.</summary>
-    public required ControllerButton ControllerInput { get; init; }
+    public required GameplayAction ControllerInput { get; init; }
 }

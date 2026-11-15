@@ -21,7 +21,7 @@ internal static class EnemyInstructionRunner
             Optional<SamusState>(arguments, 1),
             Optional<RoomLevelData>(arguments, 2),
             Value<Position16<RoomPixels>>(arguments, 3),
-            Value<ControllerButton>(arguments, 4));
+            Value<GameplayAction>(arguments, 4));
 
     /// <summary>
     /// Processes <paramref name="slot"/>'s animation for <paramref name="updates"/> updates with no Samus, level, camera or

@@ -25,7 +25,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly IAttractDemoState _attractSession;
     /// <summary>Supplies the current input state used by Samus's presentation.</summary>
-    private readonly ControllerInputState _controller1;
+    private readonly GameplayActionInput _controller1;
     /// <summary>Controls gameplay display modes that can suppress ordinary Samus drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>

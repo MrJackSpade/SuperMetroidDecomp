@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Input;
 /// A demo's recorded-input playback, playing a <see cref="DemoRecording"/> (#1300, #1600).
 /// </summary>
 /// <remarks>
-/// The playback holds only the recording: where it is, how long the current input lasts and the buttons it presses in
+/// The playback holds only the recording: where it is, how long the current input lasts and the actions it presses in
 /// the player's place. What a demo watches for before each step (the title leaving, Samus reaching her scripted place) is its
 /// owner's own state (#1554): the owner checks it while <see cref="IsPlaying"/>, may switch the playback to another
 /// recording, and then steps it; the recording's cues go to the owner. The playback's own frame hold gates the
@@ -24,20 +24,20 @@ public sealed class DemoInputState
     /// <summary>Frames remaining in the active demo input, wrapping at sixteen bits.</summary>
     public WrappingCountdown FrameHold { get; private set; }
 
-    /// <summary>The buttons the demo currently holds in place of the player's held buttons.</summary>
-    public ControllerButton Held { get; private set; }
+    /// <summary>The actions the demo currently holds in place of the player's held actions.</summary>
+    public GameplayAction Held { get; private set; }
 
-    /// <summary>The buttons the demo currently presses anew in place of the player's newly pressed buttons.</summary>
-    public ControllerButton NewlyPressed { get; private set; }
+    /// <summary>The actions the demo currently presses anew in place of the player's newly pressed actions.</summary>
+    public GameplayAction NewlyPressed { get; private set; }
 
-    /// <summary>The buttons the demo held on the previous step.</summary>
-    public ControllerButton PreviousHeld { get; private set; }
+    /// <summary>The actions the demo held on the previous step.</summary>
+    public GameplayAction PreviousHeld { get; private set; }
 
-    /// <summary>The buttons the demo newly pressed on the previous step.</summary>
-    public ControllerButton PreviousNewlyPressed { get; private set; }
+    /// <summary>The actions the demo newly pressed on the previous step.</summary>
+    public GameplayAction PreviousNewlyPressed { get; private set; }
 
-    /// <summary>The newly pressed buttons pressed before this step, which Samus's input filter reads as the previous new input.</summary>
-    public ControllerButton PublishedPreviousNewlyPressed { get; private set; }
+    /// <summary>The newly pressed actions pressed before this step, which Samus's input filter reads as the previous new input.</summary>
+    public GameplayAction PublishedPreviousNewlyPressed { get; private set; }
 
     /// <summary>
     /// Clears every demo-input value, as ending a demo's input does.
@@ -82,7 +82,7 @@ public sealed class DemoInputState
     }
 
     /// <summary>
-    /// Plays one step of the recording and presses the resulting buttons in the player's place. The owner runs the recording's cues
+    /// Plays one step of the recording and presses the resulting actions in the player's place. The owner runs the recording's cues
     /// in <paramref name="cue"/>. The owner checks what it watches for before this step, while <see cref="IsPlaying"/>.
     /// </summary>
     public void Step(Action<DemoInputCue> cue)
@@ -99,8 +99,8 @@ public sealed class DemoInputState
         if (frameHold.IsZero)
             PlayNextInput(position, cue);
 
-        // Pressing hands the demo's previous buttons to the drawing-input history before it
-        // replaces the live held and newly pressed buttons and remembers the new ones.
+        // Pressing hands the demo's previous actions to the drawing-input history before it
+        // replaces the live held and newly pressed actions and remembers the new ones.
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
         PreviousNewlyPressed = NewlyPressed;
@@ -139,7 +139,7 @@ public sealed class DemoInputState
         Position = position with { NextInput = position.NextInput + 1 };
     }
 
-    /// <summary>Ends the demo's input: the recording is done and the demo releases every button.</summary>
+    /// <summary>Ends the demo's input: the recording is done and the demo releases every action.</summary>
     private void EndInput()
     {
         Position = null;

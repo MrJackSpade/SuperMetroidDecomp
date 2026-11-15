@@ -1328,7 +1328,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(stock.Build(id))), "Derived notice export reproduces every native border/content word encoded through the codec");
             var stockMessages = new GameplayMessageArtwork(null, null, stock);
             var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-            state.Begin(id, 0);
+            state.Begin(id, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
             if (GameplayMessageNotices.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(state.Tilemap(stockMessages))), "Actual notice initial tilemap preserves native YES row and all content");

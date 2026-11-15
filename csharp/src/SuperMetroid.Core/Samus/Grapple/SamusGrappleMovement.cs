@@ -32,7 +32,7 @@ public static class SamusGrappleMovement
     /// before its phase returns. The current pose supplies all direction/origin
     /// policy; no separate aiming vector is accepted.
     /// </summary>
-    public static void BeginFiring(SamusState samus, ControllerButton controllerInput = ControllerButton.None)
+    public static void BeginFiring(SamusState samus, GameplayAction controllerInput = GameplayAction.None)
     {
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
@@ -117,7 +117,7 @@ public static class SamusGrappleMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         ISamusRoomObjects? roomObjects = null,
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         GrapplePoseChange connectionPoseChange = GrapplePoseChange.Immediate)
@@ -138,7 +138,7 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
 
         // Firing treats release of Shoot as cancellation before length or collision work.
-        if ((controllerInput & ControllerButton.X) == ControllerButton.None)
+        if ((controllerInput & GameplayAction.Shoot) == GameplayAction.None)
             return QueueFiringCancellation(grapple);
 
         grapple.RopeLength += GrappleBeamDefinitions.Physics.FiringExtension;
@@ -256,7 +256,7 @@ public static class SamusGrappleMovement
     /// Executes one connected grapple-phase call. X is the default shoot binding used by
     /// this runtime; left/right pump the swing, newly pressed up/down adjust rope length.
     /// </summary>
-    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton newlyPressedInput, int frameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
+    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, int frameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -294,7 +294,7 @@ public static class SamusGrappleMovement
 
         // The swing first checks Shoot. Releasing it does not immediately install jumping
         // art: it computes velocity and queues the release phase for the following frame.
-        if ((controllerInput & ControllerButton.X) == ControllerButton.None)
+        if ((controllerInput & GameplayAction.Shoot) == GameplayAction.None)
         {
             if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
@@ -365,14 +365,14 @@ public static class SamusGrappleMovement
     private static GrappleMovementResult StepLocked(
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
         // The locked phase does no pendulum work. It merely retains the frozen pose while Shoot
         // remains held and either an enemy or the stored block still supports the endpoint.
-        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
+        bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
         bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
             ? false
@@ -428,7 +428,7 @@ public static class SamusGrappleMovement
     private static void ApplyGrappleEnemyDamage(
 
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int damageBeforeSuit)
     {
         SamusSuitDamage.Hurt(samus, damageBeforeSuit);
@@ -447,11 +447,11 @@ public static class SamusGrappleMovement
     private static GrappleMovementResult StepWallGrab(
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
-        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
+        bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
         bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
             ? false
@@ -476,7 +476,7 @@ public static class SamusGrappleMovement
 
         SamusTerrain terrain,
         SamusState samus,
-        ControllerButton newlyPressedInput)
+        GameplayAction newlyPressedInput)
     {
         SamusGrappleState grapple = samus.Grapple;
 
@@ -505,7 +505,7 @@ public static class SamusGrappleMovement
             samus.Kinematics, samus,
             signedProbe,
             terrain.RoomObjects);
-        bool jumpNew = (newlyPressedInput & ControllerButton.A) != ControllerButton.None;
+        bool jumpNew = (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None;
         if (wall.Collided && jumpNew)
         {
             // Accepted off a solid or frozen enemy, the wall jump asks this update's enemy pass to shake it.
@@ -1149,21 +1149,21 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Held moving poses aim away from Draygon; Down wins over Up.</summary>
-    private static SamusProjectileDirection ReadDraygonHeldDirection(SamusPoseId pose, ControllerButton input)
+    private static SamusProjectileDirection ReadDraygonHeldDirection(SamusPoseId pose, GameplayAction input)
     {
         bool left = pose == SamusPoseId.DraygonGrabbedMovingLeftPose;
-        bool outward = (input & (left ? ControllerButton.Left : ControllerButton.Right)) != ControllerButton.None;
+        bool outward = (input & (left ? GameplayAction.Left : GameplayAction.Right)) != GameplayAction.None;
         SamusProjectileDirection direction = left ? SamusProjectileDirection.Left : SamusProjectileDirection.Right;
-        if (outward && (input & ControllerButton.Down) != ControllerButton.None)
+        if (outward && (input & GameplayAction.Down) != GameplayAction.None)
             direction = left ? SamusProjectileDirection.DownLeft : SamusProjectileDirection.DownRight;
-        else if (outward && (input & ControllerButton.Up) != ControllerButton.None)
+        else if (outward && (input & GameplayAction.Up) != GameplayAction.None)
             direction = left ? SamusProjectileDirection.UpLeft : SamusProjectileDirection.UpRight;
         return direction;
     }
 
     /// <summary>Firing branch of the grapple beam's step, before the selected grapple phase runs.</summary>
     internal static GrappleMovementResult? HandleFiringPoseChange(
-        RoomLevelData level, SamusState samus, ControllerButton controllerInput)
+        RoomLevelData level, SamusState samus, GameplayAction controllerInput)
     {
         var grapple = samus.Grapple;
         grapple.PoseChangeAutoFireTimer = Math.Max(0, grapple.PoseChangeAutoFireTimer - 1);

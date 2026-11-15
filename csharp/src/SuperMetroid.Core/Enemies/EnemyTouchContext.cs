@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Enemies;
 internal readonly record struct EnemyTouchContext(
     RoomEnemySlot Slot,
     SamusState Samus,
-    ControllerButton ControllerInput,
+    GameplayAction ControllerInput,
     RoomLevelData? Level,
     bool UsesFrameHitboxes,
     EnemyReaction? HitboxTouch,

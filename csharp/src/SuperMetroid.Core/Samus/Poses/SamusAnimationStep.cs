@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 public sealed record SamusAnimationStep
 {
     /// <summary>Controller input.</summary>
-    public ControllerButton ControllerInput { get; init; } = 0;
+    public GameplayAction ControllerInput { get; init; } = 0;
 
     /// <summary>
     /// The frame clock's value for this step, 0 through 65535: the clock wraps back to 0 after 65535 and paces

@@ -10,8 +10,13 @@ namespace SuperMetroid.Core.World;
 internal sealed record RoomObjectFramePhaseDependencies
 {
     /// <summary>Controller1.</summary>
-    public required ControllerInputState Controller1 { get; init; }
+    public required GameplayActionInput Controller1 { get; init; }
 
+    /// <summary>The physical controller buttons, which the message box's own reads continue from.</summary>
+    public required ControllerInputState PhysicalController1 { get; init; }
+
+    /// <summary>The options whose controller bindings the message panels name.</summary>
+    public required GameplayOptions Options { get; init; }
 
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }

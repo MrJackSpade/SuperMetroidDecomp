@@ -1,10 +1,9 @@
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Core.Samus.Poses.SamusPoseInputDefinitions;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Which pose each pose's input list selects for the held and newly pressed buttons.</summary>
+/// <summary>Which pose each pose's input list selects for the held and newly pressed actions.</summary>
 internal static class SamusPoseInputs
 {
     /// <summary>Maps a supported pose to its transition list: poses that share a list's transitions share the list.</summary>
@@ -107,33 +106,21 @@ internal static class SamusPoseInputs
     }
 
     /// <summary>Evaluates the selected transition list using held and edge inputs.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, ControllerButton held, ControllerButton newlyPressed) =>
+    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, GameplayAction held, GameplayAction newlyPressed) =>
         SamusPoseInputRules.Match(inputList, held, newlyPressed);
 
     /// <summary>
     /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the
     /// directions exchanged, its selected pose mirrored back.
     /// </summary>
-    internal static ControllerButton MirrorButtons(ControllerButton input) =>
-        (input & ~(ControllerButton.Left | ControllerButton.Right)) |
-        ((input & ControllerButton.Left) != ControllerButton.None ? ControllerButton.Right : ControllerButton.None) |
-        ((input & ControllerButton.Right) != ControllerButton.None ? ControllerButton.Left : ControllerButton.None);
+    internal static GameplayAction MirrorButtons(GameplayAction input) =>
+        (input & ~(GameplayAction.Left | GameplayAction.Right)) |
+        ((input & GameplayAction.Left) != GameplayAction.None ? GameplayAction.Right : GameplayAction.None) |
+        ((input & GameplayAction.Right) != GameplayAction.None ? GameplayAction.Left : GameplayAction.None);
 
-    /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
-    internal static bool Has(ControllerButton input, CanonicalPoseButtons required) =>
-        (input & Buttons(required)) == Buttons(required);
-
-    /// <summary>The controller buttons an authored chord names.</summary>
-    private static ControllerButton Buttons(CanonicalPoseButtons chord)
-    {
-        ControllerButton buttons = ControllerButton.None;
-        foreach ((CanonicalPoseButtons bit, ControllerButton button) in ChordButtons)
-        {
-            if ((chord & bit) == bit)
-                buttons |= button;
-        }
-        return buttons;
-    }
+    /// <summary>Requires every action of an authored input chord to be present.</summary>
+    internal static bool Has(GameplayAction input, GameplayAction required) =>
+        (input & required) == required;
 
     /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>

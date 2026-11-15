@@ -13,7 +13,7 @@ internal static class SaveConfirmationCadenceVerification
     internal static void VerifySaveConfirmationCadence()
     {
         var box = CreateGameplayMessageFixture();
-        box.Begin(GameplayMessageId.GunshipSaveConfirmation, 0);
+        box.Begin(GameplayMessageId.GunshipSaveConfirmation, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         int guard = 0;
         while (box.Phase != GameplayMessageBoxPhase.AwaitingInput)
         {

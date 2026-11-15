@@ -29,8 +29,7 @@ internal static class GameplayMessagePanelsVerification
         {
             var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
             installed.Begin(id, 0,
-                shootBinding: ControllerButton.B,
-                runBinding: ControllerButton.Y);
+                SuperMetroid.Core.Input.ControllerBindings.Default with { Shoot = ControllerButton.B, Dash = ControllerButton.Y });
             BackgroundTile[] words = installed.Tilemap(stockMessages);
             AssertEqual(GameplayMessagePanelDefinitions.TilemapWords, words.Length,
                 $"installed gameplay-message panel {id} builds its complete tilemap with remapped controls");

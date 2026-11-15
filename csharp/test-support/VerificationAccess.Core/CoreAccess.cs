@@ -74,7 +74,7 @@ internal static class CoreAccess
             if (game.GameState != SuperMetroidGameState.DoorTransition || runtime is null)
                 throw new InvalidOperationException(
                     $"A door music-wait controller read arrived in game state {game.GameState}.");
-            runtime.Controller1.Latch(runtime.Options.ControllerBindings.Normalize(controllerInput));
+            runtime.Controller1.Latch(runtime.Options.ControllerBindings.ToActions(controllerInput));
         }
         /// <summary>Live Samus pose in gameplay, or zero before a runtime is available.</summary>
         internal SamusPoseId GameplaySamusPose => game.RuntimeForVerification?.Player.Samus?.Pose ?? 0;

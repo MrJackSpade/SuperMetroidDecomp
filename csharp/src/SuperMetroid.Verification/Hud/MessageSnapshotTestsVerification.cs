@@ -35,7 +35,7 @@ internal static class MessageSnapshotTestsVerification
             if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
             AssertTrue(MessageBoxLayer.Capture(state, messages) is null, "inactive message has no overlay");
-            state.Begin(id, 0);
+            state.Begin(id, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
             int previousRadius = -1;
             bool previousYes = true;
             bool toggledSave = false, releasedSave = false;
@@ -72,7 +72,7 @@ internal static class MessageSnapshotTestsVerification
             }
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its message and radius.
-            state.Begin(GameplayMessageId.SaveCompleted, 0);
+            state.Begin(GameplayMessageId.SaveCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
             AssertTrue(held is not null && heldPixels.SequenceEqual(DisplayRendering.Render(held)),
                 "retained message survives closing and reuse of the source owner");
         }

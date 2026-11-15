@@ -15,7 +15,7 @@ internal sealed record AttractDemoDriverDependencies
     public required AttractDemoSession AttractSession { get; init; }
 
     /// <summary>Controller1.</summary>
-    public required ControllerInputState Controller1 { get; init; }
+    public required GameplayActionInput Controller1 { get; init; }
 
 
     /// <summary>The session's unauthored Speed Booster cadence, which a demo Samus runs on like any other.</summary>

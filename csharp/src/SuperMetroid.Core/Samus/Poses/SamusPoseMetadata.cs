@@ -81,7 +81,7 @@ internal static class SamusPoseMetadata
         SamusPoseTraits.ReadMovement(pose);
 
     /// <summary>
-    /// Reads the current pose's no-input pose: the pose selected when no buttons are held and the
+    /// Reads the current pose's no-input pose: the pose selected when no actions are held and the
     /// transition table therefore is not consulted.
     /// </summary>
     public static SamusPoseId ReadNoInputFallbackPose(SamusState samus)
@@ -624,13 +624,13 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
-    /// <remarks>The newly pressed buttons feed the transition-shot test.</remarks>
+    /// <remarks>The newly pressed actions feed the transition-shot test.</remarks>
     public static bool TrySetupPublishedBombJump(SamusState samus, 
 
         RoomLevelData level,
         bool timeIsFrozen,
         int frameCounter,
-        ControllerButton controllerNewInput,
+        GameplayAction controllerNewInput,
         ISamusRoomObjects? roomObjects = null)
     {
 

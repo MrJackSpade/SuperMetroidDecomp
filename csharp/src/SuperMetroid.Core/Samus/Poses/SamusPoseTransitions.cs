@@ -97,7 +97,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </remarks>
     public static void ApplyAerialLanding(SamusState samus, 
         bool wasSpinning,
-        ControllerButton controllerInput = ControllerButton.None)
+        GameplayAction controllerInput = GameplayAction.None)
     {
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
@@ -127,7 +127,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
         RoomLevelData level,
         bool wasSpinning,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -187,7 +187,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
     private static SamusPoseId SelectAerialLandingPose(SamusState samus, 
         bool wasSpinning,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
         if (wasSpinning)
@@ -205,7 +205,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         SamusPoseAim aim = SamusPoseMetadata.ReadAim(samus);
         if (aim.DisablesShooting)
             return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
-        bool shotHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
+        bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         return aim.Direction switch
         {
             SamusProjectileDirection.UpFacingRight => SamusPoseId.LandingAimUpRightPose,

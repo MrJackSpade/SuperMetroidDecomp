@@ -16,7 +16,7 @@ internal readonly record struct TorizoCueInputs
     public required RoomLevelData? Level { get; init; }
 
     /// <summary>Controller input.</summary>
-    public required ControllerButton ControllerInput { get; init; }
+    public required GameplayAction ControllerInput { get; init; }
 
     /// <summary>The frame counter, whose sum with Samus's halved X sets an attack choice's phase (<see cref="TorizoChoices.InFirstAttackPhase"/>).</summary>
     public required int FrameCounter { get; init; }

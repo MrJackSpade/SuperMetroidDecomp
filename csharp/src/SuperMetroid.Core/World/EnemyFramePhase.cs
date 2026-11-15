@@ -17,8 +17,8 @@ internal sealed class EnemyFramePhase
 {
     /// <summary>Receives Phantoon's body-layer placement before the next frame boundary latches the frame.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Supplies current and newly pressed controller buttons to the enemies.</summary>
-    private readonly ControllerInputState _controller1;
+    /// <summary>Supplies the held and newly pressed actions to the enemies.</summary>
+    private readonly GameplayActionInput _controller1;
     /// <summary>Provides the active Samus turning-floor transform to the enemy frame.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Applies room effects requested by enemies after their AI pass.</summary>

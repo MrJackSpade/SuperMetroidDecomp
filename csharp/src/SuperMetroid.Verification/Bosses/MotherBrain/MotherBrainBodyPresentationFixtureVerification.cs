@@ -27,7 +27,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Where she lies in the room after each production step; her body's pictures follow her (#1949).</summary>
         internal List<Position16<RoomPixels>> BodyPositions { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, GameplayAction> instructions;
 
         /// <summary>Creates and binds a third-form body with installed artwork and the enemy BG2 image it owns since phase two.</summary>
         internal MotherBrainPresentationFixture(ImportEnemyArtwork artwork)
@@ -48,7 +48,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(Body, reached: true);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyAnimationPlayer.AdvanceAnimation);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>

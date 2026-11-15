@@ -122,7 +122,7 @@ internal static class GModeGateGlitchVerification
                     $"frame {frame} X-Ray activation restores native subsystem words");
             }
 
-            ControllerButton input = frame == 0 ? ControllerButton.X : 0;
+            GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
             shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, cameraPosition: new(0, 224), sharedProjectiles: bombs);
 

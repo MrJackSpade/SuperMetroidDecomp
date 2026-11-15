@@ -112,7 +112,7 @@ public static class SamusMorphBallMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -129,7 +129,7 @@ public static class SamusMorphBallMovement
         }
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
+            (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             // The outer falling wrapper clears persistent motion before handing over to
@@ -151,7 +151,7 @@ public static class SamusMorphBallMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects,
         SamusMovementType movementType)
@@ -160,7 +160,7 @@ public static class SamusMorphBallMovement
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
+            (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
@@ -218,7 +218,7 @@ public static class SamusMorphBallMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -245,7 +245,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         // while rising cancels the remaining magnitude; a speed passing zero at the apex takes
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            (((controllerInput & ControllerButton.A) == ControllerButton.None) ||
+            (((controllerInput & GameplayAction.Jump) == GameplayAction.None) ||
              SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole)))
         {
             samus.Kinematics.YSpeed = default;
@@ -256,7 +256,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
             speed.CalculateBaseSpeedDecelerationDisallowed(
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
+            (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         SignedSixteenSixteen requestedHorizontal;
         // Null when the game skips horizontal movement entirely: no probe runs.
         SamusCollisionDirection? collisionDirection = null;

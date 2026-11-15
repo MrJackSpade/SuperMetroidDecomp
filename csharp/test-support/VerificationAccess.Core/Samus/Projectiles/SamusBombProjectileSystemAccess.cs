@@ -14,7 +14,7 @@ internal static class SamusBombProjectileSystemAccess
         /// returns whether the bombs' HUD producer consumed the beam charge: the request the gameplay frame reads from
         /// <see cref="SamusBombProjectileSystem.RunHudProducer"/> to tear the charge down.
         /// </summary>
-        internal bool StepFrameConsumingCharge(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput)
+        internal bool StepFrameConsumingCharge(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput)
         {
             self.AdvancePowerBombExplosion(samus, controllerInput);
             bool consumed = self.RunHudProducer(samus, controllerInput, controllerNewInput);

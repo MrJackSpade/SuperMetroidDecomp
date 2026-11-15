@@ -33,7 +33,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int animation = 0;
-        speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
+        speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
             0, ref animation, out _, () => queue.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal));
         var words = new RoomTerrainBlock[256];
         for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
@@ -100,7 +100,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int animation = 0;
         int echoRequests = 0;
-        speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
+        speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
             0, ref animation, out _, () =>
             {
                 echoRequests++;

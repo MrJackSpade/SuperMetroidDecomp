@@ -23,7 +23,7 @@ internal sealed class SamusInputSnapshot
     /// exits a non-firing pose to fire on the next frame. The demo's input phase replaces it with
     /// the preceding scripted edge before running the normal HUD step.
     /// </summary>
-    public ControllerButton PreviousDrawNewInput { get; internal set; }
+    public GameplayAction PreviousDrawNewInput { get; internal set; }
 
     /// <summary>
     /// Consecutive held-Jump history updated by the post-draw input filter: a wrapping count, 0 through
@@ -38,7 +38,7 @@ internal sealed class SamusInputSnapshot
     }
 
     /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
-    public ControllerButton PreviousDrawHeldInput { get; internal set; }
+    public GameplayAction PreviousDrawHeldInput { get; internal set; }
 
     /// <summary>Samus's pose input is currently the one-shot auto-jump.</summary>
     public bool AutoJumpInputPending { get; internal set; }
@@ -54,7 +54,7 @@ internal sealed class SamusInputSnapshot
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
     /// <summary>Local input substitution from the auto-jump; does not alter the controller's real edge.</summary>
-    internal ControllerButton ConsumeAutoJumpInput(ControllerButton newlyPressed)
+    internal GameplayAction ConsumeAutoJumpInput(GameplayAction newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;
         ShinesparkPoseInputLocked = false;
@@ -63,7 +63,7 @@ internal sealed class SamusInputSnapshot
         if (AutoJumpTimer != 0 && JumpHoldReadsAsFresh(AutoJumpTimer))
         {
             AutoJumpTimer = 0;
-            newlyPressed |= ControllerButton.A;
+            newlyPressed |= GameplayAction.Jump;
         }
         return newlyPressed;
     }
@@ -77,13 +77,13 @@ internal sealed class SamusInputSnapshot
         WrappingCounter.IsBehind(heldUpdates, SamusAutoJumpDefinitions.TimerComparisonLimit);
 
     /// <summary>Publishes held input without advancing Samus's draw-time owners.</summary>
-    internal void PublishMainLoopHeldInput(ControllerButton held) => PreviousDrawHeldInput = held;
+    internal void PublishMainLoopHeldInput(GameplayAction held) => PreviousDrawHeldInput = held;
 
     /// <summary>The post-draw input filter increments only when Jump is held in both draw samples.</summary>
-    internal void SnapshotDrawInput(ControllerButton held, ControllerButton newlyPressed)
+    internal void SnapshotDrawInput(GameplayAction held, GameplayAction newlyPressed)
     {
-        ControllerButton jump = ControllerButton.A;
-        AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != ControllerButton.None
+        GameplayAction jump = GameplayAction.Jump;
+        AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != GameplayAction.None
             ? WrappingCounter.IncrementCount(AutoJumpTimer) : 0;
         PreviousDrawHeldInput = held;
         PreviousDrawNewInput = newlyPressed;

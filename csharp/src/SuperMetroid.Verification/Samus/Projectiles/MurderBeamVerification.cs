@@ -171,11 +171,11 @@ internal static class MurderBeamVerification
     {
         for (int frame = 0; frame < BeamChargeDefinitions.FullyChargedCounter; frame++)
         {
-            ControllerButton newlyPressed = frame == 0 && !shootAlreadyHeld
-                ? ControllerButton.X
+            GameplayAction newlyPressed = frame == 0 && !shootAlreadyHeld
+                ? GameplayAction.Shoot
                 : 0;
-            shared.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, newlyPressed);
-            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
+            shared.StepFrame(new SamusTerrain { Level = level }, samus, GameplayAction.Shoot, newlyPressed);
+            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newlyPressed }, new(0, 0), shared);
         }
         AssertEqual(BeamChargeDefinitions.FullyChargedCounter,
             projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
@@ -216,8 +216,8 @@ internal static class MurderBeamVerification
         };
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
-        ControllerButton select = ControllerButton.Select;
-        ControllerButton cancel = ControllerButton.Y;
+        GameplayAction select = GameplayAction.ItemSelect;
+        GameplayAction cancel = GameplayAction.ItemCancel;
         AssertTrue(SelectionChanged(samus,
                 (select | cancel),
                 select),
@@ -225,8 +225,8 @@ internal static class MurderBeamVerification
         AssertEqual(HudItem.Missile, samus.AutoCancelledItem,
             "missile auto-cancel request retains the selected HUD index");
 
-        shared.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, ControllerButton.X);
-        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), shared);
+        shared.StepFrame(new SamusTerrain { Level = level }, samus, GameplayAction.Shoot, GameplayAction.Shoot);
+        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), shared);
         AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "auto-cancel setup fires one Missile");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
@@ -255,7 +255,7 @@ internal static class MurderBeamVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
         };
-        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture()),
+        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 

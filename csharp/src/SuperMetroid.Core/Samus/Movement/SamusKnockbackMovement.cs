@@ -32,7 +32,7 @@ public static class SamusKnockbackMovement
     internal static bool TryStartPendingHitInterruption(
 
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         bool timeIsFrozen,
         RoomLevelData? level = null,
         int frameCounter = 0,
@@ -60,7 +60,7 @@ public static class SamusKnockbackMovement
     /// normal knockback-pose branch or the pose-preserving Morph/Spring Ball branch.
     /// </summary>
     /// <param name="samus">Mutable player owner receiving the hurt pose, timer, the knockback's hold on her movement, and cancellation of incompatible movement state.</param>
-    /// <param name="controllerInput">Held buttons used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
+    /// <param name="controllerInput">Held actions used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
     /// <param name="frameCounter">The frame counter passed to pose-expansion block reactions when room geometry is supplied.</param>
@@ -69,7 +69,7 @@ public static class SamusKnockbackMovement
     /// True when the movement-type table gives the knockback her movement. False for
     /// interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    internal static bool Start(SamusState samus, ControllerButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
+    internal static bool Start(SamusState samus, GameplayAction controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
     {
 
         Ensure.NotNull(samus);
@@ -169,8 +169,8 @@ level, targetPose, frameCounter, roomObjects))
         else
         {
             bool forwardHeld = facingLeft
-                ? (controllerInput & ControllerButton.Left) != ControllerButton.None
-                : (controllerInput & ControllerButton.Right) != ControllerButton.None;
+                ? (controllerInput & GameplayAction.Left) != GameplayAction.None
+                : (controllerInput & GameplayAction.Right) != GameplayAction.None;
             samus.KnockbackDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
                 ? forwardHeld ? SamusKnockbackDirection.DownLeft : SamusKnockbackDirection.UpLeft
                 : forwardHeld ? SamusKnockbackDirection.DownRight : SamusKnockbackDirection.UpRight;
@@ -298,11 +298,11 @@ level, targetPose, frameCounter, roomObjects))
     /// <summary>Installs a same-family target selected by the two damage-boost tables.</summary>
     /// <param name="samus">The damage-boosting Samus.</param>
     /// <param name="targetPose">The table's normal-jump exit.</param>
-    /// <param name="controllerNewInput">This frame's newly pressed buttons, which the normal-jump bookkeeping reads.</param>
+    /// <param name="controllerNewInput">This frame's newly pressed actions, which the normal-jump bookkeeping reads.</param>
     public static void ApplyDamageBoostPoseTransition(
         SamusState samus,
         SamusPoseId targetPose,
-        ControllerButton controllerNewInput)
+        GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
         bool valid = new SamusPoseChange(samus.Pose, targetPose) is

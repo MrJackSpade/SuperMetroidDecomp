@@ -101,7 +101,7 @@ internal static class NoobTubeObjectVerification
         };
         SeedStationaryGrappleCollisionProbe(grappleSamus);
         var grappleHit = SamusGrappleMovement.StepFiring(level, grappleSamus,
-            ControllerButton.X, roomObjects);
+            GameplayAction.Shoot, roomObjects);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.Beam), PendingTubeHit(roomObjects),
@@ -152,7 +152,7 @@ internal static class NoobTubeObjectVerification
         AssertTrue(armed.Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForInput },
             "power bomb wakes the tube to wait for input");
 
-        StepNoobTube(roomObjects, level, ControllerButton.Right);
+        StepNoobTube(roomObjects, level, GameplayAction.Right);
         AssertTrue(samus.Control.InputLocked, "break sequence locks Samus");
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "break sequence installs stationary command-zero animation ownership");
         var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
@@ -362,7 +362,7 @@ internal static class NoobTubeObjectVerification
     internal static void StepNoobTube(
         RoomObjectSystem roomObjects,
         RoomLevelData level,
-        ControllerButton controllerNewInput = ControllerButton.None) =>
+        GameplayAction controllerNewInput = GameplayAction.None) =>
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>

@@ -156,7 +156,7 @@ internal static class CollectiblesVerification
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
-            ControllerButton.X, orb.RoomObjects);
+            GameplayAction.Shoot, orb.RoomObjects);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
         orb.RoomObjects.Step(orb.Level);
@@ -515,7 +515,7 @@ internal static class CollectiblesVerification
         GameplayMessageArtwork messages = CreatePermanentMessageFixture();
         var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
 
-        message.Begin(GameplayMessageId.EnergyTank, 0);
+        message.Begin(GameplayMessageId.EnergyTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
         // dispatch that opened the box.
         AssertEqual(GameplayMessageBoxPhase.Preparing, message.Phase,
@@ -590,7 +590,7 @@ internal static class CollectiblesVerification
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(GameplayMessageId.MissileTank, 0, shootBinding: ControllerButton.B);
+        message.Begin(GameplayMessageId.MissileTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default with { Shoot = ControllerButton.B });
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount(messages), "large item message has four content rows");
@@ -605,7 +605,7 @@ internal static class CollectiblesVerification
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name.
         message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        message.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
+        message.Begin(GameplayMessageId.MapDataAccessCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(5, message.TilemapRowCount(messages),
@@ -653,7 +653,8 @@ internal static class CollectiblesVerification
                 var retailMessage = CreateGameplayMessageFixture();
                 retailMessage.Begin(
                     GameplayMessageId.FromCartridge(messageId, "retail definition-table audit"),
-                    controllerRead: 0);
+                    controllerRead: 0,
+                    bindings: SuperMetroid.Core.Input.ControllerBindings.Default);
                 AssertTrue(
                     retailMessage.TilemapRowCount(RetailMessageFixture()) is >=
                         SuperMetroid.AssetExtraction.Hud.GameplayMessageBoxRowsConstants.MinimumRows and <=

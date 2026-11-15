@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>Literal inventory writes of Golden Torizo's initialization code.</summary>
 internal static class GoldenTorizoCodeDefinitions
 {
-    /// <summary>The chord the code compares: exactly held A+B+X+Y, with no other controller bits.</summary>
-    internal const ControllerButton ControllerChord = ControllerButton.A | ControllerButton.B | ControllerButton.X | ControllerButton.Y;
+    /// <summary>The chord the code compares: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
+    internal const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;
     /// <summary>Current and maximum energy, exactly 700 rather than 799.</summary>
     internal const int Energy = 700;
     /// <summary>Current and maximum reserve energy; reserve mode is not written.</summary>

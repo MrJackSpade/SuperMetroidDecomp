@@ -239,7 +239,7 @@ internal sealed class SuperMetroidRuntime
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, FramesBeyondAnimation = SamusOverreads.FramesBeyondAnimation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
-        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
+        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Controller1 = Controller1, PhysicalController1 = PhysicalController1, Options = Options, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
@@ -340,14 +340,14 @@ internal sealed class SuperMetroidRuntime
     public GameTimeState GameTime { get; } = new();
 
     /// <summary>
-    /// Controller 1 as the frame boundary latched it, in the default action layout: the configured bindings are
-    /// applied once at the latch, so Samus's action checks read the buttons they test through the bindings.
+    /// The player's gameplay actions as the frame boundary latched them: the configured bindings read the buttons as
+    /// actions once at the latch, so gameplay tests actions and never a button.
     /// </summary>
-    public ControllerInputState Controller1 { get; } = new();
+    public GameplayActionInput Controller1 { get; } = new();
 
     /// <summary>
-    /// The same sample as physical buttons. Code that tests fixed buttons rather than the bindings (the pause menu)
-    /// reads this latch.
+    /// The same sample as physical buttons. Code that tests fixed buttons rather than the bindings (the pause menu, the
+    /// message box's save choice) reads this latch.
     /// </summary>
     public ControllerInputState PhysicalController1 { get; } = new();
 
@@ -443,7 +443,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
-    /// <param name="controller1Input">The host's controller buttons, normalized through the action bindings when the frame boundary latches player input; attract playback publishes its independent scripted buttons later.</param>
+    /// <param name="controller1Input">The host's controller buttons, read as gameplay actions through the bindings when the frame boundary latches player input; attract playback publishes its independent scripted actions later.</param>
     /// <param name="request">The state policy, audio calls and the host's work after the frame boundary.</param>
     public void StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
     {
@@ -718,7 +718,7 @@ internal sealed class SuperMetroidRuntime
                 throw new InvalidDataException(
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
-            MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, Controller1.Current);
+            MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, PhysicalController1.Current, Options.ControllerBindings);
         }
     }
 

@@ -11,28 +11,28 @@ internal static class SamusHudSelection
     /// item-switch and item-cancel bindings.
     /// </summary>
     /// <remarks>
-    /// The selected item is one of the six HUD items, not a set of them. A new Select edge advances through the
+    /// The selected item is one of the six HUD items, not a set of them. A newly pressed item selection advances through the
     /// selection ring (the beam, Missiles, Super Missiles, Power Bombs, the Grapple Beam and the X-ray Scope),
-    /// skipping ammunition Samus has run out of and equipment she has not equipped. Y cancels back to the beam.
-    /// Holding Y while pressing Select records the chosen item for auto-cancel.
+    /// skipping ammunition Samus has run out of and equipment she has not equipped. Item cancel returns to the beam.
+    /// Holding item cancel while pressing item selection records the chosen item for auto-cancel.
     /// </remarks>
     /// <returns>Whether a cancel or select edge took effect on the now-selected item.</returns>
     public static HudSelectionOutcome HandleHudSelection(SamusState samus,
-        ControllerButton controllerInput,
-        ControllerButton controllerNewInput,
-        ControllerButton itemSwitchButton = ControllerButton.Select,
-        ControllerButton itemCancelButton = ControllerButton.Y)
+        GameplayAction controllerInput,
+        GameplayAction controllerNewInput,
+        GameplayAction itemSwitchButton = GameplayAction.ItemSelect,
+        GameplayAction itemCancelButton = GameplayAction.ItemCancel)
     {
-        ControllerButton switchMask = itemSwitchButton;
-        ControllerButton cancelMask = itemCancelButton;
-        bool itemSelectionTookEffect = (controllerNewInput & (cancelMask | switchMask)) != ControllerButton.None;
+        GameplayAction switchMask = itemSwitchButton;
+        GameplayAction cancelMask = itemCancelButton;
+        bool itemSelectionTookEffect = (controllerNewInput & (cancelMask | switchMask)) != GameplayAction.None;
 
-        if ((controllerNewInput & cancelMask) != ControllerButton.None)
+        if ((controllerNewInput & cancelMask) != GameplayAction.None)
         {
             samus.AutoCancelledItem = HudItem.Beam;
             samus.SelectedHudItem = HudItem.Beam;
         }
-        else if ((controllerNewInput & switchMask) != ControllerButton.None)
+        else if ((controllerNewInput & switchMask) != GameplayAction.None)
         {
             // The selection ring wraps after X-ray and keeps advancing while the selected
             // item is unavailable. The loop always terminates because the first item,
@@ -43,7 +43,7 @@ internal static class SamusHudSelection
             }
             while (!IsHudItemAvailable(samus, samus.SelectedHudItem));
 
-            samus.AutoCancelledItem = (controllerInput & cancelMask) != ControllerButton.None
+            samus.AutoCancelledItem = (controllerInput & cancelMask) != GameplayAction.None
                 ? samus.SelectedHudItem
                 : HudItem.Beam;
         }

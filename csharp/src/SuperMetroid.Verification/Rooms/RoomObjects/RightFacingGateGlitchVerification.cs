@@ -140,7 +140,7 @@ internal static class RightFacingGateGlitchVerification
                 var bombs = CreateBombFixture();
                 for (int frame = 0; frame < 30; frame++)
                 {
-                    ControllerButton input = frame == 0 ? ControllerButton.X : 0;
+                    GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                     bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                     shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                     if (!gatePlace.Active || gatePlace.Behaviour is not DownwardGateObject)

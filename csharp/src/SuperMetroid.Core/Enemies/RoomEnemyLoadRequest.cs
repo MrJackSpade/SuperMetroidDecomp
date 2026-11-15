@@ -32,7 +32,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public SamusState? Samus { get; init; }
 
     /// <inheritdoc />
-    public ControllerButton ControllerInput { get; init; }
+    public GameplayAction ControllerInput { get; init; }
 
     /// <inheritdoc />
     public Position16<RoomPixels> Camera { get; init; }

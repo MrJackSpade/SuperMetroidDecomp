@@ -24,7 +24,7 @@ public sealed class SamusDraygonGrabbedState
 
     /// <summary>
     /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
-    /// movements and counts her D-pad presses.
+    /// movements and counts her presses of the directions.
     /// </summary>
     public bool IsActive { get; private set; }
 
@@ -51,7 +51,7 @@ public sealed class SamusDraygonGrabbedState
     internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses) => _escapePresses = Ensure.NotNull(escapePresses);
 
     /// <summary>
-    /// D-pad presses counted toward escaping, 0 through 65535, on the count Crystal Flash's ammunition drain and the suit
+    /// Presses of the directions counted toward escaping, 0 through 65535, on the count Crystal Flash's ammunition drain and the suit
     /// pickup's stage share (<see cref="SharedEscapeAndDrainCount{TStage}"/>), so it holds any value those leave, including a
     /// wrapped countdown. A press continues from zero past 65535, and the release test is the shared count's own
     /// (<see cref="SharedEscapeAndDrainCount{TStage}.EscapePressesReach"/>).
@@ -59,10 +59,10 @@ public sealed class SamusDraygonGrabbedState
     public int EscapeButtonCounter => _escapePresses.EscapePresses;
 
     /// <summary>
-    /// The D-pad input of Draygon's escape. The game stores the entire masked D-pad
+    /// The directions input of Draygon's escape. The game stores the entire set of newly pressed directions
     /// directions, not merely one, so a different diagonal chord is also a new input.
     /// </summary>
-    public ControllerButton PreviousDpadInput { get; private set; }
+    public GameplayAction PreviousDpadInput { get; private set; }
 
     /// <summary>
     /// Set by the release, the signal Draygon reads when Samus breaks free. The next time
@@ -139,28 +139,28 @@ public sealed class SamusDraygonGrabbedState
 
     /// <summary>
     /// Runs the escape check after Samus's movement: optionally suppress the already-selected input transition while a
-    /// grapple is locked in place, then count a newly pressed D-pad pattern only when it is
+    /// grapple is locked in place, then count a newly pressed pattern of directions only when it is
     /// nonzero and different from the last counted pattern.
     /// </summary>
     public DraygonEscapeResult CheckDraygonEscape(
         SamusState samus,
-        ControllerButton newlyPressedInput,
+        GameplayAction newlyPressedInput,
         bool grappleLockedInPlace)
     {
         Ensure.NotNull(samus);
         EnsureActiveGrabbedPose();
 
-        ControllerButton newlyPressed = newlyPressedInput;
-        ControllerButton dpad = newlyPressed & ControllerButtons.DirectionalPad;
+        GameplayAction newlyPressed = newlyPressedInput;
+        GameplayAction dpad = newlyPressed & GameplayActions.Directions;
         bool counted = false;
-        if (dpad != ControllerButton.None && dpad != PreviousDpadInput)
+        if (dpad != GameplayAction.None && dpad != PreviousDpadInput)
         {
             PreviousDpadInput = dpad;
             _escapePresses.CountEscapePress();
             counted = true;
         }
 
-        // The game tests the count against the target only on a newly counted D-pad edge.
+        // The game tests the count against the target only on a newly counted press of the directions.
         bool released = counted && _escapePresses.EscapePressesReach(EscapeButtonCounterTarget);
         if (released)
             Release(samus);

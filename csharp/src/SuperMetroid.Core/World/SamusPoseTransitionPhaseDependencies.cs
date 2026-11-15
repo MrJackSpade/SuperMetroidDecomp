@@ -9,7 +9,7 @@ internal sealed record SamusPoseTransitionPhaseDependencies
 {
 
     /// <summary>Controller1.</summary>
-    public required ControllerInputState Controller1 { get; init; }
+    public required GameplayActionInput Controller1 { get; init; }
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
     /// <summary>The frame clock.</summary>

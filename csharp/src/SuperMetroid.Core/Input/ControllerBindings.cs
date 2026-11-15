@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Input;
 /// so they deliberately do not appear in this type.
 /// </summary>
 /// <remarks>
-/// Most movement behaviours already compare their input against the default
-/// action bits. <see cref="Normalize"/> is the single equivalent of the game loading
-/// those configurable bindings before each comparison: it converts physical buttons into the
-/// canonical action bits without making every movement behaviour own a second binding table.
+/// Gameplay tests <see cref="GameplayAction"/>s. <see cref="ToActions"/> is the single equivalent of the game loading
+/// these configurable bindings before each comparison: it reads the buttons as actions once per accepted update, so no
+/// gameplay behaviour owns a binding table or names a button.
 /// </remarks>
 public readonly record struct ControllerBindings(
     ControllerButton Shoot,
@@ -116,23 +115,23 @@ public readonly record struct ControllerBindings(
     }
 
     /// <summary>
-    /// Converts one physical controller sample into the default action layout expected by the
-    /// gameplay while preserving non-configurable directions and Start.
+    /// Reads the buttons of one controller sample as the gameplay actions they ask for: the directions and Start are
+    /// fixed controls, and each configurable action is held while any button of its binding is held.
     /// </summary>
-    public ControllerButton Normalize(ControllerButton physicalInput)
+    public GameplayAction ToActions(ControllerButton held)
     {
-        const ControllerButton fixedControls =
-            ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right |
-            ControllerButton.Start;
-        ControllerButton normalized = physicalInput & fixedControls;
-        normalized = Map(physicalInput, Shoot, ControllerButton.X, normalized);
-        normalized = Map(physicalInput, Jump, ControllerButton.A, normalized);
-        normalized = Map(physicalInput, Dash, ControllerButton.B, normalized);
-        normalized = Map(physicalInput, ItemSelect, ControllerButton.Select, normalized);
-        normalized = Map(physicalInput, ItemCancel, ControllerButton.Y, normalized);
-        normalized = Map(physicalInput, AimUp, ControllerButton.R, normalized);
-        normalized = Map(physicalInput, AimDown, ControllerButton.L, normalized);
-        return normalized;
+        GameplayAction actions =
+            FixedControl(held, ControllerButton.Up, GameplayAction.Up) |
+            FixedControl(held, ControllerButton.Down, GameplayAction.Down) |
+            FixedControl(held, ControllerButton.Left, GameplayAction.Left) |
+            FixedControl(held, ControllerButton.Right, GameplayAction.Right) |
+            FixedControl(held, ControllerButton.Start, GameplayAction.Start);
+        foreach (ControllerAction action in Actions)
+        {
+            if (held.HasAny(this[action]))
+                actions |= GameplayActions.Of(action);
+        }
+        return actions;
     }
 
     /// <summary>True when all seven bindings are single, distinct retail-assignable buttons.</summary>
@@ -189,13 +188,7 @@ public readonly record struct ControllerBindings(
         _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
     };
 
-    /// <summary>Sets a canonical action bit when its configured physical button is pressed in the sampled input.</summary>
-    private static ControllerButton Map(
-        ControllerButton physicalInput,
-        ControllerButton physicalBinding,
-        ControllerButton canonicalAction,
-        ControllerButton normalized) =>
-        (physicalInput & physicalBinding) != ControllerButton.None
-            ? normalized | canonicalAction
-            : normalized;
+    /// <summary>The fixed control <paramref name="action"/> when <paramref name="button"/> is held, otherwise none.</summary>
+    private static GameplayAction FixedControl(ControllerButton held, ControllerButton button, GameplayAction action) =>
+        held.HasAny(button) ? action : GameplayAction.None;
 }

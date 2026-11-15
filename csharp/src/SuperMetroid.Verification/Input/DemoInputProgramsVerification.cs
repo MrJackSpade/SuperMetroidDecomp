@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -54,8 +55,8 @@ internal static class DemoInputProgramsVerification
                     AssertTrue(index < recording.Inputs.Count, $"{at}: the recording holds this input");
                     DemoInput input = recording.Inputs[index];
                     AssertEqual(word, input.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), ControllerWordCodec.ToJoypadWord(input.Held), $"{at}: held");
-                    AssertEqual(Word(cursor + 4), ControllerWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
+                    AssertEqual(Word(cursor + 2), GameplayActionWordCodec.ToJoypadWord(input.Held), $"{at}: held");
+                    AssertEqual(Word(cursor + 4), GameplayActionWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
                     cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
                     index++;
                     records++;

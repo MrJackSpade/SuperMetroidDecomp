@@ -15,7 +15,7 @@ public static class SamusPostDrawAudio
     /// transition; the shared post-draw check handles them without per-input patches.
     /// </summary>
     public static void Step(SamusState samus,
-        SamusMovementType previousMovement, ControllerButton controllerInput)
+        SamusMovementType previousMovement, GameplayAction controllerInput)
     {
         SamusHurtFlash.ConsumeResumeChargingBeamSound(samus, controllerInput);
         var speed = samus.HorizontalSpeed;
@@ -33,7 +33,7 @@ public static class SamusPostDrawAudio
         // Resume on the NEXT post-draw pass, after the spin-end sound. The runtime
         // supplies normalized controls, so X here is the configured Shoot action.
         if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
-            (controllerInput & ControllerButton.X) != ControllerButton.None)
+            (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
             samus.ResumeChargingBeamSoundPending = true;
     }
 }

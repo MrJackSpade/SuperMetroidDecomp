@@ -29,21 +29,21 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         { new VerifySamusAerialTurnsAndWallJumpCase(0, false), new VerifySamusAerialTurnsAndWallJumpCase(1, true), new VerifySamusAerialTurnsAndWallJumpCase(8, true), new VerifySamusAerialTurnsAndWallJumpCase(9, false), new VerifySamusAerialTurnsAndWallJumpCase(32767, false), new VerifySamusAerialTurnsAndWallJumpCase(32768, false), new VerifySamusAerialTurnsAndWallJumpCase(32776, false), new VerifySamusAerialTurnsAndWallJumpCase(32777, true), new VerifySamusAerialTurnsAndWallJumpCase(65535, true) })
     {
         var autoJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { InputSnapshot = { AutoJumpTimer = timer, AutoJumpInputPending = true } };
-        ControllerButton physical = ControllerButton.X;
-        AssertEqual(physical | (accepts ? ControllerButton.A : ControllerButton.None),
+        GameplayAction physical = GameplayAction.Shoot;
+        AssertEqual(physical | (accepts ? GameplayAction.Jump : GameplayAction.None),
             autoJump.InputSnapshot.ConsumeAutoJumpInput(physical), "native signed auto-jump timer gate");
         AssertTrue(!autoJump.InputSnapshot.AutoJumpInputPending, "auto-jump handler returns to ordinary input");
         AssertEqual(physical, autoJump.InputSnapshot.ConsumeAutoJumpInput(physical), "auto-jump substitution is one-shot");
-        autoJump.InputSnapshot.SnapshotDrawInput(ControllerButton.A, physical);
+        autoJump.InputSnapshot.SnapshotDrawInput(GameplayAction.Jump, physical);
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "first held draw does not increment timer");
-        autoJump.InputSnapshot.SnapshotDrawInput(ControllerButton.A, 0);
+        autoJump.InputSnapshot.SnapshotDrawInput(GameplayAction.Jump, 0);
         AssertEqual(1, autoJump.InputSnapshot.AutoJumpTimer, "second held draw increments timer");
         autoJump.InputSnapshot.SnapshotDrawInput(0, 0);
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "release clears auto-jump history");
     }
     var wrappingAutoJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { InputSnapshot = { AutoJumpTimer = ushort.MaxValue } };
-    wrappingAutoJump.InputSnapshot.PublishMainLoopHeldInput(ControllerButton.A);
-    wrappingAutoJump.InputSnapshot.SnapshotDrawInput(ControllerButton.A, 0);
+    wrappingAutoJump.InputSnapshot.PublishMainLoopHeldInput(GameplayAction.Jump);
+    wrappingAutoJump.InputSnapshot.SnapshotDrawInput(GameplayAction.Jump, 0);
     AssertEqual(0, wrappingAutoJump.InputSnapshot.AutoJumpTimer, "held Jump wraps the auto-jump timer from 65535 to zero");
     AssertThrows<ArgumentOutOfRangeException>(() => wrappingAutoJump.InputSnapshot.AutoJumpTimer = SuperMetroid.Core.Compatibility.WrappingCounter.LargestCount + 1,
         "the auto-jump timer rejects a count past the largest it wraps from");
@@ -248,7 +248,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     ineligibleHistory.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
     ineligibleHistory.Kinematics.Position = ineligibleHistory.Kinematics.Position.WithFractionX(0x4321);
     var rejectedContact = SamusAerialMovement.StepSpinJump(
-level, ineligibleHistory, (ControllerButton.Left | ControllerButton.A), 0, 0);
+level, ineligibleHistory, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!rejectedContact.WallJumpTriggered,
         "native history gate rejects before the wall probe");
     AssertEqual(0, ineligibleHistory.AnimationFrame, "rejected history cannot rewind wall animation");
@@ -256,7 +256,7 @@ level, ineligibleHistory, (ControllerButton.Left | ControllerButton.A), 0, 0);
         "rejected rightward wall probe cannot set real X fraction to FFFF");
     earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
-level, earlyContact, (ControllerButton.Left | ControllerButton.A), 0, 0);
+level, earlyContact, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
@@ -268,7 +268,7 @@ level, earlyContact, (ControllerButton.Left | ControllerButton.A), 0, 0);
     // particular it must not leak the result-five write from the accepted paths below.
     var heldOnly = CreateSpinSamus(animationFrame: 0x0b);
     AerialMovementResult heldOnlyFrame = SamusAerialMovement.StepSpinJump(
-level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
+level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!heldOnlyFrame.WallJumpTriggered,
         "eligible held Jump without a fresh edge remains contact only");
     AssertEqual(SamusVerticalCollisionResult.None, heldOnly.SolidVerticalCollisionResult,
@@ -280,9 +280,9 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         eligible,
-        (ControllerButton.Left | ControllerButton.A),
+        (GameplayAction.Left | GameplayAction.Jump),
         0,
-        ControllerButton.A);
+        GameplayAction.Jump);
     AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
     AssertEqual(beforeTriggerY, eligible.Position.Y.Whole, "wall trigger frame preserves Y");
     AssertEqual(SamusVerticalCollisionResult.WallJump, eligible.SolidVerticalCollisionResult,
@@ -295,9 +295,9 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         opposedRightWall,
-        (ControllerButton.Left | ControllerButton.Right | ControllerButton.A),
+        (GameplayAction.Left | GameplayAction.Right | GameplayAction.Jump),
         0,
-        ControllerButton.A);
+        GameplayAction.Jump);
     AssertTrue(opposedRightWallTrigger.WallJumpTriggered,
         "Left+Right uses native Left-first priority at a right wall");
 
@@ -311,9 +311,9 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         rightOnlyLeftWall,
-        (ControllerButton.Right | ControllerButton.A),
+        (GameplayAction.Right | GameplayAction.Jump),
         0,
-        ControllerButton.A);
+        GameplayAction.Jump);
     AssertTrue(rightOnlyLeftWallTrigger.WallJumpTriggered,
         "Right-only input probes and launches from a left wall");
 
@@ -322,9 +322,9 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         opposedLeftWall,
-        (ControllerButton.Left | ControllerButton.Right | ControllerButton.A),
+        (GameplayAction.Left | GameplayAction.Right | GameplayAction.Jump),
         0,
-        ControllerButton.A);
+        GameplayAction.Jump);
     AssertTrue(!opposedLeftWallResult.WallJumpTriggered,
         "Left+Right cannot launch from a left wall because Left wins the native branch");
 
@@ -345,9 +345,9 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         enemyEligible,
-        (ControllerButton.Left | ControllerButton.A),
+        (GameplayAction.Left | GameplayAction.Jump),
         0,
-        ControllerButton.A);
+        GameplayAction.Jump);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
     AssertEqual(SamusVerticalCollisionResult.WallJump, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
@@ -360,7 +360,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     var withdrawn = CreateSpinSamus(animationFrame: 0x0b);
     withdrawn.Kinematics.InteractiveEnemies = [enemyEligible.Kinematics.InteractiveEnemies[0] with { Enemy = withdrawnEnemy }];
     withdrawn.Kinematics.RequestWallJumpLaunchShake(withdrawnEnemy);
-    AssertTrue(!SamusAerialMovement.StepSpinJump(level, withdrawn, (ControllerButton.Left | ControllerButton.A), 0, 0).WallJumpTriggered,
+    AssertTrue(!SamusAerialMovement.StepSpinJump(level, withdrawn, (GameplayAction.Left | GameplayAction.Jump), 0, 0).WallJumpTriggered,
         "held Jump against the enemy without a fresh edge does not launch");
     WallJumpLaunchShakeChecks.AssertEnemyPassShakes(withdrawnRoom, withdrawn, null, "a check that does not launch");
 
@@ -400,7 +400,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         eligible,
-        (ControllerButton.Right | ControllerButton.A),
+        (GameplayAction.Right | GameplayAction.Jump),
         1);
     AssertEqual((wallStartY - 5), eligible.Position.Y.Whole, "wall launch moves by old 4.A000 speed");
     AssertEqual(SamusBodyAttack.PseudoScrew, eligible.HorizontalSpeed.BodyAttack,
@@ -412,7 +412,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
         level,
         eligible,
-        (ControllerButton.Right | ControllerButton.A),
+        (GameplayAction.Right | GameplayAction.Jump),
         2);
     AssertEqual(SamusBodyAttack.ScrewAttack, eligible.HorizontalSpeed.BodyAttack,
         "wall-jump frame 23 publishes Screw-style damage index three");
@@ -624,7 +624,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 75)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(downKnockback);
-    SamusKnockbackMovement.Start(downKnockback, controllerInput: ControllerButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
+    SamusKnockbackMovement.Start(downKnockback, controllerInput: GameplayAction.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     // The no-speed-calculation down probe does not change the vertical words, so the
     // impact speed seen by `$91:F078` is the live speed entering this frame.
     int impactYSpeed = downKnockback.Kinematics.YSpeed.Whole;
@@ -678,7 +678,7 @@ floorLevel, downKnockback, frameCounter: 0);
 
         empty,
         samus,
-        ControllerButton.A,
+        GameplayAction.Jump,
         frameCounter: 1);
     AssertEqual(SixteenSixteenWords.ToDisplacement(unchecked((int)0xfffb1c00)), samus.Kinematics.Position.Y - boostYBefore,
         "damage boost reuses ordinary old-speed jumping movement");
@@ -692,7 +692,7 @@ floorLevel, downKnockback, frameCounter: 0);
     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
         samus,
         SamusPoseId.NeutralJumpRightPose,
-        ControllerButton.A);
+        GameplayAction.Jump);
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
     AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed.Whole, "damage-boost exit preserves whole Y speed");
     AssertEqual(preservedYSubspeed, samus.Kinematics.YSpeed.Fraction, "damage-boost exit preserves Y subspeed");
@@ -769,7 +769,7 @@ floorLevel, downKnockback, frameCounter: 0);
         int preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
 
-        SamusKnockbackMovement.Start(ball, controllerInput: (ControllerButton.Left | ControllerButton.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right });
+        SamusKnockbackMovement.Start(ball, controllerInput: (GameplayAction.Left | GameplayAction.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right });
         AssertEqual(
             pose,
             ball.Pose,
@@ -805,7 +805,7 @@ floorLevel, downKnockback, frameCounter: 0);
     };
     SamusPoseMetadata.RefreshCollisionRadii(ballExpires);
     SamusPresentation.InitializeAnimation(ballExpires, initialFrame: 3);
-    SamusKnockbackMovement.Start(ballExpires, controllerInput: ControllerButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
+    SamusKnockbackMovement.Start(ballExpires, controllerInput: GameplayAction.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
     int retainedBallFrame = ballExpires.AnimationFrame;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;

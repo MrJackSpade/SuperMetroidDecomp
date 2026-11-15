@@ -100,7 +100,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -167,9 +167,9 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
-        ControllerButton controllerNewInput = ControllerButton.None,
+        GameplayAction controllerNewInput = GameplayAction.None,
         ISamusRoomObjects? roomObjects = null)
     {
         ValidateCommon(level, samus);
@@ -281,7 +281,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -324,7 +324,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -431,7 +431,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -491,7 +491,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -521,7 +521,7 @@ public static class SamusAerialMovement
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusHorizontalSpeedDefinitions.GrappleRelease);
 
         bool horizontalInput = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
+            (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         BlockMoveResult horizontal;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !horizontalInput)
         {
@@ -558,7 +558,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         SamusMovementType movementType,
         ISamusRoomObjects? roomObjects)
     {
@@ -574,7 +574,7 @@ public static class SamusAerialMovement
             speed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
         bool directionHeld = (controllerInput &
-            (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
+            (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
             // Clear both the frame's horizontal displacement and persistent base speed.
@@ -677,12 +677,12 @@ public static class SamusAerialMovement
     /// <summary>Ends upward movement on Jump release or the speed passing zero.</summary>
     private static void ApplyVariableJumpCutoff(
         SamusKinematicsState state,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         if (state.YDirection != SamusVerticalDirection.Up)
             return;
 
-        bool jumpHeld = (controllerInput & ControllerButton.A) != ControllerButton.None;
+        bool jumpHeld = (controllerInput & GameplayAction.Jump) != GameplayAction.None;
         bool speedPassedZero = SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole);
         if (!jumpHeld || speedPassedZero)
         {
@@ -694,10 +694,10 @@ public static class SamusAerialMovement
     /// <summary>Tests the directional button matching the current facing pose.</summary>
     private static bool IsForwardHeld(
         SamusState samus,
-        ControllerButton controllerInput) =>
+        GameplayAction controllerInput) =>
         SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
-            ? (controllerInput & ControllerButton.Left) != ControllerButton.None
-            : (controllerInput & ControllerButton.Right) != ControllerButton.None;
+            ? (controllerInput & GameplayAction.Left) != GameplayAction.None
+            : (controllerInput & GameplayAction.Right) != GameplayAction.None;
 
     /// <summary>
     /// Runs the wall-jump check's block and solid-enemy wall probes; returns whether the jump chord launched a wall jump.
@@ -706,8 +706,8 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
-        ControllerButton controllerNewInput,
+        GameplayAction controllerInput,
+        GameplayAction controllerNewInput,
         ISamusRoomObjects? roomObjects)
     {
         // Rejects before either enemy or terrain observation. Probing
@@ -724,8 +724,8 @@ public static class SamusAerialMovement
         if (launchFrameReached)
             samus.Kinematics.WithdrawWallJumpLaunchShake();
 
-        bool heldLeft = (controllerInput & ControllerButton.Left) != ControllerButton.None;
-        bool heldRight = (controllerInput & ControllerButton.Right) != ControllerButton.None;
+        bool heldLeft = (controllerInput & GameplayAction.Left) != GameplayAction.None;
+        bool heldRight = (controllerInput & GameplayAction.Right) != GameplayAction.None;
         if (!heldLeft && !heldRight)
             return false;
 
@@ -750,7 +750,7 @@ public static class SamusAerialMovement
             return false;
         }
 
-        bool jumpNew = (controllerNewInput & ControllerButton.A) != ControllerButton.None;
+        bool jumpNew = (controllerNewInput & GameplayAction.Jump) != GameplayAction.None;
         bool triggered = jumpNew && distance < 8;
         if (triggered)
         {
@@ -775,7 +775,7 @@ public static class SamusAerialMovement
     /// </summary>
     private static bool TryRestartSpaceJump(
         SamusState samus,
-        ControllerButton controllerNewInput)
+        GameplayAction controllerNewInput)
     {
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
             samus.Kinematics.YDirection != SamusVerticalDirection.Down)
@@ -796,7 +796,7 @@ public static class SamusAerialMovement
             : SamusVerticalMotionDefinitions.SpaceJumpAirMinimumFallingSpeed;
         if (fallingSpeed.IsSlowerThan(minimumSpeed) ||
             !fallingSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.SpaceJumpFallingSpeedLimit) ||
-            (controllerNewInput & ControllerButton.A) == ControllerButton.None)
+            (controllerNewInput & GameplayAction.Jump) == GameplayAction.None)
         {
             return false;
         }

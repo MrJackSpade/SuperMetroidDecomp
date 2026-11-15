@@ -29,7 +29,7 @@ internal static class GroundedBombSpreadVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
             var bombs = CreateBombFixture();
-            ControllerButton shootDown = (ControllerButton.X | ControllerButton.Down);
+            GameplayAction shootDown = (GameplayAction.Shoot | GameplayAction.Down);
             for (int tick = 0; tick < hold; tick++)
             {
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, shootDown, 0);
@@ -37,7 +37,7 @@ internal static class GroundedBombSpreadVerification
                 AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
-            bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : ControllerButton.X, 0);
+            bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
             AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual(0, samus.BeamCharge.FlareCounter, "spawn clears actual flare counter");
@@ -46,7 +46,7 @@ internal static class GroundedBombSpreadVerification
             // acceleration precedes integration, including the spawning alpha call.
             for (int tick = 1; tick <= 60; tick++)
             {
-                if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, 0);
+                if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level }, samus, GameplayAction.Shoot, 0);
                 for (int slotIndex = 0; slotIndex < bombs.Bombs.Count; slotIndex++)
                 {
                     var slot = bombs.Bombs[slotIndex];

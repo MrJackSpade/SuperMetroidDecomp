@@ -56,7 +56,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     // The final image holds: no actor, animation, or
                     // script advances during the ninety-frame final-image hold.
                     session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                    if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)
+                    if (session.GameplayRuntime.Controller1.NewlyPressed != GameplayAction.None)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else if (session.Demo.CountHoldFrame())
                         FinishAttractPlayback(end: AttractPlaybackEnd.Completed);
@@ -66,7 +66,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Attract(session.GameplayRuntime) });
                     session.display.PublishGameplay(session.GameplayRuntime);
                     // The demo's movement phase has restored the physical controller pair at this point.
-                    if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)
+                    if (session.GameplayRuntime.Controller1.NewlyPressed != GameplayAction.None)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else
                         session.Demo.CountPlaybackFrame();

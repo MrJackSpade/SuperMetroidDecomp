@@ -567,12 +567,12 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// jump initializer as a grounded Spring Ball press; otherwise the
     /// bounce advances through the Spring Ball family's two rebounds.
     /// </summary>
-    public static bool ApplySpringBallLanding(SamusState samus, ControllerButton controllerInput)
+    public static bool ApplySpringBallLanding(SamusState samus, GameplayAction controllerInput)
     {
         if (!SamusPoseMetadata.IsAirborneSpringBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(samus.Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires an airborne Spring Ball pose, not {samus.Pose}.");
 
-        if ((controllerInput & ControllerButton.A) != ControllerButton.None)
+        if ((controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
             SamusAerialMovement.InitializeJump(samus);

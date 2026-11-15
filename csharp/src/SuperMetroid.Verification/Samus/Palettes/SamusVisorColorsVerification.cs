@@ -148,8 +148,8 @@ internal static class SamusVisorColorsVerification
         for (int call = 0; call < 11; call++) Compare(call); // Widening colors 0, 2, 4.
         for (int stage = 0; stage < 36; stage++)
         {
-            native.Xray.StepBeam(native, ControllerButton.B);
-            installed.Xray.StepBeam(installed, ControllerButton.B);
+            native.Xray.StepBeam(native, GameplayAction.Dash);
+            installed.Xray.StepBeam(installed, GameplayAction.Dash);
         }
         AssertEqual(XrayBeamPhase.Full, native.Xray.BeamPhase,
             "X-ray reaches full-beam palette cycle after native setup and widening");

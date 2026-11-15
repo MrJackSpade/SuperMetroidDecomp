@@ -25,7 +25,7 @@ internal sealed class SamusFramePhases
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
     /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
-    private readonly ControllerInputState _controller1;
+    private readonly GameplayActionInput _controller1;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Supplies elapsed gameplay frames to the shinespark while it moves Samus.</summary>
@@ -114,7 +114,7 @@ internal sealed class SamusFramePhases
         }
         else if (!_freeze.TimeIsFrozen &&
                  SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.PostureAdmission) &&
-                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != ControllerButton.None)
+                 ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & GameplayAction.Shoot) != GameplayAction.None)
         {
             // Selecting the grapple on the HUD fires it once the pose's movement type admits it.
             SamusGrappleMovement.BeginFiring(_player.Samus, _controller1.Current);
@@ -317,7 +317,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (frame.InputHandlingRuns)
         {
             // The HUD selection update runs before the movement-type HUD projectile producer.
-            // Consequently a Select edge can choose missiles and an X edge can
+            // Consequently an item-selection press can choose missiles and a Shoot press can
             // fire one during this same input phase. Input-locked message and elevator
             // control does not run the normal selection owner.
             // The selection step of the item the loop settles on runs on every
@@ -338,7 +338,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             if (!frame.InputHandlingLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                (_controller1.Current & ControllerButton.B) != ControllerButton.None &&
+                (_controller1.Current & GameplayAction.Dash) != GameplayAction.None &&
                 TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
                 frame.MarkXrayActivated();
@@ -1207,7 +1207,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The empty movement mode also skips periodic damage and the energy checks.
         frame.SampleMovementType(SamusPoseMetadata.ReadMovementType(samus));
 
-        // The held directions are already the buttons the input transitions match. Input
+        // The held directions are already the actions the input transitions match. Input
         // matching belongs to the input phase, before the movement phase moves the CURRENT pose;
         // the winning pose is not installed until after animation below.
         // The front-view poses get one special input rule: while an elevator

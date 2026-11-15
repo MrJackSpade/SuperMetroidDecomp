@@ -472,11 +472,11 @@ internal static void VerifyDemoInputObject()
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.
     int[] boundaries = [90, 1, 40, 1, 29, 70];
-    ControllerButton[] held =
-        [0, ControllerButton.X, ControllerButton.X, ControllerButton.X,
-            ControllerButton.X, 0];
-    ControllerButton[] newlyPressed =
-        [0, ControllerButton.X, 0, ControllerButton.X, 0, 0];
+    GameplayAction[] held =
+        [0, GameplayAction.Shoot, GameplayAction.Shoot, GameplayAction.Shoot,
+            GameplayAction.Shoot, 0];
+    GameplayAction[] newlyPressed =
+        [0, GameplayAction.Shoot, 0, GameplayAction.Shoot, 0, 0];
     int elapsed = 0, ends = 0;
     void EndRoutine(DemoInputCue cue)
     {
@@ -510,8 +510,8 @@ internal static void VerifyDemoInputObject()
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");
-    AssertEqual(ControllerButton.None, demo.Held, "demo delete clears held input");
-    AssertEqual(ControllerButton.None, demo.NewlyPressed, "demo delete clears new input");
+    AssertEqual(GameplayAction.None, demo.Held, "demo delete clears held input");
+    AssertEqual(GameplayAction.None, demo.NewlyPressed, "demo delete clears new input");
 
     Console.WriteLine("  Demo input: records, edges, end routine and deletion agree.");
 }

@@ -39,7 +39,7 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
         AssertEqual(SamusMovementType.Standing, history.PreviousMovement, "idle intro retains previous metadata");
-        IntroSamusDemoMovement.StepGroundedLeft(room, samus, ControllerButton.Left, ControllerButton.Left, 1, random);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, GameplayAction.Left, GameplayAction.Left, 1, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro fixture starts running left");
         AssertEqual(SamusMovementType.Standing, history.LastDifferentMovement, "intro run transition shifts prior metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "intro run transition commits current pose");

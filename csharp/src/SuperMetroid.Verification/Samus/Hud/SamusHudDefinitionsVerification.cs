@@ -92,7 +92,7 @@ internal static class SamusHudDefinitionsVerification
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
             for (int frame = 0; frame < 10; frame++)
-                shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
+                shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0 }, new(0, 0), bombs);
             AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
@@ -100,7 +100,7 @@ internal static class SamusHudDefinitionsVerification
             bool ball = SamusPoseMetadata.IsStableBallPose(pose);
             bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == SamusHudSelectionMode.Jump ||
                 handler == SamusHudSelectionMode.Turning && turn == 0 || handler == SamusHudSelectionMode.Transition && !Transition(pose, false);
-            shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
+            shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0 }, new(0, 0), bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
             AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbers.Number(pose):X2} turn={turn}");

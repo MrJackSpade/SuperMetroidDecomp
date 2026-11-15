@@ -44,7 +44,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
             "the X-ray's setup is accepted");
         AssertTurnedAway(audio, requests, SamusSound.XrayStart, "the X-ray's start");
         for (int update = 0; update < 8 + 1 + 27; update++)
-            scoping.Xray.StepBeam(scoping, ControllerButton.B);
+            scoping.Xray.StepBeam(scoping, GameplayAction.Dash);
         AssertEqual(XrayBeamPhase.Full, scoping.Xray.BeamPhase, "the X-ray reaches its full beam");
         for (int update = 0; update < 4; update++)
             scoping.Xray.StepBeam(scoping, 0);
@@ -52,7 +52,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
         AssertTurnedAway(audio, requests, SamusSound.XrayEnd, "the X-ray's end");
 
         // Crystal Flash's raise ends with its essential-priority silence of the room library.
-        const ControllerButton chord = ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X;
+        const GameplayAction chord = GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
         SamusState flashing = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
         flashing.Health = 1;
         flashing.MaxHealth = 99;

@@ -113,17 +113,17 @@ public static class SamusGrappleSwing
     /// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
     internal static void ApplyRopeAndDirectionInput(
         SamusGrappleState grapple,
-        ControllerButton controllerInput,
-        ControllerButton newlyPressedInput)
+        GameplayAction controllerInput,
+        GameplayAction newlyPressedInput)
     {
         // The swing changes length only on a new directional edge. Once selected, the signed
         // delta remains live until a bound or a later collision clears it.
-        if ((newlyPressedInput & ControllerButton.Up) != ControllerButton.None)
+        if ((newlyPressedInput & GameplayAction.Up) != GameplayAction.None)
         {
             if (grapple.RopeLength != 0)
                 grapple.RopeLengthDelta = -2;
         }
-        else if ((newlyPressedInput & ControllerButton.Down) != ControllerButton.None)
+        else if ((newlyPressedInput & GameplayAction.Down) != GameplayAction.None)
         {
             if (grapple.RopeLength < 64)
                 grapple.RopeLengthDelta = 2;
@@ -142,7 +142,7 @@ public static class SamusGrappleSwing
             return;
         }
 
-        if ((controllerInput & ControllerButton.Left) != ControllerButton.None)
+        if ((controllerInput & GameplayAction.Left) != GameplayAction.None)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 256;
@@ -152,7 +152,7 @@ public static class SamusGrappleSwing
             return;
         }
 
-        if ((controllerInput & ControllerButton.Right) != ControllerButton.None)
+        if ((controllerInput & GameplayAction.Right) != GameplayAction.None)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -256;
@@ -229,7 +229,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>
-    /// The D-pad kick-start compares only the angle's whole step with straight down;
+    /// The directions' kick-start compares only the angle's whole step with straight down;
     /// the release-time drop test instead requires exactly half a turn.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
@@ -306,16 +306,16 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Accepts a fresh Jump during the terrain-reflection window as a temporary angular kick, halved underwater.</summary>
-    internal static void ApplyJumpImpulse(SamusGrappleState grapple, ControllerButton newlyPressedInput)
+    internal static void ApplyJumpImpulse(SamusGrappleState grapple, GameplayAction newlyPressedInput)
     {
         // The swing only admits this extra angular impulse during the 16-frame terrain-
         // reflection timer. It is separate from ordinary Samus jump velocity and decays
         // inside the angular movement only after a successful angular movement pass.
         // Inputs here are normalized: A is Jump, B is Run. The Jump-binding test
         // must agree with the release-window check, or tight anchors become inescapable
-        // using Jump even though the unrelated Run button accidentally supplies the kick.
+        // using Jump even though the unrelated Dash accidentally supplies the kick.
         if (grapple.CollisionBounceTimer != 0 &&
-            (newlyPressedInput & ControllerButton.A) != ControllerButton.None)
+            (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
             grapple.JumpImpulse = grapple.AngularVelocity switch
             {

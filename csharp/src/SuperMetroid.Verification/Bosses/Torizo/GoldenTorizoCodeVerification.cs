@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -19,19 +20,19 @@ internal static class GoldenTorizoCodeVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => LittleEndianBytes.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1));
-        ControllerButton input = ControllerWordCodec.FromJoypadWord(Word(0xaac91a), "native Golden Torizo code chord");
+        GameplayAction input = GameplayActionWordCodec.FromJoypadWord(Word(0xaac91a), "native Golden Torizo code chord");
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
         // The native item word also sets the bit no item records, which the import's equipment codec drops (#1778).
         native[5] = SamusEquipmentWordCodec.FromEquipmentWord(native[5]).ToEquipmentWord();
         Check(EnemyDefinitionId.GoldenTorizo, input, false, true);
-        Check(EnemyDefinitionId.GoldenTorizo, (input | ControllerButton.L), false, false);
-        Check(EnemyDefinitionId.GoldenTorizo, (input & ~ControllerButton.A), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (input | GameplayAction.AimDown), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (input & ~GameplayAction.Jump), false, false);
         Check(EnemyDefinitionId.GoldenTorizo, input, true, false);
         Check(EnemyDefinitionId.BombTorizo, input, false, false);
         Console.WriteLine("Golden Torizo code: production initialization grants exact ROM inventory only for the exact held chord on the undefeated Golden encounter; reserve mode and reserve missiles remain unchanged.");
 
-        void Check(EnemyDefinitionId header, ControllerButton held, bool defeated, bool grants)
+        void Check(EnemyDefinitionId header, GameplayAction held, bool defeated, bool grants)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;

@@ -22,7 +22,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
-    private readonly ControllerInputState _controller1;
+    private readonly GameplayActionInput _controller1;
     /// <summary>The session's unauthored Speed Booster cadence, which a demo's Samus runs on.</summary>
     private readonly UnauthoredBoostCadence _unauthoredBoostCadence;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
@@ -62,7 +62,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
     public bool IsAttractDemo => _attractSession.IsAttractDemo;
 
-    /// <summary>Advances the recorded input and temporarily substitutes its held and new button edges.</summary>
+    /// <summary>Advances the recorded input and temporarily substitutes its held and newly pressed actions.</summary>
     public void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;

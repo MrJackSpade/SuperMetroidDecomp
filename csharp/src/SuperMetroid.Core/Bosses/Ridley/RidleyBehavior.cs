@@ -57,7 +57,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     private void RunNorfairRidleyMain(
         RoomEnemySlot slot,
         SamusState? samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         RoomLevelData? level = null,
         SamusProjectileSystem? samusProjectiles = null,
         SamusBombProjectileSystem? sharedProjectiles = null,
@@ -93,7 +93,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         RoomLevelData? level)
     {
         switch (state.Phase)
@@ -369,7 +369,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         RoomLevelData? level)
     {
         RidleyAttackSituation situation;
@@ -426,7 +426,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal void RunNorfairRidleyHurt(
         RoomEnemySlot body,
         SamusState? samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         RoomLevelData? level,
         SamusProjectileSystem? samusProjectiles,
         SamusBombProjectileSystem sharedProjectiles,

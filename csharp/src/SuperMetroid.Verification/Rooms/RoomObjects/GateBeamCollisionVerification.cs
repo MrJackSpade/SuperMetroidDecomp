@@ -40,7 +40,7 @@ internal static class GateBeamCollisionVerification
         for (int warm = 0; warm < 2; warm++) roomObjects.Step(level);
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
-        ControllerButton input = ControllerButton.X;
+        GameplayAction input = GameplayAction.Shoot;
         bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
         shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
         var shot = shots.Shots[0];

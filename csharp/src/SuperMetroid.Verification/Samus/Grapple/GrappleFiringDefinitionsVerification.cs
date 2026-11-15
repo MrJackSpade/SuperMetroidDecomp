@@ -108,7 +108,7 @@ internal static class GrappleFiringDefinitionsVerification
             SamusGrappleMovement.BeginFiring(samus);
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiring(empty, samus, ControllerButton.X);
+                SamusGrappleMovement.StepFiring(empty, samus, GameplayAction.Shoot);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -118,28 +118,29 @@ internal static class GrappleFiringDefinitionsVerification
             }
         }
         // Moving Draygon-held poses use controller-derived direction and a fixed six-
-        // pixel correction. Only the four direction bits select the aim, so exercise all
-        // sixteen combinations with the other buttons clear, all set, and mixed.
-        var heldInputs = new List<ControllerButton>();
+        // pixel correction. Only the four directions select the aim, so exercise all
+        // sixteen combinations with the other actions clear, all set, and mixed.
+        var heldInputs = new List<GameplayAction>();
+        GameplayAction allActions = ControllerBindings.Default.ToActions(ControllerButtons.All);
         for (int combination = 0; combination < 16; combination++)
         {
-            ControllerButton directions = ControllerButton.None;
-            if ((combination & 1) != 0) directions |= ControllerButton.Left;
-            if ((combination & 2) != 0) directions |= ControllerButton.Right;
-            if ((combination & 4) != 0) directions |= ControllerButton.Up;
-            if ((combination & 8) != 0) directions |= ControllerButton.Down;
-            foreach (ControllerButton others in new[] { ControllerButton.None, ControllerButtons.All & ~ControllerButtons.DirectionalPad,
-                         ControllerButton.R | ControllerButton.X | ControllerButton.Start | ControllerButton.Y })
+            GameplayAction directions = GameplayAction.None;
+            if ((combination & 1) != 0) directions |= GameplayAction.Left;
+            if ((combination & 2) != 0) directions |= GameplayAction.Right;
+            if ((combination & 4) != 0) directions |= GameplayAction.Up;
+            if ((combination & 8) != 0) directions |= GameplayAction.Down;
+            foreach (GameplayAction others in new[] { GameplayAction.None, allActions & ~GameplayActions.Directions,
+                         GameplayAction.AimUp | GameplayAction.Shoot | GameplayAction.Start | GameplayAction.ItemCancel })
                 heldInputs.Add(directions | others);
         }
         foreach (bool left in new[] { false, true })
-        foreach (ControllerButton input in heldInputs)
+        foreach (GameplayAction input in heldInputs)
         {
             samus.Pose = left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
-            bool outward = input.HasAny(left ? ControllerButton.Left : ControllerButton.Right);
-            int direction = outward && input.HasAny(ControllerButton.Down) ? (left ? 6 : 3) :
-                outward && input.HasAny(ControllerButton.Up) ? (left ? 8 : 1) : (left ? 7 : 2);
+            bool outward = input.HasAny(left ? GameplayAction.Left : GameplayAction.Right);
+            int direction = outward && input.HasAny(GameplayAction.Down) ? (left ? 6 : 3) :
+                outward && input.HasAny(GameplayAction.Up) ? (left ? 8 : 1) : (left ? 7 : 2);
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(samus, input);

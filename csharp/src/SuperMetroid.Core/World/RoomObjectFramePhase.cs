@@ -16,8 +16,12 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class RoomObjectFramePhase
 {
-    /// <summary>Current and newly pressed buttons passed to the room objects and message boxes.</summary>
-    private readonly ControllerInputState _controller1;
+    /// <summary>Newly pressed actions passed to the room objects.</summary>
+    private readonly GameplayActionInput _controller1;
+    /// <summary>The physical buttons held at the update's controller read, which an opening message box continues from.</summary>
+    private readonly ControllerInputState _physicalController1;
+    /// <summary>The options whose controller bindings an opening message box's panel names.</summary>
+    private readonly GameplayOptions _options;
     /// <summary>Applies gate projectiles requested during the room-object pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Suppresses ordinary room-object updates while gameplay time is frozen.</summary>
@@ -34,10 +38,16 @@ internal sealed class RoomObjectFramePhase
     private readonly SamusSuitPickupState _suitPickup;
 
 
+    /// <summary>Opens the message box on <paramref name="message"/>, continuing from the buttons held at the update's controller read.</summary>
+    private void BeginMessage(GameplayMessageId message) =>
+        _messageBox.Begin(message, _physicalController1.Current, _options.ControllerBindings);
+
     /// <summary>Binds the room objects' step to live runtime state and its presentation effects.</summary>
     internal RoomObjectFramePhase(RoomObjectFramePhaseDependencies dependencies)
     {
         _controller1 = dependencies.Controller1;
+        _physicalController1 = dependencies.PhysicalController1;
+        _options = dependencies.Options;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
         _messageBox = dependencies.MessageBox;
@@ -85,7 +95,7 @@ internal sealed class RoomObjectFramePhase
     /// transition-time call. Player-facing events remain with each caller because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private void StepRoomObjects(ControllerButton controllerNewInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    private void StepRoomObjects(GameplayAction controllerNewInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (_room.LevelData is null || _room.Camera is null || _player.Samus is null)
         {
@@ -146,7 +156,7 @@ internal sealed class RoomObjectFramePhase
                         "Multiple permanent items attempted to enter the synchronous " +
                         "message box during one room-object pass.");
                 }
-                _messageBox.Begin(pickup.Message, _controller1.Current);
+                BeginMessage(pickup.Message);
             }
             foreach (StationActivationEvent station in roomObjects.Stations.StationActivationEvents)
             {
@@ -161,8 +171,7 @@ internal sealed class RoomObjectFramePhase
                                 "A save station attempted to replace an active room-object message owner.");
                         }
                         _messageBoxes.AwaitSaveConfirmation(station);
-                        _messageBox.Begin(GameplayMessageId.SaveConfirmation,
-                            _controller1.Current);
+                        BeginMessage(GameplayMessageId.SaveConfirmation);
                         continue;
                     }
                     if (station.Message == GameplayMessageId.SaveCompleted)
@@ -174,7 +183,7 @@ internal sealed class RoomObjectFramePhase
                                 "A completed save station attempted to replace an active message owner.");
                         }
                         _messageBoxes.AwaitSaveCompletion(station);
-                        _messageBox.Begin(GameplayMessageId.SaveCompleted, _controller1.Current);
+                        BeginMessage(GameplayMessageId.SaveCompleted);
                         continue;
                     }
                     throw new InvalidDataException(
@@ -186,7 +195,7 @@ internal sealed class RoomObjectFramePhase
                         "Multiple room objects attempted to open the synchronous message box " +
                         "during one room-object step.");
                 }
-                _messageBox.Begin(station.Message, _controller1.Current);
+                BeginMessage(station.Message);
             }
             foreach (MotherBrainGlassProjectileRequest request in
                      roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)

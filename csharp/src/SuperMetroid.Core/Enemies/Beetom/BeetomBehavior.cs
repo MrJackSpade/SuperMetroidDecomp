@@ -67,7 +67,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BeetomMashCount = 64;
 
     /// <summary>Initializes the Beetom.</summary>
-    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ControllerButton controllerInput)
+    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, GameplayAction controllerInput)
     {
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
@@ -108,7 +108,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         switch (state.Action)
         {
@@ -401,7 +401,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         HorizontalDirection side)
     {
         if (state.ButtonCounter != 0)

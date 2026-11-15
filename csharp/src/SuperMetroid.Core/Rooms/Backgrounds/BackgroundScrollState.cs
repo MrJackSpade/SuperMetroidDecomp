@@ -59,9 +59,9 @@ public sealed class BackgroundScrollState
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {
-        if (TryCalculateBackgroundPosition(parallaxBasis.X, BackgroundScrollModes.Horizontal, out int backgroundX))
+        if (BackgroundScrollModes.Horizontal.BackgroundPositionFor(parallaxBasis.X) is int backgroundX)
             BackgroundPosition = BackgroundPosition.WithX(backgroundX);
-        if (TryCalculateBackgroundPosition(parallaxBasis.Y, BackgroundScrollModes.Vertical, out int backgroundY))
+        if (BackgroundScrollModes.Vertical.BackgroundPositionFor(parallaxBasis.Y) is int backgroundY)
             BackgroundPosition = BackgroundPosition.WithY(backgroundY);
         ForegroundPosition = destination;
     }
@@ -85,15 +85,14 @@ public sealed class BackgroundScrollState
     {
         ForegroundScroll = ForegroundPosition;
 
-        // A fixed background means "do not scroll the background on this axis": the caller skips both the
-        // background position write and the background's view.
-        if (TryCalculateBackgroundPosition(ForegroundPosition.X, BackgroundScrollModes.Horizontal, out int backgroundX))
+        // A fixed axis keeps both the background's position and its view on that axis.
+        if (BackgroundScrollModes.Horizontal.BackgroundPositionFor(ForegroundPosition.X) is int backgroundX)
         {
             BackgroundPosition = BackgroundPosition.WithX(backgroundX);
             BackgroundScroll = BackgroundScroll.WithX(backgroundX);
         }
 
-        if (TryCalculateBackgroundPosition(ForegroundPosition.Y, BackgroundScrollModes.Vertical, out int backgroundY))
+        if (BackgroundScrollModes.Vertical.BackgroundPositionFor(ForegroundPosition.Y) is int backgroundY)
         {
             BackgroundPosition = BackgroundPosition.WithY(backgroundY);
             BackgroundScroll = BackgroundScroll.WithY(backgroundY);
@@ -109,31 +108,4 @@ public sealed class BackgroundScrollState
         ForegroundScroll = ForegroundPosition;
         BackgroundScroll = BackgroundPosition;
     }
-
-    /// <summary>
-    /// Copies, freezes, or parallax-scales one background axis as the room state's scroll selects. A parallax factor is
-    /// under the foreground's own speed, so the scaled position stays within the foreground's coordinate range.
-    /// </summary>
-    private static bool TryCalculateBackgroundPosition(int foregroundPosition, BackgroundAxisScroll scroll, out int result)
-    {
-        switch (scroll.Kind)
-        {
-            case BackgroundScrollKind.Fixed:
-                result = 0;
-                return false;
-            case BackgroundScrollKind.FollowsForeground:
-                result = foregroundPosition;
-                return true;
-            case BackgroundScrollKind.Parallax:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BackgroundScrollKind)} {scroll.Kind}.");
-        }
-
-        // The parallax position is floor(position * factor / 256).
-        uint factor = (uint)scroll.Factor;
-        result = checked((int)EightEight.WholeOf(checked((uint)foregroundPosition) * factor));
-        return true;
-    }
-
 }

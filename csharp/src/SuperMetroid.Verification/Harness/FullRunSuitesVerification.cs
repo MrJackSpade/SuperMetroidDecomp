@@ -47,6 +47,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerificati
 using static SuperMetroid.Verification.Assets.RgbColorDomainVerification;
 using static SuperMetroid.Verification.Hardware.FixedPointVocabularyVerification;
 using static SuperMetroid.Verification.Rooms.RoomScopeVerification;
+using static SuperMetroid.Verification.Rooms.Scrolling.ParallaxRateVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombChargeRejectionVerification;
 using static SuperMetroid.Verification.Samus.Movement.BombJumpRunMomentumVerification;
@@ -936,6 +937,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics()),
         new(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking()),
         new(nameof(VerifyBackgroundScrollState), () => VerifyBackgroundScrollState()),
+        new(nameof(VerifyParallaxRate), () => VerifyParallaxRate()),
         new(nameof(VerifyRoomBackgroundSources), () => VerifyRoomBackgroundSources()),
         new(nameof(VerifyObjectBlockChangeReachesPlane), () => VerifyObjectBlockChangeReachesPlane()),
         new(nameof(VerifyPublishedRoomBackgrounds), () => VerifyPublishedRoomBackgrounds()),

@@ -636,7 +636,7 @@ internal static void VerifyBackgroundScrollState()
     var state = new BackgroundScrollState
     {
         ForegroundPosition = new(0x1234, 0x0200),
-        BackgroundScrollModes = new(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level),
+        BackgroundScrollModes = new(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level),
     };
 
     state.StepScrolling();
@@ -662,7 +662,7 @@ internal static void VerifyBackgroundScrollState()
 
     var destinationParallax = new BackgroundScrollState
     {
-        BackgroundScrollModes = new(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Parallax(64), RoomBackgroundSource.Level),
+        BackgroundScrollModes = new(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 4)), RoomBackgroundSource.Level),
     };
     destinationParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0200), new(0x0400, 0x0200));
     AssertEqual((ushort)0x0200, destinationParallax.BackgroundPosition.X,
@@ -673,7 +673,7 @@ internal static void VerifyBackgroundScrollState()
         "door setup publishes the whole destination layer-one position");
 
     // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
-    var upwardParallax = new BackgroundScrollState { BackgroundScrollModes = new(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Parallax(64), RoomBackgroundSource.Level) };
+    var upwardParallax = new BackgroundScrollState { BackgroundScrollModes = new(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 4)), RoomBackgroundSource.Level) };
     upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
     AssertEqual(new Position16<BackgroundPixels>(0x0200, 0x0087), upwardParallax.BackgroundPosition,
         "upward door setup calculates BG2 from its separate parallax basis");

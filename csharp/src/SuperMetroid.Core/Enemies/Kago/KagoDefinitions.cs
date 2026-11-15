@@ -19,6 +19,12 @@ internal static class KagoDefinitions
     /// </summary>
     internal static readonly RandomSampleField LeftJump = new(8, 1);
 
+    /// <summary>How long the quake lasts when a shot strikes a Kago, in updates.</summary>
+    internal const int ShotQuakeDuration = 16;
+
+    /// <summary>How much longer than its first wait a new Kago bug waits before it first sounds, in updates.</summary>
+    internal const int FirstSoundDelayPastWait = 4;
+
     /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait: the sample modulo 8.</summary>
     internal static readonly RandomSampleField FirstIdleFrames = new(0, 3);
 

@@ -62,7 +62,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 16);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground),
+            KagoDefinitions.ShotQuakeDuration);
 
         if (!state.UsesFastAnimation)
         {
@@ -331,7 +332,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.State = new KagoBugState(source)
         {
             IdleFrames = initialIdleFrames,
-            SoundDelay = initialIdleFrames + 4,
+            SoundDelay = initialIdleFrames + KagoDefinitions.FirstSoundDelayPastWait,
         };
         projectile.StartMotion(KagoBugMotion.Waiting);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));

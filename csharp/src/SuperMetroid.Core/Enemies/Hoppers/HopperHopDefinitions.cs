@@ -11,4 +11,7 @@ internal static class HopperHopDefinitions
 
     /// <summary>The big hop: it climbs 48 pixels, four marks a pass.</summary>
     internal static QuadraticCurveClimb BigHop { get; } = new(SignedSixteenSixteen.FromWholePixels(48), 4);
+
+    /// <summary>How fast either hop carries a hopper sideways, in whole pixels an update.</summary>
+    internal const int HorizontalSpeed = 3;
 }

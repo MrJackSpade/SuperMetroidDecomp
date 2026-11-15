@@ -242,7 +242,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         mama.Radius = mama.Radius.WithY(0);
         int signedDifference = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole);
         int distance = Math.Abs(signedDifference);
-        if (distance >= 24)
+        if (distance >= MamaTurtleShellContourDefinitions.HalfWidth)
             return;
 
         // The first 24 contour entries describe Samus to the left; the second 24 describe
@@ -280,7 +280,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - 1);
-        mama.Radius = mama.Radius.WithY(16);
+        mama.Radius = mama.Radius.WithY(MamaTurtleMotionDefinitions.AwakeHalfHeight);
         mama.Position = mama.Position.WithWholeX(MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeft.IsSetIn(mama.Position.Y.Whole)
             ? CoordinateAxis.Wrap(mama.Position.X.Whole - 1)
             : CoordinateAxis.Wrap(mama.Position.X.Whole + 1));
@@ -350,7 +350,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
-            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground), 16);
+            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground),
+                MamaTurtleMotionDefinitions.WallQuakeDuration);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
@@ -370,7 +371,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Action = MamaTurtleAction.RisingToPeak;
         SignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X - state.Velocity.X;
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WithWholePixelsAtLeast(-MamaTurtleMotionDefinitions.LargestLeftwardCarry));
     }
 
     /// <summary>Adds signed 1/65536-pixel hover acceleration as one 1/65536-pixel sum and caps whole speed using the old velocity's sign.</summary>
@@ -485,7 +486,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
                     state.Action = BabyTurtleAction.HidingCarryingSamus;
-                    state.NotCarryingSamusReactionTimer = 4;
+                    state.NotCarryingSamusReactionTimer = MamaTurtleMotionDefinitions.BabyRiderLeftDelay;
                     StartTurtleAnimation(
                         baby,
                         state,
@@ -498,13 +499,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case BabyTurtleAction.HidingCarryingSamus:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
-                    state.NotCarryingSamusReactionTimer = 4;
+                    state.NotCarryingSamusReactionTimer = MamaTurtleMotionDefinitions.BabyRiderLeftDelay;
                     return;
                 }
                 if (--state.NotCarryingSamusReactionTimer == 0)
                 {
                     state.Action = BabyTurtleAction.HidingNotCarryingSamus;
-                    state.ActionTimer = 60;
+                    state.ActionTimer = MamaTurtleMotionDefinitions.BabyHideDuration;
                 }
                 return;
 
@@ -517,7 +518,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                         state,
                         MamaTurtleSegment.BabySpinning);
                     bool facingRight = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right;
-                    state.Velocity = new Offset16<RoomPixels>(facingRight ? 3 : -3, 1);
+                    Offset16<RoomPixels> spin = MamaTurtleMotionDefinitions.BabySpinVelocity;
+                    state.Velocity = new Offset16<RoomPixels>(facingRight ? spin.X : -spin.X, spin.Y);
                     return;
                 }
                 if (--state.ActionTimer == 0)
@@ -632,7 +634,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // opposite sign: the facing-left cue writes -1 and the facing-right cue writes +1.
         state.Action = MamaTurtleAction.RisingToHover;
         state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? -1 : 1);
-        state.ActionTimer = 16;
+        state.ActionTimer = MamaTurtleMotionDefinitions.RiseToHoverDuration;
     }
 
     /// <summary>Animation cue: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
@@ -672,7 +674,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         _collision.ResolveNormalEnemyTouch(mama, samus);
         state.Action = MamaTurtleAction.Falling;
-        state.Velocity = state.Velocity.WithWholeY(2);
+        state.Velocity = state.Velocity.WithWholeY(MamaTurtleMotionDefinitions.KnockedDownFallSpeed);
     }
 
     /// <summary>Runs Baby's direction flip, separation, and wake reaction.</summary>
@@ -727,15 +729,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot mama,
         SamusState samus)
     {
-        // The box is Mama's body grown eight pixels each side and shrunk four pixels top and bottom.
+        // The box is Mama's body grown on each side and shrunk at the top and bottom.
         int left = CoordinateAxis.Wrap(
-            mama.Position.X.Whole - mama.Radius.X - 8);
+            mama.Position.X.Whole - mama.Radius.X - MamaTurtleMotionDefinitions.DamageBoxReach);
         int right = CoordinateAxis.Wrap(
-            mama.Position.X.Whole + mama.Radius.X + 8);
+            mama.Position.X.Whole + mama.Radius.X + MamaTurtleMotionDefinitions.DamageBoxReach);
         int top = CoordinateAxis.Wrap(
-            mama.Position.Y.Whole - mama.Radius.Y + 4);
+            mama.Position.Y.Whole - mama.Radius.Y + MamaTurtleMotionDefinitions.DamageBoxInset);
         int bottom = CoordinateAxis.Wrap(
-            mama.Position.Y.Whole + mama.Radius.Y - 4);
+            mama.Position.Y.Whole + mama.Radius.Y - MamaTurtleMotionDefinitions.DamageBoxInset);
 
         int samusLeftMinusOne = CoordinateAxis.Wrap(
             samus.Position.X.Whole - samus.Kinematics.Radius.X - 1);

@@ -76,7 +76,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         GunshipSavePromptPending = false;
         Part(top).Phase = GunshipPhase.WaitForExitPadToOpen;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-        Part(top).PhaseTimer = 144;
+        Part(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         }
         else
         {
-            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 25);
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - GunshipMotionDefinitions.LandedTopHullRaise);
             part.BaseY = slot.Position.Y.Whole;
             part.Phase = GunshipPhase.Idle;
         }
@@ -176,8 +176,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             }
             else
             {
-                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 15);
-                part.EngineSoundTimer = 71;
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
+                part.EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelay;
             }
         }
     }
@@ -193,13 +193,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
 
         RoomEnemySlot bottom = Pieces(top).Bottom;
 
-        // The solid bottom decrements its engine-sound timer and reloads 70 on
+        // The solid bottom decrements its engine-sound timer and reloads the hover sound's interval on
         // one or past zero. The engine sound is requested before the reload, exactly as it is in
         // the gunship top's main behaviour; this periodic producer continues while the ship is idling/bobbing.
         if (--Part(bottom).EngineSoundTimer <= 0)
         {
             _audio.QueueEnemySound(EnemySound.GunshipHover, priority: SoundRequestPriority.Normal);
-            Part(bottom).EngineSoundTimer = 70;
+            Part(bottom).EngineSoundTimer = GunshipHoverSoundDefinitions.Interval;
         }
 
         // The landed ship continuously performs its four-phase bob before running the phase itself, in every
@@ -332,7 +332,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-        Part(top).PhaseTimer = 144;
+        Part(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
         _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
@@ -340,14 +340,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     /// <summary>Raises Samus from the landed ship and closes its pad at the exit height.</summary>
     private void RaisePostCeresSamus(RoomEnemySlot top, SamusState samus)
     {
-        samus.Position -= new Offset16<RoomPixels>(0, 1);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - 30) >= 0)
+        samus.Position -= new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.ArrivalRiseStep);
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - GunshipBoardingDefinitions.ExitHeight) >= 0)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         Part(top).Phase = GunshipPhase.FinishLanding;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
-        Part(top).PhaseTimer = 144;
+        Part(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
 
@@ -423,7 +423,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             samus.Control.EnterGunship();
             pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
             StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-            Part(top).PhaseTimer = 144;
+            Part(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
             _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         }
@@ -435,21 +435,21 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         return --Part(top).PhaseTimer <= 0;
     }
 
-    /// <summary>Lowers Samus two pixels per frame until the closing-pad threshold.</summary>
+    /// <summary>Lowers Samus into the ship until she is aboard, then closes the pad.</summary>
     private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState samus)
     {
-        samus.Position += new Offset16<RoomPixels>(0, 2);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY + 18) < 0)
+        samus.Position += new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.BoardingStep);
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY + GunshipBoardingDefinitions.BoardedDepth) < 0)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         Part(top).Phase = GunshipPhase.WaitForEntranceToClose;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
-        Part(top).PhaseTimer = 144;
+        Part(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
         _frameResults.Gunship = GunshipFrameEvent.EntryPadClosing;
     }
 
-    /// <summary>Refills Samus in two-unit steps or skips directly to escape takeoff after Mother Brain.</summary>
+    /// <summary>Refills Samus by the ship's refill step or skips directly to escape takeoff after Mother Brain.</summary>
     private void RestoreSamusInGunship(RoomEnemySlot top, SamusState samus)
     {
         // The Zebes-timebomb-set event is set by Mother Brain's death sequence. Bypasses every refill
@@ -466,10 +466,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             return;
         }
 
-        SamusEnergyRestoration.Restore(samus, 2);
-        samus.Missiles = RestoreTwo(samus.Missiles, samus.MaxMissiles);
-        samus.SuperMissiles = RestoreTwo(samus.SuperMissiles, samus.MaxSuperMissiles);
-        samus.PowerBombs = RestoreTwo(samus.PowerBombs, samus.MaxPowerBombs);
+        SamusEnergyRestoration.Restore(samus, GunshipBoardingDefinitions.RefillStep);
+        samus.Missiles = RestoreStep(samus.Missiles, samus.MaxMissiles);
+        samus.SuperMissiles = RestoreStep(samus.SuperMissiles, samus.MaxSuperMissiles);
+        samus.PowerBombs = RestoreStep(samus.PowerBombs, samus.MaxPowerBombs);
         if (samus.ReserveEnergy < samus.MaxReserveEnergy ||
             samus.Health < samus.MaxHealth ||
             samus.Missiles < samus.MaxMissiles ||
@@ -481,17 +481,17 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         Part(top).Phase = GunshipPhase.HandleSaveConfirmation;
     }
 
-    /// <summary>Raises Samus two pixels per frame, then closes the pad and emits the exit event.</summary>
+    /// <summary>Raises Samus out of the ship, then closes the pad and emits the exit event.</summary>
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState samus)
     {
-        samus.Position -= new Offset16<RoomPixels>(0, 2);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - 30) >= 0)
+        samus.Position -= new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.LeavingStep);
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - GunshipBoardingDefinitions.ExitHeight) >= 0)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         Part(top).Phase = GunshipPhase.FinishSamusExit;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
-        Part(top).PhaseTimer = 144;
+        Part(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
         _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
         _audio.QueueEnemySound(RoomSound.GunshipPadClosing, priority: SoundRequestPriority.Normal);
     }
@@ -599,12 +599,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         bottom.Position = bottom.Position.WithWrappedWholeY(samusY + GunshipMotionDefinitions.BottomHullBelowSamus);
     }
 
-    /// <summary>Restores a resource by two without exceeding its maximum.</summary>
-    private static int RestoreTwo(int current, int maximum)
+    /// <summary>Restores a resource by the ship's refill step without exceeding its maximum.</summary>
+    private static int RestoreStep(int current, int maximum)
     {
         if (current >= maximum)
             return current;
-        return Math.Min(current + 2, maximum);
+        return Math.Min(current + GunshipBoardingDefinitions.RefillStep, maximum);
     }
 
     /// <summary>Runs Gunship's main AI.</summary>

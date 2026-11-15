@@ -180,7 +180,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // Every overlapping actor queues its sound independently. Using the
             // legacy one-value family field here collapsed a room full of attached actors
             // into one request and erased the game's sound-backlog processing delay.
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
+            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
             if (state.HasReachedDamagePeriod(MochtroidAttachmentDamagePeriod))

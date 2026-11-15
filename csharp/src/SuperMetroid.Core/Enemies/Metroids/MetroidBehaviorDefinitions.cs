@@ -25,6 +25,27 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> slots a chasing Metroid plays: the sample modulo 8.</summary>
     internal static readonly RandomSampleField CrySlot = new(0, 3);
 
+    /// <summary>How far above Samus's centre a Metroid aims, in pixels.</summary>
+    internal const int AimAboveSamus = 8;
+
+    /// <summary>A closing Metroid's speed on an axis for each unit of the distance it reckons (<see cref="MetroidClosingDistance"/>).</summary>
+    internal const int ClosingSpeedPerDistance = 32;
+
+    /// <summary>How long a frozen Metroid flashes each update it strains against the ice, in updates.</summary>
+    internal const int EscapeFlashDuration = 2;
+
+    /// <summary>How long a Metroid struck by an ice beam flashes, in updates.</summary>
+    internal const int IceFlashDuration = 4;
+
+    /// <summary>How much longer than its own hurt flash a frozen Metroid flashes when a shot hurts it, in updates.</summary>
+    internal const int FrozenHurtFlashExtension = 8;
+
+    /// <summary>
+    /// The least energy Samus must have for a draining Metroid or Mochtroid to sound the drain: the sound stops below
+    /// it.
+    /// </summary>
+    internal const int DrainSoundLeastHealth = 30;
+
     /// <summary>A sixteenth of an energy, in the parts the drain counts an energy in.</summary>
     private const int SixteenthHealth = FractionalEnergyDrain.PartsPerEnergy / 16;
 

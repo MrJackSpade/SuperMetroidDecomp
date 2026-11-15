@@ -146,7 +146,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyWakeRequested = true;
         state.DesiredAnimation = MagdolliteRise.Phase(0).BodyAnimation;
         StartMagdolliteAnimation(slot, state);
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         state.Action = MagdolliteAction.BodyDormant;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
@@ -161,7 +161,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttackTimer = WrappingCountdown.Start(0);
         state.DesiredAnimation = MagdolliteSegment.PillarCap;
         StartMagdolliteAnimation(slot, state);
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         state.Action = MagdolliteAction.OverlayWaitingForAttack;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
@@ -345,7 +345,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BodyPhase++;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 8);
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + MagdollitePhaseDefinitions.BodyShiftPerPhase);
         state.DesiredAnimation = MagdolliteRise
             .Phase(state.BodyPhase).BodyAnimation;
         StartMagdolliteAnimation(body, state);
@@ -375,7 +375,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.BodyPhase--;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 8);
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - MagdollitePhaseDefinitions.BodyShiftPerPhase);
         state.DesiredAnimation = MagdolliteRise
             .Phase(state.BodyPhase).BodyAnimation;
         StartMagdolliteAnimation(body, state);
@@ -610,7 +610,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCueKind.SinkAndShowParts:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
-                Position16<RoomPixels> sunk = state.Origin + new Offset16<RoomPixels>(0, 24);
+                Position16<RoomPixels> sunk = state.Origin + new Offset16<RoomPixels>(0, MagdolliteMotionDefinitions.SunkDepth);
                 slot.Position = slot.Position.WithWholeY(sunk.Y);
                 body.Position = body.Position.WithWholeY(sunk.Y);
                 body.Presence = body.Presence.Without(EnemyPresence.Hidden);
@@ -627,7 +627,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCueKind.SurfaceAndHideParts:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
-                Position16<RoomPixels> surfaced = state.Origin + new Offset16<RoomPixels>(0, 4);
+                Position16<RoomPixels> surfaced = state.Origin + new Offset16<RoomPixels>(0, MagdolliteMotionDefinitions.SurfacedDepth);
                 slot.Position = slot.Position.WithWholeY(surfaced.Y);
                 body.Position = body.Position.WithWholeY(surfaced.Y);
                 body.Presence = body.Presence.With(EnemyPresence.Hidden);
@@ -647,7 +647,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(8, -8));
                 break;
             case MagdolliteCueKind.StartCooldown:
-                state.AttackTimer = WrappingCountdown.Start(256);
+                state.AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCueKind)} {cue.Kind}.");

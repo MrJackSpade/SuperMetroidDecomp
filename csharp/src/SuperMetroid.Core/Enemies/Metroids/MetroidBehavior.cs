@@ -100,7 +100,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMetroidMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
+        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus);
         switch (state.Movement)
         {
             case MetroidMovement.Homing:
@@ -173,9 +173,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Chooses a closing Metroid's speed on one axis from its distance to its target.</summary>
     private static int CalculateMetroidClosingVelocity(int target, int current)
     {
-        // The closing speed is 32 times the distance the Metroid reckons (MetroidClosingDistance), clamped.
+        // The closing speed is a multiple of the distance the Metroid reckons (MetroidClosingDistance), clamped.
         return Math.Clamp(
-            32 * MetroidClosingDistance.Between(target, current),
+            MetroidBehaviorDefinitions.ClosingSpeedPerDistance * MetroidClosingDistance.Between(target, current),
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }
@@ -213,7 +213,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.EscapeTimer != 0)
         {
             state.EscapeTimer--;
-            slot.FlashTimer = 2;
+            slot.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
         }
 
         FreezeMetroidOuterBody(state.Electricity, MetroidOuterBodyDefinitions.ElectricityFrozenAnimation);
@@ -242,7 +242,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
+        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus);
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
@@ -262,7 +262,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Movement != MetroidMovement.PowerBombEscape)
         {
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
+            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
             DrainSamusWithMetroid(state, samus);
         }
@@ -330,7 +330,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (collisionProjectileType.BeamCombination.HasIce)
         {
-            slot.FlashTimer = 4;
+            slot.FlashTimer = MetroidBehaviorDefinitions.IceFlashDuration;
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
@@ -485,7 +485,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
-                enemy.FlashTimer = enemy.HurtFlashFrames + 8;
+                enemy.FlashTimer = enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension;
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0

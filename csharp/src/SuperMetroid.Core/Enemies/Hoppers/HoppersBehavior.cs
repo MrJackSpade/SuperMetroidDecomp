@@ -140,8 +140,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Selects big or small quadratic-speed parameters and routes to the direction choice for the next hop.</summary>
     private static void PrepareHopperHop(HopperEnemyState state, HopperHopSize size)
     {
-        state.YSpeedCurvePlaceDelta = size == HopperHopSize.Big ? 4 : 3;
-        state.XVelocity = 3;
+        QuadraticCurveClimb hop = size == HopperHopSize.Big ? HopperHopDefinitions.BigHop : HopperHopDefinitions.SmallHop;
+        state.YSpeedCurvePlaceDelta = hop.MarksPerPass;
+        state.XVelocity = HopperHopDefinitions.HorizontalSpeed;
         state.YSpeedCurvePlace = size == HopperHopSize.Big
             ? state.BigHopInitialYSpeedCurvePlace
             : state.SmallHopInitialYSpeedCurvePlace;

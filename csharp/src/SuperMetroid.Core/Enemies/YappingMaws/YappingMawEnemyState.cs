@@ -11,14 +11,14 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 public sealed class YappingMawEnemyState
 {
-    /// <summary>Binds extended tongue and grab state to the live mouth enemy slot.</summary>
-    internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
+    /// <summary>Binds extended tongue and grab state to the live mouth enemy place.</summary>
+    internal YappingMawEnemyState(RoomEnemyPlace owner) => Owner = owner;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YappingMawSegment> Playback { get; set; }
 
     /// <summary>The listed enemy representing the moving mouth, distinct from the four body projectiles and the stationary root sprite object.</summary>
-    public RoomEnemySlot Owner { get; }
+    public RoomEnemyPlace Owner { get; }
     /// <summary>The behaviour main AI runs, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAction Action { get; internal set; }
 
@@ -116,7 +116,7 @@ public sealed class YappingMawEnemyState
     /// <summary>Result of the point-based viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
 
-    /// <summary>The four physical body-link slots, ordered root to mouth.</summary>
+    /// <summary>The four physical body-link places, ordered root to mouth.</summary>
     public EnemyProjectile?[] BodyProjectiles { get; } =
         new EnemyProjectile?[4];
 

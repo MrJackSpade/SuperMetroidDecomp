@@ -24,17 +24,17 @@ internal static class DeadTorizoCorpseDefinitionsVerification
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Action<RoomEnemySlot> initialize = DeadTorizoBehavior.InitializeDeadTorizo;
+        Action<RoomEnemyPlace> initialize = DeadTorizoBehavior.InitializeDeadTorizo;
         // A corpse keeps its own state on its own slot, wherever the room lists it (#1808): one listed first and one
         // listed later each start their own fresh schedule.
         int[] places = [0, 3];
         foreach (int place in places)
-            initialize(enemies.SlotTable.Slots[place]);
+            initialize(enemies.Places.InUpdateOrder[place]);
 
         foreach (int place in places)
         {
             DeadTorizoEnemyState state = enemies.DeadTorizos[place] ?? throw new InvalidOperationException($"The dead Torizo in slot {place} has no state.");
-            AssertTrue(ReferenceEquals(enemies.SlotTable.Slots[place], state.Slot), $"the dead Torizo in slot {place} owns its own state");
+            AssertTrue(ReferenceEquals(enemies.Places.InUpdateOrder[place], state.Place), $"the dead Torizo in slot {place} owns its own state");
             CorpseRotScheduleChecks.AssertFreshSchedule(DeadTorizoCorpseDefinitions.RowCount, state.Rot, $"dead Torizo production in slot {place}");
         }
         AssertTrue(!ReferenceEquals(enemies.DeadTorizos[places[0]], enemies.DeadTorizos[places[1]]), "each dead Torizo has its own state");

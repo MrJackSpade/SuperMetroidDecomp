@@ -64,7 +64,7 @@ internal static class GameplayAudioOrderVerification
     internal static void VerifyLaterUpdateQueuesNothingStale()
     {
         (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
-        RoomEnemySlot kiHunter = KiHunterAtItsSpit(runtime);
+        RoomEnemyPlace kiHunter = KiHunterAtItsSpit(runtime);
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         runtime.StepFrame(0, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(runtime) });
         AssertTrue(runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
@@ -157,10 +157,10 @@ internal static class GameplayAudioOrderVerification
     }
 
     /// <summary>The room's green Ki Hunter, its AI idle and its script one update from the spit.</summary>
-    private static RoomEnemySlot KiHunterAtItsSpit(SuperMetroidRuntime runtime)
+    private static RoomEnemyPlace KiHunterAtItsSpit(SuperMetroidRuntime runtime)
     {
-        RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.KihunterGreen);
-        KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.SlotIndex]
+        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.KihunterGreen);
+        KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.Ordinal]
             ?? throw new InvalidOperationException("The Ki Hunter has no state.");
         body.Position = body.Position.WithWhole(new(128, 128));
         state.Action = KiHunterAction.AnimatingOnGround;

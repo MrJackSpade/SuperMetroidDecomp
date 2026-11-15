@@ -56,9 +56,9 @@ internal static class GunshipLandingVerification
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
 
-        RoomEnemySlot top = enemies.SlotTable.Slots[0];
-        RoomEnemySlot bottom = enemies.SlotTable.Slots[1];
-        RoomEnemySlot pad = enemies.SlotTable.Slots[2];
+        RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
+        RoomEnemyPlace bottom = enemies.Places.InUpdateOrder[1];
+        RoomEnemyPlace pad = enemies.Places.InUpdateOrder[2];
         AssertEqual(0x006f, top.Position.Y.Whole, "post-Ceres top begins seventeen pixels above Samus");
         AssertEqual(0x0097, bottom.Position.Y.Whole, "post-Ceres bottom begins twenty-three pixels below Samus");
         AssertEqual(GunshipPhase.DescendAfterCeres, GunshipPartState.Of(top).Phase, "post-Ceres top selects descent function three");
@@ -287,7 +287,7 @@ internal static class GunshipLandingVerification
     }
 
     /// <summary>Asserts that <paramref name="pad"/> shows <paramref name="program"/>'s first pose for its first duration.</summary>
-    private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipSegment program, string message)
+    private static void AssertPadShowsFirstFrame(RoomEnemyPlace pad, GunshipSegment program, string message)
     {
         var first = AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>(GunshipAnimations.Segments.Beats(program)[0], message + " (first beat)");
         AssertEqual(GunshipFrameDefinitionsConstants.Spritemap(first.Shown), pad.SpritemapPointer, message + " (pose)");

@@ -62,7 +62,7 @@ internal sealed class GunshipPartState
             EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
     }
 
-    /// <summary>The state of a gunship slot, failing if the slot never initialized as a gunship part.</summary>
-    internal static GunshipPartState Of(RoomEnemySlot slot) =>
-        slot.SpeciesState<GunshipPartState>() ?? throw new InvalidOperationException("A gunship slot has no state.");
+    /// <summary>The state of a gunship place, failing if the place never initialized as a gunship part.</summary>
+    internal static GunshipPartState Of(RoomEnemyPlace place) =>
+        place.SpeciesState<GunshipPartState>() ?? throw new InvalidOperationException("A gunship place has no state.");
 }

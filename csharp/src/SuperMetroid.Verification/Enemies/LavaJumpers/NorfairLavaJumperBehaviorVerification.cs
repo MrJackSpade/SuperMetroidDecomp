@@ -21,7 +21,7 @@ internal static class NorfairLavaJumperBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.Position = parent.Position.WithWhole(new(256, 480));
@@ -48,7 +48,7 @@ internal static class NorfairLavaJumperBehaviorVerification
             EnemyInstructionRunner.ShownFrames(parent, holds.Sum() + 2), "lava-jumper jump animation");
         AssertTrue(parentState.AnimationFinished, "jump animation publishes its finishing handshake");
 
-        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);

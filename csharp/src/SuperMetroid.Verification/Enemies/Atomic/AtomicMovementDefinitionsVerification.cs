@@ -36,15 +36,15 @@ internal static class AtomicMovementDefinitionsVerification
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Atomic, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Atomic, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
 
         for (ushort selector = 0; selector < 4; selector++)
         {
-            slot.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
-            slot.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
-            AtomicBehavior.InitializeAtomic(slot);
+            place.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
+            place.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
+            AtomicBehavior.InitializeAtomic(place);
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
             AtomicSegment program = DecodedSpin(selector);
             AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
@@ -52,9 +52,9 @@ internal static class AtomicMovementDefinitionsVerification
 
             AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), state.Speed, $"Atomic speed {selector}");
 
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Segments, program)),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Segments, program)),
                 $"Atomic spinning loop {selector}");
         }
 

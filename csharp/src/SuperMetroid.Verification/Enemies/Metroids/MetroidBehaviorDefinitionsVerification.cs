@@ -53,7 +53,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         // An escape starts at its duration and ends on the step that reaches zero, so every count from one is swept.
         for (int timer = 1; timer <= short.MaxValue; timer++)
         {
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
@@ -68,10 +68,10 @@ internal static class MetroidBehaviorDefinitionsVerification
 
             Offset16<RoomPixels> expected =
                 MetroidReactions.EscapeDisplacement((ushort)timer);
-            MetroidBehavior.RunMetroidPowerBombEscape(slot, state);
-            AssertEqual(unchecked((ushort)(1 + expected.X)), slot.Position.X.Whole,
+            MetroidBehavior.RunMetroidPowerBombEscape(place, state);
+            AssertEqual(unchecked((ushort)(1 + expected.X)), place.Position.X.Whole,
                 $"production Metroid escape X timer {timer}");
-            AssertEqual(unchecked((ushort)(0xffff + expected.Y)), slot.Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(0xffff + expected.Y)), place.Position.Y.Whole,
                 $"production Metroid escape Y timer {timer}");
             AssertEqual(timer - 1, state.EscapeTimer,
                 $"production Metroid escape countdown {timer}");
@@ -97,12 +97,12 @@ internal static class MetroidBehaviorDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = () => selectedRandom;
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.AnimationClock.StepOnNextUpdate();
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Metroid, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.AnimationClock.StepOnNextUpdate();
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
-            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                     AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
@@ -110,18 +110,18 @@ internal static class MetroidBehaviorDefinitionsVerification
                         MetroidAnimations.Segments.Beats(MetroidSegment.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
             });
 
-            EnemyAnimationPlayer.AdvanceAnimation(slot, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
+            EnemyAnimationPlayer.AdvanceAnimation(place, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
 
             AssertEqual((SoundEffectId?)MetroidReactions.RandomCrySoundEffect(random),
                 enemies.Audio.LatestSound,
                 $"production Metroid random cry {random}");
-            AssertEqual(16, slot.AnimationClock.Hold.RawValue,
+            AssertEqual(16, place.AnimationClock.Hold.RawValue,
                 $"production Metroid script timer {random}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), place.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
             // The cue ends the pass; the loop shows its first pose and stands before its second.
             AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), new AnimationPlace(0, 1)),
-                (enemies.SlotTable.Slots[0].EntityState<MetroidEntity, MetroidEnemyState>() ?? throw new InvalidOperationException("The Metroid has no state.")).Playback,
+                (enemies.Places.InUpdateOrder[0].EntityState<MetroidEntity, MetroidEnemyState>() ?? throw new InvalidOperationException("The Metroid has no state.")).Playback,
                 $"production Metroid script continuation {random}");
         }
     }

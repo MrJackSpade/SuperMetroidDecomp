@@ -43,7 +43,7 @@ internal sealed class DraygonDeath
     /// <summary>Moves the dying body toward the burial point and changes its linked eye pose.</summary>
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
         {
             _spriteObjects.SpawnRoomSpriteObject(
@@ -74,7 +74,7 @@ internal sealed class DraygonDeath
         state.Arms.Contact = body.Contact;
         state.Arms.Processing = body.Processing;
         state.Arms.Presence = deletedPartPresence;
-        RoomEnemySlot eye = state.Eye;
+        RoomEnemyPlace eye = state.Eye;
         _parts.StartDraygonAnimation(
             eye,
             state.FacingRight
@@ -105,7 +105,7 @@ internal sealed class DraygonDeath
     {
         SpawnDyingDraygonSmoke(frameCounter);
         MoveDraygonDeathEvirs(state);
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonBehavior.DraygonBurialFinishedY) < 0)
             return;
@@ -188,7 +188,7 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>Moves the body along an angle in 256ths of a turn at the supplied speed.</summary>
-    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, TrigonometryAngle movementAngle, int speed)
+    private static void MoveDraygonAtMovementAngle(RoomEnemyPlace body, TrigonometryAngle movementAngle, int speed)
     {
         UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);
         UnsignedSixteenSixteen yMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.HalfTurn);

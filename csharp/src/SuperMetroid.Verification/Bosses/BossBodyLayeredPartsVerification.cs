@@ -50,7 +50,7 @@ internal static class BossBodyLayeredPartsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
         _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);
         Extent16<BackgroundPixels> area = SideBySideCanvas;
@@ -103,7 +103,7 @@ internal static class BossBodyLayeredPartsVerification
         state.InitializeBodyLayer();
         state.ShowBody();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Kraid);
         int compared = 0;
         foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })

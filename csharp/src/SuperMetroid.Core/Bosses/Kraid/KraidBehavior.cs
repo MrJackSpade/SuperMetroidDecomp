@@ -17,7 +17,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. KraidPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KraidEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new KraidEntity(this, place, common);
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     internal KraidBodyLayer BodyLayer { get; }
 
@@ -82,7 +82,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// before the death initializer runs in this same frame.
     /// </summary>
     internal void RunKraidBodyMain(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         SamusState? samus,
         Position16<RoomPixels> camera,
         SamusProjectileSystem? samusProjectiles,
@@ -108,33 +108,33 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Kraid's main AI.</summary>
-    internal void RunKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunKraidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
+        RunKraidBodyMain(place, frame.Samus, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <summary>Runs KraidArm's main AI.</summary>
-    internal void RunKraidArmMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunKraidArmMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        Limbs.RunKraidArmMain(slot, frame.Camera.Y);
+        Limbs.RunKraidArmMain(place, frame.Camera.Y);
     }
 
     /// <summary>Runs KraidLintTop's main AI.</summary>
-    internal void RunKraidLintTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunKraidLintTopMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        Projectiles.RunKraidLintMain(slot, frame.Samus);
+        Projectiles.RunKraidLintMain(place, frame.Samus);
     }
 
     /// <summary>Runs KraidFoot's main AI.</summary>
-    internal void RunKraidFootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunKraidFootMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        Limbs.RunKraidFootMain(slot, frame.Camera.Y);
+        Limbs.RunKraidFootMain(place, frame.Camera.Y);
     }
 
     /// <summary>Runs a fingernail's main AI, for either of Kraid's two.</summary>
-    internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunKraidNailMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        Projectiles.RunKraidNailMain(slot, frame.Level);
+        Projectiles.RunKraidNailMain(place, frame.Level);
     }
 
     /// <summary>
@@ -205,14 +205,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Position">The projectile's whole-pixel room position.</param>
     /// <param name="Radius">The projectile's collision half-extents.</param>
     /// <param name="Type">The projectile's type: its family, beams and charge.</param>
-    /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the slot's non-negative damage.</param>
+    /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the place's non-negative damage.</param>
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
     internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
 
     /// <summary>Runs the body's active first- or second-phase combat phase.</summary>
     internal void RunKraidCombatPhase(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX)
     {

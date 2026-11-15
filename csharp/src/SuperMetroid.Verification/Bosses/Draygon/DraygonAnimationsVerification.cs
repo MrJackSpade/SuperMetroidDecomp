@@ -170,21 +170,21 @@ internal static class DraygonAnimationsVerification
     private static NewDraygonResult NewDraygon()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
         var state = new DraygonEnemyState(body)
         {
-            Eye = enemies.SlotTable.Slots[1],
-            Tail = enemies.SlotTable.Slots[2],
-            Arms = enemies.SlotTable.Slots[3],
+            Eye = enemies.Places.InUpdateOrder[1],
+            Tail = enemies.Places.InUpdateOrder[2],
+            Arms = enemies.Places.InUpdateOrder[3],
         };
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
         var eyeState = new DraygonEyeState();
         state.Eye.SetSpeciesState(eyeState);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
-        foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
+        foreach (RoomEnemyPlace part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.StartAnimation(part, DraygonSegment.Rest);
         enemies.DraygonBehavior.Parts.Draygon = state;
         enemies.VerificationServices().NextRandom = () => 4660;
@@ -197,7 +197,7 @@ internal static class DraygonAnimationsVerification
         new(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
-    private static void Pass(RoomEnemySlot part) =>
+    private static void Pass(RoomEnemyPlace part) =>
         EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
 
     /// <summary>
@@ -213,7 +213,7 @@ internal static class DraygonAnimationsVerification
         AssertEqual(Started(DraygonSegment.EyeFacingRightIdle), state.Playback(state.Eye), "the reset starts the eye");
         AssertEqual(Started(DraygonSegment.TailFacingRightIdle), state.Playback(state.Tail), "the reset starts the tail");
         AssertEqual(Started(DraygonSegment.ArmsFacingRightIdle), state.Playback(state.Arms), "the reset starts the arms");
-        foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
+        foreach (RoomEnemyPlace part in new[] { state.Eye, state.Tail, state.Arms })
             AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
@@ -229,7 +229,7 @@ internal static class DraygonAnimationsVerification
     private static void VerifyDying(IImportCartridgeSource cartridge)
     {
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
-        RoomEnemySlot arms = state.Arms;
+        RoomEnemyPlace arms = state.Arms;
         state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftDying);
         arms.AnimationClock.StepOnNextUpdate();
         var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonSegment.ArmsFacingLeftDying), 1, OperandWords);

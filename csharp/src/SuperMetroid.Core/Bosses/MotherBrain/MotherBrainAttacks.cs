@@ -407,7 +407,7 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        RoomEnemySlot head = state.Head;
+        RoomEnemyPlace head = state.Head;
 
         // The comparison reads the wrapped difference as signed. Arena coordinates
         // never leave the signed range, and a wrapped coordinate keeps the same answer.

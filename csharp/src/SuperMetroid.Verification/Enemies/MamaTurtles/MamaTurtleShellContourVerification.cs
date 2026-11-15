@@ -43,10 +43,10 @@ internal static class MamaTurtleShellContourVerification
             () => MamaTurtleShell.GetOffset(24),
             "Mama Turtle shell contour rejects right distance twenty-four");
 
-        var mama = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
+        var mama = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var state = new MamaTurtleEnemyState { Asleep = true };
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
-        Action<RoomEnemySlot, MamaTurtleEnemyState, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
+        Action<RoomEnemyPlace, MamaTurtleEnemyState, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
 
         int productionCases = 0;
         for (short difference = -30; difference <= 30; difference++)

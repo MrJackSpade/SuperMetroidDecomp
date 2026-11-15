@@ -62,7 +62,7 @@ internal sealed class MotherBrainBody
     /// Runs a falling tube's animation where the shared enemy animation runs: its pose shows on the update the
     /// timer expires, raising the new-frame flag, and the animation then keeps it.
     /// </summary>
-    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
+    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube)
     {
         if (!tube.AnimationClock.Expire())
             return;
@@ -74,7 +74,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
-    internal void InitializeMotherBrainBody(RoomEnemySlot body)
+    internal void InitializeMotherBrainBody(RoomEnemyPlace body)
     {
         body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
@@ -115,7 +115,7 @@ internal sealed class MotherBrainBody
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and the Rinkas share this request. Publish it before later
-                // enemy slots can keep drawing replaced pictures.
+                // enemy places can keep drawing replaced pictures.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SilentSong), MusicQueueDelay.Shortest);
@@ -139,18 +139,18 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Plays the body's animation, or the head slot's dummy, where the shared enemy animation runs: the frame
+    /// Plays the body's animation, or the head place's dummy, where the shared enemy animation runs: the frame
     /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation
     /// rests: the timer wraps from zero and the last frame stays.
     /// </summary>
-    internal void AdvanceMotherBrainSlotAnimation(RoomEnemySlot slot, SamusState? samus)
+    internal void AdvanceMotherBrainPlaceAnimation(RoomEnemyPlace place, SamusState? samus)
     {
-        MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
-        bool body = ReferenceEquals(slot, state.Body);
-        if (!slot.AnimationClock.Expire())
+        MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(place);
+        bool body = ReferenceEquals(place, state.Body);
+        if (!place.AnimationClock.Expire())
             return;
-        AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
-        EnemyAnimationPlayback.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
+        AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadPlayback;
+        EnemyAnimationPlayback.Play(place, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
             cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);
@@ -159,7 +159,7 @@ internal sealed class MotherBrainBody
         if (body)
             state.BodyPlayback = playback;
         else
-            state.HeadSlotPlayback = playback;
+            state.HeadPlayback = playback;
     }
 
     /// <summary>Carries out one cue of a body animation.</summary>
@@ -226,7 +226,7 @@ internal sealed class MotherBrainBody
             return true;
         }
 
-        RoomEnemySlot head = state.Head;
+        RoomEnemyPlace head = state.Head;
         if ((enabled & MotherBrainHitboxParts.Brain) != MotherBrainHitboxParts.None && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,

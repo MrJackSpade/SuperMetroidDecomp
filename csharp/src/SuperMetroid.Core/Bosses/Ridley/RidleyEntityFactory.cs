@@ -16,6 +16,6 @@ internal sealed class RidleyEntityFactory(RidleyBehavior ridley, CeresRidleyBeha
         [.. RidleyPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) =>
-        new RidleyEntity(ridley, ceres, encounter, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        new RidleyEntity(ridley, ceres, encounter, place, common);
 }

@@ -19,7 +19,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresSteam];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresSteamEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new CeresSteamEntity(this, place, common);
 
     /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,43 +34,43 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Plays a vent's typed animation in place of the shared enemy animation.</summary>
-    internal static void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
+    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place)
     {
-        if (!slot.AnimationClock.Expire())
+        if (!place.AnimationClock.Expire())
             return;
-        CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
+        CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(slot, CeresSteamAnimations.Segments, ref playback,
-            cue => ApplyCeresSteamCue(slot, cue) is { } target
+        EnemyAnimationPlayback.Play(place, CeresSteamAnimations.Segments, ref playback,
+            cue => ApplyCeresSteamCue(place, cue) is { } target
                 ? new AnimationContinuation<CeresSteamSegment>(CeresSteamAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a vent's animation, returning the segment a branch continues at, or null to run on.</summary>
-    private static CeresSteamSegment? ApplyCeresSteamCue(RoomEnemySlot slot, CeresSteamCue cue)
+    private static CeresSteamSegment? ApplyCeresSteamCue(RoomEnemyPlace place, CeresSteamCue cue)
     {
         switch (cue)
         {
             case CeresSteamCue.Signal { Kind: CeresSteamCueKind.Vanish }:
-                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
-                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+                place.Presence = place.Presence.With(EnemyPresence.Hidden);
+                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
             case CeresSteamCue.CountDownToActivation countDown:
             {
                 // The vent's activation delay, which initialization staggers.
-                CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
+                CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
                 CountdownStep step = state.ActivationDelay.Decrement();
                 state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
                     return countDown.Dormant;
-                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return countDown.Puffing;
             }
             case CeresSteamCue.Signal { Kind: CeresSteamCueKind.Appear }:
-                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
@@ -78,16 +78,16 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ceres steam.</summary>
-    internal void InitializeCeresSteam(RoomEnemySlot slot)
+    internal void InitializeCeresSteam(RoomEnemyPlace place)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
-            slot.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
+            place.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
 
         // The vent animates, which shows and hides its plume, and collides by its frames' plume rectangles, which no
         // radius can describe.
-        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
-        slot.CollidesByFrameHitboxes = true;
-        slot.AnimationClock.Restart();
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        place.CollidesByFrameHitboxes = true;
+        place.AnimationClock.Restart();
         // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
 
         // Each vent waits a random 1 to 32 updates before its first plume, counted down by its animation's wait, so the
@@ -97,17 +97,17 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
             Playback = new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         state.Action = initialization.Action;
     }
 
     /// <summary>Runs the Ceres steam's main AI.</summary>
     private static void RunCeresSteamMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         TurningFloorTransform? floorTransform)
     {
-        CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
+        CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
         switch (state.Action)
         {
             // The up, left, down and right vents have no action. Their base world position is also their draw
@@ -127,8 +127,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                         "Ceres steam elevator variant requires the turning floor's transform.");
                 }
 
-                Position16<RoomPixels> transformed = transform.Transform(slot.Position.Whole);
-                slot.DrawOffset = transformed - slot.Position.Whole;
+                Position16<RoomPixels> transformed = transform.Transform(place.Position.Whole);
+                place.DrawOffset = transformed - place.Position.Whole;
                 return;
 
             default:
@@ -138,9 +138,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs the Ceres steam's main AI.</summary>
-    internal static void RunCeresSteamMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal static void RunCeresSteamMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunCeresSteamMain(slot, frame.TurningFloor);
+        RunCeresSteamMain(place, frame.TurningFloor);
     }
 
     /// <summary>Handles contact only for the steam's authored extended hitbox reaction.</summary>
@@ -154,17 +154,17 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Ceres steam requires extended touch AI {CeresSteamReactions.Touch}; " +
                 $"extended={context.UsesFrameHitboxes}, selected={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
-                $"frame={context.Slot.Frame}.");
+                $"frame={context.Place.Frame}.");
         }
 
         // Definition damage is zero: contact still installs the common invincibility and knockback, while the steam's
         // definition takes no damage from any weapon or contact, so the Screw Attack or the Speed Booster cannot destroy it.
-        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
     }
 
     /// <summary>The reaction of the plume rectangle the frame shown has, when the probe overlaps it.</summary>
     /// <exception cref="InvalidDataException">The frame shown is not one of the steam's frames.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
 

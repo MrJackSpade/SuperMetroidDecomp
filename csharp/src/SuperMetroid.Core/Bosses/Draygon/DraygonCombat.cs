@@ -33,13 +33,13 @@ internal sealed class DraygonCombat
         EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or
         EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms;
 
-    /// <summary>Returns the encounter state owned by <paramref name="body"/>; each part property requires its linked slot when read.</summary>
-    internal DraygonEnemyState RequireCompleteDraygonState(RoomEnemySlot body)
+    /// <summary>Returns the encounter state owned by <paramref name="body"/>; each part property requires its linked place when read.</summary>
+    internal DraygonEnemyState RequireCompleteDraygonState(RoomEnemyPlace body)
     {
         DraygonEnemyState state = _parts.Draygon ??
             throw new InvalidDataException("Draygon body has no encounter state.");
         if (!ReferenceEquals(state.Body, body))
-            throw new InvalidDataException("Draygon's encounter state belongs to a different body slot.");
+            throw new InvalidDataException("Draygon's encounter state belongs to a different body place.");
         return state;
     }
 
@@ -72,8 +72,8 @@ internal sealed class DraygonCombat
             throw new InvalidDataException(
                 $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-        ResolveDraygonReaction(context.Slot, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        ResolveDraygonReaction(context.Place, context.Samus);
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ internal sealed class DraygonCombat
     /// as sprites, so a valid flash must update the colours of both surfaces.
     /// </summary>
     internal void ApplyDraygonHurt(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         DraygonEnemyState state,
         SamusState? samus)
     {
@@ -117,7 +117,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
-    internal void ResolveDraygonReaction(RoomEnemySlot body, SamusState? samus)
+    internal void ResolveDraygonReaction(RoomEnemyPlace body, SamusState? samus)
     {
         DraygonEnemyState state = RequireCompleteDraygonState(body);
         if (body.Health != 0)
@@ -136,7 +136,7 @@ internal sealed class DraygonCombat
     /// </remarks>
     private void BeginDraygonDeath(DraygonEnemyState state, SamusState? samus)
     {
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         samus?.Grapple.Phase = GrapplePhase.Dropped;
         _parts.StartDraygonAnimation(
             body,
@@ -216,7 +216,7 @@ internal sealed class DraygonCombat
     };
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindDraygonHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!DraygonCombat.IsDraygonDefinition(enemy.DefinitionId))

@@ -97,14 +97,14 @@ internal static class MochtroidBotwoonClipVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
 
-        RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
-            slot => slot.SlotIndex == SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOf(expected.EnemyNativeIndex));
+        RoomEnemyPlace mochtroid = runtime.Enemies.Places.InUpdateOrder.Single(
+            place => place.Ordinal == SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOf(expected.EnemyNativeIndex));
         AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.DefinitionId,
             $"{expected.Case} fixture selects retail Mochtroid slot");
-        foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots.Where(
-                     slot => slot != mochtroid))
+        foreach (RoomEnemyPlace place in runtime.Enemies.Places.InUpdateOrder.Where(
+                     place => place != mochtroid))
         {
-            slot.Clear();
+            place.Clear();
         }
         mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(expected.Enemy);
         mochtroid.FrozenTimer = 1000;

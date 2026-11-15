@@ -37,11 +37,11 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         ];
         foreach ((LowerNorfairRioSegment entry, int calls, bool visible, bool signal, string name) in programs)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(entry);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            (RoomEnemySystem enemies, RoomEnemyPlace place, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(entry);
+            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < calls; call++)
             {
-                slot.AnimationClock.StepOnNextUpdate();
+                place.AnimationClock.StepOnNextUpdate();
                 EnemyInstructionRunner.Process(arguments);
             }
             AssertEqual(visible, state.FollowerVisible, $"Lower Norfair Rio {name} publishes follower visibility");
@@ -60,20 +60,20 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
-        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
 
-        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
@@ -82,13 +82,13 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         LowerNorfairRioSegment entry)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.AnimationClock.StepOnNextUpdate();
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Holtz, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.AnimationClock.StepOnNextUpdate();
         var state = new LowerNorfairRioEnemyState { Playback = new(LowerNorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
-        slot.SetSpeciesState(state);
-        return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);
+        place.SetSpeciesState(state);
+        return new NewLowerNorfairRioInstructionSystemResult(enemies, place, state);
     }
 
     /// <summary>
@@ -98,11 +98,11 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     internal static void VerifyLowerNorfairRioOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
-        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, EnemyParameterMasks.FollowerBit);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed record RidleyBehaviorDependencies
 {
-    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>

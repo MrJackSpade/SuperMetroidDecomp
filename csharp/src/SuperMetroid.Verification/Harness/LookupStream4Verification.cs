@@ -1703,7 +1703,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var actual=new SnesCgram(); var vram=new SnesVram();
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
-                new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
+                new Action<RoomEnemyPlace>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.Places.InUpdateOrder[0]);
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
                 LayDraygonShading(actual, selected, (enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Colours);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
@@ -1753,8 +1753,8 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=5};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=5};
+                Action<RoomEnemyPlace,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
@@ -1805,8 +1805,8 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=3};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=3};
+                Action<RoomEnemyPlace,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
@@ -1849,10 +1849,10 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses);
                 var cgram = new SnesCgram();
-                RoomEnemySlot body = enemies.SlotTable.Slots[0];
-                var state = new DraygonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tail = enemies.SlotTable.Slots[2], Arms = enemies.SlotTable.Slots[3] };
+                RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+                var state = new DraygonEnemyState(body) { Eye = enemies.Places.InUpdateOrder[1], Tail = enemies.Places.InUpdateOrder[2], Arms = enemies.Places.InUpdateOrder[3] };
                 Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemyPlace,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthBand = null;
@@ -1953,17 +1953,17 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
+                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+                new Action<RoomEnemyPlace>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
                 var liquid = new RoomFxOverlayState(new RoomFxSession());
                 liquid.BindAudioRequests(new GameplayAudioRequests());
                 enemies.RoomFx.BindRoomFx(liquid);
-                Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
+                Action<RoomEnemyPlace, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
-                    tick(slot, state);
+                    tick(place, state);
                     ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
                     AssertEqual(2 - call % 3, state.PhaseTimer, "Actual three-call producer cadence preserved");
@@ -2027,9 +2027,9 @@ internal static class LookupStream4Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
+                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+                place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+                new Action<RoomEnemyPlace>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 ushort[] shown = RidleyLaidColours.Of(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
                     RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                 for (int color = 0; color < 256; color++)
@@ -2069,8 +2069,8 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses);
                 var guard = NewBotwoonColorReadGuard(rom);
-                Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
-                RoomEnemySlot head = enemies.SlotTable.Slots[0];
+                Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
+                RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
                 var state = new BotwoonEnemyState();
                 // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
                 IReadOnlyList<SheetShade> botwoonShades = BossSheetShades.OwnRow(artworkBosses, EnemyDefinitionId.Botwoon, 7 * 16);
@@ -2159,8 +2159,8 @@ internal static class LookupStream4Verification
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.Bind(EnemySlotFixtures.StandIn, slot.Definition);
-            for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
+            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+            for (int index = 1; index <= freeSlots; index++) enemies.Places.InUpdateOrder[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
             Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnNorfairRidleyBreakupActors;
@@ -2172,7 +2172,7 @@ internal static class LookupStream4Verification
                 }).ToArray(),
             };
             // Each part's initialization AI starts it from the encounter's shared Ridley state and his body.
-            enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Lower Norfair Ridley");
+            enemies.RidleyEncounter.Parts.AttachBody(enemies.Places.InUpdateOrder[0], "Lower Norfair Ridley");
             enemies.RidleyEncounter.Ridley = state;
             if (freeSlots < expected.Length)
                 AssertThrows<InvalidOperationException>(() => spawn(state), "Breakup preserves partial allocation before pool exhaustion");
@@ -2181,7 +2181,7 @@ internal static class LookupStream4Verification
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
             {
-                RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
+                RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[index + 1];
                 AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
@@ -2415,7 +2415,7 @@ internal static class LookupStream4Verification
             var selected = stock;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
-            Action<RoomEnemySlot, RidleyEnemyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthBand;
+            Action<RoomEnemyPlace, RidleyEnemyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthBand;
             Action<RidleyEnemyState> ceres = CeresRidleyHits.UpdateCeresRidleyHealthBand;
             void Check(RidleyEnemyState shown, int row)
             {
@@ -2428,8 +2428,8 @@ internal static class LookupStream4Verification
             }
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
             {
-                enemies.SlotTable.Slots[0].Health = health;
-                var state = new RidleyEnemyState(); norfair(enemies.SlotTable.Slots[0], state);
+                enemies.Places.InUpdateOrder[0].Health = health;
+                var state = new RidleyEnemyState(); norfair(enemies.Places.InUpdateOrder[0], state);
                 int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
                 AssertEqual((ushort)(row + 1), RidleyNativeWords.HealthBands.Word(state.HealthBand), "Norfair health band remains exact"); Check(state, row);
             }

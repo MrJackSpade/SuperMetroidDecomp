@@ -17,7 +17,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MetareeEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MetareeEntity(this, place, common);
 
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -41,8 +41,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Burrow countdown value that spawns the particle burst.</summary>
     private const int MetareeParticleFrame = 8;
 
-    /// <summary>Starts the idle animation directly and initializes the slot's dive, burrow, and animation-change state.</summary>
-    internal static void InitializeMetaree(RoomEnemySlot slot)
+    /// <summary>Starts the idle animation directly and initializes the place's dive, burrow, and animation-change state.</summary>
+    internal static void InitializeMetaree(RoomEnemyPlace place)
     {
         var state = new MetareeEnemyState
         {
@@ -52,7 +52,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             AttackReady = false,
             YVelocity = 0,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The initializer starts the idle animation directly rather than through StartMetareeAnimation, which would
         // leave the idle animation it records as installed unstarted.
@@ -61,7 +61,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>
     private void RunMetareeMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MetareeEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -69,19 +69,19 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case MetareeAction.Idling:
-                RunMetareeIdle(slot, state, samus);
+                RunMetareeIdle(place, state, samus);
                 return;
 
             case MetareeAction.PreparingAttack:
-                RunMetareePreparation(slot, state);
+                RunMetareePreparation(place, state);
                 return;
 
             case MetareeAction.LaunchedAttack:
-                RunMetareeDive(slot, state, samus, level);
+                RunMetareeDive(place, state, samus, level);
                 return;
 
             case MetareeAction.Burrowing:
-                RunMetareeBurrow(slot, state);
+                RunMetareeBurrow(place, state);
                 return;
 
             default:
@@ -92,7 +92,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts preparation within 72 horizontal pixels and takes the dive's speed from Samus's height (<see cref="MetareeDiveSpeed"/>).</summary>
     internal static void RunMetareeIdle(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MetareeEnemyState state,
         SamusState samus)
     {
@@ -100,23 +100,23 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // absolute value, and compares it as a distance that is never negative. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
-            CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole));
+            CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole));
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
-        state.YVelocity = MetareeDiveSpeed.Of(slot.Position.Y.Whole, samus.Position.Y.Whole);
-        StartMetareeAnimation(slot, state, SkreeMetareeSegment.MetareePreparingAttack);
+        state.YVelocity = MetareeDiveSpeed.Of(place.Position.Y.Whole, samus.Position.Y.Whole);
+        StartMetareeAnimation(place, state, SkreeMetareeSegment.MetareePreparingAttack);
         state.Action = MetareeAction.PreparingAttack;
     }
 
     /// <summary>Consumes the preparation animation's ready flag, starts the dive animation, and publishes the dive sound.</summary>
-    internal void RunMetareePreparation(RoomEnemySlot slot, MetareeEnemyState state)
+    internal void RunMetareePreparation(RoomEnemyPlace place, MetareeEnemyState state)
     {
         if (!state.AttackReady)
             return;
 
         state.AttackReady = false;
-        StartMetareeAnimation(slot, state, SkreeMetareeSegment.MetareeDiving);
+        StartMetareeAnimation(place, state, SkreeMetareeSegment.MetareeDiving);
         state.Action = MetareeAction.LaunchedAttack;
 
         // The dive sound is requested as the attack launches.
@@ -125,7 +125,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Probes solid terrain ahead before whole-pixel descent; ground contact begins burrowing while airborne frames steer toward Samus.</summary>
     private void RunMetareeDive(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MetareeEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -136,10 +136,10 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
-                slot,
+                place,
                 SignedSixteenSixteen.FromWholePixels(state.YVelocity)))
         {
-            slot.AnimationClock.Restart();
+            place.AnimationClock.Restart();
             state.Action = MetareeAction.Burrowing;
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;
@@ -147,32 +147,32 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Unlike common movement, Metaree applies whole-pixel speeds directly and leaves
         // both subpositions untouched. Horizontal steering re-evaluates Samus every frame.
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + state.YVelocity);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus =
-            CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0;
-        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
+            CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0;
+        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
             (metareeIsLeftOfSamus
                 ? MetareeHorizontalDiveSpeed
                 : -MetareeHorizontalDiveSpeed));
     }
 
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>
-    private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
+    private void RunMetareeBurrow(RoomEnemyPlace place, MetareeEnemyState state)
     {
         if (--state.BurrowTimer == 0)
         {
-            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
+            place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
         if (state.BurrowTimer == MetareeParticleFrame)
-            SkreeMetareeParticles.SpawnBurst(_projectiles, slot, MetareeParticleDefinitions.Burst);
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, place, MetareeParticleDefinitions.Burst);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
     internal static void StartMetareeAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MetareeEnemyState state,
         SkreeMetareeSegment animation)
     {
@@ -180,22 +180,22 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledAnimation = animation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(animation));
+        state.Playback = EnemyAnimationPlayback.Start(place, SkreeMetareeAnimations.StartingWith(animation));
     }
 
     /// <summary>Runs Metaree's main AI.</summary>
-    internal void RunMetareeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunMetareeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMetareeMain(slot, slot.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
+        RunMetareeMain(place, place.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>
-    internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceMetareeTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, SkreeMetareeAnimations.Segments,
             static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true);
+                SkreeMetareeCues.Apply(place, cue, () => state.AttackReady = true);
                 return null;
             });
 

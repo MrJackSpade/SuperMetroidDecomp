@@ -26,14 +26,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         EnemyDefinitionId.CeresElevatorRoomWall, EnemyDefinitionId.CeresGetawayChamberWall,
     ];
 
-    /// <summary>The door or wall actor <paramref name="slot"/>'s definition names, facing or standing where its placement says.</summary>
+    /// <summary>The door or wall actor <paramref name="place"/>'s definition names, facing or standing where its placement says.</summary>
     /// <exception cref="InvalidDataException">The definition is no Ceres door or wall, or the placement names no facing or side.</exception>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common)
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EnemyDefinitionId actor = Ensure.NotNull(slot).DefinitionId;
+        EnemyDefinitionId actor = Ensure.NotNull(place).DefinitionId;
         if (actor == EnemyDefinitionId.CeresDoor)
         {
-            return new CeresDoorEntity(this, slot, common, slot.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
+            return new CeresDoorEntity(this, place, common, place.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
             {
                 HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
                 HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
@@ -41,14 +41,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             });
         }
         if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
-            return new CeresRidleyRoomDoorEntity(this, slot, common);
+            return new CeresRidleyRoomDoorEntity(this, place, common);
         if (actor == EnemyDefinitionId.CeresElevatorDoor)
-            return new CeresElevatorDoorEntity(this, slot, common);
+            return new CeresElevatorDoorEntity(this, place, common);
         if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
-            return new CeresElevatorRoomWallEntity(this, slot, common);
+            return new CeresElevatorRoomWallEntity(this, place, common);
         if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
         {
-            return new CeresGetawayChamberWallEntity(this, slot, common, slot.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
+            return new CeresGetawayChamberWallEntity(this, place, common, place.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
             {
                 HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
                 HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,
@@ -107,14 +107,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>
-    /// Starts <paramref name="slot"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage.
+    /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage.
     /// </summary>
-    internal void Start(RoomEnemySlot slot, CeresDoorSegment animation)
+    internal void Start(RoomEnemyPlace place, CeresDoorSegment animation)
     {
-        Ensure.NotNull(slot);
-        slot.Frame = EnemyFrameId.CeresDoorOrWallInitial;
-        slot.AnimationClock.Restart();
-        slot.SetSpeciesState(new CeresDoorAnimationState
+        Ensure.NotNull(place);
+        place.Frame = EnemyFrameId.CeresDoorOrWallInitial;
+        place.AnimationClock.Restart();
+        place.SetSpeciesState(new CeresDoorAnimationState
         {
             Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(animation), AnimationPlace.StartOfAnimation),
         });
@@ -122,28 +122,28 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         // The game loads the door's colours into one of two colour sets, the inactive door's or the active door's, whose
         // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the
         // normal ones. The door shows them as its shade (#1512); which set held them is not kept.
-        slot.Shading = Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
+        place.Shading = Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
             ? CeresDoorShades.InEscapingColours
             : CeresDoorShades.InNormalColours;
     }
 
     /// <summary>Plays a door's or wall's typed animation in place of the shared enemy animation.</summary>
-    internal void AdvanceAnimation(RoomEnemySlot slot, SamusState? samus)
+    internal void AdvanceAnimation(RoomEnemyPlace place, SamusState? samus)
     {
-        Ensure.NotNull(slot);
-        if (!slot.AnimationClock.Expire())
+        Ensure.NotNull(place);
+        if (!place.AnimationClock.Expire())
             return;
-        CeresDoorAnimationState state = slot.RequireSpeciesState<CeresDoorAnimationState>();
+        CeresDoorAnimationState state = place.RequireSpeciesState<CeresDoorAnimationState>();
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(slot, CeresDoorAnimations.Segments, ref playback,
-            cue => ApplyCue(slot, samus, cue) is { } target
+        EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments, ref playback,
+            cue => ApplyCue(place, samus, cue) is { } target
                 ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a door's or wall's animation, returning the segment a branch continues at, or null to run on.</summary>
-    private CeresDoorSegment? ApplyCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, SamusState? samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
@@ -158,8 +158,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 // The distance test subtracts the two positions, takes the
                 // wrapped difference, then its distance independently
                 // on each axis. If either distance is at least 48 pixels, the door branches.
-                int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
-                int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
+                int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
+                int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
                 return xDistance >= 48 || yDistance >= 48 ? cue.Target : null;
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
@@ -174,23 +174,23 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
                 return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
             case CeresDoorCueKind.MakeIntangible:
-                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.MakeTangible:
-                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.HandDrawingToRidley:
-                slot.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = true;
+                place.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = true;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
-                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
+                place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
-                slot.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = false;
-                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
+                place.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = false;
+                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:
-                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
+                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.PlayOpeningSound:
                 Audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);

@@ -84,12 +84,12 @@ internal static class GunshipGlowVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        RoomEnemySlot[] pieces = [.. runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance)];
+        RoomEnemyPlace[] pieces = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance)];
         AssertEqual(3, pieces.Length, "the Landing Site places the gunship's three pieces");
         // Samus stands beside the landed ship, so the camera shows it.
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
-        RoomEnemySlot top = pieces.Single(piece => piece.DefinitionId == EnemyDefinitionId.ShipTop);
+        RoomEnemyPlace top = pieces.Single(piece => piece.DefinitionId == EnemyDefinitionId.ShipTop);
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
@@ -107,8 +107,8 @@ internal static class GunshipGlowVerification
                 ?? throw new InvalidOperationException($"Landing Site update {update} shows no gunship glow.");
             AssertEqual(glow.Record, NativeColourEffectRun.RecordOf(frame), $"Landing Site update {update} shows the record the cartridge's glow list shows");
             PictureShading lit = PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.GunshipGlow, frame));
-            foreach (RoomEnemySlot piece in pieces)
-                AssertEqual(lit, piece.Shading, $"Landing Site update {update} lays the glow's record over gunship piece {piece.SlotIndex}");
+            foreach (RoomEnemyPlace piece in pieces)
+                AssertEqual(lit, piece.Shading, $"Landing Site update {update} lays the glow's record over gunship piece {piece.Ordinal}");
             PictureShade glowShade = ColourEffectShades.Of(ColourEffectColours.GunshipGlow, frame);
             ImageSpriteDraw[] draws = [.. runtime.Sprites.Draws.OfType<ImageSpriteDraw>()
                 .Where(draw => draw.Shading is { } shading && shading.Shades.Contains(glowShade))];

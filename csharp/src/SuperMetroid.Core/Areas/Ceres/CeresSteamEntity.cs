@@ -4,22 +4,22 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>One Ceres steam occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Ceres steam species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeCeresSteam(Slot);
+    public void Initialize() => species.InitializeCeresSteam(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Slot);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CeresSteamBehavior.AdvanceCeresSteamAnimation(Place);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => CeresSteamBehavior.FindHitboxReaction(Slot, probe, out reaction);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => CeresSteamBehavior.FindHitboxReaction(Place, probe, out reaction);
 
     /// <summary>The steam's touch reaction, which its definition leaves to it.</summary>
     public EnemyReaction? SpeciesTouch => CeresSteamReactions.Touch;

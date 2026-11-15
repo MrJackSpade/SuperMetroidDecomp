@@ -21,12 +21,12 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(low, KiHunterMotionDefinitions.Gravity.Fraction, "Native KiHunter fractional acceleration");
         AssertEqual(high, KiHunterMotionDefinitions.Gravity.UnsignedWholePixels, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
-        var orbit = new Action<RoomEnemySlot, KiHunterWingState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
+        var orbit = new Action<RoomEnemyPlace, KiHunterWingState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleCosinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
-        var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
+        var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
         var state = new KiHunterWingState();
         // Any reset distinguishes an arc change, which restores it, from a slowing step, which lands on 256.
         const int speedReset = 10752;
@@ -45,9 +45,9 @@ internal static class KiHunterMotionDefinitionsVerification
             state.OrbitOffset = new Offset16<RoomPixels>(13, 17);
             ushort x = unchecked((ushort)(state.OrbitCenter.X + cosine((ushort)(angle >> 8), radius) - 13));
             ushort y = unchecked((ushort)(state.OrbitCenter.Y + sine((ushort)(angle >> 8), radius) - 17));
-            orbit(slot, state);
-            AssertEqual(x, slot.Position.X.Whole, "Actual detached orbit uses native radius and wrapped X");
-            AssertEqual(y, slot.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");
+            orbit(place, state);
+            AssertEqual(x, place.Position.X.Whole, "Actual detached orbit uses native radius and wrapped X");
+            AssertEqual(y, place.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");
             // The orbit hands over to the falling arc exactly while the advanced angle lies from a quarter turn up
             // to three quarters (the cartridge's sign test of the angle plus a quarter turn, across its wrap).
             bool changesArc = angle >= RotationAngle.QuarterTurn.RawValue && angle < RotationAngle.ThreeQuarterTurn.RawValue;
@@ -68,7 +68,7 @@ internal static class KiHunterMotionDefinitionsVerification
             state.WingArcAngle = RotationAngle.Zero;
             state.WingMovement = KiHunterWingMovement.Orbit;
             state.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(before);
-            orbit(slot, state);
+            orbit(place, state);
             AssertEqual(KiHunterWingMovement.Orbit, state.WingMovement, $"Detached orbit from speed index {before} keeps orbiting");
             AssertEqual(after, state.DetachedSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, $"Detached orbit slows speed index {before} by one step or lands on 256");
         }

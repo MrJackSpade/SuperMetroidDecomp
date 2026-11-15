@@ -25,30 +25,30 @@ internal static class SkreeMetareeBehaviorVerification
         {
             string species = metaree ? "Metaree" : "Skree";
             SkreeMetareeSegment idle = metaree ? SkreeMetareeSegment.MetareeIdling : SkreeMetareeSegment.SkreeIdling;
-            (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationPlayback<SkreeMetareeSegment>> current, Action<SkreeMetareeSegment> start, Func<bool> attackReady) = Create(metaree);
+            (RoomEnemySystem enemies, RoomEnemyPlace place, Func<AnimationPlayback<SkreeMetareeSegment>> current, Action<SkreeMetareeSegment> start, Func<bool> attackReady) = Create(metaree);
             AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(idle), current().Animation) &&
                 current().Place == AnimationPlace.StartOfAnimation, $"{species} starts idling");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Segments, idle, SkreeMetareeFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, idle)), $"{species} idle loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, idle)), $"{species} idle loop");
 
-            (enemies, slot, current, start, attackReady) = Create(metaree);
+            (enemies, place, current, start, attackReady) = Create(metaree);
             SkreeMetareeSegment windUp = metaree ? SkreeMetareeSegment.MetareePreparingAttack : SkreeMetareeSegment.SkreePreparingAttack;
             start(windUp);
             int[] holds = [16, 8];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkreeMetareeAnimationsConstants.Spritemaps(windUp), holds),
-                EnemyInstructionRunner.ShownFrames(slot, holds.Sum()), $"{species} wind-up poses");
+                EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"{species} wind-up poses");
             AssertTrue(!attackReady(), $"{species} is not ready while the last wind-up pose holds");
-            EnemyInstructionRunner.ShownFrames(slot, 1);
+            EnemyInstructionRunner.ShownFrames(place, 1);
             AssertTrue(attackReady(), $"{species} wind-up flags the attack ready");
 
-            (enemies, slot, current, start, _) = Create(metaree);
+            (enemies, place, current, start, _) = Create(metaree);
             SkreeMetareeSegment dive = metaree ? SkreeMetareeSegment.MetareeDiving : SkreeMetareeSegment.SkreeDiving;
             // The dive's cue phase runs on into the loop it then repeats.
             SkreeMetareeSegment diveLoop = SkreeMetareeAnimations.StartingWith(dive).Phases[^1].Segment;
             start(dive);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Segments, diveLoop, SkreeMetareeFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, diveLoop)), $"{species} dive loop");
-            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{species} dive processes off screen");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, diveLoop)), $"{species} dive loop");
+            AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen), $"{species} dive processes off screen");
         }
         Console.WriteLine("  Skree/Metaree behavior: idle loops, wind-ups with their attack-ready cue, and dives pass.");
     }
@@ -57,27 +57,27 @@ internal static class SkreeMetareeBehaviorVerification
     private static SkreeMetareeBehaviorCreateResult Create(bool metaree)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         // The room spawn primes the instruction timer before the species initializer runs.
-        slot.AnimationClock.StepOnNextUpdate();
+        place.AnimationClock.StepOnNextUpdate();
         if (metaree)
         {
-            MetareeBehavior.InitializeMetaree(slot);
+            MetareeBehavior.InitializeMetaree(place);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("Metaree has no state.");
-            return new SkreeMetareeBehaviorCreateResult(enemies, slot, () => state.Playback, program => Restart(slot, () => state.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation)), () => state.AttackReady);
+            return new SkreeMetareeBehaviorCreateResult(enemies, place, () => state.Playback, program => Restart(place, () => state.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation)), () => state.AttackReady);
         }
-        SkreeBehavior.InitializeSkree(slot);
+        SkreeBehavior.InitializeSkree(place);
         SkreeEnemyState skree = enemies.SkreeStates[0] ?? throw new InvalidOperationException("Skree has no state.");
-        return new SkreeMetareeBehaviorCreateResult(enemies, slot, () => skree.Playback, program => Restart(slot, () => skree.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation)), () => skree.AttackReady);
+        return new SkreeMetareeBehaviorCreateResult(enemies, place, () => skree.Playback, program => Restart(place, () => skree.Playback = new(SkreeMetareeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation)), () => skree.AttackReady);
     }
 
     /// <summary>Starts an animation with both instruction clocks reset, as the species' install routines do.</summary>
-    private static void Restart(RoomEnemySlot slot, Action start)
+    private static void Restart(RoomEnemyPlace place, Action start)
     {
         start();
-        slot.AnimationClock.Restart();
+        place.AnimationClock.Restart();
     }
 
     /// <summary>Runs the Skree/Metaree behavior check and the program oracle against the local retail cartridge.</summary>

@@ -54,7 +54,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
-    internal void InitializeKraidBody(RoomEnemySlot body)
+    internal void InitializeKraidBody(RoomEnemyPlace body)
     {
         _access.Kraid = new KraidEnemyState();
         KraidEnemyState state = _access.Kraid;
@@ -127,7 +127,7 @@ internal sealed class KraidRise
             : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
 
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
-    private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
+    private void SetupKraidSecondPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
     {
         state.BodyState.Phase = KraidPhase.SecondPhaseThinking;
         _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
@@ -137,7 +137,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Runs the current stage of Kraid's growth: his rise, the camera, his body and his colours.</summary>
-    internal void RunKraidGrowthPhase(RoomEnemySlot body, KraidEnemyState state)
+    internal void RunKraidGrowthPhase(RoomEnemyPlace body, KraidEnemyState state)
     {
         switch (state.BodyState.Phase)
         {
@@ -174,9 +174,9 @@ internal sealed class KraidRise
 
             case KraidPhase.GrowSettleParts:
                 state.BodyState.Phase = KraidPhase.GrowShowRoomBackdrop;
-                RoomEnemySlot foot = _parts.Foot;
+                RoomEnemyPlace foot = _parts.Foot;
                 _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
-                foreach (RoomEnemySlot lint in _parts.Lints)
+                foreach (RoomEnemyPlace lint in _parts.Lints)
                 {
                     _access.SetKraidPartAnimation(lint, KraidPartSegment.LintPostGrowth);
                     lint.Frame = EnemyFrameId.KraidLintPostGrowth;
@@ -248,13 +248,13 @@ internal sealed class KraidRise
     }
 
     /// <summary>Installs the grown body pose, room scrolls, and second-phase behavior.</summary>
-    internal void FinishKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
+    internal void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);
 
         foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
-            RoomEnemySlot lint = _parts.Lint(part);
+            RoomEnemyPlace lint = _parts.Lint(part);
             _parts.LintStateOf(state, lint).PhaseTimer = KraidLints.InitialDelay(part);
             _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
             _parts.LintStateOf(state, lint).PhaseToResume = KraidPhase.LintProduce;
@@ -262,7 +262,7 @@ internal sealed class KraidRise
         }
         // The second fingernail waits 64 updates longer than the first.
         int nailDelay = 64;
-        foreach (RoomEnemySlot nail in _parts.Nails)
+        foreach (RoomEnemyPlace nail in _parts.Nails)
         {
             _parts.NailStateOf(state, nail).PhaseToResume = KraidPhase.FingernailInitialize;
             _parts.NailStateOf(state, nail).Phase = KraidPhase.WaitToResumePhase;
@@ -271,13 +271,13 @@ internal sealed class KraidRise
         }
         state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
-        RoomEnemySlot foot = _parts.Foot;
+        RoomEnemyPlace foot = _parts.Foot;
         state.FootState.Phase = KraidPhase.FootSecondPhaseWalkToStart;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
-    internal void RequestKraidRisingRock(RoomEnemySlot body)
+    internal void RequestKraidRisingRock(RoomEnemyPlace body)
     {
         int random = _access.ReadKraidRandomNumber();
         RoomEnemyProjectileKind kind = KraidRandomDefinitions.RisingRockRight.IsSetIn(random)
@@ -303,7 +303,7 @@ internal sealed class KraidRise
 
     /// <summary>Runs the authored vertical rise and pause phases.</summary>
     internal void RunKraidRisePhase(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KraidEnemyState state,
         SamusState? samus)
     {
@@ -450,7 +450,7 @@ internal sealed class KraidRise
 
     /// <summary>Adds signed vertical motion to the body position with fixed-point wraparound.</summary>
     private static void AddSignedKraidVerticalDisplacement(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         SignedSixteenSixteen displacement)
     {
         body.Position = body.Position.WithY(body.Position.Y.MovedBy(displacement));

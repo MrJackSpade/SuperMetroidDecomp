@@ -2,22 +2,22 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>One Maridia large snail occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Maridia large snail species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(Slot);
+    public void Initialize() => MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMaridiaLargeSnailMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMaridiaLargeSnailMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMaridiaLargeSnailTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMaridiaLargeSnailTypedAnimation(Place, context);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MaridiaLargeSnailBehavior.FindHitboxReaction(Slot, probe, out reaction);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MaridiaLargeSnailBehavior.FindHitboxReaction(Place, probe, out reaction);
 
     /// <summary>The large snail's contact and shots both meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

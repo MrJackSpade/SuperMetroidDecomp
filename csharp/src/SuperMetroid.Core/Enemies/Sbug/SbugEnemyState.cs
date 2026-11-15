@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// </summary>
 public sealed class SbugEnemyState
 {
-    /// <summary>The Sbug's slot, whose population parameters the state reads.</summary>
-    private readonly RoomEnemySlot _slot;
+    /// <summary>The Sbug's place, whose population parameters the state reads.</summary>
+    private readonly RoomEnemyPlace _place;
 
-    /// <summary>Creates the state for an Sbug's slot.</summary>
-    internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
+    /// <summary>Creates the state for an Sbug's place.</summary>
+    internal SbugEnemyState(RoomEnemyPlace place) => _place = place;
 
     /// <summary>The long lifetime of a straight move, used only by moving forward then waiting.</summary>
     public WrappingCountdown StraightMovementTimer { get; internal set; }
@@ -40,16 +40,16 @@ public sealed class SbugEnemyState
     public int MovementTimer { get; internal set; }
 
     /// <summary>The speed the heading's sine and cosine scale, as the Sbug's placement names it.</summary>
-    public int Speed => _slot.SpawnSettings<SbugSpawnSettings>().Speed;
+    public int Speed => _place.SpawnSettings<SbugSpawnSettings>().Speed;
 
     /// <summary>The heading the Sbug spawns on: zero points right, a quarter turn up, half a turn left.</summary>
-    public RotationAngle InitialAngle => _slot.SpawnSettings<SbugSpawnSettings>().InitialAngle;
+    public RotationAngle InitialAngle => _place.SpawnSettings<SbugSpawnSettings>().InitialAngle;
 
     /// <summary>The pixel distance Samus must be within on both axes for activation.</summary>
-    public int ActivationRadius => _slot.SpawnSettings<SbugSpawnSettings>().ActivationRadius;
+    public int ActivationRadius => _place.SpawnSettings<SbugSpawnSettings>().ActivationRadius;
 
     /// <summary>How the Sbug moves once activated, as its placement names it.</summary>
-    public SbugActivationBehavior ActivationBehavior => _slot.SpawnSettings<SbugSpawnSettings>().Behavior;
+    public SbugActivationBehavior ActivationBehavior => _place.SpawnSettings<SbugSpawnSettings>().Behavior;
 
     /// <summary>Spawn-computed unsigned 1/65536-pixel horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }

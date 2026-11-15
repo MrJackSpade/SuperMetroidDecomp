@@ -25,18 +25,18 @@ internal static class OwtchBehaviorVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(initial));
-            OwtchBehavior.InitializeOwtch(slot);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Owtch, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(initial));
+            OwtchBehavior.InitializeOwtch(place);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");
             OwtchSegment started = initial == OwtchBehaviorState.MovingLeft ? OwtchSegment.MovingLeft : OwtchSegment.MovingRight;
             AssertEqual(new AnimationPlayback<OwtchSegment>(OwtchAnimations.StartingWith(started), AnimationPlace.StartOfAnimation), state.Playback, $"Owtch state {initial} starts {started}");
 
             state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Segments, loop, OwtchFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, loop)), $"Owtch {program} loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, loop)), $"Owtch {program} loop");
             AssertEqual(walking, state.Behavior, $"Owtch {program} cue sets main AI's direction");
         }
         Console.WriteLine("  Owtch behavior: the initializer picks each facing, the cues set the walking direction and the loops run on time.");

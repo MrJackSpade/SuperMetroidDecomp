@@ -41,7 +41,7 @@ internal static class EnemyPropertyWordCodec
         [EnemyPresence.RespawnsIfKilled] = 1 << 14,
     };
 
-    /// <summary>The extra-property word's bit for <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/>.</summary>
+    /// <summary>The extra-property word's bit for <see cref="RoomEnemyPlace.CollidesByFrameHitboxes"/>.</summary>
     private const int CollidesByFrameHitboxesBit = 1 << 2;
 
     /// <summary>The extra-property word's bit for <see cref="EnemyAnimationClock.ShowsNewFrame"/>.</summary>
@@ -60,16 +60,16 @@ internal static class EnemyPropertyWordCodec
     public static int EncodePropertyWord(EnemyPropertyState state) =>
         EncodePropertyWord(state.Contact, state.Processing, state.Presence);
 
-    /// <summary>The property word holding <paramref name="slot"/>'s engine properties, with a clear low byte.</summary>
+    /// <summary>The property word holding <paramref name="place"/>'s engine properties, with a clear low byte.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A part holds a bit no member names.</exception>
-    public static int EncodePropertyWord(RoomEnemySlot slot) => EncodePropertyWord(EnemyPropertyState.Of(slot));
+    public static int EncodePropertyWord(RoomEnemyPlace place) => EncodePropertyWord(EnemyPropertyState.Of(place));
 
     /// <summary>The extra-property word holding <paramref name="state"/>'s two flags.</summary>
     public static int EncodeExtraPropertyWord(EnemyPropertyState state) =>
         (state.CollidesByFrameHitboxes ? CollidesByFrameHitboxesBit : 0) | (state.NewInstructionFrame ? NewInstructionFrameBit : 0);
 
-    /// <summary>The extra-property word holding <paramref name="slot"/>'s two flags.</summary>
-    public static int EncodeExtraPropertyWord(RoomEnemySlot slot) => EncodeExtraPropertyWord(EnemyPropertyState.Of(slot));
+    /// <summary>The extra-property word holding <paramref name="place"/>'s two flags.</summary>
+    public static int EncodeExtraPropertyWord(RoomEnemyPlace place) => EncodeExtraPropertyWord(EnemyPropertyState.Of(place));
 
     /// <summary>The state a pair of stored words holds, every set bit of each named.</summary>
     /// <exception cref="InvalidDataException">
@@ -116,25 +116,25 @@ internal static class EnemyPropertyWordCodec
             NewInstructionFrame: (extraPropertyWord & NewInstructionFrameBit) != 0);
     }
 
-    /// <summary>Stores on <paramref name="slot"/> the state a pair of stored words holds, every set bit of each named.</summary>
+    /// <summary>Stores on <paramref name="place"/> the state a pair of stored words holds, every set bit of each named.</summary>
     /// <exception cref="InvalidDataException">
     /// The property word's low byte holds species settings, or the extra-property word holds a bit no flag names.
     /// </exception>
-    public static void DecodeInto(RoomEnemySlot slot, int propertyWord, int extraPropertyWord) =>
-        Decode(propertyWord, extraPropertyWord).ApplyTo(slot);
+    public static void DecodeInto(RoomEnemyPlace place, int propertyWord, int extraPropertyWord) =>
+        Decode(propertyWord, extraPropertyWord).ApplyTo(place);
 
     /// <summary>
-    /// Stores on <paramref name="slot"/> the contact, processing and presence a stored property word holds, every set bit
+    /// Stores on <paramref name="place"/> the contact, processing and presence a stored property word holds, every set bit
     /// named, leaving the slot's extended-frame and new-frame flags as they are.
     /// </summary>
     /// <exception cref="InvalidDataException">The word's low byte holds species settings.</exception>
-    public static void DecodePropertyWordInto(RoomEnemySlot slot, int propertyWord)
+    public static void DecodePropertyWordInto(RoomEnemyPlace place, int propertyWord)
     {
-        ArgumentNullException.ThrowIfNull(slot);
+        ArgumentNullException.ThrowIfNull(place);
         EnemyPropertyState state = Decode(propertyWord, extraPropertyWord: 0);
-        slot.Contact = state.Contact;
-        slot.Processing = state.Processing;
-        slot.Presence = state.Presence;
+        place.Contact = state.Contact;
+        place.Processing = state.Processing;
+        place.Presence = state.Presence;
     }
 
     /// <summary>The species settings a stored property word keeps in its low byte.</summary>

@@ -48,7 +48,7 @@ internal sealed class PhantoonDeath
 
     /// <summary>Tracks Samus during the fatal swoop and advances once the body reaches the center band.</summary>
     internal static void RunPhantoonFatalSwoop(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus)
     {
@@ -60,7 +60,7 @@ internal sealed class PhantoonDeath
 
     /// <summary>Alternates five fade-outs and five fade-ins.</summary>
     internal void RunPhantoonDyingFadeCycles(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.Death.FadeCycles))
@@ -83,7 +83,7 @@ internal sealed class PhantoonDeath
 
     /// <summary>Runs the dying explosions: all thirteen, then the sixth through the thirteenth twice more.</summary>
     internal void RunPhantoonDyingExplosions(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
@@ -110,10 +110,10 @@ internal sealed class PhantoonDeath
 
     /// <summary>Starts the distorted background and pixelation stages after the fatal swoop.</summary>
     internal void BeginPhantoonWavyPixelatedDeath(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        RoomEnemySlot mouth = state.Mouth;
+        RoomEnemyPlace mouth = state.Mouth;
         state.Wave.Amplitude = SignedSixteenSixteen.Zero;
         state.Wave.AmplitudeShrinking = false;
         state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
@@ -175,7 +175,7 @@ internal sealed class PhantoonDeath
 
     /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the 60-frame power delay.</summary>
     internal void ClearPhantoonDeathGraphics(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         state.PixelationBlockSize = 1;
@@ -192,7 +192,7 @@ internal sealed class PhantoonDeath
 
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>
     internal void ActivateWreckedShipAfterPhantoon(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (state.PhaseTimer != 0)

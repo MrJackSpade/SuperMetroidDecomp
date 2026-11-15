@@ -28,7 +28,7 @@ internal sealed class TorizoCombat
     /// no-death damage.
     /// </summary>
     private void ResolveTorizoNormalBomb(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         SamusBomb bomb,
         EnemyReaction? selectedShot)
     {
@@ -81,11 +81,11 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Restores the normal body colours on alternating Bomb Torizo hurt frames.</summary>
-    private static void RestoreTorizoNormalColours(RoomEnemySlot torizo, TorizoEnemyState state) =>
+    private static void RestoreTorizoNormalColours(RoomEnemyPlace torizo, TorizoEnemyState state) =>
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
 
     /// <summary>Selects Golden Torizo's body and belly health band from its health, one band per 2048.</summary>
-    private static void ShowGoldenTorizoHealthShade(RoomEnemySlot torizo, TorizoEnemyState state, int health)
+    private static void ShowGoldenTorizoHealthShade(RoomEnemyPlace torizo, TorizoEnemyState state, int health)
     {
         // The health gradient selects a band from health divided by the band size, clamping it to the last band; each
         // band resolves its colours from the installed health shades.
@@ -95,7 +95,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Runs Bomb Torizo's custom hurt behaviour.</summary>
-    internal void ApplyTorizoHurt(RoomEnemySlot torizo)
+    internal void ApplyTorizoHurt(RoomEnemyPlace torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
@@ -113,7 +113,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Enters the authored death list once and removes the dying statue from Samus collision.</summary>
-    internal static void BeginTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
+    internal static void BeginTorizoDeath(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
             return;
@@ -128,7 +128,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Latches <paramref name="flags"/>.</summary>
-    internal static void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior |= flags;
+    internal static void SetBehavior(RoomEnemyPlace torizo, TorizoBehaviorFlags flags) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior |= flags;
 
     /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox reaction.</summary>
     internal void ReactToTorizoBomb(EnemyBombContext c) =>
@@ -169,9 +169,9 @@ internal sealed class TorizoCombat
             throw new InvalidDataException(
                 $"Torizo has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-        if (context.Slot.Health == 0)
-            BeginTorizoDeath(context.Slot, context.Slot.RequireSpeciesState<TorizoEnemyState>());
+        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        if (context.Place.Health == 0)
+            BeginTorizoDeath(context.Place, context.Place.RequireSpeciesState<TorizoEnemyState>());
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ internal sealed class TorizoCombat
     /// </summary>
     internal bool ResolveTorizoShotBeforeImpact(in EnemyShotContext c)
     {
-        RoomEnemySlot enemy = c.Enemy;
+        RoomEnemyPlace enemy = c.Enemy;
         bool isBombTorizo = enemy.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = !isBombTorizo;
         TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
@@ -257,7 +257,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindTorizoHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (enemy.DefinitionId is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))

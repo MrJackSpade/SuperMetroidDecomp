@@ -61,7 +61,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Moves the body through its first-round figure-eight and schedules its next phase.</summary>
     internal void RunPhantoonFirstRoundFigureEight(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         StepPhantoonFigureEight(body, state.FigureEight);
@@ -79,7 +79,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Moves his body along its figure-eight path by the figure-eight's speed.</summary>
-    internal static void StepPhantoonFigureEight(RoomEnemySlot body, PhantoonFigureEightState figureEight)
+    internal static void StepPhantoonFigureEight(RoomEnemyPlace body, PhantoonFigureEightState figureEight)
     {
         if (figureEight.Reversed)
             AdjustPhantoonReverseFigureEightSpeed(figureEight);
@@ -186,7 +186,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
-        RoomEnemySlot mouth = state.Mouth;
+        RoomEnemyPlace mouth = state.Mouth;
         if (--state.CasualFlames.Hold > 0)
             return;
 
@@ -211,7 +211,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
     /// <remarks>The spiral fireballs are the first ordinary combat attack: eight destroyable flames, spawned in their
     /// authored order round the body.</remarks>
-    private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
+    private void SpawnPhantoonSpiralFlames(RoomEnemyPlace body)
     {
         foreach (TrigonometryAngle start in PhantoonFlameSpawns.SpiralStarts)
             SpawnPhantoonSpiralFlame(body, start);
@@ -219,7 +219,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Runs the eye-open vulnerable window.</summary>
     internal static void RunPhantoonEyeTracking(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus)
     {
@@ -251,7 +251,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Runs the one-frame opaque-swoop setup.</summary>
     internal static void BeginPhantoonVulnerableSwoop(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus)
     {
@@ -263,7 +263,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Runs the 360-frame opaque swoop.</summary>
     internal static void RunPhantoonSwoop(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus)
     {
@@ -275,7 +275,7 @@ internal sealed class PhantoonPatterns
         state.Phase = PhantoonPhase.FadeOutWhileSwooping;
         state.Translucent = true;
         PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
-        RoomEnemySlot eye = state.Eye;
+        RoomEnemyPlace eye = state.Eye;
         PhantoonPresentation.StartPhantoonAnimation(state, eye, PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyFade.Complete = false;
@@ -284,7 +284,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Fades the body while continuing its swoop across the room.</summary>
     internal void RunPhantoonFadeOutWhileSwooping(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus)
     {
@@ -306,7 +306,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Runs the hidden left/right placement and round-two picker.</summary>
     internal void PlacePhantoonForNextFigureEight(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (PhantoonRandomDefinitions.FigureEightStartsRight.IsSetIn(_room.Random.Generate()))
@@ -334,7 +334,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Reveals Phantoon before the next figure-eight pass.</summary>
     internal void RunPhantoonFadeInBeforeFigureEight(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
@@ -344,7 +344,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Runs the visible setup for every flame-rain window.</summary>
     internal static void BeginPhantoonFlameRainVulnerableWindow(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         state.BodyFade.Complete = false;
@@ -356,7 +356,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Reveals the body while preparing the flame-rain attack.</summary>
     internal void RunPhantoonFlameRainFadeIn(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 1);
@@ -370,7 +370,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Counts the open-eye interval during flame rain.</summary>
     internal static void RunPhantoonFlameRainVulnerableWindow(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
@@ -407,7 +407,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
     internal void RunPhantoonHiddenFlameRain(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
@@ -424,7 +424,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Starts the first rain pattern after the intro round.</summary>
     internal void RunPhantoonInitialFlameRain(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
@@ -452,7 +452,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Holds the hidden rage phase until its timer expires.</summary>
     internal static void RunPhantoonRageHiddenWait(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
@@ -464,7 +464,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Reveals the body at the start of the enraged swoop.</summary>
     internal void RunPhantoonRageFadeIn(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
@@ -476,7 +476,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Runs all eight alternating radial flame waves.</summary>
-    internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
+    internal void RunPhantoonRage(RoomEnemyPlace body, PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
@@ -529,7 +529,7 @@ internal sealed class PhantoonPatterns
     /// them with tidy +/- clamps changes the retail swoop path.
     /// </summary>
     internal static void MovePhantoonInSwoop(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus,
         PhantoonSwoopTarget target)
@@ -589,7 +589,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Selects the eye pose and angle that track Samus from the current body position.</summary>
     internal static void PointPhantoonEyeAtSamus(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusState samus)
     {
@@ -634,7 +634,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns, each falling eight updates after the last.</summary>
-    private void SpawnPhantoonFlameRain(RoomEnemySlot body, int pattern)
+    private void SpawnPhantoonFlameRain(RoomEnemyPlace body, int pattern)
     {
         int column = PhantoonFlameRain.FirstRainColumns[pattern];
         int fallDelay = 8;
@@ -680,7 +680,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>
     /// <param name="body">Phantoon's body.</param>
-    internal bool SpawnPhantoonCasualFlame(RoomEnemySlot body)
+    internal bool SpawnPhantoonCasualFlame(RoomEnemyPlace body)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
@@ -701,7 +701,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Initializes an enraged flame, which circles the body from its start as its circle widens.</summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="start">Where on its circle the flame starts and which way it circles.</param>
-    internal bool SpawnPhantoonRageFlame(RoomEnemySlot body, PhantoonRageFlameStart start)
+    internal bool SpawnPhantoonRageFlame(RoomEnemyPlace body, PhantoonRageFlameStart start)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
@@ -718,7 +718,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonSpiralFlame(RoomEnemySlot body, TrigonometryAngle start)
+    internal bool SpawnPhantoonSpiralFlame(RoomEnemyPlace body, TrigonometryAngle start)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
@@ -733,7 +733,7 @@ internal sealed class PhantoonPatterns
     /// <param name="body">Phantoon's body.</param>
     /// <param name="column">The room column the flame falls in, 0 through 8.</param>
     /// <param name="fallDelay">The updates the flame waits before it falls.</param>
-    internal bool SpawnPhantoonRainFlame(RoomEnemySlot body, int column, int fallDelay)
+    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int column, int fallDelay)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
@@ -747,7 +747,7 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
     /// <returns>The flame, or null when every enemy projectile slot is in use.</returns>
-    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemySlot body)
+    private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyPlace body)
     {
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)

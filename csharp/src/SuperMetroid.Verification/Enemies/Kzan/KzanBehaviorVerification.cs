@@ -20,19 +20,19 @@ internal static class KzanBehaviorVerification
     internal static void VerifyKzanBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.Position = slot.Position.WithWholeY(128);
-        slot.SetSpawnSettings(new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromParts(4, 0), FallWait: 112, FallDistance: 80));
-        KzanBehavior.InitializeKzanTop(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.KzanTop, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Position = place.Position.WithWholeY(128);
+        place.SetSpawnSettings(new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromParts(4, 0), FallWait: 112, FallDistance: 80));
+        KzanBehavior.InitializeKzanTop(place);
         AssertEqual(new AnimationPlayback<KzanSegment>(KzanAnimations.StartingWith(KzanSegment.Idle), AnimationPlace.StartOfAnimation),
-            (enemies.SlotTable.Slots[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Playback,
+            (enemies.Places.InUpdateOrder[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Playback,
             "Kzan initializer animation");
         // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
         ushort frame = KzanAnimationsConstants.Spritemaps(KzanSegment.Idle).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-            EnemyInstructionRunner.ShownFrames(slot, 4), "Kzan shows its idle frame once and holds it");
+            EnemyInstructionRunner.ShownFrames(place, 4), "Kzan shows its idle frame once and holds it");
         Console.WriteLine("  Kzan behavior: the top shows its idle pose and holds it.");
     }
 
@@ -45,13 +45,13 @@ internal static class KzanBehaviorVerification
     internal static void VerifyKzanTargetsWrap()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
-        slot.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
-        slot.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
-        slot.Position = slot.Position.WithWhole(new(128, 65520));
-        KzanBehavior.InitializeKzanTop(slot);
-        KzanEnemyState state = slot.RequireSpeciesState<KzanEnemyState>();
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.KzanTop, place.Definition);
+        place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
+        place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
+        place.Position = place.Position.WithWhole(new(128, 65520));
+        KzanBehavior.InitializeKzanTop(place);
+        KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
         AssertEqual(new Position16<RoomPixels>(0, 16), state.FallingTarget, "the falling target wraps past the room's bottom edge");
         AssertEqual(new Position16<RoomPixels>(0, 65520), state.RisingTarget, "the rising target is the spawn position");
         var frame = new ClockedEnemyAiFrame(
@@ -59,27 +59,27 @@ internal static class KzanBehaviorVerification
             new FrameCounters(0));
 
         state.Action = KzanAction.Falling;
-        enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
         AssertEqual(KzanAction.Falling, state.Action, "above the wrapped falling target the top keeps falling");
-        AssertEqual((ushort)65520, slot.Position.Y.Whole, "the first falling step uses the zero speed entry");
+        AssertEqual((ushort)65520, place.Position.Y.Whole, "the first falling step uses the zero speed entry");
         AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(1), state.FallingSpeed, "each falling step accelerates the fall by a sixteenth of a pixel per update");
 
-        slot.Position = slot.Position.WithWholeY(16);
-        enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
+        place.Position = place.Position.WithWholeY(16);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
         AssertEqual(KzanAction.WaitingToRise, state.Action, "reaching the wrapped falling target lands the top");
-        AssertEqual((ushort)16, slot.Position.Y.Whole, "the top lands on the falling target");
+        AssertEqual((ushort)16, place.Position.Y.Whole, "the top lands on the falling target");
         AssertEqual((SoundEffectId?)EnemySoundEffectDefinitions.KzanLandingSoundEffect,
             enemies.Audio.LatestSound, "landing queues the library-two landing sound");
 
         state.Action = KzanAction.Rising;
-        enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
         AssertEqual(KzanAction.Rising, state.Action, "below the wrapped rising target the top keeps rising");
-        AssertEqual((ushort)15, slot.Position.Y.Whole, "half a pixel of rise borrows from the whole position");
+        AssertEqual((ushort)15, place.Position.Y.Whole, "half a pixel of rise borrows from the whole position");
 
-        slot.Position = slot.Position.WithWholeY(65519);
-        enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
+        place.Position = place.Position.WithWholeY(65519);
+        enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
         AssertEqual(KzanAction.WaitingToFall, state.Action, "passing above the rising target stops the rise");
-        AssertEqual((ushort)65520, slot.Position.Y.Whole, "the top stops on the rising target");
+        AssertEqual((ushort)65520, place.Position.Y.Whole, "the top stops on the rising target");
         Console.WriteLine("  Kzan targets: the top's fall and rise compare with wrapped targets by the wrapped spatial difference.");
     }
 

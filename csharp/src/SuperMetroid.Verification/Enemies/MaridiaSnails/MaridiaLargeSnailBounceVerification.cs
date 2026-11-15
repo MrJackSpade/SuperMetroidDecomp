@@ -32,13 +32,13 @@ internal static class MaridiaLargeSnailBounceVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Oum, slot.Definition);
-            MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(slot);
-            MaridiaLargeSnailEnemyState state = slot.RequireSpeciesState<MaridiaLargeSnailEnemyState>();
-            slot.Radius = new(16, 16);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Oum, place.Definition);
+            MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(place);
+            MaridiaLargeSnailEnemyState state = place.RequireSpeciesState<MaridiaLargeSnailEnemyState>();
+            place.Radius = new(16, 16);
             // On the floor level the lowest pixel row already rests in the floor, so even a sub-pixel fall lands.
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
+            place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
             state.BouncePhase = phase;
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(start);
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
@@ -47,7 +47,7 @@ internal static class MaridiaLargeSnailBounceVerification
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
 
-            enemies.MaridiaLargeSnailBehavior.RunMaridiaLargeSnailMainAi(slot, frame);
+            enemies.MaridiaLargeSnailBehavior.RunMaridiaLargeSnailMainAi(place, frame);
 
             AssertEqual(expected, state.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, $"Oum {context}: record");
             AssertEqual(expectedPhase, state.BouncePhase, $"Oum {context}: bounce phase");

@@ -81,7 +81,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             RumbleYOffset = 0,
             RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats,
         };
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         var state = new CrocomireEnemyState(body)
         {
             DeathPhase = CrocomireDeathPhase.RumbleHiddenWall,

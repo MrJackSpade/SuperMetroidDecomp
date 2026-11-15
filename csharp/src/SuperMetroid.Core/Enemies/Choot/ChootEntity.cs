@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>One Choot occupant: its own AI, with the shared reactions.</summary>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class ChootEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class ChootEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => ChootBehavior.InitializeChoot(Slot);
+    public void Initialize() => ChootBehavior.InitializeChoot(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ChootBehavior.RunChootMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ChootBehavior.RunChootMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ChootBehavior.AdvanceChootTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ChootBehavior.AdvanceChootTypedAnimation(Place, context);
 }

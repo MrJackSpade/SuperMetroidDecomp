@@ -24,7 +24,7 @@ internal static class MagdolliteApexThresholdVerification
         VerifyMagdollitePhaseDefinitions(rom);
         const int largestStep = 5;
         MagdolliteApexGrowth installed = InstalledFixtures.EnemyOverreads.MagdolliteApexGrowth;
-        for (int slot = 0; slot < EnemySlotOrder.Capacity; slot++)
+        for (int slot = 0; slot < EnemyPlaceOrder.Capacity; slot++)
         {
             int address = 0xa80000 | MagdollitePhaseDefinitions.ArmHeightThresholdTable + slot * 0x40;
             ushort overread = ReadMagdolliteWord(rom, address);
@@ -35,7 +35,7 @@ internal static class MagdolliteApexThresholdVerification
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => installed.GrowsFinalSegment(EnemySlotOrder.Capacity),
+            () => installed.GrowsFinalSegment(EnemyPlaceOrder.Capacity),
             "Magdollite apex growth beyond the enemy slots");
 
         VerifyRiseCarry();
@@ -52,10 +52,10 @@ internal static class MagdolliteApexThresholdVerification
         {
             const int onePixel = 65536;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            Action<RoomEnemyPlace, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
-                RoomEnemySlot member = enemies.SlotTable.Slots[part];
+                RoomEnemyPlace member = enemies.Places.InUpdateOrder[part];
                 member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
@@ -64,7 +64,7 @@ internal static class MagdolliteApexThresholdVerification
             }
             MagdolliteEnemyState head = enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Magdollite head has no state.");
             head.Speed = SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
-            RoomEnemySlot body = enemies.SlotTable.Slots[1];
+            RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
             MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Action = MagdolliteAction.BodyRising;
             state.BodyPhase = MagdolliteRiseStage.FirstPillar;
@@ -83,11 +83,11 @@ internal static class MagdolliteApexThresholdVerification
         static void VerifyApex(int headSlot, bool grows)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemySlot, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
-            Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            Action<RoomEnemyPlace, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+            Action<RoomEnemyPlace, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
-                RoomEnemySlot member = enemies.SlotTable.Slots[headSlot + part];
+                RoomEnemyPlace member = enemies.Places.InUpdateOrder[headSlot + part];
                 member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
@@ -96,7 +96,7 @@ internal static class MagdolliteApexThresholdVerification
             }
             MagdolliteEnemyState head = (enemies.MagdolliteStates[headSlot] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot]."));
             (head ?? throw new InvalidOperationException("Verification requires head.")).Speed = SignedSixteenSixteen.Zero;
-            RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
+            RoomEnemyPlace body = enemies.Places.InUpdateOrder[headSlot + 1];
             MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
             (state ?? throw new InvalidOperationException("Verification requires state.")).Action = MagdolliteAction.BodyRising;
             state.BodyPhase = MagdolliteRiseStage.At(7);
@@ -104,7 +104,7 @@ internal static class MagdolliteApexThresholdVerification
             state.RiseDisplacement = new(0, -MagdollitePhaseDefinitions.MaximumRise);
 
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
-            string context = $"Magdollite body in slot {body.SlotIndex}";
+            string context = $"Magdollite body in slot {body.Ordinal}";
             AssertEqual(MagdolliteAction.HoldingAtApex, state.Action, $"{context} reaches its apex");
             AssertEqual(MagdolliteRiseStage.At(grows ? 8 : 7), state.BodyPhase, $"{context} apex phase");
             AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");

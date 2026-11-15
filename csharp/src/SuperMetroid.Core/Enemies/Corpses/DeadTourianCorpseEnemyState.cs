@@ -7,17 +7,17 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures the selected corpse variant's reaction profile and its own rot schedule for one slot, and starts its own rows.</summary>
-    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
+    /// <summary>Captures the selected corpse variant's reaction profile and its own rot schedule for one place, and starts its own rows.</summary>
+    internal DeadTourianCorpseEnemyState(RoomEnemyPlace place, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
     {
-        Slot = slot;
+        Place = place;
         Rot = Ensure.NotNull(rot);
         Rows = new RottingCorpseRows(rot.Rows.Count);
         Profile = profile;
     }
 
-    /// <summary>Owning room slot; state is registered for this slot until room reset.</summary>
-    public RoomEnemySlot Slot { get; }
+    /// <summary>Owning room place; state is registered for this place until room reset.</summary>
+    public RoomEnemyPlace Place { get; }
     /// <summary>The phase main AI runs.</summary>
     public DeadTourianCorpsePhase? Phase { get; internal set; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>

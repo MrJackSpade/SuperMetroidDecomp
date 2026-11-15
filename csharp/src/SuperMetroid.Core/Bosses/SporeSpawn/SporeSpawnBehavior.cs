@@ -22,7 +22,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SporeSpawnEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SporeSpawnEntity(this, place, common);
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -93,18 +93,18 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SporeSpawnScrollingHooks.FightMinimumCameraY);
     }
 
-    /// <summary>Gets the single boss state and verifies it belongs to the supplied body slot.</summary>
-    private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemySlot slot)
+    /// <summary>Gets the single boss state and verifies it belongs to the supplied body place.</summary>
+    private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemyPlace place)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn main AI ran without an initialized boss extension.");
-        if (!ReferenceEquals(state.Body, slot))
-            throw new InvalidOperationException("Spore Spawn extension belongs to another enemy slot.");
+        if (!ReferenceEquals(state.Body, place))
+            throw new InvalidOperationException("Spore Spawn extension belongs to another enemy place.");
         return state;
     }
 
     /// <summary>Sets Spore Spawn up when the room spawns it.</summary>
-    internal void InitializeSporeSpawn(RoomEnemySlot body)
+    internal void InitializeSporeSpawn(RoomEnemyPlace body)
     {
         if (SporeSpawn is not null)
             throw new InvalidDataException("A room population contains more than one Spore Spawn body.");
@@ -147,7 +147,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Spore Spawn's movement for one update.</summary>
     private void RunSporeSpawnMain(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         SporeSpawnEnemyState state)
     {
         switch (state.Movement)
@@ -178,7 +178,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spore Spawn's descent into the room.</summary>
-    private static void RunSporeSpawnDescent(RoomEnemySlot body, SporeSpawnEnemyState state)
+    private static void RunSporeSpawnDescent(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
@@ -194,7 +194,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spore Spawn's table-backed ellipse movement.</summary>
-    private static void RunSporeSpawnMovement(RoomEnemySlot body, SporeSpawnEnemyState state)
+    private static void RunSporeSpawnMovement(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeX(
@@ -216,7 +216,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets up Spore Spawn's death velocity.</summary>
-    private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
+    private static void SetupSporeSpawnDeathVelocity(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         TrigonometryAngle direction = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTrigonometryAngle();
@@ -228,7 +228,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Spore Spawn's dying sequence.</summary>
     private void RunSporeSpawnDying(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         SporeSpawnEnemyState state)
     {
         SignedSixteenSixteen xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.ToTrigonometryAngle())
@@ -261,7 +261,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places his stalk's links between the ceiling and his body.</summary>
     private static void UpdateSporeSpawnStalks(SporeSpawnEnemyState state)
     {
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         WriteSporeSpawnStalkAxis(
             state.StalkLinks,
             firstPosition: SporeSpawnDeathCenterX,
@@ -461,13 +461,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs SporeSpawn's main AI.</summary>
-    internal void RunSporeSpawnMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    internal void RunSporeSpawnMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
     {
-        RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
+        RunSporeSpawnMain(place, RequireSporeSpawnState(place));
     }
 
     /// <summary>Plays Spore Spawn's body animation in place of the shared enemy animation.</summary>
-    internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
+    internal void AdvanceSporeSpawnAnimation(RoomEnemyPlace body)
     {
         if (!body.AnimationClock.Expire())
             return;
@@ -529,8 +529,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Spore Spawn has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-        ResolveSporeSpawnDeathAfterCommon(context.Slot);
+        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        ResolveSporeSpawnDeathAfterCommon(context.Place);
     }
     /// <summary>
     /// Whether the vulnerable core accepts the projectile: a charged beam, or any family but an
@@ -542,7 +542,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         projectileType.IsChargedBeam;
 
     /// <summary>Resolves the rest of a shot on Spore Spawn after the common reaction.</summary>
-    private void ResolveSporeSpawnShotAfterCommon(RoomEnemySlot body)
+    private void ResolveSporeSpawnShotAfterCommon(RoomEnemyPlace body)
     {
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         if (body.FlashTimer != 0)
@@ -577,7 +577,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves Spore Spawn's death after the common reaction.</summary>
     private void ResolveSporeSpawnDeathAfterCommon(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         SporeSpawnEnemyState? suppliedState = null)
     {
         if (body.Health != 0)
@@ -617,7 +617,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
-    internal void ApplySporeSpawnCue(RoomEnemySlot body, SporeSpawnEnemyState state, SporeSpawnCue cue)
+    internal void ApplySporeSpawnCue(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnCue cue)
     {
         switch (cue)
         {
@@ -721,7 +721,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
-    internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemySlot body, Offset16<RoomPixels> segment)
+    internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
         EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
@@ -737,7 +737,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> and runs its initializer.</summary>
-    internal void SpawnSporeSpawnSpawner(RoomEnemySlot body, Position16<RoomPixels> emitter)
+    internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, Position16<RoomPixels> emitter)
     {
         EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
         if (spawner is null)
@@ -800,7 +800,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindSporeSpawnHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindSporeSpawnHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&

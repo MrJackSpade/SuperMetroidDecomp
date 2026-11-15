@@ -15,9 +15,9 @@ internal static class DachoraPhaseCountdownsVerification
     internal static void VerifyDachoraPhaseCountdowns()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var state = new DachoraEnemyState();
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         state.StartBlinking(5);
         AssertEqual(5, state.PhaseTimer, "the warning countdown starts");

@@ -26,7 +26,7 @@ internal static class WaverAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             WaverSegment selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry).WithAnimationClock(hold: 0x2222);
             var state = new WaverEnemyState
             {
                 InstalledAnimation = selector == WaverSegment.SteadyFacingLeft
@@ -34,23 +34,23 @@ internal static class WaverAnimationDefinitionsVerification
                     : WaverSegment.SteadyFacingLeft,
                 RequestedAnimation = selector,
             };
-            WaverBehavior.SetWaverAnimation(slot, state);
+            WaverBehavior.SetWaverAnimation(place, state);
             AssertEqual(selector, state.InstalledAnimation,
                 $"production Waver current selector {selector}");
             AssertEqual(new AnimationPlayback<WaverSegment>(WaverAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation),
                 state.Playback,
                 $"production Waver animation {selector}");
-            AssertEqual(1, slot.AnimationClock.Hold.RawValue,
+            AssertEqual(1, place.AnimationClock.Hold.RawValue,
                 $"production Waver instruction timer {selector}");
         }
 
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
-            slot.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
-            WaverBehavior.InitializeWaver(slot);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Waver, place.Definition);
+            place.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
+            WaverBehavior.InitializeWaver(place);
             WaverSegment expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
             WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             AssertEqual(expected, waver.RequestedAnimation,

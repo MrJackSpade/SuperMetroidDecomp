@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed record EnemyCollisionDependencies
 {
-    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Audio.</summary>
@@ -33,8 +33,8 @@ internal sealed record EnemyCollisionDependencies
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
+    /// <summary>Place table.</summary>
+    public required EnemyPlaces Places { get; init; }
 
     /// <summary>The power bomb's sweep radius after a kill, shared with the deaths that record kills.</summary>
     public required PowerBombRadiusAfterKill PowerBombRadius { get; init; }

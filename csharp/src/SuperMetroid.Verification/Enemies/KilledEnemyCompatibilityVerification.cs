@@ -32,9 +32,9 @@ internal static class KilledEnemyCompatibilityVerification
         AssertEqual(EvirFacing.Left, KilledEvirBodyFacing.Facing(EvirFacing.Right, EvirFacing.Left, bodyKilled: true), "a killed body reads as facing left");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot killedPlace = enemies.SlotTable.Slots[3];
-        RoomEnemySlot otherPlace = enemies.SlotTable.Slots[4];
-        var segments = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>();
+        RoomEnemyPlace killedPlace = enemies.Places.InUpdateOrder[3];
+        RoomEnemyPlace otherPlace = enemies.Places.InUpdateOrder[4];
+        var segments = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>();
         AssertEqual<ShaktoolSegmentState?>(null, segments.RemainsAt(killedPlace), "no remains before a kill");
         segments.RecordKill(killedPlace);
         ShaktoolSegmentState remains = segments.RemainsAt(killedPlace)

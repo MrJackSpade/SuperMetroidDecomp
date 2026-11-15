@@ -12,7 +12,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SkulteraEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SkulteraEntity(this, place, common);
 
     /// <summary>Room collision helper used by Skultera's horizontal and vertical swim steps.</summary>
     private readonly EnemyTerrain _terrain;
@@ -40,13 +40,13 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Skultera.</summary>
-    internal static void InitializeSkultera(RoomEnemySlot slot)
+    internal static void InitializeSkultera(RoomEnemyPlace place)
     {
         var state = new SkulteraEnemyState();
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The placement names the way it starts swimming and the speed it swims at either way.
-        SkulteraSpawnSettings settings = slot.SpawnSettings<SkulteraSpawnSettings>();
+        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
@@ -70,23 +70,23 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level)
     {
         switch (state.Action)
         {
             case SkulteraAction.SwimmingLeft:
-                SwimSkultera(slot, state, level, direction: HorizontalDirection.Left);
+                SwimSkultera(place, state, level, direction: HorizontalDirection.Left);
                 return;
             case SkulteraAction.SwimmingRight:
-                SwimSkultera(slot, state, level, direction: HorizontalDirection.Right);
+                SwimSkultera(place, state, level, direction: HorizontalDirection.Right);
                 return;
             case SkulteraAction.TurningRight:
-                FinishSkulteraTurn(slot, state, direction: HorizontalDirection.Right);
+                FinishSkulteraTurn(place, state, direction: HorizontalDirection.Right);
                 return;
             case SkulteraAction.TurningLeft:
-                FinishSkulteraTurn(slot, state, direction: HorizontalDirection.Left);
+                FinishSkulteraTurn(place, state, direction: HorizontalDirection.Left);
                 return;
             default:
                 throw new InvalidDataException(
@@ -96,7 +96,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the mirrored swimming actions.</summary>
     private void SwimSkultera(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level,
         HorizontalDirection direction)
@@ -106,10 +106,10 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : state.RightVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 horizontalDisplacement))
         {
-            BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
+            BeginSkulteraTurn(place, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
             // Horizontal collision skips straight to the shared tail. Consequently
             // CurrentYOffset remains the preceding frame's value and is copied below again.
             state.PreviousYOffset = state.CurrentYOffset;
@@ -119,9 +119,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CurrentYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), state.Radius);
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
-        if (_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(yDifference)))
+        if (_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(yDifference)))
         {
-            BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
+            BeginSkulteraTurn(place, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
         }
         else
         {
@@ -136,21 +136,21 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Switches swimming AI to its opposite-facing turn animation after a terrain collision.</summary>
     internal static void BeginSkulteraTurn(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkulteraEnemyState state,
         bool currentlyMovingLeft)
     {
         state.Action = currentlyMovingLeft
             ? SkulteraAction.TurningRight
             : SkulteraAction.TurningLeft;
-        state.Playback = EnemyAnimationPlayback.Start(slot, SkulteraAnimations.StartingWith(currentlyMovingLeft
+        state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(currentlyMovingLeft
             ? SkulteraSegment.TurningRight
             : SkulteraSegment.TurningLeft));
     }
 
     /// <summary>Runs the mirrored turn completions.</summary>
     private static void FinishSkulteraTurn(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkulteraEnemyState state,
         HorizontalDirection direction)
     {
@@ -162,20 +162,20 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraAction.SwimmingLeft
             : SkulteraAction.SwimmingRight;
         state.AngleDelta = -state.AngleDelta;
-        state.Playback = EnemyAnimationPlayback.Start(slot, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
+        state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight));
     }
 
     /// <summary>Runs Skultera's main AI.</summary>
-    internal void RunSkulteraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunSkulteraMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunSkulteraMain(slot, slot.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
+        RunSkulteraMain(place, place.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>
-    internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, SkulteraAnimations.Segments,
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

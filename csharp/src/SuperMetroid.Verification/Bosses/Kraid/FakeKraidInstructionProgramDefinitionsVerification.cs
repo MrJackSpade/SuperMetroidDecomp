@@ -82,7 +82,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         {
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
-                out RoomEnemySlot slot,
+                out RoomEnemyPlace place,
                 out _,
                 out FakeKraidEnemyState state);
             AssertEqual(
@@ -97,17 +97,17 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         {
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
-                out RoomEnemySlot slot,
+                out RoomEnemyPlace place,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 0x0100;
             state.SpitDecisionTimer = 0x0100;
 
-            RunFrames(enemies, slot, samus, level, 60);
+            RunFrames(enemies, place, samus, level, 60);
 
             AssertEqual(0x00ff, state.WalkStepTimer,
                 $"Fake Kraid {program} executes its walk callback");
@@ -119,15 +119,15 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         {
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
-                out RoomEnemySlot slot,
+                out RoomEnemyPlace place,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             state.WalkStepTimer = 0x0100;
             state.SpitDecisionTimer = 0x0100;
 
-            RunFrames(enemies, slot, samus, level, 60);
+            RunFrames(enemies, place, samus, level, 60);
 
             // The instruction runner moves no projectile, so every spit the program spawned is still in the pool.
             AssertEqual(2, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
@@ -143,22 +143,22 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             // seven through ten (seven for the fixture's zero random word).
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
-                out RoomEnemySlot slot,
+                out RoomEnemyPlace place,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 1;
             state.SpitDecisionTimer = UnexpiredSpitDecisions;
-            ushort startX = slot.Position.X.Whole;
+            ushort startX = place.Position.X.Whole;
 
-            RunFrames(enemies, slot, samus, level, 60);
+            RunFrames(enemies, place, samus, level, 60);
 
             AssertEqual((short)-walkDelta, state.WalkDelta,
                 $"Fake Kraid {program} reverses when its walk timer reaches zero");
-            AssertEqual(startX, slot.Position.X.Whole,
+            AssertEqual(startX, place.Position.X.Whole,
                 $"Fake Kraid {program} does not step on the reversing callback");
             AssertEqual(7, state.WalkStepTimer,
                 $"Fake Kraid {program} reloads its walk timer from the random word");
@@ -166,38 +166,38 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
         RoomEnemySystem CreateSystem(
             bool movingRight,
-            out RoomEnemySlot slot,
+            out RoomEnemyPlace place,
             out SamusState samus,
             out FakeKraidEnemyState state)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 0;
-            Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
+            Action<RoomEnemyPlace, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
-            slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.MiniKraid, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.MiniKraid, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
-            slot.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
-            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
+            place.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
+            place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.Position.Y.Whole)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, place.Position.Y.Whole)),
             };
-            initialize(slot, samus);
+            initialize(place, samus);
             state = (enemies.FakeKraidStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FakeKraidStates[0]."));
             return enemies;
         }
 
         static void RunFrames(
             RoomEnemySystem enemies,
-            RoomEnemySlot slot,
+            RoomEnemyPlace place,
             SamusState samus,
             RoomLevelData level,
             int frames)
         {
             object?[] arguments =
-                [slot, samus, level, Position16<RoomPixels>.Zero, default(GameplayAction)];
+                [place, samus, level, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(arguments);
         }

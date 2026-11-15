@@ -25,17 +25,17 @@ internal static class CacatacBehaviorVerification
             string orientation = upsideUp ? "upright" : "inverted";
             CacatacSegment idle = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle;
             CacatacSegment loop = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdleLoop;
-            (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) = Create(upsideUp);
+            (RoomEnemySystem enemies, RoomEnemyPlace place, CacatacEnemyState state) = Create(upsideUp);
             AssertEqual(new AnimationPlayback<CacatacSegment>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
             state.Action = CacatacAction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Segments, loop, CacatacFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop)), $"Cacatac {orientation} idle loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop)), $"Cacatac {orientation} idle loop");
             AssertEqual(CacatacAction.MovingLeft, state.Action, $"Cacatac {orientation} idle restores patrol");
 
-            (enemies, slot, state) = Create(upsideUp);
+            (enemies, place, state) = Create(upsideUp);
             state.Action = CacatacAction.Stopped;
-            CacatacBehavior.SetCacatacAnimation(slot, state, upsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
-            EnemyInstructionRunner.ShownFrames(slot, 53);
+            CacatacBehavior.SetCacatacAnimation(place, state, upsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
+            EnemyInstructionRunner.ShownFrames(place, 53);
             AssertEqual(loop, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacAction.MovingLeft, state.Action, $"Cacatac {orientation} attack resumes patrol");
             AssertEqual<SoundEffectId?>(CacatacNativeValues.SpikeSound, enemies.Audio.LatestSound, $"Cacatac {orientation} attack plays the spike sound");
@@ -65,33 +65,33 @@ internal static class CacatacBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
         enemies.VerificationServices().NextRandom = () => 100;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
-        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(8, 112));
-        slot.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
-        CacatacBehavior.InitializeCacatac(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Position = FixedPosition<RoomPixels>.FromWhole(new(8, 112));
+        place.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
+        CacatacBehavior.InitializeCacatac(place);
         CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
         AssertEqual(new Position16<RoomPixels>(unchecked((ushort)(8 - 16)), 112), state.LeftPatrolLimit, "Cacatac left limit wraps below the room's left edge");
         AssertEqual(new Position16<RoomPixels>(24, 112), state.RightPatrolLimit, "Cacatac right limit is one block right of spawn");
 
         state.Speed = oneAndAHalfPixels;
-        slot.Position = slot.Position.WithFractionX(checked(halfPixel));
-        enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new FixedCoordinate(7, 0), slot.Position.X, "Cacatac leftward step borrows its fraction");
+        place.Position = place.Position.WithFractionX(checked(halfPixel));
+        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        AssertEqual(new FixedCoordinate(7, 0), place.Position.X, "Cacatac leftward step borrows its fraction");
         AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac keeps walking left of a limit that wrapped to the far right");
         AssertEqual(CacatacAction.MovingLeft, state.Action, "Cacatac keeps its leftward patrol");
 
         // One pixel right of the wrapped limit: the step lands half a pixel past it and turns.
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolLimit.X + 1)));
-        enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolLimit.X - 1)), checked(halfPixel)), slot.Position.X,
+        place.Position = place.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolLimit.X + 1)));
+        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolLimit.X - 1)), checked(halfPixel)), place.Position.X,
             "Cacatac steps past its wrapped left limit");
         AssertEqual(CacatacDirection.Right, state.Direction, "Cacatac turns right once past its wrapped left limit");
         AssertEqual(CacatacAction.MovingRight, state.Action, "Cacatac patrols right after the turn");
 
-        slot.Position = slot.Position.WithX(new FixedCoordinate(22, checked(halfPixel)));
-        enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new FixedCoordinate(24, 0), slot.Position.X, "Cacatac rightward step carries its fraction into the whole X");
+        place.Position = place.Position.WithX(new FixedCoordinate(22, checked(halfPixel)));
+        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        AssertEqual(new FixedCoordinate(24, 0), place.Position.X, "Cacatac rightward step carries its fraction into the whole X");
         AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac turns left on reaching its right limit");
         AssertEqual(CacatacAction.MovingLeft, state.Action, "Cacatac patrols left after the turn");
         Console.WriteLine("  Cacatac patrol: the 16.16 steps carry and borrow, and both turns follow the wrapped distance to the limit.");
@@ -105,12 +105,12 @@ internal static class CacatacBehaviorVerification
     private static CacatacBehaviorCreateResult Create(bool upsideUp)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0);
-        CacatacBehavior.InitializeCacatac(slot);
-        return new CacatacBehaviorCreateResult(enemies, slot, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0);
+        CacatacBehavior.InitializeCacatac(place);
+        return new CacatacBehaviorCreateResult(enemies, place, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
     }
 
     /// <summary>Runs the Cacatac behavior check and its program oracle against the local retail cartridge.</summary>

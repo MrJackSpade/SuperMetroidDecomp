@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireFight
 {
-    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
+    /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves Crocomire against the arena's collision blocks.</summary>
     private readonly EnemyTerrain _terrain;
@@ -57,11 +57,11 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal void InitializeCrocomire(RoomEnemySlot slot)
+    internal void InitializeCrocomire(RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new CrocomireEnemyState(place);
+        place.SetSpeciesState(state);
         _access.Crocomire = state;
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
         _access.CrocomireDeath = new CrocomireDeathState();
@@ -71,11 +71,11 @@ internal sealed class CrocomireFight
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask and these radii/coordinates are literal writes.
-            slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
+            place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
             state.DeathPhase = CrocomireDeathPhase.InertCorpse;
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
-            slot.Position = slot.Position.WithWhole(new(576, 144));
-            slot.Radius = new(40, 28);
+            place.Position = place.Position.WithWhole(new(576, 144));
+            place.Radius = new(40, 28);
             foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.ArenaScreens)
                 _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
             _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
@@ -89,7 +89,7 @@ internal sealed class CrocomireFight
         // On the living branch only.
         _cameraDistance.Request(CameraDistanceMode.BossTracking);
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Initial);
-        slot.CollidesByFrameHitboxes = true;
+        place.CollidesByFrameHitboxes = true;
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
 
@@ -98,28 +98,28 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
-    internal void InitializeCrocomireTongue(RoomEnemySlot slot)
+    internal void InitializeCrocomireTongue(RoomEnemyPlace place)
     {
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
-            slot.Processing = slot.Processing.Without(EnemyProcessing.Animates);
-            slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
+            place.Processing = place.Processing.Without(EnemyProcessing.Animates);
+            place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
 
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire's tongue initialized before its body.");
-        state.Tongue = slot;
+        state.Tongue = place;
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight, 1);
-        slot.CollidesByFrameHitboxes = true;
+        place.CollidesByFrameHitboxes = true;
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
-        slot.SetSpeciesState(tongueState);
-        slot.Shading = state.Body.Shading;
+        place.SetSpeciesState(tongueState);
+        place.Shading = state.Body.Shading;
     }
 
     /// <summary>Runs the artificial left-side wall.</summary>
     internal void HandleCrocomireInvisibleWall(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         CrocomireEnemyState state,
         SamusState? samus)
     {
@@ -139,7 +139,7 @@ internal sealed class CrocomireFight
     /// Runs the tongue's animation where the shared enemy animation runs, with the timer gate
     /// and new-frame flag.
     /// </summary>
-    internal void AdvanceCrocomireTongueAnimation(RoomEnemySlot tongue)
+    internal void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue)
     {
         CrocomireEnemyState state = _access.Crocomire is { } owner && ReferenceEquals(owner.Tongue, tongue)
             ? owner
@@ -166,7 +166,7 @@ internal sealed class CrocomireFight
     /// update its timer would, and a newly shown frame raises the new-frame flag exactly as an
     /// authored timed frame does.
     /// </summary>
-    internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, int cameraX)
+    internal void AdvanceCrocomireBodyAnimation(RoomEnemyPlace body, SamusState? samus, RoomLevelData? level, int cameraX)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
         if (!body.AnimationClock.Expire())
@@ -209,7 +209,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Shows <paramref name="frame"/> on Crocomire's body.</summary>
-    private static void ShowCrocomireBodyFrame(CrocomireEnemyState state, RoomEnemySlot body, CrocomireBodyFrame frame)
+    private static void ShowCrocomireBodyFrame(CrocomireEnemyState state, RoomEnemyPlace body, CrocomireBodyFrame frame)
     {
         state.BodyFrame = frame;
         body.Frame = CrocomireBodyFrames.ShownFrames.Of(frame);
@@ -234,7 +234,7 @@ internal sealed class CrocomireFight
         CrocomireBodyCue cue,
         CrocomireBodySegment continuation)
     {
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         switch (cue.Kind)
         {
             case CrocomireBodyCueKind.FightAi:
@@ -319,7 +319,7 @@ internal sealed class CrocomireFight
     private static bool RollsProjectileAttack(int sample) => CrocomireRandomDefinitions.ProjectileAttack.IsTakenBy(sample);
 
     /// <summary>Whether the body's left edge lies within 260 pixels right of the camera: the step-back moves' on-screen test.</summary>
-    private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>
+    private static bool CrocomireBodyIsOnScreen(RoomEnemyPlace body, int cameraX) =>
         CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
 
     /// <summary>Runs Crocomire's fight AI for the phase his fight is in.</summary>
@@ -456,11 +456,11 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 1/65536-pixel displacement.</summary>
-    private bool MoveCrocomire(RoomEnemySlot slot, RoomLevelData level, int pixels) =>
+    private bool MoveCrocomire(RoomEnemyPlace place, RoomLevelData level, int pixels) =>
         // The cues pass a whole ±4 pixels as a 1/65536-pixel displacement into the ordinary ignore-slopes
         // enemy mover; retaining that precision here preserves collision-edge alignment.
-        slot.DefinitionId == EnemyDefinitionId.Crocomire &&
-        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SignedSixteenSixteen.FromWholePixels(pixels));
+        place.DefinitionId == EnemyDefinitionId.Crocomire &&
+        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, SignedSixteenSixteen.FromWholePixels(pixels));
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
@@ -480,7 +480,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Spawns one of Crocomire's fight projectiles, the volley's <paramref name="shot"/>.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemySlot body, int shot)
+    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int shot)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

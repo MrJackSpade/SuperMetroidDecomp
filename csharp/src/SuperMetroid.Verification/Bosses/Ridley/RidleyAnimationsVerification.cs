@@ -48,14 +48,14 @@ internal static class RidleyAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new RidleyEnemyState { FacingDirection = facing };
         enemies.RidleyEncounter.Ridley = state;
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(definition, body.Definition);
         enemies.RidleyEncounter.Parts.AttachBody(body, "Ridley");
         return new NewRidleyResult(enemies, state, body);
     }
 
     /// <summary>Runs one body update, expiring the current frame first.</summary>
-    private static void Pass(RoomEnemySlot body, SamusState? samus)
+    private static void Pass(RoomEnemyPlace body, SamusState? samus)
     {
         body.AnimationClock.StepOnNextUpdate();
         EnemyAnimationPlayer.AdvanceAnimation(body, samus ?? RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
@@ -64,7 +64,7 @@ internal static class RidleyAnimationsVerification
     /// <summary>A right-facing Ridley starting a left-facing entry runs its right-facing program in the same update.</summary>
     private static void VerifyFacingBranch()
     {
-        (_, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
+        (_, RidleyEnemyState state, RoomEnemyPlace body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
         CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.OpeningRoar);
         Pass(body, samus: null);
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingRight), state.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
@@ -85,7 +85,7 @@ internal static class RidleyAnimationsVerification
     /// </summary>
     private static void VerifyLowEnergyBranch()
     {
-        (_, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
+        (_, RidleyEnemyState state, RoomEnemyPlace body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         state.Roaring = true;
         CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.Fireballing);
         Pass(body, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = 29 });

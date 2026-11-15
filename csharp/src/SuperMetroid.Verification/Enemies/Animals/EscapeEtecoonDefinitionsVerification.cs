@@ -54,20 +54,20 @@ internal static class EscapeEtecoonDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().HasEvent = _ => false;
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
-            slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
-            slot.Bind(EnemyDefinitionId.EtecoonEscape, slot.Definition);
-            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(slot);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
+            place.Position = place.Position.WithWhole(new(0xaaaa, 0xbbbb));
+            place.Bind(EnemyDefinitionId.EtecoonEscape, place.Definition);
+            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place);
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
                 EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter));
             EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
                 throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
-            AssertEqual(expected.Position.X, slot.Position.X.Whole,
+            AssertEqual(expected.Position.X, place.Position.X.Whole,
                 $"production escape Etecoon selector {parameter} X");
-            AssertEqual(expected.Position.Y, slot.Position.Y.Whole,
+            AssertEqual(expected.Position.Y, place.Position.Y.Whole,
                 $"production escape Etecoon selector {parameter} Y");
             AssertEqual(expected.Action, state.Action,
                 $"production escape Etecoon selector {parameter} pre-instruction");
@@ -98,7 +98,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     {
         CartridgeReadGuard guard = NewEscapeEtecoonDefinitionGuard(rom);
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
-        RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace etecoon = enemies.Places.InUpdateOrder[0];
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
         var shown = new HashSet<ushort>();
@@ -145,7 +145,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
-        RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace etecoon = enemies.Places.InUpdateOrder[0];
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
         etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition));
         etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
@@ -154,7 +154,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     }
 
     /// <summary>Forces <paramref name="steps"/> program updates, recording each pose shown.</summary>
-    private static void RunForcedEscapeEtecoonUpdates(RoomEnemySlot etecoon,
+    private static void RunForcedEscapeEtecoonUpdates(RoomEnemyPlace etecoon,
         int steps,
         HashSet<ushort> shown)
     {

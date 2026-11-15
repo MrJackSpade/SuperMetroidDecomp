@@ -38,12 +38,12 @@ internal static class MamaTurtleOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int place = 2; place < 6; place++)
         {
-            RoomEnemySlot baby = enemies.SlotTable.Slots[place];
+            RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
             baby.Bind(EnemyDefinitionId.BabyTurtle, baby.Definition);
             baby.SetSpawnSettings(new TurtleSpawnSettings(Speed: 1));
             MamaTurtleBehavior.InitializeBabyTurtle(baby);
         }
-        RoomEnemySlot mama = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];
         mama.Bind(EnemyDefinitionId.MamaTurtle, mama.Definition);
         enemies.MamaTurtleBehavior.InitializeMamaTurtle(mama);
         var samus = new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());

@@ -3,8 +3,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The state of one Beetom. Its facing is inherited from the previous Beetom in its slot (<see
-/// cref="SlotInheritance{TOccupant}"/>).
+/// The state of one Beetom. Its facing is inherited from the previous Beetom in its place (<see
+/// cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
 public sealed class BeetomEnemyState
 {
@@ -12,14 +12,14 @@ public sealed class BeetomEnemyState
     internal static readonly QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>
-    /// Starts one Beetom, facing the way the previous Beetom in its slot last faced, or left for the slot's first.
+    /// Starts one Beetom, facing the way the previous Beetom in its place last faced, or left for the place's first.
     /// </summary>
     /// <remarks>
     /// The Beetom's setup never writes the facing, and the touch response reads it to choose the drain's side
     /// before the Beetom's first action decision writes it, so a fresh Beetom touched at once drains facing its
     /// predecessor's way. Every other value setup writes itself.
     /// </remarks>
-    /// <param name="previous">The slot's previous Beetom, or null for the slot's first in the room.</param>
+    /// <param name="previous">The place's previous Beetom, or null for the place's first in the room.</param>
     internal BeetomEnemyState(BeetomEnemyState? previous) => FacingRight = previous?.FacingRight ?? false;
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class BeetomEnemyState
     public bool Falling { get; internal set; }
     /// <summary>Attachment latch set on first touch and cleared after escape or the common shot reaction; it prevents repeated attachment setup.</summary>
     public bool AttachedToSamus { get; internal set; }
-    /// <summary>Whether the Beetom faces right rather than left, inherited from the slot's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
+    /// <summary>Whether the Beetom faces right rather than left, inherited from the place's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
     public bool FacingRight { get; internal set; }
 
     /// <summary>

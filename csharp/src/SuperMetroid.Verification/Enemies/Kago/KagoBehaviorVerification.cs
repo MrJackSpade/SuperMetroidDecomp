@@ -19,25 +19,25 @@ internal static class KagoBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Kago, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
-        KagoBehavior.InitializeKago(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Kago, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
+        KagoBehavior.InitializeKago(place);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
         AssertEqual(new AnimationPlayback<KagoSegment>(KagoAnimations.StartingWith(KagoSegment.Slow), AnimationPlace.StartOfAnimation), state.Playback, "Kago initializer animation");
         ushort[] slow = KagoAnimationsConstants.Spritemaps(KagoSegment.Slow).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. slow, slow[0]], [10, 10, 10, 10, 10]),
-            EnemyInstructionRunner.ShownFrames(slot, 41), "Kago slow loop");
+            EnemyInstructionRunner.ShownFrames(place, 41), "Kago slow loop");
 
-        enemies.KagoBehavior.ResolveKagoShotAfterCommon(slot, state);
+        enemies.KagoBehavior.ResolveKagoShotAfterCommon(place, state);
         AssertTrue(state.UsesFastAnimation, "Kago real shot handoff selects fast animation");
         AssertEqual(new AnimationPlayback<KagoSegment>(KagoAnimations.StartingWith(KagoSegment.Fast), AnimationPlace.StartOfAnimation), state.Playback, "Kago shot animation");
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.KagoBug),
             "Kago real shot handoff retains its projectile side effect");
         ushort[] fast = KagoAnimationsConstants.Spritemaps(KagoSegment.Fast).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. fast, fast[0]], [3, 3, 3, 3, 3]),
-            EnemyInstructionRunner.ShownFrames(slot, 13), "Kago post-hit loop");
+            EnemyInstructionRunner.ShownFrames(place, 13), "Kago post-hit loop");
         Console.WriteLine("  Kago behavior: the slow loop and the shot handoff to the post-hit loop run as the cartridge does.");
     }
 

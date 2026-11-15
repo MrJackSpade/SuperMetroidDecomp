@@ -38,10 +38,10 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         ];
         foreach ((ushort parameter, DachoraSegment expected) in initializerCases)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
-            slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-            enemies.DachoraBehavior.InitializeDachora(slot);
-            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Playback,
+            (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(parameter);
+            place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+            enemies.DachoraBehavior.InitializeDachora(place);
+            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Playback,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
@@ -51,14 +51,14 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraSegment>? animation) ||
                 animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
-            slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-            enemies.DachoraBehavior.InitializeDachora(slot);
-            DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
+            (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
+            place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+            enemies.DachoraBehavior.InitializeDachora(place);
+            DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Segments, program, DachoraFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program)),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program)),
                 $"Dachora {program} loop");
         }
 
@@ -68,18 +68,18 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                      new VerifyDachoraInstructionProgramDefinitionsCase(DachoraSegment.RunningRight, DachoraSegment.RunningRightFast, DachoraSegment.RunningRightVeryFast),
                  })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
-            slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-            enemies.DachoraBehavior.InitializeDachora(slot);
-            DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
+            (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
+            place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+            enemies.DachoraBehavior.InitializeDachora(place);
+            DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
             state.Playback = new(DachoraAnimations.StartingWith(slow), new AnimationPlace(0, 3));
             state.Speed = SignedSixteenSixteen.FromParts(3, 0xf000);
-            enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
+            enemies.DachoraBehavior.AccelerateDachora(place, state, empty);
             AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(fast), new AnimationPlace(0, 3)), state.Playback, $"Dachora {slow} speeds up at the same pose");
             state.Speed = SignedSixteenSixteen.FromParts(7, 0xf000);
-            enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
+            enemies.DachoraBehavior.AccelerateDachora(place, state, empty);
             AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(fastest), new AnimationPlace(0, 3)), state.Playback, $"Dachora {fast} speeds up at the same pose");
         }
 
@@ -96,11 +96,11 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     private static DachoraInstructionProgramDefinitionsNewDachoraResult NewDachora(ushort parameter)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
-        return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
+        return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
     }
 
     /// <summary>Runs the Dachora animation verification.</summary>

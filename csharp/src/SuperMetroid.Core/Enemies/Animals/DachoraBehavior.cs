@@ -16,14 +16,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DachoraEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new DachoraEntity(this, place, common);
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>The room's enemy places, where the Dachora finds its four echoes when it is placed.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>The four speed-boost echoes each Dachora found when it was placed, which its room lists right after it.</summary>
-    private readonly EnemyPartLinks<RoomEnemySlot[]> _echoes = new();
+    private readonly EnemyPartLinks<RoomEnemyPlace[]> _echoes = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -32,11 +32,11 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Binds the terrain and echo slots used by Dachora's AI behaviours; its glows are shades its draws name (#1512), so
     /// it needs no colour artwork.
     /// </summary>
-    internal DachoraBehavior(EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
+    internal DachoraBehavior(EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)
     {
         _audio = audio;
         _terrain = terrain;
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>Horizontal proximity threshold for activating the bird.</summary>
@@ -86,20 +86,20 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
 
     /// <summary>Initializes the Dachora.</summary>
-    internal void InitializeDachora(RoomEnemySlot slot)
+    internal void InitializeDachora(RoomEnemyPlace place)
     {
-        DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
+        DachoraSpawnSettings settings = place.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState
         {
             FacingRight = settings.Facing == HorizontalDirection.Right || settings.Role == DachoraRole.SpeedBoostEcho,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The animating property both disables Samus collision and admits enemy animations.
         // The population's tangibility property already excludes these actors from collisions.
-        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
-        slot.Frame = EnemyFrameId.Empty;
-        slot.AnimationClock.Restart();
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        place.Frame = EnemyFrameId.Empty;
+        place.AnimationClock.Restart();
 
         if (settings.Role == DachoraRole.SpeedBoostEcho)
         {
@@ -111,7 +111,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        _echoes.Place(slot, _slotTable.ListedRunAfter(slot, DachoraEchoCount));
+        _echoes.Place(place, _places.ListedRunAfter(place, DachoraEchoCount));
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.IdleRight
             : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
@@ -120,7 +120,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Dachora's current action.</summary>
     private void RunDachoraMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -131,7 +131,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // runs without the state that code reads globally.
         if (state.Action == DachoraAction.Echo)
         {
-            RunDachoraEcho(slot, state, frameCycle);
+            RunDachoraEcho(place, state, frameCycle);
             return;
         }
 
@@ -142,25 +142,25 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case DachoraAction.WaitingForSamus:
-                RunDachoraWaiting(slot, state, activeSamus, activeLevel);
+                RunDachoraWaiting(place, state, activeSamus, activeLevel);
                 break;
             case DachoraAction.BlinkingBeforeRun:
-                RunDachoraBlinking(slot, state);
+                RunDachoraBlinking(place, state);
                 break;
             case DachoraAction.RunningLeft:
-                RunDachoraLeft(slot, state, activeLevel);
+                RunDachoraLeft(place, state, activeLevel);
                 break;
             case DachoraAction.RunningRight:
-                RunDachoraRight(slot, state, activeLevel);
+                RunDachoraRight(place, state, activeLevel);
                 break;
             case DachoraAction.ChargingShinespark:
-                RunDachoraCharging(slot, state);
+                RunDachoraCharging(place, state);
                 break;
             case DachoraAction.Shinesparking:
-                RunDachoraShinespark(slot, state, activeSamus, activeLevel);
+                RunDachoraShinespark(place, state, activeSamus, activeLevel);
                 break;
             case DachoraAction.Falling:
-                RunDachoraFalling(slot, state, activeSamus, activeLevel);
+                RunDachoraFalling(place, state, activeSamus, activeLevel);
                 break;
             case DachoraAction.Echo:
             default:
@@ -171,20 +171,20 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits for Samus, including the one-pixel floor probe before proximity.</summary>
     private void RunDachoraWaiting(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
-        if (!DachoraWithinAxis(slot.Position.Y.Whole, samus.Position.Y.Whole, DachoraActivationYDistance) ||
-            !DachoraWithinAxis(slot.Position.X.Whole, samus.Position.X.Whole, DachoraActivationXDistance))
+        _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
+        if (!DachoraWithinAxis(place.Position.Y.Whole, samus.Position.Y.Whole, DachoraActivationYDistance) ||
+            !DachoraWithinAxis(place.Position.X.Whole, samus.Position.X.Whole, DachoraActivationXDistance))
         {
             return;
         }
 
         StartDachoraAnimation(
-            slot,
+            place,
             state,
             state.FacingRight
                 ? DachoraSegment.BlinkRight
@@ -195,13 +195,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the 120-frame warning countdown.</summary>
-    private static void RunDachoraBlinking(RoomEnemySlot slot, DachoraEnemyState state)
+    private static void RunDachoraBlinking(RoomEnemyPlace place, DachoraEnemyState state)
     {
         if (--state.PhaseTimer != 0)
             return;
 
         StartDachoraAnimation(
-            slot,
+            place,
             state,
             state.FacingRight
                 ? DachoraSegment.RunningRight
@@ -214,57 +214,57 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs left. Leftward speed is the whole and fractional speed exactly negated.</summary>
     private void RunDachoraLeft(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = -AccelerateDachora(slot, state, level);
+        SignedSixteenSixteen displacement = -AccelerateDachora(place, state, level);
         bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
-            slot,
+            place,
             displacement);
         if (!hitWall)
-            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
+            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
 
-        if (!hitWall && CoordinateAxis.Difference(slot.Position.X.Whole, DachoraLeftTurnX) >= 0)
+        if (!hitWall && CoordinateAxis.Difference(place.Position.X.Whole, DachoraLeftTurnX) >= 0)
             return;
 
-        StartDachoraAnimation(slot, state, DachoraSegment.RunningRight);
+        StartDachoraAnimation(place, state, DachoraSegment.RunningRight);
         state.Action = DachoraAction.RunningRight;
         state.SetGlowCycle(frame: 0, ticks: 1);
         state.FacingRight = true;
         state.Speed = SignedSixteenSixteen.Zero;
-        ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
+        ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
     }
 
     /// <summary>Runs right, including the hard-coded tutorial launch coordinate.</summary>
     private void RunDachoraRight(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = AccelerateDachora(slot, state, level);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
+        SignedSixteenSixteen displacement = AccelerateDachora(place, state, level);
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
         {
             _audio.QueueEnemySound(DachoraSpeedBoosterSoundStop, priority: SoundRequestPriority.Normal);
-            StartDachoraAnimation(slot, state, DachoraSegment.RunningLeft);
+            StartDachoraAnimation(place, state, DachoraSegment.RunningLeft);
             state.Action = DachoraAction.RunningLeft;
             state.FacingRight = false;
             state.Speed = SignedSixteenSixteen.Zero;
             state.SetGlowCycle(frame: 0, ticks: 0);
-            ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
+            ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
             return;
         }
 
-        EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-        if (CoordinateAxis.Difference(slot.Position.X.Whole, DachoraShinesparkX) < 0)
+        EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
+        if (CoordinateAxis.Difference(place.Position.X.Whole, DachoraShinesparkX) < 0)
             return;
 
-        StartDachoraAnimation(slot, state, DachoraSegment.ChargeRight);
+        StartDachoraAnimation(place, state, DachoraSegment.ChargeRight);
         state.Action = DachoraAction.ChargingShinespark;
         state.StartCharging(DachoraChargeDuration);
         state.SetGlowCycle(frame: 0, ticks: 0);
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 8);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 8);
         _audio.QueueEnemySound(DachoraChargeSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -274,7 +274,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// speed glow frame again every sixteen frames instead of wrapping to frame zero.
     /// </summary>
     internal SignedSixteenSixteen AccelerateDachora(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         RoomLevelData level)
     {
@@ -291,14 +291,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Dachora speed glow frame {glowFrame} is not one of its four.");
                 }
-                ShowDachoraColours(slot, DachoraColourPhase.Speed, glowFrame);
+                ShowDachoraColours(place, DachoraColourPhase.Speed, glowFrame);
                 state.AdvanceSpeedGlow();
             }
         }
 
         // Presses the body down one pixel every running frame before changing speed.
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
-        _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
+        _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
 
         // The game compares the whole and fraction parts separately, each by whether its difference
         // from the cap's is negative; a fraction of half a pixel or more therefore also counts as below the cap.
@@ -324,41 +324,41 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the stored-shine countdown and echo activation.</summary>
-    private void RunDachoraCharging(RoomEnemySlot slot, DachoraEnemyState state)
+    private void RunDachoraCharging(RoomEnemyPlace place, DachoraEnemyState state)
     {
-        StepDachoraShineGlow(slot, state);
+        StepDachoraShineGlow(place, state);
         if (--state.PhaseTimer != 0)
             return;
 
         // The charge animation holds its crouch until the launch, which starts the right-facing echo animation the
         // four trails also show.
-        StartDachoraAnimation(slot, state, DachoraSegment.EchoRight);
+        StartDachoraAnimation(place, state, DachoraSegment.EchoRight);
         state.Action = DachoraAction.Shinesparking;
 
-        RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
+        RoomEnemyPlace[] echoes = RequireDachoraEchoPlaces(place);
         echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = 0;
-        foreach (RoomEnemySlot echo in echoes)
+        foreach (RoomEnemyPlace echo in echoes)
             echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = 0;
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 8);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 8);
         _audio.QueueEnemySound(DachoraLaunchSound, priority: SoundRequestPriority.Normal);
 
         DachoraSegment echoList = state.FacingRight
             ? DachoraSegment.EchoRight
             : DachoraSegment.EchoLeft;
-        foreach (RoomEnemySlot echo in echoes)
+        foreach (RoomEnemyPlace echo in echoes)
             StartDachoraAnimation(echo, echo.RequireSpeciesState<DachoraEnemyState>(), echoList);
     }
 
     /// <summary>Runs upward acceleration, trail placement, and ceiling collision.</summary>
     private void RunDachoraShinespark(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        StepDachoraShineGlow(slot, state);
-        UpdateDachoraEchoPositions(slot);
+        StepDachoraShineGlow(place, state);
+        UpdateDachoraEchoPositions(place);
 
         state.VerticalAcceleration += SamusGravity(samus);
         state.Speed += state.VerticalAcceleration;
@@ -369,30 +369,30 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)
             : speed;
         SignedSixteenSixteen upwardDisplacement = -capped;
-        if (!_terrain.MoveEnemyVertically(level, slot, upwardDisplacement))
+        if (!_terrain.MoveEnemyVertically(level, place, upwardDisplacement))
             return;
 
         // Ceiling impact reverses Dachora's facing before the fall, a visible retail quirk.
         if (!state.FacingRight)
         {
-            StartDachoraAnimation(slot, state, DachoraSegment.FallingRight);
+            StartDachoraAnimation(place, state, DachoraSegment.FallingRight);
             state.FacingRight = true;
         }
         else
         {
-            StartDachoraAnimation(slot, state, DachoraSegment.FallingLeft);
+            StartDachoraAnimation(place, state, DachoraSegment.FallingLeft);
             state.FacingRight = false;
         }
         state.Action = DachoraAction.Falling;
         state.Speed = SignedSixteenSixteen.Zero;
         state.SetGlowCycle(frame: 0, ticks: 0);
-        ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
+        ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
         _audio.QueueEnemySound(DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs the gravity-capped return to the ground.</summary>
     private void RunDachoraFalling(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -403,14 +403,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!_terrain.MoveEnemyVertically(
                 level,
-                slot,
+                place,
                 state.Speed))
         {
             return;
         }
 
         StartDachoraAnimation(
-            slot,
+            place,
             state,
             state.FacingRight
                 ? DachoraSegment.RunningRight
@@ -422,9 +422,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves the Dachora's four echoes, each new echo taking the first free one.</summary>
-    private void UpdateDachoraEchoPositions(RoomEnemySlot body)
+    private void UpdateDachoraEchoPositions(RoomEnemyPlace body)
     {
-        RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);
+        RoomEnemyPlace[] echoes = RequireDachoraEchoPlaces(body);
         DachoraEnemyState first = echoes[0].RequireSpeciesState<DachoraEnemyState>();
         if (first.EchoPositionTimer != 0)
         {
@@ -435,7 +435,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         first.EchoPositionTimer = DachoraEchoPositionInterval;
         for (int trailPlace = 0; trailPlace < echoes.Length; trailPlace++)
         {
-            RoomEnemySlot echo = echoes[trailPlace];
+            RoomEnemyPlace echo = echoes[trailPlace];
             DachoraEnemyState echoState = echo.RequireSpeciesState<DachoraEnemyState>();
             if (echoState.EchoLifetime != 0)
                 continue;
@@ -450,7 +450,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the alternating, lifetime-owned echo visibility.</summary>
     private static void RunDachoraEcho(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DachoraEnemyState state,
         int frameCycle)
     {
@@ -458,17 +458,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.EchoLifetime--;
             bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsSetIn(frameCycle) == state.ShowsOnOddFrames;
-            slot.Presence = visible
-                ? slot.Presence.Without(EnemyPresence.Hidden)
-                : slot.Presence.With(EnemyPresence.Hidden);
+            place.Presence = visible
+                ? place.Presence.Without(EnemyPresence.Hidden)
+                : place.Presence.With(EnemyPresence.Hidden);
             return;
         }
 
-        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
+        place.Presence = place.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Runs the four-frame shine glow.</summary>
-    internal static void StepDachoraShineGlow(RoomEnemySlot slot, DachoraEnemyState state)
+    internal static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
     {
         int glowFrame = state.GlowFrame;
         if ((uint)glowFrame >= 4)
@@ -476,7 +476,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Dachora shine glow frame {glowFrame} is not one of its four.");
         }
-        ShowDachoraColours(slot, DachoraColourPhase.Shine, glowFrame);
+        ShowDachoraColours(place, DachoraColourPhase.Shine, glowFrame);
         state.AdvanceShineGlow();
     }
 
@@ -486,16 +486,16 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase has no such frame.</exception>
     internal static void ShowDachoraColours(
-        RoomEnemySlot slot, DachoraColourPhase phase, int frame)
+        RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
         int lastFrame = phase == DachoraColourPhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
-        slot.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
+        place.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 
     /// <summary>The four echoes the Dachora found when it was placed, rejecting a malformed formation.</summary>
-    private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)
+    private RoomEnemyPlace[] RequireDachoraEchoPlaces(RoomEnemyPlace body)
     {
-        RoomEnemySlot[] echoes = _echoes.Of(body);
+        RoomEnemyPlace[] echoes = _echoes.Of(body);
         for (int echoIndex = 0; echoIndex < echoes.Length; echoIndex++)
         {
             if (echoes[echoIndex].DefinitionId != EnemyDefinitionId.Dachora)
@@ -508,10 +508,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts an authored Dachora animation at its first tick.</summary>
-    private static void StartDachoraAnimation(RoomEnemySlot slot, DachoraEnemyState state, DachoraSegment segment)
+    private static void StartDachoraAnimation(RoomEnemyPlace place, DachoraEnemyState state, DachoraSegment segment)
     {
         state.Playback = new(DachoraAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-        slot.AnimationClock.StepOnNextUpdate();
+        place.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>
@@ -541,17 +541,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();
 
     /// <summary>Advances Dachora's typed animation.</summary>
-    internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, DachoraAnimations.Segments,
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
     /// <summary>Runs Dachora's main AI.</summary>
-    internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunDachoraMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunDachoraMain(
-            slot,
-            slot.RequireSpeciesState<DachoraEnemyState>(),
+            place,
+            place.RequireSpeciesState<DachoraEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.Clock.ShortCounter);

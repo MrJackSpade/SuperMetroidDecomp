@@ -433,12 +433,12 @@ internal static class EnemyTerrainBlockAddressingVerification
             [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         var mover = new EnemyTerrain(roomObjects.BreakableTerrain);
-        var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
+        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(84, 24)),
             Radius = new(4, 4),
         };
-        bool collided = mover.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SignedSixteenSixteen.FromWholePixels(8));
+        bool collided = mover.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, SignedSixteenSixteen.FromWholePixels(8));
 
         AssertTrue(!collided, "the enemy breaks the spike block rather than meeting it");
         AssertTrue(roomObjects.PopulationPlaces.Single() is { Block: var block } && block == broken,

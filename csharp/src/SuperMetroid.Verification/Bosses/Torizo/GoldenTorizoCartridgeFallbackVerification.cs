@@ -36,8 +36,8 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         samus.Position = samus.Position.WithWhole(new(0x0180, 0x0150));
         samus.MaxHealth = 1499;
         samus.Health = 1499;
-        RoomEnemySlot boss = runtime.Enemies.SlotTable.Slots.Single(slot =>
-            slot.DefinitionId == EnemyDefinitionId.GoldenTorizo);
+        RoomEnemyPlace boss = runtime.Enemies.Places.InUpdateOrder.Single(place =>
+            place.DefinitionId == EnemyDefinitionId.GoldenTorizo);
         TorizoEnemyState state = boss.RequireSpeciesState<TorizoEnemyState>();
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)

@@ -21,15 +21,15 @@ internal static class HibashiDefinitionsVerification
         const int yRadiusTable = 0xa68de7;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot> initialize = enemies.HibashiBehavior.InitializeHibashi;
-        Action<RoomEnemySlot, HibashiEruptionStep> applyStep = enemies.HibashiBehavior.ApplyHibashiEruptionStep;
+        Action<RoomEnemyPlace> initialize = enemies.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemyPlace, HibashiEruptionStep> applyStep = enemies.HibashiBehavior.ApplyHibashiEruptionStep;
 
-        RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
         graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         graphics.Position = graphics.Position.WithWholeY(0x0200);
         initialize(graphics);
-        RoomEnemySlot hitbox = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
         hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
         hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
@@ -57,16 +57,16 @@ internal static class HibashiDefinitionsVerification
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemyPlace> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
 
-        RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
+        RoomEnemyPlace programGraphics = programSystem.Places.InUpdateOrder[0];
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
         programGraphics.Bind(programGraphics.DefinitionId, default(RoomEnemyDefinition));
         programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
-        RoomEnemySlot programHitbox = programSystem.SlotTable.Slots[1];
+        RoomEnemyPlace programHitbox = programSystem.Places.InUpdateOrder[1];
         programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
         programHitbox.Bind(programHitbox.DefinitionId, default(RoomEnemyDefinition));
         programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
@@ -74,13 +74,13 @@ internal static class HibashiDefinitionsVerification
         initializeProgram(programHitbox);
 
         // A second geyser erupting in lockstep: its eruption sound is queued in the same frame.
-        RoomEnemySlot twinGraphics = programSystem.SlotTable.Slots[2];
+        RoomEnemyPlace twinGraphics = programSystem.Places.InUpdateOrder[2];
         twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.Definition);
         twinGraphics.Bind(twinGraphics.DefinitionId, programGraphics.Definition);
         twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
         initializeProgram(twinGraphics);
-        RoomEnemySlot twinHitbox = programSystem.SlotTable.Slots[3];
+        RoomEnemyPlace twinHitbox = programSystem.Places.InUpdateOrder[3];
         twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.Definition);
         twinHitbox.Bind(twinHitbox.DefinitionId, programGraphics.Definition);
         twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);

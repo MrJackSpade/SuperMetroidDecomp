@@ -32,7 +32,7 @@ internal sealed class NoobTubeObjects
     /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping what it shows
     /// (#1580).
     /// </summary>
-    internal void SetupNoobTubeSlot(RoomLevelData level, RoomObjectPlace place)
+    internal void SetupNoobTube(RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);

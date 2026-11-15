@@ -14,7 +14,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.LavaRocks];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PolypEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PolypEntity(this, place, common);
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,18 +34,18 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int PolypRandomSeed = 17;
 
     /// <summary>Initializes the Polyp.</summary>
-    internal void InitializePolyp(RoomEnemySlot slot)
+    internal void InitializePolyp(RoomEnemyPlace place)
     {
         Action<int> setRandomNumber = _room.Random.Seed;
 
-        slot.AnimationClock.Restart();
+        place.AnimationClock.Restart();
         var state = new PolypEnemyState
         {
             Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
             Action = PolypAction.WaitingForSamus,
             CooldownTimer = 0,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // Every Polyp initializer writes 17 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it
@@ -55,15 +55,15 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>
     private void RunPolypMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PolypEnemyState state,
         SamusState samus)
     {
         switch (state.Action)
         {
             case PolypAction.WaitingForSamus:
-                if (IsWithinPolypAxis(samus.Position.X.Whole, slot.Position.X.Whole) &&
-                    IsWithinPolypAxis(samus.Position.Y.Whole, slot.Position.Y.Whole))
+                if (IsWithinPolypAxis(samus.Position.X.Whole, place.Position.X.Whole) &&
+                    IsWithinPolypAxis(samus.Position.Y.Whole, place.Position.Y.Whole))
                 {
                     // The game only sets the shoot action here. The rock is emitted
                     // on the next enemy frame, a one-frame tell preserved deliberately.
@@ -72,7 +72,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.ShootingRock:
-                ShootPolypRock(slot, state);
+                ShootPolypRock(place, state);
                 return;
 
             case PolypAction.Cooldown:
@@ -87,12 +87,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the three independent random-table selections.</summary>
-    private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
+    private void ShootPolypRock(RoomEnemyPlace place, PolypEnemyState state)
     {
         SignedEightEight xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
 
         int initialYSpeed = PolypLaunches.InitialYMark(_room.Random.Generate());
-        SpawnPolypRock(slot, initialYSpeed, xVelocity);
+        SpawnPolypRock(place, initialYSpeed, xVelocity);
 
         state.Action = PolypAction.Cooldown;
         state.CooldownTimer = PolypLaunches.Cooldown(_room.Random.Generate());
@@ -113,15 +113,15 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyPolypRock(context.Projectile, context.Camera));
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, PolypAnimations.Segments,
+    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
+        RunPolypMain(place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
     /// <summary>Each rock frame moves its place along the quadratic speed curve by two marks.</summary>
@@ -134,7 +134,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The rock draws from the Polyp's spawned-object sheet in its colours, and all four position halves are copied at allocation.
     /// </summary>
     internal void SpawnPolypRock(
-        RoomEnemySlot source,
+        RoomEnemyPlace source,
         int initialYSpeed,
         SignedEightEight xVelocity)
     {

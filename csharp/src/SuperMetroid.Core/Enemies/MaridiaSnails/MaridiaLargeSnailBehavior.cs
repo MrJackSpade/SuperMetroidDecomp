@@ -14,7 +14,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MaridiaLargeSnailEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MaridiaLargeSnailEntity(this, place, common);
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -57,7 +57,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
 
     /// <summary>Initializes the Oum.</summary>
-    internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
+    internal static void InitializeMaridiaLargeSnail(RoomEnemyPlace place)
     {
         var state = new MaridiaLargeSnailEnemyState
         {
@@ -76,7 +76,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
             BouncePhase = MaridiaLargeSnailBouncePhase.Falling,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The initial left-facing animation intentionally disagrees with the installed right-facing idle. Because asking for
         // the installed animation again starts nothing, this oddity is observable until the snail first asks for another.
@@ -88,79 +88,79 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// previous positions, behavior, Samus carrying, then the input-derived stop flag.
     /// </summary>
     private void RunMaridiaLargeSnailMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         SamusState samus,
         RoomLevelData level,
         GameplayAction controllerInput)
     {
-        UpdateMaridiaLargeSnailSamusProximity(slot, state, samus);
-        state.PreviousPosition = slot.Position.Whole;
+        UpdateMaridiaLargeSnailSamusProximity(place, state, samus);
+        state.PreviousPosition = place.Position.Whole;
 
         switch (state.Action)
         {
             case MaridiaLargeSnailAction.Idle:
-                RunMaridiaLargeSnailIdle(slot, state, samus, level);
+                RunMaridiaLargeSnailIdle(place, state, samus, level);
                 break;
             case MaridiaLargeSnailAction.Rolling:
-                RunMaridiaLargeSnailRolling(slot, state, samus, level);
+                RunMaridiaLargeSnailRolling(place, state, samus, level);
                 break;
             case MaridiaLargeSnailAction.Attacking:
-                RunMaridiaLargeSnailAttack(slot, state);
+                RunMaridiaLargeSnailAttack(place, state);
                 break;
             default:
                 throw new InvalidDataException(
                     $"Maridia Large Snail has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
-        CarrySamusWithMaridiaLargeSnail(slot, state, samus);
-        UpdateMaridiaLargeSnailInputStop(slot, state, controllerInput);
+        CarrySamusWithMaridiaLargeSnail(place, state, samus);
+        UpdateMaridiaLargeSnailInputStop(place, state, controllerInput);
     }
 
     /// <summary>Completes landing bounces, faces Samus, then starts rolling within the pushing range.</summary>
     private void RunMaridiaLargeSnailIdle(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
         if (state.RemainingBounces != 0)
         {
-            RunMaridiaLargeSnailBounce(slot, state, level);
+            RunMaridiaLargeSnailBounce(place, state, level);
             return;
         }
 
-        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
+        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
         if (samusIsLeft)
             state.MovingLeft = true;
         state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Idle(samusIsLeft);
-        StartMaridiaLargeSnailAnimation(slot, state);
+        StartMaridiaLargeSnailAnimation(place, state);
 
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
-                slot.Position.X.Whole,
+                place.Position.X.Whole,
                 MaridiaLargeSnailPushingXDistance))
         {
             return;
         }
 
         state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingFrom(state.RequestedAnimation);
-        StartMaridiaLargeSnailAnimation(slot, state);
+        StartMaridiaLargeSnailAnimation(place, state);
         state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
     /// <summary>Handles ledges, cooldown and attack selection before horizontal terrain movement.</summary>
     private void RunMaridiaLargeSnailRolling(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
         if (state.RemainingBounces != 0)
         {
-            RunMaridiaLargeSnailBounce(slot, state, level);
+            RunMaridiaLargeSnailBounce(place, state, level);
         }
-        else if (!_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1)))
+        else if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1)))
         {
             // No floor one pixel below means Oum walked off a ledge. Retail restarts the
             // complete three-impact settling sequence without skipping horizontal work.
@@ -181,27 +181,27 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.AttackCooldown = 0;
             bool mayAttack = EnemyMath.IsWithinStrictModularDistance(
                     samus.Position.X.Whole,
-                    slot.Position.X.Whole,
+                    place.Position.X.Whole,
                     MaridiaLargeSnailAttackXDistance) &&
                 state.AttackAllowsRotation &&
                 state.RemainingBounces == 0;
             if (mayAttack)
             {
-                state.MovingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
+                state.MovingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
                 state.AttackCooldown = MaridiaLargeSnailInitialAttackCooldown;
                 state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Attacking(state.MovingLeft);
-                StartMaridiaLargeSnailAnimation(slot, state);
+                StartMaridiaLargeSnailAnimation(place, state);
                 state.Action = MaridiaLargeSnailAction.Attacking;
                 return;
             }
         }
 
-        MoveMaridiaLargeSnailHorizontally(slot, state, level);
+        MoveMaridiaLargeSnailHorizontally(place, state, level);
     }
 
     /// <summary>Resumes the rolling animation after the attack animation marks itself complete.</summary>
     private static void RunMaridiaLargeSnailAttack(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state)
     {
         if (!state.AttackAnimationFinished)
@@ -209,13 +209,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         state.AttackAnimationFinished = false;
         state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingAfter(state.RequestedAnimation);
-        StartMaridiaLargeSnailAnimation(slot, state);
+        StartMaridiaLargeSnailAnimation(place, state);
         state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
     /// <summary>Alternates quadratic-speed fall and rise phases, moving the place back after each impact.</summary>
     private void RunMaridiaLargeSnailBounce(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
@@ -230,7 +230,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
                 if (!_terrain.MoveEnemyVertically(
                         level,
-                        slot,
+                        place,
                         state.YSpeedCurvePlace.Speed.Positive))
                 {
                     return;
@@ -257,7 +257,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // negative here, so its whole marks are the mark the game selects by the speed's magnitude.
                 _terrain.MoveEnemyVertically(
                     level,
-                    slot,
+                    place,
                     state.YSpeedCurvePlace.Speed.Negative);
                 return;
 
@@ -273,7 +273,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Temporarily extends the collision probe toward Samus, then retracts it after wall resolution.</summary>
     private void MoveMaridiaLargeSnailHorizontally(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
@@ -293,13 +293,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         SignedSixteenSixteen displacement = speed;
         bool collided = _terrain.MoveEnemyHorizontallyTreatingSlopesAsWalls(
             level,
-            slot,
+            place,
             displacement);
 
         if (temporarilyReachTowardSamus)
         {
-            slot.Position = slot.Position.WithWrappedWholeX(
-                slot.Position.X.Whole + (state.MovingLeft
+            place.Position = place.Position.WithWrappedWholeX(
+                place.Position.X.Whole + (state.MovingLeft
                     ? MaridiaLargeSnailMotionDefinitions.PushReach
                     : -MaridiaLargeSnailMotionDefinitions.PushReach));
         }
@@ -309,12 +309,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         state.MovingLeft = !state.MovingLeft;
         state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Reversed(state.RequestedAnimation);
-        StartMaridiaLargeSnailAnimation(slot, state);
+        StartMaridiaLargeSnailAnimation(place, state);
     }
 
     /// <summary>Captures whether Samus is within both push ranges and on which side.</summary>
     private static void UpdateMaridiaLargeSnailSamusProximity(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         SamusState samus)
     {
@@ -322,39 +322,39 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         state.SamusIsLeft = false;
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.Y.Whole,
-                slot.Position.Y.Whole,
+                place.Position.Y.Whole,
                 MaridiaLargeSnailPushingYDistance) ||
             !EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
-                slot.Position.X.Whole,
+                place.Position.X.Whole,
                 MaridiaLargeSnailPushingXDistance))
         {
             return;
         }
 
         state.SamusInPushingRange = true;
-        state.SamusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
+        state.SamusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
     }
 
     /// <summary>Publishes Oum's vertical platform motion and sideward push into Samus's extra displacement.</summary>
     private static void CarrySamusWithMaridiaLargeSnail(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         SamusState samus)
     {
         state.StopMovementNextFrame = false;
-        if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
+        if (MaridiaLargeSnailTouchesSamusFromBelow(place, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement. This preserves the last touching Oum's ownership.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(CoordinateAxis.Difference(
-                slot.Position.Y.Whole, state.PreviousPosition.Y));
+                place.Position.Y.Whole, state.PreviousPosition.Y));
         }
 
         if (!state.SamusInPushingRange)
             return;
 
-        int deltaX = CoordinateAxis.Wrap(slot.Position.X.Whole - state.PreviousPosition.X);
+        int deltaX = CoordinateAxis.Wrap(place.Position.X.Whole - state.PreviousPosition.X);
         bool movedLeft = CoordinateAxis.AsSigned(deltaX) < 0;
         if (movedLeft != state.SamusIsLeft)
             return;
@@ -364,14 +364,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Records an opposing controller direction to stop the following frame's roll.</summary>
     private static void UpdateMaridiaLargeSnailInputStop(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         GameplayAction controllerInput)
     {
         if (!state.SamusInPushingRange)
             return;
 
-        int deltaX = CoordinateAxis.Difference(slot.Position.X.Whole, state.PreviousPosition.X);
+        int deltaX = CoordinateAxis.Difference(place.Position.X.Whole, state.PreviousPosition.X);
         bool stop;
         if (deltaX == 0)
         {
@@ -394,7 +394,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.StopMovementNextFrame = true;
-        slot.Position = slot.Position.WithWholeX(state.PreviousPosition.X);
+        place.Position = place.Position.WithWholeX(state.PreviousPosition.X);
     }
 
     /// <summary>
@@ -402,25 +402,25 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// its post-contact shove. It is intentionally not interchangeable with radius overlap.
     /// </summary>
     private static bool MaridiaLargeSnailTouchesSamusFromBelow(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SamusState samus)
     {
         int xDistance = CoordinateAxis.Distance(
-            samus.Position.X.Whole, slot.Position.X.Whole);
+            samus.Position.X.Whole, place.Position.X.Whole);
         bool centerWithinSamusRadius = xDistance < samus.Kinematics.Radius.X;
         int remainingX = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
-        if (!centerWithinSamusRadius && remainingX >= slot.Radius.X)
+        if (!centerWithinSamusRadius && remainingX >= place.Radius.X)
             return false;
 
         int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + MaridiaLargeSnailMotionDefinitions.SamusTouchBias);
-        if (CoordinateAxis.Difference(biasedSamusY, slot.Position.Y.Whole) >= 0)
+        if (CoordinateAxis.Difference(biasedSamusY, place.Position.Y.Whole) >= 0)
             return false;
 
-        int verticalDistance = CoordinateAxis.Wrap(slot.Position.Y.Whole - biasedSamusY);
+        int verticalDistance = CoordinateAxis.Wrap(place.Position.Y.Whole - biasedSamusY);
         int remainingY = CoordinateAxis.Wrap(verticalDistance - samus.Kinematics.Radius.Y);
         return verticalDistance < samus.Kinematics.Radius.Y ||
-            remainingY == slot.Radius.Y ||
-            remainingY < slot.Radius.Y;
+            remainingY == place.Radius.Y ||
+            remainingY < place.Radius.Y;
     }
 
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
@@ -447,13 +447,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Starts the requested animation only when it differs from the one the snail last started.</summary>
     internal static void StartMaridiaLargeSnailAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state)
     {
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, MaridiaLargeSnailAnimations.StartingWith(state.RequestedAnimation));
+        state.Playback = EnemyAnimationPlayback.Start(place, MaridiaLargeSnailAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>
@@ -461,13 +461,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// concrete frame hitbox. Damaging hitboxes call common touch before entering this tail.
     /// </summary>
     private static void ResolveMaridiaLargeSnailTouchAfterCommon(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SamusState samus)
     {
-        if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
+        if (MaridiaLargeSnailTouchesSamusFromBelow(place, samus))
             return;
 
-        int shove = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+        int shove = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
             ? -MaridiaLargeSnailMotionDefinitions.ShoveDistance
             : MaridiaLargeSnailMotionDefinitions.ShoveDistance;
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);
@@ -487,19 +487,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     };
 
     /// <summary>Runs the Maridia large snail's main AI.</summary>
-    internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunMaridiaLargeSnailMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunMaridiaLargeSnailMain(
-            slot,
-            slot.RequireSpeciesState<MaridiaLargeSnailEnemyState>(),
+            place,
+            place.RequireSpeciesState<MaridiaLargeSnailEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.ControllerInput);
     }
 
     /// <summary>Advances the Maridia large snail's typed animation.</summary>
-    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, MaridiaLargeSnailAnimations.Segments,
+    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, MaridiaLargeSnailAnimations.Segments,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -549,13 +549,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
         // closed shell can carry/push Samus without inflicting the definition's 100 HP.
         if (context.HitboxTouch == MaridiaLargeSnailReactions.DamagingTouch)
-            _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-        ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);
+            _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        ResolveMaridiaLargeSnailTouchAfterCommon(context.Place, context.Samus);
     }
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
     /// <exception cref="InvalidDataException">The frame shown has no compiled Oum collision.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
 

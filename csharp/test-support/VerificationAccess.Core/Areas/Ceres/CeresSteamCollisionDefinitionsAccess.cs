@@ -54,8 +54,8 @@ internal static class CeresSteamCollisionDefinitionsAccess
 
         /// <summary>The plume of the steam frame at native address <paramref name="frame"/>, or none for a hidden pose.</summary>
         internal static EnemyHitboxRectangle? PlumeAt(ushort frame) =>
-            RoomEnemySlotFrameAccess.Shows(CeresSteamCollisionDefinitions.Bank, frame)
-                ? Ensure.Listed(CeresSteamCollisionDefinitions.Plumes, RoomEnemySlotFrameAccess.FrameAt(CeresSteamCollisionDefinitions.Bank, frame)
+            RoomEnemyPlaceFrameAccess.Shows(CeresSteamCollisionDefinitions.Bank, frame)
+                ? Ensure.Listed(CeresSteamCollisionDefinitions.Plumes, RoomEnemyPlaceFrameAccess.FrameAt(CeresSteamCollisionDefinitions.Bank, frame)
                     ?? throw new InvalidDataException($"Ceres steam frame $A6:{frame:X4} shows no frame."))
                 : throw new InvalidDataException($"Ceres steam frame $A6:{frame:X4} has no compiled collision.");
 

@@ -2,22 +2,22 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>One ninja Space Pirate occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The ninja Space Pirate species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Slot);
+    public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceNinjaSpacePirateTypedAnimation(Place, context);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Slot, probe, out reaction);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Place, probe, out reaction);
 
     /// <summary>Pirate contact and shots both meet the Pirate's engine-owned frame hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
@@ -52,7 +52,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (Slot.DefinitionId != EnemyDefinitionId.PirateGoldNinja || !context.UsesFrameHitboxes ||
+        if (Place.DefinitionId != EnemyDefinitionId.PirateGoldNinja || !context.UsesFrameHitboxes ||
             context.SelectedShot == EnemyReaction.NormalEnemyShot)
             return base.TryReactToBomb(context);
         NinjaSpacePirateBehavior.ReactToGoldNinjaPirateBomb(context);

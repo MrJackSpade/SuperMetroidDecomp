@@ -44,7 +44,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, ControllerWordCodec.ToJoypadWord(ControllerButton.Left));
         WriteRomWord(rom, 0x91c004, 0);
-        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDelete),
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.TitleLeavingDeleteList,
             (ushort)DemoInputInstruction.Delete);
         WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation), 7);
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation)) + 2,

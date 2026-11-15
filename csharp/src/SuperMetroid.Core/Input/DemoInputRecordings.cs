@@ -128,9 +128,6 @@ public static class DemoInputRecordings
             new(A.Left, A.None, 356),
             new(A.None, A.None, 286),
         ], DemoRecordingEnd.Stops),
-        [N.AttractDelete] = new(
-        [
-        ], DemoRecordingEnd.Stops),
         [N.AttractDiagonalShinespark] = new(
         [
             new(A.None, A.None, 165),

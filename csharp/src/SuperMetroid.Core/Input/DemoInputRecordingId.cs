@@ -11,8 +11,6 @@ public enum DemoInputRecordingId
     AttractCrystalFlash,
     /// <summary>The Dachora title demonstration's input.</summary>
     AttractDachora,
-    /// <summary>The recording that ends a title demonstration's input.</summary>
-    AttractDelete,
     /// <summary>The DiagonalShinespark title demonstration's input.</summary>
     AttractDiagonalShinespark,
     /// <summary>The DiagonalShinespark demonstration's input after its per-frame check lets the shinespark continue.</summary>

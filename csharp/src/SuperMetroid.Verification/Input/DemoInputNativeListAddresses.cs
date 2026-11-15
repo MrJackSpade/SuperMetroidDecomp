@@ -16,7 +16,6 @@ internal static class DemoInputNativeListAddresses
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractBrinstarDiagonalRoom, 0x9560),
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractCrystalFlash, 0x9dae),
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractDachora, 0x8e64),
-        new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractDelete, 0x8776),
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractDiagonalShinespark, 0x933c),
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractDiagonalShinesparkContinuation, 0x9346),
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.AttractEyeDoor, 0x9154),
@@ -42,6 +41,12 @@ internal static class DemoInputNativeListAddresses
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook, 0x8623),
         new DemoInputNativeListAddressesEntry(DemoInputRecordingId.IntroMotherBrainFlashback, 0x8694),
     ];
+
+    /// <summary>
+    /// The list a title demonstration's leave check redirects to: the delete alone, which a typed playback's
+    /// <see cref="DemoInputState.End"/> stands for (#2007).
+    /// </summary>
+    internal const ushort TitleLeavingDeleteList = 0x8776;
 
     /// <summary>Each object's native header and its typed definition.</summary>
     internal static Object[] Objects => [

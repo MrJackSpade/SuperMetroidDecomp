@@ -43,7 +43,7 @@ internal static class AttractInputFixtureVerification
                 break;
             case NativeDemoFrameBehavior.AttractCheckLeave:
                 if (gameState == SuperMetroidGameState.RoutingAfterDemo)
-                    state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputRecordingId.AttractDelete));
+                    state.Redirect(pointer, DemoInputNativeListAddresses.TitleLeavingDeleteList);
                 break;
             case NativeDemoFrameBehavior.AttractShinespark:
                 if (movementType != SamusMovementType.DraygonHeld)

@@ -98,9 +98,27 @@ public sealed class DemoInputState
         FrameHold = frameHold.Remaining;
         if (frameHold.IsZero)
             PlayNextInput(position, cue);
+        RememberPressed();
+    }
 
-        // Pressing hands the demo's previous actions to the drawing-input history before it
-        // replaces the live held and newly pressed actions and remembers the new ones.
+    /// <summary>
+    /// Ends the demo's input in place of this step's input, as an owner's watch does when its demo is over: the input's
+    /// hold has run out, the recording is done, the demo releases every action and the step remembers what it pressed
+    /// as every step does. A <see cref="Step"/> after it plays nothing.
+    /// </summary>
+    public void End()
+    {
+        FrameHold = WrappingCountdown.Start(0);
+        EndInput();
+        RememberPressed();
+    }
+
+    /// <summary>
+    /// Hands the demo's previous actions to the drawing-input history and remembers the actions this step pressed, as
+    /// every step that plays ends.
+    /// </summary>
+    private void RememberPressed()
+    {
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
         PreviousNewlyPressed = NewlyPressed;

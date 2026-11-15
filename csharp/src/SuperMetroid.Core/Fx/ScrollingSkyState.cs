@@ -62,10 +62,10 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
             : throw new ArgumentOutOfRangeException(nameof(main), main, "The room main runs no scrolling sky.");
 
     /// <summary>
-    /// The background scroll the sky publishes: the background shows the sky from the camera's row down. X stays zero
-    /// because the sky never moves its whole background sideways; its bands shift each line instead.
+    /// The room row at the camera when the sky last moved: the background shows the sky from that row down. A camera above
+    /// the room's top is at a negative row. The sky never moves its whole background sideways; its bands shift each line instead.
     /// </summary>
-    public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
+    public int CameraRow { get; private set; }
 
     /// <summary>Whether the frame shows the bands drifted: false on a frozen frame, which shows every band unshifted.</summary>
     public bool ShowsDrift { get; private set; } = hasBands;
@@ -75,7 +75,7 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
     /// <exception cref="KeyNotFoundException"><paramref name="drift"/> is not one of the sky's drifts.</exception>
     public int OffsetOf(SkyDrift drift) => _phases[Ensure.NotNull(drift)].Whole;
 
-    /// <summary>Moves each drift by its speed and scrolls the background down to <paramref name="camera"/>'s row; a frozen frame moves nothing.</summary>
+    /// <summary>Moves each drift by its speed and the sky's background to <paramref name="camera"/>'s row; a frozen frame moves nothing.</summary>
     /// <param name="camera">The camera, the room pixel at the screen's top-left.</param>
     /// <param name="timeIsFrozen">Whether time is frozen this frame.</param>
     public void ProcessFrame(Position16<RoomPixels> camera, bool timeIsFrozen)
@@ -91,7 +91,7 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
         if (HasBands)
             foreach (SkyDrift drift in ScrollingSkyBandDefinitions.Drifts)
                 _phases[drift] = _phases[drift].MovedBy(drift.Speed);
-        BackgroundScroll = new Position16<BackgroundPixels>(0, camera.Y);
+        CameraRow = (camera - Position16<RoomPixels>.Zero).Y;
     }
 
     /// <summary>

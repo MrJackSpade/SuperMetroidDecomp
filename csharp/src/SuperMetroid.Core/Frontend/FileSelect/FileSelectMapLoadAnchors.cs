@@ -12,7 +12,7 @@ public static class FileSelectMapLoadAnchors
     /// <remarks>
     /// Independently reviewed for #1165 against the game's load placement and
     /// map projection. Take the whole room screens of Samus's placement at the station, add the room's map
-    /// coordinate and multiply by eight; Y has one additional map row. A map square and a room's screens are small
+    /// cell and multiply by eight. A map square and a room's screens are small
     /// counts, so the result is an ordinary map pixel and nothing wraps. The thirty-four supported station identities retain the
     /// existing marker-validity guard.
     /// Only fixed compiled room metadata is needed, never room-state selection,
@@ -25,6 +25,6 @@ public static class FileSelectMapLoadAnchors
         RoomDefinition room = placement.Room;
         Position16<RoomPixels> samus = placement.SamusPosition;
         return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * 8,
-            (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) * 8);
+            (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y)) * 8);
     }
 }

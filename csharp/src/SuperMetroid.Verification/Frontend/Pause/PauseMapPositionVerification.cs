@@ -29,12 +29,12 @@ internal static class PauseMapPositionVerification
         RgbColor[] markerColors = [.. Enumerable.Range(markerPalette + 1, 15).Select(color => RgbColor.FromWord(checked(Read(0xb6f000 + color * 2))))];
         foreach (var (area, roomX, roomY, samusX, samusY) in new[]
         {
-            new VerifyPauseMapPositionCase(AreaId.Crateria, 28, 1, 0x200, 0x300),
-            new VerifyPauseMapPositionCase(AreaId.Brinstar, 7, 10, 0x80, 0x180),
+            new VerifyPauseMapPositionCase(AreaId.Crateria, 28, 2, 0x200, 0x300),
+            new VerifyPauseMapPositionCase(AreaId.Brinstar, 7, 11, 0x80, 0x180),
         })
         {
             var system = new SharedGameState(new SharedRandom());
-            var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + RoomScreenOf.Pixel(samusX))), checked((ushort)(roomY + RoomScreenOf.Pixel(samusY) + 1)));
+            var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + RoomScreenOf.Pixel(samusX))), checked((ushort)(roomY + RoomScreenOf.Pixel(samusY))));
             system.MarkExploredMapTile(area, samusCell);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))}, System = system, Area = area, RoomMapPosition = new(checked((ushort)roomX), checked((ushort)roomY)) });
             int nativeFrame = 0, nativeTimer = 0;

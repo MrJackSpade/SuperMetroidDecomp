@@ -75,6 +75,12 @@ public static class CartridgeRoomHeaderImporter
         return SelectImportedState(bus, unchecked((ushort)(roomPointer + 11)), selection);
     }
 
+    /// <summary>
+    /// The rows between a room header's map row and the area-map row of the room's top screen: the header names the row one
+    /// above it, which the cartridge's map code corrected on every read.
+    /// </summary>
+    internal const int HeaderMapRowOffset = 1;
+
     /// <summary>Decodes a native bank-$8F room header and evaluates its bounded state-selection command list independently of compiled gameplay definitions.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
@@ -88,7 +94,7 @@ public static class CartridgeRoomHeaderImporter
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
         var definition = new RoomDefinition(RoomDefinitions.Get(roomPointer).Name, AreaNumberCodec.Decode(Byte(1), $"Room header {roomPointer:X4}"),
-            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7),
+            new(Byte(2), Byte(3) + HeaderMapRowOffset), new(Byte(4), Byte(5)), Byte(6), Byte(7),
             (Byte(8) & IsolatedDoorTransitionBit) != 0 ? RoomDoorTransitionStyle.ObjectsOnly : RoomDoorTransitionStyle.Standard);
         return new SelectedRoom(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
     }

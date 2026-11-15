@@ -1,3 +1,4 @@
+using System.Reflection;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Hud.Artwork;
@@ -33,11 +34,21 @@ internal static class HudNativeState
             hud.Initialize(new HudSnapshot(samus.Health, samus.MaxHealth, samus.Missiles, samus.MaxMissiles, samus.SuperMissiles,
                 samus.MaxSuperMissiles, samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, highlighted, samus.ReserveEnergy,
                 samus.ReserveTankMode));
-            hud.PreviousSelectedItem = highlighted;
+            SetPrivate(hud, nameof(HudState.PreviousSelectedItem), highlighted);
             ushort[] rows = words.ToArray();
-            hud.Minimap = MinimapGrid.Read(place => Decode(new MapTileWord(rows[artwork.MinimapCellIndex(MinimapGrid.Square(place))])));
+            SetPrivate(hud, nameof(HudState.Minimap), MinimapGrid.Read(place => Decode(new MapTileWord(rows[artwork.MinimapCellIndex(MinimapGrid.Square(place))]))));
         }
+
+        /// <summary>Takes whether a boss has turned the minimap off from a native snapshot, which recorded it mid-room.</summary>
+        /// <param name="disabled">Whether the snapshot's minimap is off.</param>
+        internal void ImportMinimapDisabled(bool disabled) => SetPrivate(hud, nameof(HudState.MinimapDisabled), disabled);
     }
+
+    /// <summary>Writes a HUD property through its private setter: an imported snapshot sets what only the HUD's own updates write.</summary>
+    private static void SetPrivate(HudState hud, string property, object? value) =>
+        (typeof(HudState).GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.SetMethod
+            ?? throw new MissingMemberException(nameof(HudState), property))
+        .Invoke(hud, [value]);
 
     /// <summary>
     /// What the minimap shows at a cell whose native word is <paramref name="word"/>: the hidden cell, or the map cell the

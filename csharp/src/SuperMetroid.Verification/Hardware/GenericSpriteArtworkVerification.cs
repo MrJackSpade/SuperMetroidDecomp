@@ -111,7 +111,7 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
-            new(caret.Caret.X, caret.Caret.Y), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects)), 0).PaletteBits);
+            (Position16<ScreenPixels>.Zero + caret.Caret).ToSpritePosition(), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects)), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 

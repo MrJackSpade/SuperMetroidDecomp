@@ -29,7 +29,7 @@ internal static class IntroCaretHidingVerification
         }
 
         objects.StartEnglishPageTwo();
-        AssertEqual(new Position16<ScreenPixels>(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY),
+        AssertEqual(new Offset16<ScreenPixels>(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY),
             objects.Caret, "the next page restores the caret to the first text line");
         objects.Step(0);
         AssertTrue(objects.CaretPose is not null, "the next page shows the caret again");

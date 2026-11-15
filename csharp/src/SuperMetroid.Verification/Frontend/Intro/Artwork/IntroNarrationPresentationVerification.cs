@@ -72,7 +72,7 @@ internal static class IntroNarrationPresentationVerification
         // A debugger state names the bound narration by its path in the installed presentation.
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(saved, presentation);
         restored.Step(0);
-        AssertEqual((ushort)16, restored.Caret.X,
+        AssertEqual((short)16, restored.Caret.X,
             "restored opening narration resumes at its saved character");
 
         JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();

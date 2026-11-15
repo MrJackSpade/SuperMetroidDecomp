@@ -106,8 +106,8 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void AcceptPageTurn() => pageTurnAccepted = true;
 
-    /// <summary>Current screen position of the persistent text caret object.</summary>
-    public Position16<ScreenPixels> Caret { get; private set; } =
+    /// <summary>The persistent text caret's place, in signed screen pixels from the screen's top-left corner.</summary>
+    public Offset16<ScreenPixels> Caret { get; private set; } =
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>
@@ -253,19 +253,17 @@ internal sealed class IntroCinematicObjectSystem
             (textGlow ??= new()).Spawn(character.Column, character.Row);
             if (next is { } following)
             {
+                // The caret stands a baseline above the next character's cell.
                 Caret = new(
-                    CoordinateAxis.Wrap(following.Column *
-                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize),
-                    CoordinateAxis.Wrap(following.Row *
-                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize -
-                        IntroCinematicDefinitions.ObjectSystem.CharacterBaselineOffset));
+                    following.Column * IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize,
+                    following.Row * IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize -
+                        IntroCinematicDefinitions.ObjectSystem.CharacterBaselineOffset);
             }
             else
             {
                 Caret = new(
                     IntroCinematicDefinitions.ObjectSystem.CaretLeftX,
-                    CoordinateAxis.Wrap((character.Row + 1) *
-                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize));
+                    (character.Row + 1) * IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize);
             }
 
             typewriterSoundToggle = !typewriterSoundToggle;

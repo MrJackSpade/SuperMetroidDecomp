@@ -34,7 +34,7 @@ internal static class ShutterScrewContactVerification
     {
         VerifySolidContactSlotCombination();
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         // Places 11 and 14 share only the shutter's position bits; the shutter's and place 5's share none of them.

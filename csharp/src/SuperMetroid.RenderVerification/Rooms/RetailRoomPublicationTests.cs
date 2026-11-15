@@ -35,7 +35,7 @@ internal static class RetailRoomPublicationTests
         foreach ((RoomDefinition room, PublishedFx fx) in rooms)
         {
             var runtime = RepositoryInstallation.CreateRuntime();
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

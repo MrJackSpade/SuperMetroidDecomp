@@ -47,7 +47,7 @@ internal static class EscapeRunningFootstepsVerification
                 "native death phase emits command F and timer start together");
             // The death step's requests are applied in Mother Brain's room, whose PLMs, FX and enemies the room load owns.
             var runtime = CreateRetailRuntimeFixture();
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);

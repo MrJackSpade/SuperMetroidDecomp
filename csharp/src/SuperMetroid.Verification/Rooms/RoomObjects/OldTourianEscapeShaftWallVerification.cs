@@ -27,7 +27,7 @@ internal static class OldTourianEscapeShaftWallVerification
         VerifyWallExplosionProgramAgainstRom(bus);
         VerifyWallListAgainstRom(bus);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);

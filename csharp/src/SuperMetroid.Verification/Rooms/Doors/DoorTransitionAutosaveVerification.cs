@@ -46,7 +46,7 @@ internal static class DoorTransitionAutosaveVerification
         {
             var random = new SharedRandom();
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);

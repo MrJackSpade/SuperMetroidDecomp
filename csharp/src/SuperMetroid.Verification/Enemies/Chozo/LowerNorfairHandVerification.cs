@@ -27,7 +27,7 @@ internal static class LowerNorfairHandVerification
             Path.GetFullPath("Super Metroid.smc"));
         var bus = NewChozoProgramAndDrawReadGuard(source);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AcidStatue);

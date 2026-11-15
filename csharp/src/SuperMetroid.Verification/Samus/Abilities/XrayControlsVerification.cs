@@ -25,7 +25,7 @@ internal static class XrayControlsVerification
         foreach (bool remapped in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture();
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);

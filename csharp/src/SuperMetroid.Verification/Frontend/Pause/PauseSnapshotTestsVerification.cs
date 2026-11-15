@@ -37,7 +37,7 @@ internal static class PauseSnapshotTestsVerification
         // Retain a drawn HUD rather than testing only the cleared menu background (#1466).
         var gameplayHud = new HudState();
         gameplayHud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
-        gameplayHud.Initialize(HudSnapshot.CeresDebug);
+        gameplayHud.Initialize(HudSnapshot.NewGame);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, Area = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayHud = gameplayHud.Shown() });
         var pages = new HashSet<PauseScreenMode>();
         var levels = new HashSet<int>();

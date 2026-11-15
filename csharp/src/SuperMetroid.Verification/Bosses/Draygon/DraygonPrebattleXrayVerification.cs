@@ -37,7 +37,7 @@ internal static class DraygonPrebattleXrayVerification
             .Select(offset => bus.ReadCartridgeByte(0x88e01a + offset)),
             "native offscreen HDMA table enables BG1/OBJ without BG2 below the HUD");
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));

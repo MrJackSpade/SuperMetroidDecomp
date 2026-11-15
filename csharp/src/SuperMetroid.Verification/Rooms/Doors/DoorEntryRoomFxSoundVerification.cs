@@ -50,7 +50,7 @@ internal static class DoorEntryRoomFxSoundVerification
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, SharedRandom random)
         {
             var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
-            loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            loaded.HudSetup.InitializeHud(HudSnapshot.NewGame);
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);

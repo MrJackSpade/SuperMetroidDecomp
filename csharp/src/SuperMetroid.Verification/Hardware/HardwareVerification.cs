@@ -464,7 +464,7 @@ internal static void VerifyFrameRuntime()
 
     var runtime = CreateRetailRuntimeFixture();
     // Gameplay frames run in a loaded room, entered after the HUD initializes as new-game setup does.
-    runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+    runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
     runtime.RoomLoader.InitializeStartingCeresRoom();
     runtime.EscapeTimer.RequestCeresStart();
 

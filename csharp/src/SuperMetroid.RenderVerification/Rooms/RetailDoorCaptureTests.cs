@@ -25,7 +25,7 @@ internal static class RetailDoorCaptureTests
         foreach (bool left in new[] { false, true })
         {
             var runtime = RepositoryInstallation.CreateRuntime();
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             RoomDefinition destination = left ? RoomDefinitions.DeadScientist : RoomDefinitions.CeresRidleyHallway;
             ushort door = left ? DoorPointers.CeresDeadScientistFromFinalHallway : DoorPointers.CeresFinalHallwayFromDeadScientist;

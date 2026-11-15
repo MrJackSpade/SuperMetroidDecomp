@@ -591,7 +591,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The shared scene setup places the persistent narration caret off screen.
         // It remains alive and will be restored by the next text-page setup. Starting the cross-fade turns the page,
         // which deletes the Japanese text's next-page arrow.
-        Objects.PlaceCaretOffScreen();
+        Objects.HideCaret();
         Objects.AcceptPageTurn();
 
         // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
@@ -706,7 +706,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Replaces Mother Brain actors with SR388 egg and baby owners and selects the second gameplay room page.</summary>
     internal void SetupBabyDiscoveryCrossfade()
     {
-        Objects.PlaceCaretOffScreen();
+        Objects.HideCaret();
         Objects.AcceptPageTurn();
 
         // The discovery setup shows the second authored room page, declares a
@@ -775,7 +775,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // Scientist crossfades use the sibling setup, which performs
         // the same off-screen caret move before changing the visible layer configuration.
-        Objects.PlaceCaretOffScreen();
+        Objects.HideCaret();
         Objects.AcceptPageTurn();
 
         // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
@@ -853,7 +853,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts the second laboratory scene on its vertically offset page.</summary>
     private void SetupBabyMetroidExamination()
     {
-        Objects.PlaceCaretOffScreen();
+        Objects.HideCaret();
         Objects.AcceptPageTurn();
 
         // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.

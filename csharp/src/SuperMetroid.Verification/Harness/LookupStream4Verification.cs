@@ -908,7 +908,7 @@ internal static class LookupStream4Verification
                     AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every stock icon cell");
             }
             {
-                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.NewGame with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
                 for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords(selected)[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
@@ -955,7 +955,7 @@ internal static class LookupStream4Verification
                 AssertEqual(expected,tiles[index],"Stock template cell");
             }
             {
-                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.CeresDebug);
+                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.NewGame);
                 for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords(selected)[row*32+x],"Actual initializer preserves selected initial minimap and border");
                 for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords(selected)[64+x],"Actual initializer preserves selected ENERGY typography");
             }
@@ -1006,7 +1006,7 @@ internal static class LookupStream4Verification
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
             var hud=new HudState();hud.BindPresentation(selected.Presentation);
-            hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
+            hud.Initialize(HudSnapshot.NewGame with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
             foreach(bool full in new[]{true,false})
             {
                 ushort[] tiles=Enumerable.Repeat((ushort)0x1234,96).ToArray();selected.ApplyAutoReserve(tiles,full);

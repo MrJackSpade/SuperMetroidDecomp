@@ -51,7 +51,7 @@ internal static class RidleyPlayerOpeningVerification
         ushort W(ushort[] words, int address) => words[Array.IndexOf(addresses, address)];
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.

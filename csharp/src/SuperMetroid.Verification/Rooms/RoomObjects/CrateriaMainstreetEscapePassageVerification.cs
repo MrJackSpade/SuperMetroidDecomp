@@ -18,7 +18,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
         RoomLevelData Load(bool crittersEscaped)
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);

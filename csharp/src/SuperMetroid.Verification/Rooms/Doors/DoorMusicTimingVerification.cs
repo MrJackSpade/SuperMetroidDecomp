@@ -24,7 +24,7 @@ internal static class DoorMusicTimingVerification
     {
         var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);

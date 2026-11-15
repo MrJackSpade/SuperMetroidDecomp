@@ -25,7 +25,7 @@ internal static class DoorAnimatedTilesVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
@@ -65,7 +65,7 @@ internal static class DoorAnimatedTilesVerification
 
         // A directly loaded statue room stepped by the same number of handler calls.
         var reference = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        reference.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        reference.HudSetup.InitializeHud(HudSnapshot.NewGame);
         reference.RoomLoader.InitializeStartingCeresRoom();
         reference.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)

@@ -57,7 +57,7 @@ internal sealed class ShutterBombArcScenario
         RollAt = rollAt;
         Duration = duration;
         Runtime = runtime;
-        Runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        Runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         Runtime.RoomLoader.InitializeStartingCeresRoom();
         Runtime.RoomLoader.InitializeCeresStartSamus();
         Runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);

@@ -30,7 +30,7 @@ internal static class ShutterEmbeddingVerification
             int offset = slot == 0 ? 32 : -32;
             ControllerButton direction = slot == 0 ? ControllerButton.Left : ControllerButton.Right;
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope, new Position16<RoomPixels>(0, 0));

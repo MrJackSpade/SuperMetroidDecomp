@@ -111,10 +111,10 @@ internal sealed class IntroCinematicObjectSystem
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>
-    /// Takes the intro text caret off the screen while a gameplay or scientist illustration owns it: the caret is not
+    /// Hides the intro text caret while a gameplay or scientist illustration owns the screen: the caret is not
     /// drawn until the next narration page restores it (#1625).
     /// </summary>
-    public void PlaceCaretOffScreen() => caretHidden = true;
+    public void HideCaret() => caretHidden = true;
 
     /// <summary>
     /// Starts the letter-by-letter narration stream. The eye-blink

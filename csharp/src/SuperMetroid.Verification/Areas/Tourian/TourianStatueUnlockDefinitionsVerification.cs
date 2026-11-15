@@ -120,7 +120,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             .Forbid(address => IsTourianStatueProgramByte(programOffsets, address),
                 address => $"Production read Tourian statue program byte {SnesAddress.FromBusAddress(address)}.");
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)

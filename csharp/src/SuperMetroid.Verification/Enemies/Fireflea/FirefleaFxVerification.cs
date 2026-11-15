@@ -152,7 +152,7 @@ internal static class FirefleaFxVerification
     private static void VerifyFirefleaXrayCapture()
     {
         var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GreenBrinstarFirefleas); // Green Brinstar Firefleas, retail room/FX population.

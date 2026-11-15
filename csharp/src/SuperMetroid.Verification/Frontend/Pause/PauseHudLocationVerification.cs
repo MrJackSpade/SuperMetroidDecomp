@@ -27,7 +27,7 @@ internal static class PauseHudLocationVerification
             // requests reach that session's queues alone), so each phase's new game adopts a runtime of its own.
             var random = new SharedRandom();
             var runtime = CreateRetailRuntimeFixture(random: random);
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             var samus = runtime.Player.IntroducedSamus;

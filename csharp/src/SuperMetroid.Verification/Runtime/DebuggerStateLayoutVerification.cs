@@ -186,7 +186,7 @@ internal static class DebuggerStateLayoutVerification
     internal static void VerifyDebuggerStatePacksLevelBlocks()
     {
         SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.LandingSite);

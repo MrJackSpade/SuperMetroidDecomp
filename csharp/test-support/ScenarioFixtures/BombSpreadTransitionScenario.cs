@@ -50,7 +50,7 @@ internal sealed class BombSpreadTransitionScenario
         TimingCase = timingCase;
         WallRoute = wallRoute;
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);

@@ -32,7 +32,7 @@ internal sealed class ShallowWaterJumpScenario
     internal ShallowWaterJumpScenario(SuperMetroidRuntime runtime)
     {
         Runtime = runtime;
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BelowSpazer, camera: new Position16<RoomPixels>(0, 256));

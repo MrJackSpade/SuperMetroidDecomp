@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Created once per game session by its composition root (<c>SuperMetroidGame</c>, or a verification host supplying its
 /// own) and injected into <c>FrontendSession</c>, which hands it to every gameplay runtime; only power-on and a soft reset
 /// reseed it. Advanced once per frontend update by the game-state loop, once per gameplay update after the room liquid's
-/// wave and the Tourian statues' descent (<see cref="EffectPhaseRandomOrder"/>), and whenever a consumer draws during the update. Evidence: the original's
+/// wave and the Tourian statues' descent (<see cref="LiquidWaveAndStatueDescentOrder"/>), and whenever a consumer draws during the update. Evidence: the original's
 /// random routine (<c>$80:8111</c>) and its main loop's draw; the SMV replays compare the random value on every update.
 /// </remarks>
 [CompatibilityService("the exact sequence of the shared random value's draws and advances, across the frontend, every runtime and effect work")]

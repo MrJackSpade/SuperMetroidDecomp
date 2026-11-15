@@ -141,7 +141,7 @@ internal static class LookupStream5Verification
         {
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var slot = system.SlotTable.Slots[0];
-            slot.BindCeresDoorOrWall(CeresDoorOrWall.ElevatorDoor);
+            slot.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             slot.Position = slot.Position.WithWhole(origin);
             var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, RumbleCallsLeft = 48 };
             slot.SetSpeciesState(doorState);
@@ -322,7 +322,7 @@ internal static class LookupStream5Verification
         RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();
         var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = floor });
         var slots = (RoomEnemySlot[])system.SlotTable.Slots;
-        slots[0].BindCeresDoorOrWall(CeresDoorOrWall.ElevatorDoor);
+        slots[0].BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
             slots[0].FrameCounter = tick;
@@ -1498,8 +1498,8 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyAnimation), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
-        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(7), "Ceres door upper bound");
-        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(ushort.MaxValue), "Ceres door full-word rejection");
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7), "Ceres door upper bound");
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(ushort.MaxValue), "Ceres door full-word rejection");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1), "Magdollite lower bound");
@@ -1588,7 +1588,7 @@ internal static class LookupStream5Verification
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.SlotTable.Slots[1];
-        door.BindCeresDoorOrWall(CeresDoorOrWall.RidleyRoomDoor);
+        door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
         enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
         door.SetSpeciesState(new CeresRidleyRoomDoorState { HandsDrawingToRidley = true });
         door.Position = door.Position.WithWholeY(80);
@@ -1698,7 +1698,8 @@ internal static class LookupStream5Verification
             {
                 var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 var slot = system.SlotTable.Slots[0];
-                slot.StartCeresDoorOrWall(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(variant));
+                (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
+                slot.StartCeresDoorOrWall(actor, settings);
                 // The initializer shows the normal colours as the door's shade, which the import paints from this paint (#1512).
                 AssertEqual(CeresDoorShades.InNormalColours, slot.Shading, "Actual normal/target initializer shows the normal colours");
             }
@@ -1742,7 +1743,8 @@ internal static class LookupStream5Verification
             {
                 var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }};
                 var slot = system.SlotTable.Slots[0];
-                slot.StartCeresDoorOrWall(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(variant));
+                (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
+                slot.StartCeresDoorOrWall(actor, settings);
                 // Once the self-destruct starts, the initializer shows the escaping colours as the door's shade (#1512).
                 AssertEqual(CeresDoorShades.InEscapingColours, slot.Shading, "Actual escape initializer shows the escaping colours");
             }
@@ -1788,7 +1790,7 @@ internal static class LookupStream5Verification
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() });
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemySlot door = system.SlotTable.Slots[0];
-            door.BindCeresDoorOrWall(CeresDoorOrWall.ElevatorDoor);
+            door.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             foreach (int counter in Enumerable.Range(0, 64))
             {
                 door.FrameCounter = (ushort)counter; door.ElevatorDoor().CycleGlowAndPlatform();

@@ -13,5 +13,5 @@ internal sealed class RidleyExplosionFragmentState
 
     /// <summary>The fragment's playing breakup animation and where it stands (#641, #1600), set when it spawns.</summary>
     internal AnimationPlayback<RidleyBreakupFrame> Playback { get; set; } =
-        new(RidleyBreakupAnimations.StartingWith(RidleyBreakupFrame.TailSegmentSmall), AnimationPlace.StartOfAnimation);
+        new(RidleyBreakupAnimations.StartingWith(RidleyBreakupFrame.TailBaseLink), AnimationPlace.StartOfAnimation);
 }

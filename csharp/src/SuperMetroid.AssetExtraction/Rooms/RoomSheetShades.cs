@@ -39,7 +39,7 @@ internal static class RoomSheetShades
             shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
         if (HoldsPhantoon(rooms))
             shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
-        if (Places(rooms, EnemyDefinitionId.CeresDoor))
+        if (Places(rooms, EnemyDefinitionId.CeresElevatorDoor))
             shades.AddRange(ElevatorRoomGlow(inputs));
         if (Places(rooms, EnemyDefinitionId.TourianStatue))
             shades.AddRange(TourianStatueLooks(inputs));

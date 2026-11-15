@@ -34,6 +34,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.Form = DecodeForm(W(MotherBrainMemory.Form));
         ImportMotherBrainBodyImage(runtime, state, W);
         state.Pose = DecodePose(W(MotherBrainMemory.Pose));
+        state.BodyArea = BodyAreaOf(state.Form, MotherBrainNativeWords.MotherBrainBodyPhases.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyPhase"));
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.Phase = MotherBrainNativeWords.MotherBrainBodyPhases.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyPhase");
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
@@ -239,6 +240,36 @@ internal static class NativeSnapshotMotherBrainImport
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }
+
+    /// <summary>The body phases from which her rise has placed her body's area with her (#1949).</summary>
+    private static readonly HashSet<MotherBrainBodyPhase> RisingWithBodyAreaPhases =
+    [
+        MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake,
+        MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain,
+        MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched,
+        MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray,
+    ];
+
+    /// <summary>The body phases after her escape's start has moved her body's area to the room's corner for the warning.</summary>
+    private static readonly HashSet<MotherBrainBodyPhase> EscapeWarningPhases =
+    [
+        MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
+        MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText,
+        MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer,
+        MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor,
+        MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing,
+    ];
+
+    /// <summary>
+    /// Where her body's area lies at a recorded <paramref name="form"/> and <paramref name="phase"/> (#1949): unplaced until
+    /// her rise places it, with her from then on, and at the room's corner once her escape's start has shown the warning
+    /// there, as the port's rise and escape start place it.
+    /// </summary>
+    internal static MotherBrainBodyAreaPlacement BodyAreaOf(MotherBrainForm form, MotherBrainBodyPhase phase) =>
+        EscapeWarningPhases.Contains(phase) ? MotherBrainBodyAreaPlacement.AtRoomCorner
+        : form >= MotherBrainForm.SecondPhase || (form == MotherBrainForm.FakeDeath && RisingWithBodyAreaPhases.Contains(phase))
+            ? MotherBrainBodyAreaPlacement.FollowsBody
+            : MotherBrainBodyAreaPlacement.Unplaced;
 
     /// <summary>Decodes the snapshot's form word, rejecting a stage the encounter does not have.</summary>
     internal static MotherBrainForm DecodeForm(ushort word) => word switch

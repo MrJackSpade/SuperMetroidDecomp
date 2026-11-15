@@ -216,7 +216,7 @@ internal sealed class DoorTransitionRunner
 
     /// <summary>
     /// The opening of an update without gameplay: the liquid wave and statue descent, unless a door transition has stopped them
-    /// (<see cref="EffectPhaseRandomOrder"/>), then the update's random draw.
+    /// (<see cref="LiquidWaveAndStatueDescentOrder"/>), then the update's random draw.
     /// </summary>
     internal void AdvanceEffectsAndRandom(RoomObjectSystem roomObjects, RoomScope room)
     {

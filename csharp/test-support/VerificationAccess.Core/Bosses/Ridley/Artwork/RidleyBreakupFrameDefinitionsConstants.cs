@@ -8,9 +8,9 @@ internal static class RidleyBreakupFrameDefinitionsConstants
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(RidleyBreakupFrame frame) => frame switch
     {
-        F.TailSegmentSmall => 0xdc90,
-        F.TailSegmentMedium => 0xdc97,
-        F.TailSegmentLarge => 0xdc9e,
+        F.TailBaseLink => 0xdc90,
+        F.TailMiddleLink => 0xdc97,
+        F.TailOuterLink => 0xdc9e,
         F.WingsFacingLeft => 0xdd4a,
         F.WingsFacingRight => 0xdde2,
         F.LegsFacingLeft => 0xed29,

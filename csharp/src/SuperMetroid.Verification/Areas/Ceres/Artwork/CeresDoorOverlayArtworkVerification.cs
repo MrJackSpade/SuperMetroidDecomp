@@ -12,19 +12,16 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Checks the Ceres doors' rotating overlay picture against the cartridge (#1641). Only the elevator shaft's pre-explosion
-/// overlay door (enemy parameter 2, $A6:F610) draws the frame ($A6:F921), and its initialization copies the overlay's
+/// Checks the elevator room's blocked door's picture against the cartridge (#1641, #1989). Only that door (the Ceres door
+/// header's enemy parameter 2, $A6:F610) draws the frame ($A6:F921), and its initialization copies the overlay's
 /// characters over the sprite characters from word $7000 ($A6:F739) before the frame first draws; in Ceres Ridley's arena
-/// those characters are Ridley's own, which the frame is never drawn over. The expected characters are the cartridge's
-/// room load and copy alone, never the import's composition.
+/// those characters are Ridley's own, and no sheet there holds the frame, as no blocked door is placed there. The expected
+/// characters are the cartridge's room load and copy alone, never the import's composition.
 /// </summary>
 internal static class CeresDoorOverlayArtworkVerification
 {
     /// <summary>The elevator shaft's state before Ridley's escape ($8F:DF57), which places the overlay door.</summary>
     private const int ShaftDefaultState = 0x8FDF57;
-
-    /// <summary>Ceres Ridley's arena's state before his escape ($8F:E0C7), which places a door that never draws the overlay.</summary>
-    private const int ArenaDefaultState = 0x8FE0C7;
 
     /// <summary>The copy's <c>LDA #</c> of its byte count ($A6:F744).</summary>
     private const int CopySizeLoad = 0xA6F744;
@@ -48,9 +45,9 @@ internal static class CeresDoorOverlayArtworkVerification
     private const int CharacterWords = 16;
 
     /// <summary>
-    /// In the elevator shaft's graphics set, which draws the frame, and in Ceres Ridley's arena's, the Ceres doors' sheet
-    /// pictures the rotating overlay once, named for no look, over the characters the cartridge's load and the overlay door's
-    /// copy leave: every character it reads is the door's own tiles or the overlay's, never Ridley's or another room's load.
+    /// In the elevator shaft's graphics set, which draws the frame, the blocked door's sheet pictures it once, named for no
+    /// look, over the characters the cartridge's load and the door's copy leave: every character it reads is the door's own
+    /// tiles or the overlay's, never another room's load. Ceres Ridley's arena draws no blocked door at all.
     /// </summary>
     internal static void VerifyRotatingOverlayShowsTheOverlaysCharacters()
     {
@@ -59,19 +56,21 @@ internal static class CeresDoorOverlayArtworkVerification
         int source = (ImmediateWord(cartridge, CopySourceBankLoad) >> 8) << 16 | ImmediateWord(cartridge, CopySourceLoad);
         int destination = ImmediateWord(cartridge, CopyDestinationLoad);
         byte[] overlay = RomDataReader.ReadFixedBank(cartridge, source, size);
-        string frame = EnemySheetDefinitions.FrameName(EnemyFrameId.CeresDoorRotatingOverlay);
-        (int Header, RoomStateSettings State)[] states =
-            [(ShaftDefaultState, CeresRoomStateDefinitions.CeresElevDefault), (ArenaDefaultState, CeresRoomStateDefinitions.CeresRidleyDefault)];
+        string frame = EnemySheetDefinitions.FrameName(EnemyFrameId.CeresElevatorDoorBlocked);
+        AssertTrue(!EnemySheetComposer.Sources(EnemySheetFixtures.Inputs, RoomEnemyGraphicsSetLists.Of(CeresRoomStateDefinitions.CeresRidleyDefault)).Enemies
+                .Any(sheet => sheet.Enemy == EnemyDefinitionId.CeresElevatorDoor),
+            "Ceres Ridley's arena, which places no blocked door, draws none");
+        (int Header, RoomStateSettings State)[] states = [(ShaftDefaultState, CeresRoomStateDefinitions.CeresElevDefault)];
         foreach ((int header, RoomStateSettings state) in states)
         {
             CeresRidleyArenaBlocksVerification.LoadedSpriteCharacters shown = CeresRidleyArenaBlocksVerification.LoadedSpriteCharacters.Of(cartridge, header);
             // The overlay door's initialization copies the overlay's characters before the frame first draws.
             shown.Copy(destination, overlay);
             EnemySheetSource door = EnemySheetComposer.Sources(EnemySheetFixtures.Inputs, RoomEnemyGraphicsSetLists.Of(state)).Enemies
-                .Single(sheet => sheet.Enemy == EnemyDefinitionId.CeresDoor);
+                .Single(sheet => sheet.Enemy == EnemyDefinitionId.CeresElevatorDoor);
             SheetFrameSource[] pictures = [.. door.Sources.Frames.Where(picture =>
                 picture.Name == frame || picture.Name.StartsWith(frame + "|", StringComparison.Ordinal))];
-            AssertEqual(1, pictures.Length, $"{state.Name}: the Ceres doors' sheet pictures the rotating overlay once, in the one look it is drawn in");
+            AssertEqual(1, pictures.Length, $"{state.Name}: the blocked door's sheet pictures it once, in the one look it is drawn in");
             AssertEqual(frame, pictures[0].Name, $"{state.Name}: the rotating overlay's picture is named for no look, as no look the doors show changes it");
             AssertTrue(!door.LookChanges.ContainsKey(frame), $"{state.Name}: no look change names the rotating overlay");
             ReadOnlySpan<byte> composed = pictures[0].Characters.Characters;
@@ -92,7 +91,7 @@ internal static class CeresDoorOverlayArtworkVerification
                 }
             }
         }
-        Console.WriteLine("  Ceres door overlay: the rotating overlay shows the door's and the overlay's own characters, in the shaft and in Ridley's arena.");
+        Console.WriteLine("  Ceres door overlay: the blocked door shows its own and the overlay's characters in the shaft; Ridley's arena draws none.");
     }
 
     /// <summary>The word operand of the <c>LDA #</c> at <paramref name="instruction"/>.</summary>

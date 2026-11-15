@@ -5139,6 +5139,10 @@ internal static class SpawnedObjectFrameDefinitions
         new Dictionary<EnemyDefinitionId, SpawnedObjects>
         {
             [EnemyDefinitionId.CeresDoor] = new(CeresDoorSharedProjectiles, CeresDoorSharedSpriteObjects),
+            [EnemyDefinitionId.CeresRidleyRoomDoor] = new(CeresDoorSharedProjectiles, CeresDoorSharedSpriteObjects),
+            [EnemyDefinitionId.CeresElevatorDoor] = new(CeresDoorSharedProjectiles, CeresDoorSharedSpriteObjects),
+            [EnemyDefinitionId.CeresElevatorRoomWall] = new(CeresDoorSharedProjectiles, CeresDoorSharedSpriteObjects),
+            [EnemyDefinitionId.CeresGetawayChamberWall] = new(CeresDoorSharedProjectiles, CeresDoorSharedSpriteObjects),
             [EnemyDefinitionId.Steam] = new(CeresSteamSharedProjectiles, CeresSteamSharedSpriteObjects),
             [EnemyDefinitionId.TourianStatue] = new(TourianEntranceStatueSharedProjectiles, TourianEntranceStatueSharedSpriteObjects),
             [EnemyDefinitionId.Botwoon] = new(BotwoonSharedProjectiles, BotwoonSharedSpriteObjects),

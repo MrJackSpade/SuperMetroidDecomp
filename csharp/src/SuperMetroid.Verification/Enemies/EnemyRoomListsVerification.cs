@@ -44,7 +44,8 @@ internal static class EnemyRoomListsVerification
                 ushort definitionWord = ReadVerificationWord(bus, address);
                 AssertTrue(definitionWord != 0xffff,
                     $"population $A1:{pointer:X4} has no early terminator");
-                EnemyDefinitionId nativeEnemy = EnemyDefinitionIds.FromHeaderPointer(definitionWord);
+                // A header several actors share places the one its first parameter selects (#1989).
+                EnemyDefinitionId nativeEnemy = EnemySpawnSettingsCodec.PlacedActor(definitionWord, ReadVerificationWord(bus, address + 12));
                 // The native entry is compared as the typed spawn the codec decodes for the species: its position, its
                 // engine properties, and the settings its species reads from the remaining words.
                 RoomEnemyPlacement native = RoomEnemyPopulationRecordCodec.Decode(nativeEnemy,

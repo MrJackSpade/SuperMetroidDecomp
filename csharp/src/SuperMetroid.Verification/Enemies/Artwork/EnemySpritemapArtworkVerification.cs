@@ -510,6 +510,11 @@ internal static class EnemySpritemapArtworkVerification
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(definition));
             enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            // The enemy is placed as a retail room places it, so an actor its placement's settings choose, as an ordinary
+            // Ceres door its facing (#1989), binds as it does there.
+            if (SuperMetroid.AssetExtraction.World.RoomStates.RoomStateDefinitions.All.SelectMany(state => state.EnemyPopulation.Placements.ToArray())
+                    .FirstOrDefault(placement => placement.DefinitionId == definition) is { DefinitionId: not EnemyDefinitionId.None } placed)
+                slot.SetSpawnSettings(placed.SpawnSettings);
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Shading = PictureShading.Standard;
@@ -534,7 +539,8 @@ internal static class EnemySpritemapArtworkVerification
                     EnemyDefinitionId.Gamet or
                     EnemyDefinitionId.Geega
                     ? EnemySpritemapDefinitions.PipeBugBank
-                    : definition == EnemyDefinitionId.CeresDoor
+                    : definition is EnemyDefinitionId.CeresDoor or EnemyDefinitionId.CeresRidleyRoomDoor or EnemyDefinitionId.CeresElevatorDoor
+                        or EnemyDefinitionId.CeresElevatorRoomWall or EnemyDefinitionId.CeresGetawayChamberWall
                         ? CeresDoorFrameDefinitionsConstants.Bank
                     : definition == EnemyDefinitionId.Boulder
                     ? EnemySpritemapDefinitions.BoulderBank

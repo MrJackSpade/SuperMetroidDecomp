@@ -27,7 +27,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class EncounterLookUploads
 {
-    /// <summary>The encounter each enemy whose graphics set loads it plays.</summary>
+    /// <summary>The encounter each enemy whose graphics set loads it plays, and which a room placing it shows.</summary>
     private static readonly Dictionary<EnemyDefinitionId, ComposedEncounter> ByEncounter = new()
     {
         [EnemyDefinitionId.DraygonBody] = ComposedEncounter.DraygonEvirs,
@@ -36,7 +36,6 @@ internal static class EncounterLookUploads
         [EnemyDefinitionId.BombTorizo] = ComposedEncounter.BombTorizo,
         [EnemyDefinitionId.GoldenTorizo] = ComposedEncounter.GoldenTorizo,
         [EnemyDefinitionId.RidleyCeres] = ComposedEncounter.CeresEscape,
-        [EnemyDefinitionId.CeresDoor] = ComposedEncounter.CeresDoor,
         [EnemyDefinitionId.MotherBrainHead] = ComposedEncounter.MotherBrain,
     };
 
@@ -84,34 +83,54 @@ internal static class EncounterLookUploads
         new(MotherBrainExplodedDoorLook, MotherBrainSpriteSheet.ExplodedDoor),
     ];
 
-    /// <summary>The encounters the members of graphics set <paramref name="set"/> play, in encounter order.</summary>
-    internal static IReadOnlyList<ComposedEncounter> Of(RoomEnemyGraphicsSetMembers set) =>
-        [.. Ensure.NotNull(set).Records.ToArray().Select(record => record.DefinitionId).OfType<EnemyDefinitionId>().Where(ByEncounter.ContainsKey)
-            .Select(enemy => ByEncounter[enemy]).Distinct().Order()];
+    /// <summary>
+    /// The encounter each artwork a graphics set loads for no one enemy readies (#1989): the Ceres door header's characters,
+    /// whose own look the elevator room's blocked door shows.
+    /// </summary>
+    private static readonly Dictionary<UnplacedEnemyArtwork, ComposedEncounter> ByArtwork = new()
+    {
+        [UnplacedEnemyArtwork.CeresDoors] = ComposedEncounter.CeresElevatorDoor,
+    };
+
+    /// <summary>
+    /// The enemies that show the looks of an encounter their set's artwork readies, which a room placing them shows (#1989):
+    /// of the Ceres doors and walls, only the elevator room's blocked door, whose initialization alone copies its own look
+    /// ($A6:F739).
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, ComposedEncounter> ShownByArtworkLook = new()
+    {
+        [EnemyDefinitionId.CeresElevatorDoor] = ComposedEncounter.CeresElevatorDoor,
+    };
+
+    /// <summary>
+    /// The encounters the records of graphics set <paramref name="set"/> play, in encounter order: its members' and its
+    /// artwork's for no one enemy.
+    /// </summary>
+    internal static IReadOnlyList<ComposedEncounter> Of(RoomEnemyGraphicsSetMembers set)
+    {
+        RoomEnemyGraphicsSetMember[] records = Ensure.NotNull(set).Records.ToArray();
+        IEnumerable<ComposedEncounter> members = records.Select(record => record.DefinitionId).OfType<EnemyDefinitionId>()
+            .Where(ByEncounter.ContainsKey).Select(enemy => ByEncounter[enemy]);
+        IEnumerable<ComposedEncounter> artwork = records.Select(record => record.Unplaced).OfType<UnplacedEnemyArtwork>()
+            .Where(ByArtwork.ContainsKey).Select(unplaced => ByArtwork[unplaced]);
+        return [.. members.Concat(artwork).Distinct().Order()];
+    }
 
     /// <summary>
     /// Whether a room of <paramref name="state"/> shows <paramref name="encounter"/>'s looks after its load (#1648): the state
-    /// places an enemy that plays the encounter and copies its looks. Every such enemy does but a Ceres door other than the
-    /// elevator shaft's pre-explosion overlay door, whose initialization alone copies the doors' own look ($A6:F739); a
-    /// room whose state shows no look of an encounter keeps its load there.
+    /// places an enemy that plays the encounter, or one that shows the look its set's artwork readies (#1989); a room whose
+    /// state shows no look of an encounter keeps its load there.
     /// </summary>
     internal static bool ShownIn(ComposedEncounter encounter, RoomStateSettings state)
     {
         foreach (RoomEnemyPlacement record in Ensure.NotNull(state).EnemyPopulation.Placements.Span)
         {
-            if (ByEncounter.TryGetValue(record.DefinitionId, out ComposedEncounter played) && played == encounter && CopiesLooks(record))
+            if ((ByEncounter.TryGetValue(record.DefinitionId, out ComposedEncounter played)
+                    || ShownByArtworkLook.TryGetValue(record.DefinitionId, out played)) && played == encounter)
                 return true;
         }
         return false;
     }
-
-    /// <summary>
-    /// Whether <paramref name="placement"/> copies its encounter's looks: every placement but a Ceres door other than the
-    /// pre-explosion overlay door (enemy parameter 2, whose initialization alone runs $A6:F739's copy).
-    /// </summary>
-    private static bool CopiesLooks(RoomEnemyPlacement placement) =>
-        placement.DefinitionId != EnemyDefinitionId.CeresDoor
-        || placement.SpawnSettingsOf<CeresDoorOrWallSpawnSettings>().Actor == CeresDoorOrWall.ElevatorDoor;
 
     /// <summary>
     /// The encounter gameplay shows <paramref name="encounter"/>'s looks as, or none for an encounter whose looks gameplay
@@ -126,7 +145,7 @@ internal static class EncounterLookUploads
         ComposedEncounter.BombTorizo => EncounterArtwork.BombTorizo,
         ComposedEncounter.GoldenTorizo => EncounterArtwork.GoldenTorizo,
         ComposedEncounter.CeresEscape => EncounterArtwork.CeresEscape,
-        ComposedEncounter.CeresDoor => EncounterArtwork.CeresDoor,
+        ComposedEncounter.CeresElevatorDoor => EncounterArtwork.CeresElevatorDoor,
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
 
@@ -142,7 +161,7 @@ internal static class EncounterLookUploads
         ComposedEncounter.GoldenTorizo => [EncounterLook.LoadedName,
             .. TorizoLookUploadDefinitions.GoldenSequence.Select(look => look.Of(EncounterArtwork.GoldenTorizo).Name)],
         ComposedEncounter.CeresEscape => [EncounterLook.LoadedName, CeresEscapeReadyingDefinitions.WarningLook.Name],
-        ComposedEncounter.CeresDoor => [EncounterLook.LoadedName, CeresDoorLookDefinitions.OverlayLook.Name],
+        ComposedEncounter.CeresElevatorDoor => [EncounterLook.LoadedName, CeresElevatorDoorLookDefinitions.OverlayLook.Name],
         ComposedEncounter.MotherBrain => [EncounterLook.LoadedName, .. MotherBrainLooks.Select(look => look.Name)],
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
@@ -189,7 +208,7 @@ internal static class EncounterLookUploads
             ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[look - 1], installed),
             ComposedEncounter.CeresEscape => [.. Enum.GetValues<EscapeTimerTilePage>().Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
-            ComposedEncounter.CeresDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
+            ComposedEncounter.CeresElevatorDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
                 Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
                     CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
             ComposedEncounter.MotherBrain => MotherBrainPages(MotherBrainLooks[look - 1].Sheet, installed),

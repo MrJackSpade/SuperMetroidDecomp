@@ -51,6 +51,12 @@ internal static class EnemySheetRowDefinitions
     /// <summary>The row the doors of Ceres show their colours in once active, and the escape's falling tiles show.</summary>
     internal const int CeresDoorActive = 7;
 
+    /// <summary>
+    /// The row every Ceres door's and wall's initialization selects first ($A6:F6DA), the one the Ceres sets load the
+    /// door header's colours into; the door of Ridley's room keeps it until the escape (#1989).
+    /// </summary>
+    internal const int CeresDoorInactive = 2;
+
     /// <summary>The row the Shitroid's encounter installs the drained corpses' colours in.</summary>
     internal const int DrainedCorpses = 7;
 
@@ -101,7 +107,8 @@ internal static class EnemySheetRowDefinitions
     /// Chozo statues', the Torizos', Mother Brain's body's and the escape Etecoons' common colours (each initialization
     /// clears the enemy's palette bits, so its parts show the rows their own bits name), Mother Brain's brain's row, the
     /// Shitroid's and the Zebetites' row, the Baby's cutscene row, Ridley's own row (his breakup's fragments too,
-    /// whose initialization writes it: $A6:C6A5), Ceres's steam in the enemy projectiles' colours, Draygon's body, tail
+    /// whose initialization writes it: $A6:C6A5), Ceres's steam in the enemy projectiles' colours, Ceres's doors and walls
+    /// in the row their shared header's colours load into, Draygon's body, tail
     /// and arms in his row (his eye keeps the row its spawn gives it), the gunship's top and bottom, Crocomire's tongue
     /// and Rinka in the rows their initializations select.
     /// </summary>
@@ -128,5 +135,10 @@ internal static class EnemySheetRowDefinitions
         [EnemyDefinitionId.Ridley] = Ridley,
         [EnemyDefinitionId.RidleyExplosion] = Ridley,
         [EnemyDefinitionId.Steam] = EnemyProjectiles,
+        [EnemyDefinitionId.CeresDoor] = CeresDoorInactive,
+        [EnemyDefinitionId.CeresRidleyRoomDoor] = CeresDoorInactive,
+        [EnemyDefinitionId.CeresElevatorDoor] = CeresDoorInactive,
+        [EnemyDefinitionId.CeresElevatorRoomWall] = CeresDoorInactive,
+        [EnemyDefinitionId.CeresGetawayChamberWall] = CeresDoorInactive,
     };
 }

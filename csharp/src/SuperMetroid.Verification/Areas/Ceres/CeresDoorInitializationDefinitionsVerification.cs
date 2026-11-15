@@ -29,29 +29,29 @@ internal static class CeresDoorInitializationDefinitionsVerification
 
         for (ushort selector = 0; selector < 7; selector++)
         {
-            CeresDoorOrWall actor = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(selector);
+            (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(selector);
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.StartCeresDoorOrWall(actor);
+            slot.StartCeresDoorOrWall(actor, settings);
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + selector * 2)),
                 CeresNativeWords.MainBehaviourWord(slot),
-                $"production Ceres {actor} main behaviour, function selector {selector}");
+                $"production Ceres {actor} {settings} main behaviour, function selector {selector}");
             AnimationPlayback<CeresDoorSegment> playback = slot.RequireSpeciesState<CeresDoorAnimationState>().Playback;
             CeresDoorSegment started = CeresDoorAnimations.StartingAt.Keys.Single(segment =>
                 new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation).Equals(playback));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + selector * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, started),
-                $"production Ceres {actor} animation, instruction selector {selector}");
+                $"production Ceres {actor} {settings} animation, instruction selector {selector}");
             AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
-                $"production Ceres {actor} instruction timer");
+                $"production Ceres {actor} {settings} instruction timer");
             AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue,
-                $"production Ceres {actor} general timer");
+                $"production Ceres {actor} {settings} general timer");
         }
 
         AssertThrows<InvalidDataException>(
-            () => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(7),
+            () => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7),
             "Ceres door selector past the doors and walls");
         Console.WriteLine(
             "Ceres door initialization: all fourteen native selector words match the seven production doors and walls with both source tables forbidden.");

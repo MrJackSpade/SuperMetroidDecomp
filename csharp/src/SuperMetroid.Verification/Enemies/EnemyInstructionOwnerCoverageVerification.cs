@@ -119,7 +119,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
         IReadOnlyList<RoomEnemyPlacement> records =
             populations.TryGetValue(definitionPointer, out List<RoomEnemyPlacement>? found)
                 ? found
-                : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0, 0, 0)];
+                : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0,
+                    EnemySpawnSettingsCodec.FirstParameterPlacing(definitionPointer), 0)];
 
         bool definitionTranslated = false;
         bool definitionNeedsOwner = false;
@@ -226,7 +227,11 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture))
             .Where(header => !UnplacedEnemyHeaders.Contains(header))
-            .Select(header => EnemyDefinitionIds.FromHeaderPointer(header))
+            // A header several actors share names each of them (#1989).
+            .SelectMany(header => SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.SharedHeaders.Keys
+                    .Where(actor => EnemyDefinitionIds.HeaderPointer(actor) == header).ToArray() is { Length: > 0 } actors
+                ? actors
+                : [EnemyDefinitionIds.FromHeaderPointer(header)])
             .Distinct()
             .Order()
             .ToArray();
@@ -253,9 +258,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 ushort definitionPointerWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
                 if (definitionPointerWord == 0xffff)
                     break;
-                EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
-
                 int Word(int offset) => CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + offset);
+                // A header several actors share places the one its first parameter selects (#1989).
+                EnemyDefinitionId definitionPointer = EnemySpawnSettingsCodec.PlacedActor(definitionPointerWord, Word(12));
+
                 RoomEnemyPlacement record = RoomEnemyPopulationRecordCodec.Decode(
                     definitionPointer, Word(2), Word(4), Word(6), Word(8), Word(10), Word(12), Word(14));
                 if (!records.TryGetValue(

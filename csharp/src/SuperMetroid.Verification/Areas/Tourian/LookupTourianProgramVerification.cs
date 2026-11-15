@@ -132,7 +132,7 @@ internal static class LookupTourianProgramVerification
                     break;
                 case AnimatedTileInstruction.ClearThreePaletteColors:
                     AssertEqual(NativeColourIndexes[definition.ClearedShade] * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
-                    steps.Add(Cue(TourianStatueBlockCueKind.ClearThreeColors));
+                    steps.Add(Cue(TourianStatueBlockCueKind.BlackOutEyes));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
                     AssertEqual(definition.Eye, TourianStatueNativeWords.Eye(operand), $"{at}: eye-glow statue selector names the statue's eye");

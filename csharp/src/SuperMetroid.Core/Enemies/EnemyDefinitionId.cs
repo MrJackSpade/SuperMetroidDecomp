@@ -166,8 +166,16 @@ public enum EnemyDefinitionId
     /// <summary>The Steam enemy definition.</summary>
     /// <remarks>The Ceres steam.</remarks>
     Steam,
-    /// <summary>The Ceres Door enemy definition.</summary>
+    /// <summary>An ordinary Ceres door, facing either way, which opens as Samus comes near (#1989).</summary>
     CeresDoor,
+    /// <summary>The door of Ceres Ridley's room, which his scene draws while he holds the room (#1989).</summary>
+    CeresRidleyRoomDoor,
+    /// <summary>The Ceres elevator room's blocked door, which blows apart once the station starts to self-destruct (#1989).</summary>
+    CeresElevatorDoor,
+    /// <summary>The Ceres elevator room's left door, an ordinary door until Ridley escapes and an unseen wall after (#1989).</summary>
+    CeresElevatorRoomWall,
+    /// <summary>A wall of Ceres Ridley's getaway chamber, beside its turning floor, which his getaway places (#1989).</summary>
+    CeresGetawayChamberWall,
     /// <summary>The Zebetite enemy definition.</summary>
     Zebetite,
     /// <summary>The Kraid enemy definition.</summary>

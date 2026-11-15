@@ -555,25 +555,25 @@ internal sealed class CeresRidleyFlight
     /// </summary>
     private void SpawnCeresRidleyGetawayWalls()
     {
-        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.LeftWall, CeresDoorOrWall.GetawayChamberLeftWall);
-        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.RightWall, CeresDoorOrWall.GetawayChamberRightWall);
+        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.LeftWall, HorizontalDirection.Left);
+        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.RightWall, HorizontalDirection.Right);
     }
 
-    /// <summary>Initializes one wall actor at its place and variant, drawing nothing.</summary>
-    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, CeresDoorOrWall variant)
+    /// <summary>Initializes one wall actor at its place, on its side of the chamber, drawing nothing.</summary>
+    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, HorizontalDirection side)
     {
         RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a turning-floor wall.");
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresDoor);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
         RoomEnemyPlacement population = new(
-            EnemyDefinitionId.CeresDoor,
+            EnemyDefinitionId.CeresGetawayChamberWall,
             Position: position,
             Contact: EnemyContact.None,
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
-            SpawnSettings: new CeresDoorOrWallSpawnSettings(variant));
+            SpawnSettings: new CeresGetawayChamberWallSpawnSettings(side));
         _lifecycle.InitializeSlotFromDefinition(wall, population, definition);
         _lifecycle.RunInitializationAi(wall, EnemySpawnSurroundings.None);
         _slotTable.CoverSpawn(wall);

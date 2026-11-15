@@ -52,19 +52,19 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// The chamber's walls the getaway scene shows around its turning floor (#1545): the Ceres door's pictures of the
+    /// The chamber's walls the getaway scene shows around its turning floor (#1545, #1989): the chamber wall's pictures of the
     /// chamber's left and right walls, standing at their room points in the doors' escaping colours, behind the floor
     /// and the actors.
     /// </summary>
     internal ImmutableArray<PerspectiveFloorScenery> ChamberWalls() =>
     [
-        ChamberWall(EnemyFrameId.CeresDoorTurningFloorLeftWall, CeresGetawayChamberWallDefinitions.LeftWall),
-        ChamberWall(EnemyFrameId.CeresDoorTurningFloorRightWall, CeresGetawayChamberWallDefinitions.RightWall),
+        ChamberWall(EnemyFrameId.CeresGetawayChamberLeftWall, CeresGetawayChamberWallDefinitions.LeftWall),
+        ChamberWall(EnemyFrameId.CeresGetawayChamberRightWall, CeresGetawayChamberWallDefinitions.RightWall),
     ];
 
     /// <summary>The chamber wall <paramref name="frame"/> pictures, standing at <paramref name="point"/>.</summary>
     private PerspectiveFloorScenery ChamberWall(EnemyFrameId frame, Position16<RoomPixels> point) =>
-        new(_presentation.SheetPicture(EnemyDefinitionId.CeresDoor, frame), point, CeresDoorShades.InEscapingColours);
+        new(_presentation.SheetPicture(EnemyDefinitionId.CeresGetawayChamberWall, frame), point, CeresDoorShades.InEscapingColours);
 
     /// <summary>Sets up the getaway floor: its angle, scroll, zoom and centre before the getaway's first step.</summary>
     internal static void SetupCeresRidleyGetawayFloor(RidleyEnemyState state)

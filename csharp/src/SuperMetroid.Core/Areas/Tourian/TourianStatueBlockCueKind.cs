@@ -21,8 +21,8 @@ internal enum TourianStatueBlockCueKind
     /// <summary>Claims the single release turn by setting the release-in-progress flag.</summary>
     ClaimRelease,
 
-    /// <summary>Blacks out the statue's three cleared colours.</summary>
-    ClearThreeColors,
+    /// <summary>Shows the statue's eyes blacked out, as its release starts.</summary>
+    BlackOutEyes,
 
     /// <summary>Spawns the statue's eye glow.</summary>
     SpawnEyeGlow,

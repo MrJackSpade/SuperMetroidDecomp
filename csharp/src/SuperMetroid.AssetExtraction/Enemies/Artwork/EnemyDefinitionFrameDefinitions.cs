@@ -11,23 +11,58 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 [ArchitectureReview("large", "Generated data: the two thousand frames the enemy definitions show; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
 internal static class EnemyDefinitionFrameDefinitions
 {
-    /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] CeresDoor =
+    /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresDoor</c>.</summary>
+    private static readonly EnemyFrameId[] CeresDoorFrames =
     [
-        EnemyFrameId.CeresDoorRotatingOverlay,
-        EnemyFrameId.CeresDoorLeftHold,
-        EnemyFrameId.CeresDoorCloseFacingLeftFourth,
-        EnemyFrameId.CeresDoorCloseFacingLeftThird,
-        EnemyFrameId.CeresDoorCloseFacingLeftSecond,
-        EnemyFrameId.CeresDoorCloseFacingLeftFirst,
-        EnemyFrameId.CeresDoorRightHold,
-        EnemyFrameId.CeresDoorRidleyRoomFacingRightFourth,
-        EnemyFrameId.CeresDoorRidleyRoomFacingRightThird,
-        EnemyFrameId.CeresDoorRidleyRoomFacingRightSecond,
-        EnemyFrameId.CeresDoorRidleyRoomFacingRightFirst,
-        EnemyFrameId.CeresDoorInitial,
-        EnemyFrameId.CeresDoorTurningFloorLeftWall,
-        EnemyFrameId.CeresDoorTurningFloorRightWall,
+        EnemyFrameId.CeresDoorFacingLeftClosed,
+        EnemyFrameId.CeresDoorFacingLeftOpeningFirst,
+        EnemyFrameId.CeresDoorFacingLeftOpeningSecond,
+        EnemyFrameId.CeresDoorFacingLeftOpeningThird,
+        EnemyFrameId.CeresDoorFacingLeftOpen,
+        EnemyFrameId.CeresDoorFacingRightClosed,
+        EnemyFrameId.CeresDoorFacingRightOpeningFirst,
+        EnemyFrameId.CeresDoorFacingRightOpeningSecond,
+        EnemyFrameId.CeresDoorFacingRightOpeningThird,
+        EnemyFrameId.CeresDoorFacingRightOpen,
+        EnemyFrameId.CeresDoorOrWallInitial,
+    ];
+
+    /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresRidleyRoomDoor</c>.</summary>
+    private static readonly EnemyFrameId[] CeresRidleyRoomDoorFrames =
+    [
+        EnemyFrameId.CeresDoorFacingRightClosed,
+        EnemyFrameId.CeresDoorFacingRightOpeningFirst,
+        EnemyFrameId.CeresDoorFacingRightOpeningSecond,
+        EnemyFrameId.CeresDoorFacingRightOpeningThird,
+        EnemyFrameId.CeresDoorFacingRightOpen,
+        EnemyFrameId.CeresDoorOrWallInitial,
+    ];
+
+    /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresElevatorDoor</c>.</summary>
+    private static readonly EnemyFrameId[] CeresElevatorDoorFrames =
+    [
+        EnemyFrameId.CeresElevatorDoorBlocked,
+        EnemyFrameId.CeresDoorOrWallInitial,
+    ];
+
+    /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresElevatorRoomWall</c>.</summary>
+    private static readonly EnemyFrameId[] CeresElevatorRoomWallFrames =
+    [
+        EnemyFrameId.CeresDoorFacingLeftClosed,
+        EnemyFrameId.CeresDoorFacingLeftOpeningFirst,
+        EnemyFrameId.CeresDoorFacingLeftOpeningSecond,
+        EnemyFrameId.CeresDoorFacingLeftOpeningThird,
+        EnemyFrameId.CeresDoorFacingLeftOpen,
+        EnemyFrameId.CeresDoorFacingRightClosed,
+        EnemyFrameId.CeresDoorOrWallInitial,
+    ];
+
+    /// <summary>The frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> shows for <c>CeresGetawayChamberWall</c>.</summary>
+    private static readonly EnemyFrameId[] CeresGetawayChamberWallFrames =
+    [
+        EnemyFrameId.CeresDoorOrWallInitial,
+        EnemyFrameId.CeresGetawayChamberLeftWall,
+        EnemyFrameId.CeresGetawayChamberRightWall,
     ];
 
     /// <summary>The frames <c>Areas/Ceres/CeresSteamBehavior.cs</c> shows.</summary>
@@ -474,9 +509,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>Ridley</c>.</summary>
     private static readonly EnemyFrameId[] RidleyFrames =
     [
-        EnemyFrameId.RidleyTailSegmentSmall,
-        EnemyFrameId.RidleyTailSegmentMedium,
-        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailBaseLink,
+        EnemyFrameId.RidleyTailMiddleLink,
+        EnemyFrameId.RidleyTailOuterLink,
         EnemyFrameId.RidleyBreakupTailTipThirteenth,
         EnemyFrameId.RidleyBreakupTailTipTwelfth,
         EnemyFrameId.RidleyBreakupTailTipEleventh,
@@ -521,9 +556,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyCeres</c>.</summary>
     private static readonly EnemyFrameId[] RidleyCeresFrames =
     [
-        EnemyFrameId.RidleyTailSegmentSmall,
-        EnemyFrameId.RidleyTailSegmentMedium,
-        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailBaseLink,
+        EnemyFrameId.RidleyTailMiddleLink,
+        EnemyFrameId.RidleyTailOuterLink,
         EnemyFrameId.RidleyBreakupTailTipThirteenth,
         EnemyFrameId.RidleyBreakupTailTipTwelfth,
         EnemyFrameId.RidleyBreakupTailTipEleventh,
@@ -567,9 +602,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyExplosion</c>.</summary>
     private static readonly EnemyFrameId[] RidleyExplosionFrames =
     [
-        EnemyFrameId.RidleyTailSegmentSmall,
-        EnemyFrameId.RidleyTailSegmentMedium,
-        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailBaseLink,
+        EnemyFrameId.RidleyTailMiddleLink,
+        EnemyFrameId.RidleyTailOuterLink,
         EnemyFrameId.RidleyBreakupTailTipThirteenth,
         EnemyFrameId.RidleyBreakupTailTipTwelfth,
         EnemyFrameId.RidleyBreakupTailTipEleventh,
@@ -2439,7 +2474,11 @@ internal static class EnemyDefinitionFrameDefinitions
     internal static IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>> Frames { get; } =
         new Dictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>>
         {
-            [EnemyDefinitionId.CeresDoor] = CeresDoor,
+            [EnemyDefinitionId.CeresDoor] = CeresDoorFrames,
+            [EnemyDefinitionId.CeresRidleyRoomDoor] = CeresRidleyRoomDoorFrames,
+            [EnemyDefinitionId.CeresElevatorDoor] = CeresElevatorDoorFrames,
+            [EnemyDefinitionId.CeresElevatorRoomWall] = CeresElevatorRoomWallFrames,
+            [EnemyDefinitionId.CeresGetawayChamberWall] = CeresGetawayChamberWallFrames,
             [EnemyDefinitionId.Steam] = CeresSteam,
             [EnemyDefinitionId.TourianStatue] = TourianEntranceStatue,
             [EnemyDefinitionId.Botwoon] = Botwoon,

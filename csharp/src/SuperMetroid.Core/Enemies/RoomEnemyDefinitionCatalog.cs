@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Typed, immutable enemy definitions referenced by all 323 retail room states.</summary>
 /// <remarks>
-/// Compiled once from the game's definitions, with no generator in the repository. The 144 definitions are
-/// enumerated from every room population and the enemies the game spawns, not inferred from a contiguous range. These are
+/// Compiled once from the game's definitions, with no generator in the repository. The 147 definitions are
+/// enumerated from every room population and the enemies the game spawns (each Ceres door its own, #1989), not inferred from a contiguous range. These are
 /// engine definitions, never editable art data. Each RoomEnemyDefinition constructor follows its named field order.
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
-    /// <summary>The 144 referenced enemy definitions.</summary>
+    /// <summary>The 147 referenced enemy definitions.</summary>
     internal static readonly RoomEnemyDefinitionEntry[] Definitions =
     [
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Boyon, new(1000, 10, new(8, 8), 4, null, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(20, 10, 85, 130, 5, 5), EnemyVulnerabilityDefinitions.Boyon)),
@@ -86,6 +86,9 @@ public static class RoomEnemyDefinitionCatalog
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.RidleyExplosion, new(18000, 160, new(8, 8), 4, null, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Withheld, EnemyHitboxScan.Withheld, null, EnemyVulnerabilityDefinitions.Invulnerable)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Steam, new(32767, 0, new(8, 8), 4, null, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Withheld, new EnemyDropChances(0, 0, 0, 255, 0, 0), EnemyVulnerabilityDefinitions.Invulnerable)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresDoor, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresRidleyRoomDoor, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresElevatorDoor, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
+        new RoomEnemyDefinitionEntry(EnemyDefinitionId.CeresElevatorRoomWall, new(40, 15, new(8, 32), 4, EnemySound.RidleyRoar, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, EnemyReaction.Ignore, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, null)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Zebetite, new(1000, 0, new(8, 24), 4, null, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, null, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, EnemyVulnerabilityDefinitions.Zebetite)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.Kraid, new(1000, 20, new(56, 144), 4, null, AreaBoss.Kraid, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Withheld, new EnemyDropChances(50, 50, 50, 0, 50, 55), EnemyVulnerabilityDefinitions.Kraid)),
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.KraidArm, new(1000, 20, new(48, 48), 4, null, null, EnemyGrappleResponse.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Small, null, null, EnemyReaction.Ignore, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, null, EnemyVulnerabilityDefinitions.InvulnerableUnfreezable)),
@@ -161,7 +164,7 @@ public static class RoomEnemyDefinitionCatalog
     ];
 
     /// <summary>Number of distinct retail enemy definitions reachable from room states.</summary>
-    public const int Count = 144;
+    public const int Count = 147;
 
     /// <summary>
     /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);

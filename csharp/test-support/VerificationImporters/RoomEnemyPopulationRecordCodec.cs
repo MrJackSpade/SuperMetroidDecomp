@@ -42,7 +42,7 @@ internal static class RoomEnemyPopulationRecordCodec
     /// <summary>The words of a native population entry for a typed entry, after the definition pointer.</summary>
     public static PopulationEntryWords Encode(RoomEnemyPlacement record)
     {
-        PopulationWords settings = EnemySpawnSettingsCodec.Encode(record.SpawnSettings);
+        PopulationWords settings = EnemySpawnSettingsCodec.Encode(record.DefinitionId, record.SpawnSettings);
         return new PopulationEntryWords(
             record.Position.X, record.Position.Y, settings.Initialization,
             EnemyPropertyWordCodec.EncodePropertyWord(record.Contact, record.Processing, record.Presence) | settings.SpeciesPropertyBits,

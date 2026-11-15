@@ -19,6 +19,10 @@ internal static class EnemyCharacterBaseDefinitions
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> Fixed { get; } = new Dictionary<EnemyDefinitionId, int>
     {
         [EnemyDefinitionId.CeresDoor] = 0,
+        [EnemyDefinitionId.CeresRidleyRoomDoor] = 0,
+        [EnemyDefinitionId.CeresElevatorDoor] = 0,
+        [EnemyDefinitionId.CeresElevatorRoomWall] = 0,
+        [EnemyDefinitionId.CeresGetawayChamberWall] = 0,
         [EnemyDefinitionId.Steam] = 0,
         [EnemyDefinitionId.Zebetite] = 128,
         [EnemyDefinitionId.RidleyExplosion] = 0,

@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal enum RidleyBreakupFrame
 {
-    /// <summary>The first two tail segments.</summary>
-    TailSegmentSmall,
-    /// <summary>The third and fourth tail segments.</summary>
-    TailSegmentMedium,
-    /// <summary>The fifth and sixth tail segments.</summary>
-    TailSegmentLarge,
+    /// <summary>The tail link nearest the body, which the first two tail links show.</summary>
+    TailBaseLink,
+    /// <summary>The middle tail link, which the third and fourth tail links show.</summary>
+    TailMiddleLink,
+    /// <summary>The outer tail link, which the fifth and sixth tail links show.</summary>
+    TailOuterLink,
     /// <summary>The left-facing wings.</summary>
     WingsFacingLeft,
     /// <summary>The right-facing wings.</summary>

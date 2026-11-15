@@ -37,7 +37,8 @@ internal static class EnemyDefinitionsVerification
             {
                 ushort pointerWord = ReadVerificationWord(bus, populationAddress);
                 if (pointerWord == 0xffff) break;
-                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(pointerWord);
+                // A header several actors share places the one its first parameter selects (#1989).
+                EnemyDefinitionId pointer = EnemySpawnSettingsCodec.PlacedActor(pointerWord, ReadVerificationWord(bus, populationAddress + 12));
                 referencedPointers.Add(pointer);
                 populationAddress += 16;
             }
@@ -79,7 +80,8 @@ internal static class EnemyDefinitionsVerification
                 EnemyDefinitionId.MotherBrainTubes,
                 EnemyDefinitionId.BombTorizoOrb,
                 EnemyDefinitionId.GoldenTorizoOrb,
-            }),
+                EnemyDefinitionId.CeresGetawayChamberWall,
+            }.Order()),
             "all runtime-created enemy headers outside retail room lists are catalogued");
         AssertTrue(auxiliaryPointers.All(pointer => !referencedPointers.Contains(pointer)),
             "auxiliary headers do not duplicate a room-selected definition");
@@ -105,9 +107,15 @@ internal static class EnemyDefinitionsVerification
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
         {
             ushort tileWord = ReadVerificationWord(bus, RoomEnemyRomLayout.DefinitionBank | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(pointer));
-            AssertEqual(tileWord & 0x7fff, SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[pointer],
+            // An actor sharing its header with others has the header's artwork catalogued apart from it (#1989).
+            bool shared = SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.SharedHeaders.TryGetValue(pointer, out UnplacedEnemyArtwork artwork);
+            AssertEqual(tileWord & 0x7fff, shared
+                    ? SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.UnplacedByteCounts[artwork]
+                    : SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[pointer],
                 $"the import's tile set size for {pointer} is its header's");
-            AssertEqual((tileWord & 0x8000) != 0, SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.ContainsKey(pointer),
+            AssertEqual((tileWord & 0x8000) != 0, shared
+                    ? SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.UnplacedFixedBlocks.ContainsKey(artwork)
+                    : SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.ContainsKey(pointer),
                 $"the import places {pointer}'s tiles at a fixed block exactly when its header does");
             AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(tileWord & 0x7fff),
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer),

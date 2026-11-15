@@ -92,6 +92,16 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             ? id
             : (EnemyDefinitionId)pointer;
 
+    /// <summary>
+    /// The actor a fixture's seeded placement of the header at <paramref name="pointer"/> places: the header's identity
+    /// (<see cref="FixtureDefinitionId"/>), or, for the header the Ceres doors and walls share, the actor its first
+    /// parameter <paramref name="parameter1"/> selects (#1989).
+    /// </summary>
+    internal static EnemyDefinitionId FixturePlacedActor(ushort pointer, int parameter1) =>
+        pointer == SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.CeresDoor)
+            ? SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.PlacedActor(pointer, parameter1)
+            : FixtureDefinitionId(pointer);
+
     /// <summary>Decodes the bank-$A9 falling-tube population record of <paramref name="piece"/> from seeded words.</summary>
     public RoomEnemyPlacement ReadFallingTubePopulation(MotherBrainTubePiece piece)
     {
@@ -113,7 +123,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
                     $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
-            EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
+            EnemyDefinitionId definitionPointer = FixturePlacedActor(definitionPointerWord, ReadFixtureWord(cursor + 12));
             if (slot == EnemySlotOrder.Capacity)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
             records.Add(SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(definitionPointer,

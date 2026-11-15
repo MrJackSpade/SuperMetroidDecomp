@@ -107,25 +107,25 @@ internal static class EncounterArtworkDrawingDefinitions
         };
 
     /// <summary>
-    /// The Ceres doors but the rotating overlay: the pre-explosion overlay door shows its look at its initialization, before
-    /// its first draw; the doors of the set's other rooms are drawn as their load leaves them.
+    /// The Ceres doors' and walls' frames but the elevator room's blocked door's: the blocked door shows its look at its
+    /// initialization, before its first draw; the doors of the set's other rooms are drawn as their load leaves them.
     /// </summary>
     private static readonly EncounterArtworkDrawing CeresDoors =
-        new(ComposedEncounter.CeresDoor, [EncounterLook.LoadedName, CeresDoorLookDefinitions.OverlayLook.Name])
+        new(ComposedEncounter.CeresElevatorDoor, [EncounterLook.LoadedName, CeresElevatorDoorLookDefinitions.OverlayLook.Name])
         {
-            Frames = [.. CeresDoorAnimations.Segments.Frames.Except([EnemyFrameId.CeresDoorRotatingOverlay])],
+            Frames = [.. CeresDoorAnimations.Segments.Frames.Except([EnemyFrameId.CeresElevatorDoorBlocked])],
         };
 
     /// <summary>
-    /// The Ceres doors' rotating overlay ($A6:F921), drawn only by the elevator shaft's pre-explosion overlay door (enemy
+    /// The elevator room's blocked door ($A6:F921), drawn only by that door (the Ceres door header's enemy
     /// parameter 2, $A6:F610), whose initialization copies the overlay's characters over the sprite characters from $100
     /// ($A6:F739) before the frame first draws (#1641). It is never drawn as a room's load leaves those characters: in Ceres
     /// Ridley's arena they are Ridley's own.
     /// </summary>
-    private static readonly EncounterArtworkDrawing CeresDoorRotatingOverlay =
-        new(ComposedEncounter.CeresDoor, [CeresDoorLookDefinitions.OverlayLook.Name])
+    private static readonly EncounterArtworkDrawing CeresElevatorDoorBlocked =
+        new(ComposedEncounter.CeresElevatorDoor, [CeresElevatorDoorLookDefinitions.OverlayLook.Name])
         {
-            Frames = [EnemyFrameId.CeresDoorRotatingOverlay],
+            Frames = [EnemyFrameId.CeresElevatorDoorBlocked],
         };
 
     /// <summary>The faces of Mother Brain's dead brain, which her legs' look holds.</summary>
@@ -282,7 +282,7 @@ internal static class EncounterArtworkDrawingDefinitions
         BombTorizoProjectiles,
         GoldenTorizo,
         CeresDoors,
-        CeresDoorRotatingOverlay,
+        CeresElevatorDoorBlocked,
         MotherBrainHead,
         MotherBrainHeadAttackFaces,
         MotherBrainDeadBrain,

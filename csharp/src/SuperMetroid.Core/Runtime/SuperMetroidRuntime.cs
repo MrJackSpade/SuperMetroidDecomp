@@ -126,6 +126,12 @@ internal sealed class SuperMetroidRuntime
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
 
     /// <summary>
+    /// How far the camera last measured Samus moving sideways, plus one pixel, which a kicked Yard flies off with; created
+    /// with the runtime, recorded by the update's scrolling and handed to every room's enemies.
+    /// </summary>
+    internal YardKickTrackingDistance YardKickDistance { get; } = new();
+
+    /// <summary>
     /// The step count every gradual fade shares, created with the runtime and handed to the owners whose fades count on it:
     /// the door transition's fades, the death and time-up fades of <see cref="FadeOut"/>, and every room's enemies, whose
     /// Kraid backdrop and Torizo body fades count on it too. It outlives every room.
@@ -229,7 +235,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, FramesBeyondAnimation = SamusOverreads.FramesBeyondAnimation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -862,11 +868,10 @@ internal sealed class SuperMetroidRuntime
                         DownScroller: roomGeometry.DownScroller),
                     Freeze.TimeIsFrozen);
             }
-            // The camera writes the same distance-plus-one values consumed by Yard
-            // kick setup. Publish the camera calculation itself, including its
-            // integer-only direction check and previous scrolling checkpoint. A second
-            // frame-end absolute delta loses both the bias and checkpoint timing.
-            samus.HorizontalDistanceMovedPlusOne = camera.Speed.X;
+            // A kicked Yard flies off with the camera's own measure of Samus's movement (YardKickTrackingDistance),
+            // including its whole-pixel direction check, its added pixel and its previous tracking point. A second
+            // frame-end absolute delta loses both the added pixel and the tracking point's timing.
+            YardKickDistance.Record(camera.Speed.X);
             samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
 
             // The main scrolling invokes the mutable global

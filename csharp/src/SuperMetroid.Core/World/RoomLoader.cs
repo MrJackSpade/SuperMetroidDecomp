@@ -98,6 +98,8 @@ internal sealed class RoomLoader
     /// on it with the runtime's door, death and time-up fades.
     /// </summary>
     private readonly SharedFadeStepCount _fadeStepCount;
+    /// <summary>The runtime's camera measure a kicked Yard flies off with, handed to every room's enemies.</summary>
+    private readonly YardKickTrackingDistance _yardKickDistance;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect-overlay FX reads.</summary>
@@ -138,6 +140,7 @@ internal sealed class RoomLoader
         _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
         _cameraFractions = Ensure.NotNull(dependencies.CameraFractions);
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
+        _yardKickDistance = Ensure.NotNull(dependencies.YardKickDistance);
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
         _colourEffectSession = dependencies.ColourEffectSession;
@@ -989,7 +992,8 @@ internal sealed class RoomLoader
         // the outgoing room's left (RoomHandOver).
         // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the sprite-object places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
-        // colours above left. The fade step count and the boost cadence outlive the room and are handed on.
+        // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
+        // and are handed on.
         var compatibility = new RoomEnemyCompatibility
         {
             PowerBombRadius = new PowerBombRadiusAfterKill(),
@@ -1000,6 +1004,7 @@ internal sealed class RoomLoader
             FadeStepCount = _fadeStepCount,
             UnauthoredBoostCadence = _unauthoredBoostCadence,
             KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
+            YardKickDistance = _yardKickDistance,
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork, roomObjects.BreakableTerrain);

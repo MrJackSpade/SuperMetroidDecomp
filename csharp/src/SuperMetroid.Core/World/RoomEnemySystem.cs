@@ -654,7 +654,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
         ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
-        YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio);
+        YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio, compatibility.YardKickDistance);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, SpriteObjects, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();
         WorkRobotBehavior = new WorkRobotBehavior(Room, Terrain, Projectiles, SlotTable, Audio);

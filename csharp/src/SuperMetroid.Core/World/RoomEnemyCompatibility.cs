@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.World;
 /// The compatibility services a room's enemy system consults. The room's own services the room's loader creates fresh
 /// with each enemy system it builds, and they live exactly as long as that system: a room's power-bomb sweep, its Shaktool
 /// chain, its slots and its sprite-object places start with no earlier kill, no earlier occupant and no place taken. The services that
-/// outlive every room, the runtime's shared fade step count and the session's unauthored Speed Booster cadence, the loader
-/// hands on to every enemy system it builds.
+/// outlive every room, the runtime's shared fade step count and Yard kick camera measure and the session's unauthored Speed
+/// Booster cadence, the loader hands on to every enemy system it builds.
 /// </summary>
 internal sealed class RoomEnemyCompatibility
 {
@@ -52,4 +52,10 @@ internal sealed class RoomEnemyCompatibility
     /// update; a new one holds no kill.
     /// </summary>
     public required KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState> KilledShaktoolSegment { get; init; }
+
+    /// <summary>
+    /// The runtime's measure of how far the camera last saw Samus move sideways, plus one pixel, which a kicked Yard flies
+    /// off with; the runtime's scrolling records it and it outlives every room.
+    /// </summary>
+    public required YardKickTrackingDistance YardKickDistance { get; init; }
 }

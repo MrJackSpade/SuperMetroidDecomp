@@ -546,12 +546,6 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// How far Samus moved horizontally in the most recent scrolling pass, plus one pixel, as the camera measured it
-    /// for its speed: not an unbiased distance. A Yard kick reads it.
-    /// </summary>
-    public SignedSixteenSixteen HorizontalDistanceMovedPlusOne { get; internal set; }
-
-    /// <summary>
     /// The solid vertical collision result the latest vertical movement or wall jump published. Most
     /// movement methods return collision results directly; Draygon-held movement has no displacement and its sole
     /// side effect is explicitly clearing this otherwise-stale result.

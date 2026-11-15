@@ -16,13 +16,24 @@ internal static class RoomEnemyCompatibilityFixtures
         ForNewRoom(new SharedFadeStepCount(), new UnauthoredBoostCadence());
 
     /// <summary>
-    /// A fresh set of the room's own services, as a room load creates for each enemy system, over the fade step count and
-    /// the unauthored Speed Booster cadence the case's enemies share with the rest of its game, as a room load hands on
-    /// its runtime's.
+    /// A fresh set of the room's own services, as <see cref="ForNewRoom(SharedFadeStepCount, UnauthoredBoostCadence)"/>
+    /// builds, over a Yard kick camera measure of the case's own.
     /// </summary>
     /// <param name="fadeStepCount">The fade step count the case's enemies share, such as its runtime's.</param>
     /// <param name="unauthoredBoostCadence">The unauthored Speed Booster cadence the case shares with its Samus.</param>
-    internal static RoomEnemyCompatibility ForNewRoom(SharedFadeStepCount fadeStepCount, UnauthoredBoostCadence unauthoredBoostCadence) => new()
+    internal static RoomEnemyCompatibility ForNewRoom(SharedFadeStepCount fadeStepCount, UnauthoredBoostCadence unauthoredBoostCadence) =>
+        ForNewRoom(fadeStepCount, unauthoredBoostCadence, new YardKickTrackingDistance());
+
+    /// <summary>
+    /// A fresh set of the room's own services, as a room load creates for each enemy system, over the fade step count,
+    /// the unauthored Speed Booster cadence and the Yard kick camera measure the case's enemies share with the rest of its
+    /// game, as a room load hands on its runtime's.
+    /// </summary>
+    /// <param name="fadeStepCount">The fade step count the case's enemies share, such as its runtime's.</param>
+    /// <param name="unauthoredBoostCadence">The unauthored Speed Booster cadence the case shares with its Samus.</param>
+    /// <param name="yardKickDistance">The camera measure the case's kicked Yards fly off with, such as its runtime's.</param>
+    internal static RoomEnemyCompatibility ForNewRoom(SharedFadeStepCount fadeStepCount, UnauthoredBoostCadence unauthoredBoostCadence,
+        YardKickTrackingDistance yardKickDistance) => new()
     {
         PowerBombRadius = new PowerBombRadiusAfterKill(),
         BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
@@ -32,5 +43,6 @@ internal static class RoomEnemyCompatibilityFixtures
         FadeStepCount = fadeStepCount,
         UnauthoredBoostCadence = unauthoredBoostCadence,
         KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
+        YardKickDistance = yardKickDistance,
     };
 }

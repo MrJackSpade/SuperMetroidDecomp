@@ -34,10 +34,15 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds Yard's room, terrain, quake, and collision owners for its registered AI behaviours.</summary>
-    internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision, EnemyAudioQueue audio)
+    /// <summary>The camera's last measure of Samus's sideways movement, which a kicked Yard flies off with.</summary>
+    private readonly YardKickTrackingDistance _kickDistance;
+
+    /// <summary>Binds Yard's room, terrain, quake, and collision owners and the kick's camera measure for its registered AI behaviours.</summary>
+    internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision, EnemyAudioQueue audio,
+        YardKickTrackingDistance kickDistance)
     {
         _audio = audio;
+        _kickDistance = Ensure.NotNull(kickDistance);
         _room = room;
         _terrain = terrain;
         _earthquake = earthquake;
@@ -516,17 +521,22 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Runs the running/airborne kick setup.</summary>
+    /// <summary>
+    /// Runs the running/airborne kick setup: the shell flies sideways at the camera's last measure of Samus's movement,
+    /// reversed when she faces left, and upward at the speed that measure's whole pixels select.
+    /// </summary>
     internal static void KickYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        YardKickTrackingDistance kickDistance)
     {
+        Ensure.NotNull(kickDistance);
         state.Behavior = YardBehavior.Kicked;
         state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(slot, state);
 
-        SignedSixteenSixteen horizontal = samus.HorizontalDistanceMovedPlusOne;
+        SignedSixteenSixteen horizontal = kickDistance.HorizontalDistancePlusOne;
         SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.UnsignedWholePixels);
         if (SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left))
             horizontal = YardAirborneReversal.Reversed(horizontal);
@@ -570,7 +580,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (kickRequested)
         {
-            KickYardIntoAir(slot, state, samus);
+            KickYardIntoAir(slot, state, samus, _kickDistance);
             _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
             return;
         }

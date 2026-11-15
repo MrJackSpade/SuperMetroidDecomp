@@ -54,7 +54,7 @@ internal sealed class CrocomireCombat
     /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
     /// </summary>
     internal EnemyProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
-        () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
+        () => new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
 
     /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
     internal EnemyProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);

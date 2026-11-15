@@ -489,7 +489,7 @@ internal sealed class CrocomireFight
             RoomEnemyProjectileKind.CrocomireProjectile,
             _combat.MouthShot,
             graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
-        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
+        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
         projectile.Velocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole - 32), CoordinateAxis.Wrap(body.Position.Y.Whole - 16)));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

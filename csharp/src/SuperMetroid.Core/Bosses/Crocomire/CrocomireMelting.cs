@@ -132,20 +132,6 @@ internal sealed class CrocomireMelting
     /// </summary>
     private static void ShowMeltBand(CrocomireDeathState death, int band) => death.MeltBandSteps[band] = death.MeltColumnsErased;
 
-    /// <summary>The animation band <paramref name="band"/> of the melt image is, whose frames are its pictures (#1406).</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
-    internal static ArtworkAnimation MeltBandAnimation(int band) =>
-        (uint)band < CrocomireMeltingDefinitions.SecondPassBandCount ? new($"Crocomire melt band {band}")
-            : throw new ArgumentOutOfRangeException(nameof(band), band, "Crocomire's melt images have no such band.");
-
-    /// <summary>
-    /// The frame of <paramref name="band"/>'s animation that shows <paramref name="picture"/>, which the extraction pictures
-    /// for each band (#1392, #1406).
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
-    internal static ArtworkFrame MeltBandFrame(CrocomireMeltBandPicture picture, int band) =>
-        new(MeltBandAnimation(band), $"{picture.Pass} step {picture.Step}");
-
     /// <summary>Starts Crocomire's dissolve once his melt image shows.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
     {

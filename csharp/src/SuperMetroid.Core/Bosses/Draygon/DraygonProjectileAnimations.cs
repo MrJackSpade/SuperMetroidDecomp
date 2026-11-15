@@ -1,41 +1,66 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed projectile animations (#641, #1600): the goop's and wall-turret shot's segments, and the animation starting at each.</summary>
+/// <summary>
+/// Draygon's typed projectile animations (#641, #1600, #2011): the goop's and wall-turret shot's segments, each beat the
+/// installed <see cref="EnemyProjectileFrameId"/> it shows, and the animation starting at each.
+/// </summary>
 internal static class DraygonProjectileAnimations
 {
-    /// <summary>Frames in the goop loop.</summary>
-    internal const int GoopPhaseCount = 6;
-    /// <summary>Frames in the goop burst.</summary>
-    internal const int GoopShotPhaseCount = 2;
-    /// <summary>Frames in the wall turret's bloom.</summary>
-    internal const int BloomPhaseCount = 16;
-    /// <summary>Frames in the wall turret's flight loop.</summary>
-    internal const int FlightPhaseCount = 3;
-
-    /// <summary>The bloom's frame durations: two forming ramps, the second a tick faster, then four charging frames.</summary>
-    private static readonly int[] BloomDurations = [5, 4, 3, 3, 3, 3, 4, 3, 2, 2, 2, 2, 10, 10, 10, 10];
-
-    /// <summary>Every goop and wall-turret segment's beats.</summary>
-    internal static AnimationSegments<DraygonProjectileSegment, DraygonProjectileFrame, DraygonProjectileCue> Segments { get; } = new(
-        new Dictionary<DraygonProjectileSegment, AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>[]>
+    /// <summary>
+    /// Every goop and wall-turret segment's beats: the goop loops six ten-update frames and bursts in two eight-update
+    /// frames; the wall turret's shot forms over two ramps, the second a tick faster, charges over four ten-update frames,
+    /// fires, and flies in three eight-update frames.
+    /// </summary>
+    internal static AnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments { get; } = new(
+        new Dictionary<DraygonProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>[]>
         {
             [P.GoopTouch] = [Cue(DraygonProjectileCue.StickToSamus)],
-            [P.Goop] = [.. Frames(DraygonProjectileFrameKind.Goop, GoopPhaseCount, _ => 10)],
+            [P.Goop] =
+            [
+                Show(EnemyProjectileFrameId.DraygonGoopFirst, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopSecond, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopThird, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopFourth, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopFifth, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopSixth, 10),
+            ],
             [P.GoopShot] =
             [
-                .. Frames(DraygonProjectileFrameKind.GoopShot, GoopShotPhaseCount, _ => 8),
+                Show(EnemyProjectileFrameId.DraygonGoopShotFirst, 8),
+                Show(EnemyProjectileFrameId.DraygonGoopShotSecond, 8),
                 Cue(DraygonProjectileCue.SpawnDrops),
                 Cue(DraygonProjectileCue.Delete),
             ],
             [P.WallTurretBloom] =
             [
-                .. Frames(DraygonProjectileFrameKind.WallTurretBloom, BloomPhaseCount, phase => BloomDurations[phase]),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFirst, 5),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSecond, 4),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomThird, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFourth, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFifth, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSixth, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSeventh, 4),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomEighth, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomNinth, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomTenth, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomEleventh, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomTwelfth, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomThirteenth, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFourteenth, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFifteenth, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSixteenth, 10),
                 Cue(DraygonProjectileCue.Fire),
             ],
-            [P.WallTurretFlight] = [.. Frames(DraygonProjectileFrameKind.WallTurretFlight, FlightPhaseCount, _ => 8)],
+            [P.WallTurretFlight] =
+            [
+                Show(EnemyProjectileFrameId.DraygonWallTurretFlightFirst, 8),
+                Show(EnemyProjectileFrameId.DraygonWallTurretFlightSecond, 8),
+                Show(EnemyProjectileFrameId.DraygonWallTurretFlightThird, 8),
+            ],
         });
 
     /// <summary>
@@ -45,23 +70,24 @@ internal static class DraygonProjectileAnimations
     internal static IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt { get; } =
         new Dictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>>
         {
-            [P.GoopTouch] = new([new(P.GoopTouch, 0, 1, 1), new(P.Goop, 0, GoopPhaseCount, 1)], AnimationEnd.LoopsFrom(1)),
-            [P.Goop] = new([new(P.Goop, 0, GoopPhaseCount, 1)], AnimationEnd.LoopsFrom(0)),
-            [P.GoopShot] = new([new(P.GoopShot, 0, GoopShotPhaseCount + 2, 1)], AnimationEnd.Holds),
-            [P.WallTurretBloom] = new([new(P.WallTurretBloom, 0, BloomPhaseCount + 1, 1), new(P.WallTurretFlight, 0, FlightPhaseCount, 1)], AnimationEnd.LoopsFrom(1)),
-            [P.WallTurretFlight] = new([new(P.WallTurretFlight, 0, FlightPhaseCount, 1)], AnimationEnd.LoopsFrom(0)),
+            [P.GoopTouch] = new([Whole(P.GoopTouch), Whole(P.Goop)], AnimationEnd.LoopsFrom(1)),
+            [P.Goop] = new([Whole(P.Goop)], AnimationEnd.LoopsFrom(0)),
+            [P.GoopShot] = new([Whole(P.GoopShot)], AnimationEnd.Holds),
+            [P.WallTurretBloom] = new([Whole(P.WallTurretBloom), Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(1)),
+            [P.WallTurretFlight] = new([Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(0)),
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DraygonProjectileSegment> StartingWith(DraygonProjectileSegment segment) => StartingAt[segment];
 
-    /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>
-        new AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Event(cue);
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DraygonProjectileSegment> Whole(DraygonProjectileSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>Shows <paramref name="count"/> consecutive frames of <paramref name="kind"/>.</summary>
-    private static IEnumerable<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>> Frames(
-        DraygonProjectileFrameKind kind, int count, Func<int, int> duration) =>
-        Enumerable.Range(0, count).Select(phase =>
-            (AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>)new AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Frame(new(kind, phase), duration(phase)));
+    /// <summary>Raises <paramref name="cue"/>.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>
+        new AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Event(cue);
+
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Frame(frame, duration);
 }

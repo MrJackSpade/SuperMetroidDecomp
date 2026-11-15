@@ -49,6 +49,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -154,7 +155,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
-        ushort ceresOperand = EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[RidleyFireballVisualDefinitions.ProjectileFrames[0]]);
+        ushort ceresOperand = EnemyProjectileProgramFrameSources.Operand(RidleyFireballAnimations.ProjectileFrames[0]);
         OamBuffer nativeCeres = DrawReferenceProgramFrame(stock, ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
@@ -309,17 +310,17 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 TorizoFrameCount(TorizoProjectileFamily.StatueFragment),
                 TorizoFrameKey(TorizoProjectileFamily.StatueFragment)),
             new TorizoFamily("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
-                MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
-                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainGlassVisualDefinitions.ShownProjectileFrames[MotherBrainGlassVisualDefinitions.ProjectileFrames[index]])),
+                MotherBrainGlassAnimations.ProjectileFrames.Count,
+                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainGlassAnimations.ProjectileFrames[index])),
             new TorizoFamily("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-                MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
-                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames[MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]])),
+                MotherBrainHandBeamAnimations.ProjectileFrames.Count,
+                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainHandBeamAnimations.ProjectileFrames[index])),
             new TorizoFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount,
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress),
             new TorizoFamily("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
-                MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
-                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainTurretVisualDefinitions.ShownProjectileFrames[MotherBrainTurretVisualDefinitions.ProjectileFrames[index]])),
+                MotherBrainTurretAnimations.ProjectileFrames.Count,
+                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainTurretAnimations.ProjectileFrames[index])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
@@ -749,11 +750,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             address => $"Installed enemy projectile reread visual byte ${address:X6}.");
 
     /// <summary>The installed frames of Torizo projectile family <paramref name="family"/>.</summary>
-    private static int TorizoFrameCount(TorizoProjectileFamily family) => TorizoProjectileVisualDefinitions.Frames(family).Count;
+    private static int TorizoFrameCount(TorizoProjectileFamily family) => TorizoProjectileAnimations.InstalledFrames(family).Count;
 
     /// <summary>The installed artwork key of each frame of Torizo projectile family <paramref name="family"/>, by index.</summary>
     private static Func<int, ushort> TorizoFrameKey(TorizoProjectileFamily family) =>
-        index => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[TorizoProjectileVisualDefinitions.Frames(family)[index]]);
+        index => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileAnimations.InstalledFrames(family)[index]);
 
     /// <summary>The drops a dying enemy leaves: the frames of the pickup animations.</summary>
     private static readonly EnemyProjectileFrameId[] PickupFrames =

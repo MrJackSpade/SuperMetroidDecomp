@@ -271,8 +271,6 @@ internal static class DraygonAnimationsVerification
         Dictionary<DraygonProjectileSegment, NativeEnemyList<DraygonProjectileSegment>> projectileLists =
             ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(projectileLists, DraygonProjectileAnimations.StartingAt);
-        AssertEqual(DraygonProjectileVisualDefinitions.ProjectileFrameCount, DraygonProjectileVisualDefinitions.ProjectileFrames.Count,
-            "the projectile catalog lists every frame");
 
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, movingRight: true);
@@ -283,7 +281,7 @@ internal static class DraygonAnimationsVerification
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertEqual<Enum?>(DraygonShotMotion.GoopStuckToSamus, goop.Motion, "the goop touch sticks the goop to Samus");
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopFirst), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.FrameHold.RawValue, "the goop's first frame lasts ten updates");
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");
@@ -296,7 +294,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     private static NativeEnemyList<DraygonProjectileSegment> ReadProjectileList(IImportCartridgeSource cartridge, DraygonProjectileSegment segment, ushort entry)
     {
-        IReadOnlyList<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>> beats = DraygonProjectileAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>> beats = DraygonProjectileAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<DraygonProjectileSegment>>();
         ushort cursor = entry;
@@ -313,9 +311,9 @@ internal static class DraygonAnimationsVerification
             ushort operand = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var frame = AssertIs<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                var frame = AssertIs<AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Frame>(Beat(beat, at), $"{at}: frame");
                 AssertEqual(word, frame.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[frame.Shown]), $"{at}: frame operand");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(frame.Shown), $"{at}: frame operand");
                 addresses.Add(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -332,7 +330,7 @@ internal static class DraygonAnimationsVerification
                 continue;
             }
             AssertTrue(ProjectileCallbacks.TryGetValue(word, out DraygonProjectileCue cue), $"{at}: native callback ${word:X4} is known");
-            var raised = AssertIs<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>.Event>(Beat(beat, at), $"{at}: callback");
+            var raised = AssertIs<AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Event>(Beat(beat, at), $"{at}: callback");
             AssertEqual(cue, raised.Raised, $"{at}: cue");
             addresses.Add(cursor);
             cursor = unchecked((ushort)(cursor + 2));
@@ -350,7 +348,7 @@ internal static class DraygonAnimationsVerification
             return new NativeEnemyList<DraygonProjectileSegment>([.. addresses], [.. controls]);
         }
 
-        AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue> Beat(int beat, string at) => beat < beats.Count
+        AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue> Beat(int beat, string at) => beat < beats.Count
             ? beats[beat]
             : throw new InvalidDataException($"{at}: the native list holds more beats than Draygon projectile {segment}.");
     }

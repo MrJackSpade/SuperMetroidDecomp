@@ -145,7 +145,7 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind == RoomEnemyProjectileKind.CrocomireProjectile)
             {
                 // Crocomire's shot program is typed (#641); VerifyCrocomireAnimations matches it to the native list.
-                AssertTrue(projectile.Animation is CrocomireProjectileAnimation { Kind: CrocomireProjectileFrameKind.Shot },
+                AssertTrue(projectile.Animation is CrocomireProjectileAnimation { Kind: CrocomireProjectileSegment.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

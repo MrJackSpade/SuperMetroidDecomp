@@ -34,8 +34,6 @@ internal static class RidleyAnimationsVerification
         var body = RidleyNativeProgramOracle.BodyLists(cartridge);
         RidleyNativeProgramOracle.CompareBreakupLists(cartridge);
         var fireball = RidleyNativeProgramOracle.FireballLists(cartridge);
-        AssertEqual(RidleyFireballVisualDefinitions.ProjectileFrameCount, RidleyFireballVisualDefinitions.ProjectileFrames.Count,
-            "the fireball catalog lists every frame");
 
         VerifyFacingBranch();
         VerifyLowEnergyBranch();

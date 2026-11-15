@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -69,7 +70,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing CrocomireProjectiles =
         new(ComposedEncounter.Crocomire, [EncounterLook.LoadedName, CrocomireSkeletonLookDefinitions.SkeletonLook.Name])
         {
-            Projectiles = [.. CrocomireProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+            Projectiles = [.. CrocomireAnimations.ProjectileSegments.Frames],
         };
 
     /// <summary>
@@ -87,7 +88,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
         new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesLightingAgain4, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
-            Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
         };
 
     /// <summary>
@@ -103,7 +104,7 @@ internal static class EncounterArtworkDrawingDefinitions
             L.EyesLightingAfterStun1, L.EyesLightingAfterStun2, L.EyesLightingAfterStun3, L.EyesLightingAfterStun4)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
-            Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
         };
 
     /// <summary>
@@ -259,7 +260,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainHandBeam =
         new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainAttackLook])
         {
-            Projectiles = [.. MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+            Projectiles = [.. MotherBrainHandBeamAnimations.Segments.Frames],
             ArtworkOfLook = true,
         };
 

@@ -1,16 +1,12 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed tongue and projectile animations (#641, #1600).</summary>
+/// <summary>Crocomire's typed tongue and projectile animations (#641, #1600, #2011).</summary>
 internal static class CrocomireAnimations
 {
-    /// <summary>Frames in the mouth projectile's looping flight.</summary>
-    internal const int MouthPhaseCount = 6;
-    /// <summary>Frames in the shot projectile's explosion.</summary>
-    internal const int ShotPhaseCount = 5;
-
     /// <summary>The fight tongue's frames, five updates each (#1885).</summary>
     private static readonly EnemyFrameId[] FightTongueFrames =
     [
@@ -51,25 +47,36 @@ internal static class CrocomireAnimations
     internal static Animation<CrocomireTongueSegment> TongueStartingWith(CrocomireTongueSegment segment) => TongueStartingAt[segment];
 
     /// <summary>
-    /// The projectile segments, one per projectile kind: the fight projectile's six three-update frames; the bridge
-    /// fragment's and spike-wall piece's one still frame, held for good (#1627: it shows for the
-    /// longest duration a frame can have, after which it still shows that frame); the shot fight projectile's five four-update explosion frames,
-    /// then a drop with Crocomire's chances and deletion.
+    /// The projectile segments, one per projectile kind, each beat the installed <see cref="EnemyProjectileFrameId"/> it shows
+    /// (#2011): the fight projectile's six three-update frames; the bridge fragment's and spike-wall piece's one still frame,
+    /// held for good (#1627: it shows for the longest duration a frame can have, after which it still shows that frame); the
+    /// shot fight projectile's five four-update explosion frames, then a drop with Crocomire's chances and deletion.
     /// </summary>
-    internal static AnimationSegments<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue> ProjectileSegments { get; } = new(
-        new Dictionary<CrocomireProjectileFrameKind, AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>[]>
+    internal static AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> ProjectileSegments { get; } = new(
+        new Dictionary<CrocomireProjectileSegment, AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>[]>
         {
-            [CrocomireProjectileFrameKind.Mouth] =
-                [.. Enumerable.Range(0, MouthPhaseCount).Select(phase => ProjectileFrame(new(CrocomireProjectileFrameKind.Mouth, phase), 3))],
-            [CrocomireProjectileFrameKind.BridgeFragment] =
-                [new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.HeldFrame(new(CrocomireProjectileFrameKind.BridgeFragment, 0))],
-            [CrocomireProjectileFrameKind.SpikeWallPiece] =
-                [new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.HeldFrame(new(CrocomireProjectileFrameKind.SpikeWallPiece, 0))],
-            [CrocomireProjectileFrameKind.Shot] =
+            [CrocomireProjectileSegment.Mouth] =
             [
-                .. Enumerable.Range(0, ShotPhaseCount).Select(phase => ProjectileFrame(new(CrocomireProjectileFrameKind.Shot, phase), 4)),
-                new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.Event(CrocomireProjectileCue.SpawnDrops),
-                new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.Event(CrocomireProjectileCue.Delete),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthFirst, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthSecond, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthThird, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthFourth, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthFifth, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthSixth, 3),
+            ],
+            [CrocomireProjectileSegment.BridgeFragment] =
+                [new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.HeldFrame(EnemyProjectileFrameId.CrocomireBridgeFragment)],
+            [CrocomireProjectileSegment.SpikeWallPiece] =
+                [new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.HeldFrame(EnemyProjectileFrameId.CrocomireSpikeWallPiece)],
+            [CrocomireProjectileSegment.Shot] =
+            [
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFirst, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotSecond, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotThird, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFourth, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFifth, 4),
+                new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Event(CrocomireProjectileCue.SpawnDrops),
+                new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Event(CrocomireProjectileCue.Delete),
             ],
         });
 
@@ -77,23 +84,27 @@ internal static class CrocomireAnimations
     /// The projectile animations: the mouth projectile loops its frames, the bridge fragment and spike-wall piece rest on
     /// their held frame, and the shot holds after its deletion.
     /// </summary>
-    internal static IReadOnlyDictionary<CrocomireProjectileFrameKind, Animation<CrocomireProjectileFrameKind>> ProjectileStartingAt { get; } =
-        new Dictionary<CrocomireProjectileFrameKind, Animation<CrocomireProjectileFrameKind>>
+    internal static IReadOnlyDictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>> ProjectileStartingAt { get; } =
+        new Dictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>>
         {
-            [CrocomireProjectileFrameKind.Mouth] = new([new(CrocomireProjectileFrameKind.Mouth, 0, MouthPhaseCount, 1)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireProjectileFrameKind.BridgeFragment] = new([new(CrocomireProjectileFrameKind.BridgeFragment, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireProjectileFrameKind.SpikeWallPiece] = new([new(CrocomireProjectileFrameKind.SpikeWallPiece, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireProjectileFrameKind.Shot] = new([new(CrocomireProjectileFrameKind.Shot, 0, ShotPhaseCount + 2, 1)], AnimationEnd.Holds),
+            [CrocomireProjectileSegment.Mouth] = new([WholeProjectile(CrocomireProjectileSegment.Mouth)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireProjectileSegment.BridgeFragment] = new([WholeProjectile(CrocomireProjectileSegment.BridgeFragment)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireProjectileSegment.SpikeWallPiece] = new([WholeProjectile(CrocomireProjectileSegment.SpikeWallPiece)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireProjectileSegment.Shot] = new([WholeProjectile(CrocomireProjectileSegment.Shot)], AnimationEnd.Holds),
         };
 
     /// <summary>The projectile animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CrocomireProjectileFrameKind> ProjectileStartingWith(CrocomireProjectileFrameKind segment) => ProjectileStartingAt[segment];
+    internal static Animation<CrocomireProjectileSegment> ProjectileStartingWith(CrocomireProjectileSegment segment) => ProjectileStartingAt[segment];
+
+    /// <summary>One play of every beat of projectile segment <paramref name="segment"/>.</summary>
+    private static AnimationPhase<CrocomireProjectileSegment> WholeProjectile(CrocomireProjectileSegment segment) =>
+        new(segment, 0, ProjectileSegments.Beats(segment).Count, 1);
 
     /// <summary>Shows tongue frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> TongueFrame(EnemyFrameId frame, int duration) =>
         new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 
     /// <summary>Shows projectile frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue> ProjectileFrame(CrocomireProjectileFrame frame, int duration) =>
-        new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue> ProjectileFrame(EnemyProjectileFrameId frame, int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Frame(frame, duration);
 }

@@ -265,14 +265,12 @@ internal static class CrocomireAnimationsVerification
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, shot: 1);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
-        exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
+        exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
         CompareProjectile(cartridge, shotSystem, exploding, RoomEnemyProjectileKind.CrocomireProjectile, shot: true, "shot");
         AssertTrue(!exploding.IsActive, "the shot program deletes the projectile");
         AssertTrue(shotSystem.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
             "the shot program allocates a drop before deleting the projectile");
 
-        AssertEqual(CrocomireProjectileVisualDefinitions.ProjectileFrameCount, CrocomireProjectileVisualDefinitions.ProjectileFrames.Count,
-            "the projectile catalog lists every frame");
         Console.WriteLine("  Crocomire projectile programs: mouth, bridge, spike and shot match bank $86 every update, with the drop and deletion.");
     }
 

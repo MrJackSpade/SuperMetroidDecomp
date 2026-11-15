@@ -1,9 +1,10 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -17,9 +18,9 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainBombAfterburnPicturesVerification
 {
-    /// <summary>The afterburn chain's frame kinds: the centre a bomb leaves, the afterburns it sends out, their final puff.</summary>
-    private static readonly RidleyFireballFrameKind[] ChainKinds =
-        [RidleyFireballFrameKind.HorizontalCenter, RidleyFireballFrameKind.Directional, RidleyFireballFrameKind.AfterburnFinal];
+    /// <summary>The afterburn chain's animations: the centre a bomb leaves, the afterburns it sends out, their final puff.</summary>
+    private static readonly RidleyFireballSegment[] ChainSegments =
+        [RidleyFireballSegment.HorizontalCenter, RidleyFireballSegment.DirectionalAfterburn, RidleyFireballSegment.AfterburnFinal];
 
     /// <summary>Draws each frame of the chain in Mother Brain's room through the production spawned-object draw.</summary>
     internal static void VerifyMotherBrainBombAfterburnPictures()
@@ -27,9 +28,10 @@ internal static class MotherBrainBombAfterburnPicturesVerification
         EnemyPresentation presentation = SpawnedObjectFixtures.Presentation(TourianRoomStateDefinitions.MotherBrainDefault);
         // The graphics Ridley's projectile code spawns every fireball and afterburn stage with.
         SpriteGraphics graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
-        var frames = RidleyFireballVisualDefinitions.ShownProjectileFrames
-            .Where(entry => ChainKinds.Contains(entry.Key.Kind))
-            .Select(entry => entry.Value)
+        EnemyProjectileFrameId[] frames = ChainSegments
+            .SelectMany(segment => RidleyFireballAnimations.Segments.Beats(segment))
+            .OfType<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame>()
+            .Select(beat => beat.Shown)
             .Distinct()
             .ToArray();
         VerificationAssertions.AssertEqual(15, frames.Length, "the afterburn chain shows five frames of each of its three stages");

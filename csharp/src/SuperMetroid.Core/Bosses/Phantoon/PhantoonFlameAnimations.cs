@@ -1,54 +1,82 @@
 using SuperMetroid.Core.Animation;
-using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameFrameKind;
+using SuperMetroid.Core.Enemies.Projectiles;
 using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameSegment;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame animations (#641, #1600).</summary>
+/// <summary>
+/// Phantoon's typed flame animations (#641, #1600, #2011), each beat the installed <see cref="EnemyProjectileFrameId"/> it
+/// shows.
+/// </summary>
 internal static class PhantoonFlameAnimations
 {
-    /// <summary>Poses in the idle, bouncing and starting loops.</summary>
-    internal const int LoopPoseCount = 3;
-    /// <summary>Poses a casual flame shows while resting.</summary>
-    internal const int RestingPoseCount = 6;
-    /// <summary>Poses a flame shows while dying.</summary>
-    internal const int DyingPoseCount = 4;
-    /// <summary>Poses in each falling phase.</summary>
-    internal const int FallingPoseCount = 2;
-    /// <summary>Phases of a casual flame's fall.</summary>
-    internal const int FallingPhaseCount = 3;
-    /// <summary>Poses a shot flame shows while bursting.</summary>
-    internal const int ShotPoseCount = 4;
-
-    /// <summary>Each flame pose's dwell.</summary>
-    private const int PoseDuration = 5;
-    /// <summary>The rain flame's impact dwell.</summary>
-    private const int RainImpactDuration = 8;
+    /// <summary>The poses in each of a casual flame's three falling phases.</summary>
+    private const int FallingPoseCount = 2;
     /// <summary>How many times each falling phase plays its two poses.</summary>
     private const int FallingRepeatCount = 4;
 
     /// <summary>
-    /// Every flame animation's steps (#1788): a falling flame's are its three falling phases' two poses each, in turn.
+    /// Every flame animation's steps (#1788): a flame pose lasts five updates, a landing casual flame shows one pose for one
+    /// update and a rain flame's impact one for eight; a falling flame's steps are its three falling phases' two one-update
+    /// poses each, in turn. A resting casual flame starts from the bouncing flame's last two poses, and a falling one from the
+    /// rain impact's.
     /// </summary>
-    internal static AnimationSegments<PhantoonFlameSegment, PhantoonFlameFrame, PhantoonFlameCue> Segments { get; } = new(
-        new Dictionary<PhantoonFlameSegment, AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[]>
+    internal static AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
+        new Dictionary<PhantoonFlameSegment, AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[]>
     {
-        [P.DestroyableIdle] = Poses(F.DestroyableIdle, LoopPoseCount),
-        [P.CasualHitGround] = [Show(new(F.CasualHitGround, 0), 1)],
-        [P.CasualBouncing] = Poses(F.CasualBouncing, LoopPoseCount),
-        [P.CasualResting] = Poses(F.CasualResting, RestingPoseCount),
+        [P.DestroyableIdle] =
+        [
+            Show(EnemyProjectileFrameId.PhantoonDestroyableIdleFirst, 5),
+            Show(EnemyProjectileFrameId.PhantoonDestroyableIdleSecond, 5),
+            Show(EnemyProjectileFrameId.PhantoonDestroyableIdleThird, 5),
+        ],
+        [P.CasualHitGround] = [Show(EnemyProjectileFrameId.PhantoonDestroyableIdleFifth, 1)],
+        [P.CasualBouncing] =
+        [
+            Show(EnemyProjectileFrameId.PhantoonCasualBouncingFirst, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualBouncingSecond, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualBouncingThird, 5),
+        ],
+        [P.CasualResting] =
+        [
+            Show(EnemyProjectileFrameId.PhantoonCasualBouncingFifth, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualBouncingSixth, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualRestingThird, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualRestingFourth, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualRestingFifth, 5),
+            Show(EnemyProjectileFrameId.PhantoonCasualRestingSixth, 5),
+        ],
         [P.Dying] =
         [
-            .. Poses(F.Dying, DyingPoseCount),
+            Show(EnemyProjectileFrameId.PhantoonDyingFirst, 5),
+            Show(EnemyProjectileFrameId.PhantoonDyingSecond, 5),
+            Show(EnemyProjectileFrameId.PhantoonDyingThird, 5),
+            Show(EnemyProjectileFrameId.PhantoonDyingFourth, 5),
             Cue(PhantoonFlameCue.Delete),
         ],
-        [P.RainImpact] = [Show(new(F.RainImpact, 0), RainImpactDuration)],
-        [P.CasualFalling] = FallingPoses(),
-        [P.StartingFlame] = Poses(F.StartingFlame, LoopPoseCount),
+        [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonRainImpactFirst, 8)],
+        [P.CasualFalling] =
+        [
+            Show(EnemyProjectileFrameId.PhantoonRainImpactFourth, 1),
+            Show(EnemyProjectileFrameId.PhantoonRainImpactFifth, 1),
+            Show(EnemyProjectileFrameId.PhantoonCasualFallingThird, 1),
+            Show(EnemyProjectileFrameId.PhantoonCasualFallingFourth, 1),
+            Show(EnemyProjectileFrameId.PhantoonCasualFallingFifth, 1),
+            Show(EnemyProjectileFrameId.PhantoonCasualFallingSixth, 1),
+        ],
+        [P.StartingFlame] =
+        [
+            Show(EnemyProjectileFrameId.PhantoonStartingFlameFirst, 5),
+            Show(EnemyProjectileFrameId.PhantoonStartingFlameSecond, 5),
+            Show(EnemyProjectileFrameId.PhantoonStartingFlameThird, 5),
+        ],
         [P.Delete] = [Cue(PhantoonFlameCue.Delete)],
         [P.DestroyableShot] =
         [
-            .. Poses(F.DestroyableShot, ShotPoseCount),
+            Show(EnemyProjectileFrameId.PhantoonDestroyableShotFirst, 5),
+            Show(EnemyProjectileFrameId.PhantoonDestroyableShotSecond, 5),
+            Show(EnemyProjectileFrameId.PhantoonDestroyableShotThird, 5),
+            Show(EnemyProjectileFrameId.PhantoonDestroyableShotFourth, 5),
             Cue(PhantoonFlameCue.SpawnDrop),
             Cue(PhantoonFlameCue.Delete),
         ],
@@ -81,19 +109,11 @@ internal static class PhantoonFlameAnimations
     /// <summary>Falling phase <paramref name="phase"/>'s two poses, played four times on the flame's loop counter.</summary>
     private static AnimationPhase<PhantoonFlameSegment> Falling(int phase) => new(P.CasualFalling, phase * FallingPoseCount, FallingPoseCount, FallingRepeatCount);
 
-    /// <summary>The <paramref name="count"/> poses of <paramref name="kind"/>, each lasting the flame dwell.</summary>
-    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] Poses(F kind, int count) =>
-        [.. Enumerable.Range(0, count).Select(phase => Show(new(kind, phase), PoseDuration))];
-
-    /// <summary>The three falling phases' two one-update poses each, in turn.</summary>
-    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] FallingPoses() =>
-        [.. Enumerable.Range(0, FallingPhaseCount * FallingPoseCount).Select(pose => Show(new(F.CasualFalling, pose), 1))];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue> Show(PhantoonFlameFrame frame, int duration) =>
-        new AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Show(EnemyProjectileFrameId frame, int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Frame(frame, duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>
-        new AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>
+        new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Event(cue);
 }

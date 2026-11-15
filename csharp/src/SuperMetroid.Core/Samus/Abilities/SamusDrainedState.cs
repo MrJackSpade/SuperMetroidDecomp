@@ -198,8 +198,8 @@ public sealed class SamusDrainedState
 
         if (_suitPaletteRestoreRequested)
         {
-            // The drained palette and the rainbow stop choose Gravity before Varia, then Power, as every
-            // other Samus palette restoration path does.
+            // The drained shade and the rainbow stop choose Gravity before Varia, then Power, as every
+            // other path restoring Samus's suit shade does.
             SamusSuitShade.Show(colours, equippedItems);
             _suitPaletteRestoreRequested = false;
             return true;

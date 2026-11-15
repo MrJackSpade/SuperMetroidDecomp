@@ -486,7 +486,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
-            state.PaletteDelay = 10;
+            state.ColourDelay = 10;
             samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;

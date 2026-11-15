@@ -129,7 +129,7 @@ internal sealed class SamusFramePhases
         else if (_player.LastGrappleMovement is { Phase: GrapplePhase.Inactive })
         {
             // Cancellation, drop, wall-jump and swing-release tails all
-            // reload the equipped beam palette before returning to inactive.
+            // restore the equipped beam's shade before returning to inactive.
             _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 

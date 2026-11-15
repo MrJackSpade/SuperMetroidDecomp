@@ -148,7 +148,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         switch (Phase)
         {
             case SamusDeathSequencePhase.PreFlashing:
-                // The death animation advances the death pose's delay stream only during the pre-flash state.
+                // The death animation advances the death pose's frame delays only during the pre-flash state.
                 // The flashing state freezes that final body frame while its shades alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;

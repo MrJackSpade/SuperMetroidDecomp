@@ -388,8 +388,8 @@ public sealed class SamusState
     public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
 
     /// <summary>
-    /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt-flash
-    /// palette advances it and clears it on reaching sixty (<see cref="SamusHurtFlash.EndingCall"/>).
+    /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt flash's
+    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlash.EndingCall"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 

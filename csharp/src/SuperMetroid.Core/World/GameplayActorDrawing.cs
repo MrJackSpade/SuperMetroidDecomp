@@ -113,7 +113,7 @@ internal sealed class GameplayActorDrawing
                 // The colour update always runs charge/post-shot handling before running the
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
                 // white for three calls and restore the suit on call four; Hyper shots
-                // step ten complete palettes on alternating calls before restore.
+                // step ten complete shades on alternating calls before restore.
                 LastBeamChargeGlowStep = room.Projectiles.UpdateBeamChargeGlow(
                     _player.Colours,
                     _player.Samus,

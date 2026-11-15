@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -24,9 +23,6 @@ internal sealed record CrocomireBehaviorDependencies
 
     /// <summary>Earthquake.</summary>
     public required RoomEarthquake Earthquake { get; init; }
-
-    /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
@@ -49,6 +45,6 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Crocomire's state lookups, frame results and sound and music requests.</summary>
     public required CrocomireEncounterAccess Access { get; init; }
 
-    /// <summary>The room's effect, whose acid surface his acid smoke rises from.</summary>
-    public required EnemyRoomFx RoomFx { get; init; }
+    /// <summary>His body's sprite layer and the acid smoke that rises from his room's acid surface, built with <see cref="Access"/>.</summary>
+    public required CrocomireBodyLayer BodyLayer { get; init; }
 }

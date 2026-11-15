@@ -724,7 +724,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, SlotTable);
         DachoraBehavior = new DachoraBehavior(Terrain, SlotTable, Audio);
-        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus, RoomFx = RoomFx });
+        var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
+        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, BodyLayer = new CrocomireBodyLayer(SpriteObjects, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
         ChootBehavior = new ChootBehavior();

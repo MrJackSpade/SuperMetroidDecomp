@@ -51,7 +51,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.Presentation.Artwork;
         _room = dependencies.Room;
         Access = dependencies.Access;
-        BodyLayer = new CrocomireBodyLayer(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access, dependencies.RoomFx);
+        BodyLayer = dependencies.BodyLayer;
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, CameraDistance = dependencies.CameraDistance, RoomStatus = dependencies.RoomStatus, Access = Access, Combat = Combat });
         BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.CameraDistance, BodyLayer, Access, Combat);

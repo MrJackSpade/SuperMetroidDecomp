@@ -896,11 +896,11 @@ public sealed class IntroCinematicState : IFrontendScreen
             StartPageSix();
     }
 
-    /// <summary>Replaces the text stream, caret, and eye animation without a colour transition.</summary>
+    /// <summary>Replaces the page text, caret, and eye animation without a colour transition.</summary>
     private void StartPageSix()
     {
         // Page six has no colour transition. Only the English text region, caret, eye
-        // stream, and final page object are replaced.
+        // animation, and final page object are replaced.
         Objects.StartEnglishPageSix();
         CurrentScientistCutscene = null;
         Phase = IntroCinematicPhase.PageSixText;

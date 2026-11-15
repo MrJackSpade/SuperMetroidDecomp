@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 internal enum SporeSpawnProjectileMotion
 {
-    /// <summary>Drifts a spore along its authored movement stream.</summary>
+    /// <summary>Drifts a spore along its authored drift.</summary>
     SporeDrifting,
 
     /// <summary>Releases spores from the ceiling spawner on a random cadence while Spore Spawn is closed.</summary>

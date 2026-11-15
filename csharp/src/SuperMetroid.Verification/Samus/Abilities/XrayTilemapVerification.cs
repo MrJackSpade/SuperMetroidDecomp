@@ -57,11 +57,12 @@ internal static class XrayTilemapVerification
         Position16<RoomPixels> cameraPosition = new(24, 24);
         RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, area, visuals);
         RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealArea.Columns + column];
-        // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy.
-        void Set(int index, RoomCollisionType type, int behavior)
+        // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy. The behaviour
+        // is held as a room of the area holds it: a room's load resolves what its area makes of the byte (#1805).
+        void Set(int index, RoomCollisionType type, int behavior, AreaId area = AreaId.Brinstar)
         {
             level.SetObjectTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type), foreground[index].Appearance);
-            level.SetObjectBehavior(index, RoomBlockBehaviorCodec.Decode(behavior));
+            level.SetObjectBehavior(index, RoomBlockBehaviorCodec.Decode(area, behavior));
         }
         RevealedBlock?[] basis = Build();
         AssertEqual(Copied(1, 1), Cell(basis, 0, 0), "base copy starts at the block holding the screen's top-left corner, mirrored as the level mirrors it");
@@ -99,6 +100,7 @@ internal static class XrayTilemapVerification
         AssertEqual(Cell(left, 0, 1), Cell(edge, 0, 1), "last first-screen column does not write into the next row's first block");
         Set(40, RoomCollisionType.SpecialBlock, 0x82);
         AssertEqual(Defined(FirstShown(XrayRevealShape.CopyBrinstar)), Cell(Build(), 7, 0), "Brinstar-only reveal is applied in Brinstar");
+        Set(40, RoomCollisionType.SpecialBlock, 0x82, AreaId.Crateria);
         AssertEqual(Cell(basis, 7, 0), Cell(Build(AreaId.Crateria), 7, 0), "Brinstar-only reveal preserves copied art elsewhere");
         // A square at the bottom row writes only its upper blocks: its lower ones lie below the revealed area.
         Set(33 + 15 * RoomSide, RoomCollisionType.ShootableBlock, 3);

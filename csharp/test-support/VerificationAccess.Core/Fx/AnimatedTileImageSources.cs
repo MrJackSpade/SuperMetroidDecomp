@@ -17,12 +17,12 @@ internal static class AnimatedTileImageSources
     internal static int Of(AnimatedTileImage image) => RoomFxBlockAnimationSources.Of(image).Value;
 
     /// <summary>
-    /// The cartridge address of the picture the frame <paramref name="animatedObject"/> shows in <paramref name="frames"/>
+    /// The cartridge address of the picture the frame <paramref name="animation"/> shows in <paramref name="frames"/>
     /// names, or null when it shows none: the selected frame folded through the import's frame-to-picture mapping
     /// (#1527), for a ROM oracle comparing a native frame operand.
     /// </summary>
-    internal static int? OfShown(ArtworkFrameSelections frames, BlockAnimation animatedObject) =>
-        frames.TryShown(BlockAnimationFrames.Of(animatedObject), out ArtworkFrame shown) ? AnimatedTileFrameArtwork.SourceOf(shown) : null;
+    internal static int? OfShown(ArtworkFrameSelections frames, BlockAnimation animation) =>
+        frames.TryShown(BlockAnimationFrames.Of(animation), out ArtworkFrame shown) ? AnimatedTileFrameArtwork.SourceOf(shown) : null;
 
     /// <summary>The cartridge address the import reads the picture of the rightward treadmill's frame <paramref name="frame"/> from.</summary>
     internal static int Treadmill(int frame) =>
@@ -75,7 +75,7 @@ internal static class AnimatedTileImageSources
         TryOfCursor(definition, instructionPointer, out int source)
             ? source
             : throw new InvalidDataException(
-                $"Room-FX object {definition.Animation} has no artwork frame at $87:{instructionPointer:X4}.");
+                $"Block animation {definition.Animation} has no artwork frame at $87:{instructionPointer:X4}.");
 
     /// <summary>
     /// Whether a frame of <paramref name="definition"/> has its timed control word at bank-$87

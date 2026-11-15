@@ -54,8 +54,8 @@ public static class RoomEarthquakeDefinitions
     internal static readonly RandomSampleField RisingLiquidSoundJitter = new(0, 2);
 
     /// <summary>
-    /// The six rooms whose special-FX initialization silences quake sounds, in the order the game compares them;
-    /// every other room keeps them.
+    /// The six rooms whose quakes are silent: entering one silences quake sounds as its room effect loads, and every other
+    /// room keeps them.
     /// </summary>
     public static IReadOnlyList<RoomDefinition> SoundSuppressedRooms { get; } =
     [

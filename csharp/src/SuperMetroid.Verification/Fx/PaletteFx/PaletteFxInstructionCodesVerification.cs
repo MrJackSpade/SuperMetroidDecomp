@@ -1542,18 +1542,13 @@ internal static class PaletteFxInstructionCodesVerification
     }
 
     /// <summary>
-    /// Checks that the heat definitions declare exactly their per-frame subdamage and sound-energy threshold as
-    /// integer constants. Since #1480 these are domain values rather than cartridge words, so the callback
-    /// catalogs' word scan, uniqueness and mapped-pointer properties do not describe them.
+    /// Checks the heat's typed damage per update against the cartridge's (#1983): the original heat pre-instruction adds
+    /// $4000 of the 65536 parts of one energy to Samus's periodic damage on every unprotected frame, and no whole energy.
+    /// <see cref="VerifyNorfairHeatPaletteHandshake"/> confirms the accumulated damage bit for bit.
     /// </summary>
-    private static void AssertPaletteFxHeatDefinitions()
-    {
-        int[] definitions = typeof(ColourEffectHeatData).GetFields()
-            .Where(field => field.IsLiteral)
-            .Select(field => field.RequiredConstant<int>())
-            .ToArray();
-        AssertEqual(2, definitions.Length, $"{nameof(ColourEffectHeatData)} exhaustive entry count");
-    }
+    private static void AssertPaletteFxHeatDefinitions() =>
+        AssertEqual(new UnsignedSixteenSixteen(0, 0x4000), ColourEffectHeatData.DamagePerUpdate,
+            "the heat deals the cartridge's quarter energy each unprotected update");
 
     /// <summary>Runs the palette-FX instruction-catalog verification command.</summary>
     [VerificationCommand("--palette-fx-instruction-codes")]

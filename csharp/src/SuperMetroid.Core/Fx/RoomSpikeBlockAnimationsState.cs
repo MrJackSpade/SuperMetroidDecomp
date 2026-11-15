@@ -12,17 +12,17 @@ public sealed class RoomSpikeBlockAnimationsState
     private static readonly BlockAnimation[] Played = [BlockAnimation.HorizontalSpikes];
 
     /// <summary>The current room's horizontal-spike animations, which each room builds afresh.</summary>
-    internal readonly List<BlockAnimationPlayer> objects;
+    internal readonly List<BlockAnimationPlayer> animations;
 
     /// <summary>Spawns one room's horizontal spikes from the door-selected room effect.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     public RoomSpikeBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door) =>
-        objects = RoomEffectBlockAnimations.Start(fx, door, Played);
+        animations = RoomEffectBlockAnimations.Start(fx, door, Played);
 
     /// <summary>Advances the spike animation and selects its authored frame for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames)
     {
-        foreach (BlockAnimationPlayer animation in objects) animation.Step(frames);
+        foreach (BlockAnimationPlayer animation in animations) animation.Step(frames);
     }
 }

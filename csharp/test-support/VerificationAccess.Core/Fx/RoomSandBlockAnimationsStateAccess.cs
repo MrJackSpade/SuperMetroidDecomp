@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>Verification access to <see cref="RoomSandBlockAnimationsState"/> members production does not use.</summary>
 internal static class RoomSandBlockAnimationsStateAccess
 {
-    /// <summary>Counts room-selected sand animation objects after the current FX bitset is applied.</summary>
+    /// <summary>Counts the sand animations the room effect started.</summary>
     extension(RoomSandBlockAnimationsState self)
     {
-        /// <summary>Number of sand objects selected by the current room/door FX bitset.</summary>
-        internal int Count => self.objects.Count;
+        /// <summary>The number of sand animations the room effect the entry door selected started.</summary>
+        internal int Count => self.animations.Count;
     }
 }

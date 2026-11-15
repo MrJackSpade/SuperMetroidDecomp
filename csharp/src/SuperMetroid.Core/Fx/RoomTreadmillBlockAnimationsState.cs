@@ -16,13 +16,13 @@ public sealed class RoomTreadmillBlockAnimationsState
         [BlockAnimation.WreckedShipTreadmillRightwards, BlockAnimation.WreckedShipTreadmillLeftwards];
 
     /// <summary>Treadmill animations the current room's effect starts, in the effect's order.</summary>
-    internal readonly List<BlockAnimationPlayer> objects;
+    internal readonly List<BlockAnimationPlayer> animations;
 
     /// <summary>Spawns one room's treadmill animations from the door-selected room effect in the effect's order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     public RoomTreadmillBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door) =>
-        objects = RoomEffectBlockAnimations.Start(fx, door, Played);
+        animations = RoomEffectBlockAnimations.Start(fx, door, Played);
 
     /// <summary>
     /// Runs each treadmill animation; each waits for the area's boss before its first frame
@@ -30,6 +30,6 @@ public sealed class RoomTreadmillBlockAnimationsState
     /// </summary>
     public void Step(bool areaBossDefeated, ArtworkFrameSelections frames)
     {
-        foreach (BlockAnimationPlayer animation in objects) animation.Step(areaBossDefeated, frames);
+        foreach (BlockAnimationPlayer animation in animations) animation.Step(areaBossDefeated, frames);
     }
 }

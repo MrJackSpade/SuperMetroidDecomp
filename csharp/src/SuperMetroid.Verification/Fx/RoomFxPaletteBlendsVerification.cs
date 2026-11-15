@@ -131,7 +131,7 @@ internal static class RoomFxPaletteBlendsVerification
 
     /// <summary>The shade the import pre-colours the layer-3 pictures in for <paramref name="selection"/> from <paramref name="catalog"/>.</summary>
     private static SheetShade BlendShade(RoomFxBlendInks catalog, RoomEffectTint selection) =>
-        RoomFxBlendSheetShades.Of(catalog).Single(shade => shade.Shade == RoomFxBlendShading.Of(selection));
+        RoomFxBlendSheetShades.Of(catalog).Single(shade => shade.Shade == RoomEffectTintShading.Of(selection));
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
     private static RoomEffectDefinition SelectCompiledBlendRecord(RoomEffectTint selection) =>

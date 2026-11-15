@@ -15,17 +15,17 @@ public sealed class RoomSandBlockAnimationsState
     private static readonly BlockAnimation[] Played = [BlockAnimation.MaridiaSandCeiling, BlockAnimation.MaridiaSandFalling];
 
     /// <summary>The sand animations the current room's effect starts, in the effect's order.</summary>
-    internal readonly List<BlockAnimationPlayer> objects;
+    internal readonly List<BlockAnimationPlayer> animations;
 
     /// <summary>Spawns one room's sand animations from the door-selected room effect in the effect's order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     public RoomSandBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door) =>
-        objects = RoomEffectBlockAnimations.Start(fx, door, Played);
+        animations = RoomEffectBlockAnimations.Start(fx, door, Played);
 
     /// <summary>Advances each sand animation and selects its authored frame for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames)
     {
-        foreach (BlockAnimationPlayer animation in objects) animation.Step(frames);
+        foreach (BlockAnimationPlayer animation in animations) animation.Step(frames);
     }
 }

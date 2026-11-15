@@ -57,8 +57,8 @@ internal static class SuitPickupPeriodicDamageVerification
         while (runtime.SuitPickup.IsActive)
         {
             AssertTrue(pickupFrames < 4096, "the suit transformation finishes");
-            samus.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.SubdamagePerFrame, wholeDamage: 0);
-            reference.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.SubdamagePerFrame, wholeDamage: 0);
+            samus.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.DamagePerUpdate.Fraction, ColourEffectHeatData.DamagePerUpdate.Whole);
+            reference.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.DamagePerUpdate.Fraction, ColourEffectHeatData.DamagePerUpdate.Whole);
             int healthBefore = samus.Health;
             int fractionBefore = samus.EnergyFraction.Parts;
             runtime.StepFrame(0);

@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public enum RoomEffectTint
 {
-    /// <summary>No tint: the overlay's third blend colour is cleared to black.</summary>
+    /// <summary>
+    /// No tint: the overlay and the HUD keep their own colours, except the last of the three colours a tint sets, which
+    /// shows black.
+    /// </summary>
     None,
     /// <summary>The tint of lava and acid.</summary>
     Lava,

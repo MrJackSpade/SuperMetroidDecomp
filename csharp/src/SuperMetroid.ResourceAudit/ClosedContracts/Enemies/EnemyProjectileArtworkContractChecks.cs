@@ -59,10 +59,10 @@ internal static class EnemyProjectileArtworkContractChecks
                 void Inspect(EnemyProjectileSpritemapCatalog art, EnemyProjectileFrameId frame, EnemyProjectileFrameId program) {
                     art.Get(EnemyProjectileFrameId.{{directId}});
                     art.Get(EnemyProjectileFrameId.Blank);
-                    art.Get(0);
+                    art.Get((EnemyProjectileFrameId)int.MaxValue);
                     art.Get(frame);
                     art.GetProgramFrame(EnemyProjectileFrameId.{{programId}});
-                    art.GetProgramFrame(0);
+                    art.GetProgramFrame((EnemyProjectileFrameId)int.MaxValue);
                     art.GetProgramFrame(program);
                 }
             }

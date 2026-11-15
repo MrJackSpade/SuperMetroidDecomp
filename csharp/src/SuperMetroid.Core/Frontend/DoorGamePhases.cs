@@ -21,8 +21,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
             !StepHitDoorBlock(controllerInput))
             return;
         // The door's next state follows in the same update and publishes the one after it.
-        // The update's per-line effect pass runs before this phase. A rising
-        // liquid's rumble or ambient sound it requests is queued as it runs, ahead of the cancels.
+        // The update's liquid wave and statue descent advance before this phase. A rising
+        // liquid's rumble or ambient sound they request is queued as it runs, ahead of the cancels.
         session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy cue's

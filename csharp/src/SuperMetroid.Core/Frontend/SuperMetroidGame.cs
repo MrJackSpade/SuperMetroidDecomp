@@ -289,7 +289,7 @@ public sealed class SuperMetroidGame
                 step: controllerInput => GameplayPhases.RunPausingDarkening(controllerInput),
                 name: () => $"Pausing: gameplay darken ({Session.PauseBrightness})"),
             new GamePhase(SuperMetroidGameState.Pausing,
-                PhaseRandomStep.NonGameplayLineEffectsThenAdvance,
+                PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
                 step: controllerInput => PausePhases.RunPausing(controllerInput),
                 name: () => "Pausing: load pause assets",
                 audio: GamePhaseAudio.PauseInputEpilogue),
@@ -385,9 +385,10 @@ public sealed class SuperMetroidGame
                 PhaseRandomStep.RuntimeOwned,
                 step: controllerInput => GameplayPhases.RunTimeUp(controllerInput),
                 name: () => nameof(SuperMetroidGameState.TimeUp)),
-            // The time-up black-out fades without gameplay; its per-line effects still run until it clears them.
+            // The time-up white-out fades without gameplay; the room liquid's wave and the statues' descent still advance
+            // until it clears the room's effects.
             new GamePhase(SuperMetroidGameState.WhitingOutFromTimeUp,
-                PhaseRandomStep.NonGameplayLineEffectsThenAdvance,
+                PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
                 step: controllerInput => CinematicPhases.RunWhitingOutFromTimeUp(controllerInput),
                 name: () => nameof(SuperMetroidGameState.WhitingOutFromTimeUp)),
             new GamePhase(SuperMetroidGameState.CeresGoesBoomWithSamus,
@@ -530,8 +531,9 @@ public sealed class SuperMetroidGame
                 // not what it sees.
                 Session.Random.Generate();
                 break;
-            case PhaseRandomStep.NonGameplayLineEffectsThenAdvance:
-                // The per-line effects still run on the update before the pause screen; lava swaps the live random state.
+            case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
+                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava or
+                // acid wave swaps the halves of the random number.
                 Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.RoomObjects, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case PhaseRandomStep.Advance:
@@ -543,7 +545,7 @@ public sealed class SuperMetroidGame
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {Phases.Of(Session.GameState).RandomStep}.");
         }
-        // Gameplay advances the generator itself after its per-line effects. Do not
+        // Gameplay advances the generator itself after its liquid wave and statue descent. Do not
         // advance here for gameplay updates or for an update that finishes a waiting step.
     }
 }

@@ -482,7 +482,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Reapplying a room effect restores motion, blending and three colors, but does not restart
-    /// per-line effects, block animations, or the liquid's current motion phase as a room load would.
+    /// the room effect's screen waves, block animations, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal void ApplyEntry(RoomEffectDefinition definition)
     {

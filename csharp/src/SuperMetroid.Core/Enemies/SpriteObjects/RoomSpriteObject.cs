@@ -75,9 +75,8 @@ public sealed class RoomSpriteObject
             $"Sprite object {Kind} has no animation to play.");
         Animation<RoomSpriteObjectSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        WrappingCountdown repeats = default;
         AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectPicture> shown = RoomSpriteObjectAnimations.Segments.PlayToNextFrame(
-            ref animation, ref place, ref repeats,
+            ref animation, ref place,
             raised => throw new InvalidOperationException($"Sprite object {Kind}'s event-free animation raised {raised}."));
         switch (shown)
         {

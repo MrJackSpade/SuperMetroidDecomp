@@ -119,7 +119,7 @@ internal sealed class IntroDiscoverySprite
         AnimationPlace place = Playback.Place;
         WrappingCountdown repeats = LoopCountdown;
         AnimationShown<CinematicSpriteSegment, CinematicSpritePose> shown = CinematicSpriteAnimations.Segments.PlayToNextFrame(
-            animation, ref place, ref repeats, cue => ApplyCue(cue, ownerCue));
+            animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<CinematicSpriteSegment>(animation, place);
         LoopCountdown = repeats;
         switch (shown)

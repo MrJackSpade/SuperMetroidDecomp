@@ -49,7 +49,7 @@ internal static class NorfairLavaJumperAnimations
     {
         [P.Hidden] = new([new(P.Hidden, 0, 1, 1)], AnimationEnd.Holds),
         [P.Jump] = new([new(P.Jump, 0, 8, 1)], AnimationEnd.Holds),
-        [P.Follower] = new([new(P.Follower, 0, 2, 1), new(P.FollowerLoop, 0, 4, 1, AnimationPhaseCounting.EveryPlay)], AnimationEnd.LoopsFrom(0)),
+        [P.Follower] = new([new(P.Follower, 0, 2, 1), new(P.FollowerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

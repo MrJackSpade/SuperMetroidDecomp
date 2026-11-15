@@ -135,7 +135,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
 
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
     private static RoomEnemySlot NewSkreeMetareeAnimationSlot() =>
-        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
+        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>One of <paramref name="animations"/> other than <paramref name="animation"/>, installed before each handoff.</summary>
     private static SkreeMetareeSegment Different(SkreeMetareeSegment[] animations, SkreeMetareeSegment animation) =>
@@ -153,7 +153,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expected), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
         AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
-        AssertEqual(0, slot.AnimationClock.Repeats.RawValue, $"{context} loop timer");
     }
 
 }

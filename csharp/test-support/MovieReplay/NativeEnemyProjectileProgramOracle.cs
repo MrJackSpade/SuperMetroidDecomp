@@ -159,8 +159,6 @@ internal static class NativeEnemyProjectileProgramOracle
         ushort list = start;
         int offset = 0, plays = 1;
         int? pending = null;
-        // A run entered after a counter load counts the owner's counter even when the load is one and it plays once.
-        bool countsEveryPlay = false;
         AnimationEnd? end = null;
         while (end is null)
         {
@@ -173,12 +171,10 @@ internal static class NativeEnemyProjectileProgramOracle
             {
                 if (control.AfterBeat > runStart)
                 {
-                    phases.Add(new(animation, offset + runStart, control.AfterBeat - runStart, plays,
-                        countsEveryPlay && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
+                    phases.Add(new(animation, offset + runStart, control.AfterBeat - runStart, plays));
                 }
                 runStart = control.AfterBeat;
                 plays = 1;
-                countsEveryPlay = false;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:
@@ -204,7 +200,6 @@ internal static class NativeEnemyProjectileProgramOracle
                         entered[target] = phases.Count;
                         next = target;
                         plays = pending ?? 1;
-                        countsEveryPlay = pending is not null;
                         pending = null;
                         break;
                     default:

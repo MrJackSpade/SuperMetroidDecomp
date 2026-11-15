@@ -123,12 +123,13 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 11);
             AssertEqual(WallSpacePirateClimbDirection.Up, state.ClimbDirection,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision reverses direction");
-            // The contact continues at the upward climb, whose counted loop has shown its first pose.
+            // The contact continues at the upward climb, whose repeated loop has shown its first pose of its first play.
             WallSpacePirateSegment climb = onRightWall ? WallSpacePirateSegment.MovingUpRightWall : WallSpacePirateSegment.MovingUpLeftWall;
             WallSpacePirateSegment loop = onRightWall ? WallSpacePirateSegment.MovingUpRightWallLoop : WallSpacePirateSegment.MovingUpLeftWallLoop;
             AssertEqual(
                 new AnimationPlayback<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(climb),
-                    AnimationSegments<WallSpacePirateSegment, EnemyFrameId, WallSpacePirateCue>.PlaceOf(WallSpacePirateAnimations.StartingWith(climb), loop, 1)),
+                    AnimationSegments<WallSpacePirateSegment, EnemyFrameId, WallSpacePirateCue>.PlaceOf(WallSpacePirateAnimations.StartingWith(climb), loop, 1)
+                        .WithPlaysLeft(WallSpacePirateAnimations.StartingWith(climb).Phases.Single(phase => phase.Segment == loop && phase.IsRepeated).Plays)),
                 state.Playback,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision installs upward list");
         }

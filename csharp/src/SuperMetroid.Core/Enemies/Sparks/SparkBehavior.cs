@@ -60,7 +60,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.AnimationClock.StepOnNextUpdate();
         state.Playback = new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation);
-        slot.AnimationClock.ClearRepeats();
         // Spark keeps its population properties: the initializer's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }

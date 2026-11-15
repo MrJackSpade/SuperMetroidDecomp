@@ -551,6 +551,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEscapeEtecoonAnimations), () => VerifyEscapeEtecoonAnimations(LoadRepositoryRom())),
         new(nameof(VerifyEscapeEtecoonProgramBehavior), () => VerifyEscapeEtecoonProgramBehavior(LoadRepositoryRom())),
         new(nameof(VerifyEscapeDachoraAnimations), () => VerifyEscapeDachoraAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyEscapeDachoraHighTideCountsOnLaps), () => VerifyEscapeDachoraHighTideCountsOnLaps()),
         new(nameof(VerifyZebetiteDefinitions), () => VerifyZebetiteDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainBabyMetroidDefinitions), () => VerifyMotherBrainBabyMetroidDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyYardDirectionDefinitions), () => VerifyYardDirectionDefinitions(LoadRepositoryRom())),

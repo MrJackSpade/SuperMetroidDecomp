@@ -185,13 +185,11 @@ public sealed class TourianStatueSequence
         foreach (StatueBlockAnimation statueAnimation in objects)
         {
             if (!statueAnimation.CountDown() || statueAnimation.Playback is not { } playback) continue;
-            // The statue animations play no counted phase, so their plays keep no repeat counter.
-            var uncounted = new UncountedPlay();
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;
             Animation<TourianStatueBlockSegment> animation = playback.Animation;
             AnimationPlace place = playback.Place;
             AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture> shown = statueAnimation.Segments.PlayToNextFrame(
-                ref animation, ref place, ref uncounted, cue => RunCue(definition, cue));
+                ref animation, ref place, cue => RunCue(definition, cue));
             switch (shown)
             {
                 case AnimationShown<TourianStatueBlockSegment, TourianStatueBlockPicture>.Frame frame:

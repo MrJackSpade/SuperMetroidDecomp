@@ -14,8 +14,9 @@ internal enum TourianStatueProjectileSegment
 
     /// <summary>An unlocking particle.</summary>
     /// <remarks>
-    /// Its loop counter is never set, so it wraps from zero; the particle leaves the screen long before the counter runs
-    /// out, which in the game would run the animation on into unrelated data.
+    /// Its run plays once and then the longest count more times, as the game's never-set loop count wraps from zero; the
+    /// particle leaves the screen long before those plays run out, which in the game would run the animation on into
+    /// unrelated data.
     /// </remarks>
     Particle,
 

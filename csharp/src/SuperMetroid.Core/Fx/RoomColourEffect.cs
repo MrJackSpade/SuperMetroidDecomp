@@ -65,9 +65,6 @@ internal sealed class RoomColourEffect
     /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
     internal AnimationPlace Place { get; set; }
 
-    /// <summary>The plays its counted phase has left, which that phase loads as it starts and counts down.</summary>
-    internal WrappingCountdown Repeats { get; set; }
-
     /// <summary>
     /// Updates until the effect plays on to its next frame. It counts down before it is compared with zero; every frame
     /// lasts at least one update and a started or restarted effect stands at one, so a running effect never counts down
@@ -121,10 +118,8 @@ internal sealed class RoomColourEffect
     {
         Ensure.NotNull(carryOut);
         AnimationPlace place = Place;
-        WrappingCountdown repeats = Repeats;
-        AnimationShown<ColourEffectId, int> shown = ColourEffectAnimations.Steps.PlayToNextFrame(Animation, ref place, ref repeats, carryOut);
+        AnimationShown<ColourEffectId, int> shown = ColourEffectAnimations.Steps.PlayToNextFrame(Animation, ref place, carryOut);
         Place = place;
-        Repeats = repeats;
         switch (shown)
         {
             case AnimationShown<ColourEffectId, int>.Frame frame:

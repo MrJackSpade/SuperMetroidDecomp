@@ -187,7 +187,8 @@ internal static class CinematicSpriteAnimationsVerification
 
     /// <summary>
     /// Plays the animation of <paramref name="program"/> through the real actor beside an independent reader of its native list, comparing
-    /// liveness, the shown spritemap, the loop timer and each update's owner cues, a routine install among them; returns the updates.
+    /// liveness, the shown spritemap, the plays a repeated phase has left (#2006) and each update's owner cues, a routine install
+    /// among them; returns the updates.
     /// </summary>
     private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
     {
@@ -204,7 +205,8 @@ internal static class CinematicSpriteAnimationsVerification
             if (!native.Active)
                 return update + 1;
             AssertTrue(CinematicSpritePoseSpritemaps.Shows(actor.Pose, native.Spritemap), $"{at}: spritemap ${native.Spritemap:X4} draws {actor.Pose}");
-            AssertEqual(native.Timer.RawValue, actor.LoopCountdown.RemainingFrames, $"{at}: loop timer");
+            if (NativeEnemyAnimationOracle.NativePlaysLeft(actor.Playback) is { } playsLeft)
+                AssertEqual<int>(native.Timer.RawValue, playsLeft, $"{at}: plays left");
             AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");
         }
         return PlaybackUpdates;

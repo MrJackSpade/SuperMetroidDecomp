@@ -251,10 +251,8 @@ internal sealed class MotherBrainHead
             place = place with { Beat = place.Beat + 1 };
         }
 
-        // No brain animation counts its plays, so nothing reads or writes this counter.
-        WrappingCountdown uncounted = default;
         AnimationShown<MotherBrainHeadSegment, MotherBrainHeadFrame> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
-            ref animation, ref place, ref uncounted, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
+            ref animation, ref place, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
                 ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
                 : null);
         if (advance is not AnimationShown<MotherBrainHeadSegment, MotherBrainHeadFrame>.Frame shown)

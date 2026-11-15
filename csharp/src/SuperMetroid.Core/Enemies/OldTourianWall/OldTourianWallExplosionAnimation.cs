@@ -31,8 +31,8 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
         });
 
     /// <summary>
-    /// The explosion's animation: the setup, the burst counted <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount"/> times on the projectile's
-    /// timer (loaded even for one play, as the game's animation loads its count before the burst), then the delete, holding after it.
+    /// The explosion's animation: the setup, the burst played <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount"/>
+    /// times, then the delete, holding after it.
     /// </summary>
     internal static IReadOnlyDictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>> AllAnimations { get; } =
         new Dictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>>
@@ -40,7 +40,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
             [OldTourianWallExplosionSegment.Start] = new(
             [
                 new(OldTourianWallExplosionSegment.Start, 0, 1, 1),
-                new(OldTourianWallExplosionSegment.Burst, 0, 2 + D.FrameDurations.Length, D.BurstCount, AnimationPhaseCounting.EveryPlay),
+                new(OldTourianWallExplosionSegment.Burst, 0, 2 + D.FrameDurations.Length, D.BurstCount),
                 new(OldTourianWallExplosionSegment.Burst, 2 + D.FrameDurations.Length, 1, 1),
             ], AnimationEnd.Holds),
         };

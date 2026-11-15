@@ -280,6 +280,41 @@ internal static class NativeEnemyAnimationOracle
     }
 
     /// <summary>
+    /// <paramref name="playback"/> with the plays its repeated phase has left read from a recording's native loop counter
+    /// <paramref name="counter"/> (#2006): in a counted list the counter holds the plays the list has left, the one playing
+    /// included, as the place does. A playback before its phase, holding, or in a phase played once counts nothing and
+    /// is returned as it is.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The counter is outside the repeated phase's plays.</exception>
+    internal static AnimationPlayback<TSegment> WithNativePlaysLeft<TSegment>(AnimationPlayback<TSegment> playback, ushort counter)
+        where TSegment : struct
+    {
+        AnimationPlace place = playback.Place;
+        if (place.Beat == AnimationPlace.NotEntered || playback.Animation.Phases.Count == 0)
+            return playback;
+        AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
+        if (!phase.IsRepeated || place.Beat > phase.BeatCount)
+            return playback;
+        if (counter < 1 || counter > phase.Plays)
+            throw new InvalidDataException($"A native loop counter of {counter} stands outside the {phase.Plays} plays of repeated phase {place.Phase} ({phase.Segment}).");
+        return playback with { Place = place.WithPlaysLeft(counter) };
+    }
+
+    /// <summary>
+    /// The plays the repeated phase <paramref name="playback"/> stands in has left, as a recording's native loop counter
+    /// holds them, or null where the playback counts none: before its phase, holding, or in a phase played once (#2006).
+    /// </summary>
+    internal static int? NativePlaysLeft<TSegment>(AnimationPlayback<TSegment> playback)
+        where TSegment : struct
+    {
+        AnimationPlace place = playback.Place;
+        if (place.Beat == AnimationPlace.NotEntered || playback.Animation.Phases.Count == 0)
+            return null;
+        AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
+        return phase.IsRepeated && place.Beat <= phase.BeatCount ? place.PlaysLeft : null;
+    }
+
+    /// <summary>
     /// The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules, the first
     /// list's run playing <paramref name="firstPlays"/> times.
     /// </summary>
@@ -292,18 +327,14 @@ internal static class NativeEnemyAnimationOracle
         TSegment segment = start;
         int runStart = 0, plays = firstPlays;
         int? pending = null;
-        // A run entered after a counter load counts the owner's counter even when the load is one and it plays once.
-        bool counted = false;
         for (int guard = 0; guard < 100000; guard++)
         {
             foreach (NativeEnemyControl<TSegment> control in lists[segment].Controls)
             {
                 if (control.AfterBeat > runStart)
-                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays,
-                        counted && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
+                    phases.Add(new(segment, runStart, control.AfterBeat - runStart, plays));
                 runStart = control.AfterBeat;
                 plays = 1;
-                counted = false;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:
@@ -331,7 +362,6 @@ internal static class NativeEnemyAnimationOracle
                         segment = target;
                         runStart = 0;
                         plays = pending ?? 1;
-                        counted = pending is not null;
                         pending = null;
                         break;
                     default:
@@ -360,11 +390,11 @@ internal static class NativeEnemyAnimationOracle
             .Select(pair => pair.Key)];
 
     /// <summary>
-    /// Checks the continuation an owner's branch into each count-down tail takes (#1600): the end of a play of a counted
+    /// Checks the continuation an owner's branch into each count-down tail takes (#1600): the end of a play of a repeated
     /// phase, of one of the family's animations, that plays the whole list the tail counts down, a list that continues into
-    /// the tail directly after its last beat. Counting down there replays that phase while the counter lasts and then
-    /// moves on, as the tail's count-down does; what follows is the animation's own, which <see cref="CompareAnimations"/>
-    /// matched to the lists.
+    /// the tail directly after its last beat, counting on the plays the branching play had left (#2006). Counting down there
+    /// replays that phase while those plays last and then moves on, as the tail's count-down of the shared counter does;
+    /// what follows is the animation's own, which <see cref="CompareAnimations"/> matched to the lists.
     /// </summary>
     internal static void CompareCountDownContinuations<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
@@ -382,8 +412,9 @@ internal static class NativeEnemyAnimationOracle
             VerificationAssertions.AssertTrue(startingAt.Values.Any(animation => ReferenceEquals(animation, continuation.Animation)),
                 $"{tail}'s continuation plays one of the family's animations");
             AnimationPhase<TSegment> phase = continuation.Animation.Phases[continuation.Place.Phase];
-            VerificationAssertions.AssertTrue(IsWholeRunOf(lists, phase, counted) && phase.CountsRepeats,
-                $"{tail}'s continuation stands in a counted phase playing all of {counted}");
+            VerificationAssertions.AssertTrue(IsWholeRunOf(lists, phase, counted) && phase.IsRepeated,
+                $"{tail}'s continuation stands in a repeated phase playing all of {counted}");
+            VerificationAssertions.AssertTrue(continuation.CountsOn, $"{tail}'s continuation counts on the plays the branching play had left");
             VerificationAssertions.AssertEqual(phase.BeatCount, continuation.Place.Beat, $"{tail}'s continuation stands at the end of a play");
             VerificationAssertions.AssertTrue(lists[counted].Controls.FirstOrDefault(control => control.AfterBeat == phase.BeatCount) is
                 { Kind: NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.Goto } next && EqualityComparer<TSegment>.Default.Equals(next.Target!.Value, tail),

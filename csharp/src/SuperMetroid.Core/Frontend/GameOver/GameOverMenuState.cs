@@ -269,11 +269,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     private void ShowNextBabyLook()
     {
         AnimationPlace place = BabyPlace ?? AnimationPlace.StartOfAnimation;
-        // The Baby's animation plays no counted phase, so its plays keep no repeat counter.
-        var uncounted = new UncountedPlay();
         Animation<GameOverBabySegment> animation = GameOverBabyAnimation.Playing;
         AnimationShown<GameOverBabySegment, GameOverBabyLook> shown = GameOverBabyAnimation.Segments.PlayToNextFrame(
-            ref animation, ref place, ref uncounted, cry =>
+            ref animation, ref place, cry =>
             {
                 QueueCry(cry);
                 return null;

@@ -109,8 +109,6 @@ internal static class EnemySpritemapArtworkVerification
             EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
-        AssertEqual((ushort)0, bull.AnimationClock.Repeats.RawValue,
-            "installed Bull immune-shot loop exhausts its native repeat timer");
     }
 
     /// <summary>Runs Puyo's grounded and airborne programs with the installed stock artwork.</summary>
@@ -626,7 +624,6 @@ internal static class EnemySpritemapArtworkVerification
             if (slot.Frame is { } shown)
                 SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
             slot.AnimationClock.HoldFor(7);
-            slot.AnimationClock.Repeats = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawAsOam(oam, new(0, 0));

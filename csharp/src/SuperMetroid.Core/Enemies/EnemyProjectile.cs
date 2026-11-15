@@ -88,11 +88,6 @@ public sealed class EnemyProjectile
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
     /// <summary>
-    /// The count the projectile's animation repeats its counted loops by: a set-counter step loads it and a
-    /// repeat-while-counting step counts it down. This is not the frame hold, and only those steps change it.
-    /// </summary>
-    public WrappingCountdown LoopCountdown { get; internal set; }
-    /// <summary>
     /// How many more afterburns of Ridley's fireball or Mother Brain's bomb this one's chain spawns after it: each
     /// directional afterburn hands its successor one fewer, and one that has none left spawns no successor.
     /// </summary>
@@ -196,7 +191,6 @@ public sealed class EnemyProjectile
         Radius = Extent16<RoomPixels>.Zero;
         Graphics = SpriteGraphics.SharedStandard;
         Damage = 0;
-        LoopCountdown = WrappingCountdown.Start(0);
         Depth = EnemyProjectileDepth.BehindSamus;
         RemainingAfterburns = 0;
         NextAfterburnKind = RoomEnemyProjectileKind.None;

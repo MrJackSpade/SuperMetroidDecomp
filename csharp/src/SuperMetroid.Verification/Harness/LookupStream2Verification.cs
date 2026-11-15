@@ -907,7 +907,6 @@ internal static class LookupStream2Verification
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.AnimationClock.HoldFor((ushort)(member + 4));
-                slot.AnimationClock.Repeats = WrappingCountdown.Start((ushort)(member + 8));
             }
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
@@ -923,8 +922,6 @@ internal static class LookupStream2Verification
                     state.Playback, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].AnimationClock.Hold.RawValue,
                     "Only leader instruction timer resets");
-                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].AnimationClock.Repeats.RawValue,
-                    "Only leader loop counter resets");
             }
         }
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");

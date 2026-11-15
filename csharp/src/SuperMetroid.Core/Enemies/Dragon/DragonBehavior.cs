@@ -252,7 +252,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         following.AiStates = actor.AiStates;
     }
 
-    /// <summary>Starts a newly requested animation once and resets its frame and loop timers.</summary>
+    /// <summary>Starts a newly requested animation once and resets its frame timer.</summary>
     internal static void StartDragonAnimation(
         RoomEnemySlot slot,
         DragonEnemyState state)

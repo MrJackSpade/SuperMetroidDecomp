@@ -224,7 +224,7 @@ internal static class DraygonAnimationsVerification
     /// <summary>
     /// The arms' dying program runs on into the body's dying explosions: the cry, the intangible body, eight counted
     /// explosion rounds with their waits, the paralysis of the tail, then the explosion loop, update by update beside
-    /// the native list, including the loop counter in the arms' timer word.
+    /// the native list, including the plays the counted rounds have left, which the arms' timer word counts (#2006).
     /// </summary>
     private static void VerifyDying(IImportCartridgeSource cartridge)
     {
@@ -243,7 +243,8 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.Timer, arms.AnimationClock.Hold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, arms.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
-            AssertEqual(native.Counter, arms.AnimationClock.Repeats.RawValue, $"{at}: loop counter");
+            if (NativeEnemyAnimationOracle.NativePlaysLeft(state.Playback(arms)) is { } playsLeft)
+                AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(EnemyAudioQueueAccess.SoundList(cues.OfType<DraygonCue.QueueSound>().Select(sound => sound.Sound)),
                 enemies.Audio.QueuedSoundList, $"{at}: every sound the native list queues, in its order");

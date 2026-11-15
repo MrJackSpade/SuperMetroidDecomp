@@ -46,8 +46,6 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
             AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
                 $"production Ceres {actor} {settings} instruction timer");
-            AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue,
-                $"production Ceres {actor} {settings} general timer");
         }
 
         AssertThrows<InvalidDataException>(

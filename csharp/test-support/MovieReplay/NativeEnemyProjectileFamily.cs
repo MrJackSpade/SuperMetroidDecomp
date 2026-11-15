@@ -39,7 +39,8 @@ internal abstract class NativeEnemyProjectileFamily
 
     /// <summary>
     /// Moves <paramref name="animation"/>, when it is this family's, to the typed step a recording's native instruction
-    /// pointer <paramref name="nativePointer"/> stands for; false for an animation of another family.
+    /// pointer <paramref name="nativePointer"/> stands for, with the plays its repeated phase has left read from the
+    /// recording's loop counter <paramref name="nativeLoopCounter"/>; false for an animation of another family.
     /// </summary>
-    internal abstract bool TryResumeAt(IImportCartridgeSource cartridge, EnemyProjectileAnimation animation, ushort nativePointer);
+    internal abstract bool TryResumeAt(IImportCartridgeSource cartridge, EnemyProjectileAnimation animation, ushort nativePointer, ushort nativeLoopCounter);
 }

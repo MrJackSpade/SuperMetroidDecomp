@@ -89,7 +89,7 @@ internal static class TorizoAnimationsVerification
     private sealed record BodyList(BodyBeat[] Beats, BodyControl[] Controls);
 
     /// <summary>One run of a native list an animation plays, as a typed phase plays a run of its steps.</summary>
-    private sealed record NativePhase(ushort List, int FirstBeat, int BeatCount, int Plays, AnimationPhaseCounting Counting);
+    private sealed record NativePhase(ushort List, int FirstBeat, int BeatCount, int Plays);
 
     /// <summary>Every body animation matches the native lists it plays, and every native list is played by some animation.</summary>
     internal static void VerifyTorizoAnimations(CartridgeImportAddressSpace rom)
@@ -135,7 +135,6 @@ internal static class TorizoAnimationsVerification
             AssertEqual(offset, phase.FirstBeat, $"{at} follows the phase before it in its steps");
             AssertEqual(run.BeatCount, phase.BeatCount, $"{at}'s run length");
             AssertEqual(run.Plays, phase.Plays, $"{at}'s plays");
-            AssertEqual(run.Counting, phase.Counting, $"{at}'s counting");
             for (int beat = 0; beat < run.BeatCount; beat++)
                 CompareBeat(cartridge, run, lists[run.List].Beats[run.FirstBeat + beat], steps[offset + beat], $"{at} step {offset + beat}");
             played.Add(run.List);
@@ -394,18 +393,14 @@ internal static class TorizoAnimationsVerification
         ushort list = start;
         int runStart = 0, plays = 1;
         int? pending = null;
-        // A run entered after a counter load counts the owner's counter even when the load is one and it plays once.
-        bool counted = false;
         for (int guard = 0; guard < 100000; guard++)
         {
             foreach (BodyControl control in lists[list].Controls)
             {
                 if (control.AfterBeat > runStart)
-                    phases.Add(new(list, runStart, control.AfterBeat - runStart, plays,
-                        counted && plays == 1 ? AnimationPhaseCounting.EveryPlay : AnimationPhaseCounting.RepeatsOnly));
+                    phases.Add(new(list, runStart, control.AfterBeat - runStart, plays));
                 runStart = control.AfterBeat;
                 plays = 1;
-                counted = false;
                 switch (control.Kind)
                 {
                     case NativeEnemyControlKind.SetCounter:
@@ -426,7 +421,6 @@ internal static class TorizoAnimationsVerification
                         list = target;
                         runStart = 0;
                         plays = pending ?? 1;
-                        counted = pending is not null;
                         pending = null;
                         break;
                     default:

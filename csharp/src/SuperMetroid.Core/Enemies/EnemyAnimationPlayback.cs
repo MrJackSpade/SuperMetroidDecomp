@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyAnimationPlayback
 {
     /// <summary>
-    /// Starts <paramref name="animation"/> on <paramref name="slot"/> (#1624): its first step plays on the next update, with
-    /// no repeats counted, from the animation's start. The species state stores the returned playback.
+    /// Starts <paramref name="animation"/> on <paramref name="slot"/> (#1624): its first step plays on the next update, from
+    /// the animation's start. The species state stores the returned playback.
     /// </summary>
     internal static AnimationPlayback<TSegment> Start<TSegment>(RoomEnemySlot slot, Animation<TSegment> animation)
         where TSegment : struct
@@ -104,8 +104,7 @@ internal static class EnemyAnimationPlayback
     /// Plays <paramref name="playback"/> on to its next frame after the slot's frame expired (#1600): a frame becomes the
     /// slot's frame for its duration, a held frame becomes it for good (#1607), a pause holds the slot's frame for its own, a
     /// hold leaves the slot as it is, and the
-    /// animation's end deletes the enemy. The enemy's frame timer is the animation's repeat counter, which only its counted
-    /// phases load and count down.
+    /// animation's end deletes the enemy.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal static void Play<TSegment, TFrame, TEvent>(
@@ -142,10 +141,7 @@ internal static class EnemyAnimationPlayback
         Ensure.NotNull(frame);
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        // The clock's repeats are read and written in place as counted phases load and count them, so a restart a cue's
-        // reaction makes in between stands.
-        EnemyAnimationClock clock = slot.AnimationClock;
-        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref clock, react);
+        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, react);
         playback = new AnimationPlayback<TSegment>(animation, place);
         switch (shown)
         {

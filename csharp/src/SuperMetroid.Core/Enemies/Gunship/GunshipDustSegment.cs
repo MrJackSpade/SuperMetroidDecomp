@@ -1,30 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
-/// <summary>The gunship liftoff dust clouds' typed animations (#641): three cloud shapes on each side of the ship.</summary>
+/// <summary>
+/// The gunship liftoff dust clouds' typed animations (#641): three cloud shapes on each side of the ship, each showing its
+/// poses once and deleting itself.
+/// </summary>
 internal enum GunshipDustSegment
 {
-    /// <summary>Loads the cloud's single pass.</summary>
+    /// <summary>The inner cloud right of the ship.</summary>
     RightInner,
-    /// <summary>Repeats the RightInner cloud's poses while its general timer counts, then deletes it.</summary>
-    RightInnerLoop,
-    /// <summary>Loads the cloud's single pass.</summary>
+    /// <summary>The middle cloud right of the ship.</summary>
     RightMiddle,
-    /// <summary>Repeats the RightMiddle cloud's poses while its general timer counts, then deletes it.</summary>
-    RightMiddleLoop,
-    /// <summary>Loads the cloud's single pass.</summary>
+    /// <summary>The outer cloud right of the ship.</summary>
     RightOuter,
-    /// <summary>Repeats the RightOuter cloud's poses while its general timer counts, then deletes it.</summary>
-    RightOuterLoop,
-    /// <summary>Loads the cloud's single pass.</summary>
+    /// <summary>The inner cloud left of the ship.</summary>
     LeftInner,
-    /// <summary>Repeats the LeftInner cloud's poses while its general timer counts, then deletes it.</summary>
-    LeftInnerLoop,
-    /// <summary>Loads the cloud's single pass.</summary>
+    /// <summary>The middle cloud left of the ship.</summary>
     LeftMiddle,
-    /// <summary>Repeats the LeftMiddle cloud's poses while its general timer counts, then deletes it.</summary>
-    LeftMiddleLoop,
-    /// <summary>Loads the cloud's single pass.</summary>
+    /// <summary>The outer cloud left of the ship.</summary>
     LeftOuter,
-    /// <summary>Repeats the LeftOuter cloud's poses while its general timer counts, then deletes it.</summary>
-    LeftOuterLoop,
 }

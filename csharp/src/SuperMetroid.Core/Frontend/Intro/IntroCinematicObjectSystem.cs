@@ -339,7 +339,7 @@ internal sealed class IntroCinematicObjectSystem
         WrappingCountdown repeats = default;
         AnimationPlace place = EyePlayback.Place;
         AnimationShown<IntroEyeSegment, IntroEyeFrame> shown = IntroEyeAnimations.Segments.PlayToNextFrame(
-            EyePlayback.Animation, ref place, ref repeats,
+            EyePlayback.Animation, ref place,
             static cue => throw new InvalidOperationException($"The intro eye animations raise no event; got {cue}."));
         EyePlayback = EyePlayback with { Place = place };
         if (shown is not AnimationShown<IntroEyeSegment, IntroEyeFrame>.Frame frame)

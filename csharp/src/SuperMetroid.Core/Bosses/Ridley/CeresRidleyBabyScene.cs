@@ -225,9 +225,7 @@ internal sealed class CeresRidleyBabyScene
 
         Animation<CeresBabySegment> animation = state.BabyPlayback.Animation;
         AnimationPlace place = state.BabyPlayback.Place;
-        // The Baby's animations count no repeats, so nothing reads or writes this counter.
-        WrappingCountdown counter = WrappingCountdown.Start(0);
-        AnimationShown<CeresBabySegment, CeresBabyPose> outcome = CeresBabyAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
+        AnimationShown<CeresBabySegment, CeresBabyPose> outcome = CeresBabyAnimations.Segments.PlayToNextFrame(ref animation, ref place,
             cue => ApplyCeresBabyCue(state, cue) is { } target
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

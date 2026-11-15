@@ -141,8 +141,8 @@ public sealed class RoomEnemySlot : ISolidEnemy
     public EnemyFrameId? Frame { get; internal set; }
 
     /// <summary>
-    /// The occupant's animation clock (#1624): the hold of the frame its animation shows, the count its counted phases
-    /// keep and whether this update showed a new frame. A newly bound occupant gets a stopped clock, which its
+    /// The occupant's animation clock (#1624): the hold of the frame its animation shows and
+    /// whether this update showed a new frame. A newly bound occupant gets a stopped clock, which its
     /// initialization starts; a killed occupant's place keeps a stopped one, and a deleted occupant's place keeps its clock
     /// with the rest of what it left.
     /// </summary>

@@ -41,7 +41,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, selector),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
+                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
                 slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 var state = new BrinstarPipeBugState
                 {
@@ -56,8 +56,6 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
                 AssertEqual(1, slot.AnimationClock.Hold.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
-                AssertEqual(0, slot.AnimationClock.Repeats.RawValue,
-                    $"production {(strong ? "strong" : "normal")} Pipe Bug loop {selector}");
             }
         }
 

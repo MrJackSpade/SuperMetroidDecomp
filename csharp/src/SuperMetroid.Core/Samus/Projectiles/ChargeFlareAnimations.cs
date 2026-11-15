@@ -61,10 +61,9 @@ internal static class ChargeFlareAnimations
     /// <summary>Plays <paramref name="component"/>'s animation on from <paramref name="place"/> to its next picture.</summary>
     private static ChargeFlareStep Play(ChargeFlareComponent component, ref AnimationPlace place)
     {
-        WrappingCountdown repeats = WrappingCountdown.Start(0);
         Animation<ChargeFlareComponent> animation = ChargeFlareAnimationDefinitions.Animations[component];
         AnimationShown<ChargeFlareComponent, ChargeFlarePicture> shown =
-            Segments.PlayToNextFrame(animation, ref place, ref repeats, static _ => { });
+            Segments.PlayToNextFrame(animation, ref place, static _ => { });
         // The play stands just past the beat it showed, whose place in the component's beats is the place shown.
         return shown is AnimationShown<ChargeFlareComponent, ChargeFlarePicture>.Frame frame
             ? new(animation.Phases[place.Phase].FirstBeat + place.Beat - 1, WrappingCountdown.Start(frame.Duration - 1))

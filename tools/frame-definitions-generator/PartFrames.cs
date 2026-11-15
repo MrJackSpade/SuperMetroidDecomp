@@ -69,7 +69,7 @@ internal sealed record PartFrameConfiguration(
                 ["DraygonBody"] =
                 [
                     "BodyFacingLeftIdle", "BodyFacingLeftReset", "BodyFacingRightReset", "BodyFacingLeftFireGoop", "BodyFacingRightFireGoop",
-                    "BodyFacingLeftRoar", "BodyFacingRightRoar", "ArmsFacingLeftDying", "ArmsFacingRightDying", "Sleep", "Delete",
+                    "BodyFacingLeftRoar", "BodyFacingRightRoar", "ArmsFacingLeftDying", "ArmsFacingRightDying", "Rest", "Delete",
                 ],
                 ["DraygonEye"] =
                 [
@@ -80,29 +80,30 @@ internal sealed record PartFrameConfiguration(
                 ["DraygonTail"] =
                 [
                     "TailFacingLeftInitialFakeWhip", "TailFacingLeftWhip", "TailFacingRightWhip", "TailFacingLeftFinalWhips",
-                    "TailFacingRightFinalWhips", "TailFacingLeftFlail", "TailFacingRightFlail", "Sleep",
+                    "TailFacingRightFinalWhips", "TailFacingLeftFlail", "TailFacingRightFlail", "Rest",
                 ],
                 ["DraygonArms"] =
                 [
                     "ArmsFacingLeftIdle", "ArmsFacingRightIdle", "ArmsFacingLeftNearSwoopApex", "ArmsFacingRightNearSwoopApex",
-                    "ArmsFacingLeftGrab", "ArmsFacingRightGrab", "Sleep",
+                    "ArmsFacingLeftGrab", "ArmsFacingRightGrab", "Rest",
                 ],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), "DraygonBodyLayerFrameDefinitions", "Frames", []),
-        new("KraidBehavior", "KraidPartFrameDefinitions", "ShownFrames", null, null, [],
-            new Dictionary<string, string[]>(StringComparer.Ordinal),
+        // Kraid's parts show the frames their own animations name (#1885): the arm its swings, the foot its stances, walks
+        // and lunge, the lints their two poses and the fingernails their spin; Kraid himself none.
+        new("KraidBehavior", null, null, "KraidAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["Kraid"] = [],
-                ["KraidArm"] = ["Kind=Arm"],
-                ["KraidFoot"] = ["Kind=Foot", "Kind=FootStanding"],
-                ["KraidLintTop"] = ["Kind=Lint"],
-                ["KraidLintMiddle"] = ["Kind=Lint"],
-                ["KraidLintBottom"] = ["Kind=Lint"],
-                ["KraidNail"] = ["Kind=Nail"],
-                ["KraidNailBad"] = ["Kind=Nail"],
+                ["KraidArm"] = ["ArmNormal", "ArmNormalPause", "ArmSlow", "ArmRisingOrSinking", "ArmDyingOrPreparingToLunge"],
+                ["KraidFoot"] = ["FootInitial", "FootNeutral", "FootWalkingForward", "FootLungeForward", "FootWalkingBackward"],
+                ["KraidLintTop"] = ["LintInitial", "LintPostGrowth"],
+                ["KraidLintMiddle"] = ["LintInitial", "LintPostGrowth"],
+                ["KraidLintBottom"] = ["LintInitial", "LintPostGrowth"],
+                ["KraidNail"] = ["NailLoop"],
+                ["KraidNailBad"] = ["NailLoop"],
             },
-            null, null, []),
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Mother Brain's body poses (every MotherBrainBodyFrame, #1747) are her body's: its slot draws their sprite limbs;
         // her head and tubes draw none.
         new("MotherBrainBehavior", "MotherBrainBodyVisualDefinitions", "ShownFrames", null, null, [],

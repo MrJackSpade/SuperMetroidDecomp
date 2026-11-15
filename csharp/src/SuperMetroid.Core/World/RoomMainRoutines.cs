@@ -115,17 +115,9 @@ internal sealed class RoomMainRoutines
         int random = _system.RandomNumber;
         bool dark = CeresFallingDebrisDefinitions.Dark.IsSetIn(random);
         room.Enemies.CeresFallingTiles.Spawn(
-            CeresFallingDebrisX(CeresFallingDebrisDefinitions.Column.Of(random)),
+            CeresFallingDebrisDefinitions.ColumnX[CeresFallingDebrisDefinitions.Column.Of(random)],
             dark,
             new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisSegment.Dark : CeresFallingDebrisSegment.Light),
             CeresFallingDebrisVisualDefinitions.Graphics);
     }
-
-    /// <summary>
-    /// Sixteen debris columns, sixteen pixels apart from X 80 through 240, then
-    /// thirty-two pixels apart through 400.
-    /// </summary>
-    internal static int CeresFallingDebrisX(int column) => (uint)column < 16
-        ? CoordinateAxis.Wrap(column <= 10 ? 80 + 16 * column : 240 + 32 * (column - 10))
-        : throw new ArgumentOutOfRangeException(nameof(column));
 }

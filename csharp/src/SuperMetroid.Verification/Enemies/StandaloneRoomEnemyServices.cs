@@ -48,6 +48,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <inheritdoc />
     public IMotherBrainRoomEffects MotherBrain { get; init; } = Unavailable.Instance;
 
+    /// <inheritdoc />
+    public ITourianStatueRoom TourianStatueRoom { get; init; } = Unavailable.Instance;
+
     /// <summary>Installs the RNG seed's read and write, which some initializers sample or overwrite.</summary>
     public Func<int> ReadRandom { init => random.Read = Ensure.NotNull(value); }
 
@@ -81,7 +84,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>
     private sealed class Unavailable : IGlobalEventFlags, IZebetiteProgress, IAreaBossFlags, IRoomObjectPresence,
-        IRoomScrollZoneAccess, ISamusControlLock, IMotherBrainRoomEffects
+        IRoomScrollZoneAccess, ISamusControlLock, IMotherBrainRoomEffects, ITourianStatueRoom
     {
         /// <summary>Shared failure object for every cartridge-state capability absent from this standalone host.</summary>
         internal static readonly Unavailable Instance = new();
@@ -117,5 +120,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void DisableControls() => throw Missing("disable Samus's controls");
         /// <summary>Fails when Mother Brain glass setup lacks its room-effects service.</summary>
         public void CountHeadShotOnGlass() => throw Missing("count a head shot on Mother Brain's glass");
+        /// <summary>Fails when a Tourian statue effect reads the room's water without an installed statue-room service.</summary>
+        public int? WaterSurface => throw Missing("read the Tourian statue room's water surface");
+        /// <summary>Fails when a Tourian statue decoration reads the descent without an installed statue-room service.</summary>
+        public int StatueOffset => throw Missing("read how far the Tourian entrance statue has sunk");
     }
 }

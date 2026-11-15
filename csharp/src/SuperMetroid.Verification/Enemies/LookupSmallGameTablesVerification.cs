@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -74,13 +74,13 @@ internal static class LookupSmallGameTablesVerification
     /// <summary>Reads a retail opcode byte when checking Crocomire's unrolled dust spawns.</summary>
     private static byte CrocomireBridgeDustPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Matches all sixteen Ceres falling-debris column positions to their source words.</summary>
+    /// <summary>Matches the catalog's sixteen Ceres falling-debris column positions to their source words (#2033).</summary>
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
-        for (int column = 0; column < 16; column++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe551 + 2 * column)), RoomMainRoutines.CeresFallingDebrisX(column),
+        AssertEqual(16, CeresFallingDebrisDefinitions.ColumnX.Length, "one debris position for each column the random field chooses");
+        for (int column = 0; column < CeresFallingDebrisDefinitions.ColumnX.Length; column++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe551 + 2 * column)), CeresFallingDebrisDefinitions.ColumnX[column],
                 $"Ceres falling debris column {column}");
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomMainRoutines.CeresFallingDebrisX(16), "Debris column bound");
     }
 
     /// <summary>

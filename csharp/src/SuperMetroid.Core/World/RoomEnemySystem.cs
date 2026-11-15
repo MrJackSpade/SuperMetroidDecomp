@@ -660,7 +660,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
-        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable);
+        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable, Room);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);

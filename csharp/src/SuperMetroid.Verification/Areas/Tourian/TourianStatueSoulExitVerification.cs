@@ -58,9 +58,8 @@ internal static class TourianStatueSoulExitVerification
         {
             ushort sample = random;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-                services: new StandaloneRoomEnemyServices(() => sample));
+                services: new StandaloneRoomEnemyServices(() => sample) { TourianStatueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0) });
             TourianUnlockBehavior unlock = enemies.TourianUnlockBehavior;
-            unlock.TourianStatueWaterSurface = new(0, 216);
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             unlock.SpawnTourianParticleChild(soul, RoomEnemyProjectileKind.TourianStatueParticle, TourianStatueProjectileSegment.Particle);

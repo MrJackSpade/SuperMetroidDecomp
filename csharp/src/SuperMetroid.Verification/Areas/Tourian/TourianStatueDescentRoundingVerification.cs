@@ -8,6 +8,8 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Checks signed 16.16 statue descent and the exact Tourian unlock threshold.</summary>
 internal static class TourianStatueDescentRoundingVerification
@@ -28,19 +30,30 @@ internal static class TourianStatueDescentRoundingVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 
+        // The statue's base decoration reads the descent from the room each update and so sits that far below its anchor
+        // on the update the descent moves (#2033).
+        EnemyProjectile baseDecoration = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
+            projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueBaseDecoration);
+        int decorationAnchor = baseDecoration.StateOf<AnchoredProjectileState>().Anchor.Y;
+        void AssertDecorationFollows(string context) => AssertEqual(decorationAnchor - runtime.TourianStatues.VerticalOffset,
+            baseDecoration.Position.Y.Whole, $"the base decoration follows the statue: {context}");
+
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),
             maximumFrames: 400, context: "the statue descent begins");
         AssertEqual(-1, runtime.TourianStatues.VerticalOffset, "the first quarter step floors to -1");
+        AssertDecorationFollows("the first quarter step");
         for (int frame = 0; frame < 3; frame++)
             runtime.StepFrame(0);
         AssertEqual(-1, runtime.TourianStatues.VerticalOffset, "steps two to four stay at -1");
         runtime.StepFrame(0);
         AssertEqual(-2, runtime.TourianStatues.VerticalOffset, "the fifth quarter step reaches -2");
+        AssertDecorationFollows("the fifth quarter step");
 
         StepUntil(() => runtime.System.HasEvent(StoryEvent.TourianUnlocked), _ => runtime.StepFrame(0),
             maximumFrames: 1000, context: "the statues finish descending");
         AssertEqual(-240, runtime.TourianStatues.VerticalOffset,
             "Tourian unlocks the frame the whole word first reads $FF10");
+        AssertDecorationFollows("the finished descent");
         // The descent stops at its authored distance, which bounds the offset the frame boundary latches (#1627).
         for (int frame = 0; frame < 3; frame++)
             runtime.StepFrame(0);

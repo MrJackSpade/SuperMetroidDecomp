@@ -6,10 +6,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class RidleyAttackChoices
 {
     /// <summary>
-    /// Health distributions split at four; damage boosting splits
-    /// at six. Pogo-zone, spin and zero-health situations select a single action.
-    /// The reversed above-half-health distribution remains independently defined,
-    /// even though the ordinary health branch cannot reach it.
+    /// The ordinary distribution splits at four and damage boosting at six. The pogo-zone, spin-jumping and zero-health
+    /// situations select a single action.
     /// </summary>
     /// <param name="situation">The mutually exclusive distribution already selected from Ridley's health and Samus's movement and position.</param>
     /// <param name="choice">An equally likely index from 0 through 7, normally the caller's RNG result modulo 8.</param>
@@ -21,11 +19,10 @@ public static class RidleyAttackChoices
         if ((uint)choice >= 8) throw new ArgumentOutOfRangeException(nameof(choice));
         return situation switch
         {
-            RidleyAttackSituation.BelowHalfHealth => choice < 4 ? NorfairFireballMoveToSide : NorfairSwoopSetup,
-            RidleyAttackSituation.AboveHalfHealth => choice < 4 ? NorfairSwoopSetup : NorfairFireballMoveToSide,
-            RidleyAttackSituation.DamageBoosting => choice < 6 ? NorfairGrabApproach : NorfairFireballMoveToSide,
-            RidleyAttackSituation.PogoZone => NorfairFireballMoveToSide,
-            RidleyAttackSituation.SpinJumping => NorfairPogoSetup,
+            RidleyAttackSituation.Ordinary => choice < 4 ? NorfairPogoMoveToSide : NorfairSwoopSetup,
+            RidleyAttackSituation.DamageBoosting => choice < 6 ? NorfairGrabApproach : NorfairPogoMoveToSide,
+            RidleyAttackSituation.PogoZone => NorfairPogoMoveToSide,
+            RidleyAttackSituation.SpinJumping => NorfairWallSweepSetup,
             RidleyAttackSituation.ZeroHealth => NorfairGrabApproach,
             _ => throw new ArgumentOutOfRangeException(nameof(situation)),
         };

@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// One authored rotating getaway frame. <paramref name="Velocity"/> holds the signed values
-/// of the X table (subtracted from the horizontal offset, so the image moves right) and
-/// the Y table (added to the vertical offset).
+/// One authored rotating getaway frame. <paramref name="Velocity"/> moves the floor: its X is subtracted from the
+/// horizontal offset, so the image moves right, and its Y added to the vertical offset.
 /// </summary>
 /// <param name="Zoom">The frame's turning-floor zoom.</param>
 /// <param name="Velocity">The frame's drift across the floor.</param>

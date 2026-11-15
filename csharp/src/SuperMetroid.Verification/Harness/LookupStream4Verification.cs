@@ -869,7 +869,7 @@ internal static class LookupStream4Verification
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(state, null, nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
-            AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual((ushort)expectedPhase, state.GetawayCapsuleStep, "Actual getaway advances Baby before selection only on every fourth NMI");
             AssertEqual(advances ? CeresFloorAnimation.BabyFrameForPhase(expectedPhase) : before, Capsule(),
                 "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }
@@ -1222,11 +1222,11 @@ internal static class LookupStream4Verification
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailAction = RidleyTailAction.Pogo, IntangibilityTimer = 99 };
+            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequested = false, TailAction = RidleyTailAction.Pogo, IntangibilityTimer = 99 };
             release(state, samus);
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
-            AssertEqual(1, state.TailWhipRequest, "Actual release requests tail whip");
+            AssertTrue(state.TailWhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.TailAction, "Actual release resets tail controller");
         }
         AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
@@ -1449,9 +1449,11 @@ internal static class LookupStream4Verification
             AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(invalid), "background source absent identity rejected");
 
         for (int pattern = 0; pattern < 4; pattern++)
-        for (int stage = 0; stage < 6; stage++)
+        for (int band = 0; band < 4; band++)
         {
-            var actual = RidleyPogo.Read(pattern, stage);
+            // The cartridge reads its pogo tables two stages past the health stage (#1934).
+            int stage = band + 2;
+            var actual = RidleyNativeWords.HealthBandsInStageOrder[band].PogoLaunches[pattern];
             int x = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b965 + 2 * pattern));
             int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");
@@ -1459,10 +1461,6 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b94d + 2 * stage)), actual.UpwardAcceleration.RawValue, "stream4 native pogo upward acceleration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration.RawValue, "stream4 native pogo downward acceleration");
         }
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(invalid, 0), "stream4 invalid pogo pattern");
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(0, invalid), "stream4 invalid pogo stage");
         for (ushort parameter = 0; parameter <= 22; parameter += 2)
         {
             var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
@@ -2425,7 +2423,7 @@ internal static class LookupStream4Verification
                 enemies.SlotTable.Slots[0].Health = health;
                 var state = new RidleyEnemyState(); norfair(enemies.SlotTable.Slots[0], state);
                 int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
-                AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(state, row);
+                AssertEqual((ushort)(row + 1), RidleyNativeWords.HealthBands.Word(state.HealthBand), "Norfair health band remains exact"); Check(state, row);
             }
             foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
             {

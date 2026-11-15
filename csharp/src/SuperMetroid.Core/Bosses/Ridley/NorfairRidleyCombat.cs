@@ -11,7 +11,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Norfair Ridley's arrival and fight: hovering, swoops, pogo and ground attacks, and grabbing Samus.</summary>
+/// <summary>Norfair Ridley's arrival and fight: hovering, swoops, the wall sweep, the pogo attack and grabbing Samus.</summary>
 [RoomLifetime]
 internal sealed class NorfairRidleyCombat
 {
@@ -49,7 +49,7 @@ internal sealed class NorfairRidleyCombat
     /// <summary>
     /// Runs the Norfair branch of the shared initializer. A defeated Ridley
     /// is deleted before any shared workspace or colour side effects, matching the
-    /// defeated-boss gate; a live fight begins in layer five below the visible arena.
+    /// defeated-boss gate; a live fight begins with Ridley below the visible arena.
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
     {
@@ -63,8 +63,7 @@ internal sealed class NorfairRidleyCombat
         }
         slot.CollidesByFrameHitboxes = true;
 
-        // One property bit blocks Plasma Beam penetration. Its meaning is established
-        // only for this boss, so preserve the raw bit instead of widening the shared enum.
+        // Ridley's body stops a Plasma Beam from passing through him.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Position = slot.Position.WithWhole(new(96, 394));
@@ -79,7 +78,7 @@ internal sealed class NorfairRidleyCombat
             TailDamage = 120,
             MovementMinimum = new Position16<RoomPixels>(64, 64),
             MovementMaximum = new Position16<RoomPixels>(224, 416),
-            WingFrame = 0,
+            WingBeatStep = 0,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
             TailAction = RidleyTailAction.None,
@@ -166,13 +165,13 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Advances the swoop velocity arc and changes phase when its timer expires.</summary>
     internal static bool TickNorfairRidleySwoopPhase(
         RidleyEnemyState state,
-        int angleDelta,
+        RidleySwoopTurn turn,
         RotationAngle targetAngle,
-        int targetMagnitude,
+        SignedEightEight targetSpeed,
         RidleyPhase nextPhase,
         int nextTimer)
     {
-        CeresRidleyFlight.UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
+        CeresRidleyFlight.UpdateRidleySwoopVelocity(state, turn, targetAngle, targetSpeed);
         if (state.SwoopPhaseTimer != 0)
         {
             state.SwoopPhaseTimer--;
@@ -185,56 +184,56 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Runs the pogo's two side states. These two states alternate side targets while Samus is spin
-    /// jumping; any other movement type immediately advances into the low arena attack.
+    /// Runs the wall sweep: Ridley sweeps between the walls behind and ahead of him at Samus's height while she spin
+    /// jumps; any other movement starts the pogo attack at once.
     /// </summary>
-    internal void TickNorfairRidleyPogo(
+    internal void TickNorfairRidleyWallSweep(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus,
-        VerticalDirection direction)
+        RidleyWallSweepTarget wall)
     {
         RidleyFacing facing = state.FacingDirection;
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             slot,
             state,
             new Position16<RoomPixels>(
-                direction == VerticalDirection.Down ? RidleyMovementTargets.DescendingPogoX(facing) : RidleyMovementTargets.AscendingPogoX(facing),
+                wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehindX(facing) : RidleyMovementTargets.WallAheadX(facing),
                 samus is null ? 352 : int.Min(samus.Position.Y.Whole, 352)),
             ReadRidleyHealthMovementDivisor(state));
-        state.TailWhipRequest = 1;
+        state.TailWhipRequested = true;
 
         if (samus is null || SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
         {
-            BeginNorfairRidleyGroundAttack(state);
+            BeginNorfairRidleyPogoAttack(state);
             return;
         }
 
-        // The pogo choice uses the current random number; it does not draw a new one.
-        if (RidleyRandomDefinitions.PogoFireballs.IsTakenBy(_room.Random.Read()) && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
+        // The fireball choice uses the current random number; it does not draw a new one.
+        if (RidleyRandomDefinitions.WallSweepFireballs.IsTakenBy(_room.Random.Read()) && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
 
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
-        state.Phase = direction == VerticalDirection.Down
-            ? RidleyPhase.NorfairPogoAscending
-            : RidleyPhase.NorfairPogoDescending;
+        state.Phase = wall == RidleyWallSweepTarget.WallBehind
+            ? RidleyPhase.NorfairSweepToWallAhead
+            : RidleyPhase.NorfairSweepToWallBehind;
         state.PhaseTimer = 128;
         SelectNorfairRidleyFacingAnimation(slot, state);
     }
 
-    /// <summary>Resets tail extension and enters the ground fireball/pogo setup.</summary>
-    internal static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
+    /// <summary>Resets tail extension and starts the pogo attack by moving Ridley to its side of the arena.</summary>
+    internal static void BeginNorfairRidleyPogoAttack(RidleyEnemyState state)
     {
         state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
         state.IdealInterSegmentTailAngle = 16;
         state.TailAction = RidleyTailAction.Neutral;
-        state.Phase = RidleyPhase.NorfairFireballMoveToSide;
+        state.Phase = RidleyPhase.NorfairPogoMoveToSide;
     }
 
-    /// <summary>Moves Ridley toward the facing-dependent side before descending to attack height.</summary>
-    internal void TickNorfairRidleyGroundAttackMoveToSide(
+    /// <summary>Moves Ridley toward the facing-dependent side before descending to the pogo height.</summary>
+    internal void TickNorfairRidleyPogoMoveToSide(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -242,18 +241,18 @@ internal sealed class NorfairRidleyCombat
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 288) < 0)
         {
             SelectNorfairRidleyFacingAnimation(slot, state);
-            state.Phase = RidleyPhase.NorfairFireballMoveToHeight;
+            state.Phase = RidleyPhase.NorfairPogoMoveToHeight;
             state.PhaseTimer = 32;
-            TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
+            TickNorfairRidleyPogoMoveToHeight(slot, state, samus);
             return;
         }
 
         NorfairRidleyMovement.MoveNorfairRidleyToward(
-            slot, state, new Position16<RoomPixels>(RidleyMovementTargets.GroundAttackX(state.FacingDirection), 288), divisor: 16);
+            slot, state, new Position16<RoomPixels>(RidleyMovementTargets.PogoSideX(state.FacingDirection), 288), divisor: 16);
     }
 
-    /// <summary>Settles at Y=288, sets the pogo tail, and starts a randomized attack timer.</summary>
-    internal void TickNorfairRidleyGroundAttackMoveToHeight(
+    /// <summary>Settles at Y=288, sets the pogo tail, and starts the pogo's random time limit.</summary>
+    internal void TickNorfairRidleyPogoMoveToHeight(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -265,12 +264,12 @@ internal sealed class NorfairRidleyCombat
         state.TailAction = RidleyTailAction.PogoSetup;
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
-        state.Phase = RidleyPhase.NorfairFireballAttack;
-        state.PhaseTimer = RidleyRandomDefinitions.FireballAttackTimer.Of(_room.Random.Read()) + 128;
+        state.Phase = RidleyPhase.NorfairPogoFall;
+        state.PhaseTimer = RidleyRandomDefinitions.PogoTimer.Of(_room.Random.Read()) + 128;
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
-    internal void TickNorfairRidleyGroundAttack(
+    internal void TickNorfairRidleyPogoFall(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus,
@@ -312,11 +311,11 @@ internal sealed class NorfairRidleyCombat
             if (state.FacingDirection != RidleyFacing.Turning)
                 CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
         }
-        state.Phase = RidleyPhase.NorfairFireballRecover;
+        state.Phase = RidleyPhase.NorfairPogoRise;
     }
 
-    /// <summary>Recovers upward after a pogo impact or returns to attack selection.</summary>
-    internal static void TickNorfairRidleyGroundAttackRecovery(
+    /// <summary>Rises after a pogo bounce or returns to attack selection.</summary>
+    internal static void TickNorfairRidleyPogoRise(
         RidleyEnemyState state,
         SamusState? samus)
     {
@@ -334,7 +333,7 @@ internal sealed class NorfairRidleyCombat
         if (!nextVertical.IsNegative)
         {
             state.Velocity = state.Velocity.WithY(SignedEightEight.Zero);
-            state.Phase = RidleyPhase.NorfairFireballAttack;
+            state.Phase = RidleyPhase.NorfairPogoFall;
         }
         else
         {
@@ -343,15 +342,14 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Runs the four authored velocity tables the pogo setup consumes. The signedness
-    /// of the previous horizontal velocity chooses direction; magnitudes and both vertical
-    /// accelerations are compiled definitions indexed by Ridley's health stage.
+    /// Launches a pogo bounce: one of the health band's four launches, chosen by the current random number. The sign of
+    /// the previous horizontal velocity chooses the bounce's direction.
     /// </summary>
     internal void InitializeNorfairRidleyPogoVelocity(RidleyEnemyState state)
     {
         // The pogo choice samples the current random number; it does not advance shared RNG.
-        int randomIndex = RidleyRandomDefinitions.PogoChoice.Of(_room.Random.Read());
-        var definition = RidleyPogo.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
+        int pattern = RidleyRandomDefinitions.PogoChoice.Of(_room.Random.Read());
+        RidleyPogoDefinition definition = state.HealthBand.PogoLaunches[pattern];
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
         state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
@@ -386,12 +384,11 @@ internal sealed class NorfairRidleyCombat
         }
 
         int sideOffset = state.FacingDirection != RidleyFacing.Left ? 16 : -16;
-        int divisor = RidleyMovementTargets.GrabDivisor(Math.Min(state.HealthStage, 3));
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             slot,
             state,
             samus.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(sideOffset), -4),
-            divisor);
+            state.HealthBand.GrabDivisor);
 
         if (RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(8, 12)))
         {
@@ -499,9 +496,8 @@ internal sealed class NorfairRidleyCombat
         slot.AnimationClock.HoldFor(2);
     }
 
-    /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>
-    internal static int ReadRidleyHealthMovementDivisor(RidleyEnemyState state) =>
-        RidleyMovementTargets.HoverDivisor(Math.Min(state.HealthStage, 3));
+    /// <summary>The hover acceleration divisor of Ridley's health band.</summary>
+    internal static int ReadRidleyHealthMovementDivisor(RidleyEnemyState state) => state.HealthBand.HoverDivisor;
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState? samus)
@@ -542,7 +538,7 @@ internal sealed class NorfairRidleyCombat
 
         state.FightMode = RidleyFightMode.Dying;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
-        state.Phase = RidleyPhase.NorfairReleaseSamus;
+        state.Phase = RidleyPhase.NorfairMoveToDeathSpot;
     }
 
     /// <summary>
@@ -566,7 +562,7 @@ internal sealed class NorfairRidleyCombat
         RidleyEnemyState state)
     {
         CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.DeathRoar);
-        state.Phase = RidleyPhase.NorfairDeathExplosions;
+        state.Phase = RidleyPhase.NorfairDeathRoar;
         state.PhaseTimer = 32;
     }
 
@@ -581,12 +577,12 @@ internal sealed class NorfairRidleyCombat
         }
         if (_frameContext.PowerBombExplosion is { IsArmed: true })
         {
-            state.Phase = RidleyPhase.NorfairReturnToArena;
+            state.Phase = RidleyPhase.NorfairPowerBombDodge;
             TickNorfairRidleyPowerBombDodge(slot, state);
             return;
         }
         state.Phase = RidleyPhase.NorfairHoverSetup;
-        state.TailWhipRequest = 1;
+        state.TailWhipRequested = true;
     }
 
     /// <summary>Runs the power-bomb branch of missed-lunge recovery.</summary>

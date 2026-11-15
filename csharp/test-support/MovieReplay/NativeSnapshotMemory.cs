@@ -309,12 +309,6 @@ internal static class NativeSnapshotMemory
     public const int RidleyFightMode = 0x7802;
     /// <summary>$7804: Ridley MovementAnimationEnabled, native bank-$A6 controller state.</summary>
     public const int RidleyMovementAnimationEnabled = 0x7804;
-    /// <summary>$780E: Ridley WingFrame, native bank-$A6 controller state.</summary>
-    public const int RidleyWingFrame = 0x780e;
-    /// <summary>$7810: Ridley WingAnimationTimerDelta, native bank-$A6 controller state.</summary>
-    public const int RidleyWingAnimationTimerDelta = 0x7810;
-    /// <summary>$7812: Ridley WingAnimationTimer, native bank-$A6 controller state.</summary>
-    public const int RidleyWingAnimationTimer = 0x7812;
     /// <summary>$7820: Ridley FacingDirection, native bank-$A6 controller state.</summary>
     public const int RidleyFacingDirection = 0x7820;
     /// <summary>$7824: Ridley HealthStage, native bank-$A6 controller state.</summary>

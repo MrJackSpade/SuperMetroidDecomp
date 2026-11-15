@@ -106,21 +106,21 @@ internal sealed class RidleyTail
         if (allActive)
         {
             bool targetsIdle = state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null;
-            if (state.TailWhipRequest != 0 && targetsIdle)
+            if (state.TailWhipRequested && targetsIdle)
             {
-                AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequest - 1);
+                AimCeresRidleyTailWhip(state, samus, turnsBeyond: 0);
             }
             else if (state.IdleTailWhipEnabled)
             {
                 // Read the existing seed; this branch never advances the RNG.
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
-                    AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequest - 1);
+                    AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequested ? 0 : -1);
                 else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
                     AimCeresRidleyTailWhip(state, samus, turnsBeyond: 0);
             }
 
-            state.TailWhipRequest = 0;
+            state.TailWhipRequested = false;
         }
 
         if (state.TailSegments.Any(segment => segment.Active))
@@ -147,9 +147,8 @@ internal sealed class RidleyTail
         SamusState? samus,
         int turnsBeyond)
     {
-        // Facing direction one is the front-facing transition art. The tail attack returns
-        // without installing a target in that state, and the fight's opening mode likewise blocks
-        // the attack before liftoff.
+        // Ridley turning to face the screen aims no whip, and the fight's opening mode likewise blocks the whip before
+        // liftoff.
         if (samus is null || state.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
             return;
 

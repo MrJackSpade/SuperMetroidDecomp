@@ -76,8 +76,8 @@ internal sealed class CeresRidleyGetaway
         state.FloorOffset = new Offset16<FloorPixels>(-128, 32);
         state.FloorZoom = CeresRidleyGetawayDefinitions.InitialZoom;
         state.FloorCenter = new Position16<FloorPixels>(64, 64);
-        state.GetawayBabyFrame = 0;
-        state.GetawayWingFrame = 0;
+        state.GetawayCapsuleStep = 0;
+        state.GetawayWingBeat = 0;
     }
 
     /// <summary>
@@ -152,16 +152,16 @@ internal sealed class CeresRidleyGetaway
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1.
         if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
-            state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
-            _room.Services.ShowFloorFrame(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame));
+            state.GetawayCapsuleStep = (state.GetawayCapsuleStep + 1) % CeresFloorAnimationDefinitions.CapsuleCycle.Length;
+            _room.Services.ShowFloorFrame(CeresFloorAnimation.BabyFrameForPhase(state.GetawayCapsuleStep));
         }
 
         // The wings beat on every eighth frame of the frame counter. Each wing frame leaves behind the delays
         // Samus's unauthored Speed Booster cadence runs on from then on.
         if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
-            state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
-            CeresFloorAnimationFrame wing = CeresFloorAnimation.WingFrameForPhase(state.GetawayWingFrame);
+            state.GetawayWingBeat = (state.GetawayWingBeat + 1) % CeresFloorAnimationDefinitions.WingCycle.Length;
+            CeresFloorAnimationFrame wing = CeresFloorAnimation.WingFrameForPhase(state.GetawayWingBeat);
             _room.Services.ShowFloorFrame(wing);
             CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
                 "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");
@@ -222,14 +222,9 @@ internal sealed class CeresRidleyGetaway
             case CeresSelfDestructPhase.ReadyingBackgrounds:
                 if (ReadyCeresEscapeWarning(state))
                 {
-                    // The warning setup draws the emergency text immediately after the final
-                    // graphics step. The call was missing from an earlier
-                    // version, so the letters' artwork was ready but the text never
-                    // appeared on screen.
+                    // The warning setup draws the emergency text immediately after the final graphics step.
                     DrawCeresEmergencyText();
-                    // The warning setup also queues the set's third song after showing the final
-                    // static warning picture. The frontend consumes this typed request
-                    // through the same queue used by every other music producer.
+                    // The warning setup also requests the escape music after showing the final static warning picture.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;
                     state.CeresEscapeTextDelayTimer = 128;
@@ -245,9 +240,7 @@ internal sealed class CeresRidleyGetaway
                     ? new(presentation.Get(EscapeTypewriterMessageId.Ceres))
                     : null;
 
-                // English goes straight to typing the warning; Japanese
-                // first runs the subtitle phase. An earlier version skipped the typing
-                // phase for English, suppressing every typed character below "EMERGENCY".
+                // English goes straight to typing the warning; Japanese first runs the subtitle phase.
                 state.CeresSelfDestructPhase = _roomStatus.JapaneseText
                     ? CeresSelfDestructPhase.JapaneseSubtitle
                     : CeresSelfDestructPhase.TypingWarning;

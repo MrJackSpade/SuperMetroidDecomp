@@ -26,23 +26,24 @@ internal static class RidleyFlightTailVerification
     /// <summary>Compares retail swoop sine motion and production tail transitions, coordinates, and RNG use.</summary>
     internal static void VerifyRidleyFlightTail()
     {
-        Action<RidleyEnemyState, int, RotationAngle, int> update = CeresRidleyFlight.UpdateRidleySwoopVelocity;
-        var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
-        update(state, 0, RotationAngle.Zero, 0x500);
+        Action<RidleyEnemyState, RidleySwoopTurn, RotationAngle, SignedEightEight> update = CeresRidleyFlight.UpdateRidleySwoopVelocity;
+        SignedEightEight fullSpeed = SignedEightEight.FromPixels(5);
+        var state = new RidleyEnemyState { SwoopSpeed = fullSpeed };
+        update(state, RidleySwoopTurn.None, RotationAngle.Zero, fullSpeed);
         AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
         state.SwoopAngleAccumulator = RotationAngle.FromSteps(120);
-        update(state, 0, RotationAngle.HalfTurn, 0x500);
+        update(state, RidleySwoopTurn.None, RotationAngle.HalfTurn, fullSpeed);
         AssertEqual(RotationAngle.FromSteps(120), state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
         // A rightward step from just short of a full turn wraps the heading past zero; the half-turn target's
         // sign-of-difference test then keeps the wrapped heading instead of snapping to the target.
         state.SwoopAngleAccumulator = RotationAngle.FromSteps(254);
-        update(state, RotationAngle.FromSteps(4).RawValue, RotationAngle.HalfTurn, 0x500);
+        update(state, new RidleySwoopTurn(RotationAngle.FromSteps(4), RotationDirection.Counterclockwise), RotationAngle.HalfTurn, fullSpeed);
         AssertEqual(RotationAngle.FromSteps(2), state.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
             state.SwoopAngleAccumulator = RotationAngle.FromSteps((byte)phase);
-            update(state, 0, RotationAngle.FromSteps(phase), 0x500);
+            update(state, RidleySwoopTurn.None, RotationAngle.FromSteps(phase), fullSpeed);
             ushort NativeComponent(int angle)
             {
                 short sample = ReadRetailSwoopSine(rom, angle);
@@ -59,7 +60,7 @@ internal static class RidleyFlightTailVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
-            Phase = RidleyPhase.NorfairFireballMoveToHeight, PhaseTimer = 0,
+            Phase = RidleyPhase.NorfairPogoMoveToHeight, PhaseTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,
@@ -82,7 +83,7 @@ internal static class RidleyFlightTailVerification
         tail(slot, state, null);
         AssertEqual(RidleyTailAction.Stab, state.TailAction, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
-        state.Phase = RidleyPhase.NorfairFireballRecover;
+        state.Phase = RidleyPhase.NorfairPogoRise;
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailAction.Neutral, state.TailAction, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");

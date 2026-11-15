@@ -39,8 +39,8 @@ internal static class CeresRidleyBodyPublicationVerification
         ridley.FloorCenter = new Position16<FloorPixels>(64, 64);
         // The getaway setup's starting table position and animation frames ($A6:A2E3).
         ridley.GetawayFrameIndex = 0;
-        ridley.GetawayBabyFrame = 0;
-        ridley.GetawayWingFrame = 0;
+        ridley.GetawayCapsuleStep = 0;
+        ridley.GetawayWingBeat = 0;
         RotationAngle? previousAngle = null;
         foreach ((int nmiFrame, CeresFloorAnimationFrame wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorAnimationFrame.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorAnimationFrame.WingsRaised) })
         {

@@ -531,7 +531,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
                 Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
                 Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
-                Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
+                // A breakup fragment's count only flickers it; the cartridge keeps only that phase of it (#1940).
+                if (actor.DefinitionId == EnemyDefinitionId.RidleyExplosion)
+                    CheckValue(owner + " flicker phase", actor.FrameCounter & 1, W(address + 44) & 1);
+                else
+                    Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
             if (!deferLoadingOwners && runtime.Enemies.RidleyEncounter.Ridley is { } ridleyState &&
                 W(NativeSnapshotMemory.EnemyBase) == SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Ridley))
@@ -547,7 +551,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley AI timer", unchecked((ushort)ridleyState.PhaseTimer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.TailAction), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
-                Check("Ridley TailWhipRequest", checked((ushort)ridleyState.TailWhipRequest), NativeSnapshotMemory.RidleyTailWhipRequest);
+                Check("Ridley TailWhipRequest", ridleyState.TailWhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.TailExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.TailAngleDelta), NativeSnapshotMemory.RidleyTailAngleDelta);
                 Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.TailMinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
@@ -559,11 +563,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley VerticalVelocity", ridleyState.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
                 Check("Ridley FightMode", RidleyNativeWords.FightModes.Word(ridleyState.FightMode), NativeSnapshotMemory.RidleyFightMode);
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
-                Check("Ridley WingFrame", checked((ushort)ridleyState.WingFrame), NativeSnapshotMemory.RidleyWingFrame);
-                Check("Ridley WingAnimationTimerDelta", checked((ushort)ridleyState.WingAnimationTimerDelta), NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
-                Check("Ridley WingAnimationTimer", unchecked((ushort)ridleyState.WingAnimationTimer), NativeSnapshotMemory.RidleyWingAnimationTimer);
+                // The wing beat is presentation and no longer reproduces the cartridge's four-bit wrap of fast flight (#1935),
+                // so its step and timers are not compared.
                 Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
-                Check("Ridley HealthStage", checked((ushort)ridleyState.HealthStage), NativeSnapshotMemory.RidleyHealthStage);
+                Check("Ridley HealthStage", RidleyNativeWords.HealthBands.Word(ridleyState.HealthBand), NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
                 Check("Ridley TailDamage", checked((ushort)ridleyState.TailDamage), NativeSnapshotMemory.RidleyTailDamage);

@@ -9,30 +9,29 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 internal static class RidleySupplementalVisualDefinitions
 {
 
-    /// <summary>The installed frame each wing-cycle index shows, ten phases facing left then ten facing right.</summary>
-    internal static EnemyFrameTable<int> WingFrames { get; } = new()
-    {
-        { 0, EnemyFrameId.RidleyWingFacingLeftFirst },
-        { 1, EnemyFrameId.RidleyWingFacingLeftSecond },
-        { 2, EnemyFrameId.RidleyWingFacingLeftThird },
-        { 3, EnemyFrameId.RidleyWingFacingLeftFourth },
-        { 4, EnemyFrameId.RidleyWingFacingLeftFifth },
-        { 5, EnemyFrameId.RidleyWingFacingLeftSixth },
-        { 6, EnemyFrameId.RidleyWingFacingLeftFifth },
-        { 7, EnemyFrameId.RidleyWingFacingLeftFourth },
-        { 8, EnemyFrameId.RidleyWingFacingLeftThird },
-        { 9, EnemyFrameId.RidleyWingFacingLeftSecond },
-        { 10, EnemyFrameId.RidleyWingFacingRightFirst },
-        { 11, EnemyFrameId.RidleyWingFacingRightSecond },
-        { 12, EnemyFrameId.RidleyWingFacingRightThird },
-        { 13, EnemyFrameId.RidleyWingFacingRightFourth },
-        { 14, EnemyFrameId.RidleyWingFacingRightFifth },
-        { 15, EnemyFrameId.RidleyWingFacingRightSixth },
-        { 16, EnemyFrameId.RidleyWingFacingRightFifth },
-        { 17, EnemyFrameId.RidleyWingFacingRightFourth },
-        { 18, EnemyFrameId.RidleyWingFacingRightThird },
-        { 19, EnemyFrameId.RidleyWingFacingRightSecond },
-    };
+    /// <summary>
+    /// The wing beat facing left (#1935): the wings' downstroke from fully raised to fully lowered, then the upstroke
+    /// through the four poses between.
+    /// </summary>
+    internal static IReadOnlyList<EnemyFrameId> WingBeatFacingLeft { get; } =
+    [
+        EnemyFrameId.RidleyWingFacingLeftFirst, EnemyFrameId.RidleyWingFacingLeftSecond, EnemyFrameId.RidleyWingFacingLeftThird,
+        EnemyFrameId.RidleyWingFacingLeftFourth, EnemyFrameId.RidleyWingFacingLeftFifth, EnemyFrameId.RidleyWingFacingLeftSixth,
+        EnemyFrameId.RidleyWingFacingLeftFifth, EnemyFrameId.RidleyWingFacingLeftFourth, EnemyFrameId.RidleyWingFacingLeftThird,
+        EnemyFrameId.RidleyWingFacingLeftSecond,
+    ];
+
+    /// <summary>The wing beat facing right, step for step the mirror of <see cref="WingBeatFacingLeft"/>.</summary>
+    internal static IReadOnlyList<EnemyFrameId> WingBeatFacingRight { get; } =
+    [
+        EnemyFrameId.RidleyWingFacingRightFirst, EnemyFrameId.RidleyWingFacingRightSecond, EnemyFrameId.RidleyWingFacingRightThird,
+        EnemyFrameId.RidleyWingFacingRightFourth, EnemyFrameId.RidleyWingFacingRightFifth, EnemyFrameId.RidleyWingFacingRightSixth,
+        EnemyFrameId.RidleyWingFacingRightFifth, EnemyFrameId.RidleyWingFacingRightFourth, EnemyFrameId.RidleyWingFacingRightThird,
+        EnemyFrameId.RidleyWingFacingRightSecond,
+    ];
+
+    /// <summary>The steps of a wing beat, the same facing either way.</summary>
+    internal static int WingBeatSteps => WingBeatFacingLeft.Count;
 
     /// <summary>
     /// The installed frame the drawn tail tip shows for each sixteenth of the turn its direction can point into, in turn
@@ -46,14 +45,15 @@ internal static class RidleySupplementalVisualDefinitions
         EnemyFrameId.RidleyBreakupTailTipThirteenth, EnemyFrameId.RidleyBreakupTailTipFourteenth, EnemyFrameId.RidleyBreakupTailTipFifteenth,
         EnemyFrameId.RidleyBreakupTailTipSixteenth);
 
-    /// <summary>The installed frame each of the six drawn tail links shows, large to small.</summary>
-    internal static EnemyFrameTable<int> SegmentFrames { get; } = new()
-    {
-        { 0, EnemyFrameId.RidleyTailSegmentSmall },
-        { 1, EnemyFrameId.RidleyTailSegmentSmall },
-        { 2, EnemyFrameId.RidleyTailSegmentMedium },
-        { 3, EnemyFrameId.RidleyTailSegmentMedium },
-        { 4, EnemyFrameId.RidleyTailSegmentLarge },
-        { 5, EnemyFrameId.RidleyTailSegmentLarge },
-    };
+    /// <summary>The installed frame of the two tail links nearest Ridley's body.</summary>
+    internal static EnemyFrameId BaseLink => EnemyFrameId.RidleyTailSegmentSmall;
+
+    /// <summary>The installed frame of the two middle tail links.</summary>
+    internal static EnemyFrameId MiddleLink => EnemyFrameId.RidleyTailSegmentMedium;
+
+    /// <summary>The installed frame of the two tail links nearest the tip.</summary>
+    internal static EnemyFrameId OuterLink => EnemyFrameId.RidleyTailSegmentLarge;
+
+    /// <summary>The installed frame each of the six drawn tail links shows, from the body out (#1935).</summary>
+    internal static IReadOnlyList<EnemyFrameId> LinkFrames { get; } = [BaseLink, BaseLink, MiddleLink, MiddleLink, OuterLink, OuterLink];
 }

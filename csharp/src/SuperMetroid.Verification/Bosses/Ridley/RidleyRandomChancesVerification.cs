@@ -14,7 +14,7 @@ internal static class RidleyRandomChancesVerification
     {
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
         {
-            AssertSameAt((sample & 255) >= 128, RidleyRandomDefinitions.PogoFireballs.IsTakenBy(sample), "pogo fireballs", sample);
+            AssertSameAt((sample & 255) >= 128, RidleyRandomDefinitions.WallSweepFireballs.IsTakenBy(sample), "pogo fireballs", sample);
             AssertSameAt((sample & 255) >= 240, RidleyRandomDefinitions.TailWhips.IsTakenBy(sample), "tail whip", sample);
             AssertSameAt(((sample >> 8) & 255) == 255, RidleyRandomDefinitions.TailCurlinessChanges.IsTakenBy(sample), "tail curliness change", sample);
             bool headsAway = RidleyRandomDefinitions.PogoBounceHeadsAwayFromSamus.IsTakenBy(sample);

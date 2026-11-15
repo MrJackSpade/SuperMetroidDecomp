@@ -89,9 +89,17 @@ internal static class RidleyCollisionDefinitions
     /// <summary>Right-facing torso.</summary>
     internal static readonly EnemyHitboxRectangle[] RightTorso = [new(-13, -22, 14, 21)];
 
-    /// <summary>Authored origins for left-facing legs, hand, torso, and head; right-facing frames negate X.</summary>
-    internal static readonly Offset16<RoomPixels>[] LeftBase =
-        [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
+    /// <summary>The left-facing legs' origin; a right-facing frame negates X.</summary>
+    internal static readonly Offset16<RoomPixels> LeftLegsOrigin = new(15, 22);
+
+    /// <summary>The left-facing hand's origin; a right-facing frame negates X.</summary>
+    internal static readonly Offset16<RoomPixels> LeftHandOrigin = new(-8, 7);
+
+    /// <summary>The left-facing torso's origin; a right-facing frame negates X.</summary>
+    internal static readonly Offset16<RoomPixels> LeftTorsoOrigin = new(16, 0);
+
+    /// <summary>The left-facing head's origin; a right-facing frame negates X.</summary>
+    internal static readonly Offset16<RoomPixels> LeftHeadOrigin = new(-3, -24);
 
     /// <summary>The side-facing body frames that face right; their component origins mirror the left-facing ones.</summary>
     internal static readonly IReadOnlySet<BodyFrame> RightFacing = new HashSet<BodyFrame>

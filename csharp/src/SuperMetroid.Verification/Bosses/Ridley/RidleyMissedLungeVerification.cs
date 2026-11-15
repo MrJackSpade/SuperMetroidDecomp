@@ -32,7 +32,7 @@ internal static class RidleyMissedLungeVerification
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyPhase.NorfairHoverSetup, state.Phase,
             "low missed lunge exits immediately when Ridley Y + 35 reaches Samus Y");
-        AssertEqual(1, state.TailWhipRequest, "missed lunge requests native tail whip");
+        AssertTrue(state.TailWhipRequested, "missed lunge requests native tail whip");
         ushort lowY = slot.Position.Y.Whole;
         for (int frame = 0; frame < 32; frame++)
         {
@@ -51,7 +51,7 @@ internal static class RidleyMissedLungeVerification
             state.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;
-            state.TailWhipRequest = 0;
+            state.TailWhipRequested = false;
         }
         // The native Y comparison is >=, and applies even when the claw's X misses.
         ResetLunge(160, 384);
@@ -89,7 +89,7 @@ internal static class RidleyMissedLungeVerification
         state.Phase = RidleyPhase.NorfairGrabApproach;
         state.ZeroHealthLungeCount = 10;
         run(slot, state, samus, 0, null);
-        AssertEqual(RidleyPhase.NorfairDeathExplosions, state.Phase, "tenth miss immediately executes death-roar setup");
+        AssertEqual(RidleyPhase.NorfairDeathRoar, state.Phase, "tenth miss immediately executes death-roar setup");
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
         AssertEqual(32, state.PhaseTimer, "native death-roar timer is armed");
 
@@ -99,7 +99,7 @@ internal static class RidleyMissedLungeVerification
         enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours(), bomb);
         ResetLunge(160, 400);
         run(slot, state, samus, 0, null);
-        AssertEqual(RidleyPhase.NorfairReturnToArena, state.Phase, "bomb selects native dodge instead of ordinary retreat");
+        AssertEqual(RidleyPhase.NorfairPowerBombDodge, state.Phase, "bomb selects native dodge instead of ordinary retreat");
         AssertEqual(RidleyFightMode.PowerBombDodge, state.FightMode, "dodge suppresses repeated combat interruption");
         AssertTrue((short)state.Velocity.X.RawValue < 0 && (short)state.Velocity.Y.RawValue < 0,
             "low right-side bomb immediately accelerates Ridley toward upper-left target");

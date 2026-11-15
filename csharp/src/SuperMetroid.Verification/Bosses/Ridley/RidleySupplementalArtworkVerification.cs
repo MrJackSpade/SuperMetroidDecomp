@@ -87,7 +87,7 @@ internal static class RidleySupplementalArtworkVerification
         {
             MovementAnimationEnabled = true,
             FacingDirection = facing,
-            WingFrame = wingFrame,
+            WingBeatStep = wingFrame,
             TailSegments = tailDirection is null ? [] :
                 [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 {

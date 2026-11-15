@@ -32,10 +32,7 @@ internal static class RidleyBreakup
             : throw new InvalidOperationException($"Undefined Ridley explosion part {parameter}.");
     }
 
-    /// <summary>
-    /// Selects the body-relative position and pose the breakup initializer
-    /// loads. Facing zero selects the left-facing placement.
-    /// </summary>
+    /// <summary>The body-relative position and pose a breakup fragment starts with, by the way Ridley faced.</summary>
     public static RidleyExplosionBodyPartDefinition SelectBodyPart(RidleyExplosionPart parameter, bool facingRight) =>
         BodyParts.TryGetValue(new RidleyExplosionPartFacing(parameter, facingRight), out RidleyExplosionBodyPartDefinition part)
             ? part

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Samus's posture transitions: crouching and standing, crouch jumps, morphing and unmorphing, and the morph ball's landings, bounces, spring-ball jumps and walk-offs.</summary>
 internal static class SamusPosturePoseTransitions
 {
-    /// <summary>Applies the crouch input tables' direct same-facing exits (right-facing crouches to right-facing standing, or left-facing to left-facing) after larger-pose collision admits the standing body.</summary>
+    /// <summary>Applies the crouch input transitions' direct same-facing exits (right-facing crouches to right-facing standing, or left-facing to left-facing) after larger-pose collision admits the standing body.</summary>
     /// <param name="samus">The Samus this reads.</param>
     /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
     /// <param name="targetPose">Final normal standing-right or standing-left pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
@@ -260,7 +260,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
 
     /// <summary>
     /// Applies the ordinary Morph-Ball entry and exit poses selected by the crouch and
-    /// ball transition tables. This includes item gating, the posture change's bottom alignment,
+    /// ball input transitions. This includes item gating, the posture change's bottom alignment,
     /// and the block-only expansion collision used when unmorphing.
     /// </summary>
     /// <remarks>
@@ -281,9 +281,9 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         Ensure.NotNull(level);
 
         // Does not require the crouching movement type. Falling straight-down
-        // and spin-jump input tables can select the same morphing-transition initializer. The literal
+        // and spin-jump input transitions can select the same morphing-transition initializer. The literal
         // previous-movement-type test below even has a dedicated spin-jumping side effect.
-        // Validate only the facing-preserving relationship guaranteed by the transition table.
+        // Validate only the facing-preserving relationship guaranteed by the input transitions.
         SamusFacingDirection sourceFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool startsMorphingRight = sourceFacing == SamusFacingDirection.Right &&
             targetPose == SamusPoseId.MorphingTransitionRightPose;
@@ -401,7 +401,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// is still active, without replacing the live aerial velocity.
     /// </summary>
     /// <remarks>
-    /// The game's unmorph input table remains active before the animation's transition cue
+    /// The game's unmorph input transitions remain active before the animation's transition cue
     /// reaches its normal crouch endpoint. Up, aim, and Fire input can therefore
     /// interrupt the transition with an ordinary <see cref="SamusMovementType.Falling"/> pose. This is
     /// not a fresh jump or an animation-completion shortcut: it enters the shared

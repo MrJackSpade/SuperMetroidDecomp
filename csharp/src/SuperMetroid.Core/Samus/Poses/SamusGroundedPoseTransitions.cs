@@ -87,7 +87,7 @@ internal static class SamusGroundedPoseTransitions
             SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose);
         if (!sameRightFamily && !sameLeftFamily && !sameRightCrouch && !sameLeftCrouch)
         {
-            // The input tables never feed a facing reversal through this arm-only
+            // The input transitions never feed a facing reversal through this arm-only
             // transition seam; reversal has its own turn-pose initialization path.
             throw new InvalidOperationException(
                 $"Grounded aim transition {samus.Pose} -> {targetPose} is outside this same-facing pose family.");
@@ -255,7 +255,7 @@ internal static class SamusGroundedPoseTransitions
     /// the moonwalking pose initializer.
     /// </summary>
     /// <remarks>
-    /// Standing transition tables always publish a moonwalk candidate when Shoot and the
+    /// Standing input transitions always publish a moonwalk candidate when Shoot and the
     /// backward direction are held. The settings value decides what that candidate
     /// means: enabled retains the moonwalk pose; disabled substitutes the ordinary standing
     /// turn art. Once active, aim changes and the direct return to forward running are
@@ -432,7 +432,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies the shared standing/landing transition-table route from any right-facing
+    /// Applies the shared standing/landing input-transition route from any right-facing
     /// landing (including the firing landing) to running right, or from the mirrored left
     /// family to running left. Landing movement has already cleared momentum in
     /// this frame; the new running pose begins accelerating on the next frame.
@@ -454,7 +454,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies the grounded turn initialization. Input tables
+    /// Applies the grounded turn initialization. Input transitions
     /// first publish the generic standing turn; the initializer indexes the previous pose's shot
     /// direction through the grounded turn table and may replace it with an aimed standing turn.
     /// </summary>
@@ -465,10 +465,10 @@ internal static class SamusGroundedPoseTransitions
         // Their pose-X direction is zero, so they cannot honestly be classified as either
         // a right-facing or left-facing source. The game instead skips the shot-direction
         // lookup entirely when the previous pose is forward-facing, retaining the generic
-        // standing turn selected by that front-view pose's input transition table.
+        // standing turn selected by that front-view pose's input transitions.
         bool wasForwardFacing = SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
 
-        // Crouching transition tables publish the crouching turn directly, whereas every admitted
+        // Crouching input transitions publish the crouching turn directly, whereas every admitted
         // standing/running/landing table publishes the standing turn. The initializer still uses
         // previous SamusMovementType.Crouching to choose the full crouched aim-preserving table.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -507,7 +507,7 @@ internal static class SamusGroundedPoseTransitions
         }
 
         // The turn's jump check reads held Jump, not a fresh press. Releasing Shoot from a buffered
-        // Moonwalk selects a generic turn in the input table, then reaches this same
+        // Moonwalk selects a generic turn in the input transitions, then reaches this same
         // turn/jump initializer without a new Jump edge.
         if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
@@ -523,7 +523,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId selectedTurnPose;
         if (wasForwardFacing)
         {
-            // This is the literal early branch: keep the transition-table
+            // This is the literal early branch: keep the input-transition
             // result. Reading the shot direction of a forward-facing pose here would manufacture an aim/facing
             // direction that the game explicitly declines to inspect.
             selectedTurnPose = targetPose;

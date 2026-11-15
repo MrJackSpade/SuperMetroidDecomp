@@ -506,7 +506,7 @@ internal sealed class SamusPoseTransitionPhase
             case var (source, target)
                 when SamusPoseMetadata.IsDraygonGrabbedPose(source) &&
                      SamusPoseMetadata.IsDraygonGrabbedPose(target):
-                // Both transition tables stay within one facing. The helper makes
+                // Both sets of input transitions stay within one facing. The helper makes
                 // that invariant explicit and initializes the target's real
                 // animation.
                 SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
@@ -535,7 +535,7 @@ internal sealed class SamusPoseTransitionPhase
                 // The stable moonwalk poses' table publishes a generic
                 // reversal target. The reversal check validates it against the old
                 // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
-                // grounded until either its input table or the turn transition starts the jump.
+                // grounded until either its input transitions or the turn transition starts the jump.
                 SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus, targetPose);
                 return true;
             case var (source, target)
@@ -708,7 +708,7 @@ internal sealed class SamusPoseTransitionPhase
                          SamusPoseId.TurningRightToLeftPose or
                          SamusPoseId.TurningLeftToRightPose:
                 // Ceres releases controls while the forward-facing pose is still active.
-                // Its own transition table maps Left/Right to generic
+                // Its own input transitions map Left/Right to generic
                 // turning poses; the reversal check recognizes the old front-facing pose and
                 // preserves that target without inventing a source facing.
                 SamusGroundedPoseTransitions.ApplyGroundedTurn(samus, targetPose, _playerActions.Current);
@@ -767,7 +767,7 @@ internal sealed class SamusPoseTransitionPhase
                           SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) ||
                      SamusPoseMetadata.IsLandingToNormalJumpTransition(source, target):
                 // All the landing poses expose the same
-                // standing input table while their brief transitions are active.
+                // standing input transitions while their brief transitions are active.
                 // A fresh Jump edge can therefore preserve any authored
                 // normal-jump aim target, even from the firing landings
                 // before the turn-transition fallback.

@@ -265,7 +265,7 @@ public static class SamusKnockbackMovement
     }
 
     /// <summary>
-    /// Applies the only cross-family transition in the knockback input tables: Jump plus the
+    /// Applies the only cross-family transition in the knockback input transitions: Jump plus the
     /// direction opposite the knockback pose enters a damage boost and restores normal movement.
     /// </summary>
     public static void ApplyDamageBoostTransition(

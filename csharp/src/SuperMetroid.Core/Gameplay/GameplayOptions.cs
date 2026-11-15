@@ -11,7 +11,7 @@ internal sealed class GameplayOptions
     /// <summary>
     /// The game's Moonwalk option, read when
     /// Samus turns. False preserves the default turn substitution; true admits the six
-    /// stable moonwalk poses selected by the unchanged input tables.
+    /// stable moonwalk poses selected by the unchanged input transitions.
     /// </summary>
     public bool MoonwalkEnabled { get; set; }
 

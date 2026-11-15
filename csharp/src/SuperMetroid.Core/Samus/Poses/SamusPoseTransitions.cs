@@ -439,7 +439,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             // Moonwalk turn animations end in a transition to the spin jump. That pose still passes
             // through movement-type initialization, so equipment substitution occurs here
-            // just as it does for an input-table jump from ordinary running.
+            // just as it does for an input-transition jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump
                 ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, targetPose)
                 : targetPose;

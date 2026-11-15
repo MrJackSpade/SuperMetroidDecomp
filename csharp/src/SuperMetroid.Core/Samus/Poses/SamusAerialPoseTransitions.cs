@@ -243,7 +243,7 @@ internal static class SamusAerialPoseTransitions
         }
 
         // Ordinary and wall-jump definition fallbacks publish the generic spin jump, whereas
-        // the dedicated Screw Attack and Space Jump input tables can publish their already-
+        // the dedicated Screw Attack and Space Jump input transitions can publish their already-
         // specialized opposite-facing pose directly. Reduce either form back to the
         // generic direction before applying the spin-jump initializer's live equipment priority. This is
         // observable when both bits are equipped: an authored right-to-left Screw Attack pose must remain
@@ -466,7 +466,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies the spin-jump initializer's equipment, liquid and start-sound selection
-    /// to a generic spin-jump transition-table target.
+    /// to a generic spin-jump input-transition target.
     /// </summary>
     internal static SamusPoseId SelectEquippedSpinPose(SamusState samus, SamusPoseId genericPose, SpinPoseStart start = SpinPoseStart.FirstFrame)
     {
@@ -787,7 +787,7 @@ internal static class SamusAerialPoseTransitions
 
 
     /// <summary>
-    /// Applies a shinespark windup's directional input-table match and installs its exact special
+    /// Applies a shinespark windup's directional input-transition match and installs its exact special
     /// movement owner. No ordinary jump velocity or grounded momentum step runs.
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
@@ -841,7 +841,7 @@ internal static class SamusAerialPoseTransitions
             // transition still enters the ordinary spin-jump initializer. The turn pose has
             // already folded run momentum in the moonwalk turn; the spin-jump initializer now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
-            // Keeps consulting the turning pose's live input table. A fresh
+            // Keeps consulting the turning pose's live input transitions. A fresh
             // Jump with no horizontal direction selects the neutral jump transition;
             // holding the completed facing selects the spin jump. Both pairs enter the
             // same jump initializer and differ only in their authored body.
@@ -858,7 +858,7 @@ internal static class SamusAerialPoseTransitions
              SamusPoseId.NeutralJumpTransitionRightPose) or
             (SamusPoseId.RanIntoWallLeftPose or SamusPoseId.RanIntoWallAimUpLeftPose or SamusPoseId.RanIntoWallAimDownLeftPose,
              SamusPoseId.NeutralJumpTransitionLeftPose) ||
-            // Every landing body shares its facing's ordinary standing input table. The
+            // Every landing body shares its facing's ordinary standing input transitions. The
             // centralized predicate deliberately covers normal, spin, aimed, and firing
             // landings, while still rejecting a corrupt cross-facing neutral jump-transition target.
             SamusPoseMetadata.IsLandingToNormalJumpTransition(samus.Pose, targetPose);

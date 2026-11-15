@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 internal static class SamusSpeedBoosterGlow
 {
     /// <summary>Shows <paramref name="shade"/>, one of her suit's own Speed Booster cycle shades.</summary>
-    internal static void Apply(SamusColours colours, SamusFullBodyCycleShade palette)
+    internal static void Apply(SamusColours colours, SamusFullBodyCycleShade shade)
     {
         Ensure.NotNull(colours);
-        colours.ShowSuit(SamusShades.FullBodyCycle(palette));
+        colours.ShowSuit(SamusShades.FullBodyCycle(shade));
     }
 }

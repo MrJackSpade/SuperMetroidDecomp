@@ -22,10 +22,10 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Dispatches an already-colliding normal bomb through Torizo's hitbox
-    /// reactions. The frame-hitbox walker has already set
-    /// its explosion direction bit; this method owns only the species reaction and its common
-    /// no-death damage tail.
+    /// Runs an already-colliding normal bomb through Torizo's hitbox
+    /// reactions. The frame-hitbox collision has already set
+    /// the bomb's explosion direction; this method owns only the species reaction and its common
+    /// no-death damage.
     /// </summary>
     private void ResolveTorizoNormalBomb(
         RoomEnemySlot torizo,
@@ -35,7 +35,7 @@ internal sealed class TorizoCombat
         bool isBombTorizo = torizo.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         if (!isBombTorizo && !isGoldenTorizo)
-            throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
+            throw new ArgumentException("A normal bomb's Torizo reaction requires a Torizo body.");
 
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (selectedShot == TorizoReactions.StandUpSitDownShot)
@@ -138,7 +138,7 @@ internal sealed class TorizoCombat
     internal EnemyShotReaction TorizoShotReaction => field ??= new()
     {
         // Golden's definition installs its own shot reaction, but its ordinary extended body hitboxes call the shared
-        // one; that wrapper dispatches to Golden's by area. Stand-up/sit-down maps deliberately use the transitional reaction instead. That
+        // one, which hands Golden's area to Golden's own. Stand-up/sit-down frames deliberately use the transitional reaction instead. That
         // reaction is a no-op for Crateria's Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
         // must remain distinguishable below.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>

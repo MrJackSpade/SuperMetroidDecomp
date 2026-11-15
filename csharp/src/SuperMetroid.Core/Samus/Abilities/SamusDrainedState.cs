@@ -160,7 +160,7 @@ public sealed class SamusDrainedState
     /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
     public void HoldRainbowGlowLonger(int longestHold)
     {
-        // The hold never exceeds the caller's small maximum, so lengthening it cannot reach a wrap.
+        // The hold never exceeds the drained colouring's small maximum, so lengthening it cannot reach a wrap.
         int lengthened = SpecialColouringFrame + 1;
         SpecialColouringFrame = lengthened < longestHold ? lengthened : longestHold;
     }
@@ -346,17 +346,17 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // These are literal indices into the asymmetrical delay animations, not visual
-        // frame counts. In particular, the left-facing drained crouch's index 13 lands inside a
-        // cue's argument rather than on a frame; the game
-        // intentionally draws that index until the next animation decrement advances it.
+        // These are places in the asymmetrical drained animations, not visual
+        // frame counts. In particular, the left-facing drained crouch's place lands inside a
+        // cue rather than on a frame; the game
+        // intentionally holds that place until the next animation step advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
-        // broad behavior instead of rejecting a caller that the game accepts.
+        // broad behavior instead of rejecting a pose that the game accepts.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;

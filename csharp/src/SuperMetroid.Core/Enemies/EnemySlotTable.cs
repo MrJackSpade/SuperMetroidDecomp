@@ -15,7 +15,7 @@ internal sealed class EnemySlotTable
     /// <summary>The empty place a newly spawned enemy takes, or null when every place is taken.</summary>
     internal RoomEnemySlot? FindFreeSlot() => EnemySlotOrder.FirstFree(_slots);
 
-    /// <summary>Creates the places once, each bound to the species registry that dispatches its entity.</summary>
+    /// <summary>Creates the places once, each bound to the species registry that creates its entity.</summary>
     /// <exception cref="InvalidOperationException">The places already exist.</exception>
     internal void InstallSlots(EnemySpeciesRegistry species)
     {

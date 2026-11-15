@@ -121,7 +121,7 @@ internal static class BabyMetroidGradualAcceleration
     private static int Step(int distance, int divisor)
     {
         if (divisor is < 1 or > 16)
-            throw new ArgumentOutOfRangeException(nameof(divisor), "The divisor table holds 16 down to 1.");
+            throw new ArgumentOutOfRangeException(nameof(divisor), "The divisor is 16 down to 1.");
         int quotient = distance / divisor;
         return quotient == 0 ? 1 : quotient;
     }

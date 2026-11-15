@@ -10,7 +10,7 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Body enemy-slot animation state. The caller advances its animation stage
+    /// Body enemy-slot animation state. The fight advances its animation stage
     /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the AI-then-animation order.
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();

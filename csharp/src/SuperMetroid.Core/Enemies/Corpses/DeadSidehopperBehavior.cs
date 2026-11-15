@@ -401,7 +401,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
+    /// <summary>Rejects missing or mismatched private state before the corpse's AI runs.</summary>
     internal static DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = slot.SpeciesState<DeadSidehopperEnemyState>() ??

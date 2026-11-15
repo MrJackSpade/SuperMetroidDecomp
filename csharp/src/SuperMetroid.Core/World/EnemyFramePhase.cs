@@ -142,7 +142,7 @@ internal sealed class EnemyFramePhase
                 room.FxOverlay.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {
-                // The elevator clears all ten projectile slots and their counters. Ordinary
+                // The elevator clears every one of Samus's shots and their counters. Ordinary
                 // beam/missile slots were reset inside the actor call; bombs and the shared
                 // cooldown live in this companion owner and complete that same operation.
                 room.BombProjectiles.Reset();

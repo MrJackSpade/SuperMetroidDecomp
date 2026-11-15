@@ -95,16 +95,16 @@ public sealed class KraidEnemyState
     /// </summary>
     internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
 
-    /// <summary>Moves the hurt-flash phase one step toward zero; the caller has established the phase is running.</summary>
+    /// <summary>Moves the hurt-flash phase one step toward zero; Kraid's hurt flash steps it only while the phase is running.</summary>
     internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0
         ? HurtFrame - 1
-        : throw new InvalidOperationException($"Stepping Kraid's hurt phase {HurtFrame} breaks its caller's running-phase guard.");
+        : throw new InvalidOperationException($"Kraid's hurt phase {HurtFrame} stepped while it was not running.");
 
     /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
 
     /// <summary>
-    /// Removes one pending mouth reopen (#1627). Every caller reaches here only while the mouth's reopen is pending, which a
+    /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
     /// mouth hit marks only after arming three, and the removal that leaves none clears the mouth, so a reopen is always
     /// pending here: the game's wrap of its count from zero is never reached, and removing from none breaks that
     /// order.

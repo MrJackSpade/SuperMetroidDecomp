@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// that share a level (a room's event and boss states) name the same member. Each level is named for the room of the
 /// first state that uses it, in the room-state catalogs' order.
 /// </summary>
-[NumberedIdentities("Each numbered level is a different room's, numbered as the room's own name is (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes them.")]
+[NumberedIdentities("Each numbered level is a different room's, numbered as the room's own name is (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes them.")]
 public static class RoomLevelDefinitions
 {
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.LandingSiteDefault"/> uses first.</summary>

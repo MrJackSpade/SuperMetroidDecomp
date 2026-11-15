@@ -69,7 +69,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>
     /// Samus's room position captured after the complete 20-pixel rise. Only the Y axis is meaningful: the finishing
     /// phase compares Samus's whole Y with it through the wrapped spatial difference and walks her down one
-    /// pixel per call while they differ.
+    /// pixel an update while they differ.
     /// </summary>
     public Position16<RoomPixels> RaisedPosition { get; private set; }
 
@@ -315,7 +315,7 @@ public sealed class SamusCrystalFlashState
     {
         // Retail usually enters with equality because RaisedPosition was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
-        // displaced Samus upward/downward makes the whole Y walk downward one per call.
+        // displaced Samus upward/downward makes the whole Y walk downward one pixel an update.
         if ((samus.Position.Whole - RaisedPosition).Y != 0)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 

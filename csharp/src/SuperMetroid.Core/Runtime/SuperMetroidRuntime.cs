@@ -980,7 +980,7 @@ internal sealed class SuperMetroidRuntime
         // Execute the active room's room main at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
         // Ceres room main publishes a tilt for the following frame's presentation and may
-        // change the outer game-state loop to the Ceres elevator state only when its caller is main gameplay.
+        // change the outer game-state loop to the Ceres elevator state only while main gameplay runs it.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
             Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
@@ -1012,7 +1012,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Invokes the pause-menu held-input filter with the controller sample latched by the
-    /// most recent frame boundary. The game's caller passes reset value three.
+    /// most recent frame boundary. The game passes reset value three.
     /// </summary>
     public void UpdatePauseHeldInput(int timerReset = 3)
     {

@@ -25,7 +25,7 @@ public sealed class LowerNorfairRioEnemyState
     /// <summary>Signed 1/256-pixel velocity in room pixels per update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The current behaviour, shared by parent and flame follower dispatch.</summary>
+    /// <summary>The current behaviour, which the parent and its flame follower both run.</summary>
     public LowerNorfairRioAction? Action { get; internal set; }
 
     /// <summary>Whether this is the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>

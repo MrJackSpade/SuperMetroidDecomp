@@ -15,11 +15,11 @@ public sealed class SamusHealthWarningState
     /// <summary>The room-library sound that stops the critical-energy warning.</summary>
     private static readonly SoundEffectId Stop = RoomSound.Silence;
 
-    /// <summary>The latch, not confirmation that a sound voice actually started.</summary>
+    /// <summary>The latch, not confirmation that the warning sound actually started.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Executes one admitted check. The caller owns admission and ordering;
+    /// Executes one admitted check. Samus's update decides when it runs and in what order;
     /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
     /// </summary>
     internal void Update(int health, GameplayAudioRequests audio)

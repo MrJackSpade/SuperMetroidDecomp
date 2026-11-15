@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// One Torizo launch tuple whose two velocities receive independent signed random
-/// displacements when the projectile is initialized, and the animation it starts. The launch
-/// holds X offset, X velocity, Y offset and Y velocity.
+/// One Torizo launch: the animation it starts, its offset from the Torizo and its velocity, whose two axes receive
+/// independent signed random displacements when the projectile starts.
 /// </summary>
 internal readonly record struct TorizoRandomizedProjectileDefinition(
     TorizoProjectileSegment Animation,

@@ -118,7 +118,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Wave collision deliberately discards whether terrain stopped it, after retaining every block and
-        // room-object side effect. Its caller will overwrite the temporary zero/-1 speeds immediately.
+        // room-object side effect. The Wave beam's flight overwrites the temporary zero/-1 speeds immediately.
         return false;
     }
 
@@ -225,8 +225,8 @@ internal sealed class ProjectileTerrainCollision
         if (shot.Type.IsFamily(SamusProjectileFamily.Missile) ||
             shot.Type.IsFamily(SamusProjectileFamily.SuperMissile))
         {
-            // Missiles take the point test in their flight (ProjectileMotion.FlyMissile); the missile
-            // branch has no caller here.
+            // Missiles take the point test in their flight (ProjectileMotion.FlyMissile); no missile
+            // reaches this reaction.
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
 
@@ -302,7 +302,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
-        // reaction does not use the ordinary behaviour 0..F shot-block table: its reaction
+        // reaction is none of the ordinary shot-block reactions: it
         // finds and triggers the already-loaded permanent-item room object at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
@@ -325,7 +325,7 @@ internal sealed class ProjectileTerrainCollision
         {
             if (block.Behavior.Shootable == ShootableReaction.CollisionProbe)
             {
-                // Gate setup ends the caller's span and forces its collision counter.
+                // Gate setup ends the shot's span and forces its collision counter.
                 // A full room-object pool skips setup entirely, so it must not end the scan.
                 endSpan = roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level, block.At, block.Behavior, shot.Type,
@@ -397,9 +397,9 @@ internal sealed class ProjectileTerrainCollision
         RoomCollisionBlock block,
         ISamusRoomObjects roomObjects)
     {
-        // The gate-trigger behaviours bypass the normal 16-entry shot-block table and
-        // allocates one of eight temporary trigger room objects. React to it before the table-range
-        // validation below; those behaviours are intentionally outside that ordinary domain.
+        // The gate-trigger behaviours bypass the ordinary shot-block reactions and
+        // spawn one of eight temporary trigger room objects. React to them before the ordinary
+        // reactions below; those behaviours are intentionally outside them.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
@@ -416,10 +416,10 @@ internal sealed class ProjectileTerrainCollision
             return;
         }
 
-        // The shot-block table's entries 40..43 select the four blue-door entry room objects. These are not
+        // The four blue-door behaviours spawn the blue door's opening room objects. These are not
         // ordinary breakable blocks: setup changes the cap origin to a solid block and the
         // door's animation opens all four blocks over eighteen frames. Keep this reaction
-        // beside the general table lookup so every beam/missile/bomb collision reaches the
+        // beside the ordinary reactions so every beam/missile/bomb collision reaches the
         // same owner and power bombs retain the blue door setup's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {

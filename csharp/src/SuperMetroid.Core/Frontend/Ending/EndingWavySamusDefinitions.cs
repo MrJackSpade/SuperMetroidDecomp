@@ -25,6 +25,6 @@ internal static class EndingWavySamusDefinitions
     /// following frame is its first advance.
     /// </summary>
     internal const int FirstWaveAge = 2;
-    /// <summary>The wavy Samus scene advances the wave's vertical scroll by two per call.</summary>
+    /// <summary>The wavy Samus scene advances the wave's vertical scroll by two each update.</summary>
     internal const int VerticalStep = 2;
 }

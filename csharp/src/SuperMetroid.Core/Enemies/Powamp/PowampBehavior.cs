@@ -171,7 +171,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         PowampHold hold)
     {
-        // The ordinary rise changes dispatch and runs the grappled behaviour immediately
+        // The ordinary rise changes behaviour and runs the grappled behaviour immediately
         // on the frame common grapple AI publishes the grappled state.
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold != PowampHold.Grappled && grappleAiActive)
@@ -465,7 +465,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException($"Powamp balloon started body animation {segment}.");
     }
 
-    /// <summary>Rejects a rise or sink dispatch without room collision data.</summary>
+    /// <summary>Rejects a rise or sink without room collision data.</summary>
     private static RoomLevelData RequirePowampLevel(RoomLevelData level) =>
         level ?? throw new InvalidOperationException("Powamp movement requires room level data.");
 
@@ -581,8 +581,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal int? SpawnPowampSpikeBurst(RoomEnemySlot body, PictureShading look)
     {
         int? lastSpikePlace = null;
-        // The spikes fire in their authored order. Allocation independently searches the
-        // eighteen-slot pool from the last slot downward on every iteration.
+        // The spikes fire in their authored order. Each spike searches the room's places for
+        // enemy projectiles afresh, from the last place down.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
             EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile();

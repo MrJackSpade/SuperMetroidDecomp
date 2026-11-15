@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
-    /// <summary>The first cry, selected by random slots 0 and 3.</summary>
+    /// <summary>The first cry, chosen by random draws of 0 and 3.</summary>
     private static readonly SoundEffectId FirstCry = EnemySound.MetroidDrain;
-    /// <summary>The second cry, selected by random slots 1, 4 and 6.</summary>
+    /// <summary>The second cry, chosen by random draws of 1, 4 and 6.</summary>
     private static readonly SoundEffectId SecondCry = EnemySound.ShotMochtroid;
-    /// <summary>The third cry, selected by random slots 2, 5 and 7.</summary>
+    /// <summary>The third cry, chosen by random draws of 2, 5 and 7.</summary>
     private static readonly SoundEffectId ThirdCry = EnemySound.ShotMetroid;
 
     /// <summary>

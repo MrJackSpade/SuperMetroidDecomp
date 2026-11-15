@@ -2,10 +2,10 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
-/// The state of a Kzan top. The bottom half has no private state: it follows the immediately preceding top slot. The
-/// top's values are its own: setup writes the wait reload and the speed row, each fall or rise writes the previous
-/// position before carrying Samus by it, and landing writes the rise wait before it counts down, so nothing a previous
-/// Kzan in the slot left reaches a new one.
+/// The state of a Kzan top. The bottom half has no private state: it follows the top just before it in the room's
+/// enemies. The top's values are its own: setup writes the wait reload and the speed, each fall or rise writes the
+/// previous position before carrying Samus by it, and landing writes the rise wait before it counts down, so nothing a
+/// previous Kzan left reaches a new one.
 /// </summary>
 public sealed class KzanEnemyState
 {

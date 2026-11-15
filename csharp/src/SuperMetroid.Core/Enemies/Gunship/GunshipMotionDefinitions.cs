@@ -6,28 +6,25 @@ internal static class GunshipMotionDefinitions
 
     /// <summary>The landing brake's signed whole-pixel Y delta for each of its 17 frames: +1 for frames 0..5, zero for 6..10, and -1 for 11..16.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the pinned retail data. These are explicit six/five/six braking
-    /// intervals, not a sampled physical acceleration curve. Callers add the signed whole-pixel delta with coordinate
-    /// wrapping, then advance.
+    /// These are explicit six/five/six braking intervals, not a sampled physical acceleration curve. The landing adds the
+    /// signed whole-pixel delta with coordinate wrapping, then advances.
     /// </remarks>
     internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 
     /// <summary>The idle bob's four phases: timer 16 and signed delta +1,-1,-1,+1.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against each of the two fields in
-    /// the Japanese and North American v1.0 release and the pinned ship hover. Timer and delta have separate
-    /// game-data proofs. Endpoint phases move down, middle phases move up.
-    /// The caller owns expiration and phase wrap.
+    /// Endpoint phases move down, middle phases move up. The ship's hover counts each phase down and wraps
+    /// from the last phase to the first.
     /// </remarks>
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
-    /// <summary>Above this Y the descending ship moves 4.5 pixels per call; below it, 2.5.</summary>
+    /// <summary>Above this Y the descending ship moves 4.5 pixels an update; below it, 2.5.</summary>
     internal const int SlowDescentY = 768;
 
-    /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels per call.</summary>
+    /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels an update.</summary>
     internal static readonly SignedSixteenSixteen FastDescentSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(72);
 
-    /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>: two and a half pixels per call.</summary>
+    /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>: two and a half pixels an update.</summary>
     internal static readonly SignedSixteenSixteen SlowDescentSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(40);
 
     /// <summary>The landed top hull's Y, where the descent clamps.</summary>

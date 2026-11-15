@@ -14,6 +14,6 @@ public enum RidleyAttackSituation
     PogoZone,
     /// <summary>Samus's spin-jump movement takes priority and starts the wall sweep for every choice.</summary>
     SpinJumping,
-    /// <summary>Zero health with Samus not spin jumping lunges at her for every choice; the caller counts these death lunges.</summary>
+    /// <summary>Zero health with Samus not spin jumping lunges at her for every choice; Ridley counts these death lunges.</summary>
     ZeroHealth,
 }

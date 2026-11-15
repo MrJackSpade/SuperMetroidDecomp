@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
-/// The state of one Evir actor (also called Mini-Draygon in older source annotations). The game builds each creature
+/// The state of one Evir actor. The game builds each creature
 /// from three consecutive enemies: body, arms, and a reusable aimed projectile; each holds one of these.
 /// </summary>
 public sealed class EvirEnemyState

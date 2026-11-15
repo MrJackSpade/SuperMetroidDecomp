@@ -22,7 +22,7 @@ internal sealed class IntroCinematicObjectSystem
     internal int EyeFrameHold { get; private set; } = 1;
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private int textFrameHold;
-    /// <summary>Caller-installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
+    /// <summary>The installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
     private IntroNarrationPresentation? narrationPresentation;
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame { get; private set; }

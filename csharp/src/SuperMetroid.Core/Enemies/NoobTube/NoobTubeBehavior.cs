@@ -249,5 +249,5 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// <summary>The typed animation a shard's flicker cue runs in.</summary>
     private static NoobTubeProjectileAnimation ShardAnimation(EnemyProjectile projectile) =>
         projectile.Animation as NoobTubeProjectileAnimation
-        ?? throw new InvalidOperationException($"A n00b-tube flicker cue ran outside its typed program; the slot runs {projectile.Animation}.");
+        ?? throw new InvalidOperationException($"A n00b-tube flicker cue ran outside its typed animation; the projectile runs {projectile.Animation}.");
 }

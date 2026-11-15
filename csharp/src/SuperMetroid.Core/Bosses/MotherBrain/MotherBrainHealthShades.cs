@@ -8,7 +8,7 @@ public static class MotherBrainHealthShades
     /// The damage band her health-based colours select for unsigned head health
     /// <paramref name="health"/>: zero at 9000 or more, one from 5400, two from 1800, and three below.
     /// </summary>
-    /// <remarks>The caller owns the recovered-corpse-state gate; this selects the band on every call without checking encounter phase.</remarks>
+    /// <remarks>Whether her corpse has recovered is decided by the fight; this selects the band every time without checking the encounter's phase.</remarks>
     public static int Band(int health) =>
         health >= MotherBrainHealthShadeDefinitions.FirstThreshold ? 0 :
         health >= MotherBrainHealthShadeDefinitions.SecondThreshold ? 1 :

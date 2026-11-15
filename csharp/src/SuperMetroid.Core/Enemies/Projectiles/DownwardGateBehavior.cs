@@ -19,7 +19,7 @@ internal sealed class DownwardGateBehavior
         _projectiles = projectiles;
     }
 
-    /// <summary>Applies one gate request to the shared eighteen-slot projectile pool.</summary>
+    /// <summary>Applies one gate request to the room's enemy projectiles.</summary>
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request)
     {
@@ -121,7 +121,7 @@ internal sealed class DownwardGateBehavior
     {
         DownwardGateProjectileSegment sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
             ? gate.PlayingSegment
-            : throw new InvalidOperationException($"A downward gate resumed without its typed program; it runs {projectile.Animation}.");
+            : throw new InvalidOperationException($"A downward gate resumed without its typed animation; it runs {projectile.Animation}.");
         projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[sleeping]));
     }
 

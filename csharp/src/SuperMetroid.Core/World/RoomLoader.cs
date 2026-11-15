@@ -269,7 +269,7 @@ internal sealed class RoomLoader
     /// Initialises a new Samus, as the game does when it loads a saved game, starts at Ceres, arrives on Zebes after
     /// Ceres or loads an attract demo: a fresh Samus in her default state, and the camera's horizontal measure of her
     /// movement set to one pixel (<see cref="YardKickTrackingDistance.RecordSamusInitialization"/>) until the camera
-    /// first tracks her. The caller sets her pose, place and inventory.
+    /// first tracks her. Her pose, place and inventory are set separately.
     /// </summary>
     internal SamusState InitializeSamus()
     {
@@ -388,7 +388,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Runs one source-room alignment call at the start of a door transition. Horizontal doors move the
-    /// camera's Y toward the nearest screen boundary; vertical doors move X, one pixel per call: a camera past the middle
+    /// camera's Y toward the nearest screen boundary; vertical doors move X, one pixel per update: a camera past the middle
     /// of its screen moves on to the next screen's edge and one before it back to its own, so one pixel either side of
     /// the boundary reaches it in one step.
     /// </summary>

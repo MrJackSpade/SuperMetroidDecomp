@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted whenever an enemy reads a sine, cosine or negative-sine product by a short radius during its update.
 /// Evidence: the original short multiplication hands the multiply unit only the radius's low eight bits and negates the
 /// product's two halves separately with no borrow between them; the compiled enemy-sine check sweeps every angle and radius
-/// with poisoned upper bits against the pinned cartridge's sine table and requires both behaviours.
+/// with poisoned upper bits against the game's sines and requires both behaviours.
 /// </remarks>
 [CompatibilityService("an enemy's short circle product: a radius of 256 or more continues from zero, and a point in the turn's second half reverses its whole pixels and its fraction each on their own")]
 public static class ShortCircleProduct

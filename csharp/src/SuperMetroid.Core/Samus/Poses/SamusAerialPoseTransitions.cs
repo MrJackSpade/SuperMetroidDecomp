@@ -368,7 +368,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Commits the pose selected when the grapple beam drops Samus.
-    /// The caller supplies the exact transition-table target and this method runs the shared
+    /// The drop names its exact target pose and this method runs the shared
     /// block-only pose-expansion collision before clearing grapple fall momentum.
     /// </summary>
     /// <returns>
@@ -937,7 +937,7 @@ internal static class SamusAerialPoseTransitions
         {
             // Compact poses change Samus's collision height. This overload intentionally
             // has no room data, so accepting the request would bypass the expansion
-            // collision probe; callers must select the collision-aware API explicitly.
+            // collision probe; a request with room data must use the collision-aware change explicitly.
             throw new InvalidOperationException(
                 "Radius-ten aerial transitions require TryApplyCompactAerialTransition and active room collision data.");
         }
@@ -958,7 +958,7 @@ internal static class SamusAerialPoseTransitions
         if (samus.Kinematics.Radius.Y != oldRadius)
         {
             // The admitted family deliberately excludes the compact straight-down jumping
-            // and falling poses; reaching a different radius proves a caller crossed that seam.
+            // and falling poses; reaching a different radius means a request crossed that seam.
             // Every retail member admitted above has the same collision radius. A mismatch
             // can only come from inconsistent/corrupt pose metadata, not an omitted route.
             throw new InvalidDataException(
@@ -1052,7 +1052,7 @@ internal static class SamusAerialPoseTransitions
     /// <summary>
     /// Kills Samus's run speed on a falling input-lookup failure. Cancel the
     /// dash component after movement, preserving the base speed and acceleration mode.
-    /// The caller admits only a still-falling body, so no new-fall Y reset is needed.
+    /// It is admitted only for a still-falling body, so no new-fall Y reset is needed.
     /// </summary>
     public static void ApplyFallingInputFallback(SamusState samus)
     {

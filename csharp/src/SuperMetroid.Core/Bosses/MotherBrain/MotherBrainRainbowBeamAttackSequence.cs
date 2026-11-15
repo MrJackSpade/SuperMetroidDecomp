@@ -184,7 +184,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {
         // The shot reaction knows only the eight projectile types it reacts to. Validate the
-        // projectile type so a caller cannot accidentally smuggle a larger
+        // projectile type so nothing can accidentally smuggle a larger
         // value past that domain.
         MotherBrainShotReactionResult reaction =
             MotherBrainShotReaction.Resolve(State.Body.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>The state of a Baby Turtle, with its required extra values.</summary>
+/// <summary>The state of a Baby Turtle.</summary>
 public sealed class BabyTurtleEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>

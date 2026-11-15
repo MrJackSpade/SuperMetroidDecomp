@@ -38,7 +38,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainHandBeamPhase.WaitForBombs:
-                // Bombs occupy the same eighteen-slot projectile pool. Waits for
+                // Bombs share the room's places for enemy projectiles. Waits for
                 // every active shell before starting the visually dense recursive beam.
                 if (state.BombCounter != 0)
                     return;
@@ -133,7 +133,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Runs the three-entry body attack choice. The selected head
+    /// Runs the body's choice among its three attacks. The selected head
     /// animation is an ordinary enemy animation, so attacks remain synchronized with its frame
     /// durations instead of running on separate timers.
     /// </summary>
@@ -179,7 +179,7 @@ internal sealed class MotherBrainAttacks
 
         if (IsMotherBrainAirAttackMovement(movementType))
         {
-            // The helper skips the rest of its caller: every airborne route
+            // An airborne Samus ends the choice here: every airborne route
             // commits immediately and skips the proximity/fallback thresholds entirely.
             if (MotherBrainRandomDefinitions.AttackPresses.IsTakenBy(random))
             {
@@ -187,9 +187,9 @@ internal sealed class MotherBrainAttacks
                 return;
             }
 
-            // The laser branch abandons the strategy helper's caller, then installs and
-            // jumps to the quick laser aim. Calling the first body state here reproduces that same-frame
-            // tail call rather than introducing an otherwise visible idle frame.
+            // The laser branch abandons the rest of the attack choice, then installs and
+            // starts the quick laser aim. Running its first step here keeps it in the same
+            // frame rather than introducing an otherwise visible idle frame.
             state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly;
             PositionMotherBrainHeadQuicklyForLaser(state, samus);
             return;
@@ -400,7 +400,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>
     /// Positions the head quickly for the laser. Both neck joints initially turn by two angle units
-    /// per frame toward one of two authored target indices chosen from the head/Samus Y
+    /// per frame toward one of two authored target angles chosen from the head/Samus Y
     /// ordering; the head animation itself is deliberately left untouched here.
     /// </summary>
     internal static void PositionMotherBrainHeadQuicklyForLaser(

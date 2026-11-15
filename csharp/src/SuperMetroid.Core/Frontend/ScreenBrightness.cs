@@ -10,7 +10,7 @@ public readonly record struct ScreenBrightness
     /// <summary>The fully lit level.</summary>
     public const int FullLevel = 15;
 
-    /// <summary>Stores a validated, shown level; callers use <see cref="Lit"/>, <see cref="Blanked"/> or <see cref="FullyLit"/>.</summary>
+    /// <summary>Stores a validated, shown level; a level is made with <see cref="Lit"/>, <see cref="Blanked"/> or <see cref="FullyLit"/>.</summary>
     private ScreenBrightness(int level) => Level = level;
 
     /// <summary>A blanked screen, showing nothing.</summary>

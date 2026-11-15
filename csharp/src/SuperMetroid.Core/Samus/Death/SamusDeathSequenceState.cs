@@ -73,8 +73,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public bool FacingLeft { get; private set; }
 
     /// <summary>
-    /// Sets Samus's death-sequence pose. The outer caller represents
-    /// the death's first game state having observed an empty music queue; fatal-damage acquisition and
+    /// Sets Samus's death-sequence pose. It runs once
+    /// the death's first game state has observed an empty music queue; fatal-damage acquisition and
     /// the music wait are distinct producers and are not guessed here.
     /// </summary>
     public void Begin(

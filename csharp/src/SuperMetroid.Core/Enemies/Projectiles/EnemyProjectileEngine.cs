@@ -484,7 +484,7 @@ internal sealed class EnemyProjectileEngine
             return true;
         }
 
-        // Resolve horizontal- and vertical-extension links before dispatching the final block kind, just as
+        // Resolve horizontal- and vertical-extension links before reacting to the final block kind, just as
         // the projectile collision loop does. Air is open, while a door
         // remains a wall to an enemy projectile.
         if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
@@ -512,7 +512,7 @@ internal sealed class EnemyProjectileEngine
                     continue;
 
                 // The square-slope reaction places the projectile at an eight-pixel
-                // boundary before the caller's full-block clamp.
+                // boundary before the collision's full-block clamp.
                 int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
                 slopeAlignedPosition = movingNegative
                     ? CoordinateAxis.Wrap(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
@@ -657,7 +657,7 @@ internal sealed class EnemyProjectileEngine
         // A projectile its frame behaviour ended this pass, or one spawned without an animation, runs nothing.
         if (!projectile.IsActive)
             return;
-        throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no program.");
+        throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no animation.");
     }
 
     /// <summary>
@@ -733,7 +733,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Spawns a dust cloud, smoke or an explosion, drawn from the pictures every room shares, playing the animation the
-    /// caller chooses: Rinka deaths, Boulder's impact clouds, the bosses' explosions and every other spawner share it.
+    /// spawner chooses: Rinka deaths, Boulder's impact clouds, the bosses' explosions and every other spawner share it.
     /// </summary>
     internal void SpawnDustOrExplosion(
         Position16<RoomPixels> position,
@@ -801,7 +801,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws the one-in-four branch: it is taken when the room's next random number divided by 16384
+    /// Draws a one-in-four chance: it comes up when the room's next random number divided by 16384
     /// is three.
     /// </summary>
     internal bool TakeOneInFourBranch() =>

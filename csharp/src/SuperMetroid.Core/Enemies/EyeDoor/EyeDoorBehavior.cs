@@ -48,7 +48,7 @@ internal sealed class EyeDoorBehavior
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return; // Spawning fails when all eighteen projectile slots are live.
+            return; // Spawning fails when the room has no place left for an enemy projectile.
 
         Position16<RoomBlocks> block = request.RoomObjectBlock;
         switch (request.Definition)

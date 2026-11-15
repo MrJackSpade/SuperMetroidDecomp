@@ -10,12 +10,12 @@ public static class Trigonometry
     /// <summary>The game's fine signed sine over the whole turn, peaking at +/-32767, unlike
     /// <see cref="SignedSine"/>. The positive half equals the unsigned half-wave
     /// (<see cref="UnsignedHalfWave"/>) halved; sign is restored only after that truncation.</summary>
-    /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for angle a in 256ths of a turn, let n = a mod 128 and
+    /// <remarks>Keep this algorithm: for angle a in 256ths of a turn, let n = a mod 128 and
     /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
     /// negated only when a &gt;= 128. All 256 values match the game's table
     /// exactly. This preserves
     /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
-    /// The #1165 research evaluator used bounded decimal arithmetic, not Math.Sin.
+    /// The values come from bounded decimal arithmetic, not Math.Sin.
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
     /// input angle before sampling.
     /// </remarks>
@@ -28,7 +28,7 @@ public static class Trigonometry
     /// <summary>
     /// The sine or cosine product: <paramref name="speed"/>, read unsigned as the game's multiply reads it, scaled by
     /// <paramref name="angle"/>'s signed 1/256-step sine (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
-    /// Callers add a quarter-turn themselves when selecting cosine.
+    /// A cosine is this product at the angle a quarter-turn on.
     /// </summary>
     public static SignedEightEight MultiplySignedSine(SignedEightEight speed, TrigonometryAngle angle) =>
         SignedEightEight.Wrapped(ScaledBySine(speed.UnsignedTwoHundredFiftySixthsOfPixel, angle));
@@ -47,11 +47,11 @@ public static class Trigonometry
 
     /// <summary>The game's signed sine in 256ths of its peak over the whole turn.
     /// Unlike the coarse half-wave (<see cref="CoarseHalfWave"/>), peaks are +/-256.</summary>
-    /// <remarks>Independently reviewed for #1165; keep this existing algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
+    /// <remarks>Keep this algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
     /// with positive sign for a &lt; 128, reproduces the game's values. Treat the
     /// quarter-turn magnitude as exactly 256; the coarse half-wave saturates it to 255.
-    /// The #1165 research also checked the entire 320-entry negative-cosine prefix/full
-    /// sine view. The backend's scroll-wave shader (#1468) draws ripples from
+    /// The game's negative cosine and full sine read these same values. The backend's scroll-wave shader (#1468) draws
+    /// ripples from
     /// these same samples.</remarks>
     public static int SignedSine(TrigonometryAngle angle)
     {
@@ -63,10 +63,10 @@ public static class Trigonometry
     /// <summary>The game's coarse half-wave, the sine in 256ths of its peak over the first half turn:
     /// min(255, floor(256*sin(step*pi/128))) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
     /// <remarks>
-    /// Independently checked for #1165 against all 128 of the game's values.
+    /// All 128 of the game's values match.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
     /// A step outside the half turn throws ArgumentOutOfRangeException.
-    /// Sign, radius truncation and separate whole/fraction negation stay in callers.
+    /// Sign, radius truncation and separate whole/fraction negation belong to the motion that uses the wave.
     /// </remarks>
     public static int CoarseHalfWave(int step)
     {
@@ -77,7 +77,7 @@ public static class Trigonometry
     /// <summary>The game's unsigned half-wave, the sine in 65535ths of its peak over the first half turn:
     /// floor(65535*sin(step*pi/128)) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
     /// <remarks>
-    /// Independently checked for #1165 against all 128 of the game's values.
+    /// All 128 of the game's values match.
     /// Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before <see cref="FineSignedSine"/>'s halving and sign.
     /// This identifies the exact numerical convention, not the historical authoring tool.

@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class SamusPowerBombFuse
 {
     /// <summary>
-    /// Computes the timer/animation writes and requests the caller's existing explosion
-    /// or deletion operation. The step that runs the fuse out starts the explosion; the caller's
+    /// Computes the timer and animation changes and asks for the bomb's
+    /// explosion or deletion. The step that runs the fuse out starts the explosion; the bomb's
     /// boundary reactions wait for the update after it, because other frame behaviours can reach this step.
     /// </summary>
     public static PowerBombFuseStep Step(WrappingCountdown timer, bool explosionArmed)

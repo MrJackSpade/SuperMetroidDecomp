@@ -17,7 +17,7 @@ internal interface IElevatorJourney
     /// <summary>Whether the elevator travels upward.</summary>
     bool ElevatorTravelsUpward { get; }
 
-    /// <summary>Whether the elevator, not Samus's handlers, moves Samus this frame.</summary>
+    /// <summary>Whether the elevator, not Samus's own movement, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }
 
     /// <summary>The door-transition gate that suppresses actor movement.</summary>

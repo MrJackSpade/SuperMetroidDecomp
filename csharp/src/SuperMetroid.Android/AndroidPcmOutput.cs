@@ -47,7 +47,7 @@ internal sealed class AndroidPcmOutput : IDisposable
             .SetTransferMode(AudioTrackMode.Stream)
             .SetPerformanceMode(AudioTrackPerformanceMode.LowLatency)
             .SetBufferSizeInBytes(Math.Max(minimumBytes,
-                AudioSession.StereoFramesPerVideoFrame * AudioSession.ChannelCount * sizeof(short) * 3))
+                AudioSession.StereoFramesPerUpdate * AudioSession.ChannelCount * sizeof(short) * 3))
             .Build();
         if (track.State != AudioTrackState.Initialized)
         {

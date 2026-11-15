@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 public readonly record struct SamusBombJumpRequest
 {
-    /// <summary>Stores a request not yet accepted; callers use <see cref="None"/>, <see cref="Published"/> and <see cref="Accept"/>.</summary>
+    /// <summary>Stores a request not yet accepted; a request is made with <see cref="None"/>, <see cref="Published"/> and <see cref="Accept"/>.</summary>
     private SamusBombJumpRequest(SamusBombJumpDirection direction) => Direction = direction;
 
     /// <summary>No bomb jump requested.</summary>

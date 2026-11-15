@@ -2,11 +2,11 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// One sound effect the game plays: a member of <see cref="SamusSound"/>, <see cref="EnemySound"/> or
-/// <see cref="RoomSound"/>, together with the library whose voice queue plays it.
+/// <see cref="RoomSound"/>, together with the library whose queue plays it.
 /// </summary>
 /// <remarks>
 /// The library is part of the identity because it decides which queue a request waits in and which sounds interrupt one
-/// another. Each library's sounds convert implicitly, so callers name the sound itself. The identity holds no number:
+/// another. Each library's sounds convert implicitly, so a request names the sound itself. The identity holds no number:
 /// the import pipeline alone maps a sound to the installed sound effect it requests. The default identity holds no sound
 /// of any library, and asking it for its library fails (#1897).
 /// </remarks>
@@ -27,7 +27,7 @@ public readonly record struct SoundEffectId
         this.room = room;
     }
 
-    /// <summary>The library whose voice queue plays the sound.</summary>
+    /// <summary>The library whose queue plays the sound.</summary>
     /// <exception cref="InvalidOperationException">This is the default identity, which holds no sound.</exception>
     public SoundEffectLibrary Library =>
         samus is not null ? SoundEffectLibrary.Samus

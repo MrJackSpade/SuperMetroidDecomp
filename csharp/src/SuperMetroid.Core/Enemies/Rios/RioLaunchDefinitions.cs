@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>Fixed launch magnitudes for the three separately dispatched Rio families.</summary>
+/// <summary>Fixed launch magnitudes for the three Rio families, each with its own behaviour.</summary>
 public static class RioLaunchDefinitions
 {
     /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>
     public static SignedEightEight RioYVelocity { get; } = SignedEightEight.FromParts(5, 128);
-    /// <summary>Rio initial horizontal speed, one and a half pixels per update; caller supplies direction.</summary>
+    /// <summary>Rio initial horizontal speed, one and a half pixels per update, toward the side its launch chooses.</summary>
     public static SignedEightEight RioXVelocity { get; } = SignedEightEight.FromParts(1, 128);
     /// <summary>Norfair Rio horizontal speed, one pixel per update.</summary>
     public static SignedEightEight NorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);

@@ -13,7 +13,7 @@ internal sealed class TorizoAttacks
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Owns the eighteen-slot enemy projectile pool used by Torizo attacks.</summary>
+    /// <summary>Owns the room's enemy projectiles, which Torizo's attacks spawn.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues the statue-break sound with the enemy audio limits.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -277,7 +277,7 @@ internal sealed class TorizoAttacks
     private static TorizoProjectileSegment RunningTorizoProjectileAnimation(EnemyProjectile projectile) =>
         projectile.Animation is TorizoProjectileAnimation animation
             ? animation.PlayingSegment
-            : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo program.");
+            : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo animation.");
 
     /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
@@ -657,8 +657,8 @@ internal sealed class TorizoAttacks
 
     /// <summary>
     /// Drops the drool: Bomb Torizo's six gut-break droplets and its
-    /// low-health initial drool alike. The peculiar positive-three clamp is authentic: both the
-    /// negative and nonnegative drag branches load three when they cross zero.
+    /// low-health initial drool alike. A drool that its drag slows past zero is left moving at plus three, whichever way
+    /// it was moving.
     /// </summary>
     internal static void DropDrool(
         EnemyProjectile projectile,
@@ -853,7 +853,7 @@ internal sealed class TorizoAttacks
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return null; // The projectile spawner silently drops work when all eighteen slots fill.
+            return null; // Nothing spawns when the room has no place left for an enemy projectile.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,

@@ -131,7 +131,7 @@ internal sealed class BlockReactionObjects
     /// the collision kind in the eventual restore block, substitutes the Speed Booster parent's block, and makes the
     /// live block air before the
     /// room objects' step draws the first crumble frame. Rejected contact deletes the temporary
-    /// place synchronously and remains solid in the caller.
+    /// place synchronously and the block stays solid to the bomb.
     /// </remarks>
     /// <returns>True when contact passes: accepted setup, or an exhausted room-object pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(
@@ -171,7 +171,7 @@ internal sealed class BlockReactionObjects
         return true;
     }
 
-    /// <summary>Selects the normal-bomb or Power Bomb reaction list; only the latter runs its packed sound cue.</summary>
+    /// <summary>Selects the normal-bomb or Power Bomb reactions; only the latter plays its block's sound.</summary>
     public bool TrySpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
@@ -249,7 +249,7 @@ internal sealed class BlockReactionObjects
 
         // The power-bomb and Super Missile setups clear the newly allocated room object when the weapon family is wrong.
         // Observably that is identical to returning with no place taken: setup never changes the live block, and the
-        // next handler has nothing to process. Perform this
+        // room objects have nothing to run. Perform this
         // gate before the room-object allocation loop while preserving every accepted path.
         if (reaction is ShotBlockReaction.RespawningPowerBombBreak or ShotBlockReaction.PermanentPowerBombBreak &&
             projectileFamily is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
@@ -270,7 +270,7 @@ internal sealed class BlockReactionObjects
         {
             case ShotBlockReaction.CollisionProbe:
                 // Setup ends the projectile scan and forces its collision counter;
-                // the caller publishes those scan effects only after successful
+                // the shot's collision publishes those scan effects only after successful
                 // allocation. This object does not change terrain and leaves on its first update.
                 place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;
@@ -336,7 +336,7 @@ internal sealed class BlockReactionObjects
         }
     }
 
-    /// <summary>Dispatches normal-bomb special blocks by their reaction.</summary>
+    /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,

@@ -4,8 +4,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of an ordinary Metroid, with its three extra values: the two outer-body sprite objects it spawned and
-/// its energy drain.
+/// The state of an ordinary Metroid, among it the two outer-body sprite objects it spawned and its energy drain.
 /// </summary>
 public sealed class MetroidEnemyState
 {

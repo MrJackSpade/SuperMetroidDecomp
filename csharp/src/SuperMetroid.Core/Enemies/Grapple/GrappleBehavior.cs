@@ -45,7 +45,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 continue;
 
             // The collision stores exactly one, rather than combining it with an old
-            // hurt or frozen state. The next enemy pass therefore dispatches grapple AI.
+            // hurt or frozen state. The next enemy pass therefore runs grapple AI.
             enemy.AiStates = EnemyAiStates.Grappled;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse switch
             {

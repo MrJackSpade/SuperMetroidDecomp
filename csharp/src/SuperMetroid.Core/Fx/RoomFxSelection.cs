@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFxSelection
 {
     /// <summary>Holds a selection's door effects in the game's order and its default effect.</summary>
-    /// <param name="name">The selection's name, or a fixture's description.</param>
+    /// <param name="name">The selection's name.</param>
     /// <param name="doorEffects">The effects entry doors select, in the game's order.</param>
     /// <param name="defaultEffect">The effect any other entry shows, or null when that entry shows no effect.</param>
     public RoomFxSelection(string name, DoorRoomEffect[] doorEffects, RoomEffectDefinition? defaultEffect)

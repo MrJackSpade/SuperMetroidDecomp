@@ -135,7 +135,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(slot));
     }
 
-    /// <summary>Runs the Maw's main behaviour and the four post-dispatch link-position writers.</summary>
+    /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
     private void RunYappingMawMain(
         RoomEnemySlot slot,
         YappingMawEnemyState state,

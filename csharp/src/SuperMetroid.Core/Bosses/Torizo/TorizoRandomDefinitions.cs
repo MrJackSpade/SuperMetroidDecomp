@@ -23,7 +23,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly TorizoRandomDecision ForwardLeap = TorizoRandomDecision.WhenAllClear(
         new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
-    /// <summary>The initial drool's added fall speed, 0 through 31 in raw 1/256 units: the selection modulo 32.</summary>
+    /// <summary>The initial drool's added fall speed, 0 through 31 256ths of a pixel an update: the selection modulo 32.</summary>
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>
@@ -46,7 +46,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField InitialDroolXJitter = new(0, 2);
 
     /// <summary>
-    /// The low-health drool's delay entry, 0 through 7 of the eight-entry list whose entries repeat the no-delay,
+    /// The low-health drool's delay choice, 0 through 7 of the eight choices that repeat the no-delay,
     /// two-frame and four-frame drool animations: the sample divided by four, modulo 8.
     /// </summary>
     internal static readonly RandomSampleField LowHealthDroolDelay = new(2, 3);

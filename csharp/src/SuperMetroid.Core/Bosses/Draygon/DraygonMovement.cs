@@ -40,7 +40,7 @@ internal sealed class DraygonMovement
     /// <summary>
     /// The distance one axis of an angled move covers: the unsigned sine sample <paramref name="phase"/> ahead of
     /// <paramref name="angle"/> times <paramref name="speed"/> whole pixels, a quarter turn ahead for the horizontal axis
-    /// and a half turn for the vertical, whose direction the caller takes from the angle.
+    /// and a half turn for the vertical, whose direction Draygon's movement takes from the angle.
     /// </summary>
     /// <param name="angle">The movement angle.</param>
     /// <param name="speed">The speed in whole pixels an update, never negative.</param>

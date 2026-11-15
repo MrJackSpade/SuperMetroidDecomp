@@ -9,10 +9,10 @@ public sealed class MochtroidEnemyState
     /// <summary>Signed 1/65536-pixel velocity in room pixels per update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>
+    /// <summary>How the Mochtroid moves this update, cleared before each run of its main AI.</summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
 
-    /// <summary>Parallel value used by the animation change detector: the installed animation, or none for the cleared value.</summary>
+    /// <summary>The animation last started, against which the Mochtroid tells whether its movement asks for a new one; none once cleared.</summary>
     internal MochtroidSegment? InstalledAnimation { get; set; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>

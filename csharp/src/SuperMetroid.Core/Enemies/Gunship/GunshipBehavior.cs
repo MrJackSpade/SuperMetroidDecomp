@@ -99,7 +99,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             return;
         AnimationPlayback<GunshipSegment> playback = _shipAnimations[slot];
         EnemyAnimationPlayback.Play(slot, GunshipAnimations.Segments, ref playback,
-            cue => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
+            cue => throw new InvalidOperationException($"The gunship's animations publish no cue; got {cue}."));
         _shipAnimations[slot] = playback;
     }
 
@@ -293,9 +293,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     private void DescendPostCeresGunship(RoomEnemySlot top, SamusState samus)
     {
         // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
-        // 4.5 pixels per call; below that threshold it slows to 2.5 and clamps the
-        // top hull to 1119 before beginning the game's seventeen-entry bounce table.
-        // The clamp writes only whole positions; subpixels keep this call's sum.
+        // 4.5 pixels an update; below that threshold it slows to 2.5 and clamps the
+        // top hull to 1119 before beginning its seventeen-frame landing bounce.
+        // The clamp writes only whole positions; subpixels keep this update's sum.
         SignedSixteenSixteen delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         AddGunshipYFixed(samus, top, delta);
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
@@ -377,7 +377,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         GunshipPhase.HandleSaveConfirmation or GunshipPhase.WaitForExitPadToOpen or GunshipPhase.RaiseSamus or
         GunshipPhase.FinishSamusExit or GunshipPhase.ReadyTakeoffEngines;
 
-    /// <summary>Cycles the four idle-bob entries while moving the hull and pad together.</summary>
+    /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
         if (--Part(top).BobTimer > 0)

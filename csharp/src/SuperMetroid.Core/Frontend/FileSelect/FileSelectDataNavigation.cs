@@ -8,8 +8,7 @@ internal static class FileSelectDataNavigation
 {
     /// <summary>Moves among occupied save slots and Exit, without wrapping.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the game's source/clear selection and
-    /// the prior managed filtered lists. Exit is always selectable, even when no slot is occupied.
+    /// Exit is always selectable, even when no slot is occupied.
     /// No ordinal lookup or generated list is required.
     /// </remarks>
     internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, IReadOnlySet<SaveSlot> occupiedSlots, ControllerButton pressed) =>
@@ -28,7 +27,7 @@ internal static class FileSelectDataNavigation
             throw new InvalidDataException($"Submenu item {selected} is not selectable.");
 
         // Preserve the managed input order, including validation on idle frames
-        // and Up priority when both directions are pressed. The caller owns sound.
+        // and Up priority when both directions are pressed. The file select plays the sound.
         int step = (pressed & ControllerButton.Up) != ControllerButton.None ? -1
             : (pressed & ControllerButton.Down) != ControllerButton.None ? 1 : 0;
         if (step == 0) return selected;

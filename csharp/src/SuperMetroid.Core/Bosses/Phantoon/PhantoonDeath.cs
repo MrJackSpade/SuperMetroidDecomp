@@ -81,7 +81,7 @@ internal sealed class PhantoonDeath
         state.Death.ExplosionPasses = 0;
     }
 
-    /// <summary>Runs the literal 13-entry-then-5..12-twice explosion schedule.</summary>
+    /// <summary>Runs the dying explosions: all thirteen, then the sixth through the thirteenth twice more.</summary>
     internal void RunPhantoonDyingExplosions(
         RoomEnemySlot body,
         PhantoonEnemyState state)

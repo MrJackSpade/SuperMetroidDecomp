@@ -17,16 +17,16 @@ public enum SamusPoseId
     /// </summary>
     ForwardFacingSuitedPose,
 
-    /// <summary>This pose is “facing right - normal” in the game table.</summary>
+    /// <summary>Samus stands facing right, not aiming.</summary>
     FacingRightNormalPose,
 
-    /// <summary>This pose is “facing left - normal” in the game table.</summary>
+    /// <summary>Samus stands facing left, not aiming.</summary>
     FacingLeftNormalPose,
 
-    /// <summary>This pose is “moving right - not aiming” in the game table.</summary>
+    /// <summary>Samus runs right, not aiming.</summary>
     MovingRightNormalPose,
 
-    /// <summary>This pose is “moving left - not aiming” in the game table.</summary>
+    /// <summary>Samus runs left, not aiming.</summary>
     MovingLeftNormalPose,
 
     /// <summary>
@@ -68,7 +68,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// Right-facing moonwalk art turning/jumping toward the left. Despite its traditional
-    /// name, this is still grounded turning movement until its input table or its
+    /// name, this is still grounded turning movement until its input transitions or its
     /// animation's final step installs the actual spin jump.
     /// </summary>
     MoonwalkTurnJumpLeftPose,
@@ -195,7 +195,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-facing Space Jump body. The equipment-aware movement-type
-    /// initializer substitutes this for the transition table's ordinary
+    /// initializer substitutes this for the input transition's ordinary
     /// spin-jump target when Space Jump is equipped and Screw Attack is not.
     /// </summary>
     SpaceJumpRightPose,
@@ -456,7 +456,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is a stationary right-facing normal jump with the cannon extended. Unlike
-    /// <see cref="NeutralJumpRightPose"/>, its pose table deliberately stores no no-input fallback, so the firing body can
+    /// <see cref="NeutralJumpRightPose"/>, it deliberately has no no-input fallback, so the firing body can
     /// remain active until another input transition or landing replaces it.
     /// </summary>
     NormalJumpGunExtendedRightPose,

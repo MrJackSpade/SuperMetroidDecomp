@@ -56,7 +56,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        // Every part starts with the one-frame hitbox map. Only part zero replaces it with
+        // Every part starts with the one-frame hitbox animation. Only the flame's own part replaces it with
         // the eruption animation and initializes the state-machine values below.
         state.Playback = EnemyAnimationPlayback.Start(slot, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
         if (state.IsCollisionPart)

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// first room-state population that places it and its cap and, where two would share that name, its block; an eye
 /// door's three parts are one door. Regenerate with tools/generate-room-object-population-definitions.ps1.
 /// </summary>
-[NumberedIdentities("Each door named with its block is one distinct door of its population, told apart by where it stands; no caller indexes them.")]
+[NumberedIdentities("Each door named with its block is one distinct door of its population, told apart by where it stands; nothing indexes them.")]
 public static class LockedDoorDefinitions
 {
     /// <summary>The LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft door.</summary>

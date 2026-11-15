@@ -747,7 +747,7 @@ internal sealed class MotherBrainProjectiles
 
         EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
         if (shard is null)
-            return; // The projectile spawner silently loses actors when all eighteen slots are full.
+            return; // The shard is lost when the room has no place left for an enemy projectile.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             shard,

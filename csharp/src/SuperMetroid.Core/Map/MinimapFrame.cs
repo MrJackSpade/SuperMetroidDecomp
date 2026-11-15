@@ -11,18 +11,18 @@ public sealed record MinimapFrame
     /// <summary>The area-map cell of the room's top-left screen.</summary>
     public required Position16<MapTiles> RoomMap { get; init; }
 
-    /// <summary>Room size.</summary>
+    /// <summary>The room's size, which bounds where the minimap places Samus.</summary>
     public required Extent16<RoomBlocks> RoomSize { get; init; }
 
-    /// <summary>Samus.</summary>
+    /// <summary>Samus's place in the room, which the minimap marks.</summary>
     public required Position16<RoomPixels> Samus { get; init; }
 
     /// <summary>The game's frame counter, whose eight-frame phase blinks the minimap's position marker.</summary>
     public required int FrameCounter { get; init; }
 
-    /// <summary>Map reveal mode.</summary>
+    /// <summary>How much of the area map the minimap reveals.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;
 
-    /// <summary>Presentation map.</summary>
+    /// <summary>The area map the minimap shows from, or null when none is bound.</summary>
     public IAreaMapView? PresentationMap { get; init; } = null;
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class PirateHitboxShotActions
 {
     /// <summary>
-    /// Dispatches the common and Pirate-specific shot reactions of hitboxes. Only the
+    /// Runs the common and Pirate-specific shot reactions of hitboxes. Only the
     /// gold Ninja gives the two Ninja body reactions special meaning; every other Pirate deliberately falls
     /// through to normal shot AI even when it shows one of the frames it shares with the Ninja.
     /// </summary>
@@ -62,7 +62,7 @@ internal static class PirateHitboxShotActions
     }
 
     /// <summary>
-    /// Dispatches a normal bomb through the same three component
+    /// Runs a normal bomb through the same three component
     /// reactions as the ordinary projectile path. Non-gold Pirates always jump to normal
     /// Pirate shot handling. Gold Ninjas return from both body reactions because a
     /// normal bomb's family sorts after the Power Bomb family; consequently bombs neither damage

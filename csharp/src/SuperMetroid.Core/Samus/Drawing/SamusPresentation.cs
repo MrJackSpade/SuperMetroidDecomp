@@ -71,7 +71,7 @@ internal sealed class SamusPresentation
     /// </summary>
     /// <remarks>
     /// The behaviour also returns early while the animation-frame delay adjustment is negative. This model owns it as
-    /// <see cref="SamusState.AnimationFrameBuffer"/>, so callers must be paths where it is
+    /// <see cref="SamusState.AnimationFrameBuffer"/>, so it runs only where that is
     /// nonnegative, as it is at the intro's discovery setup and its demo's end.
     /// </remarks>
     internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
@@ -124,7 +124,7 @@ internal sealed class SamusPresentation
     /// </summary>
     /// <remarks>
     /// The liquid effect step publishes water/lava delay buffering, remembered medium,
-    /// atmospheric slots, sound requests, and periodic damage before the timer
+    /// atmospheric effects, sound requests, and periodic damage before the timer
     /// decrement.
     /// </remarks>
     public static void AnimateNoFx(SamusState samus, SamusAnimationStep step)

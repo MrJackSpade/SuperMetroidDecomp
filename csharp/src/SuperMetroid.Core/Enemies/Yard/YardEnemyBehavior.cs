@@ -59,7 +59,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case YardCue.SetMovement setMovement:
-                // Yard animation owns movement dispatch: the cue's value is a movement behaviour, not a branch.
+                // Yard's animation chooses its movement: the cue's value is a movement behaviour, not a branch.
                 state.Movement = setMovement.Movement;
                 return null;
             case YardCue.SetHidingAnimation setHidingAnimation:
@@ -171,7 +171,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
             // Direction-changing animation can publish the new direction one frame before
-            // it installs the matching movement behaviour. The game dispatches through that behaviour,
+            // it installs the matching movement behaviour. The game moves by that behaviour,
             // not by the temporarily newer direction field.
             case YardMovement.CrawlingUpsideUpMovingLeft:
             case YardMovement.CrawlingUpsideLeftMovingDown:

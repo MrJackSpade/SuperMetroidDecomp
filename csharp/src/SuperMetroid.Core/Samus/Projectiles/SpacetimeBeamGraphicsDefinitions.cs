@@ -2,9 +2,9 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Adjacent-table graphics selected when the player unpauses with Spacetime equipped.</summary>
+/// <summary>The beam combination whose graphics the Spacetime beam shows when the player unpauses with it equipped.</summary>
 internal static class SpacetimeBeamGraphicsDefinitions
 {
-    /// <summary>Index 14: Plasma/Spazer/Ice selects the bounded Spacetime beam.</summary>
+    /// <summary>Spazer, Plasma and Ice: the combination the Spacetime beam shows as.</summary>
     internal const SamusBeamCombination Selection = SamusBeamCombination.SpazerPlasmaIce;
 }

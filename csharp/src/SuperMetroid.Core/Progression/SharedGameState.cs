@@ -74,7 +74,7 @@ public sealed class SharedGameState
     public int RandomNumber => Random.Read();
 
     /// <summary>
-    /// Performs a direct write to the shared RNG seed. Most callers
+    /// Performs a direct write to the shared RNG seed. Most code
     /// should use <see cref="NextRandom"/>; this seam exists because a small number of
     /// actors deliberately reseed the global generator as part of their AI.
     /// </summary>
@@ -116,7 +116,7 @@ public sealed class SharedGameState
     /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
     /// does, preserving the two half-by-half products, the overflow into the upper half,
-    /// and the final addition wrapping past 65535. Every caller observes the updated seed.
+    /// and the final addition wrapping past 65535. Every later draw observes the updated seed.
     /// </summary>
     /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>
     public int NextRandom() => Random.Generate();

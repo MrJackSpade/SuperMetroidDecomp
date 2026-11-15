@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus every four updates; once she is near
 /// (<see cref="EyeDoorSequenceDefinitions.WakeReach"/>) it opens, takes missiles from then on, and watches her, firing its
 /// shots, blinking while she stands right in front of it and closing again once she has left. A pending shot is
-/// consumed before the eye's images count down: a missile counts a hit (a Super Missile first leaves it one hit short),
+/// consumed before the eye's images count down: a missile counts a hit (a Super Missile reaches the threshold at once),
 /// and any other shot makes the dud sound. A hit short of the threshold sounds, smokes and makes the eye flinch; the hit
 /// that reaches it records the door opened for good, stops the shots, smokes, moves the eye up a block onto its blue cap,
 /// flashes it ten times and turns it into the cap.

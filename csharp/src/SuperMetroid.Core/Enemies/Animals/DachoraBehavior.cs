@@ -127,8 +127,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         int frameCycle)
     {
         // Echo AI needs only the frame counter's parity. Every body state needs both the active
-        // Samus gravity values and authentic room collision, so fail loudly if a caller
-        // attempts to run the family without the state that code reads globally.
+        // Samus gravity values and authentic room collision, so fail loudly if the family
+        // runs without the state that code reads globally.
         if (state.Action == DachoraAction.Echo)
         {
             RunDachoraEcho(slot, state, frameCycle);
@@ -421,7 +421,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed = SignedSixteenSixteen.Zero;
     }
 
-    /// <summary>Runs the four-slot, first-free echo pipeline.</summary>
+    /// <summary>Moves the Dachora's four echoes, each new echo taking the first free one.</summary>
     private void UpdateDachoraEchoPositions(RoomEnemySlot body)
     {
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);

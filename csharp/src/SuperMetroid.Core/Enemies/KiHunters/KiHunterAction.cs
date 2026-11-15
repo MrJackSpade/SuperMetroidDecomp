@@ -26,6 +26,6 @@ public enum KiHunterAction
     SelectAcidSpit,
     /// <summary>Copies X and Y from the physically preceding body slot.</summary>
     FollowBody,
-    /// <summary>Dispatches the detached wing's secondary arc action.</summary>
+    /// <summary>Runs the detached wing's secondary arc action.</summary>
     DetachedWing,
 }

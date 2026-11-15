@@ -202,7 +202,7 @@ internal sealed class MotherBrainCombat
 
         // The reaction ends in common no-death shot damage. In particular,
         // charged beams use the separate charged vulnerability after the ordinary
-        // beam freeze check; Hyper would otherwise inherit the immune plasma entry.
+        // beam freeze check; Hyper would otherwise inherit Plasma's immunity.
         EnemyCollision.NormalShotVulnerability vulnerability = EnemyCollision.ReadNormalShotVulnerability(head, projectileType);
         if (vulnerability.FreezeImmediately)
         {
@@ -233,7 +233,7 @@ internal sealed class MotherBrainCombat
     /// <summary>
     /// Runs a normal bomb through the reaction of Mother Brain's brain. In her glass form a bomb does nothing. In every
     /// later form it spends one step's walk credit, an overdraw leaving none; her fake death then takes no damage, while
-    /// her later forms take the common no-death bomb damage. The frame-hitbox caller already owns the bomb collision mark.
+    /// her later forms take the common no-death bomb damage. The frame-hitbox collision has already marked the bomb.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemySlot head,

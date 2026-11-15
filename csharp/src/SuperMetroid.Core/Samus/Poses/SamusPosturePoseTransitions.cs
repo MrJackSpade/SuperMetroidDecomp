@@ -365,7 +365,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             // A morph source can only produce RetainSource here. Keep the defensive branch
-            // explicit so a future caller cannot accidentally apply non-morph crouch fallback.
+            // explicit so a future request cannot accidentally apply non-morph crouch fallback.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
@@ -486,7 +486,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(sourcePose), SamusAnimationDelays.AnimationForPose(targetPose)))
         {
             throw new InvalidDataException(
-                $"Morph-Ball transition {sourcePose} -> {targetPose} selected different animation programs.");
+                $"Morph-Ball transition {sourcePose} -> {targetPose} selected different animations.");
         }
 
         SamusFacingDirection currentDirection = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -608,7 +608,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             ? SamusPoseId.SpringBallGroundLeftPose
             : SamusPoseId.SpringBallGroundRightPose;
         ApplyMorphBallPoseChange(samus, groundPose);
-        // The common landing caller clears base speed when the bounce ends with
+        // The common landing clears base speed when the bounce ends with
         // the ball on the ground. Spring Ball shares this with ordinary ball landing.
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;

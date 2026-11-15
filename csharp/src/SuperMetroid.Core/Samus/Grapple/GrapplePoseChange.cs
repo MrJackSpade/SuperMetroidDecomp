@@ -6,6 +6,6 @@ public enum GrapplePoseChange
     /// <summary>During the step.</summary>
     Immediate,
 
-    /// <summary>At the caller's later point in the frame.</summary>
+    /// <summary>Later in the frame, after the grapple's own step.</summary>
     Deferred,
 }

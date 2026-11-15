@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Computed first-flame column lookup, indexed by the eight rain patterns rather than by individual flames.</summary>
 public readonly struct PhantoonRainColumns : IReadOnlyList<int>
 {
-    /// <summary>Eight pattern-to-first-column entries; each pattern's caller subsequently emits eight flames across nine wrapping columns.</summary>
+    /// <summary>Each of the eight patterns' first column; the flame rain then emits eight flames across nine wrapping columns.</summary>
     public int Count => PhantoonPatternDefinitions.RainPlacements.Length;
     /// <summary>First flame's zero-based column immediately after the selected body's column, wrapping from eight to zero.</summary>
     /// <param name="pattern">Rain-pattern index, 0..7.</param>
     /// <returns>A column from 0..8; following eight consecutive columns leaves the body placement's column empty.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The pattern is outside the eight-entry lookup.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The pattern is not one of the eight.</exception>
     public int this[int pattern]
     {
         get

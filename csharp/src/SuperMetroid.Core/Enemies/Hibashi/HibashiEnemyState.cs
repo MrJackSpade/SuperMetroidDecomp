@@ -10,7 +10,7 @@ public sealed class HibashiEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<HibashiSegment> Playback { get; set; }
 
-    /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not dispatch it.</summary>
+    /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not run it.</summary>
     public HibashiAction? Action { get; internal set; }
 
     /// <summary>Countdown decremented once per inactive AI update; zero steps to -1 and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>

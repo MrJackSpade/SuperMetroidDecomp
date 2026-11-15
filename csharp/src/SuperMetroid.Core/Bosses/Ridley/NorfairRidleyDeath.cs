@@ -214,7 +214,7 @@ internal sealed class NorfairRidleyDeath
             if (_lifecycle.SpawnEnemy(population) is null)
             {
                 throw new InvalidOperationException(
-                    "Lower Norfair Ridley breakup exhausted the 32-slot enemy pool.");
+                    "Lower Norfair Ridley's breakup found no place left for an enemy in the room.");
             }
         }
     }

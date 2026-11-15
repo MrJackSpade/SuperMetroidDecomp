@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// update made once it had freed the place), and at the room load's teardown for the next room. Evidence: the original
 /// spawn clears a slot's sub-positions and the values its initializers write, and leaves its whole positions and
 /// velocities; deletion clears only the slot's identity. The 13%, 100%, lowc and Ridley movies diverge in enemy
-/// projectiles without the values carried across rooms (db3aa8b3bb), and Mother Brain's following explosions leave their
+/// projectiles without the values carried across rooms, and Mother Brain's following explosions leave their
 /// offsets as velocity for a later projectile in the same room (<see cref="FollowingExplosionLeftVelocity"/>).
 /// </remarks>
 /// <param name="Position">The previous projectile's whole position; its sub-pixel part does not survive.</param>

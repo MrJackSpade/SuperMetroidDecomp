@@ -96,7 +96,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs a Metroid's per-frame behaviour and its four-entry movement dispatch.</summary>
+    /// <summary>Runs a Metroid's per-frame behaviour and whichever of its four movements it is in.</summary>
     private void RunMetroidMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
@@ -120,8 +120,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Metroid movement {state.Movement} is not one of its four movements.");
         }
 
-        // The ordinary body supplies the central map. Both outer objects are
-        // repositioned and re-enabled every non-frozen main call, exactly after movement.
+        // The ordinary body shows the central picture. Both outer objects are
+        // repositioned and re-enabled every update the Metroid is not frozen, right after it moves.
         PositionMetroidOuterBody(state.Electricity, slot, SpriteGraphics.SpawnedBy(slot));
         PositionMetroidOuterBody(state.Shell, slot, SpriteGraphics.SpawnedBy(slot));
     }
@@ -317,8 +317,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the current
-        // collision slot. The stores encode delta/8 as a signed value in 1/65536 pixels.
+        // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the shot that
+        // hit it now. Each velocity is an eighth of the distance, signed, in 1/65536 pixels.
         StoreMetroidXVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X)));
@@ -377,7 +377,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
-            // Each axis adds a five-bit random selection minus sixteen: -16..+15 pixels.
+            // Each axis adds a random 0 to 31 minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
                 EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);

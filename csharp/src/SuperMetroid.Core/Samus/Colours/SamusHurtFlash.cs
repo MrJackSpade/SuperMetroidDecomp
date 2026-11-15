@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>
-/// The caller must first run any nonzero super-special colouring flag, just as the
+/// Any nonzero super-special colouring flag runs first, just as the
 /// game's suit colouring does. Runtime satisfies that contract by allowing the drained or rainbow
 /// colouring to return before this step. All remaining special colourings run earlier and
 /// this step therefore has final priority over charge, Speed Booster, shinespark,

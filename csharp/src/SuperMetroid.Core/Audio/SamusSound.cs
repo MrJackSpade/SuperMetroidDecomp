@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Every sound of Samus's library (<see cref="SoundEffectLibrary.Samus"/>): Samus's beams, missiles, grapple and spins,
-/// the X-ray scope, and the menu and map sounds. The library is its own voice queue: its sounds interrupt one another
+/// the X-ray scope, and the menu and map sounds. The library has its own queue: its sounds interrupt one another
 /// and never those of the enemies' or the room's library.
 /// </summary>
 /// <remarks>

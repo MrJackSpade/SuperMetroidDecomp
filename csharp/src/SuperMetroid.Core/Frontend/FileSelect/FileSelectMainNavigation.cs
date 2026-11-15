@@ -5,12 +5,11 @@ internal static class FileSelectMainNavigation
 {
     /// <summary>Moves one row, wrapping at Exit and skipping Copy/Clear when every save slot is empty.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the game's up/down branches and the
-    /// prior managed choice lists. Save slots always remain selectable; Copy and
+    /// Save slots always remain selectable; Copy and
     /// Clear require at least one save; Exit is always visible. These are semantic
     /// visibility and wrap rules, not stored ordinal lists. Hidden selections preserve
     /// the previous InvalidDataException and diagnostic text.
-    /// Direction is the existing caller's single Up or Down decision, after Up priority.
+    /// Direction is the file select's single Up or Down decision, after Up priority.
     /// </remarks>
     internal static FileSelectItem Move(FileSelectItem selected, bool hasAnySave, VerticalDirection direction)
     {

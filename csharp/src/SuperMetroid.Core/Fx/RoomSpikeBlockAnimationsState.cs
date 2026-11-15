@@ -15,7 +15,7 @@ public sealed class RoomSpikeBlockAnimationsState
     internal readonly List<BlockAnimationPlayer> animations;
 
     /// <summary>Spawns one room's horizontal spikes from the door-selected room effect.</summary>
-    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     public RoomSpikeBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door) =>
         animations = RoomEffectBlockAnimations.Start(fx, door, Played);

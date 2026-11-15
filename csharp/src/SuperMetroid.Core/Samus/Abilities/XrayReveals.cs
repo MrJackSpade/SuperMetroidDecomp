@@ -8,9 +8,9 @@ internal static class XrayReveals
 {
     /// <summary>Returns the game-authored reveal shape for one collision kind and behaviour.</summary>
     /// <remarks>
-    /// Issue #1026: nine collision kinds have reveals (air, special air, horizontal extension, spike, special,
-    /// shootable, vertical extension, grapple and bombable blocks); every other kind reveals nothing. The authored data
-    /// and the independent oracle agree for all 16 kinds times every behaviour, including the no-match cases. Air and the
+    /// Nine collision kinds have reveals (air, special air, horizontal extension, spike, special,
+    /// shootable, vertical extension, grapple and bombable blocks); every other kind reveals nothing, whatever its
+    /// behaviour. Air and the
     /// extensions reveal the same for every behaviour; the reacting kinds read the block's reaction. The blocks each copy
     /// shape shows are installed pictures (#1596).
     /// </remarks>
@@ -24,15 +24,15 @@ internal static class XrayReveals
     /// <exception cref="ArgumentException"><paramref name="reaction"/> is not the reaction <paramref name="type"/> reads.</exception>
     public static XrayRevealShape? Find(RoomCollisionType type, Enum? reaction) => type switch
     {
-        // Issue #1027: the air table has the sole wildcard entry, a copy-one shape, for every behaviour.
+        // Air reveals the same copy-one shape whatever its behaviour.
         RoomCollisionType.Air => XrayRevealShape.CopyOne,
         RoomCollisionType.SpecialAir => Lookup(SpecialAirReveals, reaction),
-        // Issue #1029: the horizontal-extension table has a wildcard entry for every behaviour.
+        // A horizontal extension reveals as one whatever its behaviour.
         RoomCollisionType.HorizontalExtension => XrayRevealShape.HorizontalExtension,
         RoomCollisionType.SpikeBlock => Lookup(SpikeBlockReveals, reaction),
         RoomCollisionType.SpecialBlock => Lookup(SpecialBlockReveals, reaction),
         RoomCollisionType.ShootableBlock => Lookup(ShootableBlockReveals, reaction),
-        // Issue #1031: the vertical-extension table has a wildcard entry for every behaviour.
+        // A vertical extension reveals as one whatever its behaviour.
         RoomCollisionType.VerticalExtension => XrayRevealShape.VerticalExtension,
         RoomCollisionType.GrappleBlock => Lookup(GrappleBlockReveals, reaction),
         RoomCollisionType.BombableBlock => Lookup(BombableBlockReveals, reaction),

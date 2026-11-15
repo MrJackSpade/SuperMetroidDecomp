@@ -125,7 +125,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Implements the ten-entry shot-direction selector of the wall-stop pose. The input pose
+    /// Chooses the wall-stop pose by the direction Samus aims, of her ten. The input pose
     /// may be the current running pose after a killed-X-speed collision or the prospective
     /// running pose tested by the one-pixel arm-pump probe.
     /// </summary>
@@ -305,7 +305,7 @@ internal static class SamusGroundedPoseTransitions
             !exitsToForwardRun && !exitsToStandingFallback)
         {
             // The complete stable moonwalk table is represented by the predicates above;
-            // reaching this branch means the caller selected the wrong pose-change API.
+            // reaching this branch means the request chose the wrong pose change.
             throw new InvalidOperationException(
                 $"Moonwalk pose change {samus.Pose} -> {targetPose} is not a stable retail route.");
         }
@@ -343,7 +343,7 @@ internal static class SamusGroundedPoseTransitions
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTableTarget)
         {
             // Input requests the un-aimed turn; the pose initializer then substitutes
-            // the old muzzle's aimed turn. Already-resolved diagnostic callers are valid too.
+            // the old muzzle's aimed turn. An already-resolved diagnostic request is valid too.
             throw new InvalidOperationException(
                 $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not a retail route.");
         }
@@ -517,8 +517,8 @@ internal static class SamusGroundedPoseTransitions
         }
 
         // Reads the PREVIOUS pose before it installs the final turn art.
-        // Previous SamusMovementType.Crouching selects the second shot-direction table; every other admitted source uses
-        // the first. Both tables have ten entries, but shot directions four/five belong to
+        // A previous crouching movement selects the crouched turns by aim; every other admitted source selects
+        // the standing ones. Both cover Samus's ten aims, but her two straight-down aims belong to
         // the compact straight-down family, which this transition does not handle.
         SamusPoseId selectedTurnPose;
         if (wasForwardFacing)
@@ -543,7 +543,7 @@ internal static class SamusGroundedPoseTransitions
                     SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose,
                     SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightCrouchingAimUpPose,
                     // Grounded/crouched pose metadata cannot publish the compact-aerial
-                    // straight-down aims (or any aim outside the eight-entry set).
+                    // straight-down aims (or any aim outside its eight).
                     SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => throw new InvalidDataException(
                         $"Crouched turn aim {aim} is invalid."),
                     _ => throw new InvalidDataException(

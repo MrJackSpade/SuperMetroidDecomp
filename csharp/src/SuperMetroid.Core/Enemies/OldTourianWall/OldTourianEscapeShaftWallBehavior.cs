@@ -10,7 +10,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
 {
     /// <summary>Loaded-room dependency required before the wall controller can spawn its explosion.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Eighteen-slot enemy projectile allocator for the wall explosion.</summary>
+    /// <summary>The room's enemy projectiles, which the wall's explosion spawns.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Enemy sound queue used by the wall explosion's cue.</summary>
@@ -33,7 +33,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return; // Spawning fails when all eighteen projectile slots are live.
+            return; // Spawning fails when the room has no place left for an enemy projectile.
 
         // The wall's projectile draws from the room's own graphics.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

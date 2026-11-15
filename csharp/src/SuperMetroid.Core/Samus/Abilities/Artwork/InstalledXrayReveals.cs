@@ -11,7 +11,7 @@ public sealed class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
-    /// Issue #1037: of every collision kind and each reaction it reads (#1722), the game's data has 42 drawable pairs; the
+    /// Of every collision kind and each reaction it reads (#1722), the game has 42 drawable pairs; the
     /// constructor requires exactly those pairs and rejects duplicates. The player edits the blocks in reveals.json while
     /// the shape and copy dimensions remain fixed, so no single formula can reproduce every valid installation: retain
     /// this bounded indexed store for the installed visual data.
@@ -57,8 +57,8 @@ public sealed class InstalledXrayReveals
     public InstalledXrayOverlays Overlays { get; }
 
     /// <summary>
-    /// Resolves the compiled shape and its installed blocks from the same collision kind and behaviour. Callers
-    /// cannot pair a drawable shape with another block's absent artwork; unowned pairs retain the no-reveal result, and
+    /// Resolves the compiled shape and its installed blocks from the same collision kind and behaviour. Nothing
+    /// can pair a drawable shape with another block's absent artwork; unowned pairs retain the no-reveal result, and
     /// an extension shape has no blocks.
     /// </summary>
     public XrayRevealDefinition? Apply(RoomCollisionType type, RoomBlockBehavior behavior)
@@ -82,17 +82,9 @@ public sealed class InstalledXrayReveals
 
     /// <summary>Whether this compiled shape carries authored visual blocks.</summary>
     /// <remarks>
-    /// Issue #1036: the game's data has seven reachable
-    /// revealed-block shapes. Five
-    /// copy one, Brinstar-only one, wide, tall, and square blocks;
-    /// and two traverse vertical and horizontal extensions
-    /// instead. The exact bounded classification is membership in those
-    /// five copy identities, with false for every other shape. The
-    /// independent 16-by-256 reveal oracle finds all seven shapes;
-    /// its drawable behaviour groups total 305, matching the installed visual
-    /// catalog's exhaustive coverage assertion. Named membership is
-    /// clearer than a range of the shapes' layout, since the two extension shapes
-    /// precede the copy shapes but are not drawable.
+    /// The game has seven reachable revealed-block shapes. Five copy one, Brinstar-only one, wide, tall and square
+    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is
+    /// one of those five copy shapes; across every collision kind and behaviour they cover 305 drawable groups.
     /// </remarks>
     public static bool IsDrawable(XrayRevealShape shape) => shape is
         XrayRevealShape.CopyOne or XrayRevealShape.CopyWide or

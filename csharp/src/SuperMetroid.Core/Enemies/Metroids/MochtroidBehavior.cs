@@ -59,7 +59,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot, state, MochtroidSegment.FreeFlight);
     }
 
-    /// <summary>Runs a Mochtroid's per-frame behaviour, resetting its state before dispatch.</summary>
+    /// <summary>Runs a Mochtroid's per-frame behaviour, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
         RoomEnemySlot slot,
         SamusState samus,
@@ -177,9 +177,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         bool applyCommonTouch = samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
         if (!applyCommonTouch)
         {
-            // Every overlapping actor queues its sound independently. Using the
-            // legacy one-value family field here collapsed a room full of attached actors
-            // into one request and erased the game's sound-backlog processing delay.
+            // Every overlapping Mochtroid queues its sound independently, so a room full of
+            // attached Mochtroids makes as many requests and keeps the sound queue's backlog.
             if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 

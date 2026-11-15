@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// On its first update the cap looks at its door: one opened for good turns into its closed blue cap
 /// (<see cref="BlueDoorCapObject"/>); otherwise it starts taking shots, shows its closed image and rests. While it takes
 /// shots, a shot pending at its block is consumed before its images count down: the colour's projectile counts a hit
-/// (a Super Missile first leaves a red cap one hit short of any count), and any other shot makes the dud sound. A hit
+/// (a Super Missile reaches the count at once), and any other shot makes the dud sound. A hit
 /// short of the colour's count flashes the cap, which then rests again; the hit that reaches it records the door
 /// opened for good, stops the shots and opens the cap, which then leaves the room. A cap closing behind Samus plays the
 /// shared closing, then looks at its door again.

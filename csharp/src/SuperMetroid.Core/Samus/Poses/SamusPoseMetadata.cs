@@ -147,7 +147,7 @@ internal static class SamusPoseMetadata
     /// Applies the pose part of the setup for the Zebes start:
     /// the suit's front-view pose and its initialization. Unlike
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
-    /// Samus nor clears motion. Callers own the suit's colours and the special frame.
+    /// Samus nor clears motion. The suit's colours and the special frame are set separately.
     /// </summary>
     public static void ApplyZebesStartPoseSetup(SamusState samus)
     {
@@ -182,7 +182,7 @@ internal static class SamusPoseMetadata
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and
     /// all motion values cleared by the setup. It does not write the collision radius;
-    /// the next input phase's radius update does. Runtime/debug callers remain responsible for
+    /// the next input phase's radius update does. The runtime or a debug tool remains responsible for
     /// input lock, colouring and grapple before their first displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
@@ -280,7 +280,7 @@ internal static class SamusPoseMetadata
             // The left-facing table contains only the left-facing grabbed poses; the right-facing one only the right-facing.
             // Neither controller-input table can cross facing families. Draygon's owner AI
             // performs facing changes by re-entering its grabbed controller directly, so a
-            // cross-family request to this table-transition API is a caller contract error,
+            // cross-family request to this input transition is a broken contract,
             // not an omitted input transition.
             throw new InvalidOperationException(
                 $"Draygon-grabbed input transition {samus.Pose} -> {targetPose} crosses owner-controlled facing families.");
@@ -422,8 +422,8 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for admitted grounded turning poses that began facing right and turn left.
-    /// Their definition direction is already four (the destination facing), so callers
-    /// must use this semantic grouping when preserving old rightward momentum.
+    /// Their definition direction is already four (the destination facing), so preserving old
+    /// rightward momentum must use this grouping.
     /// </summary>
     public static bool IsRightToLeftGroundTurnPose(SamusPoseId pose) => pose is
         SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningRightToLeftAimUpPose or
@@ -729,8 +729,7 @@ internal static class SamusPoseMetadata
                 return false;
 
             default:
-                // The retail pose table never exceeds the special movement type; this is corrupt metadata,
-                // analogous to indexing beyond the end of a movement-type table into unrelated data.
+                // No retail pose has a movement type past the special one; this is corrupt metadata.
                 throw new InvalidDataException(
                     $"Bomb-jump setup cannot run invalid movement type {movementType} for pose {samus.Pose}.");
         }

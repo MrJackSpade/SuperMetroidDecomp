@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The behaviours Norfair Rio's main AI dispatches.
+/// The behaviours Norfair Rio's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum NorfairRioAction
@@ -16,6 +16,6 @@ public enum NorfairRioAction
     Dive,
     /// <summary>Accelerates upward while moving horizontally and responding to animation signals, ending on vertical collision rather than a saved perch coordinate.</summary>
     ReturnToPerch,
-    /// <summary>One-update state that restores only the idle dispatch, leaving the existing looping animation and follower visibility intact.</summary>
+    /// <summary>One-update state that restores only the idle behaviour, leaving the existing looping animation and follower visibility intact.</summary>
     FinishLanding,
 }

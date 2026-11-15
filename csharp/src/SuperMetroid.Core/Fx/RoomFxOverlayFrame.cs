@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>What one effect-overlay FX step reads from the frame: camera, freeze, the power-on rumble delay, RNG and darkness (#633).</summary>
 public sealed record RoomFxOverlayFrame
 {
-    /// <summary>Camera.</summary>
+    /// <summary>The camera's place in the room this frame.</summary>
     public required Position16<RoomPixels> Camera { get; init; }
 
-    /// <summary>Time is frozen.</summary>
+    /// <summary>Whether time is frozen this frame, which holds the effect still.</summary>
     public required bool TimeIsFrozen { get; init; }
 
     /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay.</summary>
@@ -25,6 +25,6 @@ public sealed record RoomFxOverlayFrame
     /// </summary>
     public int FirefleaDarknessStep { get; init => field = Ensure.BetweenInclusive(0, FirefleaFxDefinitions.DarknessLevels.Length - 1, value); }
 
-    /// <summary>Liquid motion already advanced.</summary>
+    /// <summary>Whether the liquid has already moved this frame, so the effect pass does not move it again.</summary>
     public bool LiquidMotionAlreadyAdvanced { get; init; } = false;
 }

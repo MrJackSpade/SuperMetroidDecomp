@@ -827,7 +827,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The bomb collision first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
-                // out-of-range cross member therefore identifies malformed room/caller
+                // out-of-range cross member therefore identifies malformed room or bomb
                 // state rather than another bomb reaction.
                 throw new InvalidDataException(
                     $"Bomb explosion cross reaches outside room storage at block ({x},{y}).");
@@ -889,7 +889,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The shot-block table's entries 40..43 route the four ordinary blue-door cap orientations to
+        // The four ordinary blue-door cap orientations lead to
         // the blue door setup regardless of whether the collision came from the shot or bomb
         // step. Normal bombs use the bomb projectile family and are accepted; the Power
         // Bomb family is rejected inside the shared setup. Treating these
@@ -936,7 +936,7 @@ public sealed class SamusBombProjectileSystem
                     "bomb-block reaction.");
             }
             // Spawn is synchronous: accepted behaviour 0..7 applies the reaction's temporary solid-block
-            // or air collision before the caller proceeds to its next border/cross member.
+            // or air collision before the bomb proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.At,

@@ -148,8 +148,8 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainAttackPhase.Cooldown:
-                // The cooldown decrements before testing. The phase-zero initializer always
-                // writes 64; a cooldown of zero would run past zero rather than end the attack.
+                // The cooldown decrements before testing. The attack choice always starts it at
+                // the second phase's attack cooldown; a cooldown of zero would run past zero rather than end the attack.
                 if (--state.AttackCooldown == 0)
                     state.AttackPhase = MotherBrainAttackPhase.EndAttack;
                 return;
@@ -171,16 +171,11 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        state.AttackCooldown = 64;
+        state.AttackCooldown = MotherBrainCadenceDefinitions.SecondPhaseAttackCooldown;
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         int random = _room.Random.Read();
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (!Enum.IsDefined(movementType))
-        {
-            throw new InvalidDataException(
-                $"Mother Brain attack strategy cannot index Samus movement type {movementType}.");
-        }
 
         if (IsMotherBrainAirAttackMovement(movementType))
         {

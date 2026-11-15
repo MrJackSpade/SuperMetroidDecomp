@@ -9,8 +9,17 @@ internal static class MotherBrainGlassShardDefinitions
     /// <summary>The random sample's field a shard's launch angle is: its low eight bits, a whole turn of 256 steps.</summary>
     internal static readonly RandomSampleField LaunchAngle = new(0, 8);
 
-    /// <summary>A launched shard's jitter on each axis, 0 through 15 pixels less eight: the sample modulo 16.</summary>
+    /// <summary>
+    /// A launched shard's jitter on each axis, 0 through 15 pixels less <see cref="ShardJitterCentre"/>: the sample
+    /// modulo 16.
+    /// </summary>
     internal static readonly RandomSampleField ShardJitter = new(0, 4);
+
+    /// <summary>
+    /// The pixels taken from a launched shard's <see cref="ShardJitter"/> on each axis, so its jitter spans eight pixels
+    /// before its emitter to seven past it.
+    /// </summary>
+    internal const int ShardJitterCentre = 8;
 
     /// <summary>One of the two parts of the sample a falling shard's sparkle check reads, the sample divided by 32; the shard sparkles when both are even.</summary>
     internal static readonly RandomSampleField SparkleCheckLowBit = new(5, 1);

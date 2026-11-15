@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -141,7 +142,7 @@ internal static class EnemyVisualTypedProgramAudit
         }
         rows.Add(new(ceresFrames));
 
-        // Botwoon's typed head and projectile animations (#641) draw through its presentation catalog.
+        // Botwoon's typed head animations (#641) draw through its presentation catalog.
         const string botwoonSource = "csharp/src/SuperMetroid.Core/Bosses/Botwoon/Artwork/BotwoonVisualDefinitions.cs";
         // The hidden head draws the shared empty map; Verification proves every timeline frame is one of these.
         EnemyFrameName[] botwoonHeadFrames = EnemyCompositionSchemaTooling.Family("botwoon_head_");
@@ -150,12 +151,15 @@ internal static class EnemyVisualTypedProgramAudit
             report.Require(ResourceDomains.EnemyDisplay, nameof(BotwoonVisualDefinitions),
                 ResourceIndex.Address(frame.Bank, frame.Pointer), botwoonSource, exports);
         }
-        foreach (BotwoonProjectileFrame frame in BotwoonVisualDefinitions.ProjectileFrames)
+        // His body segments' and spit's beats name their installed projectile frames (#2036).
+        const string botwoonProjectileSource = "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonAnimations.cs";
+        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileSegments.Frames];
+        foreach (EnemyProjectileFrameId frame in botwoonProjectileFrames)
         {
-            ProjectileDefinitionAudit.RequireFrame(EnemyProjectileProgramFrameSources.Operand(BotwoonVisualDefinitions.ShownProjectileFrames[frame]),
-                nameof(BotwoonVisualDefinitions), botwoonSource, exports, report);
+            ProjectileDefinitionAudit.RequireFrame(EnemyProjectileProgramFrameSources.Operand(frame),
+                nameof(BotwoonAnimations), botwoonProjectileSource, exports, report);
         }
-        rows.Add(new(botwoonHeadFrames.Length + BotwoonVisualDefinitions.ProjectileFrames.Count));
+        rows.Add(new(botwoonHeadFrames.Length + botwoonProjectileFrames.Length));
         // Typed animation segments (#1600) name their frames the same way.
         void RequireSegmentFrames<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments,
             Func<TFrame, ushort> spritemap, byte bank, string owner, string source)

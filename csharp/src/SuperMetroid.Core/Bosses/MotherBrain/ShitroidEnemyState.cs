@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -8,12 +7,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The state of the Shitroid, with its extended enemy state.</summary>
 public sealed class ShitroidEnemyState
 {
-    /// <summary>Creates the state for the Shitroid's slot.</summary>
-    internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
-
-    /// <summary>The Shitroid's enemy slot.</summary>
-    public RoomEnemySlot Slot { get; }
-
     /// <summary>The Shitroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<ShitroidSegment> Playback { get; set; } = ShitroidAnimations.Starting(default);
 

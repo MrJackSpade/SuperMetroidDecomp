@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A Botwoon body segment's or spit's typed animation.</summary>
-internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue>
+internal sealed class BotwoonProjectileAnimation : EnemyProjectileFrameAnimation<BotwoonBodyAnimationSegment, NoAnimationCue>
 {
     /// <summary>Starts the animation of <paramref name="segment"/>.</summary>
     private BotwoonProjectileAnimation(BotwoonBodyAnimationSegment segment)
@@ -43,14 +42,10 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue> Segments =>
+    private protected override AnimationSegments<BotwoonBodyAnimationSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         BotwoonAnimations.ProjectileSegments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> StartingAt =>
         BotwoonAnimations.ProjectileStartingAt;
-
-    /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(BotwoonProjectileFrame frame) =>
-        BotwoonVisualDefinitions.ShownProjectileFrames[frame];
 }

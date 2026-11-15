@@ -49,4 +49,6 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Crocomire's state lookups, frame results and sound and music requests.</summary>
     public required CrocomireEncounterAccess Access { get; init; }
 
+    /// <summary>The room's effect, whose acid surface his acid smoke rises from.</summary>
+    public required EnemyRoomFx RoomFx { get; init; }
 }

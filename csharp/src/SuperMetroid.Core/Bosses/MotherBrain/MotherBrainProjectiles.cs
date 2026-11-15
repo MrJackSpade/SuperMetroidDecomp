@@ -744,11 +744,6 @@ internal sealed class MotherBrainProjectiles
                 nameof(request),
                 $"Mother Brain glass requested unsupported projectile {request.Kind}.");
         }
-        if (!Enum.IsDefined(request.Shard))
-        {
-            throw new InvalidDataException(
-                $"Mother Brain glass shard {request.Shard} is not one of the three emitters.");
-        }
 
         EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
         if (shard is null)
@@ -778,18 +773,21 @@ internal sealed class MotherBrainProjectiles
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.
         shard.Position = shard.Position.WithWrappedWholeX(
-            shard.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - 8);
+            shard.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - MotherBrainGlassShardDefinitions.ShardJitterCentre);
         shard.Position = shard.Position.WithWrappedWholeY(
-            shard.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - 8);
+            shard.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - MotherBrainGlassShardDefinitions.ShardJitterCentre);
     }
 
-    /// <summary>Detects when a fired hand beam has crossed the fight arena's bounds.</summary>
+    /// <summary>
+    /// Detects when a fired hand beam has crossed the fight arena's bounds
+    /// (<see cref="MotherBrainHandBeamDefinitions.ArenaTopLeft"/>, <see cref="MotherBrainHandBeamDefinitions.ArenaBottomRight"/>).
+    /// </summary>
     private static bool IsMotherBrainHandBeamOutsideArena(
         EnemyProjectile beam) =>
-        CoordinateAxis.Difference(beam.Position.Y.Whole, 34) < 0 ||
-        CoordinateAxis.Difference(beam.Position.Y.Whole, 206) >= 0 ||
-        CoordinateAxis.Difference(beam.Position.X.Whole, 2) < 0 ||
-        CoordinateAxis.Difference(beam.Position.X.Whole, 238) >= 0;
+        CoordinateAxis.Difference(beam.Position.Y.Whole, MotherBrainHandBeamDefinitions.ArenaTopLeft.Y) < 0 ||
+        CoordinateAxis.Difference(beam.Position.Y.Whole, MotherBrainHandBeamDefinitions.ArenaBottomRight.Y) >= 0 ||
+        CoordinateAxis.Difference(beam.Position.X.Whole, MotherBrainHandBeamDefinitions.ArenaTopLeft.X) < 0 ||
+        CoordinateAxis.Difference(beam.Position.X.Whole, MotherBrainHandBeamDefinitions.ArenaBottomRight.X) >= 0;
 
     /// <summary>
     /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds twelve

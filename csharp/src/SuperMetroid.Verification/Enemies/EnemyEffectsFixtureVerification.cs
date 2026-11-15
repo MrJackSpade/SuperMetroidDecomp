@@ -13,6 +13,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -62,6 +63,9 @@ internal static class EnemyEffectsFixtureVerification
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
+            // His room's acid, whose surface his acid smoke rises from.
+            var acid = new RoomFxOverlayState(new RoomFxSession()) { Type = RoomFxType.Acid, Surface = 224 };
+            Enemies.RoomFx.BindRoomFx(acid);
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 
@@ -83,7 +87,7 @@ internal static class EnemyEffectsFixtureVerification
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
         /// <summary>Advances the production melting behavior for the bound Crocomire actor.</summary>
-        internal void Dissolve() => new Action<CrocomireEnemyState, SamusState?, Position16<RoomPixels>>(Enemies.CrocomireBehavior.Melting.RunCrocomireMelting)(Actor, null, default);
+        internal void Dissolve() => new Action<CrocomireEnemyState, Position16<RoomPixels>>(Enemies.CrocomireBehavior.Melting.RunCrocomireMelting)(Actor, default);
     }
 
     /// <summary>Compares actor, effect, slots, RAM, audio, and PLM requests after a melt operation.</summary>

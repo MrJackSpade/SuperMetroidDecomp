@@ -171,7 +171,6 @@ internal static class PhantoonAnimationsVerification
             AssertEqual(deletes, native.Deleted, $"Phantoon flame {program}: deletion matches the native list");
         }
 
-        AssertEqual(PhantoonFlameVisualDefinitions.ProjectileFrameCount, PhantoonFlameVisualDefinitions.ProjectileFrames.Count, "the flame catalog lists every frame");
         VerifyPrePhantoonRoomAnimation(cartridge);
         Console.WriteLine($"  Phantoon flame programs: {FlameEntries.Length} programs match bank $86 every update, with the falling counter, drop request and deletion.");
     }

@@ -1,23 +1,18 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>A Crocomire projectile's typed animation: its mouth projectile, bridge fragment, spike-wall piece or shot.</summary>
-/// <param name="kind">The animation to play.</param>
-internal sealed class CrocomireProjectileAnimation(CrocomireProjectileFrameKind kind)
-    : EnemyProjectileTypedAnimation<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue>(CrocomireAnimations.ProjectileStartingWith(kind))
+/// <param name="segment">The animation to play.</param>
+internal sealed class CrocomireProjectileAnimation(CrocomireProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<CrocomireProjectileSegment, CrocomireProjectileCue>(CrocomireAnimations.ProjectileStartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue> Segments =>
+    private protected override AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>
         CrocomireAnimations.ProjectileSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<CrocomireProjectileFrameKind, Animation<CrocomireProjectileFrameKind>> StartingAt =>
+    private protected override IReadOnlyDictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>> StartingAt =>
         CrocomireAnimations.ProjectileStartingAt;
-
-    /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(CrocomireProjectileFrame frame) =>
-        CrocomireProjectileVisualDefinitions.ShownProjectileFrames[frame];
 }

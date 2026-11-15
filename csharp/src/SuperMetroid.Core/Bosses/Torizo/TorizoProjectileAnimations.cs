@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Animation;
-using F = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileFrameKind;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -8,9 +7,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's projectile animations (#641, #1788): each animation's steps, each frame a
-/// <see cref="TorizoProjectileFrame"/> pose of the run of poses it belongs to and each cue a <see cref="TorizoProjectileCue"/>
-/// with the values it acts on; the phases it plays them in, each a run of its steps played a number of times; and whether it
+/// Bomb and Golden Torizo's projectile animations (#641, #1788, #2011): each animation's steps, each frame the installed
+/// <see cref="EnemyProjectileFrameId"/> it shows and each cue a <see cref="TorizoProjectileCue"/> with the values it acts on; the phases it plays them in, each a run of its steps played a number of times; and whether it
 /// then loops or holds. The runs several animations play alike (the drool's release and fall, the egg's hatch, the statue
 /// fragments' crack) are one array of steps each reuses.
 /// </summary>
@@ -20,22 +18,22 @@ internal static class TorizoProjectileAnimations
     /// A drool drop's release: it starts falling, harmless and in front of Samus, then moves behind her. The shared runs are
     /// declared before the steps that spread them in, so static initialization builds them first.
     /// </summary>
-    private static readonly AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[] DroolRelease =
+    private static readonly AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] DroolRelease =
     [
         Cue(new TorizoProjectileCue.Signal(K.StartDroolFall)),
         Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
-        Show(F.Drool, 2, 5),
+        Show(EnemyProjectileFrameId.TorizoDroolNoDelay, 5),
         Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus)),
     ];
 
     /// <summary>A drool drop's falling pose, which its animation loops on while it falls.</summary>
-    private static readonly AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[] DroolFalling =
+    private static readonly AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] DroolFalling =
     [
-        Show(F.Drool, 3, 64),
+        Show(EnemyProjectileFrameId.TorizoDroolFallingLoop, 64),
     ];
 
     /// <summary>A cracked egg's hatch: it turns harmful and shot-blocking, then continues in its hatched animation.</summary>
-    private static readonly AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[] EggHatch =
+    private static readonly AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] EggHatch =
     [
         Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
         Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.BlocksShots)),
@@ -43,15 +41,15 @@ internal static class TorizoProjectileAnimations
     ];
 
     /// <summary>A statue fragment cracking off the hand: the impact sound, then its fall.</summary>
-    private static readonly AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[] StatueFragmentCracking =
+    private static readonly AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] StatueFragmentCracking =
     [
         Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BeamImpact, Priority: SoundRequestPriority.Normal)),
         Cue(new TorizoProjectileCue.Signal(K.StartFragmentFall)),
     ];
 
     /// <summary>Every animation's steps.</summary>
-    internal static AnimationSegments<TorizoProjectileSegment, TorizoProjectileFrame, TorizoProjectileCue> Segments { get; } = new(
-        new Dictionary<TorizoProjectileSegment, AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[]>
+    internal static AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments { get; } = new(
+        new Dictionary<TorizoProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[]>
     {
         [P.LowHealthExplosion] =
         [
@@ -60,11 +58,11 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 0)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(F.LowHealthExplosion, 0, 2),
-            Show(F.LowHealthExplosion, 1, 2),
-            Show(F.LowHealthExplosion, 2, 3),
-            Show(F.LowHealthExplosion, 3, 3),
-            Show(F.LowHealthExplosion, 4, 2),
+            Show(EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopFirst, 2),
+            Show(EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopSecond, 2),
+            Show(EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopThird, 3),
+            Show(EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopFourth, 3),
+            Show(EnemyProjectileFrameId.TorizoExplosionLowHealthInitialLoopFifth, 2),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.DeathExplosion] =
@@ -75,12 +73,12 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(F.DeathExplosion, 0, 4),
-            Show(F.DeathExplosion, 1, 6),
-            Show(F.DeathExplosion, 2, 5),
-            Show(F.DeathExplosion, 3, 5),
-            Show(F.DeathExplosion, 4, 5),
-            Show(F.DeathExplosion, 5, 6),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathInitialLoopFirst, 4),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathInitialLoopSecond, 6),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathInitialLoopThird, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathInitialLoopFourth, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathInitialLoopFifth, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathInitialLoopSixth, 6),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.DeathSmoke] =
@@ -88,14 +86,14 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 4)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(F.DeathSmoke, 0, 8),
-            Show(F.DeathSmoke, 1, 8),
-            Show(F.DeathSmoke, 2, 8),
-            Show(F.DeathSmoke, 3, 8),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathSmokeSetupLoopFirst, 8),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathSmokeSetupLoopSecond, 8),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathSmokeSetupLoopThird, 8),
+            Show(EnemyProjectileFrameId.TorizoExplosionDeathSmokeSetupLoopFourth, 8),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
-        [P.DroolFourFrameDelay] = [Show(F.Drool, 0, 2), Show(F.Drool, 1, 2), .. DroolRelease, .. DroolFalling],
-        [P.DroolTwoFrameDelay] = [Show(F.Drool, 1, 2), .. DroolRelease, .. DroolFalling],
+        [P.DroolFourFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolFourFrameDelay, 2), Show(EnemyProjectileFrameId.TorizoDroolTwoFrameDelay, 2), .. DroolRelease, .. DroolFalling],
+        [P.DroolTwoFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolTwoFrameDelay, 2), .. DroolRelease, .. DroolFalling],
         [P.DroolNoDelay] = [.. DroolRelease, .. DroolFalling],
         [P.DroolWallImpact] =
         [
@@ -105,40 +103,40 @@ internal static class TorizoProjectileAnimations
         [P.DroolFloorImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.DroolSplash, 0, 8),
-            Show(F.DroolSplash, 1, 8),
-            Show(F.DroolSplash, 2, 8),
+            Show(EnemyProjectileFrameId.TorizoDroolFloorImpactFirst, 8),
+            Show(EnemyProjectileFrameId.TorizoDroolFloorImpactSecond, 8),
+            Show(EnemyProjectileFrameId.TorizoDroolFloorImpactThird, 8),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.ExplosiveSwipe] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BombTorizoSwipe, Priority: SoundRequestPriority.WhenIdle)),
-            Show(F.ExplosiveSwipe, 0, 5),
-            Show(F.ExplosiveSwipe, 1, 5),
-            Show(F.ExplosiveSwipe, 2, 5),
-            Show(F.ExplosiveSwipe, 3, 5),
-            Show(F.ExplosiveSwipe, 4, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosiveSwipeInitialFirst, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosiveSwipeInitialSecond, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosiveSwipeInitialThird, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosiveSwipeInitialFourth, 5),
+            Show(EnemyProjectileFrameId.TorizoExplosiveSwipeInitialFifth, 5),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
-        [P.FirstStatueFragment] = [Show(F.StatueFragment, 0, 128), .. StatueFragmentCracking, Show(F.StatueFragment, 1, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SecondStatueFragment] = [Show(F.StatueFragment, 2, 120), .. StatueFragmentCracking, Show(F.StatueFragment, 3, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.ThirdStatueFragment] = [Show(F.StatueFragment, 4, 112), .. StatueFragmentCracking, Show(F.StatueFragment, 5, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.FourthStatueFragment] = [Show(F.StatueFragment, 6, 104), .. StatueFragmentCracking, Show(F.StatueFragment, 7, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.FifthStatueFragment] = [Show(F.StatueFragment, 8, 96), .. StatueFragmentCracking, Show(F.StatueFragment, 9, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SixthStatueFragment] = [Show(F.StatueFragment, 10, 88), .. StatueFragmentCracking, Show(F.StatueFragment, 11, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SeventhStatueFragment] = [Show(F.StatueFragment, 12, 80), .. StatueFragmentCracking, Show(F.StatueFragment, 13, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.EighthStatueFragment] = [Show(F.StatueFragment, 14, 72), .. StatueFragmentCracking, Show(F.StatueFragment, 15, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.ChozoOrbMovingLeft] = [Show(F.ChozoOrbMovingLeft, 0, 85)],
-        [P.ChozoOrbMovingRight] = [Show(F.ChozoOrbMovingRight, 0, 85)],
+        [P.FirstStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoFirstStatueFragmentFirst, 128), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoFirstStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.SecondStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoSecondStatueFragmentFirst, 120), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoSecondStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.ThirdStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoThirdStatueFragmentFirst, 112), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoThirdStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.FourthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoFourthStatueFragmentFirst, 104), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoFourthStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.FifthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoFifthStatueFragmentFirst, 96), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoFifthStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.SixthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoSixthStatueFragmentFirst, 88), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoSixthStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.SeventhStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoSeventhStatueFragmentFirst, 80), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoSeventhStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.EighthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoEighthStatueFragmentFirst, 72), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoEighthStatueFragmentSecond, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.ChozoOrbMovingLeft] = [Show(EnemyProjectileFrameId.TorizoChozoOrbMovingLeft, 85)],
+        [P.ChozoOrbMovingRight] = [Show(EnemyProjectileFrameId.TorizoChozoOrbMovingRight, 85)],
         [P.ChozoOrbWallImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
-            Show(F.ChozoOrbWallImpact, 0, 4),
-            Show(F.ChozoOrbWallImpact, 1, 4),
-            Show(F.ChozoOrbWallImpact, 2, 4),
-            Show(F.ChozoOrbWallImpact, 3, 4),
-            Show(F.ChozoOrbWallImpact, 4, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbWallImpactFirst, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbWallImpactSecond, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbWallImpactThird, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbWallImpactFourth, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbWallImpactFifth, 4),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.ChozoOrbFloorImpact] =
@@ -147,39 +145,39 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
-            Show(F.ChozoOrbFloorImpact, 0, 4),
-            Show(F.ChozoOrbFloorImpact, 1, 5),
-            Show(F.ChozoOrbFloorImpact, 2, 6),
-            Show(F.ChozoOrbFloorImpact, 3, 7),
-            Show(F.ChozoOrbFloorImpact, 4, 8),
-            Show(F.ChozoOrbFloorImpact, 5, 9),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFloorImpactFirst, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFloorImpactSecond, 5),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFloorImpactThird, 6),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFloorImpactFourth, 7),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFloorImpactFifth, 8),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFloorImpactSixth, 9),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.ChozoOrbShot] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
-            Show(F.ChozoOrbShot, 0, 4),
-            Show(F.ChozoOrbShot, 1, 4),
-            Show(F.ChozoOrbShot, 2, 4),
-            Show(F.ChozoOrbShot, 3, 4),
-            Show(F.ChozoOrbShot, 4, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbShotFirst, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbShotSecond, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbShotThird, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbShotFourth, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbShotFifth, 4),
             Cue(new TorizoProjectileCue.Signal(K.SpawnOrbDrops)),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.SonicBoomFiredLeft] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.TorizoSonicBoom, Priority: SoundRequestPriority.Normal)),
-            Show(F.SonicBoomFiredLeft, 0, 6),
-            Show(F.SonicBoomFiredLeft, 1, 6),
-            Show(F.SonicBoomMovingLeft, 0, 80),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomFiredLeftFirst, 6),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomFiredLeftSecond, 6),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomMovingLeft, 80),
         ],
         [P.SonicBoomFiredRight] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.TorizoSonicBoom, Priority: SoundRequestPriority.Normal)),
-            Show(F.SonicBoomFiredRight, 0, 6),
-            Show(F.SonicBoomFiredRight, 1, 6),
-            Show(F.SonicBoomMovingRight, 0, 80),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomFiredRightFirst, 6),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomFiredRightSecond, 6),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomMovingRight, 80),
         ],
         [P.SonicBoomWallImpact] =
         [
@@ -189,118 +187,118 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.DrawInFront)),
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 5), Center: new(0, 0)))),
-            Show(F.SonicBoomWallImpact, 0, 2),
-            Show(F.SonicBoomWallImpact, 1, 2),
-            Show(F.SonicBoomWallImpact, 2, 3),
-            Show(F.SonicBoomWallImpact, 3, 3),
-            Show(F.SonicBoomWallImpact, 4, 2),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomWallImpactLoopFirst, 2),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomWallImpactLoopSecond, 2),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomWallImpactLoopThird, 3),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomWallImpactLoopFourth, 3),
+            Show(EnemyProjectileFrameId.TorizoSonicBoomWallImpactLoopFifth, 2),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.LandingDustRightFoot] =
         [
-            Show(F.LandingDustRightFoot, 0, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustRightFootFirst, 4),
             Cue(new TorizoProjectileCue.Signal(K.RaiseDust)),
-            Show(F.LandingDustRightFoot, 1, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustRightFootSecond, 4),
             Cue(new TorizoProjectileCue.Signal(K.RaiseDust)),
-            Show(F.LandingDustRightFoot, 2, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustRightFootThird, 4),
             Cue(new TorizoProjectileCue.Signal(K.RaiseDust)),
-            Show(F.LandingDustRightFoot, 3, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustRightFootFourth, 4),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.LandingDustLeftFoot] =
         [
-            Show(F.LandingDustLeftFoot, 0, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustLeftFootFirst, 4),
             Cue(new TorizoProjectileCue.Signal(K.RaiseDust)),
-            Show(F.LandingDustLeftFoot, 1, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustLeftFootSecond, 4),
             Cue(new TorizoProjectileCue.Signal(K.RaiseDust)),
-            Show(F.LandingDustLeftFoot, 2, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustLeftFootThird, 4),
             Cue(new TorizoProjectileCue.Signal(K.RaiseDust)),
-            Show(F.LandingDustLeftFoot, 3, 4),
+            Show(EnemyProjectileFrameId.TorizoLandingDustLeftFootFourth, 4),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
-        [P.EggBouncingLeft] = [Show(F.EggBouncingLeft, 0, 48)],
+        [P.EggBouncingLeft] = [Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingLeft, 48)],
         [P.EggHatchingLeft] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.EggHatchingLeft, 0, 4),
-            Show(F.EggHatchingLeft, 1, 4),
-            Show(F.EggHatchingLeft, 2, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingLeftHatchingFirst, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingLeftHatchingSecond, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingLeftHatchingThird, 4),
             .. EggHatch,
         ],
-        [P.EggBouncingRight] = [Show(F.EggBouncingRight, 0, 48)],
+        [P.EggBouncingRight] = [Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingRight, 48)],
         [P.EggHatchingRight] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.EggHatchingRight, 0, 4),
-            Show(F.EggHatchingRight, 1, 4),
-            Show(F.EggHatchingRight, 2, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingRightHatchingFirst, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingRightHatchingSecond, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBouncingRightHatchingThird, 4),
             .. EggHatch,
         ],
         [P.EggHatchedLeft] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.ShotPipeBug, Priority: SoundRequestPriority.Normal)),
             Cue(new TorizoProjectileCue.Signal(K.StartEggCharge)),
-            Show(F.EggHatchedLeft, 0, 6),
-            Show(F.EggHatchedLeft, 1, 6),
-            Show(F.EggHatchedLeft, 2, 6),
-            Show(F.EggHatchedLeft, 3, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedLeftLoopFirst, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedLeftLoopSecond, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedLeftLoopThird, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedLeftLoopFourth, 6),
         ],
         [P.EggHatchedRight] =
         [
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.ShotPipeBug, Priority: SoundRequestPriority.Normal)),
             Cue(new TorizoProjectileCue.Signal(K.StartEggCharge)),
-            Show(F.EggHatchedRight, 0, 6),
-            Show(F.EggHatchedRight, 1, 6),
-            Show(F.EggHatchedRight, 2, 6),
-            Show(F.EggHatchedRight, 3, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedRightLoopFirst, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedRightLoopSecond, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedRightLoopThird, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggHatchedRightLoopFourth, 6),
         ],
         [P.EggBreakLeft] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.EggBreakLeft, 0, 4),
-            Show(F.EggBreakLeft, 1, 4),
-            Show(F.EggBreakLeft, 2, 4),
-            Show(F.EggBreakLeft, 3, 4),
-            Show(F.EggBreakLeft, 4, 10),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakLeftFirst, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakLeftSecond, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakLeftThird, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakLeftFourth, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakLeftFifth, 10),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.EggBreakRight] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.EggBreakRight, 0, 4),
-            Show(F.EggBreakRight, 1, 4),
-            Show(F.EggBreakRight, 2, 4),
-            Show(F.EggBreakRight, 3, 4),
-            Show(F.EggBreakRight, 4, 8),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakRightFirst, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakRightSecond, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakRightThird, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakRightFourth, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEggBreakRightFifth, 8),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.SuperMissileRight] =
         [
-            Show(F.SuperMissileHeldRight, 0, 48),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightInitial, 48),
             Cue(new TorizoProjectileCue.Signal(K.AimSuperMissileTowardSamus)),
             Cue(new TorizoProjectileCue.Signal(K.ThrowSuperMissile)),
-            Show(F.SuperMissileSpinningRight, 0, 2),
-            Show(F.SuperMissileSpinningRight, 1, 2),
-            Show(F.SuperMissileSpinningRight, 2, 2),
-            Show(F.SuperMissileSpinningRight, 3, 2),
-            Show(F.SuperMissileSpinningRight, 4, 2),
-            Show(F.SuperMissileSpinningRight, 5, 2),
-            Show(F.SuperMissileSpinningRight, 6, 2),
-            Show(F.SuperMissileSpinningRight, 7, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopFirst, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopSecond, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopThird, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopFourth, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopFifth, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopSixth, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopSeventh, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileRightLoopEighth, 2),
         ],
         [P.SuperMissileLeft] =
         [
-            Show(F.SuperMissileHeldLeft, 0, 48),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftInitial, 48),
             Cue(new TorizoProjectileCue.Signal(K.AimSuperMissileAwayFromSamus)),
             Cue(new TorizoProjectileCue.Signal(K.ThrowSuperMissile)),
-            Show(F.SuperMissileSpinningLeft, 0, 2),
-            Show(F.SuperMissileSpinningLeft, 1, 2),
-            Show(F.SuperMissileSpinningLeft, 2, 2),
-            Show(F.SuperMissileSpinningLeft, 3, 2),
-            Show(F.SuperMissileSpinningLeft, 4, 2),
-            Show(F.SuperMissileSpinningLeft, 5, 2),
-            Show(F.SuperMissileSpinningLeft, 6, 2),
-            Show(F.SuperMissileSpinningLeft, 7, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopFirst, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopSecond, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopThird, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopFourth, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopFifth, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopSixth, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopSeventh, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileLeftLoopEighth, 2),
         ],
         [P.SuperMissileImpact] =
         [
@@ -309,46 +307,46 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.BlocksShots)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(F.SuperMissileImpact, 0, 5),
-            Show(F.SuperMissileImpact, 1, 5),
-            Show(F.SuperMissileImpact, 2, 5),
-            Show(F.SuperMissileImpact, 3, 5),
-            Show(F.SuperMissileImpact, 4, 5),
-            Show(F.SuperMissileImpact, 5, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileImpactFirst, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileImpactSecond, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileImpactThird, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileImpactFourth, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileImpactFifth, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissileImpactSixth, 5),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.EyeBeamWallImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.EyeBeamWallImpact, 0, 4),
-            Show(F.EyeBeamWallImpact, 1, 4),
-            Show(F.EyeBeamWallImpact, 2, 4),
-            Show(F.EyeBeamWallImpact, 3, 4),
-            Show(F.EyeBeamWallImpact, 4, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamWallImpactFirst, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamWallImpactSecond, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamWallImpactThird, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamWallImpactFourth, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamWallImpactFifth, 4),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.EyeBeamFloorImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
-            Show(F.EyeBeamFloorImpact, 0, 8),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopFirst, 8),
             Cue(new TorizoProjectileCue.Signal(K.ReplayWhileEyeBeamExplosionsDisabled)),
             Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
-            Show(F.EyeBeamFloorImpact, 1, 4),
-            Show(F.EyeBeamFloorImpact, 2, 5),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopSecond, 4),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopThird, 5),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus)),
-            Show(F.EyeBeamFloorImpact, 3, 6),
-            Show(F.EyeBeamFloorImpact, 4, 7),
-            Show(F.EyeBeamFloorImpact, 5, 8),
-            Show(F.EyeBeamFloorImpact, 6, 9),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopFourth, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopFifth, 7),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopSixth, 8),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopSeventh, 9),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
         [P.EyeBeam] =
         [
-            Show(F.EyeBeam, 0, 1),
-            Show(F.EyeBeam, 1, 1),
-            Show(F.EyeBeam, 2, 1),
-            Show(F.EyeBeam, 3, 1),
-            Show(F.EyeBeam, 4, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalFirst, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalSecond, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalThird, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalFourth, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalFifth, 1),
         ],
     });
 
@@ -439,11 +437,11 @@ internal static class TorizoProjectileAnimations
             ? resumed
             : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation never rests.");
 
-    /// <summary>Shows pose <paramref name="phase"/> of the run <paramref name="kind"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue> Show(TorizoProjectileFrameKind kind, int phase, int duration) =>
-        new AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame(new(kind, phase), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue> Cue(TorizoProjectileCue cue) =>
-        new AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Cue(TorizoProjectileCue cue) =>
+        new AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Event(cue);
 }

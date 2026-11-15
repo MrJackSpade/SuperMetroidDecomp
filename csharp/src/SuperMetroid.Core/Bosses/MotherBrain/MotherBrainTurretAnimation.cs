@@ -1,12 +1,11 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A turret's, bullet's or impact smoke's typed animation.</summary>
 internal sealed class MotherBrainTurretAnimation
-    : EnemyProjectileTypedAnimation<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue>
+    : EnemyProjectileFrameAnimation<MotherBrainTurretPose, MotherBrainTurretCue>
 {
     /// <summary>Plays the still pose of <paramref name="segment"/> facing <paramref name="direction"/>.</summary>
     internal MotherBrainTurretAnimation(MotherBrainTurretSegment segment, MotherBrainTurretDirection direction)
@@ -23,14 +22,10 @@ internal sealed class MotherBrainTurretAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Segments =>
+    private protected override AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
         MotherBrainTurretAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt =>
         MotherBrainTurretAnimations.StartingAt;
-
-    /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(MotherBrainTurretFrame frame) =>
-        MotherBrainTurretVisualDefinitions.ShownProjectileFrames[frame];
 }

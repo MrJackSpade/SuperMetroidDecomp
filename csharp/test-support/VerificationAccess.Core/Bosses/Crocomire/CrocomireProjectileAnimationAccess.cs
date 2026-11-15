@@ -7,6 +7,6 @@ internal static class CrocomireProjectileAnimationAccess
     extension(CrocomireProjectileAnimation self)
     {
         /// <summary>The segment the animation stands in.</summary>
-        internal CrocomireProjectileFrameKind Kind => self.PlayingSegment;
+        internal CrocomireProjectileSegment Kind => self.PlayingSegment;
     }
 }

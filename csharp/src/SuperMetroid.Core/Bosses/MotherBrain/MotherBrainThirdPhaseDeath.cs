@@ -348,7 +348,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // setup, starts the brain falling from rest, then falls through immediately.
         _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;
-        _state.BrainFallSpeed = 0;
+        _state.BrainFallSpeed = SignedEightEight.Zero;
         _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround;
         return true;
     }
@@ -359,10 +359,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The brain gains 32/256 pixels an update of fall speed and falls the speed's whole pixels.
+        // The brain gains fall speed each update and falls the speed's whole pixels.
         // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
-        _state.BrainFallSpeed += 32;
-        int fallingDisplacement = UnsignedEightEight.Whole(_state.BrainFallSpeed);
+        _state.BrainFallSpeed += MotherBrainDeathDefinitions.BrainFallAcceleration;
+        int fallingDisplacement = _state.BrainFallSpeed.UnsignedWholePixels;
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
         if (candidate.Y >= 196)
         {
@@ -526,7 +526,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // indefinitely, create four colour effects and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
-        requests.StartEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake, WrappingCountdown.LongestStart);
+        requests.StartIndefiniteEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianBackgroundRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianGeneralLevelRedFlashing);
@@ -626,10 +626,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal static bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The room's earthquake runs down outside enemy AI. Only a stopped earthquake is run on again, for the
-        // longest length, with whatever shake the room has; a running one is left as it is.
+        // A producer may give the room's earthquake a length, which runs down outside enemy AI. Only a stopped earthquake
+        // is run on again, indefinitely, with whatever shake the room has; a running one is left as it is.
         if (frame.RoomEarthquakeStopped)
-            requests.RunEarthquakeOn(WrappingCountdown.LongestStart);
+            requests.KeepEarthquakeGoing();
         return false;
     }
 }

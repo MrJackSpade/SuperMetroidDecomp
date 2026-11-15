@@ -22,7 +22,7 @@ internal static class CrocomireMeltFrameSelectionVerification
     internal static void VerifyCrocomireMeltFrameSelection()
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
-        var expected = new CrocomireMeltBandPicture?[CrocomireMeltingDefinitions.SecondPassBandCount];
+        var expected = new (CrocomireMeltingIllustration Pass, int Step)?[CrocomireMeltingDefinitions.SecondPassBandCount];
         int updates = 0;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
@@ -38,7 +38,7 @@ internal static class CrocomireMeltFrameSelectionVerification
                 fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
                 updates++;
                 if (update <= bands)
-                    expected[update - 1] = new CrocomireMeltBandPicture(pass, 0);
+                    expected[update - 1] = (pass, 0);
                 AssertEqual(update <= bands ? showing : showing.Next(), fixture.Actor.DeathPhase,
                     $"{pass} band update {update} phase");
                 AssertBands(fixture, expected, $"{pass} band update {update}");
@@ -54,7 +54,7 @@ internal static class CrocomireMeltFrameSelectionVerification
                 if (step < CrocomireMeltingDefinitions.ColumnCount)
                 {
                     step++;
-                    expected[(step - 1) % bands] = new CrocomireMeltBandPicture(pass, step);
+                    expected[(step - 1) % bands] = (pass, step);
                 }
                 AssertEqual(step, fixture.Effect.MeltColumnsErased, $"{pass} dissolve update {step} columns erased");
                 AssertBands(fixture, expected, $"{pass} dissolve update");
@@ -71,7 +71,7 @@ internal static class CrocomireMeltFrameSelectionVerification
     /// band its pass has not shown yet showing none (#1652).
     /// </summary>
     private static void AssertBands(EnemyEffectsFixtureVerification.CrocomireEffectFixture fixture,
-        CrocomireMeltBandPicture?[] expected, string context)
+        (CrocomireMeltingIllustration Pass, int Step)?[] expected, string context)
     {
         for (int band = 0; band < expected.Length; band++)
             AssertEqual(expected[band] is { } shown && shown.Pass == fixture.Effect.MeltPass ? shown.Step : 0, fixture.MeltBandStep(band),

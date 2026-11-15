@@ -40,7 +40,7 @@ internal static class EnemyEffectMechanicsVerification
         while (line < scrolls.Length && adjustedY < death.LowestDistortionSourceRow)
         {
             scrolls[line++] = unchecked((ushort)(placement + adjustedY - currentY));
-            fraction += death.DistortionStep;
+            fraction += checked((int)death.DistortionStep.RawValue);
             if (fraction < 65536) adjustedY++;
             else fraction -= 65536;
             currentY++;

@@ -244,18 +244,18 @@ internal static class MotherBrainNativeWords
     private const ushort LinkedPairWord = 0x8000;
 
     /// <summary>Decodes a Zebetite generation word, which the cartridge sets only to zero or its sign bit.</summary>
-    internal static ZebetiteGenerationFlags DecodeGenerationFlags(ushort word) => word switch
+    internal static ZebetiteBarrierForm DecodeBarrierForm(ushort word) => word switch
     {
-        0 => ZebetiteGenerationFlags.None,
-        LinkedPairWord => ZebetiteGenerationFlags.LinkedPair,
+        0 => ZebetiteBarrierForm.Single,
+        LinkedPairWord => ZebetiteBarrierForm.SplitPair,
         _ => throw new InvalidDataException($"${word:X4} is not a Zebetite generation word."),
     };
 
-    /// <summary>Encodes a Zebetite generation's flags as the cartridge's variable F word.</summary>
-    internal static ushort GenerationFlagsWord(ZebetiteGenerationFlags flags) => flags switch
+    /// <summary>Encodes a Zebetite generation's form as the cartridge's variable F word.</summary>
+    internal static ushort BarrierFormWord(ZebetiteBarrierForm form) => form switch
     {
-        ZebetiteGenerationFlags.None => 0,
-        ZebetiteGenerationFlags.LinkedPair => LinkedPairWord,
-        _ => throw new ArgumentOutOfRangeException(nameof(flags), flags, "Undefined Zebetite generation flags."),
+        ZebetiteBarrierForm.Single => 0,
+        ZebetiteBarrierForm.SplitPair => LinkedPairWord,
+        _ => throw new ArgumentOutOfRangeException(nameof(form), form, "Undefined Zebetite barrier form."),
     };
 }

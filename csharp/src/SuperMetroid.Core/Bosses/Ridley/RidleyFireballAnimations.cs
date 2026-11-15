@@ -1,41 +1,81 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Projectiles;
 using C = SuperMetroid.Core.Bosses.Ridley.RidleyFireballCue;
-using K = SuperMetroid.Core.Bosses.Ridley.RidleyFireballFrameKind;
 using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballSegment;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed fireball and afterburn animations (#641, #1600).</summary>
+/// <summary>
+/// Ridley's typed fireball and afterburn animations (#641, #1600, #2011), each beat the installed
+/// <see cref="EnemyProjectileFrameId"/> it shows.
+/// </summary>
 internal static class RidleyFireballAnimations
 {
-    /// <summary>Poses in the flight loop.</summary>
-    internal const int FlightPoseCount = 4;
-    /// <summary>Poses in each afterburn run.</summary>
-    internal const int AfterburnPoseCount = 5;
-
-    /// <summary>Each launch pose's dwell.</summary>
-    private const int LaunchDuration = 4;
-    /// <summary>Each flight pose's dwell.</summary>
-    private const int FlightDuration = 2;
-    /// <summary>Each afterburn pose's dwell.</summary>
-    private const int AfterburnDuration = 5;
-
-    /// <summary>Every fireball and afterburn segment's beats.</summary>
-    internal static AnimationSegments<RidleyFireballSegment, RidleyFireballFrame, RidleyFireballCue> Segments { get; } = new(
-        new Dictionary<RidleyFireballSegment, AnimationBeat<RidleyFireballFrame, RidleyFireballCue>[]>
+    /// <summary>
+    /// Every fireball and afterburn segment's beats: the fireball stops, shows its two four-update launch poses and starts
+    /// flying between them, then loops four two-update flight poses. Each afterburn run stops moving, shows five five-update
+    /// poses, raising the spawn of its next afterburns after the first, and deletes itself.
+    /// </summary>
+    internal static AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments { get; } = new(
+        new Dictionary<RidleyFireballSegment, AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>[]>
     {
         [P.Fireball] =
         [
             Cue(C.StopMoving),
-            Show(new(K.Launch, 0), LaunchDuration),
+            Show(EnemyProjectileFrameId.CeresRidleyLaunchFirst, 4),
             Cue(C.BeginFlight),
-            Show(new(K.Launch, 1), LaunchDuration),
+            Show(EnemyProjectileFrameId.CeresRidleyLaunchSecond, 4),
         ],
-        [P.FireballLoop] = [.. Enumerable.Range(0, FlightPoseCount).Select(phase => Show(new(K.Flight, phase), FlightDuration))],
-        [P.AfterburnFinal] = Afterburn(K.AfterburnFinal, spawn: null),
-        [P.HorizontalCenter] = Afterburn(K.HorizontalCenter, C.SpawnHorizontalAfterburns),
-        [P.VerticalCenter] = Afterburn(K.VerticalCenter, C.SpawnVerticalAfterburns),
-        [P.DirectionalAfterburn] = Afterburn(K.Directional, C.SpawnNextAfterburn),
+        [P.FireballLoop] =
+        [
+            Show(EnemyProjectileFrameId.CeresRidleyFlightFirst, 2),
+            Show(EnemyProjectileFrameId.CeresRidleyFlightSecond, 2),
+            Show(EnemyProjectileFrameId.CeresRidleyFlightThird, 2),
+            Show(EnemyProjectileFrameId.CeresRidleyFlightFourth, 2),
+        ],
+        [P.AfterburnFinal] =
+        [
+            Cue(C.StopMoving),
+            Show(EnemyProjectileFrameId.CeresRidleyAfterburnFinalFirst, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyAfterburnFinalSecond, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyAfterburnFinalThird, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyAfterburnFinalFourth, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyAfterburnFinalFifth, 5),
+            Cue(C.Delete),
+        ],
+        [P.HorizontalCenter] =
+        [
+            Cue(C.StopMoving),
+            Show(EnemyProjectileFrameId.CeresRidleyHorizontalCenterFirst, 5),
+            Cue(C.SpawnHorizontalAfterburns),
+            Show(EnemyProjectileFrameId.CeresRidleyHorizontalCenterSecond, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyHorizontalCenterThird, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyHorizontalCenterFourth, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyHorizontalCenterFifth, 5),
+            Cue(C.Delete),
+        ],
+        [P.VerticalCenter] =
+        [
+            Cue(C.StopMoving),
+            Show(EnemyProjectileFrameId.CeresRidleyVerticalCenterFirst, 5),
+            Cue(C.SpawnVerticalAfterburns),
+            Show(EnemyProjectileFrameId.CeresRidleyVerticalCenterSecond, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyVerticalCenterThird, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyVerticalCenterFourth, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyVerticalCenterFifth, 5),
+            Cue(C.Delete),
+        ],
+        [P.DirectionalAfterburn] =
+        [
+            Cue(C.StopMoving),
+            Show(EnemyProjectileFrameId.CeresRidleyDirectionalFirst, 5),
+            Cue(C.SpawnNextAfterburn),
+            Show(EnemyProjectileFrameId.CeresRidleyDirectionalSecond, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyDirectionalThird, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyDirectionalFourth, 5),
+            Show(EnemyProjectileFrameId.CeresRidleyDirectionalFifth, 5),
+            Cue(C.Delete),
+        ],
     });
 
     /// <summary>
@@ -59,28 +99,11 @@ internal static class RidleyFireballAnimations
     /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
     private static AnimationPhase<RidleyFireballSegment> Whole(RidleyFireballSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>
-    /// An afterburn run: it stops moving, shows five poses (raising <paramref name="spawn"/> after the first, when it has
-    /// one) and deletes itself.
-    /// </summary>
-    private static AnimationBeat<RidleyFireballFrame, RidleyFireballCue>[] Afterburn(K kind, C? spawn)
-    {
-        var beats = new List<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>> { Cue(C.StopMoving) };
-        for (int phase = 0; phase < AfterburnPoseCount; phase++)
-        {
-            beats.Add(Show(new(kind, phase), AfterburnDuration));
-            if (phase == 0 && spawn is { } cue)
-                beats.Add(Cue(cue));
-        }
-        beats.Add(Cue(C.Delete));
-        return [.. beats];
-    }
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Show(RidleyFireballFrame frame, int duration) =>
-        new AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Show(EnemyProjectileFrameId frame, int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame(frame, duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Cue(RidleyFireballCue cue) =>
-        new AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Cue(RidleyFireballCue cue) =>
+        new AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Event(cue);
 }

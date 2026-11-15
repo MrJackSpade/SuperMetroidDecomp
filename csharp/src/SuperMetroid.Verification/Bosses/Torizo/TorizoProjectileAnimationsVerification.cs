@@ -128,19 +128,19 @@ internal static class TorizoProjectileAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int steps = NativeEnemyProjectileProgramOracle.CompareByEntry(cartridge, ProjectileLists, ProjectileAnimationEntries,
             TorizoProjectileAnimations.Segments, TorizoProjectileAnimations.StartingAt,
-            frame => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame]), CueRules);
+            EnemyProjectileProgramFrameSources.Operand, CueRules);
 
         int frames = 0;
         foreach (TorizoProjectileFamily family in Enum.GetValues<TorizoProjectileFamily>())
         {
-            IReadOnlyList<TorizoProjectileFrame> installed = TorizoProjectileVisualDefinitions.Frames(family);
+            IReadOnlyList<EnemyProjectileFrameId> installed = TorizoProjectileAnimations.InstalledFrames(family);
             var shown = Enum.GetValues<TorizoProjectileSegment>()
                 .Where(animation => TorizoProjectileAnimationsConstants.Family(animation) == family)
                 .SelectMany(animation => TorizoProjectileAnimations.Segments.Beats(animation))
-                .OfType<AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame>()
+                .OfType<AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Frame>()
                 .Select(frame => frame.Shown).ToHashSet();
             AssertTrue(shown.SetEquals(installed), $"the {family} animations show exactly the installed frames");
-            ushort[] keys = [.. installed.Select((frame => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame])))];
+            ushort[] keys = [.. installed.Select(EnemyProjectileProgramFrameSources.Operand)];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");
             frames += installed.Count;
         }

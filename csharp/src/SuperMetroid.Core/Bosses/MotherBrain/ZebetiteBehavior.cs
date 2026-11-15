@@ -109,10 +109,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
-        state.GenerationFlags = definition.GenerationFlags;
-        slot.Radius = slot.Radius.WithY(definition.YRadius);
-        state.Playback = ZebetiteAnimations.Starting(definition.Animation);
-        slot.Position = slot.Position.WithWholeX(definition.XPosition);
+        state.Form = definition.Form;
+        slot.Radius = slot.Radius.WithY(definition.HalfHeight);
+        // A new barrier shows its form's unhurt tier.
+        state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(definition.Form, ZebetiteMaximumHealth));
+        slot.Position = slot.Position.WithWholeX(definition.X);
         slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
 
@@ -142,7 +143,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates a linked half when this generation requires one, then enters the door-transition wait.</summary>
     private void RunZebetiteSpawnLinkedHalf(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None)
+        if (state.Form == ZebetiteBarrierForm.SplitPair)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
             secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = slot;
@@ -212,8 +213,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ZebetiteEnemyState state)
     {
         state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(
-            linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None,
-            slot.Health));
+            state.Form, slot.Health));
         slot.AnimationClock.Restart();
     }
 

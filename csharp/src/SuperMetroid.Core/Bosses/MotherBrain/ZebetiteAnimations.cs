@@ -49,12 +49,12 @@ internal static class ZebetiteAnimations
     /// The animation for a barrier's form and health: large or split, then one tier for each 200 health below 1000,
     /// the last covering everything under 200.
     /// </summary>
-    internal static ZebetiteSegment HealthAnimation(bool linkedPair, int health)
+    internal static ZebetiteSegment HealthAnimation(ZebetiteBarrierForm form, int health)
     {
         int tier = health < 200 ? 4 :
             health < 400 ? 3 :
             health < 600 ? 2 :
             health < 800 ? 1 : 0;
-        return (linkedPair ? SplitTiers : LargeTiers)[tier];
+        return (form == ZebetiteBarrierForm.SplitPair ? SplitTiers : LargeTiers)[tier];
     }
 }

@@ -39,8 +39,6 @@ internal static class SporeSpawnAnimationsVerification
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Spore Spawn body entries ascend");
         var body = BodyLists(cartridge);
         int updates = VerifyProjectilePrograms(rom);
-        AssertEqual(SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount, SporeSpawnProjectileVisualDefinitions.ProjectileFrames.Count,
-            "the projectile catalog lists every frame");
         Console.WriteLine($"  Spore Spawn animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats) match bank $A5, " +
             $"and {ProjectileEntries.Length} projectile programs match bank $86 over {updates} updates.");
     }

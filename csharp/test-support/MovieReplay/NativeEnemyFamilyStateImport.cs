@@ -342,7 +342,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             zebetiteRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteActions.Decode(words.A, "recorded ZebetiteAction");
             zebetiteRecord.Generation = words.D;
-            zebetiteRecord.GenerationFlags = MotherBrainNativeWords.DecodeGenerationFlags(words.F);
+            zebetiteRecord.Form = MotherBrainNativeWords.DecodeBarrierForm(words.F);
         }
         // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (slot.SlotIndex == 0)

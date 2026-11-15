@@ -231,7 +231,7 @@ internal sealed class KraidDeath
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
             state.DeathSoundTimer = 30;
         }
-        ProcessKraidSinkTable(body);
+        TakeKraidSinkStep(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 608) < 0)
             return;
@@ -259,7 +259,7 @@ internal sealed class KraidDeath
 
         // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
         // pickup gets a random position in Kraid's 256x64 floor strip and independently
-        // rolls Kraid's six-entry chance table.
+        // rolls Kraid's drop chances.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Kraid,
             count: 16,
@@ -271,8 +271,8 @@ internal sealed class KraidDeath
         _presentation.FadeStepCount.Reset();
     }
 
-    /// <summary>Consumes sink-table entries as the body descends.</summary>
-    internal void ProcessKraidSinkTable(RoomEnemySlot body)
+    /// <summary>Takes the sink step the body has reached as it descends, if any: its ceiling block goes and a rock falls from it.</summary>
+    internal void TakeKraidSinkStep(RoomEnemySlot body)
     {
         if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is not KraidSinkStep step)
             return;

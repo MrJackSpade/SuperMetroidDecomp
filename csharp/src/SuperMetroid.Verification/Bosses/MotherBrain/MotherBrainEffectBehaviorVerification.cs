@@ -152,7 +152,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 AssertEqual((ushort)referenceTimer, handBeam.FrameHold.RawValue, $"hand-beam frame {frame} keeps the native remaining duration");
                 observedOperands.Add(handBeam.PresentationOperandAddress);
             }
-            AssertEqual(MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
+            AssertEqual(MotherBrainHandBeamAnimations.ProjectileFrames.Count,
                 observedOperands.Count, "hand-beam selects all 21 installed visual operands");
             AssertTrue(handBeam.IsActive, "hand-beam charge survives all three 13-frame stages");
             AssertEqual(3, handBeamEnemies.Projectiles.EnemyProjectiles.Count(

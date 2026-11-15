@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -140,7 +141,7 @@ internal static class BossBodySheetComposer
     {
         var selected = new Dictionary<ArtworkAnimation, ArtworkFrame>();
         for (int band = 0; band < CrocomireMelting.BandCount(image); band++)
-            selected.Add(CrocomireMelting.MeltBandAnimation(band), CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(image, 0), band));
+            selected.Add(CrocomireMeltBands.Animation(band), CrocomireMeltBands.Undissolved(image, band));
         BossBodyFrameSource source = BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image),
             BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image));
         return [source with { Selected = selected, Dissolving = DissolvingCells(source, image) }];

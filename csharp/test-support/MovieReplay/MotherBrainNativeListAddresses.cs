@@ -397,14 +397,14 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Each glass program's native list in bank $86.</summary>
     internal static readonly Dictionary<MotherBrainGlassSegment, ushort> GlassEntries = new()
     {
-        [MotherBrainGlassSegment.ShardGroup0] = 0xcc93,
-        [MotherBrainGlassSegment.ShardGroup1] = 0xccb7,
-        [MotherBrainGlassSegment.ShardGroup2] = 0xccdb,
-        [MotherBrainGlassSegment.ShardGroup3] = 0xccff,
-        [MotherBrainGlassSegment.ShardGroup4] = 0xcd23,
-        [MotherBrainGlassSegment.ShardGroup5] = 0xcd47,
-        [MotherBrainGlassSegment.ShardGroup6] = 0xcd6b,
-        [MotherBrainGlassSegment.ShardGroup7] = 0xcd8f,
+        [MotherBrainGlassSegment.ShardFlyingUp] = 0xcc93,
+        [MotherBrainGlassSegment.ShardFlyingUpRight] = 0xccb7,
+        [MotherBrainGlassSegment.ShardFlyingRight] = 0xccdb,
+        [MotherBrainGlassSegment.ShardFlyingDownRight] = 0xccff,
+        [MotherBrainGlassSegment.ShardFlyingDown] = 0xcd23,
+        [MotherBrainGlassSegment.ShardFlyingDownLeft] = 0xcd47,
+        [MotherBrainGlassSegment.ShardFlyingLeft] = 0xcd6b,
+        [MotherBrainGlassSegment.ShardFlyingUpLeft] = 0xcd8f,
         [MotherBrainGlassSegment.Sparkle] = 0xcdb3,
     };
 

@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Fx;
 /// <remarks>
 /// A producer gives the earthquake a shake and a length (<see cref="Start"/>), runs it on with the shake it already has
 /// (<see cref="RunFor"/>), changes its shake without touching its length (<see cref="ChangeShake"/>), sustains it
-/// (<see cref="Sustain"/>) or keeps it going indefinitely (<see cref="KeepShaking"/>). The shake and its length are
+/// (<see cref="Sustain"/>), starts a shake that lasts until another producer gives it a length (<see cref="ShakeIndefinitely"/>)
+/// or keeps it going indefinitely (<see cref="KeepShaking"/>). The shake and its length are
 /// separate: a later producer may replace either while the other runs on, so a room shaken by a Super Missile between
 /// Kraid's rise setup and his rise shakes with the missile's shake for the length of the rise.
 /// </remarks>
@@ -102,6 +103,18 @@ internal sealed class RoomEarthquake
     {
         Shake = shake;
         _remaining = _remaining.Sustained(RoomEarthquakeDefinitions.SustainedShakeFrames);
+    }
+
+    /// <summary>
+    /// Shakes the room with <paramref name="shake"/> until a producer gives the earthquake a length (#2013): the Zebes
+    /// escape's room quakes and Mother Brain's escape rumble. The sides alternate from the start of a whole alternation,
+    /// the far side first, as those quakes have always shown it.
+    /// </summary>
+    internal void ShakeIndefinitely(EarthquakeShake shake)
+    {
+        Shake = shake;
+        _remaining = default;
+        _continuousAlternation = AlternationFrames - 1;
     }
 
     /// <summary>

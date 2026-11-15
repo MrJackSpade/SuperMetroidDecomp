@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingMutationDefini
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spawns Spore Spawn's 2x2 ceiling room object in the room's shared room-object slots.</summary>
-/// <param name="places">The room's room-object slots, which the ceiling contends for with every other room object.</param>
+/// <summary>Spawns Spore Spawn's 2x2 ceiling room object in the room's shared room-object places.</summary>
+/// <param name="places">The room's room-object places, which the ceiling contends for with every other room object.</param>
 internal sealed class SporeSpawnCeilingObjects(RoomObjectPlaceList places)
 {
     /// <summary>

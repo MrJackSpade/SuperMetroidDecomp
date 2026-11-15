@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.Botwoon.BotwoonWallMutationDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Spawns Botwoon's wall room object in the room's shared room-object slots.</summary>
-/// <param name="places">The room's room-object slots, which the wall contends for with every other room object.</param>
+/// <summary>Spawns Botwoon's wall room object in the room's shared room-object places.</summary>
+/// <param name="places">The room's room-object places, which the wall contends for with every other room object.</param>
 internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
 {
     /// <summary>

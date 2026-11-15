@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Fx;
@@ -237,7 +238,7 @@ internal static class RoomBlockUploads
             byte[] image = artwork.Characters(illustration).ToArray();
             for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
             {
-                yield return AnimatedCharacterPlacement.Of(CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(illustration, 0), band),
+                yield return AnimatedCharacterPlacement.Of(CrocomireMeltBands.Undissolved(illustration, band),
                     BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band), CrocomireMeltDissolve.BandCharacters(image, band));
             }
         }

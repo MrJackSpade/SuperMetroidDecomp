@@ -92,7 +92,7 @@ internal sealed class CrocomireMelting
         _ = RequireCrocomireMeltingImage(pass);
         _bodyLayer.LevelCrocomireMeltDistortion();
         state.DeathPhase = state.DeathPhase.Next();
-        death.DistortionStep = 256;
+        death.DistortionStep = CrocomireMeltingDefinitions.FirstDistortionSlope;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
         death.DistortionSourceRow = death.LowestDistortionSourceRow;
         death.MeltPass = pass;
@@ -132,20 +132,6 @@ internal sealed class CrocomireMelting
     /// </summary>
     private static void ShowMeltBand(CrocomireDeathState death, int band) => death.MeltBandSteps[band] = death.MeltColumnsErased;
 
-    /// <summary>The animation band <paramref name="band"/> of the melt image is, whose frames are its pictures (#1406).</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
-    internal static ArtworkAnimation MeltBandAnimation(int band) =>
-        (uint)band < CrocomireMeltingDefinitions.SecondPassBandCount ? new($"Crocomire melt band {band}")
-            : throw new ArgumentOutOfRangeException(nameof(band), band, "Crocomire's melt images have no such band.");
-
-    /// <summary>
-    /// The frame of <paramref name="band"/>'s animation that shows <paramref name="picture"/>, which the extraction pictures
-    /// for each band (#1392, #1406).
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
-    internal static ArtworkFrame MeltBandFrame(CrocomireMeltBandPicture picture, int band) =>
-        new(MeltBandAnimation(band), $"{picture.Pass} step {picture.Step}");
-
     /// <summary>Starts Crocomire's dissolve once his melt image shows.</summary>
     internal void BeginCrocomireMelting(CrocomireEnemyState state)
     {
@@ -173,7 +159,7 @@ internal sealed class CrocomireMelting
         int nextAdjustedY = death.DistortionSourceRow - 3;
         if (death.DistortionSourceRow < 19)
         {
-            if (death.DistortionStep >= CrocomireBehavior.MaximumCrocomireDistortionStep)
+            if (!death.DistortionStep.IsSlowerThan(CrocomireMeltingDefinitions.SteepestDistortionSlope))
             {
                 CompleteCrocomireMeltingDissolve(state);
                 return;
@@ -181,9 +167,10 @@ internal sealed class CrocomireMelting
             nextAdjustedY = 16;
         }
         death.DistortionSourceRow = nextAdjustedY;
-        death.DistortionStep = Math.Min(
-            death.DistortionStep + 384,
-            CrocomireBehavior.MaximumCrocomireDistortionStep);
+        UnsignedSixteenSixteen steeper = death.DistortionStep + CrocomireMeltingDefinitions.DistortionSlopeGrowth;
+        death.DistortionStep = steeper.IsSlowerThan(CrocomireMeltingDefinitions.SteepestDistortionSlope)
+            ? steeper
+            : CrocomireMeltingDefinitions.SteepestDistortionSlope;
         StretchCrocomireMeltDistortion(state, death);
     }
 
@@ -227,10 +214,11 @@ internal sealed class CrocomireMelting
         // The source row rises a whole row less the slope's fraction each line, so it first reaches the lowest row on the
         // line after its rise passes one row short of it.
         int row = SixteenSixteen.FromWhole(1);
-        int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - death.DistortionStep) + 1;
+        int slope = checked((int)death.DistortionStep.RawValue);
+        int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - slope) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
         death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, _bodyLayer.BodyOrigin.Y,
-            ScreenLine(firstLine), ScreenLine(endLine), death.DistortionStep);
+            ScreenLine(firstLine), ScreenLine(endLine), slope);
 
         // The distortion's lines start at the first gameplay line; those below the screen are never shown.
         static int ScreenLine(int distortionLine) =>

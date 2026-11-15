@@ -178,7 +178,7 @@ internal static class RidleyNativeProgramOracle
     /// </summary>
     private static NativeEnemyList<RidleyFireballSegment> ReadFireballList(IImportCartridgeSource cartridge, RidleyFireballSegment segment, ushort entry)
     {
-        IReadOnlyList<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>> beats = RidleyFireballAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>> beats = RidleyFireballAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<RidleyFireballSegment>>();
         ushort cursor = entry;
@@ -196,9 +196,9 @@ internal static class RidleyNativeProgramOracle
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var show = VerificationAssertions.AssertIs<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                var show = VerificationAssertions.AssertIs<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame>(Beat(beat, at), $"{at}: frame");
                 VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[show.Shown]), $"{at}: presentation key");
+                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(show.Shown), $"{at}: presentation key");
                 addresses.Add(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -323,11 +323,11 @@ internal static class RidleyNativeProgramOracle
             return new NativeEnemyList<RidleyFireballSegment>([.. addresses], [.. controls]);
         }
 
-        AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Beat(int beat, string at) => beat < beats.Count
+        AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue> Beat(int beat, string at) => beat < beats.Count
             ? beats[beat]
             : throw new InvalidDataException($"{at}: the native list holds more beats than Ridley fireball {segment}.");
 
         RidleyFireballCue Raised(int beat, string at) =>
-            VerificationAssertions.AssertIs<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>.Event>(Beat(beat, at), $"{at}: event").Raised;
+            VerificationAssertions.AssertIs<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Event>(Beat(beat, at), $"{at}: event").Raised;
     }
 }

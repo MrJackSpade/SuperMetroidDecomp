@@ -101,6 +101,21 @@ internal static class RoomShakeDefinitionsVerification
         enemies.Earthquake.Start(light, 30);
         AssertTrue(enemies.Earthquake.IsShakingWith(light, 30), "a producer's start ends the continuous shake");
 
+        // An indefinite shake, the escape's quakes (#2013), shows from its first frame the sides the escape's quakes showed
+        // when they started for the longest length a countdown holds, and never stops.
+        enemies.Earthquake.ShakeIndefinitely(light);
+        for (int frame = 0; frame < 12; frame++)
+        {
+            RoomShakeFrameResult indefinite = enemies.HandleRoomShaking(timeIsFrozen: false);
+            int framesLeft = SuperMetroid.Core.Compatibility.WrappingCountdown.LongestStart - frame;
+            bool farSide = framesLeft / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
+            AssertEqual(farSide ? -lightDefinition.Foreground : lightDefinition.Foreground, indefinite.Foreground,
+                $"an indefinite shake alternates its sides as the escape's longest quake did at frame {frame}");
+            AssertTrue(enemies.Earthquake.IsShaking, $"an indefinite shake keeps shaking at frame {frame}");
+        }
+        enemies.Earthquake.Start(light, 30);
+        AssertTrue(enemies.Earthquake.IsShakingWith(light, 30), "a producer's start ends the indefinite shake");
+
         var unshaken = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // A room no producer has shaken runs on with the shake a new game starts with (#1594).
         unshaken.Earthquake.RunFor(4);

@@ -299,7 +299,7 @@ internal sealed class CrocomireSkeleton
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
                 _combat.Debris,
                 graphics);
-            projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.SpikeWallPiece));
+            projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece));
             int piece = CrocomireSpikeMotionDefinitions.PieceCount - 1 - count;
             projectile.Position = projectile.Position.WithWhole(new(528, 56 + piece * 16));
             projectile.Velocity = EightEightVector<RoomPixels>.Zero;

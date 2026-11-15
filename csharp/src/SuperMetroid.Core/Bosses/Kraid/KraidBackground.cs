@@ -71,9 +71,8 @@ internal sealed class KraidBackground
         rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
         rock.Velocity = rock.Velocity.WithX(SignedEightEight.Zero);
-        rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            KraidRandomDefinitions.CeilingRockFallSpeedSpread.Of(_access.ReadKraidRandomNumber()) +
-            KraidRandomDefinitions.CeilingRockFallSpeedBase));
+        rock.Velocity = rock.Velocity.WithY(KraidRandomDefinitions.CeilingRockSlowestFall +
+            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(KraidRandomDefinitions.CeilingRockFallSpeedSpread.Of(_access.ReadKraidRandomNumber())));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
     }
 }

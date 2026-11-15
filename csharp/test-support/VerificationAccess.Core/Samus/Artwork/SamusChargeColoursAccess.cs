@@ -13,6 +13,6 @@ internal static class SamusChargeColoursAccess
         /// <summary>Selects the appropriate charge sequence, suit by its list place, phase, and color.</summary>
         internal RgbColor ResolveCharge(bool pseudo, int suit, int phase, int color) =>
             self.Resolve(new SamusChargeShade(pseudo ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam,
-                SamusSuits.AtListPlace(suit), phase), color);
+                SamusSuitListLayout.AtPlace(suit), phase), color);
     }
 }

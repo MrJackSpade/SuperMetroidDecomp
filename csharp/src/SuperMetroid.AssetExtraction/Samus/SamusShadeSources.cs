@@ -109,7 +109,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
             {
                 shades.Add(Suit(SamusShades.DeathSuit(suit, shown),
-                    Colours(colour => Death.SuitedColor(suit.ListPlace(), shown, colour))));
+                    Colours(colour => Death.SuitedColor(SamusSuitListLayout.Place(suit), shown, colour))));
             }
             shades.Add(SheetShade.Run(SamusShades.DeathSuitless(shown), SamusSheetInks.Suitless,
                 Colours(colour => Death.SuitlessColor(shown, colour))));

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Colours;
 
-/// <summary>Which suit Samus shows, and where a suit's entries lie in her per-suit colour lists.</summary>
+/// <summary>Which suit Samus shows.</summary>
 public static class SamusSuits
 {
     /// <summary>
@@ -16,21 +16,4 @@ public static class SamusSuits
         return equippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? SamusSuit.Varia : SamusSuit.Power;
     }
 
-    /// <summary>
-    /// The place of <paramref name="suit"/>'s entries among the per-suit lists, in
-    /// <see cref="SamusSuitDefinitions.ListOrder"/>.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="suit"/> is not one of Samus's suits.</exception>
-    public static int ListPlace(this SamusSuit suit)
-    {
-        int place = SamusSuitDefinitions.ListOrder.IndexOf(suit);
-        return place >= 0 ? place : throw new ArgumentOutOfRangeException(nameof(suit), suit, "Samus has no such suit.");
-    }
-
-    /// <summary>The suit whose entries lie at <paramref name="place"/> among the per-suit lists.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="place"/> is past the last suit's entries.</exception>
-    public static SamusSuit AtListPlace(int place) =>
-        (uint)place < (uint)SamusSuitDefinitions.ListOrder.Length
-            ? SamusSuitDefinitions.ListOrder[place]
-            : throw new ArgumentOutOfRangeException(nameof(place), place, "No suit's entries lie there.");
 }

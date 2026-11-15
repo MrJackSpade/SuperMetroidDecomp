@@ -40,7 +40,7 @@ public sealed class InstalledSamusFullBodyCycleColors
     {
         var shown = new Dictionary<SamusFullBodyCycleShade, ImmutableArray<RgbColor>>();
         foreach (SamusFullBodyCycleFamily family in Enum.GetValues<SamusFullBodyCycleFamily>())
-        foreach (SamusSuit suit in SamusSuitDefinitions.ListOrder)
+        foreach (SamusSuit suit in SamusSuitListLayout.Order)
         for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
         {
             var palette = new SamusFullBodyCycleShade(family, suit, shade);

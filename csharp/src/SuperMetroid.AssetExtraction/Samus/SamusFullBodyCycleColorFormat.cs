@@ -35,7 +35,7 @@ public static class SamusFullBodyCycleColorFormat
             SamusFullBodyCycleFamily.ScrewAttack => 3,
             _ => throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette family {palette.Family}."),
         };
-        return palette.Suit.ListPlace() * (PaletteCount / SuitCount) + family * ShadesPerSuit + palette.Shade;
+        return SamusSuitListLayout.Place(palette.Suit) * (PaletteCount / SuitCount) + family * ShadesPerSuit + palette.Shade;
     }
 
 }

@@ -262,7 +262,8 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile firstShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
-            projectile.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileSegment.ShardDownOutward });
+            projectile.Animation is NoobTubeProjectileAnimation first
+            && ReferenceEquals(first.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]));
         AssertEqual(0x0048, firstShard.StateOf<NoobTubeDebrisState>().X.Whole,
             "first shard keeps its signed X origin as its own column");
         AssertEqual(0x0058, firstShard.Position.Y.Whole,
@@ -274,7 +275,8 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile lastShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
-            projectile.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileSegment.ShardDownInner });
+            projectile.Animation is NoobTubeProjectileAnimation last
+            && ReferenceEquals(last.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownInner]));
         AssertEqual(0x0078, lastShard.StateOf<NoobTubeDebrisState>().X.Whole,
             "last shard uses final signed X offset");
         AssertEqual(0x0060, lastShard.Position.Y.Whole,

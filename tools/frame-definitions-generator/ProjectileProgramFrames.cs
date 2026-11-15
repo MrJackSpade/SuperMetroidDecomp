@@ -163,6 +163,11 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         ExpressionSyntax startInitializer = CoreModel.InitializerOf(startingAt);
         AssignmentExpressionSyntax[] segmentEntries = [.. segmentInitializers.SelectMany(initializer => KeyedEntries(initializer, segmentType))];
         AssignmentExpressionSyntax[] startEntries = [.. KeyedEntries(startInitializer, segmentType)];
+        // The animations its owners start by their own identity rather than at a segment (#2044: each n00b-tube shard's,
+        // keyed by the shard) are starts as well, named by their key's type and member.
+        (ExpressionSyntax Initializer, INamedTypeSymbol Key)[] ownerKeyed = [.. OwnerKeyedAnimations(startingAt, segmentType)];
+        (AssignmentExpressionSyntax Entry, string Name)[] ownerEntries = [.. ownerKeyed.SelectMany(owned =>
+            KeyedEntries(owned.Initializer, owned.Key).Select(entry => (entry, $"{owned.Key.Name}.{KeyOf(entry)}")))];
         (ISymbol? table, bool indexedByPose) = direct ? (null, false) : TableOf(family);
         // The programs choose the frames only when each segment and animation is an authored [Segment] = ... entry of a
         // named segment, and each beat names the projectile frame it shows or constructs the pose it presents (#1513). A
@@ -188,6 +193,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             Add(AnimationNode.Segment(KeyOf(entry)), entry);
         foreach (AssignmentExpressionSyntax entry in startEntries)
             Add(AnimationNode.Start(KeyOf(entry)), entry);
+        foreach ((AssignmentExpressionSyntax entry, string name) in ownerEntries)
+            Add(AnimationNode.Start(name), entry);
         // An object's own cues can start it, or more of its family, in other programs (an afterburn spawning the next), so
         // whatever its cue handlers start is among the programs every start of the family runs: on the object itself, or on
         // one it spawns, which draws where the object does. One it spawns with the room's graphics draws from the room's
@@ -196,6 +203,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         // names segments only as parts of the poses it looks up (Kraid's rocks), which starts nothing. The runs of steps
         // segments share are part of the segments.
         var excluded = new List<SyntaxNode>(segmentInitializers) { startInitializer };
+        excluded.AddRange(ownerKeyed.Select(owned => owned.Initializer));
         excluded.AddRange(SharedRunsIn(segmentInitializers));
         if (table is not null)
             excluded.Add(CoreModel.InitializerOf(table));
@@ -237,6 +245,30 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 direct, helpers, depth: 0);
             if (!nodes.TryAdd(node, items))
                 throw new InvalidDataException($"{family.ToDisplayString()} lists {(node.IsStart ? "the animation starting at" : "segment")} {node.Name} twice.");
+        }
+    }
+
+    /// <summary>
+    /// The initializers of the dictionaries of a family's animations its owners start by their own identity (#2044): each
+    /// other static property or field the type declaring <paramref name="startingAt"/> declares whose value maps an enum
+    /// other than <paramref name="segmentType"/> to animations over it, with that enum.
+    /// </summary>
+    private IEnumerable<(ExpressionSyntax Initializer, INamedTypeSymbol Key)> OwnerKeyedAnimations(ISymbol startingAt, INamedTypeSymbol segmentType)
+    {
+        foreach (ISymbol member in startingAt.ContainingType.GetMembers())
+        {
+            ITypeSymbol? type = member switch
+            {
+                IPropertySymbol { IsStatic: true } property => property.Type,
+                // A property's backing field is the property's, read through it.
+                IFieldSymbol { IsStatic: true, IsImplicitlyDeclared: false } field => field.Type,
+                _ => null,
+            };
+            if (SymbolEqualityComparer.Default.Equals(member, startingAt)
+                || type is not INamedTypeSymbol { TypeArguments: [INamedTypeSymbol { TypeKind: TypeKind.Enum } key, INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }] }
+                || SymbolEqualityComparer.Default.Equals(key, segmentType) || !SymbolEqualityComparer.Default.Equals(played, segmentType))
+                continue;
+            yield return (CoreModel.InitializerOf(member), key);
         }
     }
 
@@ -688,10 +720,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// </summary>
     public IReadOnlyList<ExpressionSyntax> AnimationData(INamedTypeSymbol family)
     {
-        if (model.ProgramTypeOf(family) is null || ReadableNamedBy(family, "Segments") is not { } segments || ReadableNamedBy(family, "StartingAt") is not { } startingAt)
+        if (model.ProgramTypeOf(family) is not { } programType || ReadableNamedBy(family, "Segments") is not { } segments
+            || ReadableNamedBy(family, "StartingAt") is not { } startingAt)
             return [];
         List<ExpressionSyntax> initializers = model.InitializersWithSpreads(segments);
-        return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt)];
+        return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt),
+            .. OwnerKeyedAnimations(startingAt, programType).Select(owned => owned.Initializer)];
     }
 
     /// <summary>

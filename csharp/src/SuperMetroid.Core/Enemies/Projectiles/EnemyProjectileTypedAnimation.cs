@@ -30,7 +30,7 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     /// at; otherwise the segment its playing phase plays, the one its next play shows a frame of, or rests in.
     /// </summary>
     internal TSegment PlayingSegment => Playback.Place == AnimationPlace.StartOfAnimation || Playback.Animation.Phases.Count == 0
-        ? StartingAt.Single(pair => ReferenceEquals(pair.Value, Playback.Animation)).Key
+        ? SegmentStartedAt(Playback.Animation)
         : Playback.Animation.Phases[Playback.Place.Phase].Segment;
 
     /// <summary>The family's segments.</summary>
@@ -38,6 +38,13 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
 
     /// <summary>The family's animations, by the segment each starts at.</summary>
     private protected abstract IReadOnlyDictionary<TSegment, Animation<TSegment>> StartingAt { get; }
+
+    /// <summary>
+    /// The segment <paramref name="started"/>, one of the family's animations, starts at: its key in <see cref="StartingAt"/>.
+    /// A family whose owners start some animations by their own identity (the n00b tube's shards, #2044) names theirs.
+    /// </summary>
+    private protected virtual TSegment SegmentStartedAt(Animation<TSegment> started) =>
+        StartingAt.Single(pair => ReferenceEquals(pair.Value, started)).Key;
 
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);

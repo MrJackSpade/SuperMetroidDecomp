@@ -205,21 +205,21 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         ILitTorizo? litTorizo,
         IGlowingEnemy? glowingEnemy)
     {
-        ColourEffectDefinition definition = ColourEffectSelection.Get(effect);
-        ColourEffectAnimation animation;
+        ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
+        SuperMetroid.Core.Animation.Animation<ColourEffectId> animation;
         switch (definition.Start)
         {
             case ColourEffectStart.Plain:
-                animation = definition.InitialAnimation;
+                animation = definition.Animation;
                 break;
             case ColourEffectStart.ChoosesHeatAnimationForSuit:
                 // The heat shimmer chooses its whole animation from the same live suit Samus wears; Gravity before Varia.
-                animation = ColourEffectHeatAnimations.Start(ColourEffectHeatAnimations.SuitFor(equippedItems));
+                animation = ColourEffectHeatAnimations.Shimmer(ColourEffectHeatAnimations.SuitFor(equippedItems));
                 break;
             case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
                 if (areaMiniBossDefeated)
                     return false;
-                animation = definition.InitialAnimation;
+                animation = definition.Animation;
                 break;
             default:
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
@@ -229,11 +229,14 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         return true;
     }
 
-    /// <summary>Checks the condition <paramref name="effect"/> watches, before its countdown runs.</summary>
+    /// <summary>
+    /// Checks the condition <paramref name="effect"/> watches, before its countdown runs: from the update after its first
+    /// frame (<see cref="RoomColourEffect.WatchedCondition"/>).
+    /// </summary>
     /// <exception cref="InvalidOperationException">The effect watches a condition of no defined kind.</exception>
     private void CheckCondition(RoomColourEffect effect, ColourEffectInputs conditions)
     {
-        switch (effect.Condition)
+        switch (effect.WatchedCondition)
         {
             case null:
                 return;
@@ -294,7 +297,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>Carries out a step of <paramref name="effect"/>'s animation that reaches beyond it: a heat phase or a sound.</summary>
     /// <exception cref="InvalidDataException">A sound step names no sound.</exception>
-    /// <exception cref="InvalidOperationException">The step is of a kind the effect keeps itself, or of no defined kind.</exception>
+    /// <exception cref="InvalidOperationException">The step is of no defined kind.</exception>
     private void CarryOut(RoomColourEffect effect, ColourEffectCue cue)
     {
         switch (cue)
@@ -309,19 +312,15 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                     ColourEffectSoundPriorities.CueSound);
                 return;
             default:
-                throw new InvalidOperationException($"Colour effect {effect.Effect} handed on step {cue}, which it keeps itself.");
+                throw new InvalidOperationException($"Colour effect {effect.Effect} raised undefined step {cue}.");
         }
     }
 
-    /// <summary>
-    /// Checks one frame a frontend screen's effect shows (#1512). An animation names its colours before its first frame, so a
-    /// frame shown before that is a defect in the animation.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The frame is shown before its colours are named, or in colours no screen shows.</exception>
+    /// <summary>Checks one frame a frontend screen's effect shows (#1512): its colours must be a screen's.</summary>
+    /// <exception cref="InvalidOperationException">The frame is shown in colours no screen shows.</exception>
     private static void ShowScreenFrame(RoomColourEffect effect, ColourEffectFrame frame)
     {
-        ColourEffectColours animated = effect.Colours ?? throw new InvalidOperationException(
-            $"Colour effect {effect.Effect} showed {frame} before its animation named the colours it animates.");
+        ColourEffectColours animated = effect.Colours;
         if (!ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
             throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no frontend screen shows.");
     }
@@ -366,7 +365,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     internal IReadOnlyList<ShownColourEffectFrame> Shown => ShownFrames();
 
     /// <summary>Whether a running effect animates <paramref name="colours"/> (#1597).</summary>
-    internal bool Animates(ColourEffectColours colours) => effects.Exists(effect => !effect.Ended && effect.Colours == colours);
+    internal bool Animates(ColourEffectColours colours) => effects.Exists(effect => effect.AnimatesColours && effect.Colours == colours);
 
     /// <summary>
     /// Lays the shade of each look the room's colour groups show now over the room's pictures (#1512, #1597), in the order
@@ -392,13 +391,13 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         var shown = new List<ShownColourEffectFrame>(settled.Count + effects.Count);
         foreach (RoomColourEffect effect in settled)
         {
-            if (effect.Colours is { } colours && effect.Frame is { } frame)
-                shown.Add(new ShownColourEffectFrame(colours, frame));
+            if (effect.Frame is { } frame)
+                shown.Add(new ShownColourEffectFrame(effect.Colours, frame));
         }
         foreach (RoomColourEffect effect in effects)
         {
-            if (!effect.Ended && effect.Colours is { } colours && effect.Frame is { } frame)
-                shown.Add(new ShownColourEffectFrame(colours, frame));
+            if (!effect.Ended && effect.Frame is { } frame)
+                shown.Add(new ShownColourEffectFrame(effect.Colours, frame));
         }
         return shown;
     }
@@ -406,16 +405,12 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <summary>
     /// Shows one frame in the colours the effect shows during gameplay (#1512, #1597): the effect holds the frame, which
     /// the room's pictures take as a shade, and a frame of Samus's or an enemy's group is also kept for that owner, which
-    /// lays its shade over its own draws. An animation names its colours before its first frame, so a frame shown before
-    /// that is a defect in the animation.
+    /// lays its shade over its own draws.
     /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// The frame is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.
-    /// </exception>
+    /// <exception cref="InvalidOperationException">The frame is shown in colours no room picture, Samus nor enemy shows.</exception>
     private void ShowGameplayFrame(RoomColourEffect effect, ColourEffectFrame frame)
     {
-        ColourEffectColours animated = effect.Colours ?? throw new InvalidOperationException(
-            $"Colour effect {effect.Effect} showed {frame} before its animation named the colours it animates.");
+        ColourEffectColours animated = effect.Colours;
         if (ColourEffectRoomColourDefinitions.RoomColours.Contains(animated))
             return;
         if (ColourEffectSamusColourDefinitions.SuitColours.Contains(animated))

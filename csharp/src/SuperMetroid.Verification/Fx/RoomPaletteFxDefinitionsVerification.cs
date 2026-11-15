@@ -57,14 +57,13 @@ internal static class RoomPaletteFxDefinitionsVerification
             for (int index = 0; index < RoomPaletteFxDefinitions.DefinitionByteCount; index++)
                 forbidden.Add(address + index);
 
-            ColourEffectDefinition definition = ColourEffectSelection.Get(pointer);
-            if (definition.InitialAnimation == ColourEffectAnimation.HyperBeam)
+            if (PaletteFxObjectAccess.FromNative(pointer) == ColourEffectId.HyperBeam)
             {
                 specializedCompiledPrograms++;
             }
             else
             {
-                AssertTrue(Enum.IsDefined(definition.InitialAnimation),
+                AssertTrue(ColourEffectAnimations.DefinitionAt(pointer).Animation.Phases.Count > 0,
                     $"palette-FX ${pointer:X4} begins a typed program");
                 genericCompiledPrograms++;
             }
@@ -94,6 +93,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         var guardedRom = NewRoomPaletteFxDefinitionGuard(rom, forbidden);
         Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(pointers));
         Suite(nameof(VerifyColourEffectTurnOrder), () => VerifyColourEffectTurnOrder());
+        Suite(nameof(VerifyColourEffectConditionWatchedAfterFirstFrame), () => VerifyColourEffectConditionWatchedAfterFirstFrame());
 
         for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
@@ -125,7 +125,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             () => PaletteFxObjectAccess.FromNative(0),
             "zero palette-FX definition is outside the authored domain");
         AssertThrows<InvalidDataException>(
-            () => ColourEffectSelection.Get(
+            () => ColourEffectAnimations.DefinitionAt(
                 unchecked((ushort)(RoomPaletteFxDefinitions.RoomDefinitionsBegin + 1))),
             "unaligned palette-FX definition is outside the authored domain");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -147,7 +147,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     {
         foreach (ushort pointer in pointers)
         {
-            ColourEffectDefinition definition = ColourEffectSelection.Get(pointer);
+            ColourEffectDefinition definition = ColourEffectAnimations.DefinitionAt(pointer);
             var systemSession = new ColourEffectSessionState();
             var system = new ColourEffectSystem(systemSession);
             system.Start(pointer, equippedItems: 0);
@@ -155,15 +155,46 @@ internal static class RoomPaletteFxDefinitionsVerification
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
             AssertEqual(1, effect.UpdatesUntilNextStep,
                 $"${pointer:X4} production countdown");
-            // Every native start installs a pre-instruction that does nothing, the intro's included: no condition.
-            AssertEqual(null, effect.Condition, $"${pointer:X4} production condition");
-            Animation<ColourEffectAnimation> expected = ColourEffectAnimations.Of(definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-                ? ColourEffectHeatAnimations.Start(ColourEffectHeatSuit.Power)
-                : definition.InitialAnimation);
+            // Every native start installs a pre-instruction that does nothing, the intro's included: no condition is
+            // watched before the effect's first frame.
+            AssertEqual(null, effect.WatchedCondition, $"${pointer:X4} production condition");
+            AssertEqual(definition.Condition, effect.Condition, $"${pointer:X4} the definition's condition");
+            Animation<ColourEffectId> expected = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+                ? ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)
+                : definition.Animation;
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
             AssertEqual(AnimationPlace.StartOfAnimation, effect.Place, $"${pointer:X4} production starts its animation");
         }
 
+    }
+
+    /// <summary>
+    /// Checks that an effect's colours and condition are its definition's from its start, and that it watches its condition
+    /// from the update after its first frame, as the game set the watch up with the effect's first step (#1982): Spore
+    /// Spawn's spores, started while he lives, show their first frame in Brinstar's blue spore colours on the update he is
+    /// recorded dead, and end on the next.
+    /// </summary>
+    internal static void VerifyColourEffectConditionWatchedAfterFirstFrame()
+    {
+        var system = new ColourEffectSystem(new ColourEffectSessionState());
+        system.Start(ColourEffectId.SporeSpawnBlueBackgroundSpores, 0, areaMiniBossDefeated: false);
+        RoomColourEffect spores = system.effects.Single();
+        AssertEqual(ColourEffectColours.BrinstarBlueSpores, spores.Colours, "the spores' colours are their definition's from the start");
+        AssertEqual<ColourEffectCondition?>(ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance, spores.Condition,
+            "the spores' condition is their definition's from the start");
+        AssertEqual<ColourEffectCondition?>(null, spores.WatchedCondition, "nothing is watched before the first frame");
+
+        var defeated = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = true };
+        system.Step(defeated);
+        AssertTrue(system.IsRunning(ColourEffectId.SporeSpawnBlueBackgroundSpores),
+            "the first turn shows a frame without checking the condition");
+        AssertEqual<ColourEffectFrame?>(new ColourEffectFrame(ColourEffectId.SporeSpawnBlueBackgroundSpores, 0),
+            system.FrameOf(ColourEffectColours.BrinstarBlueSpores), "the first turn shows the first frame in the spores' colours");
+        system.Step(defeated);
+        AssertTrue(!system.IsRunning(ColourEffectId.SporeSpawnBlueBackgroundSpores),
+            "the second turn checks the condition and ends the spores");
+        AssertEqual<ColourEffectFrame?>(null, system.FrameOf(ColourEffectColours.BrinstarBlueSpores),
+            "an effect its condition ends shows nothing");
     }
 
     /// <summary>
@@ -203,7 +234,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         AssertTrue(shown.SequenceEqual([ColourEffectColours.TitleLogo, ColourEffectColours.TitleScreenDisplays,
                 ColourEffectColours.BabyMetroidTubeLight, ColourEffectColours.NintendoCopyright]),
             "the settled logo lies first, then the running effects' records in the order they started");
-        AssertEqual<ColourEffectFrame?>(new ColourEffectFrame(ColourEffectAnimation.FadeInNintendoCopyright, 0),
+        AssertEqual<ColourEffectFrame?>(new ColourEffectFrame(ColourEffectId.FadeInNintendoCopyright, 0),
             system.FrameOf(ColourEffectColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.

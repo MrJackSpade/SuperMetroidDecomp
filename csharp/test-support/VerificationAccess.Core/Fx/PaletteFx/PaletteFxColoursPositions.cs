@@ -66,63 +66,24 @@ internal static class PaletteFxColoursPositions
     /// <summary>The colour groups a palette-FX object's programs name.</summary>
     extension(ColourEffectId self)
     {
-        /// <summary>
-        /// The one colour group every program the object can reach names, read from its programs' cues through
-        /// falls, jumps and counted repeats.
-        /// </summary>
-        internal ColourEffectColours AnimatedColours
-        {
-            get
-            {
-                ColourEffectColours[] named = [.. NamedColours(ColourEffectSelection.Get(self).InitialAnimation).Distinct()];
-                return named.Length == 1
-                    ? named[0]
-                    : throw new InvalidOperationException($"Palette-FX object {self} names {named.Length} colour groups.");
-            }
-        }
+        /// <summary>The colour group the object's definition names.</summary>
+        internal ColourEffectColours AnimatedColours => ColourEffectAnimations.Definition(self).Colours;
     }
 
     /// <summary>
-    /// The colour group a native snapshot's slot animates: the one among those its object's programs name that starts
-    /// at the recorded cartridge colour; none for a free slot, or for a slot whose colour index is still the zero its
-    /// spawn wrote because its program has not yet named colours starting anywhere else.
+    /// The colour group a native snapshot's slot animates: its object's definition's, which must start at the recorded
+    /// cartridge colour; none for a free slot, or for a slot whose colour index is still the zero its spawn wrote because
+    /// its program has not yet set the effect up.
     /// </summary>
     internal static ColourEffectColours? FromCartridge(ColourEffectId? running, int position)
     {
         if (running is not { } paletteFxObject)
             return null;
-        ColourEffectColours[] matching = [.. NamedColours(ColourEffectSelection.Get(paletteFxObject).InitialAnimation)
-            .Distinct().Where(colours => colours.CartridgeColour == position)];
-        return matching.Length switch
-        {
-            1 => matching[0],
-            0 when position == 0 => null,
-            _ => throw new ArgumentOutOfRangeException(nameof(position), position,
-                $"Palette-FX object {paletteFxObject} names {matching.Length} colour groups starting at this colour."),
-        };
-    }
-
-    /// <summary>
-    /// Every colour group <paramref name="start"/> names; a restart plays on in the same animation, so it names no others.
-    /// </summary>
-    private static IEnumerable<ColourEffectColours> NamedColours(ColourEffectAnimation start)
-    {
-        foreach (AnimationPhase<ColourEffectAnimation> phase in ColourEffectAnimations.Of(start).Phases)
-        {
-            IReadOnlyList<AnimationBeat<int, ColourEffectCue>> beats = ColourEffectAnimations.Steps.Beats(phase.Segment);
-            for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)
-            {
-                switch (beats[beat])
-                {
-                    case AnimationBeat<int, ColourEffectCue>.Event { Raised: ColourEffectCue.SetColours setColours }:
-                        yield return setColours.Target;
-                        break;
-                    case AnimationBeat<int, ColourEffectCue>.Event or AnimationBeat<int, ColourEffectCue>.Frame:
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Undefined animation beat {beats[beat]}.");
-                }
-            }
-        }
+        ColourEffectColours named = ColourEffectAnimations.Definition(paletteFxObject).Colours;
+        if (named.CartridgeColour == position)
+            return named;
+        return position == 0 ? null
+            : throw new ArgumentOutOfRangeException(nameof(position), position,
+                $"Palette-FX object {paletteFxObject} names {named}, which does not start at this colour.");
     }
 }

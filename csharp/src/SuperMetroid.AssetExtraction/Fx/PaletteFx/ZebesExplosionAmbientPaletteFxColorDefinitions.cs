@@ -34,7 +34,7 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
             Object = ColourEffectId.ZebesExplosionPlanetAfterglow,
             ColorsPerFrame = 8,
             CycleFrames = 96,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.ZebesExplosionPlanetAfterglow, 8),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ZebesExplosionPlanetAfterglow, 8),
         },
         new()
         {
@@ -42,7 +42,7 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
             Object = ColourEffectId.ExplodingZebesLava,
             ColorsPerFrame = 1,
             CycleFrames = 70,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectAnimation.ExplodingZebesLava, 1),
+            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.ExplodingZebesLava, 1),
         },
     ];
 

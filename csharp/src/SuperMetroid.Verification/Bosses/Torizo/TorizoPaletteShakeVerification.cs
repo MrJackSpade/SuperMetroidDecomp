@@ -166,7 +166,7 @@ internal static class TorizoPaletteShakeVerification
     private static void VerifyBellyGlow(IReadOnlyList<SheetShade> shades)
     {
         SheetShade[] records = [.. shades.Where(shade =>
-            shade.Shade == ColourEffectShades.Of(ColourEffectColours.TorizoBelly, new ColourEffectFrame(ColourEffectAnimation.BombTorizoBelly, shade.Shade.Step)))];
+            shade.Shade == ColourEffectShades.Of(ColourEffectColours.TorizoBelly, new ColourEffectFrame(ColourEffectId.BombTorizoBelly, shade.Shade.Step)))];
         AssertTrue(records.Length > 0, "The import pre-colours the belly glow's records");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The program's six records are ten bytes apart, each a duration and three colours.
@@ -178,7 +178,7 @@ internal static class TorizoPaletteShakeVerification
             AssertTrue(record.Inks.SequenceEqual([25, 26, 27]), "The glow recolours the tenth through twelfth colours of the first body row");
         AssertTrue(cartridge.SetEquals(imported), "The glow's records show bank $8D's colours");
 
-        ColourEffectFrame shown = new(ColourEffectAnimation.BombTorizoBelly, records[0].Shade.Step);
+        ColourEffectFrame shown = new(ColourEffectId.BombTorizoBelly, records[0].Shade.Step);
         var colours = new TorizoColours();
         colours.Show(new TorizoLook(TorizoLookKind.Normal));
         colours.ShowBellyGlow(shown);

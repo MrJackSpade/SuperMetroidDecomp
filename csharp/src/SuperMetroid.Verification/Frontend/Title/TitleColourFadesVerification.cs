@@ -78,19 +78,19 @@ internal static class TitleColourFadesVerification
         AssertEqual(TitleSequenceDefinitions.Timing.CopyrightHoldFrames, Title(CopyrightInstructions), "the copyright holds before the demo countdown");
         AssertEqual(StartDemoCountdownInstruction, Title(CopyrightInstructions + 2 * sizeof(ushort)), "the copyright's hold ends with the demo countdown");
         // The definitions the sprite objects spawn run the lists the title's fades start at.
-        AssertEqual(PaletteFxNativeListAddresses.Entry(ColourEffectSelection.Get(TitleSequenceDefinitions.Fades.Logo).InitialAnimation),
+        AssertEqual(PaletteFxNativeListAddresses.Entry(TitleSequenceDefinitions.Fades.Logo),
             Effects(LogoEffectDefinition + sizeof(ushort)), "the title's logo fade runs the logo fade definition's list");
-        AssertEqual(PaletteFxNativeListAddresses.Entry(ColourEffectSelection.Get(TitleSequenceDefinitions.Fades.Copyright).InitialAnimation),
+        AssertEqual(PaletteFxNativeListAddresses.Entry(TitleSequenceDefinitions.Fades.Copyright),
             Effects(CopyrightEffectDefinition + sizeof(ushort)), "the title's copyright fade runs the copyright fade definition's list");
 
         // Each record's duration and colours, read from the cartridge's lists.
-        FadeRecords logo = new(ColourEffectColours.TitleLogo, ColourEffectAnimation.FadeInSuperMetroidTitleLogo,
+        FadeRecords logo = new(ColourEffectColours.TitleLogo, ColourEffectId.FadeInSuperMetroidTitleLogo,
             [.. Enumerable.Range(0, TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount)
                 .Select(frame => (int)Effects(TitleLogoFadePaletteFxColorDefinitions.FramePointer(frame)))],
             [.. Enumerable.Range(0, TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount).Select(frame =>
                 Enumerable.Range(0, TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame)
                     .Select(colour => RgbColor.FromWord(Effects(TitleLogoFadePaletteFxColorDefinitions.ColorPointer(frame, colour)))).ToArray())]);
-        FadeRecords copyright = new(ColourEffectColours.NintendoCopyright, ColourEffectAnimation.FadeInNintendoCopyright,
+        FadeRecords copyright = new(ColourEffectColours.NintendoCopyright, ColourEffectId.FadeInNintendoCopyright,
             [.. Enumerable.Range(0, NintendoLogoFadePaletteFxColorDefinitionsConstants.FrameCount)
                 .Select(frame => (int)Effects(NintendoLogoFadePaletteFxColorDefinitions.FramePointer(frame)))],
             [.. Enumerable.Range(0, NintendoLogoFadePaletteFxColorDefinitionsConstants.FrameCount).Select(frame =>
@@ -239,7 +239,7 @@ internal static class TitleColourFadesVerification
     /// <param name="Animation">The segment whose frames are the fade's records.</param>
     /// <param name="Durations">Each record's duration in title updates.</param>
     /// <param name="ColourSets">Each record's colours, in the order it writes them.</param>
-    private sealed record FadeRecords(ColourEffectColours Colours, ColourEffectAnimation Animation, int[] Durations, RgbColor[][] ColourSets)
+    private sealed record FadeRecords(ColourEffectColours Colours, ColourEffectId Animation, int[] Durations, RgbColor[][] ColourSets)
     {
         /// <summary>The updates the fade takes to show every record.</summary>
         internal int TotalDuration => Durations.Sum();

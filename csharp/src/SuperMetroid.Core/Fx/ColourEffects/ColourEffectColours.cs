@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// The colours a colour effect animates (#1464): what a <see cref="ColourEffectCue.SetColours"/> cue makes its
-/// effect's later frames colour. Each frame a group shows is a shade the import pre-colours on the pictures that
+/// The colours a colour effect animates (#1464, #1982): what its definition (<see cref="ColourEffectDefinition"/>) makes
+/// every frame of the effect colour. Each frame a group shows is a shade the import pre-colours on the pictures that
 /// show the group (#1512).
 /// </summary>
 public enum ColourEffectColours

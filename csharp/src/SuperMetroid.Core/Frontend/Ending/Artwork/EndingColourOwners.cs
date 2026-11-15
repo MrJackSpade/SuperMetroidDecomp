@@ -55,11 +55,11 @@ internal static class EndingColourOwners
         ShownColourEffectFrame[] shownFrames = ColourEffectShownFrames.ShownBy(Enum.GetValues<ColourEffectId>());
         foreach (KeyValuePair<ColourEffectColours, EndingEffectOwners> group in EndingColourOwnerDefinitions.ColourEffects)
         {
-            ColourEffectAnimation[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
-                .Select(shown => shown.Frame.Animation).Distinct()];
+            ColourEffectId[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
+                .Select(shown => shown.Frame.Effect).Distinct()];
             if (animations.Length == 0)
                 throw new InvalidDataException($"The ending lists what {group.Key} is authored for, which no colour effect shows.");
-            foreach (ColourEffectAnimation animation in animations)
+            foreach (ColourEffectId animation in animations)
                 Add(ColourEffectShades.Of(group.Key, new ColourEffectFrame(animation, 0)), group.Value);
         }
         return listed.ToFrozenDictionary(StringComparer.Ordinal);

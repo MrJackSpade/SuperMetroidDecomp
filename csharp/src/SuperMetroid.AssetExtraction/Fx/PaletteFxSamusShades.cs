@@ -24,7 +24,8 @@ internal static class PaletteFxSamusShades
     }.ToImmutableDictionary();
 
     /// <summary>Every suit's heat shimmer start, which runs on into the suit's whole heat pulse (#1512, #1598).</summary>
-    private static readonly ColourEffectAnimation[] HeatPrograms = [.. Enum.GetValues<ColourEffectHeatSuit>().Select(ColourEffectHeatAnimations.Start)];
+    private static readonly SuperMetroid.Core.Animation.Animation<ColourEffectId>[] HeatPrograms =
+        [.. Enum.GetValues<ColourEffectHeatSuit>().Select(ColourEffectHeatAnimations.Shimmer)];
 
     /// <summary>The objects whose programs recolour her suit: the heat glow and her three suits' loading.</summary>
     private static readonly ImmutableArray<ColourEffectId> SuitObjects =
@@ -38,7 +39,7 @@ internal static class PaletteFxSamusShades
     {
         Ensure.NotNull(colours);
         ShownColourEffectFrame[] shown = PaletteFxRecordShades.Shown(
-            [.. HeatPrograms, .. SuitObjects.Select(suitObject => ColourEffectSelection.Get(suitObject).InitialAnimation)]);
+            [.. HeatPrograms, .. SuitObjects.Select(suitObject => ColourEffectAnimations.Definition(suitObject).Animation)]);
         return [.. shown.Where(entry => FirstSuitColours.ContainsKey(entry.Colours))
             .Select(entry => PaletteFxRecordShades.Shade(entry.Colours, entry.Frame,
                 new InkRange(SamusSheetInks.Suit + FirstSuitColours[entry.Colours], SamusSheetInks.Suit + SamusSheetInks.GroupColours), colours))];

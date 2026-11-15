@@ -26,7 +26,7 @@ internal static class AnimatedTileImageSources
 
     /// <summary>The cartridge address the import reads the picture of the rightward treadmill's frame <paramref name="frame"/> from.</summary>
     internal static int Treadmill(int frame) =>
-        Of(WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Rightwards).Image(frame));
+        Of(BlockAnimationLoops.Of(BlockAnimation.WreckedShipTreadmillRightwards).TreadmillImage(frame));
 
     /// <summary>The cartridge address <paramref name="picture"/> of <paramref name="statue"/> starts at in the shared statue strip.</summary>
     internal static int TourianStatue(TourianGreyStatues statue, TourianStatueBlockPicture picture) =>
@@ -71,11 +71,11 @@ internal static class AnimatedTileImageSources
 
     /// <summary>The cartridge address of the picture shown by the frame whose timed control word sits at bank-$87 <paramref name="instructionPointer"/>.</summary>
     /// <exception cref="InvalidDataException">No frame of <paramref name="definition"/> sits there.</exception>
-    internal static int OfCursor(RoomFxBlockAnimationLoop definition, ushort instructionPointer) =>
+    internal static int OfCursor(BlockAnimationLoop definition, ushort instructionPointer) =>
         TryOfCursor(definition, instructionPointer, out int source)
             ? source
             : throw new InvalidDataException(
-                $"Room-FX object {definition.AnimatedObject} has no artwork frame at $87:{instructionPointer:X4}.");
+                $"Room-FX object {definition.Animation} has no artwork frame at $87:{instructionPointer:X4}.");
 
     /// <summary>
     /// Whether a frame of <paramref name="definition"/> has its timed control word at bank-$87
@@ -83,7 +83,7 @@ internal static class AnimatedTileImageSources
     /// <see cref="OfCursor"/> rejects through, so a sweep of the whole cursor domain classifies each cursor without an
     /// exception per non-frame cursor (#1532).
     /// </summary>
-    internal static bool TryOfCursor(RoomFxBlockAnimationLoop definition, ushort instructionPointer, out int source)
+    internal static bool TryOfCursor(BlockAnimationLoop definition, ushort instructionPointer, out int source)
     {
         for (int frame = 0; frame < definition.Frames.Count; frame++)
         {

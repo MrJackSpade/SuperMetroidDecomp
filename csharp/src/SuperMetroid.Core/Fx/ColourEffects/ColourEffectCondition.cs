@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// What a running colour effect watches each update before its countdown runs (#1554). An animation step names the
-/// condition (<see cref="ColourEffectCue.Watch"/>); an effect watches nothing until one does, and watches it until it ends.
+/// What a running colour effect watches each update before its countdown runs (#1554, #1982). The effect's definition
+/// names the condition (<see cref="ColourEffectDefinition"/>); the effect watches it from the update after it shows its
+/// first frame until it ends.
 /// </summary>
 public abstract record ColourEffectCondition
 {

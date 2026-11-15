@@ -9,6 +9,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks when the three Etecoons request their fanfare after an elevator door transition.</summary>
 internal static class EtecoonFanfareVerification
@@ -17,7 +18,8 @@ internal static class EtecoonFanfareVerification
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var passage = new DoorPassage();
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, doorPassage: passage);
         for (int index = 0; index < 3; index++)
         {
             var slot = enemies.SlotTable.Slots[index];
@@ -34,7 +36,7 @@ internal static class EtecoonFanfareVerification
         }
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));
-        enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
+        passage.Start();
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
@@ -42,7 +44,7 @@ internal static class EtecoonFanfareVerification
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
                 AssertTrue((state ?? throw new InvalidOperationException("Verification requires state.")).AwaitingSamus, "the transition keeps the Etecoon dormant");
         }
-        enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
+        passage.Finish();
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "trio publishes one fanfare after fade");
         var request = enemies.Audio.SoundRequests[0];

@@ -54,6 +54,13 @@ internal sealed class DoorTransitionRunner
         _room = dependencies.Room;
         _system = dependencies.System;
     }
+
+    /// <summary>
+    /// Samus's passage through the door, which the transition starts and finishes and the runtime hands to everything
+    /// that holds still while she passes.
+    /// </summary>
+    internal DoorPassage Passage { get; } = new();
+
     /// <summary>
     /// Runs the active door's setup after room-object creation: its screen changes, then its room event.
     /// </summary>

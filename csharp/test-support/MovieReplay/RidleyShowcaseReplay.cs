@@ -295,7 +295,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             VerificationAssertions.AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.Clock.ShortCounter,
                 $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", GameStateNumberCodec.Encode(game.GameState), NativeSnapshotMemory.GameState);
-            Check("Enemy door gate", runtime.Enemies.RoomStatus.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
+            Check("Enemy door gate", runtime.DoorTransition.Passage.IsUnderWay ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
             // Native door-header loading publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending
             // door while ActiveRoom still owns the source room's loaded data.

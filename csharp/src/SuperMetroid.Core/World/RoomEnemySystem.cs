@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
@@ -607,28 +608,21 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects(), FrameResults.Glow);
 
     /// <summary>
-    /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, with the door-transition gates
-    /// clear, without loading a population or binding artwork, random-number, or gameplay services.
+    /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, without loading a population or binding artwork, random-number, or gameplay services.
     /// </summary>
-    /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
-    /// <param name="compatibility">
-    /// The compatibility services the room's enemies consult: the room's own, created with the system by its builder, and
-    /// those that outlive every room, which the builder hands on.
+    /// <param name="dependencies">
+    /// The enemy session, the room's compatibility services, enemy definitions, game-state services, area, boss artwork
+    /// and breakable terrain, and Samus's passage through a door.
     /// </param>
-    /// <param name="definitions">The room's enemy definition source.</param>
-    /// <param name="services">The game-state services the room's AI calls.</param>
-    /// <param name="area">The area the room is in.</param>
-    /// <param name="bossArtwork">The session's installed boss artwork.</param>
-    /// <param name="breakableTerrain">
-    /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.
-    /// </param>
-    internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
-        IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services, AreaId area,
-        BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain)
+    internal RoomEnemySystem(RoomEnemySystemDependencies dependencies)
     {
-        Ensure.NotNull(compatibility);
-        BossArtworkBinding = Ensure.NotNull(bossArtwork);
-        Room = new EnemyRoomBinding(session, definitions, services, area);
+        Ensure.NotNull(dependencies);
+        EnemySession session = dependencies.Session;
+        RoomEnemyCompatibility compatibility = Ensure.NotNull(dependencies.Compatibility);
+        DoorPassage doorPassage = Ensure.NotNull(dependencies.DoorPassage);
+        EnemyBreakableTerrainObjects breakableTerrain = dependencies.BreakableTerrain;
+        BossArtworkBinding = Ensure.NotNull(dependencies.BossArtwork);
+        Room = new EnemyRoomBinding(session, dependencies.Definitions, dependencies.Services, dependencies.Area);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();
@@ -656,8 +650,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
-        ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
+        ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio, compatibility.YardKickDistance);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, SpriteObjects, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();
@@ -680,8 +674,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain, Audio);
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
-        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx, FrameContext = FrameContext });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, DoorPassage = doorPassage, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
+        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, DoorPassage = doorPassage, RoomFx = RoomFx, FrameContext = FrameContext });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
         PowampBehavior = new PowampBehavior(Terrain, Projectiles, SlotTable, Collision, DeathsAndDrops);
@@ -719,7 +713,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         FakeKraidBehavior = new FakeKraidBehavior(Room, Terrain, Projectiles, Collision, DeathsAndDrops, Audio);
         EyeDoorBehavior = new EyeDoorBehavior(Room, Projectiles);
         EvirBehavior = new EvirBehavior(SlotTable, Collision, Audio);
-        EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, ElevatorBehavior, Audio);
+        EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, doorPassage, Audio);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, SpriteObjects);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
         DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
@@ -745,7 +739,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         TorizoBehavior = new TorizoBehavior(new TorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
-        BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, ElevatorBehavior);
+        BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, doorPassage);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);
@@ -844,17 +838,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
     /// <summary>Leaves each enemy projectile place's whole position and velocity for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
     internal void HandOverTo(RoomHandOver handOver) => Projectiles.HandOverTo(handOver);
-
-    /// <summary>
-    /// Re-asserts the door-transition gates over the loaded room: the population initialized with them clear, and the
-    /// door-transition code that owns them keeps them for the rest of the transition.
-    /// </summary>
-    /// <param name="gates">The gates the room the load replaced held.</param>
-    internal void ResumeDoorTransitionGates(EnemyDoorTransitionGates gates)
-    {
-        RoomStatus.EnemyDoorTransitionActive = gates.EnemyDoorTransitionActive;
-        ElevatorBehavior.ElevatorDoorTransitionActive = gates.ElevatorDoorTransitionActive;
-    }
 
     /// <summary>Collision values read from the current slots after their AI has run.</summary>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>

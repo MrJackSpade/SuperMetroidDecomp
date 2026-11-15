@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
@@ -23,8 +24,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>Supplies shared Ceres and Norfair movement, fade, and animation behavior.</summary>
     private readonly CeresRidleyBehavior _ceresRidleyBehavior;
-    /// <summary>Checks active door-transition state before the Norfair intro.</summary>
-    private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>Samus's passage through a door, which holds the Norfair intro until it ends.</summary>
+    private readonly DoorPassage _doorPassage;
     /// <summary>Runs Ridley's body and breakup animations and applies their cues.</summary>
     internal RidleyBodyAnimation Animation { get; }
 
@@ -46,7 +47,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         Animation = new RidleyBodyAnimation(dependencies.Audio, _ridleyEncounter, dependencies.RidleyProjectiles);
         Combat = new NorfairRidleyCombat(new NorfairRidleyCombatDependencies { Room = _room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, RidleyEncounter = _ridleyEncounter, RidleyTail = _ridleyTail, RidleyProjectiles = dependencies.RidleyProjectiles, RoomFx = dependencies.RoomFx, FrameContext = dependencies.FrameContext });
         Death = new NorfairRidleyDeath(dependencies.Lifecycle, _room, dependencies.DeathsAndDrops, _ridleyEncounter, dependencies.RidleyProjectiles, dependencies.RoomFx, dependencies.Audio);
-        _roomStatus = dependencies.RoomStatus;
+        _doorPassage = dependencies.DoorPassage;
     }
 
     /// <summary>
@@ -99,7 +100,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         switch (state.Phase)
         {
             case RidleyPhase.WaitForDoorTransition:
-                if (_roomStatus.EnemyDoorTransitionActive)
+                if (_doorPassage.IsUnderWay)
                     return;
                 state.Phase = RidleyPhase.InitialDelay;
                 state.PhaseTimer = 170;

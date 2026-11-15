@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -16,6 +17,8 @@ internal sealed class CeresRidleyBehavior
     private readonly RidleyTail _ridleyTail;
     /// <summary>Publishes Ceres escape and self-destruct room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>Samus's passage through a door, which holds Ridley's opening wait.</summary>
+    private readonly DoorPassage _doorPassage;
     /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>
     internal CeresRidleyFlight Flight { get; }
 
@@ -43,6 +46,7 @@ internal sealed class CeresRidleyBehavior
         _ridleyTail = dependencies.RidleyTail;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
+        _doorPassage = dependencies.DoorPassage;
         Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, RidleyEncounter = _ridleyEncounter });
         BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.Presentation.Surfaces, _ridleyEncounter);
         FadeIn = new RidleyFadeIn(dependencies.Audio);
@@ -80,7 +84,7 @@ internal sealed class CeresRidleyBehavior
         {
             case RidleyPhase.WaitForDoorTransition:
                 // The wait holds even though enemy animations run during the fade.
-                if (_roomStatus.EnemyDoorTransitionActive)
+                if (_doorPassage.IsUnderWay)
                     break;
                 state.Phase = RidleyPhase.InitialDelay;
                 state.PhaseTimer = 512;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -40,6 +41,9 @@ internal sealed record CeresRidleyBehaviorDependencies
 
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
+
+    /// <summary>Samus's passage through a door, which holds Ridley's opening wait.</summary>
+    public required DoorPassage DoorPassage { get; init; }
 
     /// <summary>The session's unauthored Speed Booster cadence, whose delays the getaway's wing frames leave behind.</summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }

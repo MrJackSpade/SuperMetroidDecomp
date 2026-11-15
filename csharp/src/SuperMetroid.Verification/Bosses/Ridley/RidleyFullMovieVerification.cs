@@ -871,7 +871,7 @@ internal static class RidleyFullMovieVerification
             AssertEqual(RidleyPhase.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Phase, "reveal timer remains gated through the final fade dispatch");
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "fade releases ordinary gameplay");
-        AssertTrue(!runtime.Enemies.RoomStatus.EnemyDoorTransitionActive, "completed fade clears enemy gate");
+        AssertTrue(!runtime.DoorTransition.Passage.IsUnderWay, "completed fade ends Samus's passage through the door");
         game.Step(0);
         AssertEqual(RidleyPhase.InitialDelay, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Phase, "first gameplay update begins reveal");
         AssertEqual(169, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).PhaseTimer, "native first gameplay update consumes one of 170 reveal ticks");

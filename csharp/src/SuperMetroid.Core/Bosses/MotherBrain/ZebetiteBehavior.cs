@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -34,8 +34,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room's enemies, whose places are reused across Zebetite generations.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Exposes the door transition that keeps newly initialized Zebetites inert.</summary>
-    private readonly ElevatorBehavior _elevatorBehavior;
+    /// <summary>Samus's passage through a door, which keeps newly initialized Zebetites inert.</summary>
+    private readonly DoorPassage _doorPassage;
     /// <summary>Tracks the room kill count as Zebetite halves are removed.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
@@ -54,7 +54,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _audio = dependencies.Audio;
         _collision = dependencies.Collision;
-        _elevatorBehavior = dependencies.ElevatorBehavior;
+        _doorPassage = dependencies.DoorPassage;
         _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -154,12 +154,12 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RunZebetiteWaitForDoorTransition(slot, state);
     }
 
-    /// <summary>Starts active AI on the first update after the shared elevator door transition clears.</summary>
+    /// <summary>Starts active AI on the first update after Samus's passage through the door ends.</summary>
     private void RunZebetiteWaitForDoorTransition(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        // The door-transition flag is shared with normal elevator transitions. Holds the barrier
-        // inert during door loading and enters its active body on the first clear frame.
-        if (_elevatorBehavior.ElevatorDoorTransitionActive)
+        // Ordinary doors and elevators alike hold the barrier inert during the passage, and it enters its
+        // active body on the first update after.
+        if (_doorPassage.IsUnderWay)
             return;
         state.Action = ZebetiteAction.Active;
         RunZebetiteActive(slot, state);

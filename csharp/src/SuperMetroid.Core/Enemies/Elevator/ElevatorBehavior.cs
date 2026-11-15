@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Animation;
@@ -24,10 +25,14 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>The enemy pass's results, which the elevator writes.</summary>
     private readonly EnemyFrameResultBuilder _frameResults;
 
-    /// <summary>Binds elevator movement to the room, audio queue, and encounter state.</summary>
-    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyFrameResultBuilder frameResults)
+    /// <summary>Samus's passage through a door, during which the elevator holds still.</summary>
+    private readonly DoorPassage _doorPassage;
+
+    /// <summary>Binds elevator movement to the room, audio queue, encounter state and Samus's passage through a door.</summary>
+    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyFrameResultBuilder frameResults, DoorPassage doorPassage)
     {
         _frameResults = frameResults;
+        _doorPassage = doorPassage;
         _room = room;
         _audio = audio;
     }
@@ -64,12 +69,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public bool ElevatorRunsSamusMovement =>
         ElevatorStatus == ElevatorActorStatus.Departing ||
         (ElevatorStatus != ElevatorActorStatus.Inactive && !ElevatorTravelsUpward);
-
-    /// <summary>
-    /// The door-transition gate. Door-transition code owns this gate; nonzero suppresses actor movement
-    /// while room loading/fading is already manipulating the same global coordinates.
-    /// </summary>
-    public bool ElevatorDoorTransitionActive { get; set; }
 
     /// <summary>The arriving elevator whose setup placed Samus; consumed by the door loader this update.</summary>
     private RoomEnemySlot? _arrivalPlacement;
@@ -152,7 +151,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem samusProjectiles)
     {
-        if (ElevatorDoorTransitionActive ||
+        if (_doorPassage.IsUnderWay ||
             (ElevatorStatus == ElevatorActorStatus.Inactive && ElevatorFlags == ElevatorJourneyFlag.None))
         {
             return;

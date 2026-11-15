@@ -808,11 +808,7 @@ internal sealed class RoomLoader
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
-        var carryOver = new RoomTransitionCarryOver(_room.Camera,
-            _room.Scope is { } gated
-                ? new EnemyDoorTransitionGates(gated.Enemies.RoomStatus.EnemyDoorTransitionActive,
-                    gated.Enemies.Elevator.ElevatorDoorTransitionActive)
-                : default);
+        var carryOver = new RoomTransitionCarryOver(_room.Camera);
         // The outgoing room's shots and enemy projectiles leave what the next room's start from (RoomHandOver).
         if (_room.Scope is { } outgoing)
         {
@@ -999,8 +995,7 @@ internal sealed class RoomLoader
         // beams' own pictures (#1586).
         SamusProjectileSystem.ShowBeamShade(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
-        // The destination's enemies load with the door-transition gates clear; their projectile places start from what
-        // the outgoing room's left (RoomHandOver).
+        // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).
         // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the sprite-object places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
         // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
@@ -1017,8 +1012,17 @@ internal sealed class RoomLoader
             KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
             YardKickDistance = _yardKickDistance,
         };
-        var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
-            room.Area, _bossArtwork, roomObjects.BreakableTerrain);
+        var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
+        {
+            Session = _enemySession,
+            Compatibility = compatibility,
+            Definitions = CompiledRoomEnemyDefinitions.Instance,
+            Services = areaServices,
+            Area = room.Area,
+            BossArtwork = _bossArtwork,
+            BreakableTerrain = roomObjects.BreakableTerrain,
+            DoorPassage = _doorTransition.Passage,
+        });
         enemies.TakeOverFrom(_room.HandOver);
         enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;
@@ -1060,8 +1064,6 @@ internal sealed class RoomLoader
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
         _enemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, roomColourEffects);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies);
-        // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
-        enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {

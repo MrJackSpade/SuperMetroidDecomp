@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -40,6 +41,8 @@ internal sealed class SamusFramePhases
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the shared game state consulted by Samus's movement.</summary>
     private readonly SharedGameState _system;
+    /// <summary>Samus's passage through a door, during which her input handling and radius update do not run.</summary>
+    private readonly DoorPassage _doorPassage;
     /// <summary>The pose update after the normal movement phase's animation.</summary>
     private readonly SamusPoseTransitionPhase _transitions;
 
@@ -56,6 +59,7 @@ internal sealed class SamusFramePhases
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;
+        _doorPassage = dependencies.DoorPassage;
         _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { PlayerActions = dependencies.PlayerActions, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Room = dependencies.Room });
     }
 
@@ -313,7 +317,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // still runs cooldown, HUD switching and the HUD item's step; only its
         // projectile-handling tail stops, which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
-        frame.SampleInputHandlingRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive);
+        frame.SampleInputHandlingRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_doorPassage.IsUnderWay);
         if (frame.InputHandlingRuns)
         {
             // The HUD selection update runs before the movement-type HUD projectile producer.
@@ -1197,7 +1201,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // input mode has no radius update, so e.g. an elevator ride keeps
         // the boarding pose's radius.
         if (_player.GroundedSamusMovementEnabled && !_freeze.TimeIsFrozen && !frame.InputHandlingLocked(samus) &&
-            !samus.DeathSequence.IsActive && !room.Enemies.Elevator.ElevatorDoorTransitionActive)
+            !samus.DeathSequence.IsActive && !_doorPassage.IsUnderWay)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
         // Samus movement phase precedes room objects. A lock/unlock issued by a room object
         // affects the next movement phase, not the animation already owned this frame.

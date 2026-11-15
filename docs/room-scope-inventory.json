@@ -312,16 +312,6 @@
   {
    "file": "Rooms/RoomLoader.cs",
    "body": "LoadRoom",
-   "step": "Enemies.ResumeDoorTransitionGates(DoorGates)",
-   "classification": "carry-over",
-   "evidence": "the door gates, clear during population as the enemy load cleared them, are re-asserted (#1194)",
-   "reads": [
-    "carry-over DoorGates"
-   ]
-  },
-  {
-   "file": "Rooms/RoomLoader.cs",
-   "body": "LoadRoom",
    "step": "ActiveRoomState.Adopt(scope.Complete())",
    "classification": "room",
    "evidence": "the finished scope replaces the outgoing room's",

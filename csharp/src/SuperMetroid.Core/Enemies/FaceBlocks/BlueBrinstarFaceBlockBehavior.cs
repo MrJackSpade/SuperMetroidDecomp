@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
@@ -28,13 +28,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The room's enemy slots, whose face blocks all show the room-wide glow.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Exposes the door transition that pauses the face blocks' glow.</summary>
-    private readonly ElevatorBehavior _elevatorBehavior;
+    /// <summary>Samus's passage through a door, which pauses the face blocks' glow.</summary>
+    private readonly DoorPassage _doorPassage;
 
-    /// <summary>Binds the species to the room's slots and door-transition state.</summary>
-    internal BlueBrinstarFaceBlockBehavior(EnemySlotTable slotTable, ElevatorBehavior elevatorBehavior)
+    /// <summary>Binds the species to the room's slots and Samus's passage through a door.</summary>
+    internal BlueBrinstarFaceBlockBehavior(EnemySlotTable slotTable, DoorPassage doorPassage)
     {
-        _elevatorBehavior = elevatorBehavior;
+        _doorPassage = doorPassage;
         _slotTable = slotTable;
     }
 
@@ -139,7 +139,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     internal void StepGlow()
     {
-        if (!_glowStarted || _elevatorBehavior.ElevatorDoorTransitionActive)
+        if (!_glowStarted || _doorPassage.IsUnderWay)
             return;
 
         if (--_glowStepCountdown != 0)

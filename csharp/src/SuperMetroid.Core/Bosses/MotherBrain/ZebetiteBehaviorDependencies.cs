@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -26,8 +26,8 @@ internal sealed record ZebetiteBehaviorDependencies
     /// <summary>Slot table.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
-    /// <summary>Elevator behavior.</summary>
-    public required ElevatorBehavior ElevatorBehavior { get; init; }
+    /// <summary>Samus's passage through a door, during which a newly initialized Zebetite stays inert.</summary>
+    public required DoorPassage DoorPassage { get; init; }
 
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }

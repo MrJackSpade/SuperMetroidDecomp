@@ -1,6 +1,6 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -24,17 +24,17 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pauses animation timing while a room earthquake is active.</summary>
     private readonly RoomEarthquake _earthquake;
 
-    /// <summary>Suppresses the pre-jump transition while an elevator door transition owns the room.</summary>
-    private readonly ElevatorBehavior _elevatorBehavior;
+    /// <summary>Samus's passage through a door, which holds a dormant Etecoon's wake and countdown.</summary>
+    private readonly DoorPassage _doorPassage;
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds the terrain, quake, and elevator owners consulted by Etecoon AI.</summary>
-    internal EtecoonBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, ElevatorBehavior elevatorBehavior, EnemyAudioQueue audio)
+    /// <summary>Binds the terrain, quake and door passage consulted by Etecoon AI.</summary>
+    internal EtecoonBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, DoorPassage doorPassage, EnemyAudioQueue audio)
     {
         _audio = audio;
-        _elevatorBehavior = elevatorBehavior;
+        _doorPassage = doorPassage;
         _terrain = terrain;
         _earthquake = earthquake;
     }
@@ -193,8 +193,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // Destination sprite drawing runs AI while door-transition audio is disabled.
-        // Preserve the initial wake edge and the countdown until the pause clears.
-        if (_elevatorBehavior.ElevatorDoorTransitionActive)
+        // Preserve the initial wake edge and the countdown until Samus's passage ends.
+        if (_doorPassage.IsUnderWay)
             return;
         if (!state.AwaitingSamus)
         {

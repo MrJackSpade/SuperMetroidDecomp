@@ -512,8 +512,8 @@ public sealed class SamusHorizontalSpeedState
     /// from alternating captured positions into the echoes' departure.
     /// </summary>
     /// <param name="facing">
-    /// Current pose-definition direction. The game treats exactly left (four) as facing left;
-    /// every other direction uses the right-facing +8 echo velocity branch.
+    /// Current pose facing. The game treats exactly <see cref="SamusFacingDirection.Left"/> as facing left;
+    /// every other facing uses the right-facing +8 echo velocity branch.
     /// </param>
     public void CancelRunningMomentum(SamusFacingDirection facing)
     {

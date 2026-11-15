@@ -25,7 +25,7 @@ public static class SamusInsideBlockReactions
             if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
-            // Admits only inside-block sample one (the center).
+            // Admits only the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing room-object slot priority.
@@ -71,9 +71,7 @@ public static class SamusInsideBlockReactions
                     QuicksandSurfacePhysics physics =
                         QuicksandReactions.SurfacePhysics(
                             samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
-                    // Indexes a four-entry table with the direction's low two bits;
-                    // its fourth entry repeats the grounded reaction, but the vertical direction only ever
-                    // holds the three defined directions.
+                    // One reaction per vertical direction; a still Samus takes the grounded reaction.
                     switch (body.YDirection)
                     {
                         case SamusVerticalDirection.None:

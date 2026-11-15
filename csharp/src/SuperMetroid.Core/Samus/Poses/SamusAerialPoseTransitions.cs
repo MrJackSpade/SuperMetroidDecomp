@@ -150,7 +150,7 @@ internal static class SamusAerialPoseTransitions
         if ((!jumping && !falling) || (!turnsLeft && !turnsRight))
         {
             throw new InvalidOperationException(
-                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a verified type-2/type-6 transition.");
+                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
         }
 
         // These are literal copies of the two aerial turn tables. The straight-down aims are

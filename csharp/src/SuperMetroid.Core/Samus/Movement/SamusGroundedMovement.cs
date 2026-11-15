@@ -52,8 +52,8 @@ public static class SamusGroundedMovement
         BlockMoveResult? vertical = null;
         if (elevatorIsMoving)
         {
-            // Publishes collision direction two and calls the
-            // downward mover with one whole pixel. That entry deliberately skips
+            // Calls the downward mover with one whole pixel; the collision direction the game
+            // sets first is read by nothing before the next move sets its own. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(1, 0), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
@@ -191,8 +191,8 @@ public static class SamusGroundedMovement
     /// <summary>
     /// Runs the grounded branches of turning around on the ground
     /// and of turning around while jumping.
-    /// The latter is misleading for the aimed crouching turns: crouched entry leaves Y direction
-    /// zero, so the game runs its no-speed grounding probe rather than airborne gravity.
+    /// The latter is misleading for the aimed crouching turns: crouched entry leaves no vertical
+    /// direction, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
     internal static GroundedMovementResult StepTurningOnGround(
 
@@ -348,8 +348,7 @@ public static class SamusGroundedMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Calls the same no-base-speed X movement as standing. Direction still
-        // comes from the literal pose definition: the right-facing poses store eight (right), while
-        // the left-facing poses store four (left). Extra speed is included in the requested move
+        // comes from the pose's own facing. Extra speed is included in the requested move
         // before the movement's unconditional cleanup, matching the call order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
@@ -416,7 +415,7 @@ public static class SamusGroundedMovement
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         // Landing art still uses standing movement: it does not reset Y values.
         // Settling the accepted landing owns its cleanup; a later hurt expiry may write
-        // direction two while this pose remains active, and that value must survive.
+        // a downward direction while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
     }
 

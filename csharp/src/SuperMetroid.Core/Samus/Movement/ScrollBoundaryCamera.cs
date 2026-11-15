@@ -260,7 +260,7 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        // Samus Y direction one means upward. The apparently reversed scroller choice is
+        // The apparently reversed scroller choice is
         // literal: upward motion subtracts the down scroller, all else
         // subtracts the up scroller.
         int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;

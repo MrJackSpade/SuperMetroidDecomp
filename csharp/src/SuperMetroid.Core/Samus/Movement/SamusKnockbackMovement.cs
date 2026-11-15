@@ -158,8 +158,8 @@ level, targetPose, frameCounter, roomObjects))
         }
 
         // Deliberately ignores both the damage-source side and controller input
-        // when choosing a ball's vertical branch: right-facing ball art always gets up-right
-        // direction two, and left-facing art gets up-left direction one. The humanoid branch
+        // when choosing a ball's vertical branch: right-facing ball art always gets
+        // SamusKnockbackDirection.UpRight, and left-facing art UpLeft. The humanoid branch
         // retains the unusual forward-held selection of down-left/down-right directions.
         samus.KnockbackXDirection = launch.KnockbackXDirection;
         if (morphed)
@@ -395,7 +395,7 @@ level, targetPose, frameCounter, roomObjects))
         // spark's hold while retaining its independently owned shade and timer.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
-        // flag has no field of its own; Y-direction two is its movement-visible
+        // flag has no field of its own; moving down is its movement-visible
         // publication and is consumed by every normal/ball step.
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;

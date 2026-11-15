@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
 /// One frame's signed 1/65536-pixel X displacement together with the collision movement direction
-/// that its calculator stored: the leftward calculator writes left (0) and
-/// the rightward one writes right (1).
+/// that its calculator stored: the leftward calculator writes <see cref="SamusCollisionDirection.Left"/> and
+/// the rightward one <see cref="SamusCollisionDirection.Right"/>.
 /// </summary>
 /// <remarks>
 /// The two are independent. The movers choose a move right or

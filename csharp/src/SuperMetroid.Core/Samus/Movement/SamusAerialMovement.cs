@@ -197,7 +197,7 @@ public static class SamusAerialMovement
         }
 
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.
-        // A fully charged ordinary/Space-Jump spin instead publishes index four, but only
+        // A fully charged ordinary/Space-Jump spin instead publishes the pseudo Screw Attack, but only
         // outside full liquid physics. The common runtime clears the damage mode before movement,
         // mirroring the gameplay tail, so neither stale damage mode can leak into another pose.
         if (!fullySubmergedWithoutGravity && SamusPoseMetadata.IsScrewAttackPose(samus.Pose))
@@ -290,8 +290,8 @@ public static class SamusAerialMovement
             !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires a wall-jumping pose, not {samus.Pose}.");
 
-        // Frames 23+ are the somersault portion and always use Screw-style index three.
-        // Frames 3..22 use charge-beam index four only after the projectile flare counter
+        // Frames 23+ are the somersault portion and always attack as the Screw Attack.
+        // Frames 3..22 attack as the pseudo Screw Attack only after the projectile flare counter
         // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
         if (samus.AnimationFrame >= 23)
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
@@ -368,7 +368,7 @@ public static class SamusAerialMovement
         ValidateCommon(level, samus);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         // Crouched aimed turns use the turning-while-jumping movement type even though they normally remain on
-        // the floor. If a producer gives one nonzero Y direction, the turn movement immediately
+        // the floor. If a producer gives one a vertical direction, the turn movement immediately
         // executes the same X/simple-Y path as the ordinary jumping-turn records
         // (unaimed, aimed up, down and diagonally up). The pose name therefore cannot be used as an admission gate.
         bool isTranslatedTurnPose = SamusPoseMetadata.IsAerialTurnPose(samus.Pose) ||
@@ -401,7 +401,7 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
-        // The vertical check-and-move selects the no-speed probe for direction zero even in
+        // The vertical check-and-move selects the no-speed probe for no vertical direction even in
         // airborne turn art. Moonfall therefore pauses gravity during its turn;
         // this is the same branch used by grounded aimed crouching turns.
         AerialMovementResult result;
@@ -456,7 +456,7 @@ public static class SamusAerialMovement
 
         // Converts an upward magnitude that passed zero to a stationary downward state
         // before the common vertical movement can turn the negative speed into moonfall-like
-        // motion. An ordinary walk-off already enters with direction two.
+        // motion. An ordinary walk-off already enters moving down.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {
@@ -567,7 +567,7 @@ public static class SamusAerialMovement
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
 
-        // A wall jump promotes zero acceleration mode to two
+        // A wall jump promotes accelerating to decelerating
         // after calculating speed, then bypasses the held-direction admission test.
         if (movementType == SamusMovementType.WallJumping &&
             speed.AccelerationMode == SamusAccelerationMode.Accelerating)
@@ -646,8 +646,8 @@ public static class SamusAerialMovement
         downwardDisplacement = !displacement.IsNegative;
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
-        // (down) and the upward mover (up) publish this result after every move. A
-        // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.
+        // (down) and the upward mover (up) publish this result after every move. A downward pass always
+        // publishes one: Landed on a landing, otherwise Falling unless a wall jump's WallJump is retained.
         if (downwardDisplacement)
         {
             if (vertical.Collided)
@@ -756,7 +756,7 @@ public static class SamusAerialMovement
         if (triggered)
         {
             // Both successful exits converge on the same result: the solid-enemy
-            // branch writes five, and the terrain branch repeats that write
+            // branch writes WallJump, and the terrain branch repeats that write
             // too. This is not merely an internal boolean. The shared result
             // state, so retain the publication even though the returned result below also tells
             // the runtime to install the wall-jump pose explicitly.

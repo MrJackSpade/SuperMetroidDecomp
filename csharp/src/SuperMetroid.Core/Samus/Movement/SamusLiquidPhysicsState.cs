@@ -783,11 +783,11 @@ public sealed class SamusLiquidPhysicsState
     /// </remarks>
     private void SpawnFootstepPair(SamusState samus, SamusParticleKind kind)
     {
-        bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        int firstX = directionIsFour
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
+        int firstX = facingLeft
             ? CoordinateAxis.Wrap(samus.Position.X.Whole - 12)
             : CoordinateAxis.Wrap(samus.Position.X.Whole + 12);
-        int secondX = directionIsFour
+        int secondX = facingLeft
             ? CoordinateAxis.Wrap(samus.Position.X.Whole + 8)
             : CoordinateAxis.Wrap(samus.Position.X.Whole - 8);
         int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + 16);

@@ -117,8 +117,8 @@ public sealed class SamusKinematicsState
     public UnsignedSixteenSixteen YSpeed { get; set; }
 
     /// <summary>
-    /// Vertical direction: zero is none, one is upward, and two is
-    /// downward. The game stores speed as a magnitude and uses this separate direction;
+    /// Vertical direction: <see cref="SamusVerticalDirection.None"/>, <see cref="SamusVerticalDirection.Up"/> or
+    /// <see cref="SamusVerticalDirection.Down"/>. The game stores speed as a magnitude and uses this separate direction;
     /// treating upward velocity as a negative number would lose the quirks of a speed passing zero
     /// in the vertical move and the jump-release test.
     /// </summary>

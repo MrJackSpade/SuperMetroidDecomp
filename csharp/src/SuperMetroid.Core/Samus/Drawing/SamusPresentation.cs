@@ -255,8 +255,8 @@ internal sealed class SamusPresentation
                 return;
 
             case SamusAnimationLoopUnlessLowEnergy:
-                // Healthy Samus restarts her breathing; below 30 energy she continues into the drained breathing.
-                samus.AnimationFrame = samus.Health < 30 ? samus.AnimationFrame + 1 : 0;
+                // Healthy Samus restarts her breathing; on low energy she continues into the drained breathing.
+                samus.AnimationFrame = samus.Health < SamusAnimationDelayDefinitions.LowEnergyBreathingBelow ? samus.AnimationFrame + 1 : 0;
                 break;
 
             case SamusAnimationInstallDrainedFall:

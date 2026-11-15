@@ -52,6 +52,68 @@ public static class GrappleBeamDefinitions
         public const int MaximumAngularVelocity = 1152;
         /// <summary>Angular impulse applied by Jump during a swing.</summary>
         public const int JumpImpulseMagnitude = 768;
+        /// <summary>How much of the Jump impulse each sweep that meets nothing takes away, toward zero.</summary>
+        public const int JumpImpulseDecay = 6;
+        /// <summary>The angular velocity a motionless pendulum hanging straight down is kicked to by a held direction.</summary>
+        public const int MotionlessPumpKick = 256;
+        /// <summary>A pendulum hanging straight down slower than this stops.</summary>
+        public const int RestingAngularVelocity = 256;
+        /// <summary>The share, in 256ths, of its angular velocity the swing turns through each update in air.</summary>
+        public const int SwingSpeedScale = 256;
+        /// <summary>The share, in 256ths, of its angular velocity the swing turns through each update under water.</summary>
+        public const int SubmergedSwingSpeedScale = 160;
+        /// <summary>The updates after a bounce off terrain in which Jump adds its impulse.</summary>
+        public const int CollisionBounceFrames = 16;
+    }
+
+    /// <summary>The swinging rope's length and the points along Samus's body its sweeps test.</summary>
+    public static class Swing
+    {
+        /// <summary>How far an Up or Down press shortens or lengthens the rope each update.</summary>
+        public const int RopeLengthStep = 2;
+        /// <summary>The shortest a swing rope is drawn in to; at this length a strike near the hand stops the swing.</summary>
+        public const int ShortestRope = 8;
+        /// <summary>The longest Down lets out a swing rope.</summary>
+        public const int LongestLetOutRope = 63;
+        /// <summary>Down cuts a rope this long or longer to this length instead of letting it out.</summary>
+        public const int RopeLengthCap = 64;
+        /// <summary>The distance beyond the rope's end of the body point a shortening rope tests: the hand end of Samus.</summary>
+        public const int ShorteningProbeOffset = 8;
+        /// <summary>The distance beyond the rope's end of the body point a lengthening rope tests: the feet end of Samus.</summary>
+        public const int LengtheningProbeOffset = 56;
+        /// <summary>The distance between the body points a swing sweep tests, the first this far beyond the hand.</summary>
+        public const int BodyPointSpacing = 8;
+        /// <summary>The body points a swing sweep tests along Samus, from the hand toward the feet.</summary>
+        public const int BodyPointCount = 6;
+        /// <summary>The body points nearest the hand whose strike, on the shortest rope, stops the swing instead of bouncing it.</summary>
+        public const int StoppingPointsNearHand = 2;
+    }
+
+    /// <summary>What an enemy that hurts Samus through the grapple beam does to her.</summary>
+    public static class Contact
+    {
+        /// <summary>The invulnerability, in updates, a grapple-beam hurt gives her.</summary>
+        public const int HurtInvincibilityFrames = 96;
+        /// <summary>The knockback, in updates, a grapple-beam hurt gives her.</summary>
+        public const int HurtKnockbackFrames = 5;
+    }
+
+    /// <summary>Holding onto a wall with the beam, and the moments after letting go.</summary>
+    public static class WallGrab
+    {
+        /// <summary>The updates after a wall grab ends in which Jump still wall-jumps.</summary>
+        public const int WallJumpWindowFrames = 30;
+    }
+
+    /// <summary>How a connection takes up a long rope and how a released beam drops Samus.</summary>
+    public static class Connection
+    {
+        /// <summary>A connected rope this long or longer is shortened by <see cref="LongRopeShortening"/>.</summary>
+        public const int LongRope = 64;
+        /// <summary>How much a connection shortens a long rope.</summary>
+        public const int LongRopeShortening = 24;
+        /// <summary>The smallest vertical radius of a body that drops standing; a smaller body drops crouching.</summary>
+        public const int StandingDropRadius = 17;
     }
 
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>

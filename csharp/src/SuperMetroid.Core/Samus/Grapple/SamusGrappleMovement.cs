@@ -422,8 +422,8 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// Applies common grapple reaction six. Unlike ordinary body contact, the grapple selects
-    /// horizontal knockback from Samus's facing direction, but suit division and the
-    /// 96-update invincibility and five-update knockback lifetimes are the same shared gameplay contracts.
+    /// horizontal knockback from Samus's facing direction; suit division is shared, and the invincibility and knockback
+    /// last <see cref="GrappleBeamDefinitions.Contact"/>'s updates.
     /// </summary>
     private static void ApplyGrappleEnemyDamage(
 
@@ -432,7 +432,7 @@ public static class SamusGrappleMovement
         int damageBeforeSuit)
     {
         SamusSuitDamage.Hurt(samus, damageBeforeSuit);
-        samus.InvincibilityTimer = WrappingCountdown.Start(96);
+        samus.InvincibilityTimer = WrappingCountdown.Start(GrappleBeamDefinitions.Contact.HurtInvincibilityFrames);
 
         // Facing left is knocked right and facing right is knocked left. Start owns the
         // authentic pose, animation, vertical speed, contact-damage cancellation, and
@@ -440,10 +440,10 @@ public static class SamusGrappleMovement
         KnockbackHorizontalDirection knockbackXDirection = SamusPoseMetadata.IsFacingLeft(samus.Pose)
             ? KnockbackHorizontalDirection.Right
             : KnockbackHorizontalDirection.Left;
-        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = 5 });
+        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = GrappleBeamDefinitions.Contact.HurtKnockbackFrames });
     }
 
-    /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens a 30-update wall-jump window.</summary>
+    /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens the wall-jump window.</summary>
     private static GrappleMovementResult StepWallGrab(
         RoomLevelData level,
         SamusState samus,
@@ -463,9 +463,9 @@ public static class SamusGrappleMovement
                 grapple.Phase);
         }
 
-        // The wall-grab writes decimal 30 and changes only the grapple phase. The contact
+        // The wall-grab opens the window and changes only the grapple phase. The contact
         // pose and beam remain visible throughout the following grace-window probes.
-        grapple.WallJumpTimer = 30;
+        grapple.WallJumpTimer = GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames;
         grapple.Phase = GrapplePhase.WallGrabRelease;
         return new GrappleMovementResult(
             grapple.Phase);
@@ -582,12 +582,12 @@ public static class SamusGrappleMovement
             // The drop phases use the pose's facing when the pose aims nowhere.
             // Standing selects the normal standing poses; compact bodies select crouching.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-            return samus.Kinematics.Radius.Y >= 17
+            return samus.Kinematics.Radius.Y >= GrappleBeamDefinitions.Connection.StandingDropRadius
                 ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
                 : facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose;
         }
 
-        return GrappleConnections.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < 17);
+        return GrappleConnections.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < GrappleBeamDefinitions.Connection.StandingDropRadius);
     }
 
     /// <summary>Applies an exact special-angle connection record, including its pose and bounded camera displacement.</summary>
@@ -930,8 +930,8 @@ public static class SamusGrappleMovement
         grapple.MirroredAngle = grapple.Angle;
         grapple.AngularVelocity = 0;
         grapple.RopeLengthDelta = 0;
-        if (grapple.RopeLength >= 64)
-            grapple.RopeLength -= 24;
+        if (grapple.RopeLength >= GrappleBeamDefinitions.Connection.LongRope)
+            grapple.RopeLength -= GrappleBeamDefinitions.Connection.LongRopeShortening;
 
         // The connection publishes the grapple-beam Start pair from the accepted endpoint,
         // angle, and possibly shortened rope. This is the hand attachment point, not the

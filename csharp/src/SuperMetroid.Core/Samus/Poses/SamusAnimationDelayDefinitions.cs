@@ -13,6 +13,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions
 {
+    /// <summary>Samus's energy below which the standing and crouching breathing continues into its low-energy breathing.</summary>
+    internal const int LowEnergyBreathingBelow = 30;
+
     /// <summary>The animation <see cref="SamusPoseId.MovingRightNormalPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation RunningAnimation { get; } = new(
     [

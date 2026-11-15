@@ -39,6 +39,14 @@ public static class SuitPickupBeamDefinitions
     public static readonly SuitPickupBeamEdges DissipationStart = SuitPickupBeamEdges.Columns(RightmostColumn, 248);
     /// <summary>The lines the beam spans from the top of the screen; its middle line is half way down them.</summary>
     public const int BeamLines = 256;
+    /// <summary>The lines the appearing and the shrinking beam cover from each end before the next stage: half the beam's lines.</summary>
+    public const int CoveredLines = BeamLines / 2;
+    /// <summary>The lines the appearing beam covers from each end on each update.</summary>
+    public const int AppearingLinesPerUpdate = 8;
+    /// <summary>The uniform widening ends once its left edge moves left of this column.</summary>
+    public const int UniformWideningEndColumn = 97;
+    /// <summary>The dissipating line ends once its left edge reaches this column.</summary>
+    public const int DissipatedColumn = 112;
     /// <summary>How far the curved beam's rounded sides reach beyond its column at the middle line, in pixels.</summary>
     public const int CurveWidth = 24;
 }

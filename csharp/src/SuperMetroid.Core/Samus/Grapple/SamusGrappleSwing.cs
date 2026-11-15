@@ -121,19 +121,18 @@ public static class SamusGrappleSwing
         if ((newlyPressedInput & GameplayAction.Up) != GameplayAction.None)
         {
             if (grapple.RopeLength != 0)
-                grapple.RopeLengthDelta = -2;
+                grapple.RopeLengthDelta = -GrappleBeamDefinitions.Swing.RopeLengthStep;
         }
         else if ((newlyPressedInput & GameplayAction.Down) != GameplayAction.None)
         {
-            if (grapple.RopeLength < 64)
-                grapple.RopeLengthDelta = 2;
+            if (grapple.RopeLength < GrappleBeamDefinitions.Swing.RopeLengthCap)
+                grapple.RopeLengthDelta = GrappleBeamDefinitions.Swing.RopeLengthStep;
             else
-                grapple.RopeLength = 64;
+                grapple.RopeLength = GrappleBeamDefinitions.Swing.RopeLengthCap;
         }
 
         // The branch accepts pumping only through the lower half of the circle, from a quarter turn up to three quarters.
-        // Hanging straight down, a motionless pendulum gets the +/-256 kick before the normal +/-12 input acceleration
-        // is added.
+        // Hanging straight down, a motionless pendulum gets the kick before the normal input acceleration is added.
         bool inPumpArc = grapple.Angle >= RotationAngle.QuarterTurn &&
             grapple.Angle < RotationAngle.ThreeQuarterTurn;
         if (!inPumpArc)
@@ -145,7 +144,7 @@ public static class SamusGrappleSwing
         if ((controllerInput & GameplayAction.Left) != GameplayAction.None)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
-                grapple.AngularVelocity = 256;
+                grapple.AngularVelocity = GrappleBeamDefinitions.Physics.MotionlessPumpKick;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
                 : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
@@ -155,7 +154,7 @@ public static class SamusGrappleSwing
         if ((controllerInput & GameplayAction.Right) != GameplayAction.None)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
-                grapple.AngularVelocity = -256;
+                grapple.AngularVelocity = -GrappleBeamDefinitions.Physics.MotionlessPumpKick;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? -(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
                 : -GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
@@ -177,28 +176,28 @@ public static class SamusGrappleSwing
 
         // The rope-length adjustment does not jump directly by two pixels. It walks each intermediate length
         // and collision-tests Samus's leading edge, which prevents a fast rope adjustment
-        // from tunnelling through a one-pixel boundary. Shortening probes length+8; growing
-        // probes length+56, matching the front/back ends of the 48-pixel body line.
+        // from tunnelling through a one-pixel boundary. Shortening probes her hand end; growing
+        // probes her feet end, the two ends of the body line the swing sweeps.
         int targetLength = grapple.RopeLength + grapple.RopeLengthDelta;
         int direction;
         int frontBoundaryOffset;
         if (grapple.RopeLengthDelta < 0)
         {
             direction = -1;
-            frontBoundaryOffset = 8;
-            if (targetLength < 8)
+            frontBoundaryOffset = GrappleBeamDefinitions.Swing.ShorteningProbeOffset;
+            if (targetLength < GrappleBeamDefinitions.Swing.ShortestRope)
             {
-                targetLength = 8;
+                targetLength = GrappleBeamDefinitions.Swing.ShortestRope;
                 grapple.RopeLengthDelta = 0;
             }
         }
         else
         {
             direction = 1;
-            frontBoundaryOffset = 56;
-            if (targetLength >= 63)
+            frontBoundaryOffset = GrappleBeamDefinitions.Swing.LengtheningProbeOffset;
+            if (targetLength >= GrappleBeamDefinitions.Swing.LongestLetOutRope)
             {
-                targetLength = 63;
+                targetLength = GrappleBeamDefinitions.Swing.LongestLetOutRope;
                 grapple.RopeLengthDelta = 0;
             }
         }
@@ -261,7 +260,7 @@ public static class SamusGrappleSwing
             {
                 grapple.GravityAcceleration = 0;
                 grapple.VelocityCorrection = 0;
-                if (Math.Abs(grapple.AngularVelocity) < 256)
+                if (Math.Abs(grapple.AngularVelocity) < GrappleBeamDefinitions.Physics.RestingAngularVelocity)
                     grapple.AngularVelocity = 0;
             }
             else
@@ -341,7 +340,7 @@ public static class SamusGrappleSwing
         // current whole angle step to the target one step at a time. Fractional-only motion
         // within the same step has no sweep, exactly as the target-step equality branch.
         int combined = grapple.AngularVelocity + grapple.JumpImpulse;
-        int factor = grapple.Submerged ? 160 : 256;
+        int factor = grapple.Submerged ? GrappleBeamDefinitions.Physics.SubmergedSwingSpeedScale : GrappleBeamDefinitions.Physics.SwingSpeedScale;
         int magnitude = EightEight.Multiply(Math.Abs(combined), factor);
         if (magnitude == 0)
             return;
@@ -353,10 +352,10 @@ public static class SamusGrappleSwing
         int stepDirection = combined < 0 ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
-        // explicit 256-step guard anyway: it documents the cyclic angle domain and turns a
+        // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a
         // future corrupt state into a diagnostic rather than an infinite loop.
         for (int angleSteps = 0;
-             lastSafeStep != targetStep && angleSteps < 256;
+             lastSafeStep != targetStep && angleSteps < RotationAngle.StepsPerTurn;
              angleSteps++)
         {
             TrigonometryAngle candidateStep = lastSafeStep.TurnedBySteps(stepDirection);
@@ -373,7 +372,7 @@ public static class SamusGrappleSwing
                 grapple.Angle = RotationAngle.MiddleOfStep(lastSafeStep);
                 grapple.MirroredAngle = grapple.Angle;
 
-                bool closeCollision = grapple.RopeLength == 8 &&
+                bool closeCollision = grapple.RopeLength == GrappleBeamDefinitions.Swing.ShortestRope &&
                     collision.DistanceFromFeet is 6 or 5;
                 if (closeCollision)
                 {
@@ -385,7 +384,7 @@ public static class SamusGrappleSwing
                 }
                 else
                 {
-                    grapple.CollisionBounceTimer = 16;
+                    grapple.CollisionBounceTimer = GrappleBeamDefinitions.Physics.CollisionBounceFrames;
                     grapple.AngularVelocity = ReversedAtHalfSpeed(grapple.AngularVelocity);
                     grapple.JumpImpulse = ReversedAtHalfSpeed(grapple.JumpImpulse);
                 }
@@ -400,7 +399,7 @@ public static class SamusGrappleSwing
             throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
 
         // No sampled angle collided, so preserve the full fine target, clear the special
-        // angle request, age the kick window, and damp extra velocity by six. Every one of
+        // angle request, age the kick window, and damp the extra velocity. Every one of
         // these operations is bypassed by the collision return above.
         grapple.Angle = targetAngle;
         grapple.MirroredAngle = targetAngle;
@@ -408,12 +407,12 @@ public static class SamusGrappleSwing
 
         grapple.CollisionBounceTimer = Math.Max(0, grapple.CollisionBounceTimer - 1);
 
-        // The angular movement damps the temporary jump impulse toward zero by six after a successful
+        // The angular movement damps the temporary jump impulse toward zero after a successful
         // angle step. This impulse is separate from angular velocity and must not be folded in.
         if (grapple.JumpImpulse > 0)
-            grapple.JumpImpulse = Math.Max(0, grapple.JumpImpulse - 6);
+            grapple.JumpImpulse = Math.Max(0, grapple.JumpImpulse - GrappleBeamDefinitions.Physics.JumpImpulseDecay);
         else if (grapple.JumpImpulse < 0)
-            grapple.JumpImpulse = Math.Min(0, grapple.JumpImpulse + 6);
+            grapple.JumpImpulse = Math.Min(0, grapple.JumpImpulse + GrappleBeamDefinitions.Physics.JumpImpulseDecay);
     }
 
 
@@ -424,11 +423,10 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple,
         TrigonometryAngle candidateAngle)
     {
-        // The body sweep checks six points on an eight-pixel cadence. The first point is eight
-        // pixels beyond the hand; the last is 48 pixels beyond it. Together with rope length
-        // this approximates Samus's body as a radial line while rotating around the anchor.
-        int distance = grapple.RopeLength + 8;
-        for (int distanceFromFeet = 6; distanceFromFeet >= 1; distanceFromFeet--)
+        // The body sweep checks its points on an even cadence from just beyond the hand toward the feet. Together with
+        // rope length this approximates Samus's body as a radial line while rotating around the anchor.
+        int distance = grapple.RopeLength + GrappleBeamDefinitions.Swing.BodyPointSpacing;
+        for (int distanceFromFeet = GrappleBeamDefinitions.Swing.BodyPointCount; distanceFromFeet >= 1; distanceFromFeet--)
         {
             GrappleCollisionPoint point = CalculateCollisionPoint(
                 grapple,
@@ -441,7 +439,7 @@ public static class SamusGrappleSwing
                     DistanceFromFeet: distanceFromFeet);
             }
 
-            distance += 8;
+            distance += GrappleBeamDefinitions.Swing.BodyPointSpacing;
         }
 
         return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
@@ -584,12 +582,13 @@ public static class SamusGrappleSwing
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
+        // The swing's own selection: the turret spike, which the ground collision treats as light, costs nothing here.
         int damage = block == SwingSpikeBlock.Solid
-            ? reaction == SpikeReaction.HeavySpike ? 60
-                : reaction == SpikeReaction.LightSpike ? 16
+            ? reaction == SpikeReaction.HeavySpike ? SpikeHazardDefinitions.HeavySpikeDamage
+                : reaction == SpikeReaction.LightSpike ? SpikeHazardDefinitions.LightSpikeDamage
                 : 0
             : reaction == SpikeReaction.DamagingSpikeAir
-                ? 16
+                ? SpikeHazardDefinitions.LightSpikeDamage
                 : 0;
         if (damage == 0)
             return;
@@ -597,8 +596,8 @@ public static class SamusGrappleSwing
         samus.LiquidPhysics.AccumulatePeriodicDamage(
             subDamage: 0,
             wholeDamage: damage);
-        samus.InvincibilityTimer = WrappingCountdown.Start(60);
-        samus.KnockbackTimer = 10;
+        samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
+        samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
     }
 
 

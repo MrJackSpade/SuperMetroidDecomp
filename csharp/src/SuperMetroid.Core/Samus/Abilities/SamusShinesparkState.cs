@@ -180,7 +180,7 @@ public sealed class SamusShinesparkState
         if (!speedBoostCounter.IsAtFullStage)
             return false;
 
-        ShineTimer = 180;
+        ShineTimer = ShinesparkDefinitions.StoredShineFrames;
         _colouring.Take(SamusSpecialColouringKind.SpeedBoosterShine);
         ShadeStep = 0;
         Phase = ShinesparkPhase.Stored;
@@ -207,7 +207,7 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(samus, targetPose);
     }
 
-    /// <summary>Cancels beam charge and installs the 30-frame spark windup, shade and boost state.</summary>
+    /// <summary>Cancels beam charge and installs the spark windup, shade and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
         // The windup checks the charge counter before clearing it. A charge that has
@@ -241,8 +241,8 @@ public sealed class SamusShinesparkState
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         _acceleration.StartSpark(InitialVerticalAcceleration);
-        StartStopTimer = 30;
-        ShineTimer = 60;
+        StartStopTimer = ShinesparkDefinitions.WindupFrames;
+        ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);
         ShadeStep = 0;
         Phase = ShinesparkPhase.Windup;
@@ -630,7 +630,8 @@ false);
         if (colouring is not (SamusSpecialColouringKind.SpeedBoosterShine or SamusSpecialColouringKind.Shinesparking))
             return false;
 
-        if (colouring == SamusSpecialColouringKind.SpeedBoosterShine && ShineTimer == 170)
+        if (colouring == SamusSpecialColouringKind.SpeedBoosterShine &&
+            ShineTimer == ShinesparkDefinitions.StoredShineFrames - ShinesparkDefinitions.StoredShineSoundDelayFrames)
             AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High);
 
         bool expired = --ShineTimer <= 0;
@@ -681,8 +682,11 @@ false);
         // prologue clears it before the crash's first frame runs next.
         samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        FirstCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 32 : 224);
-        SecondCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 160 : 96);
+        ShinesparkDepartureAngles orbitStart = facingLeft
+            ? ShinesparkEchoDefinitions.CrashOrbitStartFacingLeft
+            : ShinesparkEchoDefinitions.CrashOrbitStartFacingRight;
+        FirstCrashEchoAngle = orbitStart.First;
+        SecondCrashEchoAngle = orbitStart.Second;
         _crashOrbitTurn = facingLeft ? CrashOrbitTurnSteps : -CrashOrbitTurnSteps;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
@@ -701,16 +705,16 @@ false);
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         switch (CrashOrbitStage)
         {
             case ShinesparkCrashOrbitStage.Expanding:
             {
-                // The crash tests the old radius against twelve, after calculating +4.
-                // The transition frame therefore publishes radius sixteen and the orbiting stage.
+                // The crash tests the old radius against the orbit's start, after expanding.
+                // The transition frame therefore publishes the orbiting radius and the orbiting stage.
                 int oldRadius = CrashRadius;
-                CrashRadius += 4;
-                if (oldRadius >= 12)
+                CrashRadius += ShinesparkDefinitions.CrashRadiusStep;
+                if (oldRadius >= ShinesparkDefinitions.CrashOrbitStartRadius)
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
                 break;
             }
@@ -723,11 +727,11 @@ false);
                 break;
 
             case ShinesparkCrashOrbitStage.Contracting:
-                CrashRadius -= 4;
+                CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashEchoCircle;
-                    StartStopTimer = 30;
+                    StartStopTimer = ShinesparkDefinitions.CrashEchoHoldFrames;
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = RotationAngle.Zero;
                     SecondCrashEchoAngle = RotationAngle.Zero;
@@ -748,10 +752,10 @@ false);
 false);
     }
 
-    /// <summary>Runs the 30-frame center echo hold.</summary>
+    /// <summary>Runs the center echo hold.</summary>
     private ShinesparkMovementResult StepCrashEchoCircle()
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         if (--StartStopTimer <= 0)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
@@ -774,7 +778,7 @@ false);
                 SamusBeamCombinations.Of(samus.EquippedBeams), samus.Position.Whole))
             _orbitTravel.LeaveEchoHeight(samus.Position.Whole.Y);
 
-        ShineTimer = 1;
+        ShineTimer = ShinesparkDefinitions.FinishedShadeFrames;
         _acceleration.StopSpark();
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
@@ -908,7 +912,7 @@ false,             CrashSequenceFinished: true);
         SamusState samus,
         ISamusRoomObjects? roomObjects)
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
         if (samus.HorizontalSpeed.ExtraRunSpeed.Whole >= 15)
         {
@@ -927,7 +931,7 @@ false,             CrashSequenceFinished: true);
         int frameCounter,
         ISamusRoomObjects? roomObjects)
     {
-        ShineTimer = 15;
+        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
         samus.Kinematics.YSpeed += _acceleration.SparkAcceleration;
 

@@ -81,7 +81,7 @@ internal sealed class RidleyEntity(
     /// <summary>
     /// Lower Norfair Ridley's hurt behaviour for the post-hit window, which owns hurt frames instead of falling back to
     /// ordinary main AI: movement and phase work run only on even actor frames, while tail projectile armour and hurt
-    /// palettes stay live on every frame. Ceres Ridley and the breakup actor take the shared hurt their definitions name.
+    /// colours stay live on every frame. Ceres Ridley and the breakup actor take the shared hurt their definitions name.
     /// </summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)

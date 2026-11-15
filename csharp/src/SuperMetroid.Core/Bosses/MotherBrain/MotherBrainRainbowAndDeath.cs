@@ -12,13 +12,13 @@ using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>
+/// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainRainbowAndDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -26,7 +26,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues the encounter's music and sound effects in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
+    /// <summary>Draws encounter artwork and applies installed colours.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -304,7 +304,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.NextRainbowFrame = 0;
         ApplyMotherBrainBeamColours(state, current);
         // The brain's step runs after body AI. Its health check is enabled during revival,
-        // but the health palette waits until the corpse-state value reaches final-combat state 2.
+        // but the health colours wait until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             state.Colours.ShowHealth(MotherBrainHealthShades.Band(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, sequence, current);

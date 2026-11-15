@@ -176,7 +176,7 @@ internal static class SamusPoseMetadata
         ApplyForwardFacingPoseSetup(samus);
         // The elevator setup takes both Samus's movement and her pose input. An uncrashed
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
-        // admitted Flash keeps only its independent palette timer. Neither movement owner
+        // admitted Flash keeps only its independent colour timer. Neither movement owner
         // may resume after elevator travel; the setup restores ordinary pose input.
         SamusMovementHandOver.To(samus, SamusMovementOwner.Elevator);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
@@ -189,12 +189,12 @@ internal static class SamusPoseMetadata
     /// </summary>
     /// <remarks>
     /// The behaviour also locks the player out of Samus's control, kills grapple,
-    /// clears beam-flare presentation state, and reloads the suit palette. Those owners do
+    /// clears beam-flare presentation state, and reloads the suit colours. Those owners do
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and
     /// all motion values cleared by the setup. It does not write the collision radius;
     /// the next input phase's radius update does. Runtime/debug callers remain responsible for
-    /// input lock, palette and grapple before their first displayed frame.
+    /// input lock, colouring and grapple before their first displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {
@@ -386,7 +386,7 @@ internal static class SamusPoseMetadata
     public static bool IsLandingPose(SamusPoseId pose) => IsRightFacingLandingPose(pose) || IsLeftFacingLandingPose(pose);
 
     /// <summary>
-    /// True when the ordinary grounded input step may interrupt a landing stream
+    /// True when the ordinary grounded input step may interrupt a landing
     /// with any same-facing normal-jump transition, neutral or aimed.
     /// </summary>
     /// <remarks>
@@ -701,7 +701,7 @@ internal static class SamusPoseMetadata
 
                 // The special target installs through the pose initializer, which runs the new
                 // normal-jumping type to the normal-jump initializer (the forward jump cannot start a spark there). It
-                // then restores the suit palette after a wall jump with Screw Attack.
+                // then restores the suit colours after a wall jump with Screw Attack.
                 SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
@@ -752,9 +752,9 @@ internal static class SamusPoseMetadata
     {
         // Arming the bomb jump takes, rather than suspends, Samus's movement.
         // A suit-interrupted spark may still hold it despite the ordinary body pose.
-        // Keep its independently running palette/boost state, but never resume it
+        // Keep its independently running colouring/boost state, but never resume it
         // when the bomb arc returns her movement and input to her pose. The same
-        // applies when suit pickup suspended Flash: its palette keeps running, but its
+        // applies when suit pickup suspended Flash: its colouring keeps running, but its
         // raising/drain must never resume after the bomb arc.
         SamusMovementHandOver.To(samus, SamusMovementOwner.BombJump);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;

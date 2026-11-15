@@ -120,7 +120,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
                 // Reaching a screen's last block row is how the jumper knows it is back in the lava. Once the
                 // actor reaches that row it snaps to its exact population origin, restores
-                // the hidden animation, and sleeps off-screen until the next jump begins.
+                // the hidden animation, and rests off-screen until the next jump begins.
                 if (RoomGridConversions.BlockRowWithinScreen(slot.Position.Y.Whole) == 15)
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);

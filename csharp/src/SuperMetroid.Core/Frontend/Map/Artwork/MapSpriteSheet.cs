@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// Draws the map's markers, elevator and area labels, arrows and position indicator from the map sprite sheet (#1392),
-/// each in the shade the import pre-coloured its palette-inheriting parts in for the colouring it draws in (#1512).
+/// each in the shade the import pre-coloured its recolourable parts in for the colouring it draws in (#1512).
 /// </summary>
 internal static class MapSpriteSheet
 {
     /// <summary>
-    /// Places <paramref name="id"/>'s frame at <paramref name="origin"/>, its palette-inheriting parts in
+    /// Places <paramref name="id"/>'s frame at <paramref name="origin"/>, its recolourable parts in
     /// <paramref name="colouring"/> as <paramref name="screen"/> shows them.
     /// </summary>
     /// <param name="sheet">The map sprite sheet.</param>
@@ -17,7 +17,7 @@ internal static class MapSpriteSheet
     /// <param name="sprites">The screen's sprite entries.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="screen">The map screen the sprite is drawn on.</param>
-    /// <param name="colouring">What the map shows the sprite's palette-inheriting parts as.</param>
+    /// <param name="colouring">What the map shows the sprite's recolourable parts as.</param>
     /// <exception cref="InvalidOperationException">The sprite is not one <see cref="MapSpriteColourings"/> draws in <paramref name="colouring"/>, so the sheet does not picture it in that colouring.</exception>
     internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<SpritePixels> origin,
         MapSpriteScreen screen, MapSpriteColouring colouring)

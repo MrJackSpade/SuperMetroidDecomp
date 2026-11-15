@@ -32,36 +32,36 @@ internal enum RidleyBreakupFrame
     ClawFacingLeft,
     /// <summary>The right-facing claw.</summary>
     ClawFacingRight,
-    /// <summary>The tail tip pointing down, the first of sixteen orientations clockwise.</summary>
-    TailTip0,
-    /// <summary>Tail tip orientation 1.</summary>
-    TailTip1,
-    /// <summary>Tail tip orientation 2.</summary>
-    TailTip2,
-    /// <summary>Tail tip orientation 3.</summary>
-    TailTip3,
-    /// <summary>Tail tip orientation 4.</summary>
-    TailTip4,
-    /// <summary>Tail tip orientation 5.</summary>
-    TailTip5,
-    /// <summary>Tail tip orientation 6.</summary>
-    TailTip6,
-    /// <summary>Tail tip orientation 7.</summary>
-    TailTip7,
-    /// <summary>Tail tip orientation 8.</summary>
-    TailTip8,
-    /// <summary>Tail tip orientation 9.</summary>
-    TailTip9,
-    /// <summary>Tail tip orientation 10.</summary>
-    TailTip10,
-    /// <summary>Tail tip orientation 11.</summary>
-    TailTip11,
-    /// <summary>Tail tip orientation 12.</summary>
-    TailTip12,
-    /// <summary>Tail tip orientation 13.</summary>
-    TailTip13,
-    /// <summary>Tail tip orientation 14.</summary>
-    TailTip14,
-    /// <summary>Tail tip orientation 15.</summary>
-    TailTip15,
+    /// <summary>The tail tip pointing straight down, the first of sixteen directions clockwise.</summary>
+    TailTipPointingDown,
+    /// <summary>The tail tip pointing down, a little left.</summary>
+    TailTipPointingDownDownLeft,
+    /// <summary>The tail tip pointing down and left.</summary>
+    TailTipPointingDownLeft,
+    /// <summary>The tail tip pointing left, a little down.</summary>
+    TailTipPointingLeftDownLeft,
+    /// <summary>The tail tip pointing straight left.</summary>
+    TailTipPointingLeft,
+    /// <summary>The tail tip pointing left, a little up.</summary>
+    TailTipPointingLeftUpLeft,
+    /// <summary>The tail tip pointing up and left.</summary>
+    TailTipPointingUpLeft,
+    /// <summary>The tail tip pointing up, a little left.</summary>
+    TailTipPointingUpUpLeft,
+    /// <summary>The tail tip pointing straight up.</summary>
+    TailTipPointingUp,
+    /// <summary>The tail tip pointing up, a little right.</summary>
+    TailTipPointingUpUpRight,
+    /// <summary>The tail tip pointing up and right.</summary>
+    TailTipPointingUpRight,
+    /// <summary>The tail tip pointing right, a little up.</summary>
+    TailTipPointingRightUpRight,
+    /// <summary>The tail tip pointing straight right.</summary>
+    TailTipPointingRight,
+    /// <summary>The tail tip pointing right, a little down.</summary>
+    TailTipPointingRightDownRight,
+    /// <summary>The tail tip pointing down and right.</summary>
+    TailTipPointingDownRight,
+    /// <summary>The tail tip pointing down, a little right.</summary>
+    TailTipPointingDownDownRight,
 }

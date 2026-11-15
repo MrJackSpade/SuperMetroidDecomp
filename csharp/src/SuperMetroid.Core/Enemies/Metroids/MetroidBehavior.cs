@@ -283,7 +283,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Movement = MetroidMovement.AttachedToSamus;
-        samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
+        samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext;
         SetMetroidAnimation(slot, state, MetroidSegment.DrainingSamus);
     }
 
@@ -349,7 +349,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain palette flag.</summary>
+    /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain colour flag.</summary>
     private static void DetachMetroidWithPowerBomb(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -359,7 +359,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
         if (samus is not null)
-            samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
+            samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.Inactive;
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
@@ -370,7 +370,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Electricity.End();
         state.Shell.End();
         if (samus is not null)
-            samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
+            samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.Inactive;
     }
 
     /// <summary>

@@ -5,8 +5,8 @@ public enum CrocomireTongueSegment
 {
     /// <summary>Four five-update frames, looping.</summary>
     Fight,
-    /// <summary>A bare sleep for the hidden tongue after the bridge collapses.</summary>
-    Sleep,
+    /// <summary>The hidden tongue after the bridge collapses: no frame, held for good.</summary>
+    Hidden,
     /// <summary>Five five-update frames, looping.</summary>
     Melting,
 }

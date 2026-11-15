@@ -135,7 +135,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
-        // Title setup expands the four artwork streams; the title binds that
+        // Title setup expands the four artwork sets; the title binds that
         // artwork and its capture places the turning floor, the sprites and the Baby's pose.
         objects = new ScreenSprites();
         RestartColourEffects();

@@ -24,7 +24,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Applies body palettes and the background changes.</summary>
+    /// <summary>Applies body colours and the background changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
     internal PhantoonOpening Opening { get; }
@@ -323,8 +323,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
         AnimationPlayback<PhantoonPartSegment> playback = state.PartPlayback(part);
         // Writing the playback back after the events lets the animation's own hold overwrite an event's install on
-        // this part, as the Sleep does. Phantoon's part animations count no plays.
-        EnemyAnimationPlayback.Play(part, PhantoonAnimations.Segments, ref playback, PhantoonPartFrames.ShownFrames.Of,
+        // this part, as a rest does. Phantoon's part animations count no plays.
+        EnemyAnimationPlayback.Play(part, PhantoonAnimations.Segments, ref playback,
             cue =>
             {
                 ApplyPhantoonPartCue(part, cue);
@@ -353,7 +353,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case PhantoonPartCue.BeginEyeTracking:
                 BeginPhantoonEyeTracking(state);
                 // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
-                // eye animation this installs, as the Sleep does; the body's animation survives.
+                // eye animation this installs, as a rest does; the body's animation survives.
                 return;
 
             case PhantoonPartCue.PickNewPattern:

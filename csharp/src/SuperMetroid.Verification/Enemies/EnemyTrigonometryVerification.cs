@@ -558,7 +558,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyBombTorizoStatueFragmentDefinitions), () => VerifyBombTorizoStatueFragmentDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTorizoRandomizedProjectileDefinitions), () => VerifyTorizoRandomizedProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyBombTorizoAttackDefinitions), () => VerifyBombTorizoAttackDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyBombTorizoMovementDefinitions), () => VerifyBombTorizoMovementDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyBombTorizoMovementDefinitions), () => VerifyBombTorizoMovementDefinitions()),
         new(nameof(VerifyCrocomireRumbleDefinitions), () => VerifyCrocomireRumbleDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCrocomireBridgeFragmentDefinitions), () => VerifyCrocomireBridgeFragmentDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyRoomShakeDefinitions), () => VerifyRoomShakeDefinitions(LoadRepositoryRom())),

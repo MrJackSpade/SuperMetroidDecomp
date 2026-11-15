@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
+/// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
 [RoomLifetime]
 internal sealed class KraidHead
 {
@@ -77,8 +77,9 @@ internal sealed class KraidHead
     /// </summary>
     private static int HealthBand(RoomEnemySlot body, KraidEnemyState state)
     {
+        // Band n starts at n + 1 eighths of his initial health.
         int band = KraidHealthThresholdDefinitions.EighthCount - 1;
-        while (band != 0 && body.Health < state.HealthEighthThreshold(band))
+        while (band != 0 && body.Health < state.HealthEighths(band + 1))
             band--;
         return band;
     }
@@ -212,7 +213,7 @@ internal sealed class KraidHead
         state.ClearMouthReactions();
     }
 
-    /// <summary>Seeds eye-glow palette state after a body hit.</summary>
+    /// <summary>Seeds eye-glow colour state after a body hit.</summary>
     internal void InitializeKraidEyeGlow(KraidEnemyState state)
     {
         state.BodyState.Phase = KraidPhase.GlowEye;
@@ -230,7 +231,7 @@ internal sealed class KraidHead
             state.BodyState.Phase = KraidPhase.UnglowEye;
     }
 
-    /// <summary>Restores the eye palette after the reaction completes.</summary>
+    /// <summary>Restores the eye colours after the reaction completes.</summary>
     internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
@@ -263,13 +264,16 @@ internal sealed class KraidHead
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
     }
 
-    /// <summary>Derives a nonzero multiple-of-64 thinking delay from the room RNG.</summary>
+    /// <summary>Derives a thinking delay of one or more 64-update steps from the room RNG; a roll of none takes two.</summary>
     internal int ReadKraidThinkingTimer()
     {
         int random = _room.Random.Read();
-        int value = KraidRandomDefinitions.ThinkingDelaySteps.Of(random);
-        if (value == 0)
-            value = 2;
-        return value << 6;
+        int steps = KraidRandomDefinitions.ThinkingDelaySteps.Of(random);
+        if (steps == 0)
+            steps = 2;
+        return steps * ThinkingDelayStepUpdates;
     }
+
+    /// <summary>The updates of one step of Kraid's thinking delay.</summary>
+    private const int ThinkingDelayStepUpdates = 64;
 }

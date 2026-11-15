@@ -31,13 +31,13 @@ public sealed class PhantoonEyeState
     /// <summary>Whether the eye's death pixelation has finished growing and the fade-out runs.</summary>
     public bool DeathPixelationFinished { get; internal set; }
 
-    /// <summary>The eye's palette fade denominator.</summary>
+    /// <summary>The eye's colour fade denominator.</summary>
     public int FadeDenominator { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>The eye's palette fade numerator.</summary>
+    /// <summary>The eye's colour fade numerator.</summary>
     public int FadeNumerator { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>Whether the eye's current palette fade has completed.</summary>
+    /// <summary>Whether the eye's current colour fade has completed.</summary>
     public bool FadeComplete { get; internal set; }
 
     /// <summary>The eye's completed rage waves.</summary>

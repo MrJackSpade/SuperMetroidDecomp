@@ -454,7 +454,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // InitializeAnimation resets only the target art stream. In particular, do not call
+        // InitializeAnimation resets only the target's animation. In particular, do not call
         // start a jump or clear YDirection/YSpeed/YSubspeed: the input transition can occur
         // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);

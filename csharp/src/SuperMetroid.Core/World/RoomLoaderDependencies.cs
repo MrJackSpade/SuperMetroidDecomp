@@ -75,7 +75,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The host's installed room-object artwork each room's room-object system draws with.</summary>
     public required RoomObjectVisuals ShotBlockVisuals { get; init; }
 
-    /// <summary>The held beam charge, flare and charge palette, which each room's projectile system shares.</summary>
+    /// <summary>The held beam charge, flare and charge colouring, which each room's projectile system shares.</summary>
     public required BeamChargeState BeamCharge { get; init; }
 
     /// <summary>Room.</summary>

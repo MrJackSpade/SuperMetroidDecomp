@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainHead
 {
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues the encounter's music and sound effects in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
+    /// <summary>Draws encounter artwork and applies installed colours.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -154,7 +154,7 @@ internal sealed class MotherBrainHead
         }
     }
 
-    /// <summary>Publishes a selected world-space Mother Brain frame from the head's sheet with palette and camera offsets.</summary>
+    /// <summary>Publishes a selected world-space Mother Brain frame from the head's sheet with colours and camera offsets.</summary>
     internal void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,

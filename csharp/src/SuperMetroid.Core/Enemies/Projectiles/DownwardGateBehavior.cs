@@ -72,7 +72,7 @@ internal sealed class DownwardGateBehavior
         projectile.State = new DownwardGateState(request.RoomObjectBlock);
     }
 
-    /// <summary>Finds the matching gate actor from the pool's end and wakes its sleeping animation.</summary>
+    /// <summary>Finds the matching gate actor from the pool's end and wakes its resting animation.</summary>
     private void WakeDownwardGateProjectile(Position16<RoomBlocks> roomObjectBlock)
     {
         EnemyProjectile? projectile = null;
@@ -105,7 +105,7 @@ internal sealed class DownwardGateBehavior
         int travelled = gate.TravelSinceBlock + speedMagnitude;
         if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {
-            // Steps the animation past its sleep, which wakes the next visual frame
+            // Steps the animation past its rest, which wakes the next visual frame
             // on this same enemy-projectile pass.
             ResumeDownwardGate(projectile);
             travelled = 0;
@@ -115,8 +115,8 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>
-    /// Steps a gate past the sleep its animation holds, as stepping its animation one entry on with a one-update timer
-    /// does: the animation resumes with the one authored after that sleep.
+    /// Steps a gate past the rest its animation holds, as stepping its animation one entry on with a one-update timer
+    /// does: the animation resumes with the one authored after that rest.
     /// </summary>
     private static void ResumeDownwardGate(EnemyProjectile projectile)
     {

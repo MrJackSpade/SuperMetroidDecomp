@@ -10,7 +10,7 @@ public enum MamaTurtleAction
     Initial,
     /// <summary>Inert state used after parent/child setup.</summary>
     Idle,
-    /// <summary>Waits asleep until the shared wake counter is cleared.</summary>
+    /// <summary>Waits dormant until the shared wake counter is cleared.</summary>
     Asleep,
     /// <summary>Moves Samus along the shell while Mama Turtle emerges.</summary>
     LeavingShell,

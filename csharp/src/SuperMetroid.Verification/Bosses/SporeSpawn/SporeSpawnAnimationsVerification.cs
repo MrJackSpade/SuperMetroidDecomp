@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -101,12 +102,12 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     internal static HashSet<ushort> BodySpritemaps() =>
         [.. BodyEntries.SelectMany(item => SporeSpawnAnimations.Segments.Beats(item.Program))
-            .OfType<AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, SporeSpawnCue>.Frame>()
             .Select(frame => SporeSpawnFrameDefinitionsConstants.Spritemap(frame.Shown))];
 
     /// <summary>The frames Spore Spawn's body programs show, counting each native frame record once.</summary>
     internal static int BodyFrameRecordCount =>
-        BodyEntries.Sum(item => SporeSpawnAnimations.Segments.Beats(item.Program).Count(beat => beat is AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame));
+        BodyEntries.Sum(item => SporeSpawnAnimations.Segments.Beats(item.Program).Count(beat => beat is AnimationBeat<EnemyFrameId, SporeSpawnCue>.Frame));
 
     /// <summary>The native instruction pointer of Spore Spawn's body, translated from its typed playback.</summary>
     internal static ushort NativeBodyInstruction(Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> lists, SporeSpawnEnemyState state) =>

@@ -37,6 +37,6 @@ public sealed class PhantoonTentaclesState
     /// </summary>
     internal void RearmHurtFlash() => HurtFlashShown = false;
 
-    /// <summary>Whether the hurt flash has painted the body white since the health palette was last restored.</summary>
+    /// <summary>Whether the hurt flash has painted the body white since the health colours were last restored.</summary>
     public bool HurtFlashShown { get; internal set; }
 }

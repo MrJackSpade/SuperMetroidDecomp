@@ -66,9 +66,8 @@ internal sealed class KraidProjectiles
         _access.AttachKraidPart(nail, state);
         nail.Shading = _parts.Body.Shading;
         KraidNailState nailPart = _parts.NailStateOf(state, nail);
-        // A fingernail is set up at rest with its horizontal fraction primed: the room's first setup starts it at rest, and
-        // a respawn follows the kill that stopped it (KilledFingernailStops).
-        nailPart.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 40, 0, 0);
+        // A fingernail is set up at rest, so its sibling's launch reads it as stopped (KilledFingernailStops).
+        nailPart.NailVelocity = FixedVector<RoomPixels>.Zero;
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn (KilledFingernailStops).
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
@@ -235,8 +234,8 @@ internal sealed class KraidProjectiles
 
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowShowLowerBodyInFront:
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowSettleParts:
+            case KraidPhase.GrowShowRoomBackdrop:
             case KraidPhase.GrowFadeInRoomBackground:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
@@ -264,21 +263,17 @@ internal sealed class KraidProjectiles
             case KraidPhase.GrowReleaseCamera:
             case KraidPhase.DeathInitialize:
             case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowUpperBody:
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathShowBody:
+            case KraidPhase.DeathStartSinking:
             case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideUpperBody:
-            case KraidPhase.DeathHideLowerBody:
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathHideBody:
+            case KraidPhase.DeathWaitBeforeFadeIn:
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
             case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseKraidThroughFloor:
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseShowBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
@@ -318,7 +313,7 @@ internal sealed class KraidProjectiles
 
         part.AlternateSpawn = true;
         nail.Position = nail.Position.WithWhole(new(50, 240));
-        part.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(1, 0, 0, 0);
+        part.NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(1, 0));
         part.Phase = KraidPhase.FingernailWaitForLint;
         part.PhaseToResume = KraidPhase.FingernailFire;
         nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);
@@ -384,8 +379,8 @@ internal sealed class KraidProjectiles
                 return;
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowShowLowerBodyInFront:
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowSettleParts:
+            case KraidPhase.GrowShowRoomBackdrop:
             case KraidPhase.GrowFadeInRoomBackground:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
@@ -412,21 +407,17 @@ internal sealed class KraidProjectiles
             case KraidPhase.GrowReleaseCamera:
             case KraidPhase.DeathInitialize:
             case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowUpperBody:
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathShowBody:
+            case KraidPhase.DeathStartSinking:
             case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideUpperBody:
-            case KraidPhase.DeathHideLowerBody:
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathHideBody:
+            case KraidPhase.DeathWaitBeforeFadeIn:
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
             case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseKraidThroughFloor:
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseShowBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:

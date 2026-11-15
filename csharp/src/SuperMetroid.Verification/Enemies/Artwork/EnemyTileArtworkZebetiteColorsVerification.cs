@@ -47,7 +47,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         {
             ReferenceCycle(nativeCgram, ref nativeCounter);
             Cycle(installed);
-            AssertEqual((call + 1) % ZebetiteDefinitions.PaletteCycleLength,
+            AssertEqual((call + 1) % ZebetiteDefinitions.ColourCycleLength,
                 Counter(installed),
                 "Installed Zebetite pulse retains the shared counter and wrap");
             AssertEqual(nativeCounter, Counter(installed),
@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         var doorFade = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, fadeStepCount);
         int counterBeforeGate = Counter(selected);
         Cycle(selected);
-        AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.PaletteCycleLength, Counter(selected),
+        AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.ColourCycleLength, Counter(selected),
             "the Zebetite pulse steps on a door fade's first update, before the fade takes its first step");
         AssertTrue(!doorFade.Step(), "the door fade takes its first step");
         counterBeforeGate = Counter(selected);
@@ -75,7 +75,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         while (!doorFade.Step());
         AssertEqual(counterBeforeGate, Counter(selected), "the Zebetite pulse holds through the rest of the door fade");
         Cycle(selected);
-        AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.PaletteCycleLength, Counter(selected),
+        AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.ColourCycleLength, Counter(selected),
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
         (selected.SlotTable.Slots[0].SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException("Verification requires the primary Zebetite state.")).IsSecondaryHalf = true;
@@ -119,7 +119,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             return cgram;
         }
 
-        static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPaletteCycle;
+        static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedColourCycle;
 
         // Independent $A6:FD5E pulse: advance modulo eight, copy two raw colors.
         void ReferenceCycle(SnesCgram cgram, ref ushort counter)
@@ -143,7 +143,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
 
         static void Cycle(RoomEnemySystem enemies)
         {
-            enemies.ZebetiteBehavior.CycleZebetitePalette(enemies.SlotTable.Slots[0]);
+            enemies.ZebetiteBehavior.CycleZebetiteColours(enemies.SlotTable.Slots[0]);
         }
     }
 }

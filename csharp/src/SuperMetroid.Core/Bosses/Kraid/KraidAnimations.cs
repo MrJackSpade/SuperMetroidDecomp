@@ -1,307 +1,303 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Kraid.KraidPartCue;
 using P = SuperMetroid.Core.Bosses.Kraid.KraidPartSegment;
+using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's typed part animations (#641, #1600): each foot, arm, lint and fingernail segment's beats, and the animation starting at each.</summary>
+/// <summary>
+/// Kraid's typed part animations (#641, #1600, #1885): each foot, arm, lint and fingernail segment's beats, each beat naming
+/// the installed frame it shows, and the animation starting at each.
+/// </summary>
 internal static class KraidAnimations
 {
     /// <summary>Every foot, arm, lint and fingernail segment's beats.</summary>
-    internal static AnimationSegments<KraidPartSegment, KraidPartFrame, KraidPartCue> Segments { get; } = new(
-        new Dictionary<KraidPartSegment, AnimationBeat<KraidPartFrame, KraidPartCue>[]>
+    internal static AnimationSegments<KraidPartSegment, EnemyFrameId, KraidPartCue> Segments { get; } = new(
+        new Dictionary<KraidPartSegment, AnimationBeat<EnemyFrameId, KraidPartCue>[]>
     {
         [P.FootInitial] =
         [
-            Hold(FootStanding()),
+            Hold(F.KraidFootStanding),
         ],
         [P.FootNeutral] =
         [
-            Hold(Foot(0)),
+            Hold(F.KraidFootNeutral),
         ],
         [P.FootWalkingForward] =
         [
-            Show(Foot(0), 4),
-            Show(Foot(1), 4),
-            Show(Foot(2), 4),
-            Show(Foot(3), 4),
-            Show(Foot(4), 4),
-            Show(Foot(5), 4),
-            Show(Foot(6), 4),
-            Show(Foot(7), 4),
-            Show(Foot(8), 4),
-            Show(Foot(9), 4),
-            Show(Foot(10), 4),
-            Show(Foot(11), 3),
-            Show(Foot(12), 1),
-            Show(Foot(13), 1),
-            Show(Foot(14), 1),
-            Show(Foot(15), 1),
-            Show(Foot(16), 1),
-            Show(Foot(17), 16),
+            Show(F.KraidFootNeutral, 4),
+            Show(F.KraidFootWalkingForwardSecond, 4),
+            Show(F.KraidFootWalkingForwardThird, 4),
+            Show(F.KraidFootWalkingForwardFourth, 4),
+            Show(F.KraidFootWalkingForwardFifth, 4),
+            Show(F.KraidFootWalkingForwardSixth, 4),
+            Show(F.KraidFootWalkingForwardSeventh, 4),
+            Show(F.KraidFootWalkingForwardEighth, 4),
+            Show(F.KraidFootWalkingForwardNinth, 4),
+            Show(F.KraidFootWalkingForwardTenth, 4),
+            Show(F.KraidFootWalkingForwardEleventh, 4),
+            Show(F.KraidFootWalkingForwardTwelfth, 3),
+            Show(F.KraidFootWalkingForwardThirteenth, 1),
+            Show(F.KraidFootWalkingForwardFourteenth, 1),
+            Show(F.KraidFootWalkingForwardFifteenth, 1),
+            Show(F.KraidFootWalkingForwardSixteenth, 1),
+            Show(F.KraidFootWalkingForwardSeventeenth, 1),
+            Show(F.KraidFootWalkingForwardEighteenth, 16),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(18), 1),
+            Show(F.KraidFootWalkingForwardNineteenth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(19), 1),
-            Show(Foot(19), 3),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 3),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(19), 1),
-            Show(Foot(19), 3),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 3),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(21), 1),
-            Show(Foot(21), 3),
+            Show(F.KraidFootWalkingForwardTwentyFirst, 1),
+            Show(F.KraidFootWalkingForwardTwentyFirst, 3),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(Foot(22), 1),
+            Show(F.KraidFootWalkingForwardTwentySecond, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(Foot(23), 1),
+            Show(F.KraidFootWalkingForwardTwentyThird, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(Foot(24), 1),
+            Show(F.KraidFootWalkingForwardTwentyFourth, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
             Cue(K.StepSound),
-            Show(Foot(25), 1),
+            Show(F.KraidFootWalkingForwardTwentyFifth, 1),
             Cue(K.StepLeft),
-            Show(Foot(26), 1),
+            Show(F.KraidFootWalkingForwardTwentySixth, 1),
             Cue(K.StepLeft),
-            Show(Foot(27), 1),
+            Show(F.KraidFootWalkingForwardTwentySeventh, 1),
             Cue(K.StepLeft),
-            Show(Foot(28), 1),
+            Show(F.KraidFootWalkingForwardTwentyEighth, 1),
             Cue(K.StepLeft),
-            Show(Foot(29), 1),
+            Show(F.KraidFootWalkingForwardTwentyNinth, 1),
             Cue(K.StepLeft),
-            Show(Foot(30), 1),
+            Show(F.KraidFootWalkingForwardThirtieth, 1),
             Cue(K.StepLeft),
-            Show(Foot(31), 1),
-            Show(Foot(0), 1),
-        ],
-        [P.FootWalkingForwardFinished] =
-        [
+            Show(F.KraidFootWalkingForwardThirtyFirst, 1),
+            Show(F.KraidFootNeutral, 1),
         ],
         [P.FootLungeForward] =
         [
-            Show(Foot(0), 1),
-            Show(Foot(1), 1),
-            Show(Foot(2), 1),
-            Show(Foot(3), 1),
-            Show(Foot(4), 1),
-            Show(Foot(5), 1),
-            Show(Foot(6), 1),
-            Show(Foot(7), 1),
-            Show(Foot(8), 1),
-            Show(Foot(9), 1),
-            Show(Foot(10), 1),
-            Show(Foot(11), 1),
-            Show(Foot(12), 1),
-            Show(Foot(13), 1),
-            Show(Foot(14), 1),
-            Show(Foot(15), 1),
-            Show(Foot(16), 1),
-            Show(Foot(17), 4),
+            Show(F.KraidFootNeutral, 1),
+            Show(F.KraidFootWalkingForwardSecond, 1),
+            Show(F.KraidFootWalkingForwardThird, 1),
+            Show(F.KraidFootWalkingForwardFourth, 1),
+            Show(F.KraidFootWalkingForwardFifth, 1),
+            Show(F.KraidFootWalkingForwardSixth, 1),
+            Show(F.KraidFootWalkingForwardSeventh, 1),
+            Show(F.KraidFootWalkingForwardEighth, 1),
+            Show(F.KraidFootWalkingForwardNinth, 1),
+            Show(F.KraidFootWalkingForwardTenth, 1),
+            Show(F.KraidFootWalkingForwardEleventh, 1),
+            Show(F.KraidFootWalkingForwardTwelfth, 1),
+            Show(F.KraidFootWalkingForwardThirteenth, 1),
+            Show(F.KraidFootWalkingForwardFourteenth, 1),
+            Show(F.KraidFootWalkingForwardFifteenth, 1),
+            Show(F.KraidFootWalkingForwardSixteenth, 1),
+            Show(F.KraidFootWalkingForwardSeventeenth, 1),
+            Show(F.KraidFootWalkingForwardEighteenth, 4),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(18), 1),
+            Show(F.KraidFootWalkingForwardNineteenth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(19), 1),
-            Show(Foot(19), 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(19), 1),
-            Show(Foot(19), 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(Foot(21), 1),
-            Show(Foot(21), 1),
+            Show(F.KraidFootWalkingForwardTwentyFirst, 1),
+            Show(F.KraidFootWalkingForwardTwentyFirst, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(Foot(22), 1),
+            Show(F.KraidFootWalkingForwardTwentySecond, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(Foot(23), 1),
+            Show(F.KraidFootWalkingForwardTwentyThird, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(Foot(24), 1),
+            Show(F.KraidFootWalkingForwardTwentyFourth, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
             Cue(K.StepSound),
-            Show(Foot(25), 1),
+            Show(F.KraidFootWalkingForwardTwentyFifth, 1),
             Cue(K.StepLeft),
-            Show(Foot(26), 1),
+            Show(F.KraidFootWalkingForwardTwentySixth, 1),
             Cue(K.StepLeft),
-            Show(Foot(27), 1),
+            Show(F.KraidFootWalkingForwardTwentySeventh, 1),
             Cue(K.StepLeft),
-            Show(Foot(28), 1),
+            Show(F.KraidFootWalkingForwardTwentyEighth, 1),
             Cue(K.StepLeft),
-            Show(Foot(29), 1),
+            Show(F.KraidFootWalkingForwardTwentyNinth, 1),
             Cue(K.StepLeft),
-            Show(Foot(30), 1),
-            Show(Foot(31), 1),
+            Show(F.KraidFootWalkingForwardThirtieth, 1),
+            Show(F.KraidFootWalkingForwardThirtyFirst, 1),
             Cue(K.StepLeft),
-            Show(Foot(0), 1),
-        ],
-        [P.FootLungeForwardFinished] =
-        [
+            Show(F.KraidFootNeutral, 1),
         ],
         [P.FootWalkingBackward] =
         [
             Cue(K.StepRight),
-            Show(Foot(33), 4),
+            Show(F.KraidFootWalkingBackwardFirst, 4),
             Cue(K.StepRight),
-            Show(Foot(32), 1),
+            Show(F.KraidFootWalkingBackwardSecond, 1),
             Cue(K.StepRight),
-            Show(Foot(30), 1),
+            Show(F.KraidFootWalkingForwardThirtieth, 1),
             Cue(K.StepRight),
-            Show(Foot(29), 1),
+            Show(F.KraidFootWalkingForwardTwentyNinth, 1),
             Cue(K.StepRight),
-            Show(Foot(28), 1),
+            Show(F.KraidFootWalkingForwardTwentyEighth, 1),
             Cue(K.StepRight),
-            Show(Foot(27), 1),
+            Show(F.KraidFootWalkingForwardTwentySeventh, 1),
             Cue(K.StepRight),
-            Show(Foot(26), 1),
+            Show(F.KraidFootWalkingForwardTwentySixth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(Foot(25), 1),
+            Show(F.KraidFootWalkingForwardTwentyFifth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(Foot(24), 1),
+            Show(F.KraidFootWalkingForwardTwentyFourth, 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(Foot(23), 1),
+            Show(F.KraidFootWalkingForwardTwentyThird, 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(Foot(22), 1),
+            Show(F.KraidFootWalkingForwardTwentySecond, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepRight),
-            Show(Foot(21), 1),
+            Show(F.KraidFootWalkingForwardTwentyFirst, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepRight),
-            Show(Foot(20), 1),
+            Show(F.KraidFootWalkingBackwardThirteenth, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepRight),
-            Show(Foot(19), 1),
+            Show(F.KraidFootWalkingForwardTwentieth, 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepSound),
-            Show(Foot(18), 1),
-            Show(Foot(17), 20),
-            Show(Foot(16), 4),
-            Show(Foot(15), 4),
-            Show(Foot(14), 4),
-            Show(Foot(13), 4),
-            Show(Foot(12), 4),
-            Show(Foot(11), 4),
-            Show(Foot(10), 4),
-            Show(Foot(9), 4),
-            Show(Foot(8), 1),
-            Show(Foot(7), 1),
-            Show(Foot(6), 1),
-            Show(Foot(5), 1),
-            Show(Foot(4), 1),
-            Show(Foot(3), 1),
-            Show(Foot(2), 1),
-            Show(Foot(1), 1),
-        ],
-        [P.FootWalkingBackwardLoop] =
-        [
+            Show(F.KraidFootWalkingForwardNineteenth, 1),
+            Show(F.KraidFootWalkingForwardEighteenth, 20),
+            Show(F.KraidFootWalkingForwardSeventeenth, 4),
+            Show(F.KraidFootWalkingForwardSixteenth, 4),
+            Show(F.KraidFootWalkingForwardFifteenth, 4),
+            Show(F.KraidFootWalkingForwardFourteenth, 4),
+            Show(F.KraidFootWalkingForwardThirteenth, 4),
+            Show(F.KraidFootWalkingForwardTwelfth, 4),
+            Show(F.KraidFootWalkingForwardEleventh, 4),
+            Show(F.KraidFootWalkingForwardTenth, 4),
+            Show(F.KraidFootWalkingForwardNinth, 1),
+            Show(F.KraidFootWalkingForwardEighth, 1),
+            Show(F.KraidFootWalkingForwardSeventh, 1),
+            Show(F.KraidFootWalkingForwardSixth, 1),
+            Show(F.KraidFootWalkingForwardFifth, 1),
+            Show(F.KraidFootWalkingForwardFourth, 1),
+            Show(F.KraidFootWalkingForwardThird, 1),
+            Show(F.KraidFootWalkingForwardSecond, 1),
         ],
         [P.ArmNormal] =
         [
-            Show(Arm(0), 6),
-            Show(Arm(1), 6),
-            Show(Arm(2), 6),
-            Show(Arm(3), 6),
-            Show(Arm(4), 6),
-            Show(Arm(5), 6),
-            Show(Arm(6), 6),
-            Show(Arm(7), 6),
-            Show(Arm(8), 6),
-            Show(Arm(9), 6),
-            Show(Arm(7), 6),
-            Show(Arm(6), 6),
-            Show(Arm(5), 6),
-            Show(Arm(4), 6),
-            Show(Arm(3), 6),
-            Show(Arm(2), 6),
-            Show(Arm(1), 6),
+            Show(F.KraidArmNormalFirst, 6),
+            Show(F.KraidArmNormalSecond, 6),
+            Show(F.KraidArmNormalThird, 6),
+            Show(F.KraidArmNormalFourth, 6),
+            Show(F.KraidArmNormalFifth, 6),
+            Show(F.KraidArmNormalSixth, 6),
+            Show(F.KraidArmNormalSeventh, 6),
+            Show(F.KraidArmNormalEighth, 6),
+            Show(F.KraidArmNormalNinth, 6),
+            Show(F.KraidArmNormalTenth, 6),
+            Show(F.KraidArmNormalEighth, 6),
+            Show(F.KraidArmNormalSeventh, 6),
+            Show(F.KraidArmNormalSixth, 6),
+            Show(F.KraidArmNormalFifth, 6),
+            Show(F.KraidArmNormalFourth, 6),
+            Show(F.KraidArmNormalThird, 6),
+            Show(F.KraidArmNormalSecond, 6),
         ],
         [P.ArmNormalPause] =
         [
-            Show(Arm(0), 32),
+            Show(F.KraidArmNormalFirst, 32),
             Cue(K.SlowArmBelowHalfHealth),
         ],
         [P.ArmSlow] =
         [
-            Show(Arm(0), 8),
-            Show(Arm(1), 8),
-            Show(Arm(2), 8),
-            Show(Arm(3), 8),
-            Show(Arm(4), 8),
-            Show(Arm(5), 8),
-            Show(Arm(6), 8),
-            Show(Arm(7), 8),
-            Show(Arm(8), 8),
-            Show(Arm(9), 8),
-            Show(Arm(7), 8),
-            Show(Arm(6), 8),
-            Show(Arm(5), 8),
-            Show(Arm(4), 8),
-            Show(Arm(3), 8),
-            Show(Arm(2), 8),
-            Show(Arm(1), 8),
-            Show(Arm(0), 48),
+            Show(F.KraidArmNormalFirst, 8),
+            Show(F.KraidArmNormalSecond, 8),
+            Show(F.KraidArmNormalThird, 8),
+            Show(F.KraidArmNormalFourth, 8),
+            Show(F.KraidArmNormalFifth, 8),
+            Show(F.KraidArmNormalSixth, 8),
+            Show(F.KraidArmNormalSeventh, 8),
+            Show(F.KraidArmNormalEighth, 8),
+            Show(F.KraidArmNormalNinth, 8),
+            Show(F.KraidArmNormalTenth, 8),
+            Show(F.KraidArmNormalEighth, 8),
+            Show(F.KraidArmNormalSeventh, 8),
+            Show(F.KraidArmNormalSixth, 8),
+            Show(F.KraidArmNormalFifth, 8),
+            Show(F.KraidArmNormalFourth, 8),
+            Show(F.KraidArmNormalThird, 8),
+            Show(F.KraidArmNormalSecond, 8),
+            Show(F.KraidArmNormalFirst, 48),
             Cue(K.SlowArmBelowHalfHealth),
         ],
         [P.ArmRisingOrSinking] =
         [
-            Show(Arm(10), 6),
-            Show(Arm(11), 6),
-            Show(Arm(12), 6),
-            Show(Arm(13), 6),
-            Show(Arm(14), 6),
-            Show(Arm(15), 6),
-            Show(Arm(16), 6),
-            Show(Arm(17), 6),
-            Show(Arm(18), 6),
-            Show(Arm(19), 6),
-            Show(Arm(17), 6),
-            Show(Arm(16), 6),
-            Show(Arm(15), 6),
-            Show(Arm(14), 6),
-            Show(Arm(13), 6),
-            Show(Arm(12), 6),
-            Show(Arm(11), 6),
-            Show(Arm(10), 32),
+            Show(F.KraidArmRisingOrSinkingFirst, 6),
+            Show(F.KraidArmRisingOrSinkingSecond, 6),
+            Show(F.KraidArmRisingOrSinkingThird, 6),
+            Show(F.KraidArmRisingOrSinkingFourth, 6),
+            Show(F.KraidArmRisingOrSinkingFifth, 6),
+            Show(F.KraidArmRisingOrSinkingSixth, 6),
+            Show(F.KraidArmRisingOrSinkingSeventh, 6),
+            Show(F.KraidArmRisingOrSinkingEighth, 6),
+            Show(F.KraidArmRisingOrSinkingNinth, 6),
+            Show(F.KraidArmRisingOrSinkingTenth, 6),
+            Show(F.KraidArmRisingOrSinkingEighth, 6),
+            Show(F.KraidArmRisingOrSinkingSeventh, 6),
+            Show(F.KraidArmRisingOrSinkingSixth, 6),
+            Show(F.KraidArmRisingOrSinkingFifth, 6),
+            Show(F.KraidArmRisingOrSinkingFourth, 6),
+            Show(F.KraidArmRisingOrSinkingThird, 6),
+            Show(F.KraidArmRisingOrSinkingSecond, 6),
+            Show(F.KraidArmRisingOrSinkingFirst, 32),
         ],
         [P.ArmDyingOrPreparingToLunge] =
         [
-            Show(Arm(0), 6),
-            Show(Arm(20), 6),
-            Show(Arm(21), ReadyToLungeArmDuration),
+            Show(F.KraidArmNormalFirst, 6),
+            Show(F.KraidArmDyingOrPreparingToLungeSecond, 6),
+            Show(F.KraidArmDyingOrPreparingToLungeThird, ReadyToLungeArmDuration),
         ],
         [P.LintInitial] =
         [
-            Hold(Lint(0)),
+            Hold(F.KraidLintInitial),
         ],
         [P.LintPostGrowth] =
         [
-            Hold(Lint(1)),
+            Hold(F.KraidLintPostGrowth),
         ],
         [P.NailLoop] =
         [
-            Show(Nail(0), 3),
-            Show(Nail(1), 3),
-            Show(Nail(2), 3),
-            Show(Nail(3), 3),
-            Show(Nail(4), 3),
-            Show(Nail(5), 3),
-            Show(Nail(6), 3),
-            Show(Nail(7), 3),
+            Show(F.KraidNailLoopFirst, 3),
+            Show(F.KraidNailLoopSecond, 3),
+            Show(F.KraidNailLoopThird, 3),
+            Show(F.KraidNailLoopFourth, 3),
+            Show(F.KraidNailLoopFifth, 3),
+            Show(F.KraidNailLoopSixth, 3),
+            Show(F.KraidNailLoopSeventh, 3),
+            Show(F.KraidNailLoopEighth, 3),
         ],
     });
 
@@ -311,11 +307,8 @@ internal static class KraidAnimations
         [P.FootInitial] = new([new(P.FootInitial, 0, 1, 1)], AnimationEnd.Holds),
         [P.FootNeutral] = new([new(P.FootNeutral, 0, 1, 1)], AnimationEnd.Holds),
         [P.FootWalkingForward] = new([new(P.FootWalkingForward, 0, 59, 1)], AnimationEnd.Holds),
-        [P.FootWalkingForwardFinished] = new([], AnimationEnd.Holds),
         [P.FootLungeForward] = new([new(P.FootLungeForward, 0, 59, 1)], AnimationEnd.Holds),
-        [P.FootLungeForwardFinished] = new([], AnimationEnd.Holds),
         [P.FootWalkingBackward] = new([new(P.FootWalkingBackward, 0, 55, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FootWalkingBackwardLoop] = new([new(P.FootWalkingBackward, 0, 55, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ArmNormal] = new([new(P.ArmNormal, 0, 17, 1), new(P.ArmNormalPause, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ArmNormalPause] = new([new(P.ArmNormalPause, 0, 2, 1), new(P.ArmNormal, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ArmSlow] = new([new(P.ArmSlow, 0, 19, 1)], AnimationEnd.LoopsFrom(0)),
@@ -329,44 +322,17 @@ internal static class KraidAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KraidPartSegment> StartingWith(KraidPartSegment segment) => StartingAt[segment];
 
-    /// <summary>
-    /// The segment each segment that runs on past its last beat continues into, directly after that beat: a
-    /// part resting after that beat already stands in the next, which Kraid's arm and foot behaviours compare.
-    /// </summary>
-    internal static IReadOnlyDictionary<KraidPartSegment, KraidPartSegment> RunsOnInto { get; } = new Dictionary<KraidPartSegment, KraidPartSegment>
-    {
-        [P.FootWalkingForward] = P.FootWalkingForwardFinished,
-        [P.FootLungeForward] = P.FootLungeForwardFinished,
-        [P.FootWalkingBackward] = P.FootWalkingBackwardLoop,
-        [P.ArmNormal] = P.ArmNormalPause,
-    };
-
-    /// <summary>The foot's standing pose.</summary>
-    private static KraidPartFrame FootStanding() => new(KraidPartFrameKind.FootStanding, 0);
-
-    /// <summary>A foot pose.</summary>
-    private static KraidPartFrame Foot(int index) => new(KraidPartFrameKind.Foot, index);
-
-    /// <summary>An arm pose.</summary>
-    private static KraidPartFrame Arm(int index) => new(KraidPartFrameKind.Arm, index);
-
-    /// <summary>A belly-lint pose.</summary>
-    private static KraidPartFrame Lint(int index) => new(KraidPartFrameKind.Lint, index);
-
-    /// <summary>A fingernail pose.</summary>
-    private static KraidPartFrame Nail(int index) => new(KraidPartFrameKind.Nail, index);
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<KraidPartFrame, KraidPartCue> Show(KraidPartFrame frame, int duration) =>
-        new AnimationBeat<KraidPartFrame, KraidPartCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyFrameId, KraidPartCue> Show(EnemyFrameId frame, int duration) =>
+        new AnimationBeat<EnemyFrameId, KraidPartCue>.Frame(frame, duration);
 
     /// <summary>
     /// Shows <paramref name="frame"/> for good (#1627): the part rests on it until its owner starts another animation. The
     /// feet's standing poses and the belly lints' poses are held: nothing reads a foot's frame timer, and a lint's behaviour
     /// reloads its timer every update, so the longest frame duration never runs out where gameplay sees it.
     /// </summary>
-    private static AnimationBeat<KraidPartFrame, KraidPartCue> Hold(KraidPartFrame frame) =>
-        new AnimationBeat<KraidPartFrame, KraidPartCue>.HeldFrame(frame);
+    private static AnimationBeat<EnemyFrameId, KraidPartCue> Hold(EnemyFrameId frame) =>
+        new AnimationBeat<EnemyFrameId, KraidPartCue>.HeldFrame(frame);
 
     /// <summary>
     /// The updates the arm's last lunge-ready pose shows, the longest duration a frame can have, kept exact (#1627): while mouth
@@ -376,6 +342,6 @@ internal static class KraidAnimations
     private const int ReadyToLungeArmDuration = 32767;
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<KraidPartFrame, KraidPartCue> Cue(KraidPartCue cue) =>
-        new AnimationBeat<KraidPartFrame, KraidPartCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, KraidPartCue> Cue(KraidPartCue cue) =>
+        new AnimationBeat<EnemyFrameId, KraidPartCue>.Event(cue);
 }

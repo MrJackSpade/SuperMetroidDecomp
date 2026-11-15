@@ -83,7 +83,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _slotTable.CoverSpawn(babySlot);
     }
 
-    /// <summary>Creates the physical Baby only after the rainbow sequence exists and starts its first animation and fifteen nontransparent palette colors.</summary>
+    /// <summary>Creates the physical Baby only after the rainbow sequence exists and starts its first animation and fifteen nontransparent colors.</summary>
     internal void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
@@ -258,7 +258,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Plays the Baby's animation where the shared enemy animation runs: the frame expires on the update its
-    /// timer would, and a newly shown frame raises the new-frame flag. A held pose is the script's sleep: the timer
+    /// timer would, and a newly shown frame raises the new-frame flag. A held pose rests: the timer
     /// wraps from zero and the last frame stays.
     /// </summary>
     internal void AdvanceBabyMetroidCutsceneAnimation(RoomEnemySlot slot)

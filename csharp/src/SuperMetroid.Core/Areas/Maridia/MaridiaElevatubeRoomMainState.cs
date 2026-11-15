@@ -113,7 +113,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
-        // The game's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
+        // The game's range test is exactly the inclusive range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
         // wraps as the game's coordinate does, so an overflowed candidate is judged by whether its wrapped value reads as negative.
         SignedEightEight candidate = Velocity + Acceleration;

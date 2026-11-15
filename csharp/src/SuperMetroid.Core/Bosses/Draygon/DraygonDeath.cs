@@ -64,7 +64,7 @@ internal sealed class DraygonDeath
         state.Phase = DraygonPhase.DyingSink;
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         state.BurialWait = DraygonBehavior.DraygonDeathWaitFramesUs;
-        _parts.StartDraygonAnimation(body, DraygonSegment.Sleep);
+        _parts.StartDraygonAnimation(body, DraygonSegment.Rest);
 
         // The tail and arms take the body's properties, deleted.
         EnemyPresence deletedPartPresence = body.Presence.With(EnemyPresence.Deleted);

@@ -26,7 +26,7 @@ internal sealed class DraygonParts
     private readonly RoomEarthquake _earthquake;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomSpriteObjects _spriteObjects;
-    /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
+    /// <summary>Updates the body and eye shade bands used by Draygon's presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI behaviours.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -178,7 +178,7 @@ internal sealed class DraygonParts
                 part.AnimationClock.Pause(paused.Duration);
                 return;
             case AnimationShown<DraygonSegment, DraygonFrame>.Held:
-                // The script's sleep: the timer wraps from zero and the last frame stays.
+                // A rest: the timer wraps from zero and the last frame stays.
                 state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
                 return;
             case AnimationShown<DraygonSegment, DraygonFrame>.Ended:
@@ -226,8 +226,8 @@ internal sealed class DraygonParts
                 SpawnRandomDyingDraygonObject(state, dying.Kind);
                 return;
             case DraygonCue.ParalyseTailAndArms:
-                StartDraygonAnimation(RequirePart(state.Tail), DraygonSegment.Sleep);
-                StartDraygonAnimation(RequirePart(state.Arms), DraygonSegment.Sleep);
+                StartDraygonAnimation(RequirePart(state.Tail), DraygonSegment.Rest);
+                StartDraygonAnimation(RequirePart(state.Arms), DraygonSegment.Rest);
                 return;
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);

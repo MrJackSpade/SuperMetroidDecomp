@@ -38,7 +38,7 @@ internal sealed class BombTorizoHandObjects
 
     /// <summary>
     /// Whether the statue's hand still stands in the room: from its setup until it leaves after its crumble. Bomb Torizo
-    /// sleeps while it does.
+    /// stays dormant while it does.
     /// </summary>
     public bool HandRemains => _handPlace is { Active: true } place && ReferenceEquals(place.Behaviour, _hand);
 

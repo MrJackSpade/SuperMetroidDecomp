@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal static class SkreeMetareeCues
 {
     /// <summary>
-    /// Carries out one cue. The wind-up sleeps immediately after marking the attack ready; main AI consumes the flag on
+    /// Carries out one cue. The wind-up rests immediately after marking the attack ready; main AI consumes the flag on
     /// the following enemy frame and starts the dive, exactly matching the animation-to-AI hand-off.
     /// </summary>
     /// <param name="slot">The enemy.</param>

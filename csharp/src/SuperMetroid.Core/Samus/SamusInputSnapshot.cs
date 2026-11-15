@@ -9,8 +9,8 @@ internal sealed class SamusInputSnapshot
 {
     /// <summary>
     /// Whether Samus holds a stored shine as the footstep sound, her body's draw and the jump into a shinespark windup
-    /// test it: while her stored-shine countdown runs, or while Crystal Flash's palette runs
-    /// (<see cref="CrystalFlashReadsAsStoredShine"/>). A grab-interrupted Flash keeps its palette running indefinitely, so
+    /// test it: while her stored-shine countdown runs, or while Crystal Flash's colouring runs
+    /// (<see cref="CrystalFlashReadsAsStoredShine"/>). A grab-interrupted Flash keeps its colouring running indefinitely, so
     /// the jump admission still sees a shine without a Stored phase.
     /// </summary>
     public static bool HoldsShine(SamusState samus) => CrystalFlashReadsAsStoredShine.HoldsShine(

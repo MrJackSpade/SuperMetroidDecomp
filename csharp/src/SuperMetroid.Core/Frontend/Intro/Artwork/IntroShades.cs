@@ -12,7 +12,7 @@ public static class IntroShades
     /// <summary>The shade family of the narration letters' colour variants.</summary>
     public const string GlowEffect = "IntroTextGlow";
 
-    /// <summary>An actor's palette-inheriting parts drawn in <paramref name="colouring"/>.</summary>
+    /// <summary>An actor's recolourable parts drawn in <paramref name="colouring"/>.</summary>
     public static PictureShade Drawn(IntroSpriteColouring colouring) => new($"Intro{colouring}", 0);
 
     /// <summary>

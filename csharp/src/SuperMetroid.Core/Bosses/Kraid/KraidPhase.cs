@@ -8,12 +8,12 @@ public enum KraidPhase
 {
     /// <summary>Breaks ceiling platforms into their authored room mutations as Kraid grows.</summary>
     GrowBreakCeilingPlatforms,
-    /// <summary>Brings Kraid's grown body in front of the room's sprites and shows its upper half.</summary>
+    /// <summary>Brings Kraid's grown body in front of the room's sprites, shows it whole and lets his arm touch Samus.</summary>
     GrowBringBodyInFront,
-    /// <summary>Shows the lower half of his body in front of the sprites and settles his grown parts.</summary>
-    GrowShowLowerBodyInFront,
-    /// <summary>Installs the room background behind the enlarged Kraid.</summary>
-    GrowDrawRoomBackground,
+    /// <summary>Settles his grown parts: his foot stands neutral and his lints take their grown pose.</summary>
+    GrowSettleParts,
+    /// <summary>Shows the room's backdrop behind the grown Kraid and starts its fade in from the first step.</summary>
+    GrowShowRoomBackdrop,
     /// <summary>Fades the room background into the enlarged encounter.</summary>
     GrowFadeInRoomBackground,
     /// <summary>The first-phase body thinker counting down to its next mouth attack.</summary>
@@ -24,9 +24,9 @@ public enum KraidPhase
     MouthOpenReaction,
     /// <summary>Initializes the collision-driven eye glow before another mouth opening.</summary>
     InitializeEyeGlow,
-    /// <summary>Advances the glowing-eye palette sequence.</summary>
+    /// <summary>Advances the glowing-eye colour sequence.</summary>
     GlowEye,
-    /// <summary>Restores the eye palette after its glow sequence.</summary>
+    /// <summary>Restores the eye colours after its glow sequence.</summary>
     UnglowEye,
     /// <summary>The inactive lint entry before projectile production begins.</summary>
     LintInactive,
@@ -58,7 +58,7 @@ public enum KraidPhase
     FootSecondPhaseInitialize,
     /// <summary>The forward-walk entry moving the body toward its leftward target.</summary>
     FootSecondPhaseWalkingLeft,
-    /// <summary>Runs the open-mouth head stream, spat-rock cadence, and reopen continuation.</summary>
+    /// <summary>Runs the open-mouth head animation, spat-rock cadence, and reopen continuation.</summary>
     MainAttackWithMouthOpen,
     /// <summary>Selects the fingernail's starting side, animation, and firing transition.</summary>
     FingernailInitialize,
@@ -74,38 +74,33 @@ public enum KraidPhase
     GrowReleaseCamera,
     /// <summary>Initializes Kraid's zero-health sequence and the authored part shutdowns.</summary>
     DeathInitialize,
-    /// <summary>Fades the room background out while continuing the private head stream.</summary>
+    /// <summary>Fades the room background out while continuing the head animation.</summary>
     DeathFadeOut,
-    /// <summary>Shows the upper half of his body, covering his head, and parks the lint parts for sinking.</summary>
-    DeathShowUpperBody,
-    /// <summary>Shows the lower half of his body and starts the death quake and sinking sound timer.</summary>
-    DeathShowLowerBody,
+    /// <summary>Shows his body whole and parks his lints for sinking.</summary>
+    DeathShowBody,
+    /// <summary>Starts the death quake and the sinking sound's countdown, makes his body solid and sets his arm sinking.</summary>
+    DeathStartSinking,
     /// <summary>Sinks Kraid through the floor while processing authored debris, sounds, and drops.</summary>
     DeathSink,
-    /// <summary>Hides the upper half of his body before the room's backdrop is restored.</summary>
-    DeathHideUpperBody,
-    /// <summary>Hides the lower half of his body before the death's four-update wait.</summary>
-    DeathHideLowerBody,
-    /// <summary>The first of the four updates Kraid's death waits before fading the room back in.</summary>
-    DeathWaitBeforeFadeIn1,
-    /// <summary>The second update of the wait before the fade-in.</summary>
-    DeathWaitBeforeFadeIn2,
-    /// <summary>The third update of the wait before the fade-in.</summary>
-    DeathWaitBeforeFadeIn3,
-    /// <summary>The last update of the wait before the fade-in.</summary>
-    DeathWaitBeforeFadeIn4,
+    /// <summary>Hides his body once he has sunk, before the room's backdrop is restored.</summary>
+    DeathHideBody,
+    /// <summary>
+    /// Waits the updates his death keeps the room dark before fading it back in (#1888), counted down in the body's phase
+    /// timer.
+    /// </summary>
+    DeathWaitBeforeFadeIn,
     /// <summary>Fades the ordinary background in, requests room music, and publishes boss persistence when newly defeated.</summary>
     DeathFadeInBackground,
     /// <summary>The terminal death entry for a Kraid that was alive when this encounter loaded.</summary>
     DeathFinishedWasAlive,
-    /// <summary>The already-defeated terminal entry, also invalidating the foreground's column-streaming position.</summary>
+    /// <summary>The terminal death entry for a Kraid that was already defeated when this encounter loaded.</summary>
     DeathFinishedWasDead,
     /// <summary>Restricts Samus to the room's first screen while waiting for the rise.</summary>
     RestrictSamusToFirstScreen,
-    /// <summary>Shows the upper half of his body at the start of Kraid's rise.</summary>
-    RaiseKraidThroughFloor,
-    /// <summary>Shows the lower half of his body, starts the quake, and requests boss music.</summary>
-    RaiseShowLowerBody,
+    /// <summary>Shows his body whole at the start of Kraid's rise through the floor.</summary>
+    RaiseShowBody,
+    /// <summary>Starts the rise's quake and its first rock wait, and requests the boss music.</summary>
+    RaiseStartQuakeAndMusic,
     /// <summary>Requests rise rocks on sixteen-frame timer boundaries during the first pre-rise wait.</summary>
     RaiseRocksEvery16Frames,
     /// <summary>Requests rise rocks on eight-frame timer boundaries during the faster pre-rise wait.</summary>

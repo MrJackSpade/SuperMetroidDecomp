@@ -26,15 +26,21 @@ internal abstract record TorizoCue
     /// <param name="Kind">The condition the replay tests.</param>
     internal sealed record Replay(TorizoReplayKind Kind) : TorizoCue;
 
-    /// <summary>Stands Bomb Torizo up or sits it down, moving it by a movement-table entry.</summary>
+    /// <summary>Stands a Torizo up or sits it down, moving it as its body rises or settles (#1891).</summary>
     /// <param name="Kind">Which way the posture changes.</param>
-    /// <param name="Step">The posture step the change applies, one of <see cref="BombTorizoMovement.PostureStepCount"/> steps.</param>
-    internal sealed record Posture(TorizoPostureKind Kind, int Step) : TorizoCue;
+    /// <param name="Displacement">
+    /// How far standing up moves the Torizo, in pixels; sitting down moves it back by as much. The animations of each facing
+    /// carry that facing's displacement.
+    /// </param>
+    internal sealed record Posture(TorizoPostureKind Kind, Offset16<RoomPixels> Displacement) : TorizoCue;
 
-    /// <summary>One walking step of a Torizo, read from its walking table.</summary>
+    /// <summary>One walking step of a Torizo (#1891).</summary>
     /// <param name="Kind">Which Torizo walks.</param>
-    /// <param name="Step">The walking step, one of the walking Torizo's twenty steps.</param>
-    internal sealed record Walk(TorizoWalkKind Kind, int Step) : TorizoCue;
+    /// <param name="Velocity">
+    /// The whole pixels the step moves the Torizo, negative to the left; the animations of each facing carry that facing's
+    /// velocity.
+    /// </param>
+    internal sealed record Walk(TorizoWalkKind Kind, int Velocity) : TorizoCue;
 
     /// <summary>Spawns an explosive swipe at Bomb Torizo's hand.</summary>
     /// <param name="Hand">Where the hand is relative to a left-facing Torizo; a right-facing Torizo mirrors it.</param>

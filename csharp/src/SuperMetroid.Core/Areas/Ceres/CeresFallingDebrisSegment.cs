@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>The Ceres falling tiles' typed animations (#641); each shows its single pose.</summary>
 internal enum CeresFallingDebrisSegment
 {
-    /// <summary>One pose, then the tile falls asleep.</summary>
+    /// <summary>One pose, then the tile rests.</summary>
     Light,
-    /// <summary>One pose, then the tile falls asleep.</summary>
+    /// <summary>One pose, then the tile rests.</summary>
     Dark,
 }

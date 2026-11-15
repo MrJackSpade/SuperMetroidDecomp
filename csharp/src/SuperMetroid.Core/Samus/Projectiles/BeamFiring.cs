@@ -52,7 +52,7 @@ internal sealed class BeamFiring
         => CancelCharge();
     /// <summary>
     /// The scripted charge end: consume Pseudo Screw charge,
-    /// clear its visible flare and restore the normal suit palette. Unlike HUD
+    /// clear its visible flare and restore the normal suit colours. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sample.
     /// </summary>
     public void ConsumePseudoScrewCharge(SamusColours colours, SamusState samus)

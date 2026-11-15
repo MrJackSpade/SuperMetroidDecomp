@@ -126,7 +126,7 @@ internal static class SamusFullBodyCycleColorsVerification
             var attached = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 EquippedItems = items,
-                MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
+                MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext,
             };
             var attachmentColors = new SamusColours();
             AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),

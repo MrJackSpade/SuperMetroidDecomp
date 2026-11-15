@@ -138,7 +138,7 @@ internal sealed class CeresRidleyFlight
         }
 
         // The shared cooldown/return-to-hover movement: accelerate toward (192, 100)
-        //  using divisor table entry zero.
+        // with the hover's divisor of 16.
         AccelerateRidleyToward(slot, state, target: new(192, 100), divisor: 16);
         if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {

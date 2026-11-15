@@ -36,7 +36,7 @@ internal static class ZebetiteAnimations
                 new AnimationBeat<ZebetiteFrame, NoAnimationCue>.Frame(PoseOf[segment], 1),
             }));
 
-    /// <summary>Each health tier's animation: its pose, held as the script's sleep holds it.</summary>
+    /// <summary>Each health tier's animation: its pose, held.</summary>
     internal static IReadOnlyDictionary<ZebetiteSegment, Animation<ZebetiteSegment>> StartingAt { get; } =
         Enum.GetValues<ZebetiteSegment>().ToDictionary(segment => segment,
             segment => new Animation<ZebetiteSegment>([new(segment, 0, 1, 1)], AnimationEnd.Holds));

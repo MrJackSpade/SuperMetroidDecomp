@@ -120,7 +120,7 @@ internal sealed class SamusFrameState
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
 
 
-    /// <summary>Most recent game-state-owned fatal-damage animation/palette/artwork call.</summary>
+    /// <summary>Most recent game-state-owned fatal-damage animation/colour/artwork call.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
 

@@ -74,7 +74,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the
     /// room. It selects only the pulse the Zebetites show.
     /// </summary>
-    public int SharedPaletteCycle { get; internal set; }
+    public int SharedColourCycle { get; internal set; }
 
     /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
     internal int? PulseShown { get; private set; }
@@ -167,7 +167,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Regenerates living halves and advances the primary generation when its health reaches zero.</summary>
     private void RunZebetiteActive(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        CycleZebetitePalette(slot);
+        CycleZebetiteColours(slot);
         // Every Zebetite shows the shared pulse; each primary half steps it as it runs (#1512).
         slot.Shading = PulseShading;
         SelectZebetiteHealthAnimation(slot, state);
@@ -196,14 +196,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Steps the shared pulse, which holds while the shared fade count is past a fade's start: the room's enemies run
     /// between a door fade's steps, and the pulse waits for the fade.
     /// </summary>
-    internal void CycleZebetitePalette(RoomEnemySlot slot)
+    internal void CycleZebetiteColours(RoomEnemySlot slot)
     {
         if (_fadeStepCount.IsPastStart || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
             return;
 
-        int paletteCycle = (SharedPaletteCycle + 1) % ZebetiteDefinitions.PaletteCycleLength;
-        SharedPaletteCycle = paletteCycle;
-        PulseShown = paletteCycle;
+        int colourCycle = (SharedColourCycle + 1) % ZebetiteDefinitions.ColourCycleLength;
+        SharedColourCycle = colourCycle;
+        PulseShown = colourCycle;
     }
 
     /// <summary>Restarts the animation chosen from the half's pairing and current health.</summary>
@@ -276,14 +276,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs a half's health animation where the shared enemy animation runs: its pose shows on the update the
-    /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
+    /// timer expires, raising the new-frame flag, and the animation then keeps it.
     /// </summary>
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
         if (!slot.AnimationClock.Expire())
             return;
-        // A held pose is the script's sleep: the timer wraps from zero and the pose stays.
+        // A held pose rests: the timer wraps from zero and the pose stays.
         AnimationPlayback<ZebetiteSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(slot, ZebetiteAnimations.Segments, ref playback, ZebetiteVisualDefinitions.ShownFrames.Of,
             cue => throw new InvalidOperationException($"Zebetite animations raise no event {cue}."));

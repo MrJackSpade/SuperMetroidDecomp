@@ -33,7 +33,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     internal KraidBackground Background { get; }
 
-    /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
+    /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
     internal KraidHead Head { get; }
 
     /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
@@ -76,9 +76,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int KraidStillPartTimer = 32767;
 
     /// <summary>
-    /// Runs Kraid's body per-frame behaviour: mouth-projectile collision, palette handling,
+    /// Runs Kraid's body per-frame behaviour: mouth-projectile collision, colour handling,
     /// body-projectile collision and body-vs-Samus collision precede the phase. A
-    /// killing mouth hit therefore reaches palette handling, which zeroes the hurt frame,
+    /// killing mouth hit therefore reaches colour handling, which zeroes the hurt frame,
     /// before the death initializer runs in this same frame.
     /// </summary>
     internal void RunKraidBodyMain(
@@ -264,8 +264,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.GrowReleaseCamera:
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowShowLowerBodyInFront:
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowSettleParts:
+            case KraidPhase.GrowShowRoomBackdrop:
             case KraidPhase.GrowFadeInRoomBackground:
                 Rise.RunKraidGrowthPhase(body, state);
                 return;
@@ -276,15 +276,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidPhase.DeathInitialize:
             case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowUpperBody:
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathShowBody:
+            case KraidPhase.DeathStartSinking:
             case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideUpperBody:
-            case KraidPhase.DeathHideLowerBody:
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathHideBody:
+            case KraidPhase.DeathWaitBeforeFadeIn:
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
@@ -310,8 +306,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.FootFirstPhaseLunge:
             case KraidPhase.FootFirstPhaseRetreat:
             case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseKraidThroughFloor:
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseShowBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:

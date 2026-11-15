@@ -4,7 +4,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres falling tiles' typed animations (#641): one pose, then a sleep while the
+/// The Ceres falling tiles' typed animations (#641): one pose, then a rest while the
 /// per-frame movement moves the tile. Each animation's frame is the animation itself.
 /// </summary>
 internal static class CeresFallingDebrisAnimations

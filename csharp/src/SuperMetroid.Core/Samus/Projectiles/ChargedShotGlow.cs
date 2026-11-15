@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The glow Samus's suit shows after a charged shot (#1682), each kind with its own step count: an ordinary charged
-/// shot's flash, which the charge palette counts down from four, showing white on steps three through one and restoring
+/// shot's flash, which the charge colouring counts down from four, showing white on steps three through one and restoring
 /// the suit as it reaches zero; or the Hyper Beam's glow, counted down from twenty, which shows its frame on each even step
 /// and holds it on the odd step after, and restores the suit on step zero, its twenty-first call.
 /// </summary>
@@ -52,7 +52,7 @@ public readonly record struct ChargedShotGlow
     public ChargedShotGlowKind Kind { get; }
 
     /// <summary>The steps the glow has left; see <see cref="Of"/> for each kind's range.</summary>
-    [IntegerQuantity("charge palette calls the glow has left")]
+    [IntegerQuantity("charge colour calls the glow has left")]
     public int RemainingSteps { get; }
 
     /// <summary>The glow one step on; the step count stays within the kind's range, which a caller ends at zero.</summary>

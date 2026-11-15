@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class GameplayActorDrawing
 {
-    /// <summary>Supplies installed frames, projectile compositions, and suit palette artwork.</summary>
+    /// <summary>Supplies installed frames, projectile compositions, and suit colours artwork.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly IAttractDemoState _attractSession;
@@ -35,7 +35,7 @@ internal sealed class GameplayActorDrawing
 
     /// <summary>Receives Samus's whole-frame draws in the same order as the sprites around them.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
+    /// <summary>Supplies Samus pose, colours, grapple state, and movement effects.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
     private readonly ActiveRoomState _room;
@@ -92,16 +92,16 @@ internal sealed class GameplayActorDrawing
 
         if (paletteEffects == SamusPaletteEffects.Advance)
         {
-            // Samus's palette update runs during gameplay. The renderer
-            // reads the colours directly, so perform the suit palette copy immediately
+            // Samus's colour update runs during gameplay. The renderer
+            // reads the colours directly, so perform the suit colours copy immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
             // and the normal-suit restoration requested by cancellation.
-            // A negative super-special flag is the first branch of the palette update and returns
+            // A negative super-special flag is the first branch of the colour update and returns
             // immediately after the drained or rainbow colouring. Its one-shot normal restore
-            // also models the direct palette loads in letting the drained Samus fall and stopping her rainbow.
+            // also models the direct colour loads in letting the drained Samus fall and stopping her rainbow.
             // Cancellation/pose initialization copies the normal suit during
             // movement, before this colour step. Flush that deferred write first so charge
-            // and drained palettes retain their same-frame priority.
+            // and drained colourings retain their same-frame priority.
             if (!deathOwnsSamus)
                 _player.Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
                     _player.Colours, _player.Samus.EquippedItems);
@@ -110,15 +110,15 @@ internal sealed class GameplayActorDrawing
             bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
-                // The palette update always runs charge/post-shot handling before running the
-                // selected special Samus palette. Ordinary charged shots paint all of Samus's visible colours
+                // The colour update always runs charge/post-shot handling before running the
+                // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
                 // white for three calls and restore the suit on call four; Hyper shots
-                // step ten complete palettes on alternating calls before restore.
+                // step ten complete colourings on alternating calls before restore.
                 LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
                     _player.Colours,
                     _player.Samus,
                     room.FxOverlay.VisorAnimation);
-                // A restored suit from the beam-charge palette step bypasses the entire special
+                // A restored suit from the beam-charge colour step bypasses the entire special
                 // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
                 chargeGlowRestoredNormalPalette =
@@ -145,14 +145,14 @@ internal sealed class GameplayActorDrawing
                     _player.Samus);
             }
             // The X-ray colouring changes only one of the visor's colours while active; its teardown
-            // restores the complete Power/Varia/Gravity suit palette once.
+            // restores the complete Power/Varia/Gravity suit colours once.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.Xray.UpdatePalette(
                     _player.Colours,
                     _player.Samus.EquippedItems);
             }
-            // The Metroid-drain palette step runs after every charge and special-palette family. A Metroid's
+            // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid's
             // nonnegative super-special flag takes the alternating boost/normal branch and
             // returns before ordinary hurt flash, just as drained rainbow's negative flag
             // took the earlier branch.

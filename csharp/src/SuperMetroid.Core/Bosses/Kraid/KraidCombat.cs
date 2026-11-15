@@ -102,8 +102,8 @@ internal sealed class KraidCombat
         SamusProjectileType projectileType,
         Position16<RoomPixels> position)
     {
-        // Super Missiles, Power Bombs and beam explosions take the big explosion; the
-        // tests one bit of their family's table row.
+        // Super Missiles, Power Bombs and beam explosions take the big explosion, and every
+        // other projectile the small one.
         MiscDustAnimation animationIndex = projectileType.Family is SamusProjectileFamily.SuperMissile or
                 SamusProjectileFamily.PowerBomb or SamusProjectileFamily.BeamExplosion
             ? MiscDustAnimation.BigExplosion
@@ -337,8 +337,8 @@ internal sealed class KraidCombat
             return null;
 
         // Kraid's arm art is editable, but the frame
-        // also carries a separate, ordered physical component stream.
-        // Read that stream from the immutable definition catalog.
+        // also carries a separate, ordered list of physical components.
+        // Read those components from the immutable definition catalog.
         foreach (KraidCollisionComponent component in kraidComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

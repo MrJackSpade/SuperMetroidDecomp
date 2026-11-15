@@ -1,12 +1,15 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>What one of Kraid's mouth-collision reads finds where the head animation's cursor stands.</summary>
+/// <summary>What one of Kraid's mouth-collision reads finds where his head animation stands.</summary>
 internal enum KraidMouthShapeReadKind
 {
     /// <summary>A mouth shape to test shots against.</summary>
     Shape,
     /// <summary>The closed mouth's missing inner shape: the inner test is skipped, and the outer test cannot load it.</summary>
     NoShape,
-    /// <summary>The read lands outside every head pose; collision fails loudly, as reading past the head data does.</summary>
-    OutsideHeadFrames,
+    /// <summary>
+    /// The read finds no pose (<see cref="Compatibility.KraidMouthTrailsHead"/>): Kraid's head never stands there while a shot
+    /// is tested, and collision fails loudly if it does.
+    /// </summary>
+    NoPose,
 }

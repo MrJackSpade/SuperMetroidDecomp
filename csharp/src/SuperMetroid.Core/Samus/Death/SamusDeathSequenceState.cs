@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
-/// Owns Samus's fatal-damage pose, picture, palette, flashing, whiteout, and suit-
+/// Owns Samus's fatal-damage pose, picture, colours, flashing, whiteout, and suit-
 /// explosion sequence. This is deliberately not folded into knockback merely because poses
 /// the death-sequence poses advertise the knockback movement type: the death game states stop Samus's normal input
 /// and movement phases and run this independent state machine instead.
@@ -150,8 +150,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         switch (Phase)
         {
             case SamusDeathSequencePhase.PreFlashing:
-                // The death animation advances the death pose's delay stream only during the pre-flash state.
-                // The flashing state freezes that final body frame while its palettes alternate.
+                // The death animation advances the death pose's frame delays only during the pre-flash state.
+                // The flashing state freezes that final body frame while its colourings alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;
                 PreFlashingTimer--;
@@ -267,7 +267,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         ExplosionTimer =
             SamusDeathExplosionTiming.DurationForIndex(ExplosionStep);
         int deathShade = (artwork ?? throw new InvalidOperationException(
-            "Samus death requires installed palette artwork.")).ExplosionStep(ExplosionStep);
+            "Samus death requires installed colour artwork.")).ExplosionStep(ExplosionStep);
         ShowDeathShades(samus, samusColours, deathShade);
         paletteChanged = true;
         return true;
@@ -285,7 +285,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // which show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never
         // whiten; the sprites that shared their sets with her no longer keep her colours through the whiteout.
         Whiteout = (artwork ?? throw new InvalidOperationException(
-            "Samus death whiteout requires installed palette artwork.")).WhiteoutColour(WhiteoutShade);
+            "Samus death whiteout requires installed colour artwork.")).WhiteoutColour(WhiteoutShade);
         samusColours.ShowBeams(SamusShades.DeathWhiteout(WhiteoutShade));
 
         if (WhiteoutShade < SamusDeathSequenceDefinitions.BrightestExplosionWhiteoutShade)

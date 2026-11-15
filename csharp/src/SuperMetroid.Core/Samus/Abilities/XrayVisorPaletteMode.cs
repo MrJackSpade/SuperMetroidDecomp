@@ -12,6 +12,6 @@ public enum XrayVisorPaletteMode
     /// <summary>The beam has reached full width: the visor cycles the three full-beam colours.</summary>
     FullBeam,
 
-    /// <summary>X-ray has torn down: the next palette call restores the normal suit palette and clears this mode.</summary>
+    /// <summary>X-ray has torn down: the next colouring call restores the normal suit colours and clears this mode.</summary>
     RestoreSuitPalette,
 }

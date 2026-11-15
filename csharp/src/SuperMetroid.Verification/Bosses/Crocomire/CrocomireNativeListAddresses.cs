@@ -106,7 +106,7 @@ internal static class CrocomireNativeListAddresses
     internal static readonly TongueEntry[] TongueEntries =
     [
         new TongueEntry(CrocomireTongueSegment.Fight, 0xbe56),
-        new TongueEntry(CrocomireTongueSegment.Sleep, 0xbf62),
+        new TongueEntry(CrocomireTongueSegment.Hidden, 0xbf62),
         new TongueEntry(CrocomireTongueSegment.Melting, 0xbf98),
     ];
     /// <summary>The native entry point of <paramref name="program"/>.</summary>

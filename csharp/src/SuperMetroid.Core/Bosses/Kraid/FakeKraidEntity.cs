@@ -36,8 +36,7 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemySlot s
 
     /// <summary>The fake Kraid's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        true ? species.FakeKraidBombReaction : base.CommonBombDamageReaction(context);
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) => species.FakeKraidBombReaction;
 
     /// <summary>The fake Kraid's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.FakeKraidPowerBombReaction : base.PowerBombReaction;

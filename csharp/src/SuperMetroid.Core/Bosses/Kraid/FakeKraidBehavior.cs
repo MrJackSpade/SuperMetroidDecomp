@@ -26,7 +26,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Runs common Samus contact damage before Mini-Kraid's specialized death.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Spawns death animation three and the four-pickup scatter after lethal hits.</summary>
+    /// <summary>Spawns Mini-Kraid's death explosion and the four-pickup scatter after lethal hits.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Receives Mini-Kraid's cry and spike-launch sounds.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -104,8 +104,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The action choice reads the already-published random number; it does not advance
-        // the RNG. Use the read callback when available and reserve NextRandom for older
-        // isolated callers that did not expose that seam.
+        // the RNG.
         int random = ReadFakeKraidRandomNumber();
         int seedDelay = KraidRandomDefinitions.FakeKraidStartDelay.Of(random) + KraidRandomDefinitions.FakeKraidStartDelayBase;
         state.WalkStepTimer = seedDelay;
@@ -170,12 +169,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null || level is null)
         {
             throw new InvalidOperationException(
-                "Fake Kraid walk bytecode requires Samus and room collision data.");
+                "Fake Kraid's walk requires Samus and room collision data.");
         }
 
         state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
 
-        // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the signed four-pixel 1/65536-pixel
+        // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the four-pixel
         // displacement and reverse only if the room collision helper reports a wall.
         bool reverse = --state.WalkStepTimer == 0;
         if (reverse)
@@ -338,7 +337,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Mini-Kraid's shared death reaction: the enemy's death spawns death
-    /// explosion three and clears the slot, then the death drop
+    /// explosion and clears the slot, then the death drop
     /// scatters four pickups from the coordinates saved before the shot AI.
     /// The explosion therefore takes the first free projectile slot.
     /// </summary>
@@ -358,7 +357,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             origin);
     }
 
-    /// <summary>Replaces generic bomb death with Mini-Kraid's explosion-three and four-drop sequence.</summary>
+    /// <summary>Replaces generic bomb death with Mini-Kraid's death explosion and four-drop sequence.</summary>
     internal EnemyBombReaction FakeKraidBombReaction => field ??= new()
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the

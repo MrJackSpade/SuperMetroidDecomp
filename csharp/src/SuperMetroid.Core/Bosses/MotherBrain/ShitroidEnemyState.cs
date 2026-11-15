@@ -27,14 +27,14 @@ public sealed class ShitroidEnemyState
     public int MembranePulsePhase { get; internal set; }
 
     /// <summary>
-    /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero, and
-    /// the advance reloads it from <see cref="PaletteDelay"/>. The decrement is guarded by the zero test, so it never
+    /// Updates left before the membrane colours advance to its next phase; each update decrements it until zero, and
+    /// the advance reloads it from <see cref="ColourDelay"/>. The decrement is guarded by the zero test, so it never
     /// passes zero.
     /// </summary>
-    public int PaletteTimer { get; internal set; }
+    public int ColourTimer { get; internal set; }
 
-    /// <summary>Updates between palette-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
-    public int PaletteDelay { get; internal set; }
+    /// <summary>Updates between colour-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
+    public int ColourDelay { get; internal set; }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
     public int StateTimer { get; internal set; }

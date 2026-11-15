@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <remarks>
 /// The entrance uses no floating point, spline or physics engine. It holds a 1/256-pixel velocity, adds
-/// its fraction to the upper half of each enemy subpixel position only, and lets that addition's
+/// its fraction to the position's 256ths of a pixel only, leaving the finer part, and lets that addition's
 /// overflow enter the whole-pixel position. The curved entrance
 /// also scales by the game's signed sine (<see cref="Trigonometry.MultiplySignedSine"/>). Keeping those details
 /// here is important: replacing them with visually similar interpolation changes the exact
@@ -52,8 +52,8 @@ public sealed class BabyMetroidCutsceneState
     public EnemyPresence Presence { get; private set; }
 
     /// <summary>
-    /// Whether the onion-ring hit flash shows the shared white palette this update instead of
-    /// the Baby's own sprite palette.
+    /// Whether the onion-ring hit flash shows the shared white colours this update instead of
+    /// the Baby's own sprite colours.
     /// </summary>
     public bool HurtFlashShown { get; private set; }
 
@@ -96,7 +96,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>
     /// The Baby's onion-ring flash timer. Mother Brain's onion-ring collision response
     /// writes sixteen here. Main AI observes the nonzero value as a doubled shake, then
-    /// the later flashing step decrements it and alternates the enemy palette.
+    /// the later flashing step decrements it and alternates the enemy colours.
     /// </summary>
     public int OnionRingHitFlashTimer { get; private set; }
 
@@ -124,7 +124,7 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public int AttacksAgainReadyingElapsed { get; private set; }
 
-    /// <summary>Palette-table argument used while restoring the phase-three room lights, 0 through 8.</summary>
+    /// <summary>The step the phase-three room lights' restoration has reached, 0 through 8.</summary>
     public int RoomLightsTransitionCounter { get; private set; }
 
     /// <summary>
@@ -140,8 +140,8 @@ public sealed class BabyMetroidCutsceneState
     private const int SamusRainbowFractionPerCall = 3;
 
     /// <summary>
-    /// Adds one call's three 256ths of a rainbow palette frame to <paramref name="fraction"/>, returning the fraction
-    /// left over and whether the addition completed a whole frame: the slowing rainbow advances one palette frame each
+    /// Adds one call's three 256ths of a rainbow colour frame to <paramref name="fraction"/>, returning the fraction
+    /// left over and whether the addition completed a whole frame: the slowing rainbow advances one colour frame each
     /// time the fraction completes a frame, and keeps the remainder.
     /// </summary>
     internal static SamusRainbowFractionStep AdvanceSamusRainbowFraction(int fraction)
@@ -198,7 +198,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Executes one complete main-AI call: the phase first, then the unconditional enemy
-    /// velocity mover. Flash/palette presentation is intentionally kept
+    /// velocity mover. Flash/colour presentation is intentionally kept
     /// as inspectable state because it does not alter this entrance's coordinates.
     /// Every Baby step reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
     /// the head AI has already moved this frame; <paramref name="head"/> carries them.
@@ -399,7 +399,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.MoveToSamus:
             {
-                // The route step enables health-based palette selection on every route call. The ambient cry takes its
+                // The route step enables health-based colour selection on every route call. The ambient cry takes its
                 // own chance.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
@@ -480,8 +480,8 @@ public sealed class BabyMetroidCutsceneState
                 {
                     // The zero reached by the ordinary volleys is a state trigger, not the
                     // health carried into the final charge. Code deliberately gives
-                    // the Baby 320 health, changes to the low-health palette phase,
-                    // disables health-band palettes, and lets the next step run next frame.
+                    // the Baby 320 health, changes to the low-health colour phase,
+                    // disables health-band colours, and lets the next step run next frame.
                     Health = 320;
                     Phase = BabyMetroidCutscenePhase.ReleaseSamus;
                 }
@@ -625,7 +625,7 @@ public sealed class BabyMetroidCutsceneState
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeShade))
                 {
-                    // Completion does not write palette index seven. It hides the actor,
+                    // Completion does not write the Baby's eighth colour. It hides the actor,
                     // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
                     Presence = Presence.With(EnemyPresence.Hidden);
                     Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
@@ -701,7 +701,7 @@ public sealed class BabyMetroidCutsceneState
         // The flash step is called after the common velocity mover. It decrements the same
         // extra timer that onion-ring hits write and shows the flash colours while the
         // decremented value, modulo four, is two or three. Starting from sixteen, the first post-hit enemy call sees
-        // sixteen for its shake above, then displays the normal palette with timer fifteen.
+        // sixteen for its shake above, then displays the normal colours with timer fifteen.
         if (OnionRingHitFlashTimer != 0)
         {
             OnionRingHitFlashTimer--;
@@ -821,7 +821,7 @@ public sealed class BabyMetroidCutsceneState
         if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
             DeathExplosionPatternIndex = 0;
         // The death explosions hold the scatter shared with Ridley's death. The handler increments its
-        // index before looking up a pair, so a freshly cleared counter begins at entry one.
+        // index before looking up a pair, so a freshly cleared counter begins at the scatter's second place.
         return new DustExplosionRequest(
             Position: Position.Whole + DeathExplosionScatter.Offset(DeathExplosionPatternIndex),
             Animation: MiscDustAnimation.SmallExplosion,
@@ -884,12 +884,12 @@ public sealed class BabyMetroidCutsceneState
         return Trigonometry.MultiplySignedSine(speed, angle);
     }
 
-    /// <summary>Advances 1/65536-pixel position from 1/256-pixel velocity while leaving the lower half of the subpixel position untouched.</summary>
+    /// <summary>Advances 1/65536-pixel position from 1/256-pixel velocity while leaving the position's finer-than-256ths part untouched.</summary>
     private void MoveAccordingToVelocity()
     {
-        // The velocity's fraction is added to the upper half of the subpixel position and its
+        // The velocity's fraction is added to the position's 256ths of a pixel and its
         // whole part to the whole pixels, with the fraction's overflow. That is exactly a 1/65536-pixel
-        // add of the 1/256-pixel velocity: the lower half of the subpixel position is unchanged.
+        // add of the 1/256-pixel velocity: the position's finer part is unchanged.
         Position = Position.Advance(Velocity.ToSixteenSixteen());
     }
 

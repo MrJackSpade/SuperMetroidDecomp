@@ -186,7 +186,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
     internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
         throw new InvalidOperationException("The Ceres flight is not running.");
-    /// <summary>Scripted controller stream for the Mother Brain gameplay demonstration.</summary>
+    /// <summary>Scripted controller input for the Mother Brain gameplay demonstration.</summary>
     internal DemoInputState? CurrentFlashbackDemoInput { get; private set; }
     /// <summary>The flashback's scripted controller input, which exists while the flashback runs.</summary>
     internal DemoInputState FlashbackDemoInput => CurrentFlashbackDemoInput ??
@@ -820,7 +820,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts page four and the alternate-timer fade back from the delivery laboratory.</summary>
     private void SetupPageFourCrossfade()
     {
-        // The baby's page-four step selects page four. Page four starts its text stream and seeds the
+        // The baby's page-four step selects page four. Page four starts its text and seeds the
         // cinematic-phase counter, while the reverse step deliberately consumes the
         // still-127 intro crossfade counter set by the delivery scene.
         Objects.StartEnglishPageFour();

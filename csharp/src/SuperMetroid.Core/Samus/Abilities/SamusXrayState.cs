@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// X-ray's Samus-side setup, its own pose input and its hold on her movement
-/// (<see cref="SamusMovementOwner.Xray"/>), beam-angle state, visor palette, and teardown.
+/// (<see cref="SamusMovementOwner.Xray"/>), beam-angle state, visor colours, and teardown.
 /// </summary>
 /// <remarks>
 /// The retail feature crosses three parts of the game: X-ray setup admits and installs the four X-ray
@@ -122,8 +122,8 @@ public sealed class SamusXrayState
     /// </summary>
     public int VisorShade { get; private set; }
 
-    /// <summary>The shared five-frame palette cadence timer.</summary>
-    public int CommonPaletteTimer { get; private set; }
+    /// <summary>The shared five-frame colour cadence timer.</summary>
+    public int CommonColourTimer { get; private set; }
 
 
     /// <summary>
@@ -221,7 +221,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Installs the X-Ray pose and animation, replaces competing movement and palette owners,
+    /// Installs the X-Ray pose and animation, replaces competing movement and colour owners,
     /// and requests the visor activation sound.
     /// </summary>
     private void InstallSamusControl(SamusState samus, SamusPoseId targetPose)
@@ -232,7 +232,7 @@ public sealed class SamusXrayState
 
         // X-ray's activation pose immediately overrides the freshly selected
         // delay with frame two and a 63-tick timer, takes her pose input and movement, starts the
-        // visor palette, clears beam-flare state, and plays the X-ray's starting sound.
+        // visor colours, clears beam-flare state, and plays the X-ray's starting sound.
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 2, timer: 63);
         _colouring.Take(SamusSpecialPaletteType.Xray);
         samus.Shinespark.RelinquishPaletteToXray();
@@ -242,10 +242,10 @@ public sealed class SamusXrayState
         SamusMovementHandOver.To(samus, SamusMovementOwner.Xray);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same step takes over Samus's suit colouring and clears
-        // the special-palette timer even when an interrupted Flash, not a normal charge, owns it.
+        // the special-colouring timer even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishSuitColouring();
         VisorShade = 0;
-        CommonPaletteTimer = 1;
+        CommonColourTimer = 1;
         samus.AudioRequests.QueueSound(SamusSound.XrayStart, SoundRequestPriority.Normal);
         OwnsSamusControl = true;
     }
@@ -302,14 +302,14 @@ public sealed class SamusXrayState
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         _colouring.Release(SamusSpecialPaletteType.Xray);
         VisorShade = 0;
-        CommonPaletteTimer = 0;
+        CommonColourTimer = 0;
     }
 
     /// <summary>Another special suit colouring takes over from X-ray's.</summary>
     internal void RelinquishSuitColouring()
     {
         VisorShade = 0;
-        CommonPaletteTimer = 0;
+        CommonColourTimer = 0;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
     }
 
@@ -490,11 +490,11 @@ public sealed class SamusXrayState
         if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
             // A colour step that reports the colours unhandled asks the outer game-state loop to load the
-            // complete normal suit palette, then clears every X-ray palette value.
+            // complete normal suit colours, then clears every X-ray colour value.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             _colouring.Release(SamusSpecialPaletteType.Xray);
             VisorShade = 0;
-            CommonPaletteTimer = 0;
+            CommonColourTimer = 0;
             VisorPaletteMode = XrayVisorPaletteMode.Widening;
             return true;
         }
@@ -506,14 +506,14 @@ public sealed class SamusXrayState
         {
             // The visor enters the full-beam three-color loop at its first shade.
             VisorShade = XrayScopeDefinitions.Palette.FullCycleFirstShade;
-            CommonPaletteTimer = 1;
+            CommonColourTimer = 1;
             VisorPaletteMode = XrayVisorPaletteMode.FullBeam;
         }
 
-        if (--CommonPaletteTimer > 0)
+        if (--CommonColourTimer > 0)
             return false;
 
-        CommonPaletteTimer = XrayScopeDefinitions.Palette.FrameDelay;
+        CommonColourTimer = XrayScopeDefinitions.Palette.FrameDelay;
         colours.ShowVisor(SamusShades.Visor(VisorShade));
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
@@ -606,7 +606,7 @@ public sealed class SamusXrayState
     private static int LaterEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
         (center.ToTrigonometryAngle() + halfWidth).StepsFrom(limit.ToTrigonometryAngle());
 
-    /// <summary>Restores Samus' normal pose and input and movement modes, subsystem enables, palette request and beam state, and ends an auto-cancelled selection.</summary>
+    /// <summary>Restores Samus' normal pose and input and movement modes, subsystem enables, colour request and beam state, and ends an auto-cancelled selection.</summary>
     private void Finish(SamusState samus)
     {
         // The X-ray teardown intentionally classifies a grounded turn as standing. Releasing
@@ -632,7 +632,7 @@ public sealed class SamusXrayState
 
         // The teardown returns both Samus's pose input and her movement to her pose. X-Mode can arrange for
         // an active spark to hold her movement while the old visor effect reaches this
-        // teardown; ending that spark while retaining the spark's palette timer is the Blue Suit result.
+        // teardown; ending that spark while retaining the spark's colouring timer is the Blue Suit result.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Xray);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         TimeIsFrozen = false;

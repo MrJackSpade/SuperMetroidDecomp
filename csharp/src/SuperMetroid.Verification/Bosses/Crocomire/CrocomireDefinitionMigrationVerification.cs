@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -42,8 +43,8 @@ internal static class CrocomireDefinitionMigrationVerification
         AssertTrue(CrocomireNativeWords.DamageReactionPending(0x4801), "latch of a recorded word");
         AssertTrue(!CrocomireNativeWords.DamageReactionPending(0x8000), "the engagement mark is no latch");
 
-        AssertEqual(0xc65e, CrocomireNativeWords.TongueFrames.Word(CrocomireTongueFrame.Fight0), "first tongue frame");
-        AssertEqual(0xcaf6, CrocomireNativeWords.TongueFrames.Word(CrocomireTongueFrame.MeltingPose4), "last tongue frame");
+        AssertEqual(0xc65e, CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueFightFirst), "first tongue frame");
+        AssertEqual(0xcaf6, CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueMeltingPoseFifth), "last tongue frame");
 
         Console.WriteLine("Crocomire definition migration: colours, melting, skeleton, volley, latches and tongue identities keep their values.");
     }

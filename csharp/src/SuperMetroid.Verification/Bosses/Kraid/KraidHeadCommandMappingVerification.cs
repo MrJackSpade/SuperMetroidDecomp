@@ -106,7 +106,7 @@ internal static class KraidHeadCommandMappingVerification
                     ? new(KraidMouthShapeReadKind.NoShape, default)
                     : new(KraidMouthShapeReadKind.Shape, KraidNativeWords.MouthHitboxes.Decode(record.InnerShape, "Kraid mouth hitbox"));
         }
-        return KraidMouthShapeRead.OutsideHeadFrames;
+        return KraidMouthShapeRead.NoPose;
     }
 
     /// <summary>Reads one native bank-$A7 byte solely for the head-program oracle.</summary>

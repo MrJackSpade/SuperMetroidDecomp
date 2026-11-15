@@ -19,9 +19,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MotherBrainEntity(this, slot, common, _bossArtwork);
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
+    /// <summary>Draws encounter artwork and applies installed colours.</summary>
     private readonly EnemyPresentation _presentation;
 
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
@@ -47,7 +47,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
     internal MotherBrainAttacks Attacks { get; }
 
-    /// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>
+    /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
     internal MotherBrainRainbowAndDeath RainbowAndDeath { get; }
 
     /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
@@ -86,7 +86,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MotherBrainEnemyState state = Access.RequireCompleteMotherBrainState(body);
 
-        // The body main advances the independent room-palette animation before it
+        // The body main advances the independent room-colour animation before it
         // runs the body phase. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomFlash(state);

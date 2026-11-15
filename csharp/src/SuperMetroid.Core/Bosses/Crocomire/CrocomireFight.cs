@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -149,16 +150,16 @@ internal sealed class CrocomireFight
         AnimationPlace place = state.TonguePlayback.Place;
         // The tongue's animations count no repeats, so nothing reads or writes this counter.
         WrappingCountdown repeats = WrappingCountdown.Start(0);
-        AnimationShown<CrocomireTongueSegment, CrocomireTongueFrame> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
+        AnimationShown<CrocomireTongueSegment, EnemyFrameId> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
             state.TonguePlayback.Animation, ref place, ref repeats,
             cue => throw new InvalidOperationException($"A Crocomire tongue animation raised event {cue}."));
         state.TonguePlayback = state.TonguePlayback with { Place = place };
-        // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
-        if (outcome is AnimationShown<CrocomireTongueSegment, CrocomireTongueFrame>.Held)
+        // A hold rests the animation: the timer wraps from zero and the last frame stays.
+        if (outcome is AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Held)
             return;
-        if (outcome is not AnimationShown<CrocomireTongueSegment, CrocomireTongueFrame>.Frame shown)
+        if (outcome is not AnimationShown<CrocomireTongueSegment, EnemyFrameId>.Frame shown)
             throw new InvalidOperationException($"Crocomire's tongue animation ended an update with {outcome}.");
-        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Shown);
+        tongue.Frame = shown.Shown;
         tongue.AnimationClock.Show(shown.Duration);
     }
 
@@ -186,7 +187,7 @@ internal sealed class CrocomireFight
                 : null);
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(animation, place);
         body.AnimationClock.Repeats = counter;
-        // A hold is the script's sleep: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
+        // A hold rests the animation: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
         // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
         switch (outcome)
         {
@@ -356,7 +357,7 @@ internal sealed class CrocomireFight
                     state.Phase = CrocomirePhase.NearSpikeWallCharge;
                     return CrocomireBodySegment.NearSpikeWallCharge;
                 }
-                return !CrocomireBodyAnimationGroups.BeforeSteppingBack.Contains(continuation)
+                return !CrocomireBodyAnimationGroups.StepForwardInProgress.Contains(continuation)
                     ? CrocomireBodySegment.StepForward
                     : null;
 
@@ -448,7 +449,7 @@ internal sealed class CrocomireFight
             state.Phase = damagedDestination;
             return CrocomireBodySegment.StepBack;
         }
-        return !CrocomireBodyAnimationGroups.BeforeRoarCloseMouthLoop.Contains(continuation)
+        return !CrocomireBodyAnimationGroups.RoarYetToCloseMouth.Contains(continuation)
             ? CrocomireBodySegment.Roar
             : null;
     }

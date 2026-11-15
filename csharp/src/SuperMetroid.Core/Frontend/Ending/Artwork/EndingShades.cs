@@ -27,7 +27,7 @@ public static class EndingShades
     /// <summary>The logo's background and sprite colours at crossfade <paramref name="step"/>.</summary>
     public static PictureShade LogoCrossfade(int step) => new("EndingLogoCrossfade", step);
 
-    /// <summary>An actor's palette-inheriting parts drawn in <paramref name="colouring"/>, in the sheet's own colours.</summary>
+    /// <summary>An actor's recolourable parts drawn in <paramref name="colouring"/>, in the sheet's own colours.</summary>
     public static PictureShade Drawn(EndingSpriteColouring colouring) => new($"EndingDrawn{colouring}", 0);
 
     /// <summary>

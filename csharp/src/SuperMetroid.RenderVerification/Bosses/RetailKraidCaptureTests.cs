@@ -132,7 +132,7 @@ internal static class RetailKraidCaptureTests
             if (DeathFinished(boss)) break;
             runtime.StepFrame(0);
         }
-        if (!DeathFinished(boss) || !deathPhases.Contains(KraidPhase.DeathWaitBeforeFadeIn4) ||
+        if (!DeathFinished(boss) || !deathPhases.Contains(KraidPhase.DeathWaitBeforeFadeIn) ||
             !deathPhases.Contains(KraidPhase.DeathSink) ||
             !deathPhases.Contains(KraidPhase.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");

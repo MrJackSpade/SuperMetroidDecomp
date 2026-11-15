@@ -29,10 +29,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal interface IGameplayArtwork
 {
-    /// <summary>Area maps with the pause, HUD, title, intro and ending text and palettes that share their installation.</summary>
+    /// <summary>Area maps with the pause, HUD, title, intro and ending text and colours that share their installation.</summary>
     IGameplayPresentationContent? MapPresentation { get; }
 
-    /// <summary>Samus body pictures, palettes and death palettes.</summary>
+    /// <summary>Samus body pictures, colours and death colours.</summary>
     InstalledSamusBodyArtwork? SamusBodyArt { get; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>

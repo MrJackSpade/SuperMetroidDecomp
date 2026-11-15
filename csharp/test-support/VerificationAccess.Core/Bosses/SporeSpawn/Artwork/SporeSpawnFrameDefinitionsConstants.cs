@@ -1,6 +1,8 @@
-﻿namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Cartridge values and helpers of <see cref="SporeSpawnFrameDefinitions"/> that only verification reads.</summary>
+namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+
+/// <summary>Cartridge values of Spore Spawn's body frames that only verification reads.</summary>
 internal static class SporeSpawnFrameDefinitionsConstants
 {
     /// <summary>$A5:EE65: the hardened husk.</summary>
@@ -13,17 +15,32 @@ internal static class SporeSpawnFrameDefinitionsConstants
     internal const ushort FirstOpen = 0xef3d;
     /// <summary>The size of one opening or open root.</summary>
     internal const int RootBytes = 18;
-    /// <summary>The opening poses.</summary>
-    internal const int OpeningPoseCount = 7;
-    /// <summary>The fully open poses.</summary>
-    internal const int OpenPoseCount = 3;
-    /// <summary>The extended spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(SporeSpawnFrame frame) => frame switch
+    /// <summary>The extended spritemap <paramref name="frame"/>, one of Spore Spawn's body frames, is stored at.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of Spore Spawn's body frames.</exception>
+    internal static ushort Spritemap(EnemyFrameId frame) => Spritemaps.TryGetValue(frame, out ushort spritemap)
+        ? spritemap
+        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a Spore Spawn body frame.");
+
+    /// <summary>Each frame by the cartridge frame it shows.</summary>
+    private static readonly Dictionary<EnemyFrameId, ushort> Spritemaps = new()
     {
-        { Kind: SporeSpawnFrameKind.Dead, Pose: 0 } => Dead,
-        { Kind: SporeSpawnFrameKind.Closed, Pose: 0 } => Closed,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: >= 0 and < OpeningPoseCount } => (ushort)(FirstOpening + RootBytes * frame.Pose),
-        { Kind: SporeSpawnFrameKind.Open, Pose: >= 0 and < OpenPoseCount } => (ushort)(FirstOpen + RootBytes * frame.Pose),
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Spore Spawn frame."),
+        [EnemyFrameId.SporeSpawnInitialDead] = Dead,
+        [EnemyFrameId.SporeSpawnInitialAlive] = Closed,
+        [EnemyFrameId.SporeSpawnOpeningFirst] = Opening(0),
+        [EnemyFrameId.SporeSpawnOpeningSecond] = Opening(1),
+        [EnemyFrameId.SporeSpawnOpeningThird] = Opening(2),
+        [EnemyFrameId.SporeSpawnOpeningFourth] = Opening(3),
+        [EnemyFrameId.SporeSpawnOpeningFifth] = Opening(4),
+        [EnemyFrameId.SporeSpawnDeath] = Opening(5),
+        [EnemyFrameId.SporeSpawnOpeningSeventh] = Opening(6),
+        [EnemyFrameId.SporeSpawnOpenPulseFirst] = Open(0),
+        [EnemyFrameId.SporeSpawnOpenPulseSecond] = Open(1),
+        [EnemyFrameId.SporeSpawnOpenPulseThird] = Open(2),
     };
+
+    /// <summary>The opening pose stored <paramref name="pose"/> roots into the opening run.</summary>
+    private static ushort Opening(int pose) => (ushort)(FirstOpening + RootBytes * pose);
+
+    /// <summary>The open pose stored <paramref name="pose"/> roots into the open run.</summary>
+    private static ushort Open(int pose) => (ushort)(FirstOpen + RootBytes * pose);
 }

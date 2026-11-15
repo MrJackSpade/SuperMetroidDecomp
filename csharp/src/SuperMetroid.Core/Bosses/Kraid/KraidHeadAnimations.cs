@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
 using P = SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -6,7 +7,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's head animations (#641, #1600), and what collision and growth read at each step of each animation. The head shows
 /// a pose for its duration, cries between poses and holds at each animation's end; the body's head timer gates every
-/// advance. Checked against the game's head animations by the head-animation verification.
+/// advance. Collision takes its mouth shapes from the step the head has just passed (<see cref="KraidMouthTrailsHead"/>),
+/// growth chooses where the roar resumes by the step the head shows next. Checked against the game's head animations by
+/// the head-animation verification.
 /// </summary>
 internal static class KraidHeadAnimations
 {
@@ -109,51 +112,16 @@ internal static class KraidHeadAnimations
     }
 
     /// <summary>
-    /// What collision and growth read at each step of each animation, one entry per step, the last at the animation's end. The first entry of every
-    /// animation but the roar looks into the end of the animation authored before it, whose last pose is the closed mouth.
+    /// The last pose of the head animation laid out before each animation, which the mouth tests find at its start
+    /// (<see cref="KraidMouthTrailsHead"/>): every animation but the roar, laid out first, follows one that ends with the
+    /// mouth closed.
     /// </summary>
-    private static readonly Dictionary<KraidHeadSegment, KraidHeadCursorReads[]> Reads = new()
+    private static readonly Dictionary<KraidHeadSegment, KraidHeadFrame?> PoseLaidOutBefore = new()
     {
-        [P.Roar] =
-        [
-            new(KraidMouthShapeRead.OutsideHeadFrames, KraidMouthShapeRead.OutsideHeadFrames, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameOpening),
-            After(KraidHeadFrame.Opening, KraidHeadGrowthResume.NextFrameWider),
-            After(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextStepOther),
-            AfterCry(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextStepOther),
-            After(KraidHeadFrame.Open, KraidHeadGrowthResume.NextFrameWider),
-            After(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextFrameOpening),
-            After(KraidHeadFrame.Opening, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextStepOther),
-        ],
-        [P.DyingRoar] =
-        [
-            AfterPreviousAnimation(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameOpening),
-            After(KraidHeadFrame.Opening, KraidHeadGrowthResume.NextFrameWider),
-            After(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextStepOther),
-            AfterCry(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextStepOther),
-            After(KraidHeadFrame.Open, KraidHeadGrowthResume.NextFrameWider),
-            After(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextFrameOpening),
-            After(KraidHeadFrame.Opening, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextStepOther),
-        ],
-        [P.EyeGlow] =
-        [
-            AfterPreviousAnimation(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameOpening),
-            After(KraidHeadFrame.Opening, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextStepOther),
-        ],
-        [P.Death] =
-        [
-            AfterPreviousAnimation(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameClosed),
-            After(KraidHeadFrame.Closed, KraidHeadGrowthResume.NextFrameOpening),
-            After(KraidHeadFrame.Opening, KraidHeadGrowthResume.NextFrameWider),
-            After(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextStepOther),
-            AfterCry(KraidHeadFrame.Wider, KraidHeadGrowthResume.NextStepOther),
-            After(KraidHeadFrame.Open, KraidHeadGrowthResume.NextStepOther),
-        ],
+        [P.Roar] = null,
+        [P.DyingRoar] = KraidHeadFrame.Closed,
+        [P.EyeGlow] = KraidHeadFrame.Closed,
+        [P.Death] = KraidHeadFrame.Closed,
     };
 
     /// <summary>What collision and growth read where <paramref name="playback"/> stands; a head that never started has no pose to read.</summary>
@@ -162,11 +130,33 @@ internal static class KraidHeadAnimations
         AnimationPlayback<KraidHeadSegment> started = playback ?? throw new InvalidDataException(
             "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");
         KraidHeadSegmentPlace place = PlaceOf(started);
-        KraidHeadCursorReads[] reads = Reads[place.Segment];
-        return (uint)place.Step < (uint)reads.Length
-            ? reads[place.Step]
-            : throw new InvalidOperationException($"Kraid head place {place} is outside its segment.");
+        IReadOnlyList<AnimationBeat<KraidHeadFrame, KraidHeadCue>> beats = Segments.Beats(place.Segment);
+        if ((uint)place.Step > (uint)beats.Count)
+            throw new InvalidOperationException($"Kraid head place {place} is outside its segment.");
+        KraidHeadFrame?[] steps = [.. beats.Select(beat => beat.ShownFrame)];
+        KraidMouthTrailsHead.MouthShapes<KraidHeadFrame> shapes =
+            KraidMouthTrailsHead.ShapesAt(steps, place.Step, PoseLaidOutBefore[place.Segment]);
+        return new(Read(shapes.Outer), Read(shapes.Inner), GrowthResumeBefore(place.Step < steps.Length ? steps[place.Step] : null));
     }
+
+    /// <summary>What a mouth test finds: the shape it takes, the closed mouth's missing inner shape, or no pose.</summary>
+    private static KraidMouthShapeRead Read(KraidMouthTrailsHead.MouthShape<KraidHeadFrame> shape) => shape.Pose switch
+    {
+        null => KraidMouthShapeRead.NoPose,
+        { } pose when shape.Shape == KraidMouthTrailsHead.PoseShape.Inner => KraidMouthShapeRead.InvulnerableOf(pose),
+        { } pose => KraidMouthShapeRead.VulnerableOf(pose),
+    };
+
+    /// <summary>
+    /// Where growth resumes the roar when the head shows <paramref name="next"/> next: the closed, opening or wider pose
+    /// resume the roar's closing part at that pose; the open pose, a cry or an animation's end resume it at the wide-open
+    /// hold's end.
+    /// </summary>
+    private static KraidHeadGrowthResume GrowthResumeBefore(KraidHeadFrame? next) =>
+        next == KraidHeadFrame.Closed ? KraidHeadGrowthResume.NextFrameClosed
+        : next == KraidHeadFrame.Opening ? KraidHeadGrowthResume.NextFrameOpening
+        : next == KraidHeadFrame.Wider ? KraidHeadGrowthResume.NextFrameWider
+        : KraidHeadGrowthResume.NextStepOther;
 
     /// <summary>The outer mouth shape body hits are tested against where <paramref name="playback"/> stands.</summary>
     internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadSegment>? playback)
@@ -185,8 +175,8 @@ internal static class KraidHeadAnimations
         {
             KraidMouthShapeReadKind.Shape => read.Shape,
             KraidMouthShapeReadKind.NoShape => null,
-            KraidMouthShapeReadKind.OutsideHeadFrames => throw new InvalidDataException(
-                $"Kraid's inner mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} lands outside every head pose."),
+            KraidMouthShapeReadKind.NoPose => throw new InvalidDataException(
+                $"Kraid's inner mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} finds no head pose."),
             _ => throw new InvalidOperationException($"Undefined {nameof(KraidMouthShapeReadKind)} {read.Kind}."),
         };
     }
@@ -209,21 +199,6 @@ internal static class KraidHeadAnimations
         KraidHeadGrowthResume.NextStepOther => RoarOpenDuration,
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidHeadGrowthResume)} {resume}."),
     };
-
-    /// <summary>The reads just past <paramref name="frame"/>: its outer and inner shapes.</summary>
-    private static KraidHeadCursorReads After(KraidHeadFrame frame, KraidHeadGrowthResume growth) =>
-        new(KraidMouthShapeRead.VulnerableOf(frame), KraidMouthShapeRead.InvulnerableOf(frame), growth);
-
-    /// <summary>The reads just past a cry that follows <paramref name="frame"/>: the outer read finds the pose's inner shape.</summary>
-    private static KraidHeadCursorReads AfterCry(KraidHeadFrame frame, KraidHeadGrowthResume growth) =>
-        new(KraidMouthShapeRead.InvulnerableOf(frame), KraidMouthShapeRead.OutsideHeadFrames, growth);
-
-    /// <summary>
-    /// The reads at an animation's start, past the end of the animation authored before it, whose last pose is
-    /// <paramref name="frame"/>: the outer read finds that pose's inner shape and the inner read finds no pose.
-    /// </summary>
-    private static KraidHeadCursorReads AfterPreviousAnimation(KraidHeadFrame frame, KraidHeadGrowthResume growth) =>
-        new(KraidMouthShapeRead.InvulnerableOf(frame), KraidMouthShapeRead.OutsideHeadFrames, growth);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<KraidHeadFrame, KraidHeadCue> Show(KraidHeadFrame frame, int duration) =>

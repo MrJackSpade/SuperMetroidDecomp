@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
-/// The Fune's and Namihe's idle and spitting animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Fune's and Namihe's idle and spitting animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
 /// Their steps are <see cref="FuneNamiheAnimations"/>.
 /// </summary>
 internal enum FuneNamiheSegment

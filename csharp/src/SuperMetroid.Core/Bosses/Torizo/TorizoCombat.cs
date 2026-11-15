@@ -90,9 +90,9 @@ internal sealed class TorizoCombat
     /// <summary>Selects Golden Torizo's body and belly health band from its health, one band per 2048.</summary>
     private static void ShowGoldenTorizoHealthShade(RoomEnemySlot torizo, TorizoEnemyState state, int health)
     {
-        // The health gradient selects one of eight health bands from health divided by the band size, clamping
-        // the upper half to the last band; each band resolves its colours from the installed health shades.
-        int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerBand % TorizoCombatDefinitions.HealthBandCount;
+        // The health gradient selects a band from health divided by the band size, clamping it to the last band; each
+        // band resolves its colours from the installed health shades.
+        int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerBand;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
     }
@@ -125,7 +125,7 @@ internal sealed class TorizoCombat
         TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.Dying));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // The normal Torizo shot reaction makes the actor intangible when
-        // entering the death stream. This removes the dying actor from Samus contact and
+        // entering the death animation. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible animation frames continue.
         torizo.Contact = torizo.Contact.With(EnemyContact.IgnoresSamus);
     }

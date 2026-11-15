@@ -40,7 +40,7 @@ public sealed class PhantoonEnemyState
     /// <summary>The mouth, once attached (<see cref="Mouth"/>).</summary>
     private RoomEnemySlot? _mouth;
 
-    /// <summary>Gets the eye, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
+    /// <summary>Gets the eye, attached by part initialization and sharing the body's position while retaining its own animation/colour counters.</summary>
     public RoomEnemySlot Eye { get => _eye ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set => _eye = value; }
     /// <summary>Gets the tentacles, attached by part initialization and positioned from the body after its AI pass.</summary>
     public RoomEnemySlot Tentacles { get => _tentacles ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set => _tentacles = value; }

@@ -39,6 +39,12 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Body phase timer.</summary>
     public int PhaseTimer { get; internal set; }
 
+    /// <summary>
+    /// The speed, in 1/256 pixels per update, her severed brain falls at once she has realized her decapitation (#1890):
+    /// zero as it starts to fall, gaining 32 an update.
+    /// </summary>
+    public int BrainFallSpeed { get; internal set; }
+
     /// <summary>Rainbow-beam SFX-playing flag.</summary>
     public bool RainbowBeamSoundPlaying { get; internal set; }
 

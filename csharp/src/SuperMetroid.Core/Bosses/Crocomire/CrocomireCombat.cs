@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's hitboxes, touch, projectiles and hurt palette, and what Samus's weapons do to it.</summary>
+/// <summary>Crocomire's hitboxes, touch, projectiles and hurt flash, and what Samus's weapons do to it.</summary>
 [RoomLifetime]
 internal sealed class CrocomireCombat
 {
@@ -431,13 +431,4 @@ internal sealed class CrocomireCombat
         return false;
     }
 
-    /// <summary>
-    /// Whether the probe overlaps one of the tongue's hitboxes, or null when the occupant is not the tongue. The tongue has
-    /// no hitboxes in any frame (#1870), so a probe never touches it and it never reacts.
-    /// </summary>
-    internal static bool? FindCrocomireTongueHitboxReaction(RoomEnemySlot enemy, out EnemyReaction? reaction)
-    {
-        reaction = null;
-        return enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue ? false : null;
-    }
 }

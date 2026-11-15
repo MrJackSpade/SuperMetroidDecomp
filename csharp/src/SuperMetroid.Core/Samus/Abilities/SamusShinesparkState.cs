@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// This is the game's state machine, not a desktop “dash”
 /// controller. Timers wrap at 65536, movement retains split 1/65536-pixel values, and every
-/// palette is selected through the user's installed artwork. Block collision uses the shared step; solid
+/// colouring is selected through the user's installed artwork. Block collision uses the shared step; solid
 /// enemies stop a sideways spark through it, and an upward spark tests them before its block move.
 /// </remarks>
 public sealed class SamusShinesparkState
@@ -56,12 +56,12 @@ public sealed class SamusShinesparkState
     /// <summary>Points the spark's sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
-    /// <summary>The special-palette timer: 180 stored, 60 windup, and 15 during active motion.</summary>
+    /// <summary>The special-colouring timer: 180 stored, 60 windup, and 15 during active motion.</summary>
     public int ShineTimer { get; private set; }
 
     /// <summary>
     /// The next step of the shine colour cycle, below the stored-shine list's six steps for the stored shine and below the
-    /// active list's four while sparking: each palette call advances it by one and returns it to zero at that limit.
+    /// active list's four while sparking: each colouring call advances it by one and returns it to zero at that limit.
     /// </summary>
     public int PaletteStep { get; private set; }
 
@@ -95,7 +95,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Crystal Flash takes over both Samus's movement and the shared special
-    /// palette timer, and takes Samus's suit colouring. The new owner holds them; do not resume this old owner
+    /// colour timer, and takes Samus's suit colouring. The new owner holds them; do not resume this old owner
     /// after Flash finishes. Extra run speed and the boost counter are not cleared.
     /// </summary>
     internal void RelinquishToCrystalFlash()
@@ -207,7 +207,7 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(samus, targetPose);
     }
 
-    /// <summary>Cancels beam charge and installs the 30-frame spark windup, palette and boost state.</summary>
+    /// <summary>Cancels beam charge and installs the 30-frame spark windup, colouring and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
         // The windup checks the charge counter before clearing it. A charge that has
@@ -222,7 +222,7 @@ public sealed class SamusShinesparkState
         }
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
-        // palette timer can admit this launch even after its movement was interrupted.
+        // colour timer can admit this launch even after its movement was interrupted.
         SamusMovementHandOver.To(samus, SamusMovementOwner.Shinespark);
         samus.CrystalFlash.RelinquishSuitColouring();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
@@ -652,7 +652,7 @@ false);
                 suit, PaletteStep, out palette);
         if (!catalogued)
             throw new InvalidDataException(
-                $"Shinespark palette type {colouring} step {PaletteStep} is not compiled.");
+                $"Shinespark colouring {colouring} step {PaletteStep} is not compiled.");
         colours.ShowSuit(SamusShades.FullBodyCycle(palette));
 
         int steps = colouring == SamusSpecialPaletteType.SpeedBoosterShine
@@ -760,7 +760,7 @@ false);
 
     /// <summary>
     /// The crash's end: releases its echoes on Samus's shots as far as her shot count leaves room, restores standing,
-    /// and expires the shinesparking palette. A released first echo leaves Samus's height as the next orbit's travel; a
+    /// and expires the shinesparking colouring. A released first echo leaves Samus's height as the next orbit's travel; a
     /// crash that releases no first echo leaves the travel its own orbit ended on.
     /// </summary>
     internal ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)

@@ -13,8 +13,8 @@ internal static class KraidNativeWords
     {
         [KraidPhase.GrowBreakCeilingPlatforms] = 0xac4d,
         [KraidPhase.GrowBringBodyInFront] = 0xad3a,
-        [KraidPhase.GrowShowLowerBodyInFront] = 0xad61,
-        [KraidPhase.GrowDrawRoomBackground] = 0xad8e,
+        [KraidPhase.GrowSettleParts] = 0xad61,
+        [KraidPhase.GrowShowRoomBackdrop] = 0xad8e,
         [KraidPhase.GrowFadeInRoomBackground] = 0xae23,
         [KraidPhase.MainloopThinking] = 0xaea4,
         [KraidPhase.SecondPhaseThinking] = 0xaec4,
@@ -46,25 +46,35 @@ internal static class KraidNativeWords
         [KraidPhase.GrowReleaseCamera] = 0xc0a1,
         [KraidPhase.DeathInitialize] = 0xc360,
         [KraidPhase.DeathFadeOut] = 0xc3f9,
-        [KraidPhase.DeathShowUpperBody] = 0xc4a4,
-        [KraidPhase.DeathShowLowerBody] = 0xc4c8,
+        [KraidPhase.DeathShowBody] = 0xc4a4,
+        [KraidPhase.DeathStartSinking] = 0xc4c8,
         [KraidPhase.DeathSink] = 0xc537,
-        [KraidPhase.DeathHideUpperBody] = 0xc715,
-        [KraidPhase.DeathHideLowerBody] = 0xc751,
-        [KraidPhase.DeathWaitBeforeFadeIn1] = 0xc777,
-        [KraidPhase.DeathWaitBeforeFadeIn2] = 0xc7a3,
-        [KraidPhase.DeathWaitBeforeFadeIn3] = 0xc7c9,
-        [KraidPhase.DeathWaitBeforeFadeIn4] = 0xc7ef,
+        [KraidPhase.DeathHideBody] = 0xc715,
+        [KraidPhase.DeathWaitBeforeFadeIn] = 0xc751,
         [KraidPhase.DeathFadeInBackground] = 0xc815,
         [KraidPhase.DeathFinishedWasAlive] = 0xc843,
         [KraidPhase.DeathFinishedWasDead] = 0xc851,
         [KraidPhase.RestrictSamusToFirstScreen] = 0xc865,
-        [KraidPhase.RaiseKraidThroughFloor] = 0xc86b,
-        [KraidPhase.RaiseShowLowerBody] = 0xc89a,
+        [KraidPhase.RaiseShowBody] = 0xc86b,
+        [KraidPhase.RaiseStartQuakeAndMusic] = 0xc89a,
         [KraidPhase.RaiseRocksEvery16Frames] = 0xc8e0,
         [KraidPhase.RaiseRocksEvery8Frames] = 0xc902,
         [KraidPhase.RaiseBody] = 0xc924,
     });
+
+    /// <summary>
+    /// The bank-$A7 routine words of the death's five one-update steps between hiding the body and the fade-in, each with
+    /// the updates the wait then has left (#1888): Core runs them as one <see cref="KraidPhase.DeathWaitBeforeFadeIn"/>
+    /// counted down in the body's phase timer, which <see cref="Phases"/> names by the first.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<ushort, int> DeathWaitUpdatesLeft = new Dictionary<ushort, int>
+    {
+        [0xc751] = 5,
+        [0xc777] = 4,
+        [0xc7a3] = 3,
+        [0xc7c9] = 2,
+        [0xc7ef] = 1,
+    };
 
     /// <summary>The bank-$A7 return a part's record word A names while the part runs no phase (#1870).</summary>
     internal const ushort NoPhase = 0xba2d;
@@ -76,7 +86,6 @@ internal static class KraidNativeWords
         [KraidMouthHitbox.OpeningVulnerable] = 0x9790,
         [KraidMouthHitbox.WiderVulnerable] = 0x9798,
         [KraidMouthHitbox.OpenVulnerable] = 0x97a0,
-        [KraidMouthHitbox.EmptyShape] = 0x97a8,
         [KraidMouthHitbox.OpeningInvulnerable] = 0x97b0,
         [KraidMouthHitbox.WiderInvulnerable] = 0x97b8,
         [KraidMouthHitbox.OpenInvulnerable] = 0x97c0,
@@ -88,11 +97,11 @@ internal static class KraidNativeWords
     /// </summary>
     internal static readonly NativeWordIdentities<KraidRoomMutation> RoomMutations = new(new Dictionary<KraidRoomMutation, ushort>
     {
-        [KraidRoomMutation.CrumbleCeilingIntoBackground1] = 0xb7a3,
-        [KraidRoomMutation.CrumblePlatformVariant1] = 0xb7a7,
-        [KraidRoomMutation.CrumbleCeilingIntoBackground2] = 0xb7ab,
-        [KraidRoomMutation.CrumblePlatformVariant2] = 0xb7af,
-        [KraidRoomMutation.CrumbleCeilingIntoBackground3] = 0xb7b3,
+        [KraidRoomMutation.CrumbleCeilingAtLeftEdge] = 0xb7a3,
+        [KraidRoomMutation.CrumblePlatformInOddColumn] = 0xb7a7,
+        [KraidRoomMutation.CrumbleCeilingInOddColumn] = 0xb7ab,
+        [KraidRoomMutation.CrumblePlatformInEvenColumn] = 0xb7af,
+        [KraidRoomMutation.CrumbleCeilingInEvenColumn] = 0xb7b3,
         [KraidRoomMutation.ClearCeiling] = 0xb7b7,
         [KraidRoomMutation.ClearSpikes] = 0xb7bb,
         [KraidRoomMutation.CrumbleSpikes] = 0xb7bf,

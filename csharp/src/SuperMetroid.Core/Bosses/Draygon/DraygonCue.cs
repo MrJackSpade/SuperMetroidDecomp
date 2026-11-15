@@ -23,7 +23,7 @@ internal abstract record DraygonCue
     /// <summary>Spawns a dying-Draygon sprite object at a random point of the body.</summary>
     internal sealed record SpawnDyingObject(RoomSpriteObjectKind Kind) : DraygonCue;
 
-    /// <summary>Puts the tail and arms to sleep.</summary>
+    /// <summary>Rests the tail and arms on their last frames.</summary>
     internal sealed record ParalyseTailAndArms : DraygonCue
     {
         /// <summary>The cue's only value.</summary>

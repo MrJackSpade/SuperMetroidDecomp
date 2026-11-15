@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidSinkSchedule
 {
     /// <summary>
-    /// Kraid's sinking schedule: twenty-eight rows spaced eight pixels
-    /// apart, terminated by an end marker. Six rows crumble platforms; the remaining rows
-    /// run the distinct empty step. Where each row draws is presentation data.
+    /// The platform crumble Kraid's body sinking to <paramref name="y"/> starts, or null when none does (#1889): six of the
+    /// rows eight pixels apart that he sinks through crumble a platform block, and the rest crumble nothing.
     /// </summary>
     public static KraidSinkStep? StepAt(int y)
     {
@@ -20,7 +19,7 @@ internal static class KraidSinkSchedule
             384 => KraidSinkStep.CrumbleLeftPlatformRight,
             408 => KraidSinkStep.CrumbleLeftPlatformMiddle,
             432 => KraidSinkStep.CrumbleRightPlatformRight,
-            _ => KraidSinkStep.NoOperation,
+            _ => null,
         };
     }
 }

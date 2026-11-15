@@ -173,7 +173,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.AnimationFinished = false;
 
-        // The attack restarts after each animation reaches its sleep; that restart is what spaces the three fireballs
+        // The attack restarts after each animation reaches its rest; that restart is what spaces the three fireballs
         // by a whole attack animation.
         bodyState.ReinstallRequested = true;
         SpawnDragonFireball(body, bodyState);

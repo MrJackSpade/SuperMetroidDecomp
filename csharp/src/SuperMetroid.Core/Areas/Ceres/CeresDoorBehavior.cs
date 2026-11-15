@@ -93,8 +93,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                         "Ceres door proximity cue requires the active Samus actor.");
                 }
 
-                // The distance test subtracts the two unsigned positions, reads the
-                // wrapped result as signed, then takes its absolute value independently
+                // The distance test subtracts the two positions, takes the
+                // wrapped difference, then its distance independently
                 // on each axis. If either distance is at least 48 pixels, the door branches.
                 int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
                 int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
@@ -170,9 +170,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)
             _presentation.ShowLook(CeresDoorLookDefinitions.OverlayLook);
 
-        // The game loads the door's colours into one of two palettes, the inactive door's or the active door's, whose
+        // The game loads the door's colours into one of two colour sets, the inactive door's or the active door's, whose
         // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the
-        // normal ones. The door shows them as its shade (#1512); which palette held them is not kept.
+        // normal ones. The door shows them as its shade (#1512); which set held them is not kept.
         slot.Shading = _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
             ? CeresDoorShades.InEscapingColours
             : CeresDoorShades.InNormalColours;

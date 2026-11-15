@@ -240,7 +240,7 @@ public static class SamusGrappleBeamDrawing
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // Every grapple teardown clears these same shared charge/grapple
-        // values before restoring Samus's ordinary drawing and projectile palette.
+        // values before restoring Samus's ordinary drawing and projectile colours.
         grapple.FlareStage = GrappleFlareStage.None;
         grapple.FlarePlace = ChargeFlareAnimations.FirstPlace;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);

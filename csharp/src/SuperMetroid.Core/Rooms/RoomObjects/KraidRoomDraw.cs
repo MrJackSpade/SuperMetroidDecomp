@@ -9,12 +9,12 @@ internal enum KraidRoomDraw
     CrumbleSecond,
     /// <summary>Third crumble frame.</summary>
     CrumbleThird,
-    /// <summary>Ceiling background-one final block.</summary>
-    CeilingBackground1,
-    /// <summary>Ceiling background-two final block.</summary>
-    CeilingBackground2,
-    /// <summary>Ceiling background-three final block.</summary>
-    CeilingBackground3,
+    /// <summary>The ceiling's background at its left edge, a crumbled block's final picture (#1895).</summary>
+    CeilingBackgroundLeftEdge,
+    /// <summary>The ceiling's background in an odd column, a crumbled block's final picture (#1895).</summary>
+    CeilingBackgroundOddColumn,
+    /// <summary>The ceiling's background in an even column, a crumbled block's final picture (#1895).</summary>
+    CeilingBackgroundEvenColumn,
     /// <summary>Spike first-column final block.</summary>
     SpikeFirst,
     /// <summary>Spike second-column final block.</summary>

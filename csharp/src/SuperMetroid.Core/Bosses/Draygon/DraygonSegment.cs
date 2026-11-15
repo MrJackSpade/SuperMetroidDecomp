@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 public enum DraygonSegment
 {
-    /// <summary>Draygon animation: sleep.</summary>
-    Sleep,
+    /// <summary>Draygon animation: a rest on the last frame.</summary>
+    Rest,
     /// <summary>Draygon body animation: facing left, reset.</summary>
     BodyFacingLeftReset,
     /// <summary>Draygon body animation: facing right, reset.</summary>

@@ -14,8 +14,7 @@ internal static class KraidFootFrameGeometryVerification
     {
         // The typed foot programs match bank $A7 (--kraid-part-animations).
         var selected = new SortedSet<ushort>(KraidAnimationsTooling.Spritemaps(KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,
-                     KraidPartSegment.FootWalkingForwardFinished, KraidPartSegment.FootLungeForward, KraidPartSegment.FootLungeForwardFinished,
-                     KraidPartSegment.FootWalkingBackward, KraidPartSegment.FootWalkingBackwardLoop));
+                     KraidPartSegment.FootLungeForward, KraidPartSegment.FootWalkingBackward));
         AssertEqual(35, selected.Count, "original selected Kraid foot roots");
         var expected = selected.Select(pointer => new NativeEnemySpritemapDefinition(0xa7, pointer,
             $"kraid_foot_oam_{pointer:X4}")).ToArray();

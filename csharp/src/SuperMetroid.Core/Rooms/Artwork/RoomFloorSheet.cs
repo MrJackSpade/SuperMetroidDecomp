@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// The installed turning floor of one tileset whose rooms show one (#1392, #1467, #1649): the floor a room of the tileset
 /// starts from, as the part of it that shows anything placed by its origin, and a picture of every floor animation frame
 /// gameplay draws over part of it, placed by its origin and drawn by the frame (#1536). The import composes them once,
-/// coloured with the tileset's standard palette and the sprite half as a room load leaves it; the pictures of one part of
+/// coloured with the tileset's standard colours and the sprite half as a room load leaves it; the pictures of one part of
 /// the floor share its place, and no two parts overlap. A tileset whose rooms show no turning floor installs none.
 /// </summary>
 public sealed class RoomFloorSheet

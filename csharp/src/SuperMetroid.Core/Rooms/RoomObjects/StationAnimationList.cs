@@ -14,7 +14,7 @@ internal enum StationAnimationList
     Energy,
     /// <summary>The missile station's idle and recharged cycle.</summary>
     Missile,
-    /// <summary>The save station's idle draw, shown once before its trigger sleeps.</summary>
+    /// <summary>The save station's idle draw, shown once before its trigger rests.</summary>
     SaveIdle,
     /// <summary>The save station's first active frame.</summary>
     SaveFirstFrame,

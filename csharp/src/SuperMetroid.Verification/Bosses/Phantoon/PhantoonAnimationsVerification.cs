@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -100,16 +101,20 @@ internal static class PhantoonAnimationsVerification
         for (int frame = 0; frame < 3; frame++)
         {
             Pass(eye, forceExpiry: true);
-            AssertEqual(PhantoonPartFramesConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, frame)), eye.SpritemapPointer, $"opening eye frame {frame}");
+            AssertEqual(PhantoonPartFramesConstants.Spritemap(OpeningEyeFrames[frame]), eye.SpritemapPointer, $"opening eye frame {frame}");
         }
         AssertTrue(enemies.Audio.LatestSound is null, "the materialization sound waits for the last frame to expire");
         Pass(eye, forceExpiry: true);
         AssertTrue(enemies.Audio.LatestSound.HasValue, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartSegment.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartSegment.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
-        AssertEqual(PhantoonPartFramesConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");
+        AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonEyeOpenThird), eye.SpritemapPointer, "the opened eye keeps its last frame");
         AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "the callback's one-update timer survives the sleep");
     }
+
+    /// <summary>The eye's three opening frames, in the order the eyelid opens.</summary>
+    private static readonly EnemyFrameId[] OpeningEyeFrames =
+        [EnemyFrameId.PhantoonEyeOpenFirst, EnemyFrameId.PhantoonEyeOpenSecond, EnemyFrameId.PhantoonEyeOpenThird];
 
     /// <summary>The mouth's flame program spawns one casual flame and runs on into its initial frame.</summary>
     private static void VerifyMouthFlame()
@@ -124,7 +129,7 @@ internal static class PhantoonAnimationsVerification
         Pass(mouth, forceExpiry: true);
         AssertEqual(1, ActiveFlames(enemies), "the mouth spawns one casual flame");
         AssertEqual(PhantoonPartSegment.MouthInitial, PartProgram(enemies, mouth), "the mouth runs on into its initial program");
-        AssertEqual(PhantoonPartFramesConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.Mouth, 0)), mouth.SpritemapPointer, "the mouth shows its closed frame at once");
+        AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonMouthInitial), mouth.SpritemapPointer, "the mouth shows its closed frame at once");
     }
 
     /// <summary>Active Phantoon destroyable flames.</summary>

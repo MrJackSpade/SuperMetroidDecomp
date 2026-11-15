@@ -151,7 +151,7 @@ public sealed class DraygonEnemyState
 
 
     /// <summary>
-    /// The installed health-palette band 0-7; null until a band is installed.
+    /// The installed health-shade band 0-7; null until a band is installed.
     /// </summary>
     public int? HealthBand { get; internal set; }
 

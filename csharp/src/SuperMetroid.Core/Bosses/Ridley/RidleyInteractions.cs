@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's hitboxes, weapon reactions, intangibility and health palette.</summary>
+/// <summary>Ridley's hitboxes, weapon reactions, intangibility and health colours.</summary>
 internal static class RidleyInteractions
 {
     /// <summary>Includes both the Ceres and the Lower Norfair Ridley definitions.</summary>
@@ -24,7 +24,7 @@ internal static class RidleyInteractions
             return;
 
         // Norfair and Ceres select the same authored health bands. Keep
-        // Norfair's health thresholds here, but use the installed palette so
+        // Norfair's health thresholds here, but use the installed colours so
         // editing that one asset updates both encounters consistently.
         int band = state.HealthStage - 1;
         state.Colours.ShowHealth(band);

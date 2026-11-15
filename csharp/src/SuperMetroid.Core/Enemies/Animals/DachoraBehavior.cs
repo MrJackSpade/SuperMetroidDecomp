@@ -330,7 +330,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.PhaseTimer != 0)
             return;
 
-        // The charge animation is asleep at its launch wait. Stepping past the sleep enters the same
+        // The charge animation rests at its launch wait. Stepping past the rest enters the same
         // right-facing echo animation used by the four trails, exactly as the game does on launch.
         state.Playback = new(DachoraAnimations.StartingWith(DachoraAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
@@ -544,7 +544,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.YAcceleration.Whole,
             samus.Kinematics.YAcceleration.Fraction);
 
-    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a sleep rests in it.</summary>
+    /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a rest stays in it.</summary>
     private static DachoraSegment Playing(AnimationPlayback<DachoraSegment> playback) =>
         playback.Animation.Phases[playback.Place.Phase].Segment;
 

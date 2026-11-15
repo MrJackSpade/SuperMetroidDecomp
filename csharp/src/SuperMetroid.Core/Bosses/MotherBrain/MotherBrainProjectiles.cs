@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainProjectiles
 {
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -451,7 +451,7 @@ internal sealed class MotherBrainProjectiles
         private void SpawnMotherBrainHandBeamFired()
         {
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
-                "Mother Brain hand-beam bytecode ran without its encounter state.");
+                "Mother Brain's hand-beam animation ran without its encounter state.");
             EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile();
             if (beam is null)
                 return;

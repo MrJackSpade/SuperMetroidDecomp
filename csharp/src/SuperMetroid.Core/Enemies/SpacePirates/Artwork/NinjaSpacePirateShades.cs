@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 /// <summary>
 /// The looks a Ninja Space Pirate's divekick flashes between (#1512): the gold wall Pirates' colours, and the Pirate's
 /// own stance colours it flashes back to and lands in. The import colours the gold wall shade from the gold wall Pirate's
-/// installed palette.
+/// installed colours.
 /// </summary>
 internal static class NinjaSpacePirateShades
 {

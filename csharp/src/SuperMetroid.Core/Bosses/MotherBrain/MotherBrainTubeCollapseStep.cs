@@ -33,9 +33,9 @@ public enum MotherBrainTubeCollapseStep
     ClearCeilingColumn7,
     /// <summary>After the timer passes zero, requests the ceiling projectile at pixel (136,59).</summary>
     SpawnTopMiddleRightTube,
-    /// <summary>Clears ceiling tube (8,2) and selects physical tube enemy 3.</summary>
+    /// <summary>Clears ceiling tube (8,2) and selects the bottom-middle-right tube.</summary>
     ClearCeilingColumn8,
-    /// <summary>Requests physical bottom-middle-right tube enemy 3.</summary>
+    /// <summary>Requests the bottom-middle-right tube.</summary>
     SpawnBottomMiddleRightTube,
     /// <summary>Removes the side tube at block (9,10) and seeds the two-count main-tube delay.</summary>
     ClearBottomMiddleRightTube,

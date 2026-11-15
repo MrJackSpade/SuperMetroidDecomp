@@ -217,6 +217,19 @@ table`, `the trigonometry tables`). Core counts an angle in steps, 256ths of a t
 encoding owner names the encoding it owns, and a compatibility service may describe the table its reproduced behaviour
 reads. A sine, a cosine, a table and a unit alone, a turn's steps and a speed table stay English.
 
+Outside hardware owners SME6454 also reads the palette (#1892), in any word form and outside markup: a palette, palettes,
+a palette's colours, a palette-cycle glow. The original coloured its pictures from palette rows and animated colours by
+rewriting them; Core shows pictures in their shades, owns colours and colour effects (a glow, a flash, a fade, a colour
+step) and names each for what it shows. A type named for a palette is cited with `see cref`, whose markup is not read;
+a run-on symbol (`palette_change_num`) or a stored value (`palette0800`) is reported by its own rule.
+
+Outside hardware owners SME6454 also reads the original animation interpreter's vocabulary (#1893), outside markup: its
+sleep in any word form (`the script's sleep`, `a sleeping animation`, `sleeps on its frame`, `asleep`), its `bytecode`
+and its streams (`the head stream`, `a cue stream`, `a delay stream`). Core's animations hold their last frame, rest or
+are hidden (`CrocomireTongueSegment.Hidden`), a dormant enemy is dormant, and a cue or frame says what it does. An event,
+audio, sound, file, data, level, random, input, output or memory stream and streaming in, into, through, from or out stay
+English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

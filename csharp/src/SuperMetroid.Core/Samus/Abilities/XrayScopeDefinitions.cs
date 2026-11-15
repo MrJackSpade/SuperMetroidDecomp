@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The X-ray Scope's definitions: its visor cycle, animation angle bands and window growth (#1411).</summary>
 /// <remarks>
 /// The room state's X-ray reveal choice remains room-authored data. This catalog owns the shared
-/// palette, angle bands, tangent table, and cone-window units used by every room.
+/// colours, angle bands, tangent table, and cone-window units used by every room.
 /// </remarks>
 public static class XrayScopeDefinitions
 {
-    /// <summary>Palette colours copied into Samus's visor colors while X-ray is active.</summary>
+    /// <summary>Colours copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette
     {
         /// <summary>The last widening visor shade, held while the beam widens.</summary>

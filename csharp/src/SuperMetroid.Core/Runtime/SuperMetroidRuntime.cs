@@ -246,7 +246,7 @@ internal sealed class SuperMetroidRuntime
     /// runtime), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
-    /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus palette bindings and
+    /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
     /// rebinds the queued artwork that later catalogs' setters may read.
     /// </remarks>
     /// <param name="artwork">The catalogs to bind.</param>
@@ -406,7 +406,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's effect overlay FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
 
-    /// <summary>The held beam charge, flare and charge palette, which survive room loads; each room's projectiles share it.</summary>
+    /// <summary>The held beam charge, flare and charge colours, which survive room loads; each room's projectiles share it.</summary>
     internal BeamChargeState BeamCharge { get; }
 
     /// <summary>
@@ -889,7 +889,7 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         ActorDrawing.DrawGameplayActors(scope, deathOwnsSamus ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
             // The stationary lock's movement mode does not run Samus's
-            // palette effects. In particular, automatic Reserve recovery freezes a
+            // colour effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
             tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
     }
@@ -905,7 +905,7 @@ internal sealed class SuperMetroidRuntime
         if (escapeTimerRuns && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
             // The expired countdown publishes the time-up game state for the
-            // game-state loop, whites the target palettes and disables colour effects.
+            // game-state loop, whites the target colours and disables colour effects.
             TimeUpRequested = true;
             ColourEffectSession.StopColourEffects();
         }
@@ -1058,7 +1058,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The published frame's gameplay shading (#1512): each owner of a colour effect names the shades and effects its
-    /// state shows, in the order later colour writes won over earlier ones: the room's palette effects and the effect overlay colours,
+    /// state shows, in the order later colour writes won over earlier ones: the room's colour effects and the effect overlay colours,
     /// then its bosses', then the door's fade over all of them.
     /// </summary>
     private GameplayShading PublishShading()

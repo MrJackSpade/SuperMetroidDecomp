@@ -10,7 +10,7 @@ public enum DraygonPhase
     None,
     /// <summary>Loads four Evir sprites, then waits 256 gameplay frames.</summary>
     IntroInitialDelay,
-    /// <summary>Advances the opening Evir movement stream for 1,232 frames before the first swoop.</summary>
+    /// <summary>Advances the opening Evir movement for 1,232 frames before the first swoop.</summary>
     IntroDance,
     /// <summary>Constructs the swoop-height table, aims horizontal velocity at Samus, and installs right-facing graphics.</summary>
     SwoopRightSetup,

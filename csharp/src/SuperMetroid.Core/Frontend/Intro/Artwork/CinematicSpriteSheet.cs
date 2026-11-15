@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>
-/// Draws one cinematic family's frames from its screen's sprite sheet (#1392): each pose's frame, its palette-inheriting
+/// Draws one cinematic family's frames from its screen's sprite sheet (#1392): each pose's frame, its recolourable
 /// parts in the colouring a draw names, under the shading its screen gives that colouring (#1512), placed at the origin
 /// wherever it lies (#1587).
 /// </summary>

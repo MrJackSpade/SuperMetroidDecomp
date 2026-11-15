@@ -124,9 +124,13 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        reaction = null;
-        return CrocomireCombat.FindCrocomireBodyHitboxReaction(Slot, probe, out reaction) ??
-            CrocomireCombat.FindCrocomireTongueHitboxReaction(Slot, out reaction);
+        // The tongue's frames carry no hitboxes (#1870, #1889): no probe overlaps it.
+        if (Slot.DefinitionId == EnemyDefinitionId.CrocomireTongue)
+        {
+            reaction = null;
+            return false;
+        }
+        return CrocomireCombat.FindCrocomireBodyHitboxReaction(Slot, probe, out reaction);
     }
 
     /// <summary>The Crocomire body takes normal bombs on its frames' hitboxes although its species definition names no shot reaction.</summary>

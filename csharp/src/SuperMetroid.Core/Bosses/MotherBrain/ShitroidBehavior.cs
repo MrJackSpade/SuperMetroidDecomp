@@ -40,7 +40,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
 
-    /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, audio and Zebetite owners.</summary>
+    /// <summary>Connects the Tourian Baby Metroid to room, victim, colour, audio and Zebetite owners.</summary>
     internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, SharedFadeStepCount fadeStepCount, BossFrameResultBuilder frameResults, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -63,7 +63,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
-    /// <summary>The room's one Baby Metroid's private velocity, palette, and cutscene state.</summary>
+    /// <summary>The room's one Baby Metroid's private velocity, colours, and cutscene state.</summary>
     internal ShitroidEnemyState? Shitroid { get; private set; }
 
     /// <summary>Queues one of the Baby Metroid's cries as it cries, after the update's earlier requests.</summary>
@@ -93,7 +93,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
             Action = ShitroidAction.WaitForCamera,
             Velocity = default,
-            PaletteDelay = 10,
+            ColourDelay = 10,
         };
         if (CoordinateAxis.AsSigned(cameraX) < 0)
         {
@@ -239,7 +239,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case ShitroidAction.BeginDrainingSamus:
-                RequireShitroidSamus(samus).MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
+                RequireShitroidSamus(samus).MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext;
                 state.Action = ShitroidAction.DrainSamus;
                 goto case ShitroidAction.DrainSamus;
 
@@ -416,7 +416,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(latch);
         SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
         state.Action = ShitroidAction.DrainSidehopper;
-        state.PaletteDelay = 1;
+        state.ColourDelay = 1;
         state.ReactsToSamus = false;
         state.StateTimer = 320;
     }
@@ -432,7 +432,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Action = ShitroidAction.ActivateSidehopperCorpse;
             SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
-            state.PaletteDelay = 10;
+            state.ColourDelay = 10;
         }
     }
 
@@ -486,8 +486,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
-            state.PaletteDelay = 10;
-            samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
+            state.ColourDelay = 10;
+            samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.Inactive;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
             RequestShitroidMusic(MusicRequest.SelectTrack(MusicTrack.SilentSong));
@@ -681,7 +681,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
             {
                 SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
-                state.PaletteDelay = 1;
+                state.ColourDelay = 1;
                 state.ReactsToSamus = false;
                 state.Velocity = default;
                 state.Action = ShitroidAction.BeginDrainingSamus;
@@ -726,7 +726,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ReactsToSamus)
             BreakReleasedShitroidFollow(state);
 
-        // The private reaction tail-calls main AI. Preserve the extra state/movement/palette
+        // The private reaction tail-calls main AI. Preserve the extra state/movement/colour
         // tick rather than reducing the power bomb to a state flag. That step reads the camera as the power-bomb pass
         // sees it, after the enemy pass and before the main scrolling.
         RunShitroidMain(slot, context.Samus, context.Camera, null);
@@ -742,22 +742,22 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the eight-phase membrane colors and paces cries when the Zebetites' pulse allows it.</summary>
     internal void StepShitroidMembranePulse(ShitroidEnemyState state)
     {
-        if (state.PaletteTimer != 0)
+        if (state.ColourTimer != 0)
         {
-            state.PaletteTimer--;
+            state.ColourTimer--;
             return;
         }
 
         int phase = (state.MembranePulsePhase + 1) % 8;
         state.MembranePulsePhase = phase;
-        state.PaletteTimer = state.PaletteDelay;
+        state.ColourTimer = state.ColourDelay;
         if (phase == 5 && state.CryEnabled)
         {
             state.CryCounter++;
             if (state.CryCounter >= 4)
             {
                 state.CryCounter = 0;
-                RequestShitroidSound(state.PaletteDelay < 10
+                RequestShitroidSound(state.ColourDelay < 10
                     ? ShitroidSoundDefinitions.QuickDrainCry
                     : ShitroidSoundDefinitions.DrainCry);
             }

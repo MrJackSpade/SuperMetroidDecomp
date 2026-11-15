@@ -10,10 +10,10 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 /// </summary>
 internal static class KraidNativeListAddresses
 {
-    /// <summary>Each native sink-callback routine pointer in bank $A7 and the callback it is.</summary>
-    internal static readonly Dictionary<ushort, KraidSinkStep> NativeSinkCallbacks = new()
+    /// <summary>Each native sink-callback routine pointer in bank $A7 and the crumble it is, null for the empty routine.</summary>
+    internal static readonly Dictionary<ushort, KraidSinkStep?> NativeSinkCallbacks = new()
     {
-        [0xc6a6] = KraidSinkStep.NoOperation,
+        [0xc6a6] = null,
         [0xc691] = KraidSinkStep.CrumbleLeftPlatformLeft,
         [0xc6a7] = KraidSinkStep.CrumbleRightPlatformMiddle,
         [0xc6bd] = KraidSinkStep.CrumbleRightPlatformLeft,
@@ -31,11 +31,8 @@ internal static class KraidNativeListAddresses
         new PartEntryValue(KraidPartSegment.FootInitial, 0x86e7),
         new PartEntryValue(KraidPartSegment.FootNeutral, 0x86ed),
         new PartEntryValue(KraidPartSegment.FootWalkingForward, 0x86f3),
-        new PartEntryValue(KraidPartSegment.FootWalkingForwardFinished, 0x87bb),
         new PartEntryValue(KraidPartSegment.FootLungeForward, 0x87bd),
-        new PartEntryValue(KraidPartSegment.FootLungeForwardFinished, 0x8885),
         new PartEntryValue(KraidPartSegment.FootWalkingBackward, 0x8887),
-        new PartEntryValue(KraidPartSegment.FootWalkingBackwardLoop, 0x8939),
         new PartEntryValue(KraidPartSegment.ArmNormal, 0x89f3),
         new PartEntryValue(KraidPartSegment.ArmNormalPause, 0x8a37),
         new PartEntryValue(KraidPartSegment.ArmSlow, 0x8a41),

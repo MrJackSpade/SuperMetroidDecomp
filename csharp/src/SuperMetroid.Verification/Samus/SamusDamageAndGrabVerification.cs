@@ -312,7 +312,7 @@ level, right, unchecked((ushort)(frame + 1))),
         "one-call rainbow cadence advances immediately");
     unable.Drained.HoldRainbowGlowLonger(longestHold: 10);
     unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
-    AssertEqual(2, unable.Drained.CommonPaletteTimer,
+    AssertEqual(2, unable.Drained.CommonColourTimer,
         "Baby-raised rainbow delay reloads two");
     AssertEqual(2, unable.Drained.HyperBeamGlowStep,
         "rainbow second palette advances into delayed index");

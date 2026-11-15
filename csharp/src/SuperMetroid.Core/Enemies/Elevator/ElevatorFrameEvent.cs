@@ -5,7 +5,7 @@ public enum ElevatorFrameEvent
 {
     /// <summary>No elevator lifecycle change has been published during the current enemy update; this is the reset value at its beginning.</summary>
     None,
-    /// <summary>The direction edge was accepted, departure sounds and projectile reset were issued, and Samus was pinned; runtime discards pending pose requests and restores the suit palette on this event.</summary>
+    /// <summary>The direction edge was accepted, departure sounds and projectile reset were issued, and Samus was pinned; runtime discards pending pose requests and restores the suit colours on this event.</summary>
     DepartureStarted,
     /// <summary>The arriving elevator moved from <see cref="ElevatorActorStatus.BeginArrivalReturn"/> to <see cref="ElevatorActorStatus.ReturningToRest"/> and began its first return movement; completion in the same update may replace this event.</summary>
     ArrivalReturnStarted,

@@ -34,13 +34,13 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room loading: saved games and new sessions, rooms and doors, room setup, palettes, the HUD minimap,
+/// Room loading: saved games and new sessions, rooms and doors, room setup, colours, the HUD minimap,
 /// enemies and room objects of the loaded room.
 /// </summary>
 [RoomScopeBoundary("Builds each room's scope in the game's load order.")]
 internal sealed class RoomLoader
 {
-    /// <summary>Supplies decoded graphics and palette assets for the room being entered.</summary>
+    /// <summary>Supplies decoded graphics and colour assets for the room being entered.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
@@ -759,7 +759,7 @@ internal sealed class RoomLoader
             viewportLoadMode,
             new RoomEntry { RunDoorClosingObject = true, PreloadedAssets = assets });
 
-        // The door transition loads Samus's suit target palette after room/enemy palettes have been
+        // The door transition loads Samus's suit target colours after room/enemy colours have been
         // loaded and before the door fade captures the destination fade target. The source fade
         // has already driven Samus's colours to black at this point. Omitting this shared
         // reload therefore retained valid sprite and room pictures but rendered Samus as a solid

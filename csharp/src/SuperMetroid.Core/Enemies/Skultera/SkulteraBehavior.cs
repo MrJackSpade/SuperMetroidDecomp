@@ -29,7 +29,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case SkulteraCueKind.FinishTurn:
-                // Turns sleep immediately after publishing this flag. Main AI consumes it on the following frame
+                // Turns rest immediately after publishing this flag. Main AI consumes it on the following frame
                 // and starts the steady swim.
                 state.TurnFinished = true;
                 break;

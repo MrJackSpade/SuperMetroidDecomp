@@ -54,7 +54,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>
     /// Ends Crystal Flash's hold on Samus's movement when another owner takes it (<see cref="SamusMovementHandOver"/>),
-    /// without clearing the live Flash palette/timer.
+    /// without clearing the live Flash colouring/timer.
     /// </summary>
     internal void RelinquishMovement() => Phase = CrystalFlashPhase.Inactive;
 
@@ -72,7 +72,7 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public Position16<RoomPixels> RaisedPosition { get; private set; }
 
-    /// <summary>Seeded to one for Samus's palette animation.</summary>
+    /// <summary>Seeded to one for Samus's colour animation.</summary>
     public int CrystalPaletteTimer { get; private set; }
 
     /// <summary>
@@ -82,7 +82,7 @@ public sealed class SamusCrystalFlashState
     public int BubbleStep { get; private set; }
 
     /// <summary>
-    /// The palette updates until the bubble shows its next colour step, one through five while Crystal Flash's palette
+    /// The colour updates until the bubble shows its next colour step, one through five while Crystal Flash's colouring
     /// runs (it is reloaded on reaching zero), and zero once it stops; other values are rejected.
     /// </summary>
     public int BubbleTimer
@@ -91,12 +91,12 @@ public sealed class SamusCrystalFlashState
         private set => field = Ensure.BetweenInclusive(0, BubbleStepUpdates, value);
     }
 
-    /// <summary>The palette updates each bubble colour step shows for.</summary>
+    /// <summary>The colour updates each bubble colour step shows for.</summary>
     private const int BubbleStepUpdates = 5;
 
     /// <summary>
-    /// Whether the flash has finished and asks its next palette update to show the equipped beams' colours again and
-    /// release the palette.
+    /// Whether the flash has finished and asks its next colour update to show the equipped beams' colours again and
+    /// release the colouring.
     /// </summary>
     public bool BeamPaletteRestoreRequested { get; internal set; }
 
@@ -314,7 +314,7 @@ public sealed class SamusCrystalFlashState
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 12, timer: 3);
     }
 
-    /// <summary>Waits for standing pose after the finish art, then releases input locks and requests palette restoration.</summary>
+    /// <summary>Waits for standing pose after the finish art, then releases input locks and requests colour restoration.</summary>
     private void StepFinish(SamusState samus)
     {
         // Retail usually enters with equality because RaisedPosition was captured at the
@@ -357,7 +357,7 @@ public sealed class SamusCrystalFlashState
 
         if (BeamPaletteRestoreRequested)
         {
-            // Completion reloads the equipped combination's beam palette with the loader equipping a beam uses, so a Spazer
+            // Completion reloads the equipped combination's beam colours with the loader equipping a beam uses, so a Spazer
             // and Plasma combination shows the same colours as everywhere else (#1506, #1736).
             SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, samus.EquippedBeams);
 
@@ -370,7 +370,7 @@ public sealed class SamusCrystalFlashState
             return true;
         }
 
-        // The bubble countdown runs one through five while the palette runs, so its decrement reaches zero, never past it.
+        // The bubble countdown runs one through five while the colouring runs, so its decrement reaches zero, never past it.
         if (--BubbleTimer == 0)
         {
             BubbleTimer = BubbleStepUpdates;
@@ -393,8 +393,8 @@ public sealed class SamusCrystalFlashState
             BodyStep = nextStep < SamusPaletteDefinitions.CrystalFlash.BodyStepCount ? nextStep : 0;
         }
 
-        // Every active call reports the palette handled, including frames on which neither timer
-        // expires. The outer palette step must therefore suppress its normal copy.
+        // Every active call reports the colouring handled, including frames on which neither timer
+        // expires. The outer colour step must therefore suppress its normal copy.
         return true;
     }
 }

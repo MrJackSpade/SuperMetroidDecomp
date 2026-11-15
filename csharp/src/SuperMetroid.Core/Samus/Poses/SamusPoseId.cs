@@ -31,7 +31,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-moving horizontal-fire body. It is a genuine running
-    /// pose, shares the ordinary ten-frame running delay stream, and is selected when Shot
+    /// pose, shares the ordinary ten-frame running frame delays, and is selected when Shot
     /// remains held with Right after the projectile direction has been established.
     /// </summary>
     MovingRightGunExtendedPose,
@@ -411,7 +411,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-facing falling body with the cannon held horizontally after
-    /// firing. Its delay stream has the same terminal-velocity split as <see cref="FallingRightPose"/>.
+    /// firing. Its frame delays have the same terminal-velocity split as <see cref="FallingRightPose"/>.
     /// </summary>
     FallingGunExtendedRightPose,
 

@@ -148,7 +148,7 @@ internal static class EtecoonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
 
-    /// <summary>The segment each sleeping animation resumes into when its owner wakes it; no other animation sleeps.</summary>
+    /// <summary>The segment each resting animation resumes into when its owner wakes it; no other animation rests.</summary>
     private static readonly Dictionary<P, P> ResumesAfterSleep = new()
     {
         [P.LookRightAtSamusAndRunLeft] = P.BeginRunningLeft,
@@ -161,12 +161,12 @@ internal static class EtecoonAnimations
         [P.WallJumpRightEligible] = P.Initial,
     };
 
-    /// <summary>The segment a sleeping animation resumes into when its owner wakes it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The animation at <paramref name="segment"/> does not sleep.</exception>
+    /// <summary>The segment a resting animation resumes into when its owner wakes it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The animation at <paramref name="segment"/> never rests.</exception>
     internal static EtecoonSegment AfterSleep(EtecoonSegment segment) =>
         ResumesAfterSleep.TryGetValue(segment, out P resumed)
             ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation does not sleep.");
+            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "The animation never rests.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

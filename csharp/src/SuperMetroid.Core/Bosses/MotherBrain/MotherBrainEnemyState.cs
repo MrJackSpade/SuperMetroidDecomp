@@ -105,7 +105,7 @@ public sealed class MotherBrainEnemyState
     public bool DrawBrain { get; internal set; }
 
     /// <summary>
-    /// The rainbow frame Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame palette
+    /// The rainbow frame Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame colour
     /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowColourFormat.RainbowFrameCount"/>; the
     /// step advances it and returns to the first frame after the last.
     /// </summary>

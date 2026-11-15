@@ -9,6 +9,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// </summary>
 public static class CeresShades
 {
-    /// <summary>A Ceres actor's palette-inheriting parts drawn in <paramref name="colouring"/>.</summary>
+    /// <summary>A Ceres actor's recolourable parts drawn in <paramref name="colouring"/>.</summary>
     public static PictureShade Drawn(CeresSpriteColouring colouring) => new($"Ceres{colouring}", 0);
 }

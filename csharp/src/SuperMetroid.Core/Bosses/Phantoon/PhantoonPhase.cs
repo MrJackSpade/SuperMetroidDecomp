@@ -12,7 +12,7 @@ public enum PhantoonPhase
     WaitBeforeActivatingStartingFlames,
     /// <summary>Waits for the introductory flame orbit to finish before wavy materialization.</summary>
     WaitForStartingFlamesToDisappear,
-    /// <summary>Advances the introductory wavy palette fade-in.</summary>
+    /// <summary>Advances the introductory wavy colour fade-in.</summary>
     WavyFadeIn,
     /// <summary>Selects the first figure-eight round's movement pattern.</summary>
     PickFirstRoundPattern,
@@ -66,6 +66,6 @@ public enum PhantoonPhase
     DyingFadeOut,
     /// <summary>Clears Phantoon graphics and releases distortion before Wrecked Ship activation.</summary>
     AlmostDead,
-    /// <summary>Restores the powered Wrecked Ship palette, publishes drops and boss persistence, restores the door, and deletes all four parts.</summary>
+    /// <summary>Restores the powered Wrecked Ship colours, publishes drops and boss persistence, restores the door, and deletes all four parts.</summary>
     Dead,
 }

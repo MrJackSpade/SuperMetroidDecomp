@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Mama Turtle's and baby turtles' crawl, spin, shell and dormant animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
 /// Their steps are <see cref="MamaTurtleAnimations"/>.
 /// </summary>
 internal enum MamaTurtleSegment
@@ -16,7 +16,7 @@ internal enum MamaTurtleSegment
     MamaEnterShellLeft,
     /// <summary>The Baby hiding left animation.</summary>
     BabyHidingLeft,
-    /// <summary>The mama asleep animation.</summary>
+    /// <summary>The dormant mama's animation.</summary>
     MamaAsleep,
     /// <summary>The mama leave shell left animation.</summary>
     MamaLeaveShellLeft,

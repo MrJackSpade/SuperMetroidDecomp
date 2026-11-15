@@ -48,7 +48,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Runs the Norfair branch of the shared initializer. A defeated Ridley
-    /// is deleted before any shared workspace or palette side effects, matching the
+    /// is deleted before any shared workspace or colour side effects, matching the
     /// defeated-boss gate; a live fight begins in layer five below the visible arena.
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
@@ -100,7 +100,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// The arena reveal advances a Norfair-only fourteen-color fade every third update.
-    /// The step after the last palette activates the shared tail/wing composition.
+    /// The step after the last colour step activates the shared tail/wing composition.
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)
     {

@@ -129,7 +129,7 @@ public sealed class SamusState
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
     /// <summary>
-    /// Stored-shine palette countdown and the shinespark's hold on her movement.
+    /// Stored-shine colouring countdown and the shinespark's hold on her movement.
     /// Its fields are the values documented on
     /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
@@ -157,7 +157,7 @@ public sealed class SamusState
     public SamusCrystalFlashState CrystalFlash { get; }
 
     /// <summary>
-    /// X-ray admission, dedicated pose input/movement, beam-angle state, visor palette, and
+    /// X-ray admission, dedicated pose input/movement, beam-angle state, visor colours, and
     /// teardown. Revealed-block pictures and the cone window remain presentation-owned outputs.
     /// </summary>
     public SamusXrayState Xray { get; }
@@ -169,7 +169,7 @@ public sealed class SamusState
     public SamusSpecialColouring SpecialColouring { get; } = new();
 
     /// <summary>
-    /// Fatal-damage death-pose ownership, death pictures/palettes, whiteout, and suit explosion.
+    /// Fatal-damage death-pose ownership, death pictures/colours, whiteout, and suit explosion.
     /// The outer music wait and post-explosion room fade belong to the death game states.
     /// </summary>
     public SamusDeathSequenceState DeathSequence { get; } = new();
@@ -309,7 +309,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The beam's charge (#1577): the session's one count, which the projectile pass advances and her movement, bombs,
-    /// sounds and palettes read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
+    /// sounds and colourings read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
     /// Every clear, hers or the projectiles', clears it for every reader.
     /// </summary>
     internal SuperMetroid.Core.Samus.Projectiles.BeamChargeState BeamCharge { get; }
@@ -357,11 +357,11 @@ public sealed class SamusState
     public SamusEquipmentFlags CollectedItems { get; set; }
 
     /// <summary>
-    /// The suit palette a draining Metroid or the Baby Metroid makes Samus flash through next, or inactive. Attachment
-    /// starts on the Speed Booster palette; the palette handling then alternates it with the normal suit every update
+    /// The suit colours a draining Metroid or the Baby Metroid makes Samus flash through next, or inactive. Attachment
+    /// starts on the Speed Booster colouring; the colour handling then alternates it with the normal suit every update
     /// until the attacker lets go.
     /// </summary>
-    public SamusMetroidAttachmentPalette MetroidAttachmentPalette { get; internal set; }
+    public SamusMetroidAttachmentPalette MetroidAttachmentColouring { get; internal set; }
 
     /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
     public SamusBallBounceState MorphBallBounceState { get; set; }
@@ -389,7 +389,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt-flash
-    /// palette advances it and clears it on reaching sixty (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>).
+    /// colouring advances it and clears it on reaching sixty (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 

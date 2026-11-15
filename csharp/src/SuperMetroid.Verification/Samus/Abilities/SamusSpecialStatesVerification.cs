@@ -427,7 +427,7 @@ internal static void VerifySamusXray()
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
-    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer,
+    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonColourTimer,
         "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction: the warm-up's

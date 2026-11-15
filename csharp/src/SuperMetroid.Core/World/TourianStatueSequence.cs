@@ -27,7 +27,7 @@ public sealed class TourianStatueSequence
     private readonly ActiveRoomState _room;
     /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
     private readonly RoomFxOverlayState _roomFxOverlay;
-    /// <summary>Creates the palette effect selected by a statue animation cue.</summary>
+    /// <summary>Creates the colour effect selected by a statue animation cue.</summary>
     private readonly ColourEffectSystem _roomColourEffects;
     /// <summary>Tracks boss and statue events, the area's defeated bosses, RNG, and the final Tourian unlock event.</summary>
     private readonly SharedGameState _system;

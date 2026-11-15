@@ -10,14 +10,14 @@ internal static class KraidMouthHitboxDefinitionsConstants
     /// <summary>
     /// $A7:9788..97C7, Hitbox_KraidMouth_0..7. The native projectile test uses
     /// left/top/bottom only; the authored right edge is retained as definition data.
-    /// Entry four is unused but remains a defined all-zero rectangle.
+    /// Entry four, an all-zero rectangle no head pose selects, is no mouth shape (#1889).
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 against all 32 original words and pinned
     /// bank_A7.asm head-program selectors. These are named collision shapes selected
     /// by mouth stage and vulnerability, not a chronological numerical curve.
-    /// The existing semantic cases preserve the otherwise unused right edge and
-    /// zero shape. Live low-half geometry remains a separate caller-owned path.
+    /// The existing semantic cases preserve the otherwise unused right edge. Live low-half geometry remains a separate
+    /// caller-owned path.
     /// </remarks>
     public static EnemyHitboxRectangle Resolve(ushort pointer) =>
         KraidMouthHitboxes.Resolve(KraidNativeWords.MouthHitboxes.Decode(pointer, "Kraid mouth hitbox"));

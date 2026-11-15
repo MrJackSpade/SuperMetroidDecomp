@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no stored picture grid: foreground from the room's
-/// level plane, background from its background plane when that layer streams, the source room's screen during a door's opening
+/// level plane, background from its background plane when that layer scrolls in, the source room's screen during a door's opening
 /// scroll, and the text an escape shows over either layer (#1555). A null <see cref="Background"/> leaves background to the sky's rows, a boss body
 /// that owns background (#1352), or the picture its owner loaded (a library background or the X-ray reveal) until that
 /// owner gets its own layer.

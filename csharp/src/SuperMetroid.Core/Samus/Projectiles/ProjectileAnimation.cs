@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit palette the flare restores.</summary>
+/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit colours the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the animation.</summary>

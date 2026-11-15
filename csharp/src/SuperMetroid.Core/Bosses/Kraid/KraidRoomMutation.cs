@@ -5,16 +5,16 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public enum KraidRoomMutation
 {
-    /// <summary>Crumbles a ceiling block as Kraid rises, leaving background one.</summary>
-    CrumbleCeilingIntoBackground1,
-    /// <summary>Crumbles a platform block as Kraid sinks, leaving background two.</summary>
-    CrumblePlatformVariant1,
-    /// <summary>Crumbles a ceiling block as Kraid rises, leaving background two.</summary>
-    CrumbleCeilingIntoBackground2,
-    /// <summary>Crumbles a platform block as Kraid sinks, leaving background three.</summary>
-    CrumblePlatformVariant2,
-    /// <summary>Crumbles a ceiling block as Kraid rises, leaving background three.</summary>
-    CrumbleCeilingIntoBackground3,
+    /// <summary>Crumbles the ceiling's left-edge block as Kraid rises, leaving its background (#1895).</summary>
+    CrumbleCeilingAtLeftEdge,
+    /// <summary>Crumbles a platform block in an odd column as Kraid sinks, leaving that column's background.</summary>
+    CrumblePlatformInOddColumn,
+    /// <summary>Crumbles a ceiling block in an odd column as Kraid rises, leaving that column's background.</summary>
+    CrumbleCeilingInOddColumn,
+    /// <summary>Crumbles a platform block in an even column as Kraid sinks, leaving that column's background.</summary>
+    CrumblePlatformInEvenColumn,
+    /// <summary>Crumbles a ceiling block in an even column as Kraid rises, leaving that column's background.</summary>
+    CrumbleCeilingInEvenColumn,
     /// <summary>Clears the ceiling of a room whose Kraid is already defeated.</summary>
     ClearCeiling,
     /// <summary>Clears the spikes of a room whose Kraid is already defeated.</summary>

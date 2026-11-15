@@ -732,7 +732,7 @@ internal sealed class TorizoAttacks
         GoldenTorizoEggState egg = projectile.StateOf<GoldenTorizoEggState>();
         if (--egg.HatchTimer < 0)
         {
-            // The hatch timer steps the sleeping animation past its sleep.
+            // The hatch timer steps the resting animation past its rest.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileAnimation(projectile))));
             projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.FacingRight ? 1 : -1));
             return;

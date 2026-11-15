@@ -56,12 +56,12 @@ public static class SamusShades
     public static PictureShade GrappleFiringFlare { get; } = new("GrappleFlare", 0);
 
     /// <summary>
-    /// The beams' colours for one beam combination: the palette it selects in the beam palette table. The Chainsaw beam,
-    /// which the table does not list, shows the colours of the listed combination it shares its palette with (#1736).
+    /// The beams' colours for one beam combination: the colouring it selects among the beams' colourings. The Chainsaw beam,
+    /// which they do not list, shows the colours of the listed combination it shares its colouring with (#1736).
     /// </summary>
     public static PictureShade Beam(SamusBeamCombination combination) => new($"Beam{ShownPalette(combination)}", 0);
 
-    /// <summary>The beam combination whose palette <paramref name="combination"/> shows.</summary>
+    /// <summary>The beam combination whose colouring <paramref name="combination"/> shows.</summary>
     internal static SamusBeamCombination ShownPalette(SamusBeamCombination combination) =>
         combination == ChainsawBeamGraphicsDefinitions.Selection ? ChainsawBeamGraphicsDefinitions.ShownPalette : combination;
 

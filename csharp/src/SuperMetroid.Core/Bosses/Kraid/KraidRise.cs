@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -25,7 +26,7 @@ internal sealed class KraidRise
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
+    /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>The room camera's distance mode, which the fight requests.</summary>
     private readonly RoomCameraDistance _cameraDistance;
@@ -33,7 +34,7 @@ internal sealed class KraidRise
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
-    /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
+    /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
     private readonly KraidHead _head;
 
 
@@ -60,7 +61,7 @@ internal sealed class KraidRise
         _access.AttachKraidPart(body, state);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
-            // The defeated-room initializer installs the dead-room background palette before the shared part initializer
+            // The defeated-room initializer installs the dead-room background colours before the shared part initializer
             // marks every physical actor invisible/deleted/non-interactive. Its two calls
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
@@ -69,10 +70,9 @@ internal sealed class KraidRise
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
             _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
-            // The body owns the sinking: a defeated room's body starts at hiding his body layer's halves and
-            // the death's four-update wait. Kraid's other seven parts take their own dead initializer and
-            // remain deleted as in the game.
-            state.BodyState.Phase = KraidPhase.DeathHideUpperBody;
+            // The body owns the sinking: a defeated room's body starts at hiding his body and the death's wait
+            // before the fade-in. Kraid's other seven parts take their own dead initializer and remain deleted.
+            state.BodyState.Phase = KraidPhase.DeathHideBody;
             return;
         }
 
@@ -92,7 +92,7 @@ internal sealed class KraidRise
         state.BodyState.Phase = KraidPhase.RestrictSamusToFirstScreen;
         state.BodyState.PhaseTimer = 300;
         state.BodyState.HeadTimer = 64;
-        state.BodyState.PhaseToResume = KraidPhase.RaiseKraidThroughFloor;
+        state.BodyState.PhaseToResume = KraidPhase.RaiseShowBody;
 
         // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
         state.Colours.ShowBandEyes(_head.BandEyes(KraidHead.InitialBand(body, state)));
@@ -136,7 +136,7 @@ internal sealed class KraidRise
         state.ThinkingTimer = _head.ReadKraidThinkingTimer();
     }
 
-    /// <summary>Dispatches the rise, camera, body and palette stages of growth.</summary>
+    /// <summary>Dispatches the rise, camera, body and colour stages of growth.</summary>
     internal void RunKraidGrowthPhase(RoomEnemySlot body, KraidEnemyState state)
     {
         switch (state.BodyState.Phase)
@@ -168,25 +168,23 @@ internal sealed class KraidRise
             case KraidPhase.GrowBringBodyInFront:
                 BringKraidBodyInFront(state);
                 _parts.Arm.Contact = _parts.Arm.Contact.Without(EnemyContact.IgnoresSamus);
-                state.BodyState.Phase = KraidPhase.GrowShowLowerBodyInFront;
+                state.BodyState.Phase = KraidPhase.GrowSettleParts;
                 state.ShowBody();
                 return;
 
-            case KraidPhase.GrowShowLowerBodyInFront:
-                state.BodyState.Phase = KraidPhase.GrowDrawRoomBackground;
+            case KraidPhase.GrowSettleParts:
+                state.BodyState.Phase = KraidPhase.GrowShowRoomBackdrop;
                 RoomEnemySlot foot = _parts.Foot;
                 _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
                     _access.SetKraidPartAnimation(lint, KraidPartSegment.LintPostGrowth);
-                    lint.Frame = KraidPartFrameDefinitions.ShownFrames.Of(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
+                    lint.Frame = EnemyFrameId.KraidLintPostGrowth;
                 }
                 return;
 
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowShowRoomBackdrop:
                 state.BodyState.Phase = KraidPhase.GrowFadeInRoomBackground;
-                // The game clears the value it kept the ceiling rocks in, which is the phase timer again.
-                state.BodyState.PhaseTimer = 0;
                 // Redrawing Kraid's room background restarts the shared fade step count.
                 _presentation.FadeStepCount.Reset();
                 // The background redraw shows the room's backdrop on the same frame that it
@@ -230,21 +228,17 @@ internal sealed class KraidRise
             case KraidPhase.FootFirstPhaseRetreat:
             case KraidPhase.DeathInitialize:
             case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowUpperBody:
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathShowBody:
+            case KraidPhase.DeathStartSinking:
             case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideUpperBody:
-            case KraidPhase.DeathHideLowerBody:
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathHideBody:
+            case KraidPhase.DeathWaitBeforeFadeIn:
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
             case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseKraidThroughFloor:
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseShowBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
@@ -321,14 +315,14 @@ internal sealed class KraidRise
                 KraidEncounterAccess.TickKraidPhaseTimer(state.BodyState);
                 return;
 
-            case KraidPhase.RaiseKraidThroughFloor:
+            case KraidPhase.RaiseShowBody:
                 RestrictSamusToKraidFirstScreen(samus);
-                state.BodyState.Phase = KraidPhase.RaiseShowLowerBody;
+                state.BodyState.Phase = KraidPhase.RaiseStartQuakeAndMusic;
                 // His body shows from here, as he rises through the floor (#1515).
                 state.ShowBody();
                 return;
 
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
                 RestrictSamusToKraidFirstScreen(samus);
                 state.BodyState.Phase = KraidPhase.RaiseRocksEvery16Frames;
                 state.BodyState.RisingRockTimer = 120;
@@ -390,8 +384,8 @@ internal sealed class KraidRise
 
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowShowLowerBodyInFront:
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowSettleParts:
+            case KraidPhase.GrowShowRoomBackdrop:
             case KraidPhase.GrowFadeInRoomBackground:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
@@ -423,15 +417,11 @@ internal sealed class KraidRise
             case KraidPhase.GrowReleaseCamera:
             case KraidPhase.DeathInitialize:
             case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowUpperBody:
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathShowBody:
+            case KraidPhase.DeathStartSinking:
             case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideUpperBody:
-            case KraidPhase.DeathHideLowerBody:
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathHideBody:
+            case KraidPhase.DeathWaitBeforeFadeIn:
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:

@@ -12,6 +12,6 @@ public enum ChootAction
     PreparingJump,
     /// <summary>Applies the quadratic speed curve's negative Y displacement until the ascent's place passes the curve's start, then snaps whole coordinates to the precalculated falling origin.</summary>
     Jumping,
-    /// <summary>Plays and repeats the selected X/Y offset stream, advancing its Y origin between loops, then restores the spawn position and rearms proximity activation.</summary>
+    /// <summary>Plays and repeats the selected run of X/Y offsets, advancing its Y origin between loops, then restores the spawn position and rearms proximity activation.</summary>
     Falling,
 }

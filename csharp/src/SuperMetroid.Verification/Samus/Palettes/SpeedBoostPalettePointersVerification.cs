@@ -42,7 +42,7 @@ internal static class SpeedBoostPalettePointersVerification
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 EquippedItems = equipment[selection],
-                MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
+                MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext,
             };
             var installedColours = new SamusColours();
             AssertTrue(SamusSpecialSuperPalette.Update(installedColours, samus),
@@ -51,7 +51,7 @@ internal static class SpeedBoostPalettePointersVerification
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
                     installedColours.ShownSuit(InstalledFixtures.SamusShadeSources with { FullBodyCycles = cycleColors })[color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
-            AssertEqual(SamusMetroidAttachmentPalette.NormalSuitNext, samus.MetroidAttachmentPalette,
+            AssertEqual(SamusMetroidAttachmentPalette.NormalSuitNext, samus.MetroidAttachmentColouring,
                 "the Speed Booster palette alternates to the normal suit");
         }
 
@@ -59,7 +59,7 @@ internal static class SpeedBoostPalettePointersVerification
         var unattached = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColours(), unattached),
             "no attachment, no alternation");
-        AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,
+        AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentColouring,
             "an inactive alternation stays inactive");
         Console.WriteLine("Speed Booster palettes: four equipment cases name the Speed Booster shade, whose installed colours match ROM with no CPU bus.");
     }

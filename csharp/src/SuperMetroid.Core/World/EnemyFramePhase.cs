@@ -70,7 +70,7 @@ internal sealed class EnemyFramePhase
         }
     }
 
-    /// <summary>Runs the enemy pass after Samus's input phase and projectiles, then applies enemy-authored palette, scroll, escape, per-line effect, and player handoffs before movement.</summary>
+    /// <summary>Runs the enemy pass after Samus's input phase and projectiles, then applies enemy-authored colour, scroll, escape, per-line effect, and player handoffs before movement.</summary>
     /// <param name="processingList">
     /// True in main gameplay, whose frame start already built the processing list. Door-transition
     /// enemy passes build the list immediately before the enemy pass instead.
@@ -101,7 +101,7 @@ internal sealed class EnemyFramePhase
                 // crouch request to the new forward-facing, elevator-owned body.
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
-                // Making Samus face forward ends by reloading the suit palette. The actor
+                // Making Samus face forward ends by reloading the suit colours. The actor
                 // clears flare/projectile state, but cannot restore runtime-owned colours.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the charge colouring ends.
@@ -158,7 +158,7 @@ internal sealed class EnemyFramePhase
                 _player.Samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
                 if (result.Gunship == GunshipFrameEvent.EntryStarted)
                 {
-                    // Making Samus face forward performs a direct suit-palette reload and the
+                    // Making Samus face forward performs a direct suit-colour reload and the
                     // ship explicitly clears elevator status after locking Samus's
                     // control. The enemy system owns pose/motion; these two global values
                     // remain runtime-owned and are applied on its typed event boundary.

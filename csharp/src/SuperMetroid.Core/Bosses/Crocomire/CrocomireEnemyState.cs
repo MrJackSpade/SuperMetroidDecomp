@@ -49,7 +49,7 @@ public sealed class CrocomireEnemyState
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Crocomire's tongue, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
+    /// <summary>Crocomire's tongue, attached during initialization; bridge collapse rests and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
     /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer"/> displays an already-defeated corpse.</summary>

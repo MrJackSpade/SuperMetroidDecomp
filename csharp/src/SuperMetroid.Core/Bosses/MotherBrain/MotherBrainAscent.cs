@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainAscent
 {
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
+    /// <summary>Draws encounter artwork and applies installed colours.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -39,7 +39,7 @@ internal sealed class MotherBrainAscent
     /// <summary>Reveals her body and requests her first artwork.</summary>
     internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
-        // The ascent installs the attack and back-leg palettes' colours, all but the backdrop colour,
+        // The ascent installs the attack and back-leg colours, all but the backdrop colour,
         // which belongs to the room and must remain untouched.
         state.Colours.ShowPhaseTwo();
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain;

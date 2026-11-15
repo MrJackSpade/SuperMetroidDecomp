@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed record MotherBrainHeadDependencies
 {
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -17,7 +17,7 @@ internal sealed record MotherBrainHeadDependencies
     /// <summary>Queues the encounter's music and sound effects in enemy update order.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
+    /// <summary>Draws encounter artwork and applies installed colours.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
     /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Which walk a <see cref="TorizoCue.Walk"/> cue is. One walking step of a Torizo, read from its walking table.</summary>
+/// <summary>Which walk a <see cref="TorizoCue.Walk"/> cue is: which Torizo takes the step, and how it turns at a wall.</summary>
 internal enum TorizoWalkKind
 {
     /// <summary>Takes a Bomb Torizo walking step, turning at a wall.</summary>

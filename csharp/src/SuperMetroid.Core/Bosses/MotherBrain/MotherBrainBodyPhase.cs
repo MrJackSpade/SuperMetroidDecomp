@@ -18,7 +18,7 @@ public enum MotherBrainBodyPhase
     FakeDeathDescentPauseBeforeUnlock,
     /// <summary>Starts room flashing, selects lowered-acid FX, clears the ceiling block, and arms tube collapse.</summary>
     FakeDeathDescentPauseBeforeFlash,
-    /// <summary>Advances the fake-death grey palette whenever the timer passes zero while also running tube collapse and explosions.</summary>
+    /// <summary>Advances the fake-death grey fade whenever the timer passes zero while also running tube collapse and explosions.</summary>
     FakeDeathDescentFadeToGray,
     /// <summary>Runs the independent tube sequence and dust/explosion cadence until the falling main tube starts ascent.</summary>
     FakeDeathDescentCollapseTubes,
@@ -50,9 +50,9 @@ public enum MotherBrainBodyPhase
     FakeDeathAscentStartMusicAndEarthquake,
     /// <summary>Every fourth frame of the frame counter raises the body two pixels with dust and matching background scroll, then ends the floor-clipping effect and starts uncrouching.</summary>
     FakeDeathAscentRaiseMotherBrain,
-    /// <summary>Waits for the body animation to publish the standing pose before initializing grey-palette restoration.</summary>
+    /// <summary>Waits for the body animation to publish the standing pose before initializing grey-colour restoration.</summary>
     FakeDeathAscentWaitUntilUncrouched,
-    /// <summary>Restores brain sprite colors on the four-count timer cadence, then enables phase-two palette handling and drool.</summary>
+    /// <summary>Restores brain sprite colors on the four-count timer cadence, then enables phase-two colour handling and drool.</summary>
     FakeDeathAscentTransitionFromGray,
     /// <summary>Expires the 23-count menacing shake and starts the stretching head animation with a 256-count hold.</summary>
     SecondPhaseStretchingShakeHead,
@@ -128,9 +128,9 @@ public enum MotherBrainBodyPhase
     SecondPhaseFinalRainbowBeamHolding,
     /// <summary>The body's next turn after baby attachment changes form/neck motion and immediately starts the 48-count regain-balance pause.</summary>
     SecondPhaseDrainedByBabyTakenAback,
-    /// <summary>Maintains the rainbow palette until the timer passes zero, then initializes the independent painful-walking sequence.</summary>
+    /// <summary>Maintains the rainbow colours until the timer passes zero, then initializes the independent painful-walking sequence.</summary>
     SecondPhaseDrainedByBabyRegainBalance,
-    /// <summary>Refreshes head shake, applies rainbow palettes, and advances painful walking until stage 6 disables beam sound and brain palette handling.</summary>
+    /// <summary>Refreshes head shake, applies rainbow colours, and advances painful walking until stage 6 disables beam sound and brain colour handling.</summary>
     SecondPhaseDrainedByBabyFiringRainbowBeam,
     /// <summary>Continues painful walking through stage 8, then selects dying drool and the retreating neck posture.</summary>
     SecondPhaseDrainedByBabyRainbowBeamRunOut,
@@ -138,21 +138,21 @@ public enum MotherBrainBodyPhase
     SecondPhaseDrainedByBabyMoveToBackOfRoom,
     /// <summary>Waits for both neck movement indices to clear, disables drool, and requests fast crouching once standing.</summary>
     SecondPhaseDrainedByBabyGoIntoLowPowerMode,
-    /// <summary>Expires a 64-count crouch pause, clears the palette counter, and immediately begins the 16-count grey-transition cadence.</summary>
+    /// <summary>Expires a 64-count crouch pause, clears the colour step counter, and immediately begins the 16-count grey-transition cadence.</summary>
     SecondPhaseDrainedByBabyPrepareTransitionToGrey,
-    /// <summary>Steps through eight drained-grey palettes and one step past the last, restores head health 36,000, and enters the inanimate revival setup.</summary>
+    /// <summary>Steps through eight drained-grey colour steps and one step past the last, restores head health 36,000, and enters the inanimate revival setup.</summary>
     SecondPhaseDrainedByBabyTransitionToGrey,
     /// <summary>Installs the 768-count revival wait and returns without decrementing it on this setup call.</summary>
     SecondPhaseReviveInanimateGrey,
-    /// <summary>When the wait passes zero, re-enables breath/drool, clears the palette counter, and starts the 224-count color-restoration delay.</summary>
+    /// <summary>When the wait passes zero, re-enables breath/drool, clears the colour step counter, and starts the 224-count color-restoration delay.</summary>
     SecondPhaseReviveShowSignsOfLife,
-    /// <summary>Reverses the eight drained-grey palettes when the timer passes zero, then re-enables brain palette handling and falls into wake-up.</summary>
+    /// <summary>Reverses the eight drained-grey colour steps when the timer passes zero, then re-enables brain colour handling and falls into wake-up.</summary>
     SecondPhaseReviveTransitionFromGrey,
     /// <summary>Waits for the posture helper to observe standing, then extends the neck and immediately begins a 16-count wake-up stretch.</summary>
     SecondPhaseReviveWakeUp,
     /// <summary>Expires the short stretch delay, installs the phase-three stretching head animation, and seeds a 128-count walking delay.</summary>
     SecondPhaseReviveWakeUpStretch,
-    /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based palettes and prepares the neck.</summary>
+    /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based colours and prepares the neck.</summary>
     SecondPhaseReviveWalkUpToBaby,
     /// <summary>Clears the baby attack counter and configures both neck targets before falling into the stand-up handshake.</summary>
     SecondPhaseRevivePrepareNeckForBabyDeath,

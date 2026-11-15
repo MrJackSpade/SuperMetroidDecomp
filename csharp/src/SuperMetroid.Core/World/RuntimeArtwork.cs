@@ -12,7 +12,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Host-installed artwork catalogs (room pictures, palettes, layouts, sky, Samus, beams, grapple, map presentation) the
+/// Host-installed artwork catalogs (room pictures, colours, layouts, sky, Samus, beams, grapple, map presentation) the
 /// runtime's owners draw and colour from.
 /// </summary>
 internal sealed class RuntimeArtwork
@@ -24,7 +24,7 @@ internal sealed class RuntimeArtwork
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
     private readonly HudState _hud;
-    /// <summary>Receives Samus palette, grapple, and picture bindings.</summary>
+    /// <summary>Receives Samus colour, grapple, and picture bindings.</summary>
     private readonly SamusFrameState _player;
 
     /// <summary>

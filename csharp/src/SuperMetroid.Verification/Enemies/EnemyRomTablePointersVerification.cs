@@ -114,7 +114,7 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+            RoomEnemySlot slot = system.SlotTable.Slots[0];
             slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
@@ -126,10 +126,8 @@ internal static class EnemyRomTablePointersVerification
         foreach (bool facingRight in new[] { false, true })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
-            {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            };
+            RoomEnemySlot torizo = system.SlotTable.Slots[0];
+            torizo.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             system.TorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0, isGolden: true);
             system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
             EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(

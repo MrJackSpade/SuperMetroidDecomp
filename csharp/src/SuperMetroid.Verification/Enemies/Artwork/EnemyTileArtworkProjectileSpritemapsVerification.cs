@@ -524,10 +524,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             RoomEnemySystem enemies = BurstSystem(artwork, spawner);
             Action<RoomEnemySlot> spawn = slot => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, slot,
                 skree ? SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst : SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst);
-            var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
-            {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            };
+            // The burst's spawner binds through the system's own registry, which owns its species (#2010).
+            RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
+            enemy.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96));
             // The spawner is the enemy its set loads, in its sheet's standard colours, as a room's spawn would leave it;
             // its particles draw from its own spawned-object sheet (#1513).
             enemy.Bind(spawner, CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(spawner));

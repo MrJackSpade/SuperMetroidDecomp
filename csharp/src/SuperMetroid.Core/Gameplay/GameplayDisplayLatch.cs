@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// camera's top row plus this offset, wrapping as room positions do.
 /// </param>
 /// <param name="Scene">The room effect's blending, the scrolling sky, and the room and boss the X-ray's blending reads.</param>
-/// <param name="Bosses">The bodies bosses draw as the background.</param>
+/// <param name="Bosses">The body a boss shows as the background, where it is placed and whether it shows (#2031).</param>
 /// <param name="Tints">The tints the frame's effects blend with, each published by its own effect.</param>
 /// <param name="XrayReveal">
 /// The X-ray reveal background shows while X-ray is active, drawn from the room's block pictures (#1392).
@@ -46,7 +46,7 @@ public sealed record GameplayDisplayLatch(
     PhantoonDisplaySnapshot? Phantoon,
     int TourianStatueVerticalOffset,
     GameplayLatchedScene Scene,
-    GameplayLatchedBossBackgrounds Bosses,
+    GameplayLatchedBossBody Bosses,
     GameplayLatchedTints Tints,
     XrayRevealPlane? XrayReveal,
     RoomBackgrounds? Rooms,

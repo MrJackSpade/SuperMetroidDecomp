@@ -163,11 +163,11 @@ internal sealed class CrocomireBridgeCollapse
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>
-    /// Hides his body from the body row two hundred and eighty-eight pixels below the top of Crocomire's view down while he
-    /// sinks (#1515): this is what makes his body disappear into the acid as it slides down past the view's bottom.
+    /// Hides his body from the room row two hundred and eighty-eight pixels below the top of Crocomire's view down while he
+    /// sinks (#1515, #2031): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
-    private void HideCrocomireSunkenBody(Position16<RoomPixels> camera) =>
-        _bodyLayer.HideCrocomireBodyFrom(_bodyLayer.BodyRowAt(camera.Y + SinkRowDepth));
+    private void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
+        _bodyLayer.HideCrocomireBodyBelow(state, camera.Y + SinkRowDepth);
 
     /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>
     private const int SinkRowDepth = 288;
@@ -181,13 +181,11 @@ internal sealed class CrocomireBridgeCollapse
         RunCrocomireSink(state, camera);
     }
 
-    /// <summary>Runs the body and its body layer as Crocomire resurfaces.</summary>
-    internal void RunCrocomireRisingComposite(
-        CrocomireEnemyState state,
-        Position16<RoomPixels> camera)
+    /// <summary>Runs the body as Crocomire resurfaces.</summary>
+    internal void RunCrocomireRisingComposite(CrocomireEnemyState state)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        RunCrocomireRise(state, camera);
+        RunCrocomireRise(state);
     }
 
     /// <summary>Queues periodic acid sounds according to the death-scene timer.</summary>
@@ -217,9 +215,9 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Crocomire's exact fixed-point sinking fall, with the camera his main update runs with.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
-        _bodyLayer.LevelCrocomireMeltDistortion();
+        _bodyLayer.LevelCrocomireMeltDistortion(state);
         state.DamageReactionPending = false;
-        _bodyLayer.PlaceCrocomireBodyLayer(state, camera);
+        CrocomireBodyLayer.PlaceCrocomireTongue(state);
         RoomEnemySlot body = state.Body;
 
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 280) >= 0)
@@ -231,7 +229,6 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        HideCrocomireSunkenBody(camera);
         body.AnimationClock.ShowsNewFrame = false;
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
@@ -247,12 +244,14 @@ internal sealed class CrocomireBridgeCollapse
         SignedEightEight travelled = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(state.VerticalSubpixel) + speed;
         state.VerticalSubpixel = travelled.FractionSubpixels;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + travelled.WholePixels);
+        // The acid hides his body below its row wherever this update leaves him, which is where his body is shown.
+        HideCrocomireSunkenBody(state, camera);
     }
 
-    /// <summary>Runs Crocomire's fixed-point rise exactly as the game does, with the camera his main update runs with.</summary>
-    internal void RunCrocomireRise(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    /// <summary>Runs Crocomire's fixed-point rise exactly as the game does.</summary>
+    internal void RunCrocomireRise(CrocomireEnemyState state)
     {
-        _bodyLayer.LevelCrocomireMeltDistortion();
+        _bodyLayer.LevelCrocomireMeltDistortion(state);
         RoomEnemySlot body = state.Body;
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
         {
@@ -260,7 +259,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        _bodyLayer.PlaceCrocomireBodyLayer(state, camera);
+        CrocomireBodyLayer.PlaceCrocomireTongue(state);
         SignedEightEight acceleration = SignedEightEight.Min(
             state.VerticalAcceleration + SignedEightEight.FromPixels(1), CrocomireBehavior.MaximumRiseAcceleration);
         state.VerticalAcceleration = acceleration;

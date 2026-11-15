@@ -64,11 +64,13 @@ internal static class CrocomireNativeWords
         [CrocomireDeathPhase.WaitForStableSkeleton] = 76,
         [CrocomireDeathPhase.WaitBeforeRecordingDefeat] = 78,
         [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = 80,
-        [CrocomireDeathPhase.InertCorpse] = 82,
-        [CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer] = 84,
-        [CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement] = 86,
         [CrocomireDeathPhase.RiverSkeletonDetour] = 88,
-    });
+    }.Select(entry => KeyValuePair.Create(entry.Value, entry.Key))
+        // The live room's inert corpse, and the already-defeated room's waiting and placing of his body layer, which the
+        // port's corpse does not need (#2031): each is the inert corpse.
+        .Concat([KeyValuePair.Create((ushort)82, CrocomireDeathPhase.InertCorpse), KeyValuePair.Create((ushort)84, CrocomireDeathPhase.InertCorpse),
+            KeyValuePair.Create((ushort)86, CrocomireDeathPhase.InertCorpse)])
+        .ToDictionary());
 
     /// <summary>
     /// The byte offset into the fight-AI jump table, body variable C, naming each <see cref="CrocomirePhase"/>. The table's

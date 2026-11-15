@@ -63,9 +63,8 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        enemies.ShitroidBehavior.InitializeShitroid(slot, 0);
-        ShitroidEnemyState state = enemies.Shitroid ??
-            throw new InvalidDataException("Shitroid initialization produced no state.");
+        ShitroidBehavior.InitializeShitroid(slot, 0);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
         // The Shitroid draws in its entry's target colours, which the import pre-colours its sheets in (#1512); the drained
         // corpses' target is the corpses' own drained shade.
         AssertEqual(ShitroidShades.InTargetColours, slot.Shading, "the Shitroid draws in its entry's target colours");

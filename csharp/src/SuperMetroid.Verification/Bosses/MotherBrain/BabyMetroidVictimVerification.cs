@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -22,7 +23,41 @@ internal static class BabyMetroidVictimVerification
         AssertTrue(ReferenceEquals(slots[last], BabyMetroidVictim.Of(slots, last - 1)), "the victim may be the final enemy");
         AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(slots, last), "a Baby in the final place has no victim");
         AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.Of(slots, -1), "a Baby before the first place is refused");
+        AssertTrue(BabyMetroidVictim.FeederOf(slots, 0) is null, "the enemy placed first has no enemy feeding on it");
+        AssertTrue(ReferenceEquals(slots[5], BabyMetroidVictim.FeederOf(slots, 6)), "a victim's feeder is the enemy placed before it");
+        AssertThrows<ArgumentOutOfRangeException>(() => BabyMetroidVictim.FeederOf(slots, -1), "a victim before the first place is refused");
         Console.WriteLine("Baby Metroid victim: the enemy placed directly after the Baby, and none past the last.");
+    }
+
+    /// <summary>
+    /// Confirms the victim's question about its Shitroid's feeding (#2030): each Shitroid owns its state, and a victim asks
+    /// the Shitroid placed directly before it, which has fed exactly when it started dormant because Samus entered from the
+    /// left. A victim with no Shitroid before it has not been fed on.
+    /// </summary>
+    internal static void VerifyShitroidFeeding()
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
+        var feeding = new ShitroidFeeding(enemies.SlotTable);
+        // Entering from the left door, the camera still lies left of the room's edge as the room's enemies are placed.
+        int leftDoorCameraX = CoordinateAxis.Wrap(-16);
+        ShitroidBehavior.InitializeShitroid(slots[0], 0);
+        ShitroidBehavior.InitializeShitroid(slots[5], leftDoorCameraX);
+        AssertEqual<ShitroidAction?>(ShitroidAction.WaitForCamera, slots[0].RequireSpeciesState<ShitroidEnemyState>().Action, "entering from the right leaves the first Shitroid waiting");
+        AssertEqual<ShitroidAction?>(ShitroidAction.Dormant, slots[5].RequireSpeciesState<ShitroidEnemyState>().Action, "entering from the left leaves the second Shitroid dormant");
+        AssertTrue(!feeding.HasAlreadyFedOn(slots[1]), "the victim after a waiting Shitroid is still there");
+        AssertTrue(feeding.HasAlreadyFedOn(slots[6]), "the victim after a dormant Shitroid is gone");
+        AssertTrue(!feeding.HasAlreadyFedOn(slots[0]), "the enemy placed first has no Shitroid feeding on it");
+        AssertTrue(!feeding.HasAlreadyFedOn(slots[3]), "an enemy placed after no Shitroid has not been fed on");
+        Console.WriteLine("Shitroid feeding: each victim asks the Shitroid placed before it, which has fed when it started dormant.");
+    }
+
+    /// <summary>Runs the focused Shitroid feeding check.</summary>
+    [VerificationCommand("--shitroid-feeding")]
+    internal static int ShitroidFeedingCommand()
+    {
+        VerifyShitroidFeeding();
+        return 0;
     }
 
     /// <summary>Runs the focused Baby Metroid victim check.</summary>

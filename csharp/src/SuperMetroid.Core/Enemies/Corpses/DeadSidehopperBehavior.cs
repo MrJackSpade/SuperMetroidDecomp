@@ -87,7 +87,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Contact = slot.Contact.Without(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
         // A Shitroid that has already fed on this Sidehopper leaves no victim.
-        if (_shitroid.HasAlreadyFed)
+        if (_shitroid.HasAlreadyFedOn(slot))
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));

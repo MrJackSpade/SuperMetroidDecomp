@@ -1064,6 +1064,7 @@ internal static class FullRunSuitesVerification
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
             SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
         new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
+        new(nameof(VerifyShitroidFeeding), () => VerifyShitroidFeeding()),
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),

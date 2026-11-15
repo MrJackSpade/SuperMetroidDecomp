@@ -8,7 +8,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted during the Baby Metroid's own update, each time it reaches its victim: when it latches on, while it drains
-/// and shakes it, and when it hands the drained victim to its corpse. Evidence: the Baby's drain and corpse handoff
+/// and shakes it, and when it hands the drained victim to its corpse; and when the victim is placed, which asks whether
+/// the Baby placed before it has already fed (<see cref="FeederOf"/>). Evidence: the Baby's drain and corpse handoff
 /// address the victim as the enemy record directly after its own, without testing what that record holds; the retail
 /// Tourian population places the Sidehopper there. Asking past the final enemy is refused.
 /// </remarks>
@@ -30,5 +31,22 @@ public static class BabyMetroidVictim
                 $"The Baby Metroid in place {babyMetroid} has no enemy placed after it among {slots.Count}.");
         }
         return slots[victim];
+    }
+
+    /// <summary>
+    /// The enemy that feeds on the enemy at <paramref name="victim"/> when it is a Baby Metroid: the enemy placed directly
+    /// before it, by the rule <see cref="Of"/> states from the Baby's side; null for the enemy placed first, which no enemy
+    /// is placed before. Whether that enemy is a Baby is its caller's question.
+    /// </summary>
+    /// <typeparam name="TSlot">An enemy slot.</typeparam>
+    /// <param name="slots">Every enemy slot, in placement order.</param>
+    /// <param name="victim">The victim's zero-based place in <paramref name="slots"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The victim is not in a place.</exception>
+    public static TSlot? FeederOf<TSlot>(IReadOnlyList<TSlot> slots, int victim) where TSlot : class
+    {
+        Ensure.NotNull(slots);
+        if (victim < 0 || victim >= slots.Count)
+            throw new ArgumentOutOfRangeException(nameof(victim), victim, $"The victim in place {victim} is not among {slots.Count} places.");
+        return victim == 0 ? null : slots[victim - 1];
     }
 }

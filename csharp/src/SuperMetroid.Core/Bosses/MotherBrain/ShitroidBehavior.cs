@@ -59,9 +59,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The fastest the Shitroid approaches a latch, on each axis, in either direction.</summary>
     private static readonly SignedEightEight LatchMaximumSpeed = SignedEightEight.FromPixels(5);
 
-    /// <summary>The room's one Baby Metroid's private velocity, colours, and cutscene state.</summary>
-    internal ShitroidEnemyState? Shitroid { get; private set; }
-
     /// <summary>Queues one of the Baby Metroid's cries as it cries, after the update's earlier requests.</summary>
     private void RequestShitroidSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
@@ -71,11 +68,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Sets the Shitroid up when the room spawns it.</summary>
-    internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
+    internal static void InitializeShitroid(RoomEnemySlot slot, int cameraX)
     {
-        if (Shitroid is not null)
-            throw new InvalidDataException("A room population contains more than one Shitroid.");
-
         // The processing property is the scheduler's animation-processing flag; another flag blocks plasma
         // from piercing the actor. The game's name for the processing flag says it disables Samus
         // collision, but the scheduler also consumes that same flag for animation, so
@@ -101,7 +95,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = ShitroidAction.Dormant;
         }
         state.ReactsToSamus = false;
-        Shitroid = state;
         slot.SetSpeciesState(state);
         // The entry's target colours are where the room's colours fade to; this runtime shows the completed fade: the
         // Shitroid and its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses'
@@ -799,7 +792,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Shitroid's initialization AI.</summary>
-    internal void RunShitroidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
+    internal static void RunShitroidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeShitroid(slot, surroundings.Camera.X);
     }

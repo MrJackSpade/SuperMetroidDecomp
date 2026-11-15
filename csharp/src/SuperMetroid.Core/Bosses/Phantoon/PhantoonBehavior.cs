@@ -248,7 +248,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
-        // drawing parts. The almost-dead phase skips the part sync and his body's placement entirely on that frame.
+        // drawing parts. The almost-dead phase skips the part sync entirely on that frame.
         if (phase == PhantoonPhase.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
@@ -257,12 +257,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
-        if (state.Wave.Length is null)
-        {
-            state.BodyOrigin = new(
-                CoordinateAxis.Wrap(body.Position.X.Whole - PhantoonBodyAreaDefinitions.LeftOfBody),
-                CoordinateAxis.Wrap(body.Position.Y.Whole - PhantoonBodyAreaDefinitions.AboveBody));
-        }
     }
 
     /// <summary>Requires the body's encounter state; each part property requires its attached slot when read.</summary>

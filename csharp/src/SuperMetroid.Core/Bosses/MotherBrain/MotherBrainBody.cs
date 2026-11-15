@@ -338,7 +338,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Body movement: moves her, and her body's area and pictures with her (#1949), keeping the large body art rigidly
+    /// Body movement: moves her, and her body's pictures with her (#1949, #2031), keeping the large body art rigidly
     /// attached to its small hitbox record.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)

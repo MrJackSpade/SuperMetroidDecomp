@@ -12,8 +12,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Installs the pre-assembled boss body sheets (#1466, #1515, #1540, #1635): each boss's sheet manifest, its pictures held in
-/// the installation's picture store, and the manifest naming each frame's whole picture and where it lies on the body's
-/// area, which names the sheets (#1693). A player edits a sheet's installed files in place.
+/// the installation's picture store, and the manifest naming each frame's whole picture and where it lies against its boss
+/// (#2031), which names the sheets (#1693). A player edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
@@ -28,9 +28,9 @@ public static class BossBodySheetFiles
     /// Crocomire's melt images once, with the cells its dissolve erases, and no step of it (#1652); 8 keys each frame by the
     /// animation segment or table key that first shows it (#1623); 10 places Crocomire's lowered charging and clawing poses
     /// where they lie on his body's area (#1802); 11 places Mother Brain's posture poses where they lie on her body's area,
-    /// which follows her (#1949).
+    /// which follows her (#1949); 12 places each frame against its boss's position rather than on its body's area (#2031).
     /// </summary>
-    private const int ManifestVersion = 11;
+    private const int ManifestVersion = 12;
 
     /// <summary>
     /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write
@@ -88,7 +88,7 @@ public static class BossBodySheetFiles
 
     /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
     private static FrameDocument Document(ComposedBossBodyFrame frame) =>
-        new(frame.Picture, frame.Corner, frame.Depth, frame.Dissolving.Count == 0 ? null : [.. frame.Dissolving]);
+        new(frame.Picture, frame.Anchor, frame.Depth, frame.Dissolving.Count == 0 ? null : [.. frame.Dissolving]);
 
     /// <summary>
     /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its picture cut from
@@ -100,11 +100,11 @@ public static class BossBodySheetFiles
     /// </exception>
     private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath)
     {
-        if (document is not { Corner: { } corner })
+        if (document is not { Anchor: { } anchor })
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete.");
         if (document.Picture is null != document.Depth is null || document.Depth is { } depth && !Enum.IsDefined(depth))
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} needs a defined depth exactly when it names a picture.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), corner, document.Depth,
+        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), anchor, document.Depth,
             document.Dissolving is null ? [] : [.. document.Dissolving]);
     }
 
@@ -119,10 +119,10 @@ public static class BossBodySheetFiles
 
     /// <summary>One frame: its whole picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
-    /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
+    /// <param name="Anchor">Where its picture's top-left corner lies from its boss's position (#2031).</param>
     /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
     /// <param name="Dissolving">The picture's cells a column dissolve erases (#1652), or null for a frame no dissolve erases.</param>
-    private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner,
+    private sealed record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
         [property: JsonConverter(typeof(JsonStringEnumConverter<BossBodyDepth>))]
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DissolvingCell[]? Dissolving = null);

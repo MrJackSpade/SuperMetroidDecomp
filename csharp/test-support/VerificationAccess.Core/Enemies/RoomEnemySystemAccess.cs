@@ -269,8 +269,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MetroidEntity, MetroidEnemyState>())];
 
-        /// <summary>Baby Metroid actor state during the Mother Brain encounter.</summary>
-        internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior.Shitroid;
+        /// <summary>The state of the one Shitroid the room has placed, each Shitroid owning its own (#2030).</summary>
+        /// <exception cref="InvalidOperationException">The room has placed no Shitroid, or more than one.</exception>
+        internal ShitroidEnemyState Shitroid =>
+            self.SlotTable.Slots.Select(slot => slot.EntityState<ShitroidEntity, ShitroidEnemyState>()).OfType<ShitroidEnemyState>().Single();
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
         internal IReadOnlyList<RoomEnemySlot> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;

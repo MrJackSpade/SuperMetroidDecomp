@@ -75,8 +75,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int FloorSheetsWord = WrittenOverBackgroundWord + 1;
     /// <summary>
     /// Header word of a boss body's parts (#1352, #1466, #1514, #1540), or zero without one: the count of parts, then five
-    /// words for each part in draw order, the first beneath the others: its picture's offset, the body pixel the picture's
-    /// top-left corner lies on, how much of the picture shows from that corner, each x below y, the depth it is drawn at
+    /// words for each part in draw order, the first beneath the others: its picture's offset, where the picture's top-left
+    /// corner lies from the body's placement, each a signed sixteen-bit half (#2031), how much of the picture shows from that
+    /// corner, each x below y, the depth it is drawn at
     /// (<see cref="DepthWord"/>, #1634), and the offset of the pixels it hides or zero (#1652). After the parts, each hiding
     /// part's hidden pixels: its cells across below its cells down, then each cell's hidden pixel columns, a byte a cell,
     /// four cells a word, the first cell in the lowest byte.
@@ -501,7 +502,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             ShownBossBodyPart part = parts[index];
             int record = offset + 1 + index * BossBodyPartWords;
             upload[record] = (uint)pictureWords[new(part.Picture, D3D11PictureColouring.BossBody)];
-            upload[record + 1] = D3D11ConstantPacking.Halves(part.Corner.X, part.Corner.Y);
+            upload[record + 1] = D3D11ConstantPacking.SignedHalves(part.Anchor.X, part.Anchor.Y);
             upload[record + 2] = D3D11ConstantPacking.Halves(part.Size.X, part.Size.Y);
             upload[record + 3] = DepthWord(part.Depth);
             upload[record + 4] = 0;

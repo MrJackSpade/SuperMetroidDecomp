@@ -55,7 +55,7 @@ internal sealed class CrocomireMelting
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
-        _bodyLayer.LevelCrocomireMeltDistortion();
+        _bodyLayer.LevelCrocomireMeltDistortion(state);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingTwoTopRow);
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
     }
@@ -90,7 +90,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         _ = RequireCrocomireMeltingImage(pass);
-        _bodyLayer.LevelCrocomireMeltDistortion();
+        _bodyLayer.LevelCrocomireMeltDistortion(state);
         state.DeathPhase = state.DeathPhase.Next();
         death.DistortionStep = CrocomireMeltingDefinitions.FirstDistortionSlope;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
@@ -137,14 +137,14 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltingScrollActive = true;
-        _bodyLayer.LevelCrocomireMeltDistortion();
+        _bodyLayer.LevelCrocomireMeltDistortion(state);
 
         state.DeathPhase = state.DeathPhase.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
     }
 
     /// <summary>Updates the acid dissolve, background distortion, tongue placement, and scheduled melting graphics.</summary>
-    internal void RunCrocomireMelting(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    internal void RunCrocomireMelting(CrocomireEnemyState state)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
@@ -154,8 +154,8 @@ internal sealed class CrocomireMelting
 
         EraseNextCrocomireMeltingColumn();
 
-        // The melting's end places his body layer again, which also moves the tongue onto the body.
-        _bodyLayer.PlaceCrocomireBodyLayer(state, camera);
+        // The melting's step places his tongue onto the body again.
+        CrocomireBodyLayer.PlaceCrocomireTongue(state);
         int nextAdjustedY = death.DistortionSourceRow - 3;
         if (death.DistortionSourceRow < 19)
         {
@@ -204,7 +204,7 @@ internal sealed class CrocomireMelting
     /// The band's first line follows the tongue, which rides his body; the body only shakes sideways while it melts, so
     /// the band never starts lower than the last stretch's, and the lines above it keep the levelled body.
     /// </remarks>
-    private void StretchCrocomireMeltDistortion(
+    private static void StretchCrocomireMeltDistortion(
         CrocomireEnemyState state,
         CrocomireDeathState death)
     {
@@ -217,7 +217,7 @@ internal sealed class CrocomireMelting
         int slope = checked((int)death.DistortionStep.RawValue);
         int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - slope) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
-        death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, _bodyLayer.BodyOrigin.Y,
+        death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, state.Body.Position.Y.Whole,
             ScreenLine(firstLine), ScreenLine(endLine), slope);
 
         // The distortion's lines start at the first gameplay line; those below the screen are never shown.

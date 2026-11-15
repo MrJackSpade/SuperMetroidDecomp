@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -16,8 +17,9 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 internal static class DraygonBodyPublicationVerification
 {
     /// <summary>
-    /// A constructed Draygon at two body positions publishes his body image and the placement the drawing hook derives
-    /// from the final camera, without touching the room's BG2 scroll; the capture shows the image at that placement.
+    /// A constructed Draygon at two body positions publishes his body image placed at his position as the frame ends (#2031),
+    /// without touching the room's BG2 scroll; the capture shows the image there, its area lying where the cartridge placed
+    /// it, 62 pixels left of and 64 above him.
     /// </summary>
     internal static void VerifyDraygonBodyPublication()
     {
@@ -34,15 +36,14 @@ internal static class DraygonBodyPublicationVerification
         foreach (Position16<RoomPixels> body in new Position16<RoomPixels>[] { new(256, 160), new(352, 288) })
         {
             draygon.Body.Position = draygon.Body.Position.WithWhole(body);
-            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
-            // His body lies in the room at his body's position, moved by his body graphics' displacement (#1617).
-            var expected = new Position16<RoomPixels>(
-                unchecked((ushort)(body.X + DraygonBackgroundData.HorizontalOrigin + draygon.BodyPictureShift.X)),
-                unchecked((ushort)(body.Y + DraygonBackgroundData.VerticalOrigin + draygon.BodyPictureShift.Y)));
+            // His body is placed at his position, moved by his body graphics' displacement (#1940, #2031).
+            Position16<RoomPixels> expected = body + draygon.BodyPictureShift;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            DraygonBodyPlacement placement = runtime.Display.Latched.Bosses.DraygonBody
-                ?? throw new InvalidOperationException("Draygon publishes his body placement.");
-            AssertEqual(new DraygonBodyPlacement(body, expected, false), placement, $"Draygon at {body} publishes his body position and placement");
+            AssertEqual<Position16<RoomPixels>?>(expected, runtime.Display.Latched.Bosses.Placement, $"Draygon at {body} publishes his body's placement");
+            AssertTrue(!runtime.Display.Latched.Bosses.Hidden, $"Draygon at {body} shows his body");
+            // Each of his installed frames lies where the cartridge's layer put it: its area 62 left of and 64 above him.
+            AssertEqual(new Offset16<RoomPixels>(-62, -64), BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon],
+                "his body's area lay 62 pixels left of and 64 above him");
             AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Draygon leaves the room's BG2 scroll alone");
             _ = runtime.Display.Latched.Bosses.Body
                 ?? throw new InvalidOperationException("Draygon publishes his body layer.");

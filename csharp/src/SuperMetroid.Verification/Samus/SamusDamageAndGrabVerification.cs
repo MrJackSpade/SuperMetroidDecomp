@@ -127,7 +127,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
     AssertEqual(0, right.Kinematics.YSpeed.Whole, "drained fall clears whole Y speed");
     AssertEqual(SamusVerticalDirection.Down, right.Kinematics.YDirection, "drained fall selects down direction");
-    AssertTrue(right.Drained.UpdatePalette(drainedColours, right.EquippedItems),
+    AssertTrue(right.Drained.UpdateColouring(drainedColours, right.EquippedItems),
         "drained controller zero restores selected suit palette");
     AssertEqual(0x300f, drainedColours.ShownSuit(drainedSources)[15],
         "drained controller zero copies all sixteen suit colors");
@@ -304,31 +304,31 @@ level, right, unchecked((ushort)(frame + 1))),
     // the Baby raises its delay to two, index two must remain visible for two calls before
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
     unable.Drained.EnableRainbow(unable);
-    AssertTrue(unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems),
+    AssertTrue(unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems),
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow first call loads Hyper Beam palette zero");
     AssertEqual(1, unable.Drained.HyperBeamGlowStep,
         "one-call rainbow cadence advances immediately");
     unable.Drained.HoldRainbowGlowLonger(longestHold: 10);
-    unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
+    unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
     AssertEqual(2, unable.Drained.CommonColourTimer,
         "Baby-raised rainbow delay reloads two");
     AssertEqual(2, unable.Drained.HyperBeamGlowStep,
         "rainbow second palette advances into delayed index");
-    unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
+    unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
     AssertEqual(0x1040, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow delayed index loads before timer decrement");
     AssertEqual(2, unable.Drained.HyperBeamGlowStep,
         "rainbow delay holds palette index for first call");
-    unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
+    unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems);
     AssertEqual(3, unable.Drained.HyperBeamGlowStep,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);
     AssertEqual(13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
     AssertEqual(1, unable.AnimationFrameTimer.RawValue, "command $17 resume timer");
-    AssertTrue(unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems),
+    AssertTrue(unable.Drained.UpdateColouring(drainedColours, unable.EquippedItems),
         "command $17 restores selected suit palette");
     AssertEqual(0x3000, drainedColours.ShownSuit(drainedSources)[0],
         "command $17 replaces rainbow palette immediately");

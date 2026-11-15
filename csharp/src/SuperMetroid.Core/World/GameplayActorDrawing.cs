@@ -106,7 +106,7 @@ internal sealed class GameplayActorDrawing
                 _player.Samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
                     _player.Colours, _player.Samus.EquippedItems);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
-                _player.Samus.Drained.UpdatePalette(_player.Colours, _player.Samus.EquippedItems);
+                _player.Samus.Drained.UpdateColouring(_player.Colours, _player.Samus.EquippedItems);
             bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {

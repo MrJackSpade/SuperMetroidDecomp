@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <para>
 /// The item room object grants the equipment bit and displays message first. Only after
 /// that synchronous message returns does the suit pickup center and lock Samus,
-/// while the light beam's per-line display effect advances this seven-stage sequence
+/// while the light beam advances this seven-stage sequence
 /// once per gameplay frame. This owner deliberately begins after the message rather than
 /// hiding those two independently observable lifetimes behind one combined animation.
 /// </para>

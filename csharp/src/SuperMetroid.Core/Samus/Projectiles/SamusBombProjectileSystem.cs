@@ -118,7 +118,8 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.
-    /// Scripted carries suppress the input phase but do not stop the per-line effect phase.
+    /// Scripted carries suppress the input phase but do not stop the blast, which advances right after the liquid wave
+    /// and statue descent.
     /// </summary>
     public void AdvancePowerBombExplosion(
         SamusState samus,
@@ -126,7 +127,7 @@ public sealed class SamusBombProjectileSystem
         SuperMetroid.Core.Progression.SuperMetroidGameState gameState = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(samus);
-        // Each update runs the per-line display effects before gameplay reaches Samus's
+        // Each update advances the blast with the liquid wave and statue descent, before gameplay reaches Samus's
         // frame. A power bomb spawned later in her input phase consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is

@@ -34,8 +34,6 @@ internal sealed class StationObject(
     private AnimationPlace _animationPlace = AnimationPlace.StartOfAnimation;
     /// <summary>Where the accepted save's flash stands.</summary>
     private AnimationPlace _flashPlace = AnimationPlace.StartOfAnimation;
-    /// <summary>The save flash's loops left, which its counted phase counts down.</summary>
-    private WrappingCountdown _flashLoops;
     /// <summary>Updates remaining before the station's next image.</summary>
     public int AnimationTimer { get; set; } = 1;
     /// <summary>Keeps the save station's image still after its one initial draw.</summary>
@@ -114,9 +112,8 @@ internal sealed class StationObject(
         if (--AnimationTimer != 0)
             return;
 
-        WrappingCountdown uncounted = default;
         AnimationShown<StationAnimation, StationDraw> shown = StationAnimationDefinitions.Segments.PlayToNextFrame(
-            StationAnimationDefinitions.Animations[ShownAnimation], ref _animationPlace, ref uncounted, static _ => { });
+            StationAnimationDefinitions.Animations[ShownAnimation], ref _animationPlace, static _ => { });
         // A looping animation of images always shows its next image, held for any positive count of updates (#1627).
         if (shown is not AnimationShown<StationAnimation, StationDraw>.Frame { Duration: > 0 } frame)
             throw new InvalidDataException($"{Kind} station animation {ShownAnimation} showed {shown} instead of a timed image.");
@@ -133,7 +130,6 @@ internal sealed class StationObject(
     {
         SavePhase = SaveStationPhase.Animating;
         _flashPlace = AnimationPlace.StartOfAnimation;
-        _flashLoops = default;
         if (!DrawSaveImage(drawing, level, block))
             throw new InvalidOperationException("The save station's flash ended before it showed an image.");
     }
@@ -219,7 +215,7 @@ internal sealed class StationObject(
     private bool DrawSaveImage(IRoomObjectDrawing drawing, RoomLevelData level, Position16<RoomBlocks> block)
     {
         Animation<StationAnimation> flash = StationAnimationDefinitions.Animations[StationAnimation.SaveFlash];
-        switch (StationAnimationDefinitions.Segments.PlayToNextFrame(flash, ref _flashPlace, ref _flashLoops, static _ => { }))
+        switch (StationAnimationDefinitions.Segments.PlayToNextFrame(flash, ref _flashPlace, static _ => { }))
         {
             case AnimationShown<StationAnimation, StationDraw>.Frame frame:
                 Ensure.NotNull(drawing).Draw(level, block, RoomObjectDraw.Of(frame.Shown));

@@ -276,9 +276,8 @@ internal sealed class CollectibleObject(
     /// <exception cref="InvalidOperationException">The animation showed neither an image nor its end.</exception>
     private bool ShowNextImage(CollectibleSequence sequence, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        WrappingCountdown uncounted = default;
         switch (CollectibleSequenceAnimations.Segments.PlayToNextFrame(
-            CollectibleSequenceAnimations.Animations[sequence], ref _sequencePlace, ref uncounted, static _ => { }))
+            CollectibleSequenceAnimations.Animations[sequence], ref _sequencePlace, static _ => { }))
         {
             case AnimationShown<CollectibleSequence, CollectibleImage>.Frame image:
                 context.Draw(place, image.Shown.Draw);

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 /// <para>
 /// This is gameplay, not a compatibility service: advancing the liquid and the statues is the game's own work.
 /// The compatibility behaviour it carries, where that work falls in the sequence of random draws and which updates skip
-/// it, is <see cref="EffectPhaseRandomOrder"/>'s, which the runtime creates with itself and injects here; the random
+/// it, is <see cref="LiquidWaveAndStatueDescentOrder"/>'s, which the runtime creates with itself and injects here; the random
 /// sequence itself is the session's <see cref="SharedRandom"/>.
 /// </para>
 /// <para>
@@ -31,10 +31,10 @@ internal sealed class LiquidWaveAndStatueDescent
     /// <summary>Shared system state the liquid's wave step reads.</summary>
     private readonly SharedGameState _system;
     /// <summary>Which updates run the phase before their random draw.</summary>
-    private readonly EffectPhaseRandomOrder _order;
+    private readonly LiquidWaveAndStatueDescentOrder _order;
 
     /// <summary>Connects the liquid wave and statue descent to their live freeze and system owners and the order they run in.</summary>
-    internal LiquidWaveAndStatueDescent(GameplayTimeFreeze freeze, SharedGameState system, EffectPhaseRandomOrder order)
+    internal LiquidWaveAndStatueDescent(GameplayTimeFreeze freeze, SharedGameState system, LiquidWaveAndStatueDescentOrder order)
     {
         _freeze = freeze;
         _system = system;

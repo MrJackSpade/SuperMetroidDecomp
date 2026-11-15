@@ -1320,12 +1320,12 @@ public enum EnemyFrameId
     MotherBrainTubeFifth,
     /// <summary>The dead Torizo: corpse hook.</summary>
     DeadTorizoCorpseHook,
-    /// <summary>Ridley: tail segment small.</summary>
-    RidleyTailSegmentSmall,
-    /// <summary>Ridley: tail segment medium.</summary>
-    RidleyTailSegmentMedium,
-    /// <summary>Ridley: tail segment large.</summary>
-    RidleyTailSegmentLarge,
+    /// <summary>Ridley: the tail link nearest his body, which the two links at its base show.</summary>
+    RidleyTailBaseLink,
+    /// <summary>Ridley: the middle tail link, which the third and fourth links show.</summary>
+    RidleyTailMiddleLink,
+    /// <summary>Ridley: the outer tail link, which the fifth and sixth links, nearest the tip, show.</summary>
+    RidleyTailOuterLink,
     /// <summary>Ridley: breakup tail tip, thirteenth frame.</summary>
     RidleyBreakupTailTipThirteenth,
     /// <summary>Ridley: breakup tail tip, twelfth frame.</summary>

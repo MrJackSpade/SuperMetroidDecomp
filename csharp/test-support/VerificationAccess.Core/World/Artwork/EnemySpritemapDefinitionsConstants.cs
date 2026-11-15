@@ -57,7 +57,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Sciser's visual frames.</summary>
     internal static int PreSciserFrameCount => FramesBefore(EnemyFrameId.SciserUpsideRightLoopFirst);
     /// <summary>Frames the document lists before the supplementary Ridley artwork.</summary>
-    internal static int PreRidleySupplementFrameCount => FramesBefore(EnemyFrameId.RidleyTailSegmentSmall);
+    internal static int PreRidleySupplementFrameCount => FramesBefore(EnemyFrameId.RidleyTailBaseLink);
     /// <summary>Frames the document lists before the dead Torizo's artwork.</summary>
     internal static int PreDeadTorizoFrameCount => FramesBefore(EnemyFrameId.DeadTorizoCorpseHook);
     /// <summary>Frames the document lists before Mother Brain's visual frames.</summary>

@@ -56,9 +56,9 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each breakup program's native one-frame list in bank $A6 ($A6:CA47..CAEF), in authored order.</summary>
     internal static readonly BreakupEntryValue[] BreakupEntries =
     [
-        new BreakupEntryValue(RidleyBreakupFrame.TailSegmentSmall, 0xca47),
-        new BreakupEntryValue(RidleyBreakupFrame.TailSegmentMedium, 0xca4d),
-        new BreakupEntryValue(RidleyBreakupFrame.TailSegmentLarge, 0xca53),
+        new BreakupEntryValue(RidleyBreakupFrame.TailBaseLink, 0xca47),
+        new BreakupEntryValue(RidleyBreakupFrame.TailMiddleLink, 0xca4d),
+        new BreakupEntryValue(RidleyBreakupFrame.TailOuterLink, 0xca53),
         new BreakupEntryValue(RidleyBreakupFrame.WingsFacingLeft, 0xca59),
         new BreakupEntryValue(RidleyBreakupFrame.WingsFacingRight, 0xca5f),
         new BreakupEntryValue(RidleyBreakupFrame.LegsFacingLeft, 0xca65),

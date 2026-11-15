@@ -86,12 +86,12 @@ internal static class RidleyExplosionDefinitions
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyBreakupFrame> TailFrames = new Dictionary<RidleyExplosionPart, RidleyBreakupFrame>
     {
-        [RidleyExplosionPart.TailBaseSegment] = RidleyBreakupFrame.TailSegmentSmall,
-        [RidleyExplosionPart.TailSecondSegment] = RidleyBreakupFrame.TailSegmentSmall,
-        [RidleyExplosionPart.TailThirdSegment] = RidleyBreakupFrame.TailSegmentMedium,
-        [RidleyExplosionPart.TailFourthSegment] = RidleyBreakupFrame.TailSegmentMedium,
-        [RidleyExplosionPart.TailFifthSegment] = RidleyBreakupFrame.TailSegmentLarge,
-        [RidleyExplosionPart.TailSixthSegment] = RidleyBreakupFrame.TailSegmentLarge,
+        [RidleyExplosionPart.TailBaseSegment] = RidleyBreakupFrame.TailBaseLink,
+        [RidleyExplosionPart.TailSecondSegment] = RidleyBreakupFrame.TailBaseLink,
+        [RidleyExplosionPart.TailThirdSegment] = RidleyBreakupFrame.TailMiddleLink,
+        [RidleyExplosionPart.TailFourthSegment] = RidleyBreakupFrame.TailMiddleLink,
+        [RidleyExplosionPart.TailFifthSegment] = RidleyBreakupFrame.TailOuterLink,
+        [RidleyExplosionPart.TailSixthSegment] = RidleyBreakupFrame.TailOuterLink,
     }.ToFrozenDictionary();
 
     /// <summary>

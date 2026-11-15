@@ -30,7 +30,7 @@ internal static class MotherBrainTurretAnimations
 
     /// <summary>Shows the pose for one update.</summary>
     private static Beat[] StillPose(MotherBrainTurretPose pose) =>
-        [new Beat.Frame(new(pose.Animation, MotherBrainTurretDefinitions.Ring.PositionOf(pose.Direction)), 1)];
+        [new Beat.Frame(new(pose.Animation, pose.Direction, 0), 1)];
 
     /// <summary>The impact smoke's beats.</summary>
     private static Beat[] BulletImpact() =>
@@ -38,7 +38,7 @@ internal static class MotherBrainTurretAnimations
         new Beat.Event(MotherBrainTurretCue.DrawFromSharedSheet),
         new Beat.Event(MotherBrainTurretCue.StopMoving),
         .. Enumerable.Range(0, ImpactPhaseCount).Select(phase =>
-            new Beat.Frame(new(MotherBrainTurretSegment.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
+            new Beat.Frame(new(MotherBrainTurretSegment.BulletImpact, MotherBrainTurretDirection.Left, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
         new Beat.Event(MotherBrainTurretCue.Delete),
     ];
 }

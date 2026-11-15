@@ -46,13 +46,13 @@ internal static class RidleySupplementalVisualDefinitions
         EnemyFrameId.RidleyBreakupTailTipSixteenth);
 
     /// <summary>The installed frame of the two tail links nearest Ridley's body.</summary>
-    internal static EnemyFrameId BaseLink => EnemyFrameId.RidleyTailSegmentSmall;
+    internal static EnemyFrameId BaseLink => EnemyFrameId.RidleyTailBaseLink;
 
     /// <summary>The installed frame of the two middle tail links.</summary>
-    internal static EnemyFrameId MiddleLink => EnemyFrameId.RidleyTailSegmentMedium;
+    internal static EnemyFrameId MiddleLink => EnemyFrameId.RidleyTailMiddleLink;
 
     /// <summary>The installed frame of the two tail links nearest the tip.</summary>
-    internal static EnemyFrameId OuterLink => EnemyFrameId.RidleyTailSegmentLarge;
+    internal static EnemyFrameId OuterLink => EnemyFrameId.RidleyTailOuterLink;
 
     /// <summary>The installed frame each of the six drawn tail links shows, from the body out (#1935).</summary>
     internal static IReadOnlyList<EnemyFrameId> LinkFrames { get; } = [BaseLink, BaseLink, MiddleLink, MiddleLink, OuterLink, OuterLink];

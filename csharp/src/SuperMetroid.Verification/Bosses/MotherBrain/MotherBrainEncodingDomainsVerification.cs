@@ -26,6 +26,7 @@ internal static class MotherBrainEncodingDomainsVerification
         VerifyHitboxPartsCodec();
         VerifyNeckAngleWrapThroughDispatcher();
         VerifySnapshotDecodesRejectUndefinedWords();
+        VerifySnapshotPlacesBodyArea();
         Console.WriteLine(
             "Mother Brain encoding domains: walk-credit wrap and signed spending, shot reactions, hitbox-parts codec, neck-angle wrap and snapshot decodes match native arithmetic.");
     }
@@ -203,6 +204,33 @@ internal static class MotherBrainEncodingDomainsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => SnesObjAttributeWordConstants.FromPaletteBits(checked((ushort)(SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 1, priority: 0).PaletteBits + 1))),
             "a palette word carrying tile bits is rejected");
+    }
+
+    /// <summary>
+    /// The snapshot import places her body's area as the port's rise and escape start do (#1991): unplaced in the glass and
+    /// before her rise, with her from the rise on (so an isolated mid-phase-two snapshot shows her body where she stands),
+    /// and at the room's corner once her escape's start has shown the warning there.
+    /// </summary>
+    private static void VerifySnapshotPlacesBodyArea()
+    {
+        AssertEqual(MotherBrainBodyAreaPlacement.Unplaced,
+            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.Glass, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
+            "her glass form leaves her body's area unplaced");
+        AssertEqual(MotherBrainBodyAreaPlacement.Unplaced,
+            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
+            "the pause before her rise leaves her body's area unplaced");
+        AssertEqual(MotherBrainBodyAreaPlacement.FollowsBody,
+            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain),
+            "her rise places her body's area with her");
+        AssertEqual(MotherBrainBodyAreaPlacement.FollowsBody,
+            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.SecondPhase, MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck),
+            "a mid-phase-two snapshot places her body's area with her");
+        AssertEqual(MotherBrainBodyAreaPlacement.FollowsBody,
+            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathStartEscape),
+            "her body's area stays with her until her escape's start shows the warning");
+        AssertEqual(MotherBrainBodyAreaPlacement.AtRoomCorner,
+            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText),
+            "the escape warning's typing lies at the room's corner");
     }
 
     /// <summary>Runs the focused Mother Brain typed-domain checks.</summary>

@@ -474,9 +474,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>Ridley</c>.</summary>
     private static readonly EnemyFrameId[] RidleyFrames =
     [
-        EnemyFrameId.RidleyTailSegmentSmall,
-        EnemyFrameId.RidleyTailSegmentMedium,
-        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailBaseLink,
+        EnemyFrameId.RidleyTailMiddleLink,
+        EnemyFrameId.RidleyTailOuterLink,
         EnemyFrameId.RidleyBreakupTailTipThirteenth,
         EnemyFrameId.RidleyBreakupTailTipTwelfth,
         EnemyFrameId.RidleyBreakupTailTipEleventh,
@@ -521,9 +521,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyCeres</c>.</summary>
     private static readonly EnemyFrameId[] RidleyCeresFrames =
     [
-        EnemyFrameId.RidleyTailSegmentSmall,
-        EnemyFrameId.RidleyTailSegmentMedium,
-        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailBaseLink,
+        EnemyFrameId.RidleyTailMiddleLink,
+        EnemyFrameId.RidleyTailOuterLink,
         EnemyFrameId.RidleyBreakupTailTipThirteenth,
         EnemyFrameId.RidleyBreakupTailTipTwelfth,
         EnemyFrameId.RidleyBreakupTailTipEleventh,
@@ -567,9 +567,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyExplosion</c>.</summary>
     private static readonly EnemyFrameId[] RidleyExplosionFrames =
     [
-        EnemyFrameId.RidleyTailSegmentSmall,
-        EnemyFrameId.RidleyTailSegmentMedium,
-        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailBaseLink,
+        EnemyFrameId.RidleyTailMiddleLink,
+        EnemyFrameId.RidleyTailOuterLink,
         EnemyFrameId.RidleyBreakupTailTipThirteenth,
         EnemyFrameId.RidleyBreakupTailTipTwelfth,
         EnemyFrameId.RidleyBreakupTailTipEleventh,

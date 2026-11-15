@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Room construction remains in <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestination"/>;
 /// this owner restores the observable stages that surround it. How the transition counts frames is
 /// <see cref="DoorTransitionFrameCounting"/>'s, where its liquid wave and statue descent stop is
-/// <see cref="EffectPhaseRandomOrder"/>'s, how many updates it spends before the door's scroll starts is
+/// <see cref="LiquidWaveAndStatueDescentOrder"/>'s, how many updates it spends before the door's scroll starts is
 /// <see cref="DoorDestinationSetupWait"/>'s, and how far loading has progressed on each scroll update is
 /// <see cref="IRoomLoadProgress"/>'s.
 /// </remarks>
@@ -156,7 +156,7 @@ internal sealed class DoorTransitionState
                 // which the liquid wave and statue descent stop and the door's display takes over the screen.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
-                runtime.EffectPhaseOrder.StopForDoorLoading();
+                runtime.LiquidWaveAndStatueDescentOrder.StopForDoorLoading();
                 runtime.RoomLoader.BeginDoorTransitionDisplay(sourceIsolated, destinationIsolated);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
@@ -210,7 +210,7 @@ internal sealed class DoorTransitionState
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
                 // The destination's load writes the entering beam's colours into the dark display's.
                 runtime.DoorFade.WriteSamusColours(runtime.Player.Colours.Beams);
-                runtime.EffectPhaseOrder.ResumeAfterRoomLoad();
+                runtime.LiquidWaveAndStatueDescentOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
                 // elevator AI stays frozen through the final colour fade. The destination stays dark until its fade in
                 // takes its first step.

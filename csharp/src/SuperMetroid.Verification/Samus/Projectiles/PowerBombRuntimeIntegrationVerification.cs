@@ -49,7 +49,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         explosion.Spawn(
             new(PowerBombRuntimeVerificationDefinitions.ScreenCenterX, PowerBombRuntimeVerificationDefinitions.ScreenCenterY));
         explosion.StepFrame();
-        AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
+        AssertEqual(PowerBombExplosionPhase.Inactive, explosion.Blast.RenderedPhase,
             "HDMA allocation setup does not draw the first flash prematurely");
         explosion.StepFrame();
         // The window table is read during display, but the pre-instruction's COLDATA

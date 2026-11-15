@@ -79,14 +79,14 @@ internal static class PowerBombFuseVerification
     /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
-        var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombGlowColors };
+        var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = RetailPresentationFixture().PowerBombGlowColors } };
         explosion.Arm();
         explosion.Spawn(new(128, 128));
         PowerBombRadius retainedSpeed = PowerBombRadius.Zero;
         bool completed = false;
         for (int frame = 0; frame < 400; frame++)
         {
-            retainedSpeed = explosion.RadiusSpeed;
+            retainedSpeed = explosion.Blast.RadiusSpeed;
             if (!explosion.StepFrame()) continue;
             completed = true;
             break;
@@ -95,9 +95,9 @@ internal static class PowerBombFuseVerification
         AssertTrue(retainedSpeed != PowerBombRadius.Zero, "native explosion accumulated a nonzero radius speed");
         // Original-CPU #441 replay: $88:8B4E clears both radii/status, but does not
         // write $0CF0. Allocation at $88:8AA4 also leaves that word alone.
-        AssertEqual(retainedSpeed, explosion.RadiusSpeed, "cleanup preserves native radius-speed word");
+        AssertEqual(retainedSpeed, explosion.Blast.RadiusSpeed, "cleanup preserves native radius-speed word");
         explosion.Spawn(new(128, 128));
-        AssertEqual(retainedSpeed, explosion.RadiusSpeed, "next allocation preserves radius speed until setup");
+        AssertEqual(retainedSpeed, explosion.Blast.RadiusSpeed, "next allocation preserves radius speed until setup");
     }
 
     /// <summary>Runs focused fuse and glow colour fixture checks.</summary>

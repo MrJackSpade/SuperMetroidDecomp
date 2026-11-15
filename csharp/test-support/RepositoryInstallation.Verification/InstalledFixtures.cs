@@ -387,7 +387,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombGlowColors } };
+        new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { Blast = { PresentationColors = Maps.PowerBombGlowColors } } };
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;

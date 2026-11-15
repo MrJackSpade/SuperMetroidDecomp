@@ -55,14 +55,14 @@ internal static class ColorWindowSnapshotTestsVerification
 
         foreach (ushort centerX in new ushort[] { 128, 65500, 290 })
         {
-            var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombGlowColors };
+            var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = RetailPresentationFixture().PowerBombGlowColors } };
             AssertTrue(GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0)) is null,
                 "inactive Power Bomb emits no operation");
             explosion.Arm(); explosion.Spawn(new(centerX, 120));
             var phases = new HashSet<PowerBombExplosionPhase>();
             for (int tick = 0; tick < 2000 && explosion.IsActive; tick++)
             {
-                bool sample = phases.Add(explosion.RenderedPhase) || tick % 13 == 0;
+                bool sample = phases.Add(explosion.Blast.RenderedPhase) || tick % 13 == 0;
                 ColourAddWindowLayer? retained = null;
                 ColourAddWindowLayer? copy = null;
                 if (sample)

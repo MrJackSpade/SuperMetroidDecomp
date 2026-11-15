@@ -199,32 +199,32 @@ internal static void VerifySamusCrystalFlash()
 
     var crystalWindow = new SamusPowerBombExplosionState
     {
-        PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(
-            SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))),
+        Blast = { PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(
+            SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))) },
     };
     crystalWindow.Arm();
     crystalWindow.BeginCrystalFlash(samus.Position.Whole);
     AssertTrue(!crystalWindow.IsArmed,
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
-    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
+    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Blast.Phase,
         "Crystal Flash installs bank-$88 stage-one pre-instruction");
-    AssertEqual(PowerBombRadius.FromWholePixels(4), crystalWindow.ExplosionRadius,
+    AssertEqual(PowerBombRadius.FromWholePixels(4), crystalWindow.Blast.ExplosionRadius,
         "Crystal Flash bubble begins at radius four");
 
     // Seventeen calls remain below 32 pixels; call eighteen adds the old speed of 3 and 48/256 pixels,
     // reaches 32 and 176/256 pixels, and installs the afterglow. Its rendered table still used 29 and a half pixels.
     for (int hdmaCall = 1; hdmaCall <= 17; hdmaCall++)
         AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash expansion call {hdmaCall}");
-    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
+    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Blast.Phase,
         "Crystal Flash expansion remains active through call seventeen");
     AssertTrue(!crystalWindow.StepFrame(), "Crystal Flash expansion transition is not cleanup");
-    AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Phase,
+    AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Blast.Phase,
         "Crystal Flash call eighteen installs afterglow");
-    AssertEqual(PowerBombRadius.FromPixels(32, 176), crystalWindow.ExplosionRadius,
+    AssertEqual(PowerBombRadius.FromPixels(32, 176), crystalWindow.Blast.ExplosionRadius,
         "Crystal Flash transition radius preserves 8.8 acceleration sum");
-    AssertEqual(PowerBombRadius.FromPixels(29, 128), crystalWindow.RenderedExplosionRadius,
+    AssertEqual(PowerBombRadius.FromPixels(29, 128), crystalWindow.Blast.RenderedExplosionRadius,
         "Crystal Flash transition renders pre-update radius");
-    AssertEqual(4, crystalWindow.GlowColor.FadeLevels.Red,
+    AssertEqual(4, crystalWindow.Blast.GlowColor.FadeLevels.Red,
         "Crystal Flash transition selects shared fixed-color entry three");
 
     // The stock RGB reaches black after four calls, but the native lifetime remains
@@ -233,16 +233,16 @@ internal static void VerifySamusCrystalFlash()
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
         AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash afterglow call {hdmaCall}");
-        AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.GlowColor.FadeLevels.Red,
+        AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.Blast.GlowColor.FadeLevels.Red,
             "Crystal Flash red fades without shortening native lifetime");
-        AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.GlowColor.FadeLevels.Green,
+        AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.Blast.GlowColor.FadeLevels.Green,
             "Crystal Flash green fade");
-        AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.GlowColor.FadeLevels.Blue,
+        AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.Blast.GlowColor.FadeLevels.Blue,
             "Crystal Flash blue fade");
     }
     AssertTrue(crystalWindow.StepFrame(),
         "Crystal Flash cleans up on the call after the native fade count");
-    AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
+    AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Blast.Phase,
         "Crystal Flash HDMA cleanup clears phase");
     AssertTrue(!crystalWindow.IsActive,
         "Crystal Flash HDMA cleanup ends the shared explosion");

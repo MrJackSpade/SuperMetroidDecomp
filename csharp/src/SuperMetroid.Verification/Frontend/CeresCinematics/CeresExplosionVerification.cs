@@ -23,7 +23,7 @@ internal static class CeresExplosionVerification
         var audio = AudioQueues.Standalone();
         var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
-        var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
+        var reference = new SamusPowerBombExplosionState { Blast = { PresentationColors = stockColors } };
         var phases = new HashSet<PowerBombExplosionPhase>();
         bool spawned = false, finished = false;
         int compared = 0;
@@ -52,7 +52,7 @@ internal static class CeresExplosionVerification
             {
                 AssertEqual(expected, actual, $"Ceres blast frame {frame}: oval, colour and lines from the screen's top");
                 compared++;
-                phases.Add(reference.RenderedPhase);
+                phases.Add(reference.Blast.RenderedPhase);
             }
             finished = spawned && !reference.IsActive;
         }

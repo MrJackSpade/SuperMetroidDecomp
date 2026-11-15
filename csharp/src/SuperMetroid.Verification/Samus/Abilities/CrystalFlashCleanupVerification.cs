@@ -138,7 +138,7 @@ internal static class CrystalFlashCleanupVerification
                 Console.WriteLine($"Runtime Crystal Flash contact: health {beforeHealth}->{samus.Health}, retail damage={contactDamage}; no retained immunity or knockback.");
             }
             if (started < 0 && samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive) started = frame;
-            bubble |= runtime.BombProjectiles.PowerBombExplosion.Phase == PowerBombExplosionPhase.CrystalFlashExplosion;
+            bubble |= runtime.BombProjectiles.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.CrystalFlashExplosion;
             drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
             if (started >= 0)
             {

@@ -1819,11 +1819,19 @@
   },
   {
    "file": "Samus/Projectiles/SamusPowerBombExplosionState.cs",
-   "line": 244,
+   "line": 84,
    "owner": "SamusPowerBombExplosionState",
    "method": "Reset",
    "classification": "gameplay",
    "evidence": "part of SamusBombProjectileSystem.Reset"
+  },
+  {
+   "file": "Samus/Projectiles/PowerBombBlastTimeline.cs",
+   "line": 202,
+   "owner": "PowerBombBlastTimeline",
+   "method": "Reset",
+   "classification": "gameplay",
+   "evidence": "part of SamusPowerBombExplosionState.Reset"
   },
   {
    "file": "Samus/Projectiles/SamusProjectileSlot.cs",

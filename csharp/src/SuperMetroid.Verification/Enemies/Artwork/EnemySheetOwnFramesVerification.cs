@@ -250,7 +250,7 @@ internal static class EnemySheetOwnFramesVerification
         });
 
     /// <summary>
-    /// Each Torizo starts in its initial program and the program it resumes after that program's sleep; its AI, shot
+    /// Each Torizo starts in its initial program and the awakening that program's wake starts; its AI, shot
     /// reactions and falls start the rest, and every branch and choice its programs name is followed.
     /// </summary>
     private static EnemySheetOwnFrameFamily TorizosFamily()
@@ -259,14 +259,14 @@ internal static class EnemySheetOwnFramesVerification
         TorizoAnimation golden = TorizoInitializationDefinitions.Golden.Animation;
         TorizoAnimation[] bombStarts =
         [
-            bomb, TorizoAnimations.AfterSleep(bomb), TorizoAnimation.BombTorizoGutBlowingUp, TorizoAnimation.BombTorizoFaceBlowingUp,
+            bomb, TorizoAnimation.BombTorizoAwakening, TorizoAnimation.BombTorizoGutBlowingUp, TorizoAnimation.BombTorizoFaceBlowingUp,
             TorizoAnimation.FacelessTurningLeft, TorizoAnimation.FacelessTurningRight, TorizoAnimation.TurningLeft,
             TorizoAnimation.TurningRight, TorizoAnimation.FacingLeftFalling, TorizoAnimation.FacingRightFalling,
             TorizoAnimation.Dying,
         ];
         TorizoAnimation[] goldenStarts =
         [
-            golden, TorizoAnimations.AfterSleep(golden), TorizoAnimation.GoldenTurningLeft, TorizoAnimation.GoldenTurningRight,
+            golden, TorizoAnimation.GoldenTorizoAwakening, TorizoAnimation.GoldenTurningLeft, TorizoAnimation.GoldenTurningRight,
             TorizoAnimation.GoldenDodgeTurningLeft, TorizoAnimation.GoldenDodgeTurningRight, TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward,
             TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward, TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward,
             TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward, TorizoAnimation.FacingLeftFalling, TorizoAnimation.FacingRightFalling,

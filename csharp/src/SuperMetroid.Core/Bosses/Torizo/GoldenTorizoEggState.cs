@@ -2,10 +2,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What one of Golden Torizo's eggs keeps: which way it rolls and how long until it hatches.</summary>
+/// <summary>What one of Golden Torizo's eggs keeps: which way it was laid and rolls, and how long until it hatches.</summary>
 /// <param name="facingRight">Whether the egg starts rolling right, as Golden Torizo faced when it laid it.</param>
 internal sealed class GoldenTorizoEggState(bool facingRight) : EnemyProjectileState
 {
+    /// <summary>
+    /// Whether Golden Torizo faced right when it laid the egg: the egg rolls showing that side, and hatches showing it
+    /// whichever way it has turned since.
+    /// </summary>
+    internal bool LaidFacingRight { get; } = facingRight;
+
     /// <summary>Whether the egg faces right; it turns about when it rolls into a wall, and hatches and charges that way.</summary>
     internal bool FacingRight { get; set; } = facingRight;
 

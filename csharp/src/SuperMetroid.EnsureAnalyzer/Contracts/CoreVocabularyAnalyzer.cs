@@ -31,7 +31,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// named as the destination engine names it, Ceres station's falling ceiling tiles (<see cref="GameTilePhrases"/>), or a
 /// value whose type is named for the map (<see cref="NamedForMap"/>); and a name that says <c>Underflow</c> names the CPU's
 /// arithmetic (#1726, <see cref="MachineArithmeticWords"/>). A name that says <c>Ntsc</c> or <c>Pal</c>, read
-/// case-sensitively, names the video standard (#1848, <see cref="VideoStandardWords"/>). See <c>docs/core-vocabulary.md</c>.
+/// case-sensitively, names the video standard (#1848, <see cref="VideoStandardWords"/>). A name that says <c>Sleep</c> names
+/// the animation interpreter's sleep instruction (#2021, <see cref="SleepWords"/>). See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -177,6 +178,17 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
+    /// The animation interpreter's sleep (#2021), matched as whole camel-case words like <see cref="HardwareWords"/>: the
+    /// cartridge's enemy and projectile lists ended a resting animation in a sleep instruction, which the AI stepped past to
+    /// wake the list into whatever segment the cartridge stored after it, and a Core name that says <c>Sleep</c> (an
+    /// <c>AfterSleep</c> lookup, a <c>ResumesAfterSleep</c> table, a <c>Sleeps</c> helper, a <c>sleeping</c> local) names
+    /// that instruction instead of the animation that holds and the animation a wake starts by name. A creature asleep or
+    /// dormant in the game says another word (<c>Asleep</c>, <c>Dormant</c>), as do words that only share the letters
+    /// (<c>Sleeper</c>, <c>Sleepy</c>).
+    /// </summary>
+    internal static readonly ImmutableArray<string> SleepWords = ["Sleep"];
+
+    /// <summary>
     /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
     /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
     /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
@@ -240,9 +252,10 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             "never call a behaviour the callback the original dispatched it through, the routine table it jumped through, " +
             "the function field its record held or the handler or setup code routine it ran, " +
             "and never name the hardware's tile where they mean a block, a picture, a block animation or a cell, or the CPU's " +
-            "arithmetic or the video standard where it means a release; hardware behaviour the game needs lives in " +
+            "arithmetic or the video standard where it means a release, or the animation interpreter's sleep where it means " +
+            "an animation that holds or a wake; hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, #1726, " +
-            "#1848, docs/core-vocabulary.md).");
+            "#1848, #2021, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -490,6 +503,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the cartridge's record ('{record}')";
         if (ContainedPhrase(identifier, TablePositionPhrases) is { } tablePosition)
             return $"names the original's table position or enemy record ('{tablePosition}')";
+        if (ContainedWord(identifier, SleepWords) is { } sleep)
+            return $"names the animation interpreter's sleep ('{sleep}')";
         if (HexCode(identifier) is { } code)
             return $"spells the cartridge value '{code}' in hexadecimal";
         return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;

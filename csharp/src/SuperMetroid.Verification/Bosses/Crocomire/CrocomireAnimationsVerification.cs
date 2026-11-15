@@ -166,7 +166,7 @@ internal static class CrocomireAnimationsVerification
     private static void VerifyFightAiRedirect()
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-        state.Phase = CrocomirePhase.Sleeping;
+        state.Phase = CrocomirePhase.Dormant;
         Start(state, CrocomireBodySegment.Initial);
         Pass(enemies, state);
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(CrocomireBodyFrame.Initial), state.Body.SpritemapPointer,

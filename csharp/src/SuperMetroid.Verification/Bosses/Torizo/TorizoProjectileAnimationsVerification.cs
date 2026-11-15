@@ -152,14 +152,20 @@ internal static class TorizoProjectileAnimationsVerification
                 ProjectileEntry(TorizoAttacks.SelectLowHealthDroolAnimation(random)), $"low-health drool delay table entry {index}");
         }
 
-        foreach (TorizoProjectileSegment sleeping in new[] { TorizoProjectileSegment.EggBouncingLeft, TorizoProjectileSegment.EggBouncingRight })
+        // The egg's hatch starts the hatching animation of the side the egg was laid facing; the cartridge reaches the same
+        // animation by stepping the rolling egg's list past its sleep.
+        foreach ((TorizoProjectileSegment rolling, TorizoProjectileSegment hatching) in new[]
+            {
+                (TorizoProjectileSegment.EggBouncingLeft, TorizoProjectileSegment.EggHatchingLeft),
+                (TorizoProjectileSegment.EggBouncingRight, TorizoProjectileSegment.EggHatchingRight),
+            })
         {
-            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(sleeping).End, $"{sleeping} sleeps");
-            ushort sleep = unchecked((ushort)(ProjectileEntry(sleeping) + 4));
+            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(rolling).End, $"{rolling} holds");
+            ushort sleep = unchecked((ushort)(ProjectileEntry(rolling) + 4));
             AssertEqual(ProjectileWord.Sleep, Words[(NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
-                $"{sleeping}'s sleep follows its frame");
-            AssertEqual(ProjectileAnimationAt(unchecked((ushort)(sleep + 2))), TorizoProjectileAnimations.AfterSleep(sleeping),
-                $"{sleeping} resumes past its sleep");
+                $"{rolling}'s sleep follows its frame");
+            AssertEqual(ProjectileAnimationAt(unchecked((ushort)(sleep + 2))), hatching,
+                $"{rolling} hatches into {hatching}");
         }
         Console.WriteLine($"  Torizo projectile animations: {ProjectileAnimationEntries.Count} animations ({steps} steps, {frames} installed frames) play all {ProjectileLists.Length} bank-$86 lists as the cartridge does.");
     }

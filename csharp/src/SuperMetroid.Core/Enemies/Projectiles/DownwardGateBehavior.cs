@@ -55,7 +55,8 @@ internal sealed class DownwardGateBehavior
             return; // The projectile spawn's deliberate finite-pool failure.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Gate, graphics: default);
-        projectile.StartAnimation(new DownwardGateProjectileAnimation(request.Kind == DownwardGateProjectileKind.Closed
+        bool closed = request.Kind == DownwardGateProjectileKind.Closed;
+        projectile.StartAnimation(new DownwardGateProjectileAnimation(closed
             ? DownwardGateProjectileSegment.Closed
             : DownwardGateProjectileSegment.Moving));
         int blockX = request.RoomObjectBlock.X;
@@ -68,10 +69,11 @@ internal sealed class DownwardGateBehavior
                 : 0))));
 
         // The gate's block ties the actor to its gate; the gate's room object searches for it when the gate needs to open again.
-        projectile.State = new DownwardGateState(request.RoomObjectBlock);
+        projectile.State = new DownwardGateState(request.RoomObjectBlock,
+            closed ? DownwardGateProjectileAnimations.ClosedStage : DownwardGateProjectileAnimations.SlidingDownStage);
     }
 
-    /// <summary>Finds the matching gate actor from the pool's end and wakes its resting animation.</summary>
+    /// <summary>Finds the matching gate actor from the pool's end and takes it on to its next stage, a closed gate rising.</summary>
     private void WakeDownwardGateProjectile(Position16<RoomBlocks> roomObjectBlock)
     {
         EnemyProjectile? projectile = null;
@@ -93,7 +95,7 @@ internal sealed class DownwardGateBehavior
                 $"Downward gate room object at block {roomObjectBlock} has no associated gate projectile.");
         }
 
-        ResumeDownwardGate(projectile);
+        AdvanceDownwardGateStage(projectile);
     }
 
     /// <summary>Moves the gate one block at a time with signed 1/256-pixel motion.</summary>
@@ -104,25 +106,20 @@ internal sealed class DownwardGateBehavior
         int travelled = gate.TravelSinceBlock + speedMagnitude;
         if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {
-            // Steps the animation past its rest, which wakes the next visual frame
-            // on this same enemy-projectile pass.
-            ResumeDownwardGate(projectile);
+            // The next stage's animation shows its first frame on this same enemy-projectile pass.
+            AdvanceDownwardGateStage(projectile);
             travelled = 0;
         }
         gate.TravelSinceBlock = travelled;
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 
-    /// <summary>
-    /// Steps a gate past the rest its animation holds, as stepping its animation one entry on with a one-update timer
-    /// does: the animation resumes with the one authored after that rest.
-    /// </summary>
-    private static void ResumeDownwardGate(EnemyProjectile projectile)
+    /// <summary>Takes a gate on to the next stage of its travel, starting the animation that stage shows.</summary>
+    private static void AdvanceDownwardGateStage(EnemyProjectile projectile)
     {
-        DownwardGateProjectileSegment sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
-            ? gate.PlayingSegment
-            : throw new InvalidOperationException($"A downward gate resumed without its typed program; it runs {projectile.Animation}.");
-        projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[sleeping]));
+        DownwardGateState gate = projectile.StateOf<DownwardGateState>();
+        gate.Stage++;
+        projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Travel[gate.Stage]));
     }
 
     /// <summary>Carries out one cue of the gate's animations.</summary>

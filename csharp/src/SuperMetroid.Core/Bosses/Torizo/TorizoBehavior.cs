@@ -122,7 +122,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
-                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.Playing(state.BodyPlayback))));
+                // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left: the
+                // original's facing-right statue, which no room starts, is not kept (#1941).
+                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening));
                 return;
 
             case TorizoPhase.Active:
@@ -135,7 +137,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (samus is not null && samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
                     samus.Position.X.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.X)
                 {
-                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.Playing(state.BodyPlayback))));
+                    // The dormant statue holds until Samus steps in, then awakens.
+                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.GoldenTorizoAwakening));
                 }
                 return;
 

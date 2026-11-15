@@ -27,7 +27,6 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>The menu screen game over draws: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
-    /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Screen brightness stepped once per fade update.</summary>
@@ -118,8 +117,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         controller.Latch(controllerInput);
         if (IsWaitingOutDisplayFrame)
         {
-            // Both waits are the last call of their index; the remainder only configures
-            // presentation and advances the index.
+            // Each wait ends its step: what follows it only finishes setting up the screen and
+            // moves the menu on to its next step.
             IsWaitingOutDisplayFrame = false;
             Phase = Phase switch
             {

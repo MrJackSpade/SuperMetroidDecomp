@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The reserve labels and supply digits the equipment page shows once Samus has reserve capacity (#1467, #1515): the mode
 /// her reserve tanks are in and the energy they hold.
 /// </summary>
-/// <param name="Mode">The reserve mode the mode label names: none keeps MODE's initial MANUAL text.</param>
+/// <param name="Mode">The reserve mode the MODE label names; before a mode is chosen the label reads MANUAL.</param>
 /// <param name="Supply">The reserve energy the three supply digits show.</param>
 internal sealed record ShownReserveDisplay(ReserveTankMode Mode, int Supply)
 {

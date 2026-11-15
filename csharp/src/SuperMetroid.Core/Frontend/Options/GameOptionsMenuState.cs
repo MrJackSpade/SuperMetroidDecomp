@@ -27,7 +27,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private readonly AudioQueues? audio;
     /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
-    /// <summary>Holds the heading and animated selection missile for rendering.</summary>
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>

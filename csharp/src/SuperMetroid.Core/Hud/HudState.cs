@@ -62,8 +62,8 @@ public sealed class HudState
         _ = Presentation ?? throw new InvalidOperationException("HUD initialization requires installed presentation assets.");
         values = snapshot;
         Minimap = null;
-        // HUD setup initializes the previous selected item to zero. The HUD update
-        // performs the first live comparison on the next gameplay pass.
+        // Setting the HUD up starts the previous selection at the beam; the HUD's update
+        // makes its first comparison with Samus's selection on the next gameplay pass.
         PreviousSelectedItem = HudItem.Beam;
         IsInitialized = true;
     }

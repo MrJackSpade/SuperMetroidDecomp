@@ -7,4 +7,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="Unequipped">The pose taken without any of them.</param>
 /// <param name="Equipped">The pose taken with one of them.</param>
 internal sealed record SamusAnimationItemTransition(SamusEquipmentFlags Item, SamusPoseId Unequipped, SamusPoseId Equipped)
-    : SamusAnimationCue;
+    : SamusAnimationCue
+{
+    /// <inheritdoc/>
+    internal override int CarriedValues => 4;
+}

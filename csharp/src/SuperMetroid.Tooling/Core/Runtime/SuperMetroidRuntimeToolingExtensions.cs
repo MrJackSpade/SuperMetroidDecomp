@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Doors;
@@ -27,7 +27,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.GameplayAssists assists,
-            IGameplayArtwork artwork,
+            GameplayArtwork artwork,
             SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
             new(assists, artwork,
                 new GameplaySessionCarryover

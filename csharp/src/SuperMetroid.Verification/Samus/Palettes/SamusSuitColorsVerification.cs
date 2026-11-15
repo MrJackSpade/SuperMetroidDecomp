@@ -121,7 +121,7 @@ internal static class SamusSuitColorsVerification
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // The installed catalog reaches Samus through the shades the import makes from it (#1512).
         var installedSources = InstalledFixtures.SamusShadeSources with { Suits = InstalledFixtures.ImportOf(original).SamusColours.Suits };
         ushort[] equipment =
@@ -160,13 +160,13 @@ internal static class SamusSuitColorsVerification
             "hurt-flash recovery restores the installed Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
+        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = samus.EquippedItems }),
             "Screw Attack recovery frame restores the normal suit");
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Varia, 1),
             samusColours.ShownSuit(installedSources)[1],
             "Screw Attack recovery restores the installed Varia color");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
         runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

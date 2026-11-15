@@ -80,10 +80,9 @@ internal static class GrappleFlarePlacementVerification
             // A non-swinging connection installs the locked-in-place grapple function.
             if (native.Grapple.Phase == GrapplePhase.ConnectedLocked) locked++;
 
-            SamusState Seed(ChargeFlarePlacements? placement)
+            SamusState Seed(ChargeFlarePlacements placement)
             {
-                var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
-                PrepareRetailSamusFixture(samus);
+                var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
                 samus.Artwork.GrappleFlarePlacement = placement;
                 return samus;
             }
@@ -124,16 +123,6 @@ internal static class GrappleFlarePlacementVerification
         AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.IntroducedSamus, InstalledFixtures.BoundContent)),
             "Presentation binding changes only the two catalogs Samus is bound to");
         (runtime.Player.IntroducedSamus.Artwork.GrappleFlarePlacement, runtime.Player.IntroducedSamus.Artwork.GrappleSwingFrames) = (stock, swingFrames);
-        runtime.Player.IntroducedSamus.Artwork.GrappleFlarePlacement = null;
-        runtime.Player.IntroducedSamus.Artwork.GrappleSwingFrames = null;
-        runtime.StepFrame(0);
-        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
-        runtime.Player.IntroducedSamus.Artwork.GrappleFlarePlacement = null;
-        runtime.Player.IntroducedSamus.Artwork.GrappleSwingFrames = null;
-        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
-        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections match the installed placement.");
     }
     /// <summary>Loads the retail cartridge and runs the Grapple flare placement verification.</summary>

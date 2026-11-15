@@ -75,7 +75,7 @@ internal static class InstalledPowerBombIsolationTests
     /// <summary>Starts a Crystal Flash or arms and spawns a Power Bomb with the supplied presentation catalog.</summary>
     internal static SamusPowerBombExplosionState Create(InstalledPowerBombGlowColors colors, bool crystalFlash)
     {
-        var state = new SamusPowerBombExplosionState { Blast = { PresentationColors = colors } };
+        var state = new SamusPowerBombExplosionState(colors);
         if (crystalFlash) state.BeginCrystalFlash(new(128, 112));
         else { state.Arm(); state.Spawn(new(128, 112)); }
         return state;

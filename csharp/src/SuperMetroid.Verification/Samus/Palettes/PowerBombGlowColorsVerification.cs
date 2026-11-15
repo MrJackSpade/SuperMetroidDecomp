@@ -68,8 +68,8 @@ internal static class PowerBombGlowColorsVerification
         // The runtime no longer has a cartridge color fallback, so both timing owners
         // must receive the installed catalog; the guarded one also rejects any stray
         // gameplay request for those native color bytes.
-        var native = new SamusPowerBombExplosionState { Blast = { PresentationColors = catalog } };
-        var installed = new SamusPowerBombExplosionState { Blast = { PresentationColors = catalog } };
+        var native = new SamusPowerBombExplosionState(catalog);
+        var installed = new SamusPowerBombExplosionState(catalog);
         var guarded = NewForbiddenPowerBombColorBus(rom);
         if (crystalFlash)
         {

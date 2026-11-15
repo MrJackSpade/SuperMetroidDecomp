@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -44,13 +45,17 @@ public sealed class SamusArmCannonPlacement
     /// <summary>The cover's displacement at each animation frame with one, in animation-frame order.</summary>
     public IReadOnlyDictionary<int, Offset16<RoomPixels>> Offsets => offsets;
 
-    /// <summary>The aim direction whose cover picture the pose shows at <paramref name="animationFrame"/>.</summary>
-    public SamusProjectileDirection Direction(int animationFrame) =>
-        LaterDirection is { } later && animationFrame != 0 ? later : FirstDirection;
+    /// <summary>The aim direction whose cover picture the pose shows at <paramref name="animationFrame"/>: the later one past its animation's first frame.</summary>
+    public SamusProjectileDirection Direction(SamusAnimationFrame animationFrame) =>
+        LaterDirection is { } later && animationFrame != SamusAnimationFrame.Start ? later : FirstDirection;
 
-    /// <summary>The cover's displacement from Samus at <paramref name="animationFrame"/>.</summary>
+    /// <summary>
+    /// The cover's displacement from Samus at <paramref name="animationFrame"/> of <paramref name="animation"/>, the pose's
+    /// animation: the installation holds each displacement at the place its frame takes in the game's layout of the animation.
+    /// </summary>
     /// <exception cref="InvalidDataException">The animation frame has no installed displacement.</exception>
-    public Offset16<RoomPixels> Offset(int animationFrame) => offsets.TryGetValue(animationFrame, out Offset16<RoomPixels> offset)
-        ? offset
-        : throw new InvalidDataException($"Arm-cannon animation frame {animationFrame} has no installed placement.");
+    internal Offset16<RoomPixels> Offset(SamusPoseAnimation animation, SamusAnimationFrame animationFrame) =>
+        offsets.TryGetValue(Ensure.NotNull(animation).OffsetOf(animationFrame), out Offset16<RoomPixels> offset)
+            ? offset
+            : throw new InvalidDataException($"Arm-cannon animation frame {animationFrame} has no installed placement.");
 }

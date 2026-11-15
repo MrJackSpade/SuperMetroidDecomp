@@ -32,7 +32,7 @@ internal static class SamusAnimationCueValueDecoding
             var steps = new Dictionary<string, SamusOverreadDocument.CueValueStep>(StringComparer.Ordinal);
             for (int frame = 0; frame < span; frame++)
             {
-                if (program.Program.TryStepAt(frame) is null && Decode(cartridge, program.Start, frame) is { } step)
+                if (program.Program.TryStepAtOffset(frame) is null && Decode(cartridge, program.Start, frame) is { } step)
                     steps.Add(frame.ToString(CultureInfo.InvariantCulture), step);
             }
             byProgram.Add(program.Program, steps);

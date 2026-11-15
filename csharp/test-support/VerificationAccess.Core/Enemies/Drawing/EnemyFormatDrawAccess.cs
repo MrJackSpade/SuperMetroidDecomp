@@ -16,10 +16,11 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 internal static class EnemyFormatDrawAccess
 {
     /// <summary>
-    /// What a hit burst draws in these enemy-format passes: no projectile sheets, so a burst drawn here fails loudly. Its
-    /// picture is Samus's weapon effect on her projectile sheets (#1713), which no enemy-format record stands for.
+    /// What a hit burst draws in these enemy-format passes: the installation's projectile sheets (#2049). Its picture is
+    /// Samus's weapon effect on her projectile sheets (#1713), which no enemy-format record stands for.
     /// </summary>
-    internal static SamusHitBurstArtwork NoHitBurstSheets => new(new ProjectileDrawArtwork(Sheets: null), SamusBeamCombination.Power);
+    internal static SamusHitBurstArtwork HitBurstSheets =>
+        new(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ProjectileArtwork(), SamusBeamCombination.Power);
 
     /// <summary>Appends the OAM image of a draw's published entries, in emission order, after the buffer's records.</summary>
     extension(OamBuffer target)
@@ -127,7 +128,7 @@ internal static class EnemyFormatDrawAccess
     {
         /// <summary>Publishes the room sprite objects, appending their OAM image to <paramref name="oam"/>.</summary>
         internal void DrawRoomEffectActorsAsOam(OamBuffer oam, Position16<RoomPixels> camera) =>
-            oam.AppendDrawn(frame => pool.DrawRoomEffectActors(frame, camera, NoHitBurstSheets));
+            oam.AppendDrawn(frame => pool.DrawRoomEffectActors(frame, camera, HitBurstSheets));
     }
 
     /// <summary>Draws enemy projectiles into an OAM image.</summary>
@@ -140,7 +141,7 @@ internal static class EnemyFormatDrawAccess
 
         /// <summary>Publishes the room sprite objects and the projectiles in front of Samus, appending their OAM image to <paramref name="oam"/>.</summary>
         internal void DrawEnemyProjectilesInFrontOfSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
-            oam.AppendDrawn(frame => engine.DrawEnemyProjectilesInFrontOfSamus(frame, camera, NoHitBurstSheets, timeIsFrozen));
+            oam.AppendDrawn(frame => engine.DrawEnemyProjectilesInFrontOfSamus(frame, camera, HitBurstSheets, timeIsFrozen));
 
         /// <summary>Publishes the projectiles behind Samus, appending their OAM image to <paramref name="oam"/>.</summary>
         internal void DrawEnemyProjectilesBehindSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>

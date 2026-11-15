@@ -41,9 +41,9 @@ internal static class SamusBodyTransferContractChecks
         SamusBodyFrameSelection[] invalidAdjacent = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
         invalidAdjacent[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
         InstalledSamusBodyArtwork body = Body(shortFirstGroup: false, invalidAdjacent).Body.Gameplay;
-        _ = body.OriginRise(0, 0);
+        _ = body.OriginRise(0, SamusAnimationFrame.Start);
         rejected = false;
-        try { _ = body.OriginRise(0, 1); }
+        try { _ = body.OriginRise(0, SamusAnimationFrame.AfterStart); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "unselected backing bytes are accepted but invalid frame selection still fails loudly");
         ConfirmStaticCalls();

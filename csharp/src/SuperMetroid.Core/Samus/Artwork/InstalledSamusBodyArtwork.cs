@@ -64,7 +64,7 @@ public sealed class InstalledSamusBodyArtwork
     /// <paramref name="animationFrame"/>, negative below it: the placement the import baked into that installed frame (#1517).
     /// </summary>
     /// <exception cref="InvalidDataException">The pose has no record, or the frame is not installed.</exception>
-    public int OriginRise(SamusPoseId pose, int animationFrame) =>
+    public int OriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame) =>
         TryOriginRise(pose, animationFrame, out int rise)
             ? rise
             : throw new InvalidDataException($"Samus pose {pose} animation frame {animationFrame} is not an installed body frame.");
@@ -73,11 +73,14 @@ public sealed class InstalledSamusBodyArtwork
     /// Where <paramref name="pose"/>'s <paramref name="animationFrame"/> places the body, when the pose has a record and the
     /// frame is installed; false for any other pair, which <see cref="OriginRise"/> rejects.
     /// </summary>
-    public bool TryOriginRise(SamusPoseId pose, int animationFrame, out int rise)
+    /// <remarks>The installation holds each pose's frames by the place each takes in the game's layout of the pose's animation.</remarks>
+    public bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
     {
         rise = 0;
-        if (!originRises.TryGetValue(pose, out IReadOnlyList<int?>? frames) ||
-            (uint)animationFrame >= (uint)frames.Count || frames[animationFrame] is not { } installed)
+        if (!originRises.TryGetValue(pose, out IReadOnlyList<int?>? frames))
+            return false;
+        int place = SamusAnimationDelays.AnimationForPose(pose).OffsetOf(animationFrame);
+        if ((uint)place >= (uint)frames.Count || frames[place] is not { } installed)
             return false;
         rise = installed;
         return true;

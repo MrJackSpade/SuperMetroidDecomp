@@ -724,7 +724,7 @@ public sealed class SamusLiquidPhysicsState
     {
         if (movementType != SamusMovementType.Running ||
             !samus.AnimationFrameTimer.IsAt(1) ||
-            !SamusAtmosphericEffects.IsRunningFootContact(samus.AnimationFrame))
+            !SamusAtmosphericEffects.IsRunningFootContact(samus.RunFrame))
         {
             return;
         }

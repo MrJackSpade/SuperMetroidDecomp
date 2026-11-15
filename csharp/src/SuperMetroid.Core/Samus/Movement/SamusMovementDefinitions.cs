@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
@@ -17,8 +17,6 @@ public static class SamusMovementDefinitions
 
     /// <summary>Falling movement's minimum signed whole speed selecting fast-fall art.</summary>
     public const int FastFallAnimationSpeed = 5;
-    /// <summary>Falling movement: first fast-fall animation frame.</summary>
-    public const int FastFallAnimationFrame = 5;
     /// <summary>Falling movement: fast-fall timer before the animation tick.</summary>
     public const int FastFallAnimationTimer = 8;
 

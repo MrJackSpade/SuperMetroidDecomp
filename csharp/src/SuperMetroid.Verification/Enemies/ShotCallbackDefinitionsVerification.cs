@@ -131,7 +131,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord),
             });
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Health = 99,
@@ -169,7 +169,7 @@ internal static class ShotCallbackDefinitionsVerification
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     projectiles,
-                    new SamusBombProjectileSystem(), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+                    new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");

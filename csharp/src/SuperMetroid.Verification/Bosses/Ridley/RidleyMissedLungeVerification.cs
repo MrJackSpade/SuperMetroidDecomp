@@ -22,7 +22,7 @@ internal static class RidleyMissedLungeVerification
         var slot = enemies.SlotTable.Slots[0];
         slot.Health = 1000;
         slot.Position = slot.Position.WithWhole(new(160, 400));
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
         var state = new RidleyEnemyState
         {
             Phase = RidleyPhase.NorfairGrabApproach,
@@ -93,7 +93,7 @@ internal static class RidleyMissedLungeVerification
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
         AssertEqual(32, state.PhaseTimer, "native death-roar timer is armed");
 
-        var bomb = new SamusPowerBombExplosionState();
+        var bomb = new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         bomb.Arm();
         bomb.Spawn(new(200, 400));
         enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours(), bomb);

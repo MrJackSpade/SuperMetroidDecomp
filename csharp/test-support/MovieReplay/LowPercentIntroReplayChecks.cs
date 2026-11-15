@@ -108,7 +108,7 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
             case 1809:
                 // $90:A3BA: the demo's held shot restarts and holds the standing animation.
                 VerificationAssertions.AssertEqual((ushort)0x000f, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 1809 standing-shot animation timer");
-                VerificationAssertions.AssertEqual(0, flashback.AnimationFrame, "update 1809 standing-shot animation frame");
+                VerificationAssertions.AssertEqual(0, flashback.AnimationNumber, "update 1809 standing-shot animation frame");
                 break;
             case 1884:
                 // $8B:B90B: Rinka zero, stepped in its spawn pass, strikes Samus on native's update.
@@ -128,12 +128,12 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
             case 2400:
                 // $8B:B842 cleared $1A57, so Samus is not processed during the page-two text.
                 VerificationAssertions.AssertEqual((ushort)0x0003, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 2400 frozen Samus animation timer");
-                VerificationAssertions.AssertEqual(0, flashback.AnimationFrame, "update 2400 frozen Samus animation frame");
+                VerificationAssertions.AssertEqual(0, flashback.AnimationNumber, "update 2400 frozen Samus animation frame");
                 break;
             case 3012:
                 // $8B:AF99: pose two was already set, so the discovery keeps her animation running.
                 VerificationAssertions.AssertEqual((ushort)0x0002, (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).AnimationFrameTimer.RawValue, "update 3012 discovery Samus animation timer");
-                VerificationAssertions.AssertEqual(0, discovery.AnimationFrame, "update 3012 discovery Samus animation frame");
+                VerificationAssertions.AssertEqual(0, discovery.AnimationNumber, "update 3012 discovery Samus animation frame");
                 break;
             case 3990:
                 // $91:8682 pointed both state handlers at an RTL during update 3943.

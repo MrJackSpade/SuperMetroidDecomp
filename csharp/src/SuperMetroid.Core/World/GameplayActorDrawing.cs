@@ -121,7 +121,7 @@ internal sealed class GameplayActorDrawing
                     LastBeamChargeGlowStep.Action == SamusBeamChargeGlowAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredSuitShade)
-                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterGlow = _player.Samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
+                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationOnSpinStart = _player.Samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = _player.Samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !_player.Samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterGlow = _player.Samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
             }
             // The shinespark colouring runs at the same point of the colour step. It
             // executes only when charge handling did not restore the suit.
@@ -175,7 +175,7 @@ internal sealed class GameplayActorDrawing
                     turningFloor: _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.InstalledSheets);
+                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.Sheets);
         }
         else
         {
@@ -274,7 +274,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
-                    _player.Samus.Artwork.InstalledSheets);
+                    _player.Samus.Artwork.Sheets);
 
                 // BeforeBody and AfterBody differ only in draw order: the first appends the
                 // cannon before the body, the second after it. Hidden suppresses
@@ -310,7 +310,7 @@ internal sealed class GameplayActorDrawing
                         _player.Samus.Grapple,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _player.Samus.Artwork.InstalledSheets.Get(SpriteSheetId.Grapple));
+                        _player.Samus.Artwork.Sheets.Get(SpriteSheetId.Grapple));
                 }
                 else
                 {

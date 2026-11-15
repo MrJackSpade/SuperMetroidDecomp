@@ -37,7 +37,7 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, HudSourceDefinitions.AmmoDigits, 20) ||
                 InHudRange(address, HudSourceDefinitions.AutoReserve, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork);
+        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
         topRowRuntime.Artwork.MapPresentation = original;
         // The HUD draws its images over the BG3 plane's top rows (#1466): its current images, as the installed artwork lays
         // their tiles out, show the installed HUD row.
@@ -62,7 +62,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Health = 287,
             MaxHealth = 499,

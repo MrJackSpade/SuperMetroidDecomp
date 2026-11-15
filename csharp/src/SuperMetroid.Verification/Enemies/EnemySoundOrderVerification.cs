@@ -82,7 +82,7 @@ internal static class EnemySoundOrderVerification
         shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
 
         enemies.Audio.BeginFrame();
-        AssertEqual(1, enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem()),
+        AssertEqual(1, enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(shots, new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors)),
             "the indestructible link rejects the shot");
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Normal) }, enemies.Audio.SoundRequests,
             "the rejected shot queues the dud sound at once, at normal priority");

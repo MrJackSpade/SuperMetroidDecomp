@@ -21,7 +21,7 @@ internal static class GrappleQuantityRangesVerification
         foreach (GrappleFlareStage start in Enum.GetValues<GrappleFlareStage>())
         {
             GrappleFlareStage expected = start == GrappleFlareStage.None ? GrappleFlareStage.JustFired : GrappleFlareStage.Shown;
-            var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Phase = GrapplePhase.Firing,
                 RopeLength = 0,
@@ -39,7 +39,7 @@ internal static class GrappleQuantityRangesVerification
     internal static void VerifyGrappleQuantityRanges()
     {
         const int lastEndpointFrame = GrapplePointAnimationDefinitions.FrameCount - 1;
-        var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { RopeLength = GrappleBeamDefinitions.Physics.LongestRopeLength, PointAnimationFrame = lastEndpointFrame };
+        var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { RopeLength = GrappleBeamDefinitions.Physics.LongestRopeLength, PointAnimationFrame = lastEndpointFrame };
         AssertEqual(GrappleBeamDefinitions.Physics.LongestRopeLength, grapple.RopeLength, "rope length accepts its largest stated value");
         AssertEqual(lastEndpointFrame, grapple.PointAnimationFrame, "endpoint frame accepts the cycle's last frame");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = -1; }, "rope length rejects a negative length");

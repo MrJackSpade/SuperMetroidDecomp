@@ -22,10 +22,10 @@ internal static class SpeedBoosterEchoDrawVerification
         var bus = new TestAddressSpace();
         SeedPoseOneSamusData(bus);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            AnimationFrame = 0,
+            AnimationNumber = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
         };
         BindSyntheticSamusRendering(bus, samus);

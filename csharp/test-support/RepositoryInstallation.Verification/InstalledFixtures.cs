@@ -267,22 +267,6 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays EnemyFrameDisplays => EnemyTiles.FrameDisplays
         ?? throw new InvalidDataException("The installed enemy artwork holds no enemy frames.");
 
-    /// <summary>
-    /// The installed catalogs a bare runtime is built over: the Samus, boss and enemy overread services and the installed
-    /// enemy sheets and frame displays (#1616).
-    /// </summary>
-    internal static SuperMetroid.Core.Frontend.GameArtwork BareRuntimeArtwork => bareRuntimeArtwork.Value;
-
-    /// <summary>Backing value of <see cref="BareRuntimeArtwork"/>.</summary>
-    private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> bareRuntimeArtwork = new(() => new SuperMetroid.Core.Frontend.GameArtwork
-    {
-        SamusOverreads = SamusOverreads,
-        BossAndIntroOverreads = BossAndIntroOverreads,
-        EnemyOverreads = EnemyOverreads,
-        EnemySheets = EnemySheets,
-        EnemyFrameDisplays = EnemyFrameDisplays,
-    });
-
     /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
         Shared<SuperMetroid.Core.Frontend.GameArtwork>("game artwork", () => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
@@ -387,7 +371,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { Blast = { PresentationColors = Maps.PowerBombGlowColors } } };
+        new(Maps.PowerBombGlowColors) { FrameBindings = Projectiles.FrameBindings };
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
@@ -395,19 +379,24 @@ internal static class InstalledFixtures
     /// <summary>The installed colour tables Samus's sheets are pre-coloured from (#1512), which checks resolve her shades with.</summary>
     internal static SuperMetroid.AssetExtraction.Samus.SamusShadeSources SamusShadeSources => SamusBodySheetFixtures.Inputs.ShadeSources;
 
-    /// <summary>Binds the installation's body and grapple presentation to a standalone Samus.</summary>
-    internal static SamusState BindSamus(SamusState samus)
+    /// <summary>
+    /// The installation's Samus artwork, as a binding of its own (#2049): its body, sheets, arm cannon and grapple
+    /// presentation, which a test may rebind without touching another's.
+    /// </summary>
+    /// <param name="body">The body artwork to bind in place of the installation's own.</param>
+    /// <param name="armCannon">The arm-cannon placements to bind in place of the body artwork's own.</param>
+    internal static SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding SamusArtwork(InstalledSamusBodyArtwork? body = null,
+        SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork? armCannon = null)
     {
-        samus.Artwork.Body = SamusBody.Gameplay;
-        samus.Artwork.Sheets = SpriteSheets;
-        samus.Artwork.ArmCannon = SamusBody.ArmCannon.Gameplay;
-        samus.Artwork.GrappleFlarePlacement = Projectiles.Grapple.FlarePlacement;
-        samus.Artwork.GrappleSwingFrames = Projectiles.Grapple.SwingFrames;
-        return samus;
+        var binding = new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding(body ?? SamusBody.Gameplay, SpriteSheets,
+            Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames);
+        if (armCannon is not null)
+            binding.ArmCannon = armCannon;
+        return binding;
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => BindSamus(new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
+    internal static SamusState CreateSamus() => new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), SamusArtwork());
 
     /// <summary>
     /// Creates Ceres destruction with installed cinematic art and fixed colors, waiting on <paramref name="audio"/>'s music:
@@ -426,7 +415,7 @@ internal static class InstalledFixtures
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio ?? AudioQueues.Standalone(),
-            (characterArtwork ?? IntroArtwork).BoundCatalog, samusBodyArtwork ?? SamusBody.Gameplay)
+            SamusArtwork(samusBodyArtwork), Maps.PowerBombGlowColors, (characterArtwork ?? IntroArtwork).BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

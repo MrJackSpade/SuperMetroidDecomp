@@ -110,9 +110,9 @@ public sealed class SamusDrainedState
 
         if (GetUpCheck == DrainedGetUpCheck.AbleToStand &&
             samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
-            samus.AnimationFrame >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
+            samus.AnimationHasReached(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
         {
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
 
             // The able branch ends its get-up after the first accepted Up
             // edge. Further presses cannot restart the stand-up.
@@ -121,12 +121,12 @@ public sealed class SamusDrainedState
         }
 
         if (GetUpCheck == DrainedGetUpCheck.UnableToStand &&
-            samus.AnimationFrame >= SamusDrainedAnimationDefinitions.UnableToStandFirstFrame &&
-            samus.AnimationFrame <= SamusDrainedAnimationDefinitions.UnableToStandLastFrame)
+            samus.AnimationHasReached(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame) &&
+            !samus.AnimationHasPassed(SamusDrainedAnimationDefinitions.UnableToStandLastFrame))
         {
             // Unlike the able branch, the failed-stand branch keeps its get-up. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
             return true;
         }
 
@@ -138,7 +138,7 @@ public sealed class SamusDrainedState
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         Ensure.NotNull(samus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: 1);
         samus.CancelPendingPoseTransition();
     }
 
@@ -177,7 +177,7 @@ public sealed class SamusDrainedState
         CommonColourTimer = 0;
         HyperBeamGlowStep = 0;
         _suitShadeRestoreRequested = true;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ public sealed class SamusDrainedState
         // The new pose's animation frame is literally two. The animation is initialized here,
         // but the special movement type keeps her still until the drained-fall
         // animation step appears.
-        SamusPresentation.InitializeAnimation(samus, initialFrame: SamusDrainedAnimationDefinitions.FallInitialFrame);
+        SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitShadeRestoreRequested = true;
@@ -304,7 +304,7 @@ public sealed class SamusDrainedState
             // The landing ends the fall, jumps directly to art
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.LandingFrame,
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.LandingFrame,
                 timer: SamusDrainedAnimationDefinitions.LandingTimer);
             samus.Kinematics.YSpeed = default;
             Phase = DrainedSamusPhase.OnFloor;
@@ -322,7 +322,7 @@ public sealed class SamusDrainedState
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
-            frame: 0,
+            frame: SamusAnimationDelayDefinitions.DrainedStandingLeftAnimation.Start,
             timer: 16);
         Phase = DrainedSamusPhase.Standing;
         samus.CommitPoseHistory();
@@ -346,14 +346,13 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // These are places in the asymmetrical drained animations, not visual
-        // frame counts. In particular, the left-facing drained crouch's place lands inside a
-        // cue rather than on a frame; the game
-        // intentionally holds that place until the next animation step advances it.
+        // These are frames of the left-facing drained animations, which land where the game's layout of the asymmetrical
+        // drained animations puts them. In particular, the crouch's release frame is the value its held crouch's repeat
+        // carries rather than a frame of its own; the game intentionally holds it until the next animation step advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
         // broad behavior instead of rejecting a pose that the game accepts.
@@ -392,7 +391,7 @@ public sealed class SamusDrainedState
         // Samus had faced right. This is why letting her fall later selects DrainedCrouchingLeftPose.
         samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         // Shared rainbow setup calls the previous-pose helper before lock.
         samus.CommitPoseHistory();
         // The shared rainbow setup locks Samus's input and movement after changing art.

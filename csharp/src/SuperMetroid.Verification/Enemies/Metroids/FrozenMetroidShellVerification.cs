@@ -72,7 +72,7 @@ internal static class FrozenMetroidShellVerification
         {
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();
-            enemies.EffectActors.DrawRoomEffectActors(drawn, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.NoHitBurstSheets);
+            enemies.EffectActors.DrawRoomEffectActors(drawn, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
             drawn.FinalizeFrame();
             // The shell's draw is the room sprite object showing the shell's picture at its place; the electrical overlay
             // lies at the same place and shows its own pictures. A shell picture that shows nothing draws nothing.

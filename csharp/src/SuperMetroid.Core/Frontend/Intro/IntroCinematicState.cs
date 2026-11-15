@@ -41,32 +41,33 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindCharacterArtwork(artwork.IntroCinematicArt);
         if (!ReferenceEquals(previous.SamusBodyArt, artwork.SamusBodyArt))
-            BindSamusBodyArtwork(artwork.SamusBodyArt);
+            BindSamusBodyArtwork(artwork.SamusBodyArt ?? throw new InvalidOperationException(
+                "The opening cinematic's flashback Samus requires the installed Samus body artwork."));
         if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
             BindProjectileFrames(artwork.ProjectileFrameBindings);
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
-            BindSpriteSheets(artwork.SpriteSheets);
+            BindSpriteSheets(artwork.SpriteSheets ?? throw new InvalidOperationException(
+                "The opening cinematic requires the installed sprite sheets."));
     }
 
     /// <summary>Binds the installed sprite sheets the flashbacks' Samus and projectiles draw from.</summary>
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    public void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
-        spriteSheets = sheets;
-        projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
+        spriteSheets = Ensure.NotNull(sheets);
+        projectileSheets = ProjectileSheets.IntroFlashbacks(sheets);
         flashbackSamusArtwork.Sheets = sheets;
         CurrentCeresFlight?.BindSheets(sheets);
     }
 
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
-    private InstalledSpriteSheets? spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Draws <paramref name="family"/>'s frames from the intro sheet.</summary>
     private CinematicSpriteSheet IntroSprites(CinematicSpriteFamily family) =>
-        new((spriteSheets ?? throw new InvalidOperationException("Intro sprites require the installed sprite sheets."))
-            .Get(SpriteSheetId.IntroSprites), family, crossfade.ActorShading);
+        new(spriteSheets.Get(SpriteSheetId.IntroSprites), family, crossfade.ActorShading);
 
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
-    private ProjectileSheets? projectileSheets;
+    private ProjectileSheets projectileSheets;
 
     /// <summary>The session's random number generator, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
@@ -81,16 +82,17 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>The installed Samus artwork the flashbacks' Samus draws from, rebound with the host's artwork.</summary>
-    private readonly SamusArtworkBinding flashbackSamusArtwork = new();
+    private readonly SamusArtworkBinding flashbackSamusArtwork;
     /// <summary>
     /// The flashback Samus's colour state (#1512): her suit and beams in the opening's colours, which her hurt flash
     /// changes as gameplay's does. Her draws publish its shading.
     /// </summary>
     private readonly SamusColours flashbackSamusColours = IntroSamusColours();
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
-    public void BindSamusBodyArtwork(InstalledSamusBodyArtwork? value)
+    public void BindSamusBodyArtwork(InstalledSamusBodyArtwork value)
     {
-        flashbackSamusArtwork.Body = value;
+        flashbackSamusArtwork.Body = Ensure.NotNull(value);
+        flashbackSamusArtwork.ArmCannon = value.ArmCannon;
     }
     /// <summary>The installed narration content.</summary>
     public IntroNarrationPresentation? NarrationPresentation
@@ -135,7 +137,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve, handed to the discovery scene.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
-    private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
+    private readonly SamusBombProjectileSystem flashbackBombProjectiles;
     /// <summary>Persistent narration actor and caret walker for illustrated pages.</summary>
     internal IntroNarrationActors? CurrentNarration { get; private set; }
     /// <summary>The intro's narration actors, which exist from the first text page onward.</summary>
@@ -219,16 +221,25 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// the egg's shell fragments fall by past their gravity curve.
     /// </param>
     /// <param name="audio">The audio state that owns queued music and sound effects; the cinematic waits on its music queue.</param>
+    /// <param name="samusArtwork">
+    /// The installed Samus artwork the flashbacks' Samus draws from; its sprite sheets are the ones the flashbacks' Samus
+    /// and projectiles draw from until <see cref="BindSpriteSheets"/> binds others.
+    /// </param>
+    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours the flashbacks' bombs glow in.</param>
     /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
-    /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
         IntroCinematicOverreads overreads,
         AudioQueues audio,
+        SamusArtworkBinding samusArtwork,
+        InstalledPowerBombGlowColors powerBombGlowColors,
         IntroCinematicArtwork? characterArtwork = null,
-        InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
     {
+        flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
+        spriteSheets = samusArtwork.Sheets;
+        projectileSheets = ProjectileSheets.IntroFlashbacks(samusArtwork.Sheets);
+        flashbackBombProjectiles = new SamusBombProjectileSystem(powerBombGlowColors);
         Ensure.NotNull(overreads);
         samusOverreads = Ensure.NotNull(overreads.Samus);
         shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
@@ -239,7 +250,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         this.audio = Ensure.NotNull(audio);
         CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
-        flashbackSamusArtwork.Body = samusBodyArtwork;
 
         // Setup loads the sprite sheets the intro binds; the narration, the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
@@ -479,7 +489,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // the fourteen-frame delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
                         CharacterArtwork?.CeresFlight, subtitles.Enabled,
-                        spriteSheets ?? throw new InvalidOperationException("The Ceres flight requires the installed sprite sheets."));
+                        spriteSheets);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -1293,6 +1303,6 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>The installed sheets the scene pictures are drawn from.</summary>
     private InstalledSpriteSheets SceneSheets =>
-        spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets.");
+        spriteSheets;
 
 }

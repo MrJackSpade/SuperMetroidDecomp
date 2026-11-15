@@ -246,7 +246,7 @@ internal sealed class RoomLoader
         // appearance before restoring ordinary input.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, frame: 2, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -287,7 +287,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         _player.Samus = samus;
         _player.Samus.BindAudioRequests(_audioRequests);
         slot.ApplyTo(_player.Samus, _system);
@@ -322,7 +322,7 @@ internal sealed class RoomLoader
         // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
@@ -934,7 +934,7 @@ internal sealed class RoomLoader
             loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(_artwork.MapPresentation.PowerBombGlowColors);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
@@ -1156,7 +1156,7 @@ internal sealed class RoomLoader
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         _player.Samus.BindAudioRequests(_audioRequests);
@@ -1177,7 +1177,7 @@ internal sealed class RoomLoader
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
         // Ceres's real room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup locks her movement. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
@@ -1225,11 +1225,7 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        _artwork.RoomVisualLayouts is { } layouts &&
-        _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(layouts, levelStreams, blockSheets)
-            : throw new InvalidOperationException(
-                "Room loading requires installed visual-layout, level-stream and block-sheet assets.");
+        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets);
 
 
     /// <summary>

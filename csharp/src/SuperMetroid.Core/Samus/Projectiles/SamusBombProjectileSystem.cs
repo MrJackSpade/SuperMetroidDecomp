@@ -69,7 +69,12 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Owner of the flash, damaging radius, and armed flag.</summary>
-    public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
+    public SamusPowerBombExplosionState PowerBombExplosion { get; }
+
+    /// <summary>Starts a room's bomb system, whose Power Bomb blasts glow in <paramref name="powerBombGlowColors"/> (#2049).</summary>
+    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours.</param>
+    public SamusBombProjectileSystem(SuperMetroid.Core.Samus.Artwork.InstalledPowerBombGlowColors powerBombGlowColors) =>
+        PowerBombExplosion = new SamusPowerBombExplosionState(powerBombGlowColors);
 
     /// <summary>
     /// How many bombs Samus has out by the placing count, 0 through the bomb places' count (#1627); kept separately from the

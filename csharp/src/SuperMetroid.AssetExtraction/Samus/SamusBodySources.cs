@@ -215,9 +215,10 @@ public sealed class SamusBodySources
     {
         foreach (SamusBodyFrame frame in Ensure.NotNull(installed).Frames)
         {
-            if (!TryPictures(frame.Pose, frame.PictureFrame, out SamusBodyFramePictures pictures))
+            int place = SamusAnimationDelays.AnimationForPose(frame.Pose).OffsetOf(frame.PictureFrame);
+            if (!TryPictures(frame.Pose, place, out SamusBodyFramePictures pictures))
                 throw new InvalidDataException($"Samus body frame {frame.Name} is pictured but selects no installed half pictures.");
-            yield return new SamusShownBody(frame, SamusBodyCompositions.Of(frame.Pose, frame.PictureFrame, this), pictures);
+            yield return new SamusShownBody(frame, SamusBodyCompositions.Of(frame.Pose, place, this), pictures);
         }
     }
 
@@ -236,7 +237,7 @@ public sealed class SamusBodySources
         {
             if (!installed.TryGetValue(pose, out IReadOnlyList<int?>? rises))
                 continue;
-            foreach (int frame in shown.pictured[pose])
+            foreach (int frame in shown.Pictures(pose).Select(SamusAnimationDelays.AnimationForPose(pose).OffsetOf))
             {
                 if ((uint)frame >= (uint)rises.Count || rises[frame] is not { } rise ||
                     !Covers(spritemaps, new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, frame)) ||

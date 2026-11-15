@@ -171,16 +171,15 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaTorizo);
 
-        // The two statues share one chance table but use different
-        // arena rectangles: Bomb Torizo uses the 128x64 upper room region, while Golden
-        // Torizo uses a 256x64 strip much lower in its room.
+        // The two statues roll one chance table over their own arenas.
+        TorizoDropArena arena = state.IsGolden ? TorizoDeathDefinitions.GoldenTorizoArena : TorizoDeathDefinitions.BombTorizoArena;
         _deathsAndDrops.SpawnEnemyDropScatter(
-            EnemyDefinitionId.BombTorizo,
-            count: 16,
-            xBase: state.IsGolden ? 128 : 64,
-            xScatter: state.IsGolden ? EnemyDropScatterDefinitions.WideArenaHorizontalScatter : EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
-            yBase: state.IsGolden ? 288 : 96,
-            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
+            TorizoDeathDefinitions.DeathDropChances,
+            count: TorizoDeathDefinitions.DeathDrops,
+            xBase: arena.Corner.X,
+            xScatter: arena.HorizontalScatter,
+            yBase: arena.Corner.Y,
+            yScatter: arena.VerticalScatter);
         RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
     }
 
@@ -275,7 +274,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:
                 TorizoCombat.SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp);
-                for (int piece = 0; piece < 6; piece++)
+                for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
                     Attacks.SpawnBombTorizoLowHealthDrool(torizo);
                 return null;
 
@@ -348,16 +347,14 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return TorizoAnimations.ContinueAt(state.InterruptedPlayback);
 
             case TorizoCue.LowHealthExplosions explosions:
-                for (int explosion = 0; explosion < 6; explosion++)
+                for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                // The animation then waits forty updates.
-                torizo.FlashTimer = 40;
+                torizo.FlashTimer = TorizoDeathDefinitions.LowHealthExplosionFlash;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
-                // The animation then waits one update.
-                torizo.FlashTimer = 1;
+                torizo.FlashTimer = TorizoDeathDefinitions.DeathExplosionFlash;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLandingDust }:

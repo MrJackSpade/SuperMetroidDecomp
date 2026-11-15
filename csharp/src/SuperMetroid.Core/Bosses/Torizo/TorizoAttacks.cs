@@ -332,25 +332,38 @@ internal sealed class TorizoAttacks
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo) ? drool : drool.MirroredX()));
 
-        // The recurring low-health drool chooses a random direction. The
-        // turning branch's angle is a random turning angle; the X velocity is the signed
-        // sine and the Y velocity the negative cosine of that angle.
-        TrigonometryAngle angle;
-        if (TorizoFacing.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround))
-        {
-            angle = new(TorizoRandomDefinitions.DroolTurningAngle.Of(random));
-        }
-        else
-        {
-            int baseAngle = TorizoFacing.FacesRight(torizo) ? 32 : 224;
-            // The spread of up to fifteen units, less eight, keeps either facing's angle on the turn.
-            angle = new(baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8);
-        }
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            Trigonometry.SignedSine(angle)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
+        // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
+        // one's spread about its facing's heading.
+        TrigonometryAngle heading = TorizoFacing.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
+            ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
+            : DroolHeading(TorizoFacing.FacesRight(torizo), TorizoRandomDefinitions.DroolFacingSpread.Of(random));
+        projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
     }
+
+    /// <summary>
+    /// A facing Torizo's drool heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
+    /// the spread's centre, which keeps either facing's heading on the turn.
+    /// </summary>
+    internal static TrigonometryAngle DroolHeading(bool facingRight, int spread) =>
+        (facingRight ? TorizoMotionDefinitions.DroolHeadingFacingRight : TorizoMotionDefinitions.DroolHeadingFacingLeft)
+            .TurnedBySteps(spread - TorizoMotionDefinitions.DroolSpreadCentre);
+
+    /// <summary>
+    /// Golden Torizo's eye-beam heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
+    /// the spread's centre; the sum never leaves the turn.
+    /// </summary>
+    internal static TrigonometryAngle EyeBeamHeading(bool facingRight, int spread) =>
+        (facingRight ? TorizoMotionDefinitions.EyeBeamHeadingFacingRight : TorizoMotionDefinitions.EyeBeamHeadingFacingLeft)
+            .TurnedBySteps(spread - TorizoMotionDefinitions.EyeBeamSpreadCentre);
+
+    /// <summary>
+    /// The velocity of <paramref name="speed"/> along <paramref name="heading"/>, which points up at zero: the horizontal
+    /// speed its sine and the vertical speed its negative cosine, the sine a quarter turn back. The samples lie within one
+    /// unit either way, so the velocity never exceeds the speed.
+    /// </summary>
+    internal static EightEightVector<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
+        new(Trigonometry.MultiplySignedSine(speed, heading),
+            Trigonometry.MultiplySignedSine(speed, heading - TrigonometryAngle.QuarterTurn));
 
     /// <summary>
     /// The drool a low-health drool starts: the entry of <see cref="TorizoRandomDefinitions.LowHealthDroolAnimations"/>
@@ -558,16 +571,9 @@ internal sealed class TorizoAttacks
         _room.Random.Generate();
         _room.Random.Generate();
 
-        // The beam's heading is its facing's three eighths of a turn (or a quarter further, facing left) spread by up to
-        // eight steps either way; the sum never leaves the turn.
-        var heading = new TrigonometryAngle(
-            _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread) - 8 + 96 + (facingRight ? 0 : 64));
-        // The heading points up at zero: the horizontal speed is its sine and the vertical speed its negative cosine,
-        // the sine a quarter turn back. The samples lie within one pixel either way, so eight times one stays within eight.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8 *
-            Trigonometry.SignedSine(heading)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8 *
-            Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn)));
+        // The beam's heading is its facing's spread by up to eight steps either way.
+        TrigonometryAngle heading = EyeBeamHeading(facingRight, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
+        projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.EyeBeamSpeed, heading);
     }
 
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
@@ -814,12 +820,8 @@ internal sealed class TorizoAttacks
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         TrigonometryAngle angle = awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn();
 
-        // Preserve the up-zero angle convention: X is sine, Y is
-        // negative cosine, the sine a quarter turn back. Starting both reads at sine rotates the shot.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4 *
-            Trigonometry.SignedSine(angle)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4 *
-            Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
+        // The up-zero heading: X is its sine, Y its negative cosine. Starting both reads at sine rotates the shot.
+        projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.ThrownSuperMissileSpeed, angle);
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>

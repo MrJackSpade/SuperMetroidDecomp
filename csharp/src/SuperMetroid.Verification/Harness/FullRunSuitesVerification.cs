@@ -607,6 +607,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Torizo.TorizoAttackPhaseVerification.VerifyTorizoAttackPhase),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoOwnershipVerification.VerifyTorizoOwnership),
             SuperMetroid.Verification.Bosses.Torizo.TorizoOwnershipVerification.VerifyTorizoOwnership),
+        new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoNamedHeadingsVerification.VerifyTorizoNamedHeadings),
+            SuperMetroid.Verification.Bosses.Torizo.TorizoNamedHeadingsVerification.VerifyTorizoNamedHeadings),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoBellyGlowEndVerification.VerifyTorizoBellyGlowEnd),
             SuperMetroid.Verification.Bosses.Torizo.TorizoBellyGlowEndVerification.VerifyTorizoBellyGlowEnd),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoRestingLandingVerification.VerifyTorizoRestingLanding),

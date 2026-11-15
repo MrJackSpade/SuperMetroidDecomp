@@ -119,7 +119,9 @@ internal static class MotherBrainAnimationsVerification
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;
-            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.DyingDroolLoop);
+            // The dying drool's loop rests on its first frame, entered, as the burst's last drool leaves it.
+            state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), AnimationPlace.StartOf(2));
+            state.BrainFrameTimer = 1;
             for (int draw = 0; draw <= 2; draw++)
                 enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
             AnimationPlayback<MotherBrainHeadSegment> drooling = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");

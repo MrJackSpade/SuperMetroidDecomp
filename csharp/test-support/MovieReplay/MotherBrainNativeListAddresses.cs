@@ -227,7 +227,7 @@ internal static class MotherBrainNativeListAddresses
         IImportCartridgeSource cartridge, int bank, AnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         NativeProgramEntry<TSegment>[] entries, Func<TFrame, ushort> spritemap,
-        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops)
+        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops, IReadOnlySet<TSegment>? onlyRunOnInto = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -298,7 +298,7 @@ internal static class MotherBrainNativeListAddresses
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"{segment}: its native list holds each of its beats");
             lists[segment] = new NativeEnemyList<TSegment>([.. addresses], [.. controls]);
         }
-        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt);
+        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto);
         return lists;
     }
 
@@ -356,7 +356,20 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
     internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.HeadSegments, MotherBrainAnimations.HeadStartingAt, HeadEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps);
+            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps, HeadSegmentsOnlyRunOnInto);
+
+    /// <summary>The brain segments only the animations before them run on into, which start no animation (#1948).</summary>
+    private static readonly HashSet<MotherBrainHeadSegment> HeadSegmentsOnlyRunOnInto =
+    [
+        MotherBrainHeadSegment.StretchingPhase2Loop,
+        MotherBrainHeadSegment.StretchingPhase3Loop,
+        MotherBrainHeadSegment.HyperBeamRecoilLoop,
+        MotherBrainHeadSegment.DecapitatedLoop,
+        MotherBrainHeadSegment.DyingDroolLoop,
+        MotherBrainHeadSegment.CorpseLoop,
+        MotherBrainHeadSegment.FourOnionRingsPhase3,
+        MotherBrainHeadSegment.ChargingRainbowBeamLoop,
+    ];
 
     /// <summary>Compares the cutscene Baby's typed segments and animations with their native lists.</summary>
     internal static void CompareBaby(IImportCartridgeSource cartridge) =>

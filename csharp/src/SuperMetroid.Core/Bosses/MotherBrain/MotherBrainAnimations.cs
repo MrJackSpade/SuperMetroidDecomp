@@ -308,40 +308,33 @@ internal static class MotherBrainAnimations
     });
 
     /// <summary>
-    /// The brain animation that starts at each brain segment: each plays on through the segments it runs on into or
-    /// continues at, looping from the first one it reaches again.
+    /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn,
+    /// and the one it loops from. Only the segments she starts an animation at, or a random hold or drool continues at,
+    /// start one; the segments an animation only runs on into are listed in it and start none.
     /// </summary>
     internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
         [H.StretchingPhase2] = Looping(1, H.StretchingPhase2, H.StretchingPhase2Loop),
-        [H.StretchingPhase2Loop] = Looping(0, H.StretchingPhase2Loop),
         [H.StretchingPhase3] = Looping(1, H.StretchingPhase3, H.StretchingPhase3Loop),
-        [H.StretchingPhase3Loop] = Looping(0, H.StretchingPhase3Loop),
         [H.HyperBeamRecoil] = Looping(1, H.HyperBeamRecoil, H.HyperBeamRecoilLoop),
-        [H.HyperBeamRecoilLoop] = Looping(0, H.HyperBeamRecoilLoop),
         [H.Initial] = Looping(0, H.Initial),
         [H.Decapitated] = Looping(1, H.Decapitated, H.DecapitatedLoop),
-        [H.DecapitatedLoop] = Looping(0, H.DecapitatedLoop),
         [H.DyingDrool] = Looping(2, H.DyingDrool, H.DyingDroolBurst, H.DyingDroolLoop),
         [H.DyingDroolBurst] = Looping(1, H.DyingDroolBurst, H.DyingDroolLoop),
-        [H.DyingDroolLoop] = Looping(0, H.DyingDroolLoop),
         [H.FiringRainbowBeam] = Looping(0, H.FiringRainbowBeam),
         [H.NeutralPhase2] = Looping(0, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.NeutralPhase2Hold] = Looping(0, H.NeutralPhase2Hold, H.NeutralPhase2),
         [H.NeutralPhase3] = Looping(0, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.NeutralPhase3Hold] = Looping(0, H.NeutralPhase3Hold, H.NeutralPhase3),
         [H.Corpse] = Looping(1, H.Corpse, H.CorpseLoop),
-        [H.CorpseLoop] = Looping(0, H.CorpseLoop),
         [H.FourOnionRingsPhase2] = Looping(1, H.FourOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.TwoOnionRingsPhase2] = Looping(1, H.TwoOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.AttackingBabyMetroid] = Looping(2, H.AttackingBabyMetroid, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.AttackingSamusFourOnionRingsPhase3] = Looping(2, H.AttackingSamusFourOnionRingsPhase3, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
-        [H.FourOnionRingsPhase3] = Looping(1, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.BombPhase2] = Looping(1, H.BombPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.BombPhase3] = Looping(1, H.BombPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.Laser] = Looping(1, H.Laser, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.ChargingRainbowBeam] = Looping(1, H.ChargingRainbowBeam, H.ChargingRainbowBeamLoop),
-        [H.ChargingRainbowBeamLoop] = Looping(0, H.ChargingRainbowBeamLoop),
     };
 
     /// <summary>The brain animation that starts at <paramref name="segment"/>.</summary>

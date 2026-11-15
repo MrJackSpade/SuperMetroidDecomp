@@ -461,11 +461,16 @@ internal sealed class CoreModel
         return parameter?.OriginalDefinition;
     }
 
-    /// <summary>The values <paramref name="expression"/> may be, through parentheses, conditionals and switch expressions.</summary>
+    /// <summary>
+    /// The values <paramref name="expression"/> may be, through parentheses, conditionals and switch expressions; a branch
+    /// that throws gives none.
+    /// </summary>
     public static IEnumerable<ExpressionSyntax> Choices(ExpressionSyntax expression)
     {
         switch (expression)
         {
+            case ThrowExpressionSyntax:
+                return [];
             case ParenthesizedExpressionSyntax parenthesized:
                 return Choices(parenthesized.Expression);
             case ConditionalExpressionSyntax conditional:

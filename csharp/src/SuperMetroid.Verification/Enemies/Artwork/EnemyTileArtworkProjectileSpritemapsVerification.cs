@@ -101,6 +101,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.CeresFallingDebrisLight,
         RoomEnemyProjectileKind.CeresFallingDebrisDark,
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
+        // The shared dust and explosion programs are typed (#1760): the misc-dust kind is spawned with a program, not one
+        // its kind starts, and the shared-frame draws present each of their frames on it.
+        RoomEnemyProjectileKind.MiscDustExplosion,
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
@@ -711,12 +714,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
-            slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
+            // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
+            // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
+            FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);
             slot.State = new NoobTubeDebrisState(column: 128);
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.Graphics = SpawnedGraphics;
-            // The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
-            slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Shard0));
             enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, shortCounter: 0);
             // It draws from the sheets a set spawning it composes from this artwork.
             slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,

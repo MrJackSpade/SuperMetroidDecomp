@@ -172,9 +172,9 @@ internal sealed record PartFrameConfiguration(
         new("DeadTourianBehavior", null, null, "DeadTourianAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["CorpseZoomer"] = ["ZoomerCorpse0", "ZoomerCorpse1", "ZoomerCorpse2"],
-                ["CorpseRipper"] = ["RipperCorpse0", "RipperCorpse1"],
-                ["CorpseSkree"] = ["SkreeCorpse0", "SkreeCorpse1", "SkreeCorpse2"],
+                ["CorpseZoomer"] = ["ZoomerCorpseOnItsBack", "ZoomerCorpseUpright"],
+                ["CorpseRipper"] = ["RipperCorpseLevel", "RipperCorpseTilted"],
+                ["CorpseSkree"] = ["SkreeCorpse"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // The Skree and the Metaree are separate behaviours running one program set and frame table: each runs the three
@@ -262,8 +262,8 @@ internal sealed record PartFrameConfiguration(
                 ],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // Each Ripper runs its own pair of moving programs; only the GRipper's and Ripper II's reactions pin their shared
-        // frozen frames.
+        // The GRipper and the Ripper run their own pair of moving programs and the Ripper II plays the GRipper's (#1842);
+        // only the GRipper's and Ripper II's reactions pin their shared frozen frames.
         new("RipperBehavior", null, null, "RipperAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {

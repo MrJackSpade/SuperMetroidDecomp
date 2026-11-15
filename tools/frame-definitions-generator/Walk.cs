@@ -630,8 +630,12 @@ internal sealed class Walk
         }
         if (scan.SpawnCalls.Count > 0)
             return;
-        foreach ((IReadOnlyList<SpawnTarget> targets, string graphics) in scan.Reassignments)
+        foreach ((IReadOnlyList<SpawnTarget> targets, string graphics, bool restarts) in scan.Reassignments)
         {
+            // A switch made with a restart of the object draws only the started program from the switched graphics, which
+            // this unit's own start routes there (#1881): the type's other spawns keep drawing where they were spawned.
+            if (restarts)
+                continue;
             foreach (SpawnTarget target in targets)
             {
                 // Graphics copied from another of the type's objects name no sheet the type's spawns do not.

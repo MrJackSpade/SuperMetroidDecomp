@@ -417,7 +417,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomSpriteObject outerBody,
         RoomSpriteObjectSegment frozenSegment)
     {
-        outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
+        outerBody.Graphics = outerBody.Graphics.In(EnemyShades.FrozenLook);
         outerBody.UpdatesDisabled = true;
         // Drawing shows the selected frame even while animation is disabled.
         // Show the frozen animation's first frame without resetting the retained timer.

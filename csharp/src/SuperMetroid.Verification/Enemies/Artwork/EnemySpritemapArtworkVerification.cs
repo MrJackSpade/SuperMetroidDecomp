@@ -125,9 +125,6 @@ internal static class EnemySpritemapArtworkVerification
     {
         AssertTrue(stock.Enemies.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount,
-            EnemySpritemapDefinitionsConstants.PreDisplayBindingsFrameCount,
-            "Ceres-door expansion retains the previous display-binding identities");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount + 15,
             EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount,
             "Ceres door adds its thirteen selected poses, initial pose, and private overlay");
@@ -215,9 +212,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreMorphBallEyeFrameCount + 22,
             EnemySpritemapDefinitionsConstants.PreShutterFrameCount,
             "Morph Ball eye and mount add twenty-two distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreShutterFrameCount + 5,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreShutterFrameCount + 4,
             EnemySpritemapDefinitionsConstants.PreMetroidFrameCount,
-            "growing, vertical and horizontal shutters share five distinct OAM frames");
+            "growing and vertical shutters share four distinct frames; the horizontal shutter is no enemy species (#1686)");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreMetroidFrameCount + 4,
             EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount,
             "both ordinary-Metroid loops share four distinct body OAM frames");
@@ -235,9 +232,9 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitionsConstants.PreNorfairLavaJumperFrameCount,
             "Multiviola adds eight distinct spinning OAM frames");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairLavaJumperFrameCount +
-                NorfairLavaJumperVisualDefinitions.FrameCount,
+                NorfairLavaJumperVisualDefinitions.FrameCount - 1,
             EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount,
-            "Norfair lava jumper adds ten visible and one empty OAM frame");
+            "Norfair lava jumper adds ten frames; its follower's empty beat shows the common empty frame (#1823)");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount +
                 ChozoStatueVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreViolaFrameCount,

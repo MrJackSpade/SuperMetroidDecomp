@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>A frozen Metroid's two outer-body sprite objects: their frozen animations and colours.</summary>
+/// <summary>
+/// A frozen Metroid's two outer-body sprite objects: their frozen animations. They keep drawing from the Metroid's own
+/// sheet, in the frozen colours every spawned-object sheet holds (#1881).
+/// </summary>
 internal static class MetroidOuterBodyDefinitions
 {
     /// <summary>The frozen animation of the Metroid's electricity.</summary>
@@ -10,7 +12,4 @@ internal static class MetroidOuterBodyDefinitions
 
     /// <summary>The frozen animation of the Metroid's shell.</summary>
     internal const RoomSpriteObjectSegment ShellFrozenAnimation = RoomSpriteObjectSegment.MetroidShell;
-
-    /// <summary>The frozen outer bodies' graphics: the shared sheet in the frozen colours.</summary>
-    internal static SpriteGraphics FrozenGraphics { get; } = SpriteGraphics.SharedIn(EnemyShades.FrozenLook);
 }

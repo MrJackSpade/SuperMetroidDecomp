@@ -34,10 +34,8 @@ different types; moving between spaces is always a named conversion.
 |---|---|
 | `RoomPixels` | Room-relative pixels: Samus, enemies, projectiles, PLM blocks, the camera's top-left corner (BG1 scroll). |
 | `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, and the on-screen positions of cinematic and menu objects. |
-| `ScreenSubpixels` | Viewport positions in 1/256 pixels: unsigned 8.8 words whose high byte is the screen pixel (the escape timer). |
 | `SpritePixels` | Sprite placement coordinates relative to the screen: every spritemap draw origin and every authored sprite anchor. |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
-| `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
 | `PlanePixels` | Pixels of a pictured plane, as the plane pixel shown at the screen's top-left selects. |
 | `RoomBlocks` | The sixteen-pixel collision/level-data grid. |
 | `RoomScreens` | The 256-pixel scroll-region grid. |

@@ -283,8 +283,8 @@ internal static void VerifyEscapeTimerStateMachine()
     AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
     AssertEqual(EscapeTimerPhase.InitialDelay, timer.Phase, "Ceres enters initial delay");
     AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "Ceres starts at one minute");
-    AssertEqual(0x8000, timer.Position.X, "timer starts at X 128.0");
-    AssertEqual(0x8000, timer.Position.Y, "timer starts at Y 128.0");
+    FixedPosition<ScreenPixels> centre = FixedPosition<ScreenPixels>.FromWhole(new(128, 128));
+    AssertEqual(centre, timer.Position, "timer starts at the screen centre, pixel 128 on each axis with no fraction");
 
     // The initial delay lasts sixteen updates and never counts down.
     for (int frame = 1; frame < 16; frame++)
@@ -293,7 +293,7 @@ internal static void VerifyEscapeTimerStateMachine()
     AssertTrue(!timer.Process(16), "initial-delay frame 16");
     AssertEqual(EscapeTimerPhase.CountingAtCentre, timer.Phase, "the initial delay ends on its sixteenth update");
     AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "the initial delay did not count down");
-    AssertEqual(0x8000, timer.Position.X, "the timer waits at the centre");
+    AssertEqual(centre, timer.Position, "the timer waits at the centre");
 
     // Counting at the centre continues until the ninety-sixth update since the start.
     for (int frame = 17; frame < 96; frame++)
@@ -301,14 +301,19 @@ internal static void VerifyEscapeTimerStateMachine()
     AssertEqual(EscapeTimerPhase.CountingAtCentre, timer.Phase, "the centre delay holds through the ninety-fifth update");
     timer.Process(96);
     AssertEqual(EscapeTimerPhase.MovingIntoPlace, timer.Phase, "the centre delay ends on the ninety-sixth update");
-    AssertEqual(0x8000, timer.Position.X, "the timer leaves the centre from X 128.0");
+    AssertEqual(centre, timer.Position, "the timer leaves the centre from pixel 128 with no fraction");
 
     // X reaches its clamp in 106 frames; Y requires 107, so the phase advances on 107.
-    for (int frame = 97; frame <= 203; frame++)
+    // Each update moves it 224/256 of a pixel right and 193/256 up, the fractions kept between updates.
+    timer.Process(97);
+    AssertEqual(new FixedPosition<ScreenPixels>(FixedCoordinate.Of(128, 224 << 8), FixedCoordinate.Of(127, 63 << 8)), timer.Position,
+        "the first slide update keeps 224/256 of a pixel right and 63/256 above row 127");
+    AssertEqual(new Position16<ScreenPixels>(128, 127), timer.PixelPosition, "the timer is drawn from the slide's whole pixels");
+    for (int frame = 98; frame <= 203; frame++)
         timer.Process(frame);
     AssertEqual(EscapeTimerPhase.InPlace, timer.Phase, "timer reaches its corner");
-    AssertEqual(0xdc00, timer.Position.X, "timer X clamps at pixel 220");
-    AssertEqual(0x3000, timer.Position.Y, "timer Y clamps at pixel 48");
+    AssertEqual(FixedPosition<ScreenPixels>.FromWhole(new(220, 48)), timer.Position,
+        "timer clamps at column 220 and row 48 with no fraction");
 
     var borrowSecond = CreateRunningTimer(EscapeTimerClock.Time(0, 1, 0));
     AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after a step");

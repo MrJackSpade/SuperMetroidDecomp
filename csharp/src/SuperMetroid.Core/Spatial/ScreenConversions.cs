@@ -27,8 +27,4 @@ public static class ScreenConversions
     /// unchanged and the sprite list applies its placement range rules.
     /// </summary>
     public static Position16<SpritePixels> ToSpritePosition(this Position16<ScreenPixels> screen) => new(screen.X, screen.Y);
-
-    /// <summary>The whole screen pixels of an unsigned 8.8 screen position: each axis's whole part.</summary>
-    public static Position16<ScreenPixels> WholePixels(this Position16<ScreenSubpixels> position) =>
-        new((ushort)(position.X >> 8), (ushort)(position.Y >> 8));
 }

@@ -33,8 +33,8 @@ public sealed class EscapeTimer
     /// <summary>The minutes, seconds and centiseconds the timer shows.</summary>
     public EscapeTimeReadout Readout => EscapeTimeReadout.Of(RemainingCentiseconds);
 
-    /// <summary>The timer's on-screen position, in 1/256 pixels.</summary>
-    public Position16<ScreenSubpixels> Position { get; private set; }
+    /// <summary>The timer's on-screen position, its fractions kept as it slides into its corner.</summary>
+    public FixedPosition<ScreenPixels> Position { get; private set; }
 
     /// <summary>
     /// Whether the countdown has expired and is only drawn: after expiry the timer never counts again until an escape
@@ -43,7 +43,7 @@ public sealed class EscapeTimer
     public bool CountdownExpired { get; private set; }
 
     /// <summary>Whole-pixel on-screen position the timer's label and digits are drawn from.</summary>
-    public Position16<ScreenPixels> PixelPosition => Position.WholePixels();
+    public Position16<ScreenPixels> PixelPosition => Position.Whole;
 
     /// <summary>Requests the one-minute Ceres countdown; the next <see cref="Process"/> call starts it.</summary>
     public void RequestCeresStart() => RequestStart(CeresDuration);
@@ -92,8 +92,7 @@ public sealed class EscapeTimer
     /// <summary>Stops the timer, empties its countdown and returns it to the screen's centre.</summary>
     public void Clear()
     {
-        int centre = EightEight.FromWhole(ClearedPixel);
-        Position = new(centre, centre);
+        Position = FixedPosition<ScreenPixels>.FromWhole(new(ClearedPixel, ClearedPixel));
         _startupFrames = 0;
         _pendingDuration = 0;
         RemainingCentiseconds = 0;
@@ -147,22 +146,22 @@ public sealed class EscapeTimer
     {
         int axesInPosition = 0;
 
-        int settledX = EightEight.FromWhole(SettledX);
-        int nextX = Position.X + RightwardSubpixelsPerFrame;
-        if (nextX >= settledX)
+        var settledX = new FixedCoordinate(SettledX, 0);
+        FixedCoordinate nextX = Position.X.MovedBy(RightwardSpeed);
+        if (!(nextX - settledX).IsNegative)
         {
             axesInPosition++;
             nextX = settledX;
         }
 
-        int settledY = EightEight.FromWhole(SettledY);
-        int nextY = Position.Y - UpwardSubpixelsPerFrame;
-        if (nextY < settledY)
+        var settledY = new FixedCoordinate(SettledY, 0);
+        FixedCoordinate nextY = Position.Y.MovedBy(-UpwardSpeed);
+        if ((nextY - settledY).IsNegative)
         {
             axesInPosition++;
             nextY = settledY;
         }
-        Position = new(CoordinateAxis.Wrap(nextX), CoordinateAxis.Wrap(nextY));
+        Position = new(nextX, nextY);
 
         if (axesInPosition == 2)
             Phase = EscapeTimerPhase.InPlace;

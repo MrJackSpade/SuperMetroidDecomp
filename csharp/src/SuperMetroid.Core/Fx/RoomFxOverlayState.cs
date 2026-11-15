@@ -54,15 +54,17 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomEffectTint? Tint { get; private set; }
     /// <summary>
-    /// Rain, fog, and spores texture drift: one 1/256-pixel running sum per axis. Its signed whole
-    /// pixels shift the effect overlay's scroll before the next velocity step.
+    /// Rain, fog, and spores texture drift: one signed 1/256-pixel running sum per axis, its fractions kept between
+    /// updates. Its whole pixels shift the effect overlay's scroll before the next velocity step; a sum carried past
+    /// either end of its range continues from the other, which keeps the drifting textures' pictures as they have always
+    /// been drawn.
     /// </summary>
-    private Offset16<OverlaySubpixels> drift;
+    private EightEightVector<OverlayPixels> drift;
     /// <summary>
     /// Rain's sideways texture drift each frame, the wind chosen from the random number when the room loads; it only
     /// blows across. The fall is <see cref="RainFall"/>.
     /// </summary>
-    private Offset16<OverlaySubpixels> rainWind;
+    private EightEightVector<OverlayPixels> rainWind;
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
@@ -75,10 +77,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
     internal SignedSixteenSixteen TideOffset { get; set; }
     /// <summary>
-    /// Water's effect overlay surface drift: a 1/256-pixel horizontal running sum whose signed whole pixels offset the surface
-    /// texture. Only X moves.
+    /// Water's effect overlay surface drift: a signed 1/256-pixel horizontal running sum, its fraction kept between updates,
+    /// whose whole pixels offset the surface texture. Only X moves.
     /// </summary>
-    private Offset16<OverlaySubpixels> waterDrift;
+    private EightEightVector<OverlayPixels> waterDrift;
     /// <summary>Where water's surface wave on the effect overlay stands in its cycle.</summary>
     private WaveCycle waterOverlayWave;
     /// <summary>Where water's optional sideways background wave stands in its cycle.</summary>
@@ -277,7 +279,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type == RoomFxType.Rain)
         {
-            rainWind = DriftOf(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(source.RandomNumber)),
+            rainWind = new(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(source.RandomNumber)),
                 SignedEightEight.Zero);
         }
     }
@@ -412,7 +414,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (Type == RoomFxType.Rain)
         {
             Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
-            Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.WholePixels();
+            Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.Whole;
             drift += rainWind + RainFall;
             previousCamera = frame.Camera;
             return;
@@ -422,13 +424,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             // Spores sample each signed running sum before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
-            Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
+            Scroll = frame.Camera.AsOverlayScroll() + drift.Whole;
             drift += SporesRise;
             return;
         }
 
         // Fog anchors to the foreground; its texture drifts right as it rises.
-        Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
+        Scroll = frame.Camera.AsOverlayScroll() + drift.Whole;
         drift += FogDrift;
     }
 
@@ -587,7 +589,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        PlaceLiquid(camera, waterDrift.WholePixels());
+        PlaceLiquid(camera, waterDrift.Whole);
 
         waterOverlayWave = waterOverlayWave.Advanced(WaterWaveDefinitions.OverlayWavePhaseDuration,
             WaterWaveDefinitions.WaveDisplacementCount);
@@ -832,15 +834,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LiquidMoveDelay = WrappingCountdown.Start(0);
         Blend = null;
         Scroll = Position16<OverlayPixels>.Zero;
-        drift = Offset16<OverlaySubpixels>.Zero;
-        rainWind = Offset16<OverlaySubpixels>.Zero;
+        drift = EightEightVector<OverlayPixels>.Zero;
+        rainWind = EightEightVector<OverlayPixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         BaseY = null;
         TidePhase = RotationAngle.Zero;
         TideOffset = SignedSixteenSixteen.Zero;
         Surface = null;
         Liquid = null;
-        waterDrift = Offset16<OverlaySubpixels>.Zero;
+        waterDrift = EightEightVector<OverlayPixels>.Zero;
         waterOverlayWave = default;
         waterBackgroundWave = default;
         waterSurfaceScreenY = null;
@@ -865,27 +867,23 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 
     /// <summary>Rain's texture fall each frame (<see cref="AtmosphereDriftDefinitions.RainFallSpeed"/>).</summary>
-    private static readonly Offset16<OverlaySubpixels> RainFall =
-        DriftOf(SignedEightEight.Zero, -AtmosphereDriftDefinitions.RainFallSpeed);
+    private static readonly EightEightVector<OverlayPixels> RainFall =
+        new(SignedEightEight.Zero, -AtmosphereDriftDefinitions.RainFallSpeed);
 
     /// <summary>The spores' texture rise each frame (<see cref="AtmosphereDriftDefinitions.SporesRiseSpeed"/>).</summary>
-    private static readonly Offset16<OverlaySubpixels> SporesRise =
-        DriftOf(SignedEightEight.Zero, -AtmosphereDriftDefinitions.SporesRiseSpeed);
+    private static readonly EightEightVector<OverlayPixels> SporesRise =
+        new(SignedEightEight.Zero, -AtmosphereDriftDefinitions.SporesRiseSpeed);
 
     /// <summary>
     /// The fog's texture drift each frame: right by <see cref="AtmosphereDriftDefinitions.FogDriftSpeed"/> as it rises by
     /// <see cref="AtmosphereDriftDefinitions.FogRiseSpeed"/>.
     /// </summary>
-    private static readonly Offset16<OverlaySubpixels> FogDrift =
-        DriftOf(AtmosphereDriftDefinitions.FogDriftSpeed, -AtmosphereDriftDefinitions.FogRiseSpeed);
+    private static readonly EightEightVector<OverlayPixels> FogDrift =
+        new(AtmosphereDriftDefinitions.FogDriftSpeed, -AtmosphereDriftDefinitions.FogRiseSpeed);
 
     /// <summary>Water's surface drift each frame while its water's <see cref="RoomWater.SurfaceDrift"/> is set.</summary>
-    private static readonly Offset16<OverlaySubpixels> WaterSurfaceDrift =
-        DriftOf(WaterWaveDefinitions.SurfaceDriftSpeed, SignedEightEight.Zero);
-
-    /// <summary>The overlay texture's drift in a frame that moves it <paramref name="across"/> and <paramref name="down"/>.</summary>
-    private static Offset16<OverlaySubpixels> DriftOf(SignedEightEight across, SignedEightEight down) =>
-        new(across.InTwoHundredFiftySixthsOfPixel, down.InTwoHundredFiftySixthsOfPixel);
+    private static readonly EightEightVector<OverlayPixels> WaterSurfaceDrift =
+        new(WaterWaveDefinitions.SurfaceDriftSpeed, SignedEightEight.Zero);
 
     /// <summary>The mutually exclusive phases of the liquid's rise.</summary>
     private enum LiquidRisePhase

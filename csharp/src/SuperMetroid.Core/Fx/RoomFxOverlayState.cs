@@ -559,8 +559,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Ensure.NotNull(frame);
         if (Tint is not { } tint)
             return;
-        frame.Shade(GameplayPictures.FxOverlay, RoomFxBlendShading.Of(tint));
-        frame.Shade(GameplayPictures.Hud, RoomFxBlendShading.Of(tint));
+        frame.Shade(GameplayPictures.FxOverlay, RoomEffectTintShading.Of(tint));
+        frame.Shade(GameplayPictures.Hud, RoomEffectTintShading.Of(tint));
     }
 
     /// <summary>

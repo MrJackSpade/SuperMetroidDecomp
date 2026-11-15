@@ -22,7 +22,7 @@ internal static class RoomFxBlendSheetShades
     internal static IReadOnlyList<SheetShade> Of(RoomFxBlendInks blends)
     {
         Ensure.NotNull(blends);
-        return [.. Enum.GetValues<RoomEffectTint>().Select(blend => SheetShade.Run(RoomFxBlendShading.Of(blend),
+        return [.. Enum.GetValues<RoomEffectTint>().Select(blend => SheetShade.Run(RoomEffectTintShading.Of(blend),
             blend == RoomEffectTint.None ? ClearedInk : FirstInk, [.. blends.Inks(blend)]))];
     }
 }

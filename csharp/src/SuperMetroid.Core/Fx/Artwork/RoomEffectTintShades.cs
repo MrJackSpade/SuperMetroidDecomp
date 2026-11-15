@@ -3,12 +3,13 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The shades the import pre-colours a tileset's effect overlay pictures in for each tint a room effect selects
-/// (#1512): the three blend colours its liquid, fog or rain shows, or the cleared third of the empty blend.
+/// The shades the import pre-colours a tileset's effect overlay pictures and the HUD's in, one for each tint a room effect
+/// selects (#1512): the three colours its liquid, fog or rain tints them with, or, with no tint, black in place of the
+/// last of those three.
 /// </summary>
-public static class RoomFxBlendShades
+public static class RoomEffectTintShades
 {
-    /// <summary>The empty blend, which clears the third blend colour to black.</summary>
+    /// <summary>No tint: the pictures keep their own colours, except the last of the three a tint sets, which shows black.</summary>
     public static PictureShade None { get; } = new("room-fx-blend-none", 0);
 
     /// <summary>Lava and acid.</summary>

@@ -8,28 +8,28 @@ public enum RoomFxType
 {
     /// <summary>The room shows no effect of its own.</summary>
     None,
-    /// <summary>Animated damaging lava surface with the effect overlay's pictures, colour effects, and optional background distortion.</summary>
+    /// <summary>A lava surface that burns Samus, with its overlay pictures and glows, and in some rooms a rippling background.</summary>
     Lava,
-    /// <summary>Animated damaging acid surface sharing the liquid renderer but using acid-specific gameplay damage.</summary>
+    /// <summary>An acid surface, shown as lava is, that deals acid's own damage.</summary>
     Acid,
-    /// <summary>Animated water surface with submerged physics and optional per-row background displacement.</summary>
+    /// <summary>A water surface below which Samus moves as submerged, in some rooms with the background waving beneath it.</summary>
     Water,
-    /// <summary>Full-screen drifting spore atmosphere driven through the room-FX effect overlay owner.</summary>
+    /// <summary>Spores drifting over the whole screen.</summary>
     Spores,
-    /// <summary>Full-screen rain atmosphere whose effect overlay plane is additively composited.</summary>
+    /// <summary>Rain falling over the whole screen, brightening what it covers.</summary>
     Rain,
-    /// <summary>Full-screen fog atmosphere with its dedicated additive screen arrangement.</summary>
+    /// <summary>Fog over the whole screen, with its own fog picture brightening what it covers.</summary>
     Fog,
-    /// <summary>Scrolling exterior-sky background driven by the active room's sky picture.</summary>
+    /// <summary>The sky outside, scrolling behind the room in the bands of the room's sky picture.</summary>
     ScrollingSky,
-    /// <summary>Fireflea-room darkness and its shading, including enemy-driven light flashes.</summary>
+    /// <summary>The Fireflea rooms' darkness, which flashes in a cycle and deepens with each Fireflea killed.</summary>
     Fireflea,
-    /// <summary>Tourian entrance statue liquid effect, rendered through the water-compatible effect overlay path.</summary>
+    /// <summary>The surface of the statue room before Tourian, which Samus moves below as she does under water.</summary>
     TourianEntranceStatue,
-    /// <summary>Ceres Ridley encounter effect that coordinates the room's scripted turning-floor presentation.</summary>
+    /// <summary>Ridley's room on Ceres, whose turning floor the encounter's scenes move.</summary>
     CeresRidley,
-    /// <summary>Ceres elevator-shaft effect used during the station's scripted descent and destruction flow.</summary>
+    /// <summary>The Ceres elevator shaft, as Samus descends it and as the station is destroyed.</summary>
     CeresElevator,
-    /// <summary>Ceres destruction haze whose colours and layer state progress with the escape sequence.</summary>
+    /// <summary>The haze of Ceres's destruction, whose colours strengthen as the escape runs.</summary>
     CeresHaze,
 }

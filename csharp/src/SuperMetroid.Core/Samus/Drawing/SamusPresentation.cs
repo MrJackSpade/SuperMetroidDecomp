@@ -32,11 +32,11 @@ internal sealed class SamusPresentation
         _artwork = Ensure.NotNull(artwork);
     }
 
-    /// <summary>The installed body placements and presentation catalogs, or none before they are installed.</summary>
-    public InstalledSamusBodyArtwork? Artwork => _artwork.Body;
+    /// <summary>The installed body placements and presentation catalogs.</summary>
+    public InstalledSamusBodyArtwork Artwork => _artwork.Body;
 
-    /// <summary>The installed pre-coloured sheets Samus draws from, or none before they are installed.</summary>
-    public InstalledSpriteSheets? Sheets => _artwork.Sheets;
+    /// <summary>The installed pre-coloured sheets Samus draws from.</summary>
+    public InstalledSpriteSheets Sheets => _artwork.Sheets;
 
     /// <summary>Her splashes, bubbles, lava spray and dust.</summary>
     public SamusParticles Particles { get; } = new();
@@ -386,7 +386,7 @@ internal sealed class SamusPresentation
             ? transform.Transform(position)
             : position;
 
-        InstalledSamusBodyArtwork artwork = _artwork.InstalledBody;
+        InstalledSamusBodyArtwork artwork = _artwork.Body;
         DrawOrigin = (renderPoint - Offset16<RoomPixels>.Of(0, artwork.OriginRise(samus.Pose, pictureFrame)))
             .RelativeToCamera(cameraPosition);
 
@@ -505,7 +505,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
-    private InstalledSpriteSheets BodySheets => _artwork.InstalledSheets;
+    private InstalledSpriteSheets BodySheets => _artwork.Sheets;
 
     /// <summary>
     /// Draws an echo, when it stands somewhere, with the picture the body last drew, published wherever it lies; the

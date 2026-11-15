@@ -108,9 +108,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static int ReadGraphicsYOffset(SamusState samus)
     {
-        return (samus.Presentation.Artwork ?? throw new InvalidOperationException(
-            "Samus pose presentation requires installed body artwork."))
-            .GraphicsYOffset(samus.Pose);
+        return samus.Presentation.Artwork.GraphicsYOffset(samus.Pose);
     }
 
     /// <summary>True for the four right-facing standing poses that move as <see cref="SamusMovementType.Standing"/>.</summary>

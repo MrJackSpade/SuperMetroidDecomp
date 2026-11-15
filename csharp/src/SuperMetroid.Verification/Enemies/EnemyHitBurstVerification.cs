@@ -92,7 +92,7 @@ internal static class EnemyHitBurstVerification
         })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health: 1000, frozenTimer);
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
@@ -334,7 +334,7 @@ internal static class EnemyHitBurstVerification
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(Place);
         shot.Radius = new(4, 4);
-        return (shots, new SamusBombProjectileSystem());
+        return (shots, new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors));
     }
 
     /// <summary>Runs the enemy hit burst checks.</summary>

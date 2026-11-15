@@ -22,7 +22,7 @@ internal static class EnemyFrameContextAccess
         /// <paramref name="projectiles"/> and her <paramref name="colours"/> and no power bomb exploding, keeping the freeze flag.
         /// </summary>
         internal void SeedFrame(int frameCounter, SamusProjectileSystem projectiles, SamusColours colours) =>
-            self.BeginFrame(self.TimeIsFrozen, projectiles, colours, new SamusPowerBombExplosionState(), frameCounter);
+            self.BeginFrame(self.TimeIsFrozen, projectiles, colours, new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), frameCounter);
 
         /// <summary>
         /// Begins a frame, as the enemy pass does, with <paramref name="frameCounter"/>, Samus's

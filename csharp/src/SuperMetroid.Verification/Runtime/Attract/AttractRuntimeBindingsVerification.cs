@@ -18,7 +18,8 @@ internal static class AttractRuntimeBindingsVerification
         var enemyArtwork = new EnemyIdentityFixture().Build();
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new GameplayAssists
             { SamusCannotDie = true, AmmoNeverRunsOut = true, EscapeTimerHoldsAtOneSecond = true });
-        game.BindArtwork(game.Artwork with
+        // Gameplay is built over the complete installed artwork (#2049); the attract runtime's own frame displays replace the installation's.
+        game.BindArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.GameArtwork with
         {
             SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
             BossAndIntroOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossAndIntroOverreads,

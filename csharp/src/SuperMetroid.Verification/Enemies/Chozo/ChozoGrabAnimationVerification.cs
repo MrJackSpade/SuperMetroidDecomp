@@ -44,10 +44,7 @@ internal static class ChozoGrabAnimationVerification
         var handBlock = new Position16<RoomBlocks>(0x4a, 0x17);
         AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, level.GetCollisionBlock(handBlock).Behavior,
             "fixture uses the retail statue hand block");
-        var expectedExplosion = new SamusPowerBombExplosionState
-        {
-            Blast = { PresentationColors = runtime.BombProjectiles.PowerBombExplosion.Blast.PresentationColors },
-        };
+        var expectedExplosion = new SamusPowerBombExplosionState(runtime.BombProjectiles.PowerBombExplosion.Blast.PresentationColors);
         if (powerBomb)
         {
             // Detonation immediately before hand capture; origin differs from Samus so

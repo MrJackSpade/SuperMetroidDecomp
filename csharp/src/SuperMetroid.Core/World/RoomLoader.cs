@@ -934,7 +934,7 @@ internal sealed class RoomLoader
             loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(_artwork.MapPresentation.PowerBombGlowColors);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
@@ -1177,7 +1177,7 @@ internal sealed class RoomLoader
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
         // Ceres's real room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup locks her movement. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
@@ -1225,11 +1225,7 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        _artwork.RoomVisualLayouts is { } layouts &&
-        _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(layouts, levelStreams, blockSheets)
-            : throw new InvalidOperationException(
-                "Room loading requires installed visual-layout, level-stream and block-sheet assets.");
+        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets);
 
 
     /// <summary>

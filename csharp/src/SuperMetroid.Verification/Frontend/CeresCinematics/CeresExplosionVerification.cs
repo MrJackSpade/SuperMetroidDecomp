@@ -23,7 +23,7 @@ internal static class CeresExplosionVerification
         var audio = AudioQueues.Standalone();
         var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
-        var reference = new SamusPowerBombExplosionState { Blast = { PresentationColors = stockColors } };
+        var reference = new SamusPowerBombExplosionState(stockColors);
         var phases = new HashSet<PowerBombExplosionPhase>();
         bool spawned = false, finished = false;
         int compared = 0;

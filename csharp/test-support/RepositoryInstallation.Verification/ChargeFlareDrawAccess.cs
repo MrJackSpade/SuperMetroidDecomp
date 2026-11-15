@@ -18,7 +18,7 @@ internal static class ChargeFlareDrawAccess
         /// OAM image those draws stand for.
         /// </summary>
         internal OamBuffer ChargeFlareOam(SamusState samus, Position16<RoomPixels> cameraPosition,
-            ChargeFlarePlacements? placement, TurningFloorTransform? turningFloor = null) =>
+            ChargeFlarePlacements placement, TurningFloorTransform? turningFloor = null) =>
             SpriteFrameBuffer.DrawnOam(frame => system.DrawChargeFlare(frame, samus, cameraPosition,
                 system.AdvanceChargeFlare(samus), turningFloor,
                 new ChargeFlareArtwork { Placement = placement, Objects = InstalledFixtures.ProjectileArtwork() }));

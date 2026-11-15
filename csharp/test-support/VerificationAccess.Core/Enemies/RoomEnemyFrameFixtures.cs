@@ -44,7 +44,7 @@ internal static class RoomEnemyFrameFixtures
     /// (#2010): every enemy update has Samus.
     /// </summary>
     internal static SamusState StandaloneSamus() => new(InstalledFixtures.FramesBeyondAnimation,
-        new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
 
     /// <summary>Builds the frame from one set of inputs.</summary>
     private static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter, StandaloneInputs inputs) => new()

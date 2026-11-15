@@ -54,7 +54,7 @@ internal static class GrappleTileArtworkVerification
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             cases++;
-            SamusGrappleState Seed() => new(artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            SamusGrappleState Seed() => new(artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.Start(timer),
                 Angle = RotationAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),

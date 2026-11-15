@@ -127,7 +127,7 @@ internal static void VerifyHudState()
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8e / 2], "HUD health ones digit from ROM table");
 
-    var damagedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = 94, MaxHealth = 99 };
+    var damagedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 94, MaxHealth = 99 };
     var hudAudio = new GameplayAudioRequests();
     hud.UpdateGameplayCounters(damagedSamus, hudAudio);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "live HUD damage tens digit");
@@ -1022,7 +1022,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))) } };
+    var explosion = new SamusPowerBombExplosionState(PowerBombGlowColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))));
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 

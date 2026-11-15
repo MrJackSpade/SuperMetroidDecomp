@@ -33,7 +33,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindGlowColors(artwork.MapPresentation?.PowerBombGlowColors);
+            BindGlowColors(artwork.InstalledPowerBombGlowColors);
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);
         BindSpriteSheets(artwork.SpriteSheets);
@@ -83,7 +83,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private readonly List<IntroDiscoverySprite> ceresActorsDrawnLast = [];
     /// <summary>The blast that destroys the station (#1981), centred on it in screen pixels.</summary>
-    private readonly CeresStationBlast stationExplosion = new();
+    private readonly CeresStationBlast stationExplosion;
     /// <summary>
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
@@ -167,7 +167,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
         AudioQueues audio,
-        InstalledPowerBombGlowColors? glowColors = null,
+        InstalledPowerBombGlowColors glowColors,
         IntroCinematicArtwork? artwork = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
         InstalledSpriteSheets? spriteSheets = null,
@@ -179,7 +179,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         this.audio = Ensure.NotNull(audio);
         Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        stationExplosion.PresentationColors = glowColors;
+        stationExplosion = new CeresStationBlast(glowColors);
         objects = new ScreenSprites();
     }
 
@@ -191,7 +191,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
-    internal void BindGlowColors(InstalledPowerBombGlowColors? colors) =>
+    internal void BindGlowColors(InstalledPowerBombGlowColors colors) =>
         stationExplosion.PresentationColors = colors;
 
     /// <summary>

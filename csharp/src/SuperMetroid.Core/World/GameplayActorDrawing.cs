@@ -175,7 +175,7 @@ internal sealed class GameplayActorDrawing
                     turningFloor: _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.InstalledSheets);
+                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.Sheets);
         }
         else
         {
@@ -274,7 +274,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
-                    _player.Samus.Artwork.InstalledSheets);
+                    _player.Samus.Artwork.Sheets);
 
                 // BeforeBody and AfterBody differ only in draw order: the first appends the
                 // cannon before the body, the second after it. Hidden suppresses
@@ -310,7 +310,7 @@ internal sealed class GameplayActorDrawing
                         _player.Samus.Grapple,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _player.Samus.Artwork.InstalledSheets.Get(SpriteSheetId.Grapple));
+                        _player.Samus.Artwork.Sheets.Get(SpriteSheetId.Grapple));
                 }
                 else
                 {

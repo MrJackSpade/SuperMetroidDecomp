@@ -13,13 +13,17 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal sealed class CeresStationBlast
 {
     /// <summary>The blast's stages, radii and glow: the cinematic's own timeline, shared with no Power Bomb of Samus's.</summary>
-    private readonly PowerBombBlastTimeline timeline = new();
+    private readonly PowerBombBlastTimeline timeline;
+
+    /// <summary>Prepares the blast, glowing in <paramref name="glowColors"/>.</summary>
+    /// <param name="glowColors">The installed Power Bomb glow colours.</param>
+    internal CeresStationBlast(InstalledPowerBombGlowColors glowColors) => timeline = new PowerBombBlastTimeline(glowColors);
 
     /// <summary>Where on the screen the blast is centred.</summary>
     private Offset16<ScreenPixels> centre;
 
     /// <summary>The installed glow colours the blast shows: installed content, bound again when a game is restored.</summary>
-    internal InstalledPowerBombGlowColors? PresentationColors
+    internal InstalledPowerBombGlowColors PresentationColors
     {
         get => timeline.PresentationColors;
         set => timeline.PresentationColors = value;

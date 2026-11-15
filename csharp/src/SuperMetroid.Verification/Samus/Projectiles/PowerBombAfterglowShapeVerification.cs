@@ -16,7 +16,7 @@ internal static class PowerBombAfterglowShapeVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var colors = PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorExtractor.Extract(rom)));
         // Near the bottom-left, the last oval still leaves visible corners outside it.
-        var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = colors } };
+        var explosion = new SamusPowerBombExplosionState(colors);
         explosion.Arm();
         explosion.Spawn(new(32, 208));
         for (int frame = 0; frame < 200 && explosion.Blast.Phase != PowerBombExplosionPhase.Afterglow; frame++)

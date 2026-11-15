@@ -29,7 +29,7 @@ internal static class GrappleSwingArithmeticVerification
                 {
                     RotationAngle angle = RotationAngle.FromRaw(raw);
                     var expected = ReplacedGravity(angle, submerged, velocity);
-                    var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Angle = angle, Submerged = submerged, AngularVelocity = velocity };
+                    var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Angle = angle, Submerged = submerged, AngularVelocity = velocity };
                     SamusGrappleSwing.CalculateGravity(grapple);
                     gravityCompared++;
                     if ((grapple.GravityAcceleration, grapple.VelocityCorrection, grapple.AngularVelocity) != expected)

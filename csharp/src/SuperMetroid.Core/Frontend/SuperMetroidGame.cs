@@ -61,7 +61,7 @@ public sealed class SuperMetroidGame
         Ensure.NotNull(artwork);
         GameArtwork previous = Session.Artwork;
         Session.Artwork = artwork;
-        Session.Runtime?.BindArtwork(artwork, previous);
+        Session.Runtime?.BindArtwork(artwork.Gameplay);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
             Session.saves.BindMapPresentation(artwork.MapPresentation);
         Session.Screen?.BindArtwork(previous, artwork, Session.GameState);

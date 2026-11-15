@@ -57,7 +57,7 @@ internal static class PauseReserveRowToggleVerification
     internal static void VerifyReserveRowToggleThroughPauseScreen()
     {
         var catalog = RetailPresentationFixture();
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge, Health = 99, MaxHealth = 99,
             MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
@@ -67,7 +67,7 @@ internal static class PauseReserveRowToggleVerification
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "with a reserve tank the cursor starts in the reserve column");
         menu.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Charge, menu.SelectedControl, "Down from the automatic reserve mode moves to the top beam");
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         foreach (SamusBomb slot in bombs.Bombs)
             slot.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(2, 0x4321);
 

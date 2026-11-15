@@ -26,7 +26,7 @@ public sealed class SamusArmCannonState
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
     /// <summary>The installed arm-cannon placements, or none before they are installed.</summary>
-    public InstalledSamusArmCannonArtwork? Artwork => _artwork.ArmCannon;
+    public InstalledSamusArmCannonArtwork Artwork => _artwork.ArmCannon;
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
     public bool IsOpen { get; internal set; }
@@ -104,8 +104,7 @@ public sealed class SamusArmCannonState
         Offset16<ScreenPixels> place =
             (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
         // The cover's direction and picture name its sheet frame; a closed cover returned above.
-        InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
-            "Arm cannon requires the installed sprite sheets.");
+        InstalledSpriteSheets sheets = samus.Presentation.Sheets;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
             sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, cover)),
             place, SpriteMirror.None));
@@ -131,7 +130,7 @@ public sealed class SamusArmCannonState
 
     /// <summary>Where the installed artwork places the cover for <paramref name="pose"/>.</summary>
     private SamusArmCannonPlacement Placement(SamusPoseId pose) =>
-        _artwork.InstalledArmCannon.Placement(pose);
+        _artwork.ArmCannon.Placement(pose);
 
     /// <summary>
     /// Moves the cover one picture toward fully open or closed; reaching either ends the transition while keeping the

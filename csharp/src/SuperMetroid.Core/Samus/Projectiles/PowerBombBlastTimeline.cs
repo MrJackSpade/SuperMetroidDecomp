@@ -18,8 +18,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class PowerBombBlastTimeline
 {
+    /// <summary>Starts a blast's timeline that glows in <paramref name="presentationColors"/> (#2049).</summary>
+    /// <param name="presentationColors">The installed glow colours.</param>
+    public PowerBombBlastTimeline(InstalledPowerBombGlowColors presentationColors) => PresentationColors = presentationColors;
+
     /// <summary>Installed glow colours: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledPowerBombGlowColors? PresentationColors { get; set; }
+    public InstalledPowerBombGlowColors PresentationColors { get; set => field = Ensure.NotNull(value); }
 
     /// <summary>The pre-explosion flash's radius.</summary>
     public PowerBombRadius PreExplosionRadius { get; private set; }
@@ -458,9 +462,7 @@ public sealed class PowerBombBlastTimeline
     /// <summary>Selects the installed glow colour a sequence shows at a radius-derived step.</summary>
     private void SelectGlowColor(PowerBombGlowSequence sequence, int glowStep)
     {
-        RgbColor color = (PresentationColors ?? throw new InvalidOperationException(
-                "The Power Bomb's glow requires installed glow colours."))
-            .Resolve(sequence, glowStep);
+        RgbColor color = PresentationColors.Resolve(sequence, glowStep);
         GlowColor = color;
     }
 }

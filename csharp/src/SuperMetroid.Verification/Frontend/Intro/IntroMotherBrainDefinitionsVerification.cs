@@ -161,7 +161,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
         };
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         SamusProjectile missile = shots.Shots[0];
         for (int hit = 1; hit <= 5; hit++)
         {

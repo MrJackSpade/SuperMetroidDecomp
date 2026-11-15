@@ -1,76 +1,75 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body, melting and skeleton animations. The fight AI asks which animation his body stands in, in the named
+/// Crocomire's body, melting and skeleton animations, each named for what it shows (#1938). The fight AI asks which animation his body stands in, in the named
 /// groups of <see cref="CrocomireBodyAnimationGroups"/>, never how the animations are ordered (#1886).
 /// </summary>
 public enum CrocomireBodySegment
 {
-    /// <summary>Crocomire animation: initial.</summary>
+    /// <summary>His idle sway before the fight starts.</summary>
     Initial,
-    /// <summary>Crocomire animation: projectile attack, part 0.</summary>
+    /// <summary>Opening his mouth to spit, before the spit loop.</summary>
     ProjectileAttack,
-    /// <summary>Crocomire animation: projectile attack, part 1.</summary>
+    /// <summary>The spit loop, whose fight cues spit his volley.</summary>
     ProjectileAttackLoop,
-    /// <summary>Crocomire animation: step forward after delay.</summary>
+    /// <summary>A pause before his step forward.</summary>
     StepForwardAfterDelay,
-    /// <summary>Crocomire animation: step forward.</summary>
+    /// <summary>His step forward.</summary>
     StepForward,
-    /// <summary>Crocomire animation: step back.</summary>
+    /// <summary>The start of his step back.</summary>
     StepBack,
-    /// <summary>Crocomire animation: stepping back.</summary>
+    /// <summary>His step back.</summary>
     SteppingBack,
-    /// <summary>Crocomire animation: wait for first second damage.</summary>
+    /// <summary>Waiting for a hit, standing.</summary>
     WaitForFirstSecondDamage,
-    /// <summary>Crocomire animation: wait for first second damage, moving claws.</summary>
+    /// <summary>Waiting for a hit, moving his claws.</summary>
     MovingClaws,
-    /// <summary>Crocomire animation: wait for first second damage, roar.</summary>
+    /// <summary>Waiting for a hit, roaring.</summary>
     Roar,
-    /// <summary>Crocomire animation: wait for first second damage, roar close mouth, part 0.</summary>
+    /// <summary>His roar closing his mouth.</summary>
     RoarCloseMouth,
-    /// <summary>Crocomire animation: wait for first second damage, roar close mouth, part 1.</summary>
+    /// <summary>His closed mouth after the roar, whose fight cues roar again.</summary>
     RoarCloseMouthLoop,
-    /// <summary>Crocomire animation: power Bomb reaction, mouth fully open.</summary>
+    /// <summary>The Power Bomb reaction struck with his mouth fully open.</summary>
     PowerBombReactionMouthFullyOpen,
-    /// <summary>Crocomire animation: power Bomb reaction, mouth partially open.</summary>
+    /// <summary>The Power Bomb reaction struck with his mouth partly open.</summary>
     PowerBombReactionMouthPartiallyOpen,
-    /// <summary>Crocomire animation: power Bomb reaction, mouth not open, part 0.</summary>
+    /// <summary>The Power Bomb reaction struck with his mouth closed, raising dust.</summary>
     PowerBombReactionMouthNotOpen,
-    /// <summary>Crocomire animation: power Bomb reaction, mouth not open, part 1.</summary>
+    /// <summary>The Power Bomb reaction's charge to the left.</summary>
     PowerBombReactionMouthNotOpenLoop,
-    /// <summary>Crocomire tongue animation: near spike wall charge, part 0.</summary>
+    /// <summary>His charge near the spike wall, starting.</summary>
     NearSpikeWallCharge,
-    /// <summary>Crocomire tongue animation: near spike wall charge, part 1.</summary>
+    /// <summary>His charge toward the spike wall.</summary>
     NearSpikeWallChargeLoop,
-    /// <summary>Crocomire animation: back off from spike wall.</summary>
+    /// <summary>Backing off from the spike wall.</summary>
     BackOffFromSpikeWall,
-    /// <summary>Crocomire animation: melting 1, top row.</summary>
+    /// <summary>The first melting pass, its top row.</summary>
     MeltingOneTopRow,
-    /// <summary>Crocomire animation: melting 1, top 2 rows.</summary>
+    /// <summary>The first melting pass, its top two rows.</summary>
     MeltingOneTopTwoRows,
-    /// <summary>Crocomire animation: melting 1, top 3 rows.</summary>
+    /// <summary>The first melting pass, its top three rows.</summary>
     MeltingOneTopThreeRows,
-    /// <summary>Crocomire animation: melting 1, top 4 rows.</summary>
+    /// <summary>The first melting pass, its top four rows.</summary>
     MeltingOneTopFourRows,
-    /// <summary>Crocomire animation: melting 2, top row.</summary>
+    /// <summary>The second melting pass, its top row.</summary>
     MeltingTwoTopRow,
-    /// <summary>Crocomire animation: melting 2, top 2 rows.</summary>
+    /// <summary>The second melting pass, its top two rows.</summary>
     MeltingTwoTopTwoRows,
-    /// <summary>Crocomire animation: melting 2, top 3 rows.</summary>
+    /// <summary>The second melting pass, its top three rows.</summary>
     MeltingTwoTopThreeRows,
-    /// <summary>Crocomire animation: melting 2, top 4 rows.</summary>
+    /// <summary>The second melting pass, its top four rows.</summary>
     MeltingTwoTopFourRows,
-    /// <summary>Crocomire tongue animation: bridge collapsed.</summary>
+    /// <summary>Sinking after the bridge collapses under him.</summary>
     BridgeCollapsed,
-    /// <summary>Crocomire corpse animation: skeleton, falling.</summary>
+    /// <summary>His skeleton falling.</summary>
     SkeletonFalling,
-    /// <summary>Crocomire corpse animation: skeleton, falls apart, part 0.</summary>
+    /// <summary>His skeleton falling apart.</summary>
     SkeletonFallsApart,
-    /// <summary>Crocomire corpse animation: skeleton, part 1.</summary>
+    /// <summary>His skeleton at rest after it falls apart.</summary>
     SkeletonStable,
-    /// <summary>Crocomire corpse animation: skeleton, dead.</summary>
+    /// <summary>His dead skeleton.</summary>
     Dead,
-    /// <summary>Crocomire corpse animation: skeleton, flowing down the river.</summary>
+    /// <summary>His skeleton flowing down the river.</summary>
     SkeletonFlowingDownRiver,
-
 }

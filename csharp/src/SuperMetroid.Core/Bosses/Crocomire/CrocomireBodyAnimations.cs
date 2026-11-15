@@ -492,7 +492,11 @@ internal static class CrocomireBodyAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at, each listing only its own segments
+    /// (#1938). The step back and the damage wait end in the roar's closed-mouth loop: the fight cues there always start
+    /// the roar again or step back, so the wait never runs on into the Power Bomb reaction authored after it.
+    /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
@@ -500,13 +504,13 @@ internal static class CrocomireBodyAnimations
         [P.ProjectileAttackLoop] = new([new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.StepForwardAfterDelay] = new([new(P.StepForwardAfterDelay, 0, 1, 1), new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(1)),
         [P.StepForward] = new([new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StepBack] = new([new(P.StepBack, 0, 1, 1), new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(10)),
-        [P.SteppingBack] = new([new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(9)),
-        [P.WaitForFirstSecondDamage] = new([new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(8)),
-        [P.MovingClaws] = new([new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(7)),
-        [P.Roar] = new([new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(6)),
-        [P.RoarCloseMouth] = new([new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(5)),
-        [P.RoarCloseMouthLoop] = new([new(P.RoarCloseMouthLoop, 0, 4, 1), new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.StepBack] = new([new(P.StepBack, 0, 1, 1), new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(6)),
+        [P.SteppingBack] = new([new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(5)),
+        [P.WaitForFirstSecondDamage] = new([new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.MovingClaws] = new([new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.Roar] = new([new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.RoarCloseMouth] = new([new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RoarCloseMouthLoop] = new([new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.PowerBombReactionMouthFullyOpen] = new([new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(3)),
         [P.PowerBombReactionMouthPartiallyOpen] = new([new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(2)),
         [P.PowerBombReactionMouthNotOpen] = new([new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(1)),
@@ -532,28 +536,6 @@ internal static class CrocomireBodyAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodySegment segment) => StartingAt[segment];
-
-    /// <summary>
-    /// The segment each segment that runs on past its last beat continues into, directly after that beat: a body
-    /// resting after that beat already stands in the next, which the fight AI and the skeleton's rest test read.
-    /// </summary>
-    internal static IReadOnlyDictionary<CrocomireBodySegment, CrocomireBodySegment> RunsOnInto { get; } = new Dictionary<CrocomireBodySegment, CrocomireBodySegment>
-    {
-        [P.ProjectileAttack] = P.ProjectileAttackLoop,
-        [P.StepForwardAfterDelay] = P.StepForward,
-        [P.StepBack] = P.SteppingBack,
-        [P.SteppingBack] = P.WaitForFirstSecondDamage,
-        [P.WaitForFirstSecondDamage] = P.MovingClaws,
-        [P.MovingClaws] = P.Roar,
-        [P.Roar] = P.RoarCloseMouth,
-        [P.RoarCloseMouth] = P.RoarCloseMouthLoop,
-        [P.RoarCloseMouthLoop] = P.PowerBombReactionMouthFullyOpen,
-        [P.PowerBombReactionMouthFullyOpen] = P.PowerBombReactionMouthPartiallyOpen,
-        [P.PowerBombReactionMouthPartiallyOpen] = P.PowerBombReactionMouthNotOpen,
-        [P.PowerBombReactionMouthNotOpen] = P.PowerBombReactionMouthNotOpenLoop,
-        [P.NearSpikeWallCharge] = P.NearSpikeWallChargeLoop,
-        [P.SkeletonFallsApart] = P.SkeletonStable,
-    };
 
     /// <summary>
     /// Shows <paramref name="frame"/> for good (#1627): the body rests on it until its owner starts another animation. A shot

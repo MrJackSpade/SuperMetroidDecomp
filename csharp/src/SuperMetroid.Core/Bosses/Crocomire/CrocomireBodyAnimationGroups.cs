@@ -19,8 +19,7 @@ internal static class CrocomireBodyAnimationGroups
 
     /// <summary>
     /// The damage wait before its roar has closed his mouth: the step back a hit starts, the wait itself, the moving claws,
-    /// the roar and the mouth closing. The wait roars again only once his body has reached the closed-mouth loop or the
-    /// reaction it runs on into.
+    /// the roar and the mouth closing. The wait roars again only once his body has reached the closed-mouth loop.
     /// </summary>
     internal static readonly FrozenSet<CrocomireBodySegment> RoarYetToCloseMouth = new[]
     {

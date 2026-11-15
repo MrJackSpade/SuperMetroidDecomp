@@ -54,7 +54,9 @@ internal static class D3D11WindowPacking
                         oval.Radii.X, oval.Radii.Y);
                     break;
                 case WindowCone cone:
-                    Write(row, ShapeKind.Cone, cone.Apex.X, cone.Apex.Y, cone.FirstEdge.RawValue, cone.SecondEdge.RawValue, 0);
+                    ConeEdgeDirection first = cone.FirstEdgeDirection, second = cone.SecondEdgeDirection;
+                    Write(row, ShapeKind.Cone, cone.Apex.X, cone.Apex.Y, first.Across, first.Down, second.Across, second.Down,
+                        WindowCone.EdgeAllowance);
                     break;
                 default:
                     throw new NotSupportedException($"The backend cannot draw a {shapes[index].GetType().Name} window shape.");
@@ -62,14 +64,14 @@ internal static class D3D11WindowPacking
         }
     }
 
-    /// <summary>Writes one shape's kind and its five parameters, in order, as signed words.</summary>
-    private static void Write(Span<uint> row, ShapeKind kind, int first, int second, int third, int fourth, int fifth)
+    /// <summary>Writes one shape's kind and then its parameters, in order, as signed words.</summary>
+    /// <exception cref="ArgumentException">The parameters do not fit the shape's rows after its kind.</exception>
+    private static void Write(Span<uint> row, ShapeKind kind, params ReadOnlySpan<int> parameters)
     {
+        if (parameters.Length >= row.Length)
+            throw new ArgumentException($"A window shape holds at most {row.Length - 1} parameters.", nameof(parameters));
         row[0] = (uint)kind;
-        row[1] = unchecked((uint)first);
-        row[2] = unchecked((uint)second);
-        row[3] = unchecked((uint)third);
-        row[4] = unchecked((uint)fourth);
-        row[5] = unchecked((uint)fifth);
+        for (int index = 0; index < parameters.Length; index++)
+            row[1 + index] = unchecked((uint)parameters[index]);
     }
 }

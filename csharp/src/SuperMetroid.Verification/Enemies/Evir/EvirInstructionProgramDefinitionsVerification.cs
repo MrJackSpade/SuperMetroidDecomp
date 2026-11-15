@@ -70,7 +70,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             state.Regenerating = true;
             state.Action = EvirAction.ProjectileRegenerating;
             enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
                 slot.AnimationClock.StepOnNextUpdate();

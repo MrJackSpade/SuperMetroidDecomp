@@ -159,7 +159,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         HashSet<ushort> shown)
     {
         object?[] arguments =
-            [etecoon, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [etecoon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int step = 0; step < steps; step++)
         {
             etecoon.AnimationClock.StepOnNextUpdate();

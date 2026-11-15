@@ -107,7 +107,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         int callCount)
     {
         object?[] arguments =
-            [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int call = 0; call < callCount; call++)
         {
             slot.AnimationClock.StepOnNextUpdate();

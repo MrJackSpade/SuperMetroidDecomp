@@ -252,7 +252,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             ushort radiusY, bool shot)
         {
             object?[] arguments =
-                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, ControllerButton.None];
+                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, default(GameplayAction)];
             bool native = slot.DefinitionId == (EnemyDefinitionId)0xffff;
             bool hit = native
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)

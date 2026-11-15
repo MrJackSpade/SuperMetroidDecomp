@@ -102,7 +102,7 @@ internal static class RipperBehaviorVerification
             ushort[] expected = [.. loop, loop[0]];
             int[] expectedUpdates = [0, 8, 15, 23, 30];
             slot.AnimationClock.Restart();
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             List<VerifyInstalledLoopCase> shown = [];
             for (int update = 0; update < 31; update++)
             {

@@ -68,7 +68,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);
 
-        object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+        object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.

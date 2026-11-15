@@ -44,7 +44,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         enemies.BeetomBehavior.InitializeBeetom(slot, samus, 0);
         BeetomEnemyState state = enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0].");
-        object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+        object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
         AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(BeetomSegment.CrawlingLeft), AnimationPlace.StartOfAnimation), state.Playback,
             "real Beetom initializer installs the left crawl");

@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
 
             slot.SpritemapPointer = frame.Pointer;
             object?[] arguments =
-                [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, ControllerButton.None];
+                [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, default(GameplayAction)];
             AssertTrue(!ExtendedHitboxWalker.Find(arguments),
                 $"Draygon OAM frame {frame.Name} has no shot callback without ROM reads");
             arguments[3] = false;

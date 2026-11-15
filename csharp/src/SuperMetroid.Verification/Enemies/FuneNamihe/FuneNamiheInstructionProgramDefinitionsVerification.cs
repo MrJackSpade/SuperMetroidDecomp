@@ -101,7 +101,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);
 
-        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
             EnemyInstructionRunner.Process(arguments);

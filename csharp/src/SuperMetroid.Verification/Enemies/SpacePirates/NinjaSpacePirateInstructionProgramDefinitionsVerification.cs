@@ -247,7 +247,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             int frames)
         {
             object?[] arguments =
-                [slot, samus, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+                [slot, samus, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < frames; frame++) EnemyInstructionRunner.Process(arguments);
         }
     }

@@ -97,7 +97,7 @@ internal static class EnemySpritemapArtworkVerification
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
-            [bull, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,

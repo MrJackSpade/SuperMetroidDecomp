@@ -243,7 +243,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(arguments);
         }

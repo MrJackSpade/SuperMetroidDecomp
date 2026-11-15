@@ -42,7 +42,7 @@ internal static class PowampBehaviorVerification
         // native record there is the pose's own.
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
-        object?[] arguments = [balloon, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+        object?[] arguments = [balloon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         foreach (PowampSegment start in new[] { PowampSegment.BalloonInflatingFromDeflated, PowampSegment.BalloonInflatingFromHalfway, PowampSegment.BalloonStartSinking, PowampSegment.BalloonDeflated })
         {
             PowampBehavior.StartPowampBalloonAnimation(balloon, balloonState, start);

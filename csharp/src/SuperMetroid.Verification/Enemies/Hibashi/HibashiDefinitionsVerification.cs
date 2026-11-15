@@ -88,13 +88,13 @@ internal static class HibashiDefinitionsVerification
         initializeProgram(twinHitbox);
 
         object?[] graphicsArguments =
-            [programGraphics, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [programGraphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         object?[] hitboxArguments =
-            [programHitbox, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [programHitbox, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         object?[] twinGraphicsArguments =
-            [twinGraphics, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [twinGraphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         object?[] twinHitboxArguments =
-            [twinHitbox, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            [twinHitbox, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)

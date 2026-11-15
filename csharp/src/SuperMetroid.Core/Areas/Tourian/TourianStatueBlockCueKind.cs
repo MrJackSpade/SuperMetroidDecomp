@@ -30,7 +30,7 @@ internal enum TourianStatueBlockCueKind
     /// <summary>Spawns the statue's rising soul.</summary>
     SpawnSoul,
 
-    /// <summary>Spawns the palette effect that greys the statue out.</summary>
+    /// <summary>Spawns the colour effect that greys the statue out.</summary>
     SpawnGreyColourEffect,
 
     /// <summary>Sets the statue's grey event.</summary>

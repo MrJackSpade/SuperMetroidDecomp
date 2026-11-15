@@ -21,6 +21,6 @@ internal enum CeresDoorAction
     /// <summary>The rotating-elevator destruction rumble and explosions.</summary>
     RotatingElevatorRumble,
 
-    /// <summary>The perpetual rotating-elevator palette animation.</summary>
+    /// <summary>The perpetual rotating-elevator colour animation.</summary>
     ElevatorAnimation,
 }

@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The door-transition palette fade an update of the Ceres haze owner sees.</summary>
+/// <summary>The door-transition colour fade an update of the Ceres haze owner sees.</summary>
 public enum CeresHazeRoomFade
 {
     /// <summary>No door fade is running.</summary>
     None,
 
-    /// <summary>The destination room's palette is fading in.</summary>
+    /// <summary>The destination room's colours are fading in.</summary>
     FadeIn,
 
-    /// <summary>The source room's palette is fading out.</summary>
+    /// <summary>The source room's colours are fading out.</summary>
     FadeOut,
 }

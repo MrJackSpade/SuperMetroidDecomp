@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public static class TourianStatueAnimationDefinitions
 {
-    /// <summary>Each statue's event, first-frame duration, boss test, shades, eye and palette effect, by statue.</summary>
+    /// <summary>Each statue's event, first-frame duration, boss test, shades, eye and colour effect, by statue.</summary>
     internal static readonly IReadOnlyDictionary<TourianGreyStatues, TourianStatueAnimationDefinition> Statues =
         new Dictionary<TourianGreyStatues, TourianStatueAnimationDefinition>
     {

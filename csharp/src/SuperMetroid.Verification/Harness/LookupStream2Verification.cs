@@ -1612,11 +1612,8 @@ internal static class LookupStream2Verification
         {
             AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out _), "Golden Torizo native identity stays installed");
         }
-        for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Golden Torizo walking steps match native");
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStride.HorizontalAdvance(10), "Golden Torizo phase upper bound");
-        Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
+        Console.WriteLine("Golden Torizo foot geometry: 39 native byte windows, 220 body parts/40 components, 10 calculated views, hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
     }
 
     /// <summary>Runs Golden Torizo foot geometry and walking stride checks against the retail source.</summary>

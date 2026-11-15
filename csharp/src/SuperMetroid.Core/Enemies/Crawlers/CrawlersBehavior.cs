@@ -144,13 +144,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RunHZoomerMain(
         RoomEnemySlot slot,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("HZoomer AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("HZoomer movement requires room collision data.");
         CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Action)
         {
@@ -291,10 +287,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs shared crawler main AI.</summary>
-    private void RunCrawlerMain(RoomEnemySlot slot, RoomLevelData? level)
+    private void RunCrawlerMain(RoomEnemySlot slot, RoomLevelData level)
     {
-        if (level is null)
-            throw new InvalidOperationException("Crawler movement requires active room collision data.");
         CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Action)
         {

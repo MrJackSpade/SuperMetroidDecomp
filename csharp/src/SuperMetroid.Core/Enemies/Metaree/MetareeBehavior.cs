@@ -63,12 +63,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMetareeMain(
         RoomEnemySlot slot,
         MetareeEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Metaree AI requires the active Samus actor.");
-
         switch (state.Action)
         {
             case MetareeAction.Idling:
@@ -80,11 +77,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case MetareeAction.LaunchedAttack:
-                if (level is null)
-                {
-                    throw new InvalidOperationException(
-                        "Metaree dive collision requires active room level data.");
-                }
                 RunMetareeDive(slot, state, samus, level);
                 return;
 

@@ -67,11 +67,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BeetomMashCount = 64;
 
     /// <summary>Initializes the Beetom.</summary>
-    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, GameplayAction controllerInput)
+    internal void InitializeBeetom(RoomEnemySlot slot, SamusState samus, GameplayAction controllerInput)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
-
         BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
         slot.SetSpeciesState(state);
 
@@ -106,14 +103,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBeetomMain(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         GameplayAction controllerInput)
     {
         switch (state.Action)
         {
             case BeetomAction.DecideAction:
-                RequireBeetomSamus(samus);
                 state.Action = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < BeetomProximityDistance
                     ? BeetomAction.DecideActionSamusInProximity
                     : BeetomAction.DecideActionSamusNotInProximity;
@@ -144,7 +140,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomHop(slot, state, state.InitialLongLeapYSpeedCurvePlace, direction: HorizontalDirection.Right, BeetomHopLength.Long);
                 return;
             case BeetomAction.DecideActionSamusInProximity:
-                RequireBeetomSamus(samus);
                 StartBeetomLunge(slot, state, samus);
                 return;
             case BeetomAction.StartDrainingLeft:
@@ -165,53 +160,39 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Action = BeetomAction.DecideAction;
                 return;
             case BeetomAction.CrawlingLeft:
-                RequireBeetomLevel(level);
                 RunBeetomCrawl(slot, state, level, direction: HorizontalDirection.Left);
                 return;
             case BeetomAction.CrawlingRight:
-                RequireBeetomLevel(level);
                 RunBeetomCrawl(slot, state, level, direction: HorizontalDirection.Right);
                 return;
             case BeetomAction.ShortHopLeft:
-                RequireBeetomLevel(level);
                 RunBeetomArc(slot, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: 4, fallingDelta: 4);
                 return;
             case BeetomAction.ShortHopRight:
-                RequireBeetomLevel(level);
                 RunBeetomArc(slot, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: 4, fallingDelta: 4);
                 return;
             case BeetomAction.LongHopLeft:
-                RequireBeetomLevel(level);
                 RunBeetomArc(slot, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: 5, fallingDelta: 5);
                 return;
             case BeetomAction.LongHopRight:
-                RequireBeetomLevel(level);
                 RunBeetomArc(slot, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: 5, fallingDelta: 5);
                 return;
             case BeetomAction.LungeLeft:
-                RequireBeetomLevel(level);
                 RunBeetomArc(slot, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Lunge, risingDelta: 5, fallingDelta: 3);
                 return;
             case BeetomAction.LungeRight:
-                RequireBeetomLevel(level);
                 RunBeetomArc(slot, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Lunge, risingDelta: 5, fallingDelta: 3);
                 return;
             case BeetomAction.DrainingLeft:
-                RequireBeetomSamus(samus);
-                RequireBeetomLevel(level);
                 RunBeetomDrain(slot, state, samus, level, controllerInput, side: HorizontalDirection.Left);
                 return;
             case BeetomAction.DrainingRight:
-                RequireBeetomSamus(samus);
-                RequireBeetomLevel(level);
                 RunBeetomDrain(slot, state, samus, level, controllerInput, side: HorizontalDirection.Right);
                 return;
             case BeetomAction.Dropping:
-                RequireBeetomLevel(level);
                 RunBeetomDrop(slot, state, level);
                 return;
             case BeetomAction.BeingFlung:
-                RequireBeetomLevel(level);
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
@@ -539,20 +520,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, BeetomAnimations.StartingWith(segment));
     }
 
-    /// <summary>Requires a live Samus actor for attachment and targeting phases.</summary>
-    private static void RequireBeetomSamus([NotNull] SamusState? samus)
-    {
-        if (samus is null)
-            throw new InvalidOperationException("Beetom AI requires the active Samus actor.");
-    }
-
-    /// <summary>Requires room collision data before moving Beetom through terrain.</summary>
-    private static void RequireBeetomLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Beetom movement requires room level data.");
-    }
-
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
     /// <remarks>Common damage can kill the Beetom before this private tail runs, so the identity is matched before
     /// dispatch.</remarks>
@@ -564,7 +531,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Beetom's initialization AI.</summary>
     internal void RunBeetomInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeBeetom(slot, surroundings.Samus, surroundings.ControllerInput);
+        InitializeBeetom(slot, surroundings.IntroducedSamus, surroundings.ControllerInput);
     }
 
     /// <summary>Runs Beetom's main AI.</summary>

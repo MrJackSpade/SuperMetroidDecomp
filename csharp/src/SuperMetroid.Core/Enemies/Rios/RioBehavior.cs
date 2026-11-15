@@ -57,8 +57,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunRioMain(
         RoomEnemySlot slot,
         RioEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         Position16<RoomPixels> camera)
     {
         // The Rio's main behaviour advances the global enemy RNG even though this particular family never
@@ -69,7 +69,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case RioAction.WaitingForSamus:
-                if (samus is null || !EnemyMath.IsWithinStrictModularDistance(
+                if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
                         RioTriggerDistance))
@@ -106,7 +106,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RioAction.Diving:
-                RequireRioLevel(level);
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
                         slot,
@@ -143,7 +142,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RioAction.BouncingBackToPerch:
-                RequireRioLevel(level);
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
                         slot,
@@ -169,10 +167,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RioAction.HoveringTowardSamus:
-                if (samus is null)
-                    throw new InvalidOperationException("Rio homing requires the active Samus actor.");
-                RequireRioLevel(level);
-
                 // Once Rio reaches Samus's Y coordinate from above, it restores the saved
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
                 if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
@@ -242,13 +236,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static SignedEightEight ReadRioSignedSineCosineSample(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
-
-    /// <summary>Rejects movement dispatch without active room collision data.</summary>
-    private static void RequireRioLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Rio movement requires the current room level data.");
-    }
 
     /// <summary>Runs Rio's main AI.</summary>
     internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

@@ -83,7 +83,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Dragon's main AI and its five body actions.</summary>
-    private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState? samus)
+    private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState samus)
     {
         switch (state.Action)
         {
@@ -120,12 +120,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunDragonWaitToRise(
         RoomEnemySlot body,
         DragonEnemyState bodyState,
-        SamusState? samus)
+        SamusState samus)
     {
         if (--bodyState.ActionTimer >= 0)
             return;
-        if (samus is null)
-            throw new InvalidOperationException("Dragon facing selection requires the active Samus actor.");
 
         RoomEnemySlot wing = GetDragonWing(body);
         DragonEnemyState wingState = wing.RequireSpeciesState<DragonEnemyState>();

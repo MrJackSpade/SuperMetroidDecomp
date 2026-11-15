@@ -18,7 +18,7 @@ internal static class EvirDeathFrameVerification
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
-        Action<RoomEnemySlot, SamusState?> initialize = enemies.EvirBehavior.InitializeEvir;
+        Action<RoomEnemySlot, SamusState> initialize = enemies.EvirBehavior.InitializeEvir;
         Action<RoomEnemySlot> initializeProjectile = enemies.EvirBehavior.InitializeEvirProjectile;
         for (int index = 6; index <= 8; index++)
         {

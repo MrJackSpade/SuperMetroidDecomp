@@ -36,7 +36,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
                 && started.Place == AnimationPlace.StartOfAnimation,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
-            EnemyAnimationPlayer.AdvanceAnimation(slot, null, null, Position16<RoomPixels>.Zero, 0);
+            EnemyAnimationPlayer.AdvanceAnimation(slot, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertTrue(slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} executes native delete");
         }

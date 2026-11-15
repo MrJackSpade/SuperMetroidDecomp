@@ -33,7 +33,7 @@ internal static class ElevatorInputDefinitionsVerification
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, GameplayAction,
-                    SamusProjectileSystem?> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
+                    SamusProjectileSystem> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
@@ -49,11 +49,11 @@ internal static class ElevatorInputDefinitionsVerification
             GameplayAction opposite = GameplayActionWordCodec.FromJoypadWord(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))), "native opposite elevator mask");
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
-            wait(slot, elevator, samus, opposite, null);
+            wait(slot, elevator, samus, opposite, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
             AssertEqual(before, enemies.ElevatorBehavior.ElevatorStatus, "opposite elevator direction cannot start departure");
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "opposite elevator input queues no departure sounds");
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
-            wait(slot, elevator, samus, native, null);
+            wait(slot, elevator, samus, native, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
             AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastEnemyFrame.Elevator,

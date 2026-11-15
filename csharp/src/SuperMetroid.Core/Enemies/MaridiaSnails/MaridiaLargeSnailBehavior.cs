@@ -90,15 +90,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private void RunMaridiaLargeSnailMain(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         GameplayAction controllerInput)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Maridia Large Snail AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Maridia Large Snail AI requires room level data.");
-
         UpdateMaridiaLargeSnailSamusProximity(slot, state, samus);
         state.PreviousPosition = slot.Position.Whole;
 

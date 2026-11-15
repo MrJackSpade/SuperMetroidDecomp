@@ -98,7 +98,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunKzanTopMain(
         RoomEnemySlot slot,
         KzanEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         switch (state.Action)
         {
@@ -140,7 +140,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunKzanFalling(
         RoomEnemySlot slot,
         KzanEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         state.PreviousPosition = slot.Position.Whole;
         slot.Position = slot.Position.AdvanceY(state.FallingSpeed);
@@ -174,7 +174,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunKzanRising(
         RoomEnemySlot slot,
         KzanEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         state.PreviousPosition = slot.Position.Whole;
 
@@ -221,9 +221,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void CarrySamusWithKzanIfTouchingFromBelow(
         RoomEnemySlot slot,
         KzanEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null || !IsKzanTouchingSamusFromBelow(slot, samus))
+        if (!IsKzanTouchingSamusFromBelow(slot, samus))
             return;
 
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, (slot.Position.Whole - state.PreviousPosition).Y);

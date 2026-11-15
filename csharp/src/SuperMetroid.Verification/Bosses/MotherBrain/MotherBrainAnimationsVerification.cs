@@ -85,10 +85,10 @@ internal static class MotherBrainAnimationsVerification
             var shown = beats.OfType<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame>().First();
             int duration = shown.Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((MotherBrainHeadFrame?)shown.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null),
+                AssertEqual((MotherBrainHeadFrame?)shown.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
-            enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
+            enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
             AnimationPlayback<MotherBrainHeadSegment> resting = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");
             AnimationPhase<MotherBrainHeadSegment> phase = resting.Animation.Phases[resting.Place.Phase];
@@ -109,7 +109,7 @@ internal static class MotherBrainAnimationsVerification
             enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2Hold);
             for (int draw = 0; draw <= 8; draw++)
-                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
+                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             // Holding restarts the hold's animation on its first frame; leaving rests on the hold's last frame before its goto.
             AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.NeutralPhase2Hold),
                     new AnimationPlace(0, holds ? 0 : 2)),
@@ -123,7 +123,7 @@ internal static class MotherBrainAnimationsVerification
             state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), AnimationPlace.StartOf(2));
             state.BrainFrameTimer = 1;
             for (int draw = 0; draw <= 2; draw++)
-                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
+                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AnimationPlayback<MotherBrainHeadSegment> drooling = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");
             AssertEqual(bursts ? MotherBrainHeadSegment.DyingDroolBurst : MotherBrainHeadSegment.DyingDroolLoop, drooling.Animation.Phases[drooling.Place.Phase].Segment,
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
@@ -145,7 +145,7 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, program);
             for (int update = 0; update < 256; update++)
             {
-                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
+                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: RoomEnemyFrameFixtures.StandaloneSamus());
                 // Every move carries her body's area with her (#1949): her posture changes no longer move it across.
                 AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole + new Offset16<RoomPixels>(-38, -63), state.BodyOrigin,
                     $"{program}: her body's area stays 38 pixels left of and 63 above her");
@@ -204,7 +204,7 @@ internal static class MotherBrainAnimationsVerification
         int update = 0;
         for (; update < updates && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             string at = $"{name} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
@@ -241,7 +241,7 @@ internal static class MotherBrainAnimationsVerification
         for (; update < 64 && !native.Deleted; update++)
         {
             FixedPosition<RoomPixels> aim = state.HandBeamNextPosition;
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, null, Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             string at = $"hand beam update {update}";
             bool spawned = native.Calls.Count > 0;

@@ -97,7 +97,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunEscapeEtecoonMain(
         RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         switch (state.FrameBehavior)
         {
@@ -129,11 +129,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunEscapeEtecoonWalking(
         RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null)
-            throw new InvalidOperationException("Escape Etecoon walking requires room collision data.");
-
         // The stored speed is signed and in 1/256 pixels; the slope-ignoring horizontal mover receives signed
         // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
         // branch in the retail game and must not turn an animal around in open space.
@@ -156,7 +153,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an escaping Etecoon's or Dachora's typed animation where the shared enemy animation would.</summary>
-    private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState? samus)
+    private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState samus)
     {
         if (!slot.AnimationClock.Expire())
             return;
@@ -179,7 +176,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
-    private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemySlot slot, EscapeEtecoonEnemyState state, SamusState? samus, EscapeEtecoonCue cue)
+    private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemySlot slot, EscapeEtecoonEnemyState state, SamusState samus, EscapeEtecoonCue cue)
     {
         switch (cue)
         {
@@ -200,7 +197,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Dachora's animation, returning the target a branch continues at, or null to run on.</summary>
-    private EscapeDachoraSegment? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState? samus, EscapeDachoraCue cue)
+    private EscapeDachoraSegment? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState samus, EscapeDachoraCue cue)
     {
         switch (cue.Kind)
         {
@@ -226,7 +223,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent,
     /// as it is with no Samus or liquid context.
     /// </summary>
-    private static bool IsAcidLow(SamusState? samus) =>
+    private static bool IsAcidLow(SamusState samus) =>
         samus?.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
 
     /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>

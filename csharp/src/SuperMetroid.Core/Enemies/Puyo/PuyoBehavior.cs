@@ -71,14 +71,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunPuyoMain(
         RoomEnemySlot slot,
         PuyoEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Puyo AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Puyo movement requires decoded room collision data.");
-
         switch (state.Action)
         {
             case PuyoAction.Grounded:

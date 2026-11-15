@@ -46,8 +46,8 @@ internal sealed class EnemyAnimationPlayer
     /// </summary>
     internal static void AdvanceAnimation(
         RoomEnemySlot slot,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         Position16<RoomPixels> camera,
         GameplayAction controllerInput)
     {

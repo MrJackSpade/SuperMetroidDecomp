@@ -57,17 +57,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunPolypMain(
         RoomEnemySlot slot,
         PolypEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         switch (state.Action)
         {
             case PolypAction.WaitingForSamus:
-                if (samus is null)
-                {
-                    throw new InvalidOperationException(
-                        "Polyp proximity AI requires the active Samus actor.");
-                }
-
                 if (IsWithinPolypAxis(samus.Position.X.Whole, slot.Position.X.Whole) &&
                     IsWithinPolypAxis(samus.Position.Y.Whole, slot.Position.Y.Whole))
                 {

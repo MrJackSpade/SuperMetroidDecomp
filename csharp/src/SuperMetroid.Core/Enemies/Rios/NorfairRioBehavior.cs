@@ -78,8 +78,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunNorfairRioMain(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         int random = _room.Random.Generate();
 
@@ -93,8 +93,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The retail gate tests two parts of the newly generated random
                 // number, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle animation without starting an attack.
-                if (samus is null ||
-                    (!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
+                if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
@@ -137,7 +136,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.Dive:
-                RequireNorfairRioLevel(level);
                 MoveNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -154,7 +152,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.ReturnToPerch:
-                RequireNorfairRioLevel(level);
                 MoveNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -291,13 +288,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Norfair Rio follower in slot {follower.SlotIndex} must immediately follow " +
                 "a parent of the same definition.");
         }
-    }
-
-    /// <summary>Rejects a movement update without the room terrain data it needs.</summary>
-    private static void RequireNorfairRioLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Norfair Rio movement requires room level data.");
     }
 
     /// <summary>Runs the Norfair Rio's main AI.</summary>

@@ -44,14 +44,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMultiviolaMain(
         RoomEnemySlot slot,
         MultiviolaEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null)
-        {
-            throw new InvalidOperationException(
-                "Multiviola movement requires the active room collision allocation.");
-        }
-
         // The two magnitudes are always rebuilt from the current reflected angle. The game
         // therefore stores the attempted velocity for this frame, not a persistent
         // direction vector that can simply be negated after collision.

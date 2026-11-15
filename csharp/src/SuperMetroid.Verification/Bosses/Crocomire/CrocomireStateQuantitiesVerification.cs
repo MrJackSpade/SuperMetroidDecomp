@@ -353,7 +353,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state)
     {
         enemies.Audio.BeginFrame();
-        EnemyAnimationPlayer.AdvanceAnimation(state.Body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(state.Body, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>Runs Crocomire's state-quantity checks from the command dispatcher.</summary>

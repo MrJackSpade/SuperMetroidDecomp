@@ -85,11 +85,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an Sbug's per-frame behaviour through all of its actions.</summary>
-    internal void RunSbugMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
+    internal void RunSbugMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Sbug AI requires the active Samus actor.");
-
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         switch (state.Action)
         {
@@ -220,15 +217,13 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunSbugCollisionAwareSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         if (--state.MovementTimer < 0)
         {
             state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
             return;
         }
-        if (level is null)
-            throw new InvalidOperationException("Collision-aware Sbug movement requires room level data.");
 
         // The movement stops at the first colliding axis. The common movers also perform the
         // game's wall alignment, so a collision frame must not receive a second raw

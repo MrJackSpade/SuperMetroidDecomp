@@ -19,8 +19,8 @@ internal sealed record RoomEnemyFrame
     /// <summary>Whether time is frozen, which stops the enemies' AI and animations; it does not stop every timer, the room-wide glows, or frame publication.</summary>
     public required bool TimeIsFrozen { get; init; }
 
-    /// <summary>Samus, or null while the running scenario has not introduced her.</summary>
-    public required SamusState? Samus { get; init; }
+    /// <summary>Samus.</summary>
+    public required SamusState Samus { get; init; }
 
     /// <summary>The actions newly pressed this update, distinct from the held actions.</summary>
     public GameplayAction NewlyPressedControllerInput { get; init; } = 0;

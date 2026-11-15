@@ -32,7 +32,7 @@ internal static class PowampDeathSequenceVerification
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;
         state.ActionTimer = 1;
-        runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LevelData);
+        runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LoadedLevelData);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");

@@ -18,8 +18,8 @@ internal static class EnemyInstructionRunner
     internal static void Process(object?[] arguments) =>
         EnemyAnimationPlayer.AdvanceAnimation(
             arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
-            Optional<SamusState>(arguments, 1),
-            Optional<RoomLevelData>(arguments, 2),
+            Optional<SamusState>(arguments, 1) ?? RoomEnemyFrameFixtures.StandaloneSamus(),
+            Optional<RoomLevelData>(arguments, 2) ?? RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
             Value<Position16<RoomPixels>>(arguments, 3),
             Value<GameplayAction>(arguments, 4));
 

@@ -134,11 +134,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunWorkRobotMain(
         RoomEnemySlot slot,
         WorkRobotEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null)
-            throw new InvalidOperationException("Work Robot gravity requires room collision data.");
-
         if (_terrain.MoveEnemyVertically(level, slot, state.FallVelocity))
             return;
 
@@ -223,11 +220,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall animations when support ends.</summary>
-    private WorkRobotSegment? MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, WorkRobotMoveStep step)
+    private WorkRobotSegment? MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState samus, RoomLevelData level, WorkRobotMoveStep step)
     {
-        if (level is null)
-            throw new InvalidOperationException("Work Robot movement step requires room collision data.");
-
         DecrementWorkRobotLaserCooldown(state);
         state.Facing = step.Facing;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -311,14 +305,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// indestructible vulnerability table leaves health unchanged, but the accepted impact
     /// still chooses an ahead/behind recoil animation and delays the next laser by 64 frames.
     /// </summary>
-    private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState? samus)
+    private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState samus)
     {
         if (robot.DefinitionId != EnemyDefinitionId.Robot || robot.Health == 0)
             return;
         if (!_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
             return;
-        if (samus is null)
-            throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");
 
         WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
         bool facingLeft = state.Facing == HorizontalDirection.Left;

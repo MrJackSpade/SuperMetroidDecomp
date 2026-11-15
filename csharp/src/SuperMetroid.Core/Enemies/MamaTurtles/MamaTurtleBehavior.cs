@@ -78,7 +78,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of a baby turtle's animations. The crawl loop, leaving the shell while ridden and the end of
     /// leaving it continue at the animation their cues return; every other cue runs on.
     /// </summary>
-    private MamaTurtleSegment? ApplyBabyTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue, SamusState? samus, RoomLevelData? level)
+    private MamaTurtleSegment? ApplyBabyTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue, SamusState samus, RoomLevelData level)
     {
         switch (cue.Kind)
         {
@@ -165,13 +165,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMamaTurtleMain(
         RoomEnemySlot slot,
         MamaTurtleEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         int frameCycle)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Mama Turtle AI requires the active Samus actor.");
-
         switch (state.Action)
         {
             case MamaTurtleAction.Initial:
@@ -183,7 +180,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunMamaTurtleAsleep(slot, state, samus);
                 return;
             case MamaTurtleAction.LeavingShell:
-                RequireTurtleLevel(level);
                 RunMamaTurtleLeavingShell(
                     slot, state, samus, level, frameCycle);
                 return;
@@ -191,11 +187,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunMamaTurtleEnteringShell(slot, state, samus);
                 return;
             case MamaTurtleAction.RisingToHover:
-                RequireTurtleLevel(level);
                 RunMamaTurtleRisingToHover(slot, state, samus, level);
                 return;
             case MamaTurtleAction.Hovering:
-                RequireTurtleLevel(level);
                 RunMamaTurtleHovering(slot, state, samus, level);
                 return;
             case MamaTurtleAction.RisingToPeak:
@@ -205,7 +199,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunMamaTurtleHoveringAtPeak(slot, state, samus);
                 return;
             case MamaTurtleAction.Falling:
-                RequireTurtleLevel(level);
                 RunMamaTurtleFalling(slot, state, samus, level);
                 return;
             default:
@@ -480,12 +473,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBabyTurtleMain(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Baby Turtle AI requires the active Samus actor.");
-
         // The prologue requires the child's parent to be a Mama Turtle. The game also clears and republishes a
         // carried-height value on the parent here, which nothing reads.
         _ = RequireMamaTurtleParent(baby);
@@ -538,7 +528,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyTurtleAction.SpinningUnstoppable:
-                RequireTurtleLevel(level);
                 MoveSpinningBabyTurtle(baby, state, level);
                 return;
 
@@ -549,7 +538,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                     return;
                 }
-                RequireTurtleLevel(level);
                 MoveSpinningBabyTurtle(baby, state, level);
                 return;
 
@@ -583,15 +571,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ProcessBabyTurtleCrawlAnimation(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null || level is null)
-        {
-            throw new InvalidOperationException(
-                "A crawling Baby Turtle requires Samus and active room collision data.");
-        }
-
         bool carryingSamus = PlatformsBehavior.IsSamusRidingPlatform(baby, samus);
         if (carryingSamus)
         {
@@ -657,10 +639,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static MamaTurtleSegment? SelectBabyTurtleLeaveShell(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("A Baby Turtle on Mama's shell requires Samus.");
         if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
             return null;
         return state.Velocity.X < 0
@@ -672,10 +652,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static MamaTurtleSegment FinishBabyTurtleLeavingShell(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("A Baby Turtle on Mama's shell requires Samus.");
         state.Action = PlatformsBehavior.IsSamusRidingPlatform(baby, samus)
             ? BabyTurtleAction.CrawlingCarryingSamus
             : BabyTurtleAction.CrawlingNotCarryingSamus;
@@ -702,11 +680,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
         SamusState samus,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
         if (state.Action == BabyTurtleAction.CrawlingCarryingSamus)
             return;
-        RequireTurtleLevel(level);
 
         if (state.Velocity.X < 0)
         {
@@ -820,13 +797,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
-    }
-
-    /// <summary>Rejects turtle movement without active room collision data.</summary>
-    private static void RequireTurtleLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Turtle movement requires active room collision data.");
     }
 
     /// <summary>Runs the baby wake reaction after common bomb damage.</summary>

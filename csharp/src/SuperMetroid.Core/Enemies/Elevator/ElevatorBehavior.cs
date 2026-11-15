@@ -118,7 +118,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
+    internal void InitializeElevator(RoomEnemySlot slot, SamusState samus)
     {
         var state = new ElevatorEnemyState();
         slot.SetSpeciesState(state);
@@ -139,8 +139,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         // impossible missing Samus.
         if (ElevatorStatus != ElevatorActorStatus.Inactive || ElevatorFlags != ElevatorJourneyFlag.None)
         {
-            if (samus is null)
-                throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
             slot.Position = slot.Position.WithWholeY(slot.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
             PinSamusToElevator(slot, samus);
             _arrivalPlacement = slot;
@@ -151,17 +149,15 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     private void RunElevatorMain(
         RoomEnemySlot slot,
         ElevatorEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         GameplayAction newlyPressedControllerInput,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem samusProjectiles)
     {
         if (ElevatorDoorTransitionActive ||
             (ElevatorStatus == ElevatorActorStatus.Inactive && ElevatorFlags == ElevatorJourneyFlag.None))
         {
             return;
         }
-        if (samus is null)
-            throw new InvalidOperationException("Active elevator AI requires Samus state.");
 
         switch (ElevatorStatus)
         {
@@ -200,7 +196,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorEnemyState state,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem samusProjectiles)
     {
         GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[state.Direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
@@ -297,7 +293,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>Runs Elevator's initialization AI.</summary>
     internal void RunElevatorInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeElevator(slot, surroundings.Samus);
+        InitializeElevator(slot, surroundings.IntroducedSamus);
     }
 
     /// <summary>Runs Elevator's main AI.</summary>

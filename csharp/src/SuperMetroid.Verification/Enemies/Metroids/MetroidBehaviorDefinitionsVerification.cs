@@ -110,7 +110,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                         MetroidAnimations.Segments.Beats(MetroidSegment.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
             });
 
-            EnemyAnimationPlayer.AdvanceAnimation(slot, null, null, Position16<RoomPixels>.Zero, 0);
+            EnemyAnimationPlayer.AdvanceAnimation(slot, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
 
             AssertEqual((SoundEffectId?)MetroidReactions.RandomCrySoundEffect(random),
                 enemies.Audio.LatestSound,

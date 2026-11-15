@@ -15,7 +15,7 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public Position16<RoomPixels> Camera => frame.Camera;
 
     /// <inheritdoc/>
-    public SamusState? Samus => frame.Samus;
+    public SamusState Samus => frame.Samus;
 
     /// <inheritdoc/>
     public GameplayAction NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
@@ -27,13 +27,13 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public RoomLevelData Level => frame.Level;
 
     /// <inheritdoc/>
-    public SamusProjectileSystem? SamusProjectiles => frame.SamusProjectiles;
+    public SamusProjectileSystem SamusProjectiles => frame.SamusProjectiles;
 
     /// <inheritdoc/>
     public TurningFloorTransform? TurningFloor => frame.TurningFloor;
 
     /// <inheritdoc/>
-    public SamusBombProjectileSystem? SharedProjectiles => frame.SharedProjectiles;
+    public SamusBombProjectileSystem SharedProjectiles => frame.SharedProjectiles;
 
     /// <inheritdoc/>
     public FrameCounters Clock => clock;

@@ -58,7 +58,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glowFrame));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
-    internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
+    internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
         slot.SetSpeciesState(state);
@@ -85,7 +85,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     internal void RunBlueBrinstarFaceBlockMain(
         RoomEnemySlot slot,
         BlueBrinstarFaceBlockEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         // The collected items, not the equipped ones, gate both the glow and waking. A null Samus owner means the caller
         // has not supplied her, so leaving the block dormant is the only non-invented behaviour until a gameplay update does.
@@ -119,7 +119,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
-    private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
+    private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState samus) =>
         samus is not null &&
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
@@ -176,7 +176,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>
     internal void RunBlueBrinstarFaceBlockInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeBlueBrinstarFaceBlock(slot, surroundings.Samus);
+        InitializeBlueBrinstarFaceBlock(slot, surroundings.IntroducedSamus);
     }
 
     /// <summary>Runs the blue Brinstar face block's main AI.</summary>

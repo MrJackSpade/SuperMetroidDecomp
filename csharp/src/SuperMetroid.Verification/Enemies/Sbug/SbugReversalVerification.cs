@@ -61,7 +61,7 @@ internal static class SbugReversalVerification
             state.MovementTimer = 32;
             state.Action = SbugAction.MoveStraightAndReverseWhenFar;
 
-            enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+            enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             var expected = new FixedPosition<RoomPixels>(start.X.MovedBy(-x), start.Y.MovedBy(-y));
             if (state.CustomXVelocity != -x || state.CustomYVelocity != -y || slot.Position != expected)
                 throw new InvalidOperationException(

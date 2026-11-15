@@ -88,7 +88,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs every action of a Powamp's body; the balloon has none, its body moves it.</summary>
-    internal void RunPowampMain(RoomEnemySlot slot, PowampBodyState state, RoomLevelData? level)
+    internal void RunPowampMain(RoomEnemySlot slot, PowampBodyState state, RoomLevelData level)
     {
         PowampBalloon balloon = RequirePowampBalloon(slot);
         switch (state.Action)
@@ -466,7 +466,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Rejects a rise or sink dispatch without room collision data.</summary>
-    private static RoomLevelData RequirePowampLevel(RoomLevelData? level) =>
+    private static RoomLevelData RequirePowampLevel(RoomLevelData level) =>
         level ?? throw new InvalidOperationException("Powamp movement requires room level data.");
 
     /// <summary>Requires the balloon the body found when it was placed to be its initialized balloon half.</summary>

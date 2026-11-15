@@ -122,8 +122,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDachoraMain(
         RoomEnemySlot slot,
         DachoraEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         int frameCycle)
     {
         // Echo AI needs only the frame counter's parity. Every body state needs both the active

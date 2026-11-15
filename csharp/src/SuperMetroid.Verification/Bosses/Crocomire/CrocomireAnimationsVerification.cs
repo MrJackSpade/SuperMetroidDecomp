@@ -128,7 +128,7 @@ internal static class CrocomireAnimationsVerification
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state, SamusState? samus = null)
     {
         enemies.Audio.BeginFrame();
-        EnemyAnimationPlayer.AdvanceAnimation(state.Body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(state.Body, samus ?? RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -220,7 +220,7 @@ internal static class CrocomireAnimationsVerification
             var native = new NativeEnemyListReader(BodyBankNumber, entry, 1, _ => 0);
             for (int update = 0; update < 60; update++)
             {
-                EnemyAnimationPlayer.AdvanceAnimation(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+                EnemyAnimationPlayer.AdvanceAnimation(tongue, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
                 List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
                 string at = $"Crocomire tongue {program} update {update}";
                 AssertEqual(0, callbacks.Count, $"{at}: the tongue lists have no callbacks");
@@ -294,7 +294,7 @@ internal static class CrocomireAnimationsVerification
         int dropsBefore = enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int update = 0; update < 50 && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             string at = $"Crocomire {label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");

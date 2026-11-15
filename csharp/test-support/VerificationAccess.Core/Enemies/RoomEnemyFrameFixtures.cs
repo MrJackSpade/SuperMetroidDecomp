@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;
@@ -19,9 +20,9 @@ internal static class RoomEnemyFrameFixtures
     private static readonly ConditionalWeakTable<RoomEnemySystem, StandaloneInputs> SystemInputs = [];
 
     /// <summary>
-    /// A frame over <paramref name="level"/> with the camera at the room's origin, time running and no Samus: both of the
-    /// game's clocks at <paramref name="frameCounter"/>, idle new Samus projectile and bomb systems and Samus's starting
-    /// colours. A check sets what it needs with a <c>with</c> expression.
+    /// A frame over <paramref name="level"/> with the camera at the room's origin, time running and a new Samus
+    /// (<see cref="StandaloneSamus"/>): both of the game's clocks at <paramref name="frameCounter"/>, idle new Samus
+    /// projectile and bomb systems and Samus's starting colours. A check sets what it needs with a <c>with</c> expression.
     /// </summary>
     internal static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter) =>
         Standalone(level, frameCounter, new StandaloneInputs());
@@ -38,12 +39,19 @@ internal static class RoomEnemyFrameFixtures
             RoomLevelData.NothingBeyondGrid(), []);
     }
 
+    /// <summary>
+    /// A new Samus, as the game creates her, for a check whose enemies run beside her without the check placing her
+    /// (#2010): every enemy update has Samus.
+    /// </summary>
+    internal static SamusState StandaloneSamus() => new(InstalledFixtures.FramesBeyondAnimation,
+        new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState());
+
     /// <summary>Builds the frame from one set of inputs.</summary>
     private static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter, StandaloneInputs inputs) => new()
     {
         Camera = Position16<RoomPixels>.Zero,
         TimeIsFrozen = false,
-        Samus = null,
+        Samus = inputs.Samus,
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
@@ -78,9 +86,12 @@ internal static class RoomEnemyFrameFixtures
         }
     }
 
-    /// <summary>Idle Samus projectiles and bombs and Samus's starting colours.</summary>
+    /// <summary>A new Samus, idle Samus projectiles and bombs and Samus's starting colours.</summary>
     private sealed class StandaloneInputs
     {
+        /// <summary>Samus, new.</summary>
+        internal SamusState Samus { get; } = StandaloneSamus();
+
         /// <summary>Samus's beams and missiles, none fired.</summary>
         internal SamusProjectileSystem Projectiles { get; } = InstalledFixtures.CreateProjectileSystem();
 

@@ -129,9 +129,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private void RunNinjaSpacePirateMain(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
-        SamusProjectileSystem? samusProjectiles)
+        SamusState samus,
+        RoomLevelData level,
+        SamusProjectileSystem samusProjectiles)
     {
         switch (state.Action)
         {
@@ -194,7 +194,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         SamusState samus,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem samusProjectiles)
     {
         if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) >=
             NinjaPirateActivationDistance)
@@ -215,7 +215,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         SamusState samus,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem samusProjectiles)
     {
         if (TryNinjaPirateProjectileFlinch(slot, state, samus, samusProjectiles) ||
             TryNinjaPirateStandingKick(slot, state, samus) ||
@@ -232,11 +232,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         SamusState samus,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem samusProjectiles)
     {
-        if (samusProjectiles is null)
-            return false;
-
         // A ninja pirate reacts to a beam or missile by its kind, not its picture, so the invisible Murder Beam counts.
         SamusProjectile? projectile = PirateFlinchFromHighestShot.Shot(
             samusProjectiles.Shots, shot => shot.HasEnemyCollisionPayload);
@@ -332,7 +329,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         SamusState samus,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem samusProjectiles)
     {
         if (TryNinjaPirateProjectileFlinch(slot, state, samus, samusProjectiles) ||
             TryNinjaPirateStandingKick(slot, state, samus))
@@ -441,15 +438,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal void StepNinjaPirateDive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
-        RoomLevelData? level,
+        RoomLevelData level,
         HorizontalDirection direction)
     {
-        if (level is null)
-        {
-            throw new InvalidOperationException(
-                "Ninja Space Pirate divekick movement requires room collision data.");
-        }
-
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
             (direction == HorizontalDirection.Right ? NinjaPirateDiveHorizontalPixels : -NinjaPirateDiveHorizontalPixels));
 
@@ -569,7 +560,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
@@ -588,11 +579,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 SpawnNinjaPirateClaw(slot, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
-                if (samus is null)
-                {
-                    throw new InvalidOperationException(
-                        "Ninja Space Pirate facing selection requires the active Samus actor.");
-                }
                 state.ActiveAnimation = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
                     ? NinjaSpacePirateSegment.ActiveFacingRight
                     : NinjaSpacePirateSegment.ActiveFacingLeft;

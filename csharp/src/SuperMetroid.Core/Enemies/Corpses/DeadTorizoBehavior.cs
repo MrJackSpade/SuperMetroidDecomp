@@ -62,7 +62,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    internal void RunDeadTorizoMain(RoomEnemySlot slot, SamusState? samus)
+    internal void RunDeadTorizoMain(RoomEnemySlot slot, SamusState samus)
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
 

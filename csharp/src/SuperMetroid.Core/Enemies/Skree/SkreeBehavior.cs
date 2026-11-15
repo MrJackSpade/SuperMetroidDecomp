@@ -47,10 +47,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    internal void RunSkreeMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
+    internal void RunSkreeMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Skree AI requires the active Samus actor.");
         SkreeEnemyState state = slot.RequireSpeciesState<SkreeEnemyState>();
         switch (state.Action)
         {
@@ -75,8 +73,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case SkreeAction.Diving:
-                if (level is null)
-                    throw new InvalidOperationException("Skree dive collision requires room level data.");
                 RunSkreeDive(slot, state, samus, level);
                 return;
 

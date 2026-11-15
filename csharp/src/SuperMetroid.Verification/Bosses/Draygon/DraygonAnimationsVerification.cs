@@ -198,7 +198,7 @@ internal static class DraygonAnimationsVerification
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
     private static void Pass(RoomEnemySlot part) =>
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
 
     /// <summary>
     /// The body's reset starts all four parts in the same update, gives the eye its tracking function and the

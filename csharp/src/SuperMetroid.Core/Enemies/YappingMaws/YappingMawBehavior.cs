@@ -139,17 +139,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunYappingMawMain(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         state.GrabCooldown = state.GrabCooldown.Decrement().Remaining;
         state.IsOffScreen = IsYappingMawPointOffScreen(slot, camera);
 
-        if (samus is null)
-        {
-            throw new InvalidOperationException(
-                "Yapping Maw main AI requires the active Samus actor for targeting.");
-        }
 
         switch (state.Action)
         {
@@ -418,7 +413,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResolveYappingMawShotAfterCommon(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (slot.Health != 0)
         {
@@ -438,7 +433,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Unlocks Samus input after retraction unless her death sequence owns it.</summary>
     private static void ReleaseSamusFromYappingMaw(
         YappingMawEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (samus is not null && !samus.DeathSequence.IsActive)
             samus.Control.Unlock();

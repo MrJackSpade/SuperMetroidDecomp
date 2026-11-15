@@ -60,12 +60,12 @@ internal static class BullBehaviorVerification
         state.AccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
         state.AccelerationIntervalTimer = 1;
 
-        BullBehavior.RunBullMain(slot, state, samus: null);
+        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(24, state.Acceleration.InTwoHundredFiftySixthsOfPixel, "the expiring interval shrinks the acceleration by its delta");
         AssertEqual(-14, state.Speed.InTwoHundredFiftySixthsOfPixel, "the overshooting deceleration leaves the speed below zero");
         AssertEqual(BullAction.Decelerating, state.Action, "the overshoot is read on the following update");
 
-        BullBehavior.RunBullMain(slot, state, samus: null);
+        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(BullAction.MovementDelay, state.Action, "a speed below zero stops the flight");
         AssertTrue(state.Speed.IsZero, "stopping clears the speed");
         AssertTrue(state.Acceleration.IsZero, "stopping clears the acceleration");

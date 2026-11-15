@@ -75,8 +75,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private void RunLowerNorfairRioMain(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         int random = _room.Random.Generate();
 
@@ -87,8 +87,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case LowerNorfairRioAction.WaitForAttackOpportunity:
-                if (samus is null ||
-                    (!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
+                if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
@@ -129,7 +128,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case LowerNorfairRioAction.Dive:
-                RequireLowerNorfairRioLevel(level);
                 MoveLowerNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -146,7 +144,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case LowerNorfairRioAction.ReturnToPerch:
-                RequireLowerNorfairRioLevel(level);
                 MoveLowerNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -296,13 +293,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 $"Lower Norfair Rio follower in slot {follower.SlotIndex} must immediately " +
                 "follow a parent of the same definition.");
         }
-    }
-
-    /// <summary>Rejects flight movement before collision data for the room is available.</summary>
-    private static void RequireLowerNorfairRioLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");
     }
 
     /// <summary>Runs the Lower Norfair Rio's main AI.</summary>

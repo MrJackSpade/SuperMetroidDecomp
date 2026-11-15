@@ -1309,7 +1309,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(0x0040, electricity.Position.Y.Whole,
             "save electricity starts two blocks above the station PLM");
 
-        enemies.StepEnemyProjectiles(level, samus: null);
+        enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricityStartFirst),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,

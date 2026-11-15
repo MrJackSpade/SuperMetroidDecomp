@@ -40,7 +40,6 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         var boundDefinition = default(RoomEnemyDefinition);
         nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
         compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
-        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.Oum, compiledSlot.Definition);
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");

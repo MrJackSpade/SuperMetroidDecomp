@@ -95,8 +95,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
         RoomEnemySlot slot,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         switch (state.Action)
@@ -126,7 +126,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 LandHopper(slot, state);
                 return;
             case HopperAction.Jumping:
-                RequireHopperLevel(level);
                 RunHopperMovement(slot, state, level, SurfaceOf(state));
                 return;
             case HopperAction.WaitToHop:
@@ -140,13 +139,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Hopper has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
-    }
-
-    /// <summary>Rejects movement dispatch before a room's collision plane is available.</summary>
-    private static void RequireHopperLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Hopper movement requires room level data.");
     }
 
     /// <summary>Selects big or small quadratic-speed parameters and routes to the direction choice for the next hop.</summary>
@@ -164,11 +156,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ChooseHopperDirection(
         RoomEnemySlot slot,
         HopperEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Hopper direction selection requires Samus.");
-
         state.Action = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? HopperAction.StartBackwardHop
             : HopperAction.StartForwardHop;

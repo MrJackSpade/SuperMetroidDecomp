@@ -22,7 +22,7 @@ internal static class SbugMovementDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = SbugBehavior.InitializeSbug;
-        Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
+        Action<RoomEnemySlot, SamusState, RoomLevelData> runMain = enemies.SbugBehavior.RunSbugMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
 
@@ -80,7 +80,7 @@ internal static class SbugMovementDefinitionsVerification
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Action = SbugAction.WaitForSamus;
             slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
-            runMain(slot, samus, null);
+            runMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
 
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
@@ -117,13 +117,13 @@ internal static class SbugMovementDefinitionsVerification
         state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
-        enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+        enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");
         AssertEqual(CompassDirection.DownRight, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugAction.MoveStraightAndReverseWhenFar, state.Action, "the chooser starts a reversal-aware leg");
 
         state.StraightMovementTimer = WrappingCountdown.Start(512);
-        enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+        enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(CompassDirection.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
         AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(CompassDirection.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
             "the folded facing installs its loop");
@@ -136,7 +136,7 @@ internal static class SbugMovementDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => turn;
             state.FaceCustomHeading(start);
             state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-            enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+            enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(RotationAngle.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
                 $"Sbug random turn {random}");
         }

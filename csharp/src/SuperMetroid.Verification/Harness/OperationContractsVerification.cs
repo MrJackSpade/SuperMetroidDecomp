@@ -44,17 +44,6 @@ internal static class OperationContractsVerification
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(GrappleBehavior), nameof(GrappleBehavior.RunCommonGrappleAi), instance)[1],
             "the common grapple wrapper accepts main AI's frame");
 
-        // The grapple wrapper hands main AI the enemy's frame without projectiles, Mode 7, bombs or a VRAM queue.
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
-        var frame = RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 3) with { Camera = new(0x0120, 0x0040), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = GameplayAction.Jump, ControllerInput = GameplayAction.Right, SamusProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)), TurningFloor = new TurningFloorTransform(0.0666, new(128, 112)), SharedProjectiles = new SamusBombProjectileSystem() };
-        var clock = new FrameCounters(3);
-        var masked = new GrappleBehavior.GrappleWrappedAiFrame(new ClockedEnemyAiFrame(frame, clock));
-        AssertTrue(masked.Camera == frame.Camera && ReferenceEquals(masked.Samus, samus) &&
-            masked.NewlyPressedControllerInput == frame.NewlyPressedControllerInput && masked.ControllerInput == frame.ControllerInput &&
-            ReferenceEquals(masked.Level, frame.Level) && masked.Clock == clock,
-            "the grapple wrapper passes the enemy's camera, Samus, input, room and clock");
-        AssertTrue(masked.SamusProjectiles is null && masked.TurningFloor is null && masked.SharedProjectiles is null,
-            "the grapple wrapper withholds projectiles, Mode 7 and bombs");
 
         // Children that read a subset take that subset, not the parent's record.
         AssertEqual(typeof(ColourEffectInputs),

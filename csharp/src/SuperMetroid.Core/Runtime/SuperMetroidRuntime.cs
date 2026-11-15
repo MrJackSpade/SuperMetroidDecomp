@@ -993,7 +993,7 @@ internal sealed class SuperMetroidRuntime
         RoomMains.RunCeresFallingDebrisRoomMain(Room.LoadedScope);
         RoomMains.RunCrocomireComebackRoomMain(Room.LoadedScope);
         if (Room.ActiveRoom?.State.MainBehavior == RoomMainBehavior.HandleCeresRidleyGetawayCutscene)
-            Room.LoadedScope.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(Player.Samus, Clock.Counter);
+            Room.LoadedScope.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(Player.IntroducedSamus, Clock.Counter);
     }
 
     /// <summary>Decrements Samus's hurt timers and the projectile interaction timer.</summary>

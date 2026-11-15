@@ -29,10 +29,10 @@ internal static class MagdollitePhaseDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
-        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+        Action<RoomEnemySlot, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
         Action<RoomEnemySlot, MagdolliteEnemyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
-        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
+        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
 
         for (int index = 0; index < 3; index++)
         {
@@ -41,7 +41,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)index);
             slot.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0300));
-            initialize(slot, null);
+            initialize(slot, RoomEnemyFrameFixtures.StandaloneSamus());
         }
 
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
@@ -61,7 +61,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhase = phaseIndex;
             body.Position = body.Position.WithWholeY(0x0300);
-            trackRise(overlay, (overlayState), null);
+            trackRise(overlay, (overlayState), RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 
@@ -72,7 +72,7 @@ internal static class MagdollitePhaseDefinitionsVerification
                 ? checked((short)-phase.DistanceThreshold)
                 : (short)0);
             body.Position = body.Position.WithWholeY(0x0300);
-            rise(body, bodyState, null);
+            rise(body, bodyState, RoomEnemyFrameFixtures.StandaloneSamus());
             if (phase.DistanceThreshold >= MagdollitePhaseDefinitions.MaximumRise && phaseIndex < 8)
             {
                 // Reaching the maximum rise compares against the slot-one overread $20AF

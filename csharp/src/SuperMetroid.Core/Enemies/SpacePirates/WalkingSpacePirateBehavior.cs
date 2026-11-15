@@ -46,7 +46,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState samus)
     {
         switch (cue)
         {
@@ -133,9 +133,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private void RunWalkingSpacePirateMain(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
-        SamusProjectileSystem? samusProjectiles)
+        SamusState samus,
+        RoomLevelData level,
+        SamusProjectileSystem samusProjectiles)
     {
         switch (state.Action)
         {
@@ -259,11 +259,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
-        SamusProjectileSystem? projectiles)
+        SamusProjectileSystem projectiles)
     {
-        if (projectiles is null)
-            return;
-
         // A walking pirate reacts to any shot by its kind, not its picture.
         SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => !projectile.Type.IsNone);
         if (shot is null ||
@@ -284,14 +281,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Runs the movement cue's direct animation selection.</summary>
     private static WalkingSpacePirateSegment SelectWalkingSpacePirateMovement(
         RoomEnemySlot slot,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-        {
-            throw new InvalidOperationException(
-                "Walking Space Pirate animation selection requires the active Samus position.");
-        }
-
         bool samusIsRightOrAligned =
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0;
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))

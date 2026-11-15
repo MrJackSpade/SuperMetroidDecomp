@@ -62,7 +62,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal PictureShading Glow => PictureShading.Shaded(MagdolliteShades.Glow(GlowFrame));
 
     /// <summary>Initializes the Magdollite.</summary>
-    internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
+    internal void InitializeMagdollite(RoomEnemySlot slot, SamusState samus)
     {
         MagdollitePart part = slot.SpawnSettings<MagdolliteSpawnSettings>().Part;
         // The room lists each Magdollite's head, body and overlay in a row; each part finds the others, the enemy
@@ -114,7 +114,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InitializeMagdolliteHead(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         state.InstalledAnimation = null;
         state.HeadWaitsForBodyLanding = false;
@@ -163,7 +163,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMagdolliteMain(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         state.AttackTimer = state.AttackTimer.Decrement().Remaining;
         switch (state.Action)
@@ -213,11 +213,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMagdolliteHeadWaiting(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            return;
-
         bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
         state.DesiredAnimation = samusIsRight
             ? MagdolliteSegment.RightIdle
@@ -259,7 +256,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (state.HeadWaitsForBodyLanding)
             return;
@@ -277,7 +274,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunMagdolliteHeadWaitingForReturnAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (state.AnimationBusy)
             return;
@@ -310,7 +307,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunMagdolliteBodyRising(
         RoomEnemySlot body,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         // The arm reads the velocity of the slot before it: the preceding head owns the
         // placement's speed. The arm's own speed is zero in retail.
@@ -415,7 +412,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunMagdolliteOverlayTrackingRise(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
         MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
@@ -730,7 +727,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Magdollite's initialization AI.</summary>
     internal void RunMagdolliteInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeMagdollite(slot, surroundings.Samus);
+        InitializeMagdollite(slot, surroundings.IntroducedSamus);
     }
 
     /// <summary>Runs Magdollite's main AI.</summary>

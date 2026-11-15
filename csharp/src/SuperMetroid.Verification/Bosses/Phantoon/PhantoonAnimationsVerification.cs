@@ -84,7 +84,7 @@ internal static class PhantoonAnimationsVerification
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ internal static class PhantoonAnimationsVerification
         var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, projectile.FrameHold.RawValue);
         for (int update = 0; update < 40 && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
             if (native.Deleted)

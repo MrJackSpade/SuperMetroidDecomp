@@ -33,7 +33,7 @@ internal static class MotherBrainHeadHitboxVerification
             state.BrainPlayback,
             "the brain program starts at InstList_MotherBrainHead_Initial");
 
-        EnemyAnimationPlayer.AdvanceAnimation(head, null, null, Position16<RoomPixels>.Zero, 0);
+        EnemyAnimationPlayer.AdvanceAnimation(head, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches
@@ -47,7 +47,7 @@ internal static class MotherBrainHeadHitboxVerification
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true); shot.Damage = 900; shot.Direction = SamusProjectileDirection.UpLeft;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
         shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
         AssertEqual(17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");
     }

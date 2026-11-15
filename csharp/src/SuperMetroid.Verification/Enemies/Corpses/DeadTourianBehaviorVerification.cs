@@ -72,7 +72,7 @@ internal static class DeadTourianBehaviorVerification
 
             EnemyPowerBombStage reaction = enemies.DeadSidehopperBehavior.DeadSidehopperPowerBombReaction.ReplacesCommon
                 ?? throw new InvalidOperationException("The dead Sidehopper's Power Bomb reaction replaces the common damage.");
-            reaction(new EnemyPowerBombContext(corpse, Samus: null, level, new(cameraX, 0)));
+            reaction(new EnemyPowerBombContext(corpse, Samus: RoomEnemyFrameFixtures.StandaloneSamus(), level, new(cameraX, 0)));
             AssertEqual(wakes, state.Action != DeadSidehopperAction.AliveWaitForCamera,
                 $"a Power Bomb with the camera at column {cameraX} {(wakes ? "wakes" : "leaves waiting")} the victim");
         }

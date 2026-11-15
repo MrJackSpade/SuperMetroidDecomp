@@ -15,8 +15,8 @@ internal interface IEnemyAiFrame
     /// <summary>Camera position used by off-screen and relative-position checks.</summary>
     Position16<RoomPixels> Camera { get; }
 
-    /// <summary>Samus, when the frame has one.</summary>
-    SamusState? Samus { get; }
+    /// <summary>Samus.</summary>
+    SamusState Samus { get; }
 
     /// <summary>The actions newly pressed this frame.</summary>
     GameplayAction NewlyPressedControllerInput { get; }
@@ -28,13 +28,13 @@ internal interface IEnemyAiFrame
     RoomLevelData Level { get; }
 
     /// <summary>Samus's beam and missile projectiles that main AI may inspect.</summary>
-    SamusProjectileSystem? SamusProjectiles { get; }
+    SamusProjectileSystem SamusProjectiles { get; }
 
     /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating actors follow, or null when none turns.</summary>
     TurningFloorTransform? TurningFloor { get; }
 
     /// <summary>Shared bomb and power-bomb state.</summary>
-    SamusBombProjectileSystem? SharedProjectiles { get; }
+    SamusBombProjectileSystem SharedProjectiles { get; }
 
     /// <summary>The accepted-frame counters this enemy pass reads.</summary>
     FrameCounters Clock { get; }

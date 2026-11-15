@@ -926,7 +926,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             // The enemy pass checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
-            if (!frame.TimeIsFrozen && !invincibleAtEntry && frame.Samus is not null)
+            if (!frame.TimeIsFrozen && !invincibleAtEntry)
             {
                 // Extended collision runs projectiles before bombs/touch and
                 // before selecting hurt/main AI. In particular, a retained Plasma
@@ -979,8 +979,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     // and frozen AI coexist.
                     slot.FlashTimer = 0;
                     bool thaw = slot.FrozenTimer == 0 ||
-                        (frame.Samus is not null &&
-                            (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None);
+                        (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None;
                     if (!thaw)
                         slot.FrozenTimer--;
                     else
@@ -1076,9 +1075,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// Shakes the solid or frozen enemy Samus's latest wall jump launched from, as the enemy pass does before any enemy
     /// updates. While no enemy place is filled the request waits.
     /// </summary>
-    internal void ShakeWallJumpLaunchEnemy(SamusState? samus)
+    internal void ShakeWallJumpLaunchEnemy(SamusState samus)
     {
-        if (SlotTable.EnemyCount == 0 || samus?.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
+        if (SlotTable.EnemyCount == 0 || samus.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
             return;
         launchedFrom.ShakeFromWallJumpLaunch();
     }
@@ -1099,10 +1098,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Advances enemy-projectile actors after Samus movement and before room objects.</summary>
     public void AdvanceEnemyProjectileAnimations(
         RoomLevelData level,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
         int shortFrameCounter,
-        SamusBombProjectileSystem? samusBombs,
+        SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
         DeathsAndDrops.BindSamus(samus);

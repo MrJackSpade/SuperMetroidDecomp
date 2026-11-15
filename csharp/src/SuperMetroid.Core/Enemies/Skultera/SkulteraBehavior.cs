@@ -72,11 +72,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunSkulteraMain(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null)
-            throw new InvalidOperationException("Skultera AI requires active room collision data.");
-
         switch (state.Action)
         {
             case SkulteraAction.SwimmingLeft:

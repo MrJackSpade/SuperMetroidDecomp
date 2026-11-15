@@ -85,7 +85,6 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var boundDefinition = default(RoomEnemyDefinition);
         nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
         compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
-        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.CrocomireTongue, compiledSlot.Definition);
         AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount,
             "all selected Crocomire tongue frames have compiled collision");

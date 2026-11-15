@@ -39,7 +39,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or stepping. Starting to walk
     /// always continues at the walk for the Alcoon's facing, and a step that meets a wall turns it round to the other walk.
     /// </summary>
-    private AlcoonSegment? ApplyAlcoonCue(RoomEnemySlot slot, AlcoonEnemyState state, RoomLevelData? level, AlcoonCue cue)
+    private AlcoonSegment? ApplyAlcoonCue(RoomEnemySlot slot, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         switch (cue.Kind)
         {
@@ -76,14 +76,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int AlcoonJumpSimulationLimit = 4096;
 
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
-    private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
+    private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData level)
     {
-        if (level is null)
-        {
-            throw new InvalidOperationException(
-                "Alcoon initialization requires the room's collision layer to simulate its landing.");
-        }
-
         var state = new AlcoonEnemyState();
         slot.SetSpeciesState(state);
 
@@ -123,8 +117,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunAlcoonMain(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         switch (state.Action)
         {
@@ -158,11 +152,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void WaitForAlcoonActivation(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Alcoon proximity AI requires the active Samus actor.");
-
         if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= 32)
             return;
 
@@ -206,14 +197,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunAlcoonEmergingFall(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Alcoon landing direction requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Alcoon falling AI requires room collision data.");
-
         SignedSixteenSixteen displacement = state.VerticalVelocity;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
         {
@@ -239,14 +225,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunEmergedAlcoon(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Alcoon firing AI requires the active Samus actor.");
-        if (level is null)
-            throw new InvalidOperationException("Alcoon walking AI requires room collision data.");
-
         // This is a real two-pixel downward move, not merely a floor probe. On ordinary
         // floors it collides and keeps Alcoon aligned; if the floor vanishes it lets the
         // walking actor fall by the same amount before the remainder of main AI runs.
@@ -363,11 +344,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AlcoonSegment? MoveAlcoonHorizontally(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null)
-            throw new InvalidOperationException("Alcoon movement cue requires room collision data.");
-
         SignedSixteenSixteen displacement = state.WalkingDirection switch
         {
             HorizontalDirection.Left => -AlcoonWalkDefinitions.StepDistance,
@@ -404,7 +382,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Alcoon's initialization AI.</summary>
     internal void RunAlcoonInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeAlcoon(slot, surroundings.Level);
+        InitializeAlcoon(slot, surroundings.PopulationLevel);
     }
 
     /// <summary>Runs Alcoon's main AI.</summary>

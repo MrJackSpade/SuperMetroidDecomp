@@ -42,6 +42,15 @@ internal static class GunshipMotionDefinitions
     /// <summary>The landed ship's X, where Samus stands to board.</summary>
     internal const int LandedX = 1152;
 
+    /// <summary>How far above Samus the top hull sits while she rides in the gunship, in pixels.</summary>
+    internal const int TopHullAboveSamus = 17;
+
+    /// <summary>How far above the top hull the entrance pad sits, in pixels.</summary>
+    internal const int PadAboveTopHull = 1;
+
+    /// <summary>How far below Samus the bottom hull sits while she rides in the gunship, in pixels.</summary>
+    internal const int BottomHullBelowSamus = 23;
+
     /// <summary>The escaping ship's starting upward speed: two pixels an update.</summary>
     internal static readonly SignedEightEight EscapeStartVelocity = SignedEightEight.FromPixels(2);
 

@@ -123,8 +123,8 @@ internal sealed class MotherBrainBody
                 // Sealing the wall creates both dust puffs before its
                 // two identical fixed room objects. Requests remain ordered because the room-object
                 // allocator searches the same descending pool for each call.
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
+                _projectiles.SpawnDustOrExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
+                _projectiles.SpawnDustOrExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
                 _access.RequestMotherBrainObject(new(15, 4), MotherBrainRoomMutation.FillWall);
                 _access.RequestMotherBrainObject(new(15, 9), MotherBrainRoomMutation.FillWall);
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentInitialPause;
@@ -183,7 +183,7 @@ internal sealed class MotherBrainBody
                 MoveMotherBrainBody(stepAndMove.Offset);
                 return;
             case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
-                _projectiles.SpawnRoomGraphicsDustExplosion(
+                _projectiles.SpawnDustOrExplosion(
                     new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + spawnHandDust.Offset.X), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + spawnHandDust.Offset.Y)),
                     spawnHandDust.Dust);
                 return;

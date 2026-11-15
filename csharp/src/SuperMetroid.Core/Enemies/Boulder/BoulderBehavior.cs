@@ -217,7 +217,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.Roll == BoulderRoll.LeftBreakingOnImpact)
             {
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
-                _projectiles.SpawnRoomGraphicsDustExplosion(
+                _projectiles.SpawnDustOrExplosion(
                     slot.Position.Whole,
                     BoulderDust);
                 _audio.QueueEnemySound(BoulderBreakSound, priority: SoundRequestPriority.Normal);
@@ -263,7 +263,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
             state.Action = BoulderAction.Inert;
             _audio.QueueEnemySound(BoulderImpactSound, priority: SoundRequestPriority.Normal);
-            _projectiles.SpawnRoomGraphicsDustExplosion(
+            _projectiles.SpawnDustOrExplosion(
                 slot.Position.Whole,
                 BoulderDust);
             _audio.QueueEnemySound(BoulderBreakSound, priority: SoundRequestPriority.Normal);

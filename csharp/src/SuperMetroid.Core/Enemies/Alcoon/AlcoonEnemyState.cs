@@ -11,10 +11,10 @@ public sealed class AlcoonEnemyState
     public AlcoonAction? Action { get; internal set; }
 
     /// <summary>
-    /// The whole pixels it walks each movement step: -2 walking left, 2 walking right, and 0 from the start of each jump
-    /// until it picks the side Samus is on. Its sign is also the way it faces while airborne and firing.
+    /// The way it walks and faces, airborne and firing too; null from the start of each jump until it picks the side Samus
+    /// is on, while a movement step moves it nowhere and it faces right.
     /// </summary>
-    public int WalkingSpeed { get; internal set; }
+    public HorizontalDirection? WalkingDirection { get; internal set; }
 
     /// <summary>
     /// Its vertical velocity in pixels per update: a jump starts at 12 pixels up and a retreat at 4 pixels up, and its

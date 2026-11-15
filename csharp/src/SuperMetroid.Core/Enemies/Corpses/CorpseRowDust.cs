@@ -23,7 +23,7 @@ internal sealed class CorpseRowDust
     /// </summary>
     internal void Spawn(RoomEnemySlot slot, int random, EnemyProjectileEngine projectiles, int randomEnemyCounter)
     {
-        projectiles.SpawnRoomGraphicsDustExplosion(
+        projectiles.SpawnDustOrExplosion(
             new(CoordinateAxis.Wrap(slot.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(slot.Position.Y.Whole + 16)),
             MiscDustAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(randomEnemyCounter))

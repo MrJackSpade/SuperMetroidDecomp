@@ -735,12 +735,10 @@ internal sealed class EnemyProjectileEngine
     private const int LowHalfBits = 8;
 
     /// <summary>
-    /// Allocates the shared room-graphics dust/explosion actor.
-    /// The caller selects the animation the spawn parameter indexes; this is shared by
-    /// special Rinka deaths, Boulder's impact clouds, and later families that invoke the same
-    /// engine primitive.
+    /// Spawns a dust cloud, smoke or an explosion, drawn from the pictures every room shares, playing the animation the
+    /// caller chooses: Rinka deaths, Boulder's impact clouds, the bosses' explosions and every other spawner share it.
     /// </summary>
-    internal void SpawnRoomGraphicsDustExplosion(
+    internal void SpawnDustOrExplosion(
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
@@ -756,9 +754,7 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
-        // The dust-cloud-or-explosion initializer ignores the definition's placeholder animation and
-        // starts the animation the spawner chooses: the Rinka's
-        // is the small explosion, and the Boulder's its impact cloud.
+        // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }
 

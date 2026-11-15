@@ -33,7 +33,7 @@ internal static class MiscDustProjectileBehaviorVerification
         foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
-            enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>(128, 96), animation);
+            enemies.Projectiles.SpawnDustOrExplosion(new Position16<RoomPixels>(128, 96), animation);
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
             MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);

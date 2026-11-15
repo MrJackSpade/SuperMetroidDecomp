@@ -498,7 +498,7 @@ internal sealed class RidleyTail
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.
             bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
             MiscDustAnimation dustVariant = missile ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
-            _projectiles.SpawnRoomGraphicsDustExplosion(joint.Position, dustVariant);
+            _projectiles.SpawnDustOrExplosion(joint.Position, dustVariant);
             if (missile)
                 _projectiles.QueueDudSound(SoundRequestPriority.Normal);
             return true;

@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="launchSpeed">The claw's launch speed.</param>
 internal sealed class NinjaPirateClawState(SignedEightEight launchSpeed) : EnemyProjectileState
 {
-    /// <summary>How much a claw flying out slows each update, in 256ths of a pixel.</summary>
-    private const int OutwardDeceleration = 32;
+    /// <summary>How much a claw flying out slows each update: an eighth of a pixel an update.</summary>
+    private static readonly SignedEightEight OutwardDeceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>
-    /// The claw's sideways speed in 256ths of a pixel per update, never negative: it slows to rest while the claw flies
-    /// out, a whole number of updates from its launch, and speeds up once the claw comes back
-    /// (<see cref="ReturningClawSpeed"/>). Only its whole pixels move the claw (<see cref="StepAlongThrow"/>).
+    /// The claw's sideways speed along its throw, never negative: it slows to rest while the claw flies out, a whole number
+    /// of updates from its launch, and speeds up once the claw comes back (<see cref="ReturningClawSpeed"/>), reaching up
+    /// to 255 pixels an update. Only its whole pixels move the claw (<see cref="StepAlongThrow"/>).
     /// </summary>
-    internal int Speed { get; private set; } = launchSpeed.UnsignedTwoHundredFiftySixthsOfPixel;
+    internal SignedEightEight Speed { get; private set; } = launchSpeed;
 
     /// <summary>Whether the claw is still flying out; it turns back once its outward speed has run out.</summary>
     internal bool Outbound { get; private set; } = true;
@@ -27,16 +27,16 @@ internal sealed class NinjaPirateClawState(SignedEightEight launchSpeed) : Enemy
     /// </summary>
     internal int StepAlongThrow()
     {
-        int pixels = Speed / 256;
+        int pixels = Speed.UnsignedWholePixels;
         if (!Outbound)
         {
-            Speed = ReturningClawSpeed.Accelerated(Speed);
+            Speed = SignedEightEight.Wrapped(ReturningClawSpeed.Accelerated(Speed.UnsignedTwoHundredFiftySixthsOfPixel));
             return -pixels;
         }
         Speed -= OutwardDeceleration;
-        if (Speed < 0)
+        if (Speed.IsNegative)
             throw new InvalidOperationException($"A claw launched at {launchSpeed} passed rest without stopping.");
-        if (Speed == 0)
+        if (Speed.IsZero)
             Outbound = false;
         return pixels;
     }

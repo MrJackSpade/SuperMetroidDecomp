@@ -173,12 +173,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetupAlcoonJumpMovement(state);
         if (signedXDistance < 0)
         {
-            state.WalkingSpeed = -2;
+            state.WalkingDirection = HorizontalDirection.Left;
             StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
-            state.WalkingSpeed = 2;
+            state.WalkingDirection = HorizontalDirection.Right;
             StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Action = AlcoonAction.EmergingRising;
@@ -197,7 +197,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartAlcoonAnimation(
             slot,
             state,
-            state.WalkingSpeed < 0
+            FacesLeft(state)
                 ? AlcoonSegment.AirborneLeftLookingForward
                 : AlcoonSegment.AirborneRightLookingForward);
     }
@@ -223,12 +223,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (CoordinateAxis.Precedes(samus.Position.X.Whole, slot.Position.X.Whole))
         {
-            state.WalkingSpeed = -2;
+            state.WalkingDirection = HorizontalDirection.Left;
             StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
-            state.WalkingSpeed = 2;
+            state.WalkingDirection = HorizontalDirection.Right;
             StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
@@ -259,7 +259,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             StartAlcoonAnimation(
                 slot,
                 state,
-                state.WalkingSpeed < 0
+                FacesLeft(state)
                     ? AlcoonSegment.AirborneLeftLookingForward
                     : AlcoonSegment.AirborneRightLookingForward);
             return;
@@ -269,7 +269,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
-        bool movingLeft = state.WalkingSpeed < 0;
+        bool movingLeft = FacesLeft(state);
         if (samusIsLeft != movingLeft)
             return;
 
@@ -310,7 +310,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resets the jump to a twelve-pixel upward velocity and half-pixel acceleration.</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
-        state.WalkingSpeed = 0;
+        state.WalkingDirection = null;
         state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(-12);
         state.YAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
     }
@@ -351,7 +351,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = AlcoonAction.WalkingAndFiring;
         int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
         state.StepCounter = count == 0 ? 2 : count;
-        return state.WalkingSpeed < 0
+        return FacesLeft(state)
             ? AlcoonSegment.WalkingLeft
             : AlcoonSegment.WalkingRight;
     }
@@ -368,19 +368,34 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Alcoon movement cue requires room collision data.");
 
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.WalkingSpeed);
+        SignedSixteenSixteen displacement = state.WalkingDirection switch
+        {
+            HorizontalDirection.Left => -AlcoonWalkDefinitions.StepDistance,
+            HorizontalDirection.Right => AlcoonWalkDefinitions.StepDistance,
+            null => SignedSixteenSixteen.Zero,
+            _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {state.WalkingDirection}."),
+        };
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
             return null;
         }
 
-        int oldVelocity = state.WalkingSpeed;
-        state.WalkingSpeed = -oldVelocity;
-        return oldVelocity >= 0
+        // A wall turns it round; one that has not picked a side yet keeps walking nowhere and continues at the left walk.
+        bool turnsLeft = !FacesLeft(state);
+        state.WalkingDirection = state.WalkingDirection switch
+        {
+            HorizontalDirection.Left => HorizontalDirection.Right,
+            HorizontalDirection.Right => HorizontalDirection.Left,
+            _ => state.WalkingDirection,
+        };
+        return turnsLeft
             ? AlcoonSegment.WalkingLeftLoop
             : AlcoonSegment.WalkingRightLoop;
     }
+
+    /// <summary>Whether the Alcoon faces left: it does only once it has picked the left side.</summary>
+    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == HorizontalDirection.Left;
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
@@ -407,7 +422,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 : null);
 
     /// <summary>Initial horizontal fireball speed, four pixels per update.</summary>
-    private static readonly SignedEightEight AlcoonFireballGraphicsHorizontalSpeed = SignedEightEight.FromParts(4, 0);
+    private static readonly SignedEightEight AlcoonFireballLaunchHorizontalSpeed = SignedEightEight.FromParts(4, 0);
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
     private static readonly SignedEightEight AlcoonFireballTerminalHorizontalSpeed = SignedEightEight.FromParts(2, 0);
     /// <summary>Horizontal speed reduction applied per fireball update, a quarter pixel per update.</summary>
@@ -421,7 +436,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
-        bool movingLeft = state.WalkingSpeed < 0;
+        bool movingLeft = FacesLeft(state);
 
         // Spawning copies the fireball's complete authored
         // definition before its initializer touches position, subposition, and velocity.
@@ -435,8 +450,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Initial));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
         projectile.Velocity = projectile.Velocity.WithX(movingLeft
-            ? -AlcoonFireballGraphicsHorizontalSpeed
-            : AlcoonFireballGraphicsHorizontalSpeed);
+            ? -AlcoonFireballLaunchHorizontalSpeed
+            : AlcoonFireballLaunchHorizontalSpeed);
         projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
 

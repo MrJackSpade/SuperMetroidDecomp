@@ -107,7 +107,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Colours.ShowCorpseFade(sequence.State.GreyTransitionCounter - 1);
         foreach (var dust in step.CorpseDustRequests)
         {
-            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
+            _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);
             // The rot dust's sound competes at low priority.
             if (dust.SoundEffectQueued)
                 _audio.QueueEnemySound(dust.SoundEffect, priority: SoundRequestPriority.Low);
@@ -126,7 +126,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.EscapeDoorExplosion is { } doorDust)
         {
-            _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
+            _projectiles.SpawnDustOrExplosion(doorDust.Position, doorDust.Animation);
             // The door explosion's sound competes at low priority.
             _audio.QueueEnemySound(doorDust.SoundEffect, priority: SoundRequestPriority.Low);
         }

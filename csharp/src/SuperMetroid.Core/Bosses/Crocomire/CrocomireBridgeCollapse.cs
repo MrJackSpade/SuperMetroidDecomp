@@ -96,7 +96,7 @@ internal sealed class CrocomireBridgeCollapse
             if (!death.BridgeDustAt1536Spawned)
             {
                 death.BridgeDustAt1536Spawned = true;
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(1536, 176), MiscDustAnimation.BigDustCloud);
+                _projectiles.SpawnDustOrExplosion(new(1536, 176), MiscDustAnimation.BigDustCloud);
             }
             return;
         }
@@ -111,7 +111,7 @@ internal sealed class CrocomireBridgeCollapse
                 death.BridgeBlockAt1568Crumbling = true;
                 _access.PublishCrocomireObject(
                     new Position16<RoomBlocks>(97, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(1568, 176), MiscDustAnimation.BigDustCloud);
+                _projectiles.SpawnDustOrExplosion(new(1568, 176), MiscDustAnimation.BigDustCloud);
             }
             return;
         }
@@ -125,7 +125,7 @@ internal sealed class CrocomireBridgeCollapse
                 new Position16<RoomBlocks>(98, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
             _access.PublishCrocomireObject(
                 new Position16<RoomBlocks>(99, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(1584, 176), MiscDustAnimation.BigDustCloud);
+            _projectiles.SpawnDustOrExplosion(new(1584, 176), MiscDustAnimation.BigDustCloud);
         }
     }
 
@@ -148,7 +148,7 @@ internal sealed class CrocomireBridgeCollapse
                 new Position16<RoomBlocks>(CoordinateAxis.Wrap(blockX), 11), CrocomireArenaMutation.ClearBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
-            _projectiles.SpawnRoomGraphicsDustExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
+            _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
 
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.CreateInvisibleWall);
     }

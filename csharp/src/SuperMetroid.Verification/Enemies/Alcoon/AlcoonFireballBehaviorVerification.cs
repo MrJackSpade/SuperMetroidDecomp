@@ -31,9 +31,9 @@ internal static class AlcoonFireballBehaviorVerification
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         var state = new AlcoonEnemyState();
         source.SetSpeciesState(state);
-        foreach (short direction in new short[] { -2, 2 })
+        foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
         {
-            state.WalkingSpeed = direction;
+            state.WalkingDirection = direction;
             foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
                 enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
         }

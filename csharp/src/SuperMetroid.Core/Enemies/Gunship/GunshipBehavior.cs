@@ -120,7 +120,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
                     "Post-Ceres gunship initialization requires the loader's Samus actor.");
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
             // enters the high-altitude descent used only after Ceres.
-            slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
+            slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
             part.Phase = GunshipPhase.DescendAfterCeres;
         }
         else
@@ -173,7 +173,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
                 SamusState samus = _samusAtEnemyInitialization
                     ?? throw new InvalidOperationException(
                         "Post-Ceres gunship bottom initialization requires Samus.");
-                slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole + 23);
+                slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
             }
             else
             {
@@ -431,7 +431,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             }
             SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
             samus.Control.EnterGunship();
-            pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
+            pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
             StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
             Part(top).PhaseTimer = 144;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
@@ -540,18 +540,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         if (samus is null)
             throw new InvalidOperationException("Gunship takeoff lost Samus.");
         RoomEnemySlot bottom = Pieces(top).Bottom;
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
         int rumbleFrame = Part(bottom).RumbleFrame;
+        bool strong = rumbleFrame >= GunshipTakeoffDefinitions.RumbleStrengthensFrame;
         int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame)
-            ? (rumbleFrame < 64 ? 1 : 2)
-            : (rumbleFrame < 64 ? -1 : -2);
+            ? (strong ? 2 : 1)
+            : (strong ? -2 : -1);
         samus.Position += new Offset16<RoomPixels>(0, shake);
-        top.Position = top.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
-        pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
-        bottom.Position = bottom.Position.WithWrappedWholeY(samus.Position.Y.Whole + 23);
+        PlaceGunshipAroundSamus(top, samus.Position.Y.Whole);
 
         Part(bottom).RumbleFrame++;
-        if (Part(bottom).RumbleFrame == 64)
+        if (Part(bottom).RumbleFrame == GunshipTakeoffDefinitions.RumbleStrengthensFrame)
         {
             // The six calls happen after the frame counter reaches
             // exactly 64. Descending projectile allocation means the last cloud, the outer left one, occupies the
@@ -571,8 +569,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship liftoff lost Samus.");
-        MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - 2));
-        if (CoordinateAxis.Difference(top.Position.Y.Whole, 896) < 0)
+        MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - GunshipTakeoffDefinitions.SteadyLiftoffRise));
+        if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.AcceleratingLiftoffY) < 0)
         {
             Part(top).Phase = GunshipPhase.AcceleratingLiftoff;
             Part(Pieces(top).Bottom).EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity;
@@ -583,7 +581,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         MoveEscapingGunship(top, samus);
-        if (CoordinateAxis.Difference(top.Position.Y.Whole, 256) < 0)
+        if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.TakeoffCompleteY) < 0)
         {
             Part(top).Phase = GunshipPhase.MoveAccelerating;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffCompleted;
@@ -611,11 +609,17 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         int samusY)
     {
         samus.Position = samus.Position.WithWholeY(samusY);
+        PlaceGunshipAroundSamus(top, samusY);
+    }
+
+    /// <summary>Places the top hull, the entrance pad and the bottom hull where they sit around Samus at <paramref name="samusY"/>.</summary>
+    private void PlaceGunshipAroundSamus(RoomEnemySlot top, int samusY)
+    {
         RoomEnemySlot bottom = Pieces(top).Bottom;
         RoomEnemySlot pad = Pieces(top).EntrancePad;
-        top.Position = top.Position.WithWrappedWholeY(samusY - 17);
-        pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
-        bottom.Position = bottom.Position.WithWrappedWholeY(samusY + 23);
+        top.Position = top.Position.WithWrappedWholeY(samusY - GunshipMotionDefinitions.TopHullAboveSamus);
+        pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
+        bottom.Position = bottom.Position.WithWrappedWholeY(samusY + GunshipMotionDefinitions.BottomHullBelowSamus);
     }
 
     /// <summary>Restores a resource by two without exceeding its maximum.</summary>

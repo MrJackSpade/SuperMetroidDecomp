@@ -93,7 +93,7 @@ internal sealed class PhantoonDeath
         state.PhaseTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
-        _projectiles.SpawnRoomGraphicsDustExplosion(position, explosion.Type);
+        _projectiles.SpawnDustOrExplosion(position, explosion.Type);
         _audio.RequestPhantoonCombatSound(explosion.Type == MiscDustAnimation.BigExplosion
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);

@@ -97,7 +97,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())
             ? MiscDustAnimation.Smoke
             : MiscDustAnimation.SmallExplosion;
-        doors.Projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
+        doors.Projectiles.SpawnDustOrExplosion(explosion, animation);
 
         // The explosion sound is requested even when the finite enemy-projectile pool was full and
         // could not allocate the visual effect.

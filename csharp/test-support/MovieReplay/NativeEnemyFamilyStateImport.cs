@@ -678,7 +678,13 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.AlcoonStates[index] is { } alcoon)
         {
             alcoon.Action = words.A == 0 ? null : AlcoonNativeWords.AlcoonActions.Decode(words.A, "recorded AlcoonAction");
-            alcoon.WalkingSpeed = CoordinateAxis.AsSigned(words.D);
+            alcoon.WalkingDirection = CoordinateAxis.AsSigned(words.D) switch
+            {
+                -2 => HorizontalDirection.Left,
+                2 => HorizontalDirection.Right,
+                0 => null,
+                var speed => throw new InvalidDataException($"Recorded Alcoon walking speed {speed} is not -2, 0 or 2."),
+            };
             alcoon.VerticalVelocity = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.B), words.C);
             alcoon.SpawnPosition = alcoon.SpawnPosition.WithY(words.F);
         }

@@ -217,11 +217,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.RemorseCry);
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
-            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
+            _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);
 
         if (step.DeathExplosion is { } explosion)
         {
-            _projectiles.SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.Animation);
+            _projectiles.SpawnDustOrExplosion(explosion.Position, explosion.Animation);
             // The explosion competes at low priority (MotherBrainEncounter.RequestCueSound).
             _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }

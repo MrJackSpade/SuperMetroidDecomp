@@ -427,7 +427,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const MiscDustAnimation RinkaDustAnimationIndex = MiscDustAnimation.SmallExplosion;
     /// <summary>Allocates the room-graphics small explosion.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
-        => _projectiles.SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);
+        => _projectiles.SpawnDustOrExplosion(position, RinkaDustAnimationIndex);
 
     /// <summary>Runs a Rinka's death animation.</summary>
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)

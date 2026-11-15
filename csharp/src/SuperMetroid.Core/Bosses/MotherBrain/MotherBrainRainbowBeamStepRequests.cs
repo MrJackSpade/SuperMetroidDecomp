@@ -91,6 +91,15 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Starts the room's earthquake with <paramref name="shake"/> for <paramref name="frames"/> frames.</summary>
     internal void StartEarthquake(EarthquakeShake shake, int frames) => Earthquake = new(shake, frames);
 
+    /// <summary>Starts the room's earthquake with <paramref name="shake"/> until a producer gives it a length.</summary>
+    internal void StartIndefiniteEarthquake(EarthquakeShake shake) => Earthquake = new(shake, Frames: null);
+
+    /// <summary>
+    /// Runs the room's earthquake on until a producer gives it a length, keeping any shake this call started or else the
+    /// room's own.
+    /// </summary>
+    internal void KeepEarthquakeGoing() => Earthquake = new(Earthquake?.Shake, Frames: null);
+
     /// <summary>Runs the room's earthquake on for <paramref name="frames"/> frames, keeping any shake this call started.</summary>
     internal void RunEarthquakeOn(int frames) => Earthquake = new(Earthquake?.Shake, frames);
 

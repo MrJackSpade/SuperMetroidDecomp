@@ -56,7 +56,7 @@ internal sealed class EscapeRoomEffects
             _ => throw new InvalidOperationException($"Undefined room setup {setup}."),
         };
         if (shake is { } quake)
-            enemies.Earthquake.Start(quake, WrappingCountdown.LongestStart);
+            enemies.Earthquake.ShakeIndefinitely(quake);
         if (setup == RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking)
             _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
     }

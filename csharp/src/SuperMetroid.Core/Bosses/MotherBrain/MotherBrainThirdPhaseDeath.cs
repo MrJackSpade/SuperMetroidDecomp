@@ -526,7 +526,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // indefinitely, create four colour effects and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
-        requests.StartEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake, WrappingCountdown.LongestStart);
+        requests.StartIndefiniteEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianBackgroundRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianGeneralLevelRedFlashing);
@@ -626,10 +626,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal static bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The room's earthquake runs down outside enemy AI. Only a stopped earthquake is run on again, for the
-        // longest length, with whatever shake the room has; a running one is left as it is.
+        // A producer may give the room's earthquake a length, which runs down outside enemy AI. Only a stopped earthquake
+        // is run on again, indefinitely, with whatever shake the room has; a running one is left as it is.
         if (frame.RoomEarthquakeStopped)
-            requests.RunEarthquakeOn(WrappingCountdown.LongestStart);
+            requests.KeepEarthquakeGoing();
         return false;
     }
 }

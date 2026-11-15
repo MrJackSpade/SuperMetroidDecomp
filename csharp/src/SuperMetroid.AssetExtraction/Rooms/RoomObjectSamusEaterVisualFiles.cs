@@ -30,17 +30,17 @@ public static class RoomObjectSamusEaterVisualFiles
     internal static string VisualId(RoomObjectDraw request) =>
         VisualId(RoomObjectDraw.FrameOf<SamusEaterDraw>(request, "Samus Eater draw with a visual ID"));
 
-    /// <summary>Names a typed draw list by its floor or ceiling orientation and idle or chew phase.</summary>
+    /// <summary>Names a typed draw list by its floor or ceiling orientation and idle or chewing look.</summary>
     internal static string VisualId(SamusEaterDraw frame) => frame switch
     {
         SamusEaterDraw.FloorIdle => "floor-idle",
-        SamusEaterDraw.FloorChew1 => "floor-chew-1",
-        SamusEaterDraw.FloorChew2 => "floor-chew-2",
-        SamusEaterDraw.FloorChew3 => "floor-chew-3",
+        SamusEaterDraw.FloorTeethPeeking => "floor-teeth-peeking",
+        SamusEaterDraw.FloorTeethBared => "floor-teeth-bared",
+        SamusEaterDraw.FloorFangsOut => "floor-fangs-out",
         SamusEaterDraw.CeilingIdle => "ceiling-idle",
-        SamusEaterDraw.CeilingChew1 => "ceiling-chew-1",
-        SamusEaterDraw.CeilingChew2 => "ceiling-chew-2",
-        SamusEaterDraw.CeilingChew3 => "ceiling-chew-3",
+        SamusEaterDraw.CeilingTeethPeeking => "ceiling-teeth-peeking",
+        SamusEaterDraw.CeilingTeethBared => "ceiling-teeth-bared",
+        SamusEaterDraw.CeilingFangsOut => "ceiling-fangs-out",
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
     };
 
@@ -56,7 +56,7 @@ public static class RoomObjectSamusEaterVisualFiles
             return false;
         }
         bool ceiling = RoomObjectDraw.FrameOf<SamusEaterDraw>(request, "Samus Eater") is SamusEaterDraw.CeilingIdle
-            or SamusEaterDraw.CeilingChew1 or SamusEaterDraw.CeilingChew2 or SamusEaterDraw.CeilingChew3;
+            or SamusEaterDraw.CeilingTeethPeeking or SamusEaterDraw.CeilingTeethBared or SamusEaterDraw.CeilingFangsOut;
         list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-2, 0), 2),
             RoomObjectShapeRun.Row(new(-2, ceiling ? 1 : -1), 4));
         return true;

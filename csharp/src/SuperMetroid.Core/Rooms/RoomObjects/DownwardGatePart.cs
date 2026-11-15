@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Which part of a downward gate a draw list writes.</summary>
+/// <summary>Which part of a downward gate a draw writes.</summary>
 internal enum DownwardGatePart
 {
     /// <summary>The five-cell gate column.</summary>

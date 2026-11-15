@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The three bombed-reveal draw lists.</summary>
+/// <summary>The three bombed-reveal draws.</summary>
 internal enum RoomObjectBombedRevealDraw
 {
     /// <summary>A bombed respawning one-block crumble block; its intact parent is a crumble block.</summary>

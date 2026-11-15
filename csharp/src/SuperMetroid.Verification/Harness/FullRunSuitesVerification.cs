@@ -84,6 +84,7 @@ using static SuperMetroid.Verification.Samus.Drawing.SpeedBoosterEchoDrawVerific
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailParticlesVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleMessageTimingVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblePicturesVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleTimelinesVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleVisualsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SaveStationSoundVerification;
@@ -832,6 +833,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySaveStationSound), () => VerifySaveStationSound()),
         new(nameof(VerifyPermanentCollectibles), () => VerifyPermanentCollectibles()),
         new(nameof(VerifyCollectiblePictures), () => VerifyCollectiblePictures()),
+        new(nameof(VerifyCollectibleTimelines), () => VerifyCollectibleTimelines()),
         new(nameof(VerifyCollectibleVisuals), () => VerifyCollectibleVisuals()),
         new(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops()),
         new(nameof(VerifySamusPostureMovement), () => VerifySamusPostureMovement()),

@@ -23,7 +23,7 @@ internal static class LookupGreyCapVerification
     private static void VerifyGreyCapField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa677,0xa683,0xa68f,0xa69b,0xa6a7,0xa6b3,0xa6bf,0xa6cb,0xa6d7,0xa6e3,0xa6ef,0xa6fb,0xa707,0xa713,0xa71f,0xa72b,0xa737,0xa743,0xa74f,0xa75b];
-        string[] ids = ["clear-left","clear-right","clear-up","clear-down","grey-left-frame-0","grey-left-frame-1","grey-left-frame-2","grey-left-frame-3","grey-right-frame-0","grey-right-frame-1","grey-right-frame-2","grey-right-frame-3","grey-up-frame-0","grey-up-frame-1","grey-up-frame-2","grey-up-frame-3","grey-down-frame-0","grey-down-frame-1","grey-down-frame-2","grey-down-frame-3"];
+        string[] ids = ["clear-left","clear-right","clear-up","clear-down","grey-left-closed","grey-left-ajar","grey-left-half-open","grey-left-nearly-open","grey-right-closed","grey-right-ajar","grey-right-half-open","grey-right-nearly-open","grey-up-closed","grey-up-ajar","grey-up-half-open","grey-up-nearly-open","grey-down-closed","grey-down-ajar","grey-down-half-open","grey-down-nearly-open"];
         var exported = RoomObjectGreyDoorVisualFiles.All.ToArray();
         AssertEqual(20, exported.Length, "Grey cap export count");
         InstalledRoomObjectGreyDoorVisuals? pictures = field == 2 ? InstalledRoomObjectGreyDoorVisuals.Stock() : null;
@@ -42,7 +42,7 @@ internal static class LookupGreyCapVerification
                     AssertThrows<InvalidDataException>(() => RoomObjectGreyDoorVisualFiles.VisualId(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer)), "Grey cap missing ID");
                 }
             }
-            foreach (string id in new[] { "CLEAR-LEFT", "grey-left-frame-4", "", "unknown" })
+            foreach (string id in new[] { "CLEAR-LEFT", "grey-left-frame-0", "", "unknown" })
                 AssertTrue(!RoomObjectGreyDoorVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Grey cap ordinal ID domain");
         }
         for (int index = 0; index < pointers.Length; index++)

@@ -48,22 +48,22 @@ public static class RoomObjectGreyDoorVisualFiles
         return found;
     }
 
-    /// <summary>Names a supported clear or grey animation frame by direction and frame number.</summary>
+    /// <summary>Names a cleared opening or grey cap by direction and what it shows (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
         if (!GreyDoorCaps.TryDescribe(request, out var draw))
             throw new InvalidDataException($"Grey-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
-        return draw.Frame is int frame ? $"grey-{direction}-frame-{frame}" : $"clear-{direction}";
+        return draw.IsCleared ? $"clear-{direction}" : $"grey-{direction}-{DoorCapLookNames.VisualName(draw.Look)}";
     }
 
-    /// <summary>The four cleared openings, then each facing's four grey frames.</summary>
+    /// <summary>The four cleared openings, then each facing's grey cap closed and sliding aside.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         for (int orientation = 0; orientation < 4; orientation++)
             yield return RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
         for (int orientation = 0; orientation < 4; orientation++)
-            for (int frame = 0; frame < 4; frame++)
-                yield return RoomObjectDraw.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), frame));
+            foreach (DoorCapLook look in DoorCaps.OpeningLooks)
+                yield return RoomObjectDraw.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look));
     }
 }

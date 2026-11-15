@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>Development-tool members of <see cref="BlueDoorObjectDrawDefinitions"/>; never linked by player hosts.</summary>
 internal static class BlueDoorObjectDrawDefinitionsTooling
 {
-    /// <summary>Enumerates editable door frames, then each orientation's alias frame.</summary>
+    /// <summary>Enumerates editable door frames, then each orientation's closed cap drawn solid.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
@@ -14,8 +14,8 @@ internal static class BlueDoorObjectDrawDefinitionsTooling
             foreach (var frame in RoomObjectBlueDoorVisualFiles.Editable) yield return frame;
             for (int orientation = 0; orientation < 4; orientation++)
             {
-                RoomObjectBlueDoorVisualFiles.TryGet(RoomObjectDraw.Of(BlueDoorCaps.Draw.ClosedFacing(
-                    DoorCapOrientations.FromTableIndex(orientation))), out var draw);
+                RoomObjectBlueDoorVisualFiles.TryGet(BlueDoorCaps.ClosedSolid(
+                    DoorCapOrientations.FromTableIndex(orientation)), out var draw);
                 yield return draw;
             }
         }

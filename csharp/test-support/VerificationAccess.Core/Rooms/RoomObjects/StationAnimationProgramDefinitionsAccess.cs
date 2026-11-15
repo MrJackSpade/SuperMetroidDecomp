@@ -1,24 +1,28 @@
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Verification access to <see cref="StationAnimationDefinitions"/> members production does not use.</summary>
 internal static class StationAnimationProgramDefinitionsAccess
 {
-    /// <summary>Pairs station animation list identities with every frame's native duration and draw word.</summary>
+    /// <summary>Pairs station animations with every image's native duration and draw word.</summary>
     extension(StationAnimationDefinitions)
     {
-        /// <summary>Enumerates the station animation list identities for the native-word audit.</summary>
-        internal static IEnumerable<StationAnimationList> Lists() => Enum.GetValues<StationAnimationList>();
-
-        /// <summary>Visits each station frame's duration and draw pointer in list order.</summary>
+        /// <summary>Visits each station image's duration and draw pointer in the cartridge's order.</summary>
+        /// <exception cref="InvalidOperationException">A station animation's beat is not an image held for a time.</exception>
         internal static IEnumerable<NativeWord> NativeWords()
         {
-            foreach (StationAnimationList list in StationAnimationDefinitions.Lists())
-            for (int index = 0; index < StationAnimationDefinitions.Frames[list].Count; index++)
+            foreach (StationAnimation animation in Enum.GetValues<StationAnimation>())
             {
-                StationAnimationDefinitions.Frame frame = StationAnimations.Resolve(list, index);
-                yield return new NativeWord(checked((ushort)(StationNativeWords.AnimationLists.Word(list) + 4 * index)), checked((ushort)frame.Duration));
-                yield return new NativeWord(checked((ushort)(StationNativeWords.AnimationLists.Word(list) + 4 * index + 2)), RoomObjectDrawAddressCodec.Of(frame.Draw));
+                IReadOnlyList<AnimationBeat<StationDraw, NoAnimationCue>> beats = StationAnimationDefinitions.Segments.Beats(animation);
+                for (int beat = 0; beat < beats.Count; beat++)
+                {
+                    if (beats[beat] is not AnimationBeat<StationDraw, NoAnimationCue>.Frame frame)
+                        throw new InvalidOperationException($"Station animation {animation} beat {beat} is not an image held for a time.");
+                    ushort record = StationNativeWords.Record(animation, beat);
+                    yield return new NativeWord(record, checked((ushort)frame.Duration));
+                    yield return new NativeWord(checked((ushort)(record + 2)), RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(frame.Shown)));
+                }
             }
         }
     }

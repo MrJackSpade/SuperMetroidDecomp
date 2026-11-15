@@ -26,7 +26,7 @@ public static class RoomObjectDownwardGateVisualFiles
     public static InstalledRoomObjectDownwardGateVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
+    /// <summary>Enumerates the column open, lowering and closed, followed by four left/right trigger color pairs.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         foreach (DownwardGateDraw gate in Enum.GetValues<DownwardGateDraw>())
@@ -51,15 +51,29 @@ public static class RoomObjectDownwardGateVisualFiles
         return found;
     }
 
-    /// <summary>Maps a draw to its published artwork identity, preserving historic green/red labels.</summary>
+    /// <summary>Maps a draw to its published artwork identity: the column by how far it is lowered, a trigger by its colour and side (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
         if (!DownwardGateObjectDraws.TryDescribe(request, out var draw))
             throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
-        if (draw.Column) return $"column-frame-{draw.Frame}";
-        // Keep published artwork IDs: the historic green/red names differ from order.
-        string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
-        return $"{color}-{(draw.Part == DownwardGatePart.RightTrigger ? "right" : "left")}-trigger";
+        return draw.Gate switch
+        {
+            DownwardGateDraw.Open => "column-open",
+            DownwardGateDraw.QuarterLowered => "column-quarter-lowered",
+            DownwardGateDraw.HalfLowered => "column-half-lowered",
+            DownwardGateDraw.ThreeQuartersLowered => "column-three-quarters-lowered",
+            DownwardGateDraw.FullyLowered => "column-fully-lowered",
+            DownwardGateDraw.Closed => "column-closed",
+            DownwardGateDraw.TriggerBlueLeft => "blue-left-trigger",
+            DownwardGateDraw.TriggerBlueRight => "blue-right-trigger",
+            DownwardGateDraw.TriggerRedLeft => "red-left-trigger",
+            DownwardGateDraw.TriggerRedRight => "red-right-trigger",
+            DownwardGateDraw.TriggerGreenLeft => "green-left-trigger",
+            DownwardGateDraw.TriggerGreenRight => "green-right-trigger",
+            DownwardGateDraw.TriggerYellowLeft => "yellow-left-trigger",
+            DownwardGateDraw.TriggerYellowRight => "yellow-right-trigger",
+            _ => throw new InvalidDataException($"Downward gate draw {request} has no visual ID."),
+        };
     }
 
     /// <summary>Builds every column and trigger draw list from its calculated shape.</summary>

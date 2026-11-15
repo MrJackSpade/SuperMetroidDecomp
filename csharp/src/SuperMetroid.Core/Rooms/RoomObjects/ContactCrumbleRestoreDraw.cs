@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The three linked contact-crumble restoration draw lists.</summary>
+/// <summary>The three linked contact-crumble restoration draws.</summary>
 internal enum ContactCrumbleRestoreDraw
 {
     /// <summary>Horizontal parent and child restoration.</summary>

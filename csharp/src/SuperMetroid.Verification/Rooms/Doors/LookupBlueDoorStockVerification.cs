@@ -19,10 +19,10 @@ internal static class LookupBlueDoorStockVerification
         InstalledRoomObjectBlueDoorVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [
-            new LookupEscapeGateStockFrame(0xa9b3,"left-frame-0"),new LookupEscapeGateStockFrame(0xa9bf,"left-frame-1"),new LookupEscapeGateStockFrame(0xa9cb,"left-frame-2"),new LookupEscapeGateStockFrame(0xa9d7,"left-frame-3"),
-            new LookupEscapeGateStockFrame(0xa9ef,"right-frame-0"),new LookupEscapeGateStockFrame(0xa9fb,"right-frame-1"),new LookupEscapeGateStockFrame(0xaa07,"right-frame-2"),new LookupEscapeGateStockFrame(0xaa13,"right-frame-3"),
-            new LookupEscapeGateStockFrame(0xaa2b,"up-frame-0"),new LookupEscapeGateStockFrame(0xaa37,"up-frame-1"),new LookupEscapeGateStockFrame(0xaa43,"up-frame-2"),new LookupEscapeGateStockFrame(0xaa4f,"up-frame-3"),
-            new LookupEscapeGateStockFrame(0xaa67,"down-frame-0"),new LookupEscapeGateStockFrame(0xaa73,"down-frame-1"),new LookupEscapeGateStockFrame(0xaa7f,"down-frame-2"),new LookupEscapeGateStockFrame(0xaa8b,"down-frame-3")];
+            new LookupEscapeGateStockFrame(0xa9b3,"left-closed"),new LookupEscapeGateStockFrame(0xa9bf,"left-ajar"),new LookupEscapeGateStockFrame(0xa9cb,"left-half-open"),new LookupEscapeGateStockFrame(0xa9d7,"left-nearly-open"),
+            new LookupEscapeGateStockFrame(0xa9ef,"right-closed"),new LookupEscapeGateStockFrame(0xa9fb,"right-ajar"),new LookupEscapeGateStockFrame(0xaa07,"right-half-open"),new LookupEscapeGateStockFrame(0xaa13,"right-nearly-open"),
+            new LookupEscapeGateStockFrame(0xaa2b,"up-closed"),new LookupEscapeGateStockFrame(0xaa37,"up-ajar"),new LookupEscapeGateStockFrame(0xaa43,"up-half-open"),new LookupEscapeGateStockFrame(0xaa4f,"up-nearly-open"),
+            new LookupEscapeGateStockFrame(0xaa67,"down-closed"),new LookupEscapeGateStockFrame(0xaa73,"down-ajar"),new LookupEscapeGateStockFrame(0xaa7f,"down-half-open"),new LookupEscapeGateStockFrame(0xaa8b,"down-nearly-open")];
         ushort[] aliases = [0xa9a7,0xa9e3,0xaa1f,0xaa5b];
         foreach (InstalledRoomObjectBlueDoorVisuals pictures in new[] { InstalledRoomObjectBlueDoorVisuals.Stock(), installed })
         {

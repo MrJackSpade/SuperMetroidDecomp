@@ -49,7 +49,7 @@ internal static class RoomBlockSheetsWholeVerification
                     failures.Add($"{name}: block {block} depends on {input.Token}, which shows no artwork over a room's blocks");
             }
             foreach (CollectiblePicture collectible in Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
-                .SelectMany(kind => Enumerable.Range(0, CollectiblePicture.Frames).Select(frame => new CollectiblePicture(kind, frame))))
+                .SelectMany(kind => Enum.GetValues<CollectibleLook>().Select(look => new CollectiblePicture(kind, look))))
             {
                 string picture = RoomBlockPictureNames.OfCollectible(collectible);
                 bool pictured = sheet.Sheet.frames.ContainsKey(picture);

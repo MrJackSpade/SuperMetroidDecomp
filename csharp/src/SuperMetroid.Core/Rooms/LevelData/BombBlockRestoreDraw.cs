@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>The three linked bomb-block restoration draw lists.</summary>
+/// <summary>The three linked bomb-block restoration draws.</summary>
 internal enum BombBlockRestoreDraw
 {
     /// <summary>Horizontal parent and child restoration.</summary>

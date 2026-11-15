@@ -320,7 +320,7 @@ internal static class DoorObjectNativeProgramOracle
             VerificationAssertions.AssertTrue((duration & InstructionBit) == 0, $"{where}: the native list draws");
             VerificationAssertions.AssertEqual(duration, step.Updates, $"{where}: updates the image stays");
             VerificationAssertions.AssertEqual(Word(cartridge, cursor + 2),
-                RoomObjectDrawAddressCodec.Of(EyeDoorDraws.DrawList(orientation, component, step.Image)), $"{where}: draw");
+                RoomObjectDrawAddressCodec.Of(EyeDoorDraws.Of(orientation, component, step.Image)), $"{where}: draw");
             cursor = unchecked((ushort)(cursor + 4));
         }
         return cursor;

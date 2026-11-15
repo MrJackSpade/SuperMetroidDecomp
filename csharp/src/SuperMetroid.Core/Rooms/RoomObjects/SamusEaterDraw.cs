@@ -1,22 +1,22 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The eight Samus Eater plant draw lists.</summary>
+/// <summary>The eight Samus Eater plant draws (#1994): each plant idle and in the three looks of its chew.</summary>
 internal enum SamusEaterDraw
 {
-    /// <summary>Floor-idle draw list.</summary>
+    /// <summary>The floor plant idle, its mouth hidden.</summary>
     FloorIdle,
-    /// <summary>Floor-chew-1 draw list.</summary>
-    FloorChew1,
-    /// <summary>Floor-chew-2 draw list.</summary>
-    FloorChew2,
-    /// <summary>Floor-chew-3 draw list.</summary>
-    FloorChew3,
-    /// <summary>Ceiling-idle draw list.</summary>
+    /// <summary>The floor plant chewing, its teeth peeking out.</summary>
+    FloorTeethPeeking,
+    /// <summary>The floor plant chewing, its teeth bared.</summary>
+    FloorTeethBared,
+    /// <summary>The floor plant biting, its fangs out.</summary>
+    FloorFangsOut,
+    /// <summary>The ceiling plant idle, its mouth hidden.</summary>
     CeilingIdle,
-    /// <summary>Ceiling-chew-1 draw list.</summary>
-    CeilingChew1,
-    /// <summary>Ceiling-chew-2 draw list.</summary>
-    CeilingChew2,
-    /// <summary>Ceiling-chew-3 draw list.</summary>
-    CeilingChew3,
+    /// <summary>The ceiling plant chewing, its teeth peeking out.</summary>
+    CeilingTeethPeeking,
+    /// <summary>The ceiling plant chewing, its teeth bared.</summary>
+    CeilingTeethBared,
+    /// <summary>The ceiling plant biting, its fangs out.</summary>
+    CeilingFangsOut,
 }

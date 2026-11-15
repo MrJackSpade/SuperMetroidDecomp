@@ -16,7 +16,7 @@ public sealed class InstalledRoomObjectShotBlockVisuals
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
     internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw>
+        ShotBlockObjectDraws.TryDescribe(draw, out _)
             ? Images.Image(draw)
             : throw new InvalidDataException($"Shot-block visuals lack frame {draw}.");
 }

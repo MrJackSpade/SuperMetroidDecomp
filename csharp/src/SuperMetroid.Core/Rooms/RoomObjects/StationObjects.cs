@@ -16,7 +16,7 @@ internal sealed class StationObjects
     private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Applies the station and access-arm draw lists to the room's blocks.</summary>
+    /// <summary>Applies the station and access-arm draws to the room's blocks.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Locates resident station room objects when collision or frontend confirmation arrives.</summary>
     private readonly RoomObjectPlaceList _places;
@@ -208,9 +208,8 @@ internal sealed class StationObjects
         place.Become(new StationObject(
             StationKind.Save,
             area,
-            StationAnimationList.SaveIdle,
-            completedAnimationList: StationAnimationList.SaveIdle,
-            animationFrameCount: 1));
+            StationAnimation.SaveIdle,
+            completedAnimation: StationAnimation.SaveIdle));
     }
 
     /// <summary>
@@ -229,17 +228,16 @@ internal sealed class StationObjects
         WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)), rule.RightBehavior);
         WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)), rule.LeftBehavior);
 
-        StationAnimationList normalAnimationList = rule.Animation;
-        StationAnimationList completedAnimationList = rule.AcquiredAnimation ?? normalAnimationList;
-        StationAnimationList initialAnimationList = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
-            ? completedAnimationList
-            : normalAnimationList;
+        StationAnimation normalAnimation = rule.Animation;
+        StationAnimation completedAnimation = rule.AcquiredAnimation ?? normalAnimation;
+        StationAnimation initialAnimation = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
+            ? completedAnimation
+            : normalAnimation;
         place.Become(new StationObject(
             rule.Kind,
             area,
-            initialAnimationList,
-            completedAnimationList,
-            animationFrameCount: 3));
+            initialAnimation,
+            completedAnimation));
     }
 
     /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>

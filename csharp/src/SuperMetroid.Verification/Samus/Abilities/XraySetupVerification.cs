@@ -84,7 +84,7 @@ internal static class XraySetupVerification
         // tileset, as no marker is a common room element.
         HashSet<RoomCellPicture> itemPictures = [.. runtime.RoomObjects.CollectibleObjects.Collectibles
             .Where(item => item.Location is { } location && !runtime.System.HasCollectedItem(location) && CollectibleObjects.ShowsOwnPicture(item.Kind))
-            .Select(item => RoomCellPicture.Of(new CollectiblePicture(item.Kind, 0)))];
+            .Select(item => RoomCellPicture.Of(new CollectiblePicture(item.Kind, CollectibleLook.Primary)))];
         RevealedBlock? stray = expected.FirstOrDefault(block => block is { } shown && shown != Marker(2) &&
             (shown.Picture.ShowsCollectible ? !itemPictures.Contains(shown.Picture) : shown.Picture.Block >= CommonRoomElementBlocks));
         AssertTrue(stray is null,

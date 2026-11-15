@@ -16,15 +16,15 @@ internal static class LookupEyeDoorVisualIdsVerification
         // Original 23-entry public override identity contract, before the naming conversion.
         LookupEscapeGateStockFrame[] expected =
         [
-            new LookupEscapeGateStockFrame(0x9c03,"left-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c0b,"left-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c13,"left-eye-frame-2"),
-            new LookupEscapeGateStockFrame(0x9c1b,"left-eye-frame-3"),new LookupEscapeGateStockFrame(0x9c23,"left-eye-frame-4"),
-            new LookupEscapeGateStockFrame(0x9c2b,"left-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c31,"left-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c37,"left-middle-frame-2"),
-            new LookupEscapeGateStockFrame(0x9c3d,"left-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c43,"left-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9c49,"left-bottom-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c03,"left-eye-closed"),new LookupEscapeGateStockFrame(0x9c0b,"left-eye-half-open"),new LookupEscapeGateStockFrame(0x9c13,"left-eye-open"),
+            new LookupEscapeGateStockFrame(0x9c1b,"left-eye-flinching"),new LookupEscapeGateStockFrame(0x9c23,"left-eye-open-solid"),
+            new LookupEscapeGateStockFrame(0x9c2b,"left-middle-resting"),new LookupEscapeGateStockFrame(0x9c31,"left-middle-swelling"),new LookupEscapeGateStockFrame(0x9c37,"left-middle-swollen"),
+            new LookupEscapeGateStockFrame(0x9c3d,"left-bottom-resting"),new LookupEscapeGateStockFrame(0x9c43,"left-bottom-swelling"),new LookupEscapeGateStockFrame(0x9c49,"left-bottom-swollen"),
             new LookupEscapeGateStockFrame(0x9c4f,"left-eye-clear"),
-            new LookupEscapeGateStockFrame(0x9c5b,"right-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c63,"right-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c6b,"right-eye-frame-2"),
-            new LookupEscapeGateStockFrame(0x9c73,"right-eye-frame-3"),new LookupEscapeGateStockFrame(0x9c7b,"right-eye-frame-4"),
-            new LookupEscapeGateStockFrame(0x9c83,"right-middle-frame-0"),new LookupEscapeGateStockFrame(0x9c89,"right-middle-frame-1"),new LookupEscapeGateStockFrame(0x9c8f,"right-middle-frame-2"),
-            new LookupEscapeGateStockFrame(0x9c95,"right-bottom-frame-0"),new LookupEscapeGateStockFrame(0x9c9b,"right-bottom-frame-1"),new LookupEscapeGateStockFrame(0x9ca1,"right-bottom-frame-2"),
+            new LookupEscapeGateStockFrame(0x9c5b,"right-eye-closed"),new LookupEscapeGateStockFrame(0x9c63,"right-eye-half-open"),new LookupEscapeGateStockFrame(0x9c6b,"right-eye-open"),
+            new LookupEscapeGateStockFrame(0x9c73,"right-eye-flinching"),new LookupEscapeGateStockFrame(0x9c7b,"right-eye-open-solid"),
+            new LookupEscapeGateStockFrame(0x9c83,"right-middle-resting"),new LookupEscapeGateStockFrame(0x9c89,"right-middle-swelling"),new LookupEscapeGateStockFrame(0x9c8f,"right-middle-swollen"),
+            new LookupEscapeGateStockFrame(0x9c95,"right-bottom-resting"),new LookupEscapeGateStockFrame(0x9c9b,"right-bottom-swelling"),new LookupEscapeGateStockFrame(0x9ca1,"right-bottom-swollen"),
         ];
         var exported = RoomObjectEyeDoorVisualFiles.Editable.ToArray();
         AssertEqual(expected.Length, exported.Length, "Eye door original editable identity count");

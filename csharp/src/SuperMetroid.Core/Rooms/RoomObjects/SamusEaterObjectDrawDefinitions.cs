@@ -51,12 +51,12 @@ internal static class SamusEaterObjectDrawDefinitions
     internal static readonly IReadOnlyDictionary<SamusEaterDraw, RoomBlockShape> Shapes = new Dictionary<SamusEaterDraw, RoomBlockShape>
     {
         [SamusEaterDraw.FloorIdle] = FloorIdle,
-        [SamusEaterDraw.FloorChew1] = FloorChewing,
-        [SamusEaterDraw.FloorChew2] = FloorChewing,
-        [SamusEaterDraw.FloorChew3] = FloorChewing,
+        [SamusEaterDraw.FloorTeethPeeking] = FloorChewing,
+        [SamusEaterDraw.FloorTeethBared] = FloorChewing,
+        [SamusEaterDraw.FloorFangsOut] = FloorChewing,
         [SamusEaterDraw.CeilingIdle] = CeilingIdle,
-        [SamusEaterDraw.CeilingChew1] = CeilingChewing,
-        [SamusEaterDraw.CeilingChew2] = CeilingChewing,
-        [SamusEaterDraw.CeilingChew3] = CeilingChewing,
+        [SamusEaterDraw.CeilingTeethPeeking] = CeilingChewing,
+        [SamusEaterDraw.CeilingTeethBared] = CeilingChewing,
+        [SamusEaterDraw.CeilingFangsOut] = CeilingChewing,
     };
 }

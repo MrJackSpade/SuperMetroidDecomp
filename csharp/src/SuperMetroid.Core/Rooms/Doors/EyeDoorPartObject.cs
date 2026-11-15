@@ -67,7 +67,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     {
         if (step.Before != EyeDoorAction.None)
             throw new InvalidOperationException($"An eye door's {Component} does nothing as it draws; got {step.Before}.");
-        context.Draw(place, EyeDoorDraws.DrawList(Orientation, Component, step.Image));
+        context.Draw(place, EyeDoorDraws.Of(Orientation, Component, step.Image));
         return step.Updates;
     }
 

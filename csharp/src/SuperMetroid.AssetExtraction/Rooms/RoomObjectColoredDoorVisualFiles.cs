@@ -48,7 +48,7 @@ public static class RoomObjectColoredDoorVisualFiles
         return found;
     }
 
-    /// <summary>Names a compiled cap frame by color, direction, and phase for editable artwork.</summary>
+    /// <summary>Names a compiled cap frame by color, direction, and what it shows for editable artwork (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
         if (!ColoredDoorCaps.TryDescribe(request, out var draw))
@@ -61,15 +61,15 @@ public static class RoomObjectColoredDoorVisualFiles
             ColoredDoorColor.Red => "red",
             _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {draw.Color}."),
         };
-        return $"{color}-{direction}-frame-{draw.Frame}";
+        return $"{color}-{direction}-{DoorCapLookNames.VisualName(draw.Look)}";
     }
 
-    /// <summary>Every colour's caps, each facing's four frames in turn.</summary>
+    /// <summary>Every colour's caps, each facing's cap closed and sliding aside in turn.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         foreach (ColoredDoorColor color in Enum.GetValues<ColoredDoorColor>())
             for (int orientation = 0; orientation < 4; orientation++)
-                for (int frame = 0; frame < 4; frame++)
-                    yield return RoomObjectDraw.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), frame));
+                foreach (DoorCapLook look in DoorCaps.OpeningLooks)
+                    yield return RoomObjectDraw.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));
     }
 }

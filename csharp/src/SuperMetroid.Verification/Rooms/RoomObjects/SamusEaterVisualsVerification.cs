@@ -49,9 +49,9 @@ internal static class SamusEaterVisualsVerification
     private static void VerifySamusEaterStockVisualMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectSamusEaterVisuals installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9e0d,"floor-idle"), new LookupEscapeGateStockFrame(0x9e45,"floor-chew-1"),
-            new LookupEscapeGateStockFrame(0x9e61,"floor-chew-2"), new LookupEscapeGateStockFrame(0x9e7d,"floor-chew-3"), new LookupEscapeGateStockFrame(0x9e99,"ceiling-idle"),
-            new LookupEscapeGateStockFrame(0x9ed1,"ceiling-chew-1"), new LookupEscapeGateStockFrame(0x9eed,"ceiling-chew-2"), new LookupEscapeGateStockFrame(0x9f09,"ceiling-chew-3")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9e0d,"floor-idle"), new LookupEscapeGateStockFrame(0x9e45,"floor-teeth-peeking"),
+            new LookupEscapeGateStockFrame(0x9e61,"floor-teeth-bared"), new LookupEscapeGateStockFrame(0x9e7d,"floor-fangs-out"), new LookupEscapeGateStockFrame(0x9e99,"ceiling-idle"),
+            new LookupEscapeGateStockFrame(0x9ed1,"ceiling-teeth-peeking"), new LookupEscapeGateStockFrame(0x9eed,"ceiling-teeth-bared"), new LookupEscapeGateStockFrame(0x9f09,"ceiling-fangs-out")];
         foreach (InstalledRoomObjectSamusEaterVisuals pictures in new[] { InstalledRoomObjectSamusEaterVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectSamusEaterVisualFiles.Family, frames, WrittenCells(RoomObjectSamusEaterVisualFiles.Family));

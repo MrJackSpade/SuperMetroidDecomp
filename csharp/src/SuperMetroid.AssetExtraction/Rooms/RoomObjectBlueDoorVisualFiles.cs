@@ -27,15 +27,15 @@ public static class RoomObjectBlueDoorVisualFiles
     public static InstalledRoomObjectBlueDoorVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>
+    /// <summary>Sixteen original artwork identities; each facing's closed cap drawn solid shows its closed cap's.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> Editable
     {
         get
         {
             for (int orientation = 0; orientation < 4; orientation++)
-                for (int frame = 0; frame < 4; frame++)
+                foreach (DoorCapLook look in DoorCaps.OpeningLooks)
                 {
-                    TryGet(RoomObjectDraw.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), frame)), out var draw);
+                    TryGet(RoomObjectDraw.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)), out var draw);
                     yield return draw;
                 }
         }
@@ -49,13 +49,14 @@ public static class RoomObjectBlueDoorVisualFiles
         return found;
     }
 
-    /// <summary>Names an editable cap frame by direction and opening phase.</summary>
+    /// <summary>Names an editable cap frame by direction and what it shows (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
         if (!BlueDoorCaps.TryDescribe(request, out var draw))
             throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
-        // The alias shows its picture frame's artwork, so it shares that frame's name.
-        return $"{direction}-frame-{draw.Frame ?? BlueDoorObjectDrawDefinitions.ClosedPictureFrame}";
+        // The closed cap drawn solid shows the closed cap's artwork, so it shares that frame's name.
+        DoorCapLook shown = draw.Look == DoorCapLook.ClosedSolid ? DoorCapLook.Closed : draw.Look;
+        return $"{direction}-{DoorCapLookNames.VisualName(shown)}";
     }
 }

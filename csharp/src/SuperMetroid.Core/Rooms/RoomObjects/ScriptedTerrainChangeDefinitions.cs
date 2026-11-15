@@ -21,11 +21,11 @@ internal static class ScriptedTerrainChangeDefinitions
     /// </summary>
     internal static TerrainChange EnemyBreakableBlockBreak { get; } = new(1,
     [
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup0], BreakupFrameDuration,
+        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock), BreakupFrameDuration,
             SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup1], BreakupFrameDuration),
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup2], BreakupFrameDuration),
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup3], 1),
+        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Pieces), BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Dust), BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Gone), 1),
     ]);
 
     /// <summary>
@@ -35,18 +35,18 @@ internal static class ScriptedTerrainChangeDefinitions
     /// </summary>
     internal static TerrainChange CritterWallBreakthrough { get; } = new(1,
     [
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.EscapeAnimal0], BreakupFrameDuration,
+        new(RoomObjectDraw.Of(EscapeAnimalDraw.Cracking), BreakupFrameDuration,
             SoundBefore: EnemySound.BlockCrumble),
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.EscapeAnimal1], BreakupFrameDuration),
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.EscapeAnimal2], BreakupFrameDuration),
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.EscapeAnimal3], 1),
+        new(RoomObjectDraw.Of(EscapeAnimalDraw.Breaking), BreakupFrameDuration),
+        new(RoomObjectDraw.Of(EscapeAnimalDraw.Crumbling), BreakupFrameDuration),
+        new(RoomObjectDraw.Of(EscapeAnimalDraw.Blank), 1),
     ]);
 
     /// <summary>Crateria's main-street escape passage: its first pair of blocks clears, then, an update later, the pair four blocks right.</summary>
     internal static TerrainChange CrateriaEscapePassage { get; } = new(1,
     [
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.CrateriaPassage], 1),
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.CrateriaPassage], 1, SecondPassagePair),
+        new(CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw, 1),
+        new(CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw, 1, SecondPassagePair),
     ]);
 
     /// <summary>
@@ -55,6 +55,6 @@ internal static class ScriptedTerrainChangeDefinitions
     /// </summary>
     internal static TerrainChange MaridiaElevatube { get; } = new(1,
     [
-        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.MaridiaElevatube], ElevatubeDelay),
+        new(MaridiaElevatubeObjectDefinitions.BlockDraw, ElevatubeDelay),
     ]);
 }

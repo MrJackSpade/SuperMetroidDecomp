@@ -73,10 +73,10 @@ internal static class RoomObjectDrawSourceDefinitions
     internal static IReadOnlyDictionary<DownwardGateDraw, SnesAddress> DownwardGate { get; } = new Dictionary<DownwardGateDraw, SnesAddress>
     {
         [DownwardGateDraw.Open] = new(Bank, 0xa517),
-        [DownwardGateDraw.Lowered1] = new(Bank, 0xa525),
-        [DownwardGateDraw.Lowered2] = new(Bank, 0xa533),
-        [DownwardGateDraw.Lowered3] = new(Bank, 0xa541),
-        [DownwardGateDraw.Lowered4] = new(Bank, 0xa54f),
+        [DownwardGateDraw.QuarterLowered] = new(Bank, 0xa525),
+        [DownwardGateDraw.HalfLowered] = new(Bank, 0xa533),
+        [DownwardGateDraw.ThreeQuartersLowered] = new(Bank, 0xa541),
+        [DownwardGateDraw.FullyLowered] = new(Bank, 0xa54f),
         [DownwardGateDraw.Closed] = new(Bank, 0xa55d),
         [DownwardGateDraw.TriggerBlueLeft] = new(Bank, 0xa5d7),
         [DownwardGateDraw.TriggerBlueRight] = new(Bank, 0xa5e3),
@@ -217,13 +217,13 @@ internal static class RoomObjectDrawSourceDefinitions
     internal static IReadOnlyDictionary<SamusEaterDraw, SnesAddress> SamusEater { get; } = new Dictionary<SamusEaterDraw, SnesAddress>
     {
         [SamusEaterDraw.FloorIdle] = new(Bank, 0x9e0d),
-        [SamusEaterDraw.FloorChew1] = new(Bank, 0x9e45),
-        [SamusEaterDraw.FloorChew2] = new(Bank, 0x9e61),
-        [SamusEaterDraw.FloorChew3] = new(Bank, 0x9e7d),
+        [SamusEaterDraw.FloorTeethPeeking] = new(Bank, 0x9e45),
+        [SamusEaterDraw.FloorTeethBared] = new(Bank, 0x9e61),
+        [SamusEaterDraw.FloorFangsOut] = new(Bank, 0x9e7d),
         [SamusEaterDraw.CeilingIdle] = new(Bank, 0x9e99),
-        [SamusEaterDraw.CeilingChew1] = new(Bank, 0x9ed1),
-        [SamusEaterDraw.CeilingChew2] = new(Bank, 0x9eed),
-        [SamusEaterDraw.CeilingChew3] = new(Bank, 0x9f09),
+        [SamusEaterDraw.CeilingTeethPeeking] = new(Bank, 0x9ed1),
+        [SamusEaterDraw.CeilingTeethBared] = new(Bank, 0x9eed),
+        [SamusEaterDraw.CeilingFangsOut] = new(Bank, 0x9f09),
     };
 
     /// <summary>The address of each <see cref="SporeSpawnCeilingDraw"/>.</summary>
@@ -238,26 +238,26 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="StationDraw"/>.</summary>
     internal static IReadOnlyDictionary<StationDraw, SnesAddress> Station { get; } = new Dictionary<StationDraw, SnesAddress>
     {
-        [StationDraw.MapFrame0] = new(Bank, 0x9f25),
-        [StationDraw.MapFrame1] = new(Bank, 0x9f31),
-        [StationDraw.MapFrame2] = new(Bank, 0x9f3d),
+        [StationDraw.MapDim] = new(Bank, 0x9f25),
+        [StationDraw.MapLit] = new(Bank, 0x9f31),
+        [StationDraw.MapBright] = new(Bank, 0x9f3d),
         [StationDraw.MapRightRetracted] = new(Bank, 0x9f49),
         [StationDraw.MapRightExtended] = new(Bank, 0x9f55),
         [StationDraw.MapLeftRetracted] = new(Bank, 0x9f5b),
         [StationDraw.MapLeftExtended] = new(Bank, 0x9f67),
-        [StationDraw.EnergyFrame0] = new(Bank, 0x9f6d),
-        [StationDraw.EnergyFrame1] = new(Bank, 0x9f79),
-        [StationDraw.EnergyFrame2] = new(Bank, 0x9f85),
-        [StationDraw.MissileFrame0] = new(Bank, 0x9f91),
-        [StationDraw.MissileFrame1] = new(Bank, 0x9f9d),
-        [StationDraw.MissileFrame2] = new(Bank, 0x9fa9),
+        [StationDraw.EnergyDim] = new(Bank, 0x9f6d),
+        [StationDraw.EnergyLit] = new(Bank, 0x9f79),
+        [StationDraw.EnergyBright] = new(Bank, 0x9f85),
+        [StationDraw.MissileDim] = new(Bank, 0x9f91),
+        [StationDraw.MissileLit] = new(Bank, 0x9f9d),
+        [StationDraw.MissileBright] = new(Bank, 0x9fa9),
         [StationDraw.ResourceRightRetracted] = new(Bank, 0x9fb5),
         [StationDraw.ResourceRightExtended] = new(Bank, 0x9fbb),
         [StationDraw.ResourceLeftRetracted] = new(Bank, 0x9fc1),
         [StationDraw.ResourceLeftExtended] = new(Bank, 0x9fc7),
         [StationDraw.SaveIdle] = new(Bank, 0x9a3f),
-        [StationDraw.SaveActive] = new(Bank, 0x9a9f),
-        [StationDraw.SaveAlternate] = new(Bank, 0x9a6f),
+        [StationDraw.SaveLit] = new(Bank, 0x9a9f),
+        [StationDraw.SaveDark] = new(Bank, 0x9a6f),
     };
 
     /// <summary>The address of each <see cref="TourianAccessDraw"/>.</summary>

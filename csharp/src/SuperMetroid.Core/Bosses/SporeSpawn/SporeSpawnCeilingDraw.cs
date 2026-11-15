@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>The four Spore Spawn ceiling draw lists.</summary>
+/// <summary>The four Spore Spawn ceiling draws.</summary>
 internal enum SporeSpawnCeilingDraw
 {
     /// <summary>Clear the ceiling after defeat or crumble.</summary>

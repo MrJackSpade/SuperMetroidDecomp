@@ -84,14 +84,14 @@ public static class RoomObjectCollectibleVisualFiles
     private static void VerifyBlockPairs(ISnesAddressSpace bus)
     {
         for (int selector = 0; selector < CollectibleBlockPairs.InTurn.Count; selector++)
-        for (int animation = 0; animation < CollectiblePicture.Frames; animation++)
+        foreach (CollectibleLook look in Enum.GetValues<CollectibleLook>())
         {
-            int table = animation == 0
+            int table = look == CollectibleLook.Primary
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
             int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
             int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame(
-                InWorldCollectibleKind.Bombs, animation, CollectibleBlockPairs.InTurn[selector]));
+                InWorldCollectibleKind.Bombs, look, CollectibleBlockPairs.InTurn[selector]));
             if (native != compiled)
                 throw new InvalidDataException(
                     $"Collectible block pair selector $84:{table + selector * 2:X4} differs from the cartridge.");

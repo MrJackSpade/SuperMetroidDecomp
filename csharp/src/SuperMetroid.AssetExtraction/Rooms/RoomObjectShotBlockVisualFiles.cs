@@ -25,46 +25,63 @@ public static class RoomObjectShotBlockVisualFiles
     public static InstalledRoomObjectShotBlockVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>The published artwork identity of a shot-block draw: its shape and breakup frame, or its restoration.</summary>
-    internal static string VisualId(ShotBlockObjectDraws.Draw draw)
-    {
-        string shape = draw.Layout switch
-        {
-            RoomObjectShotBlockDrawDefinitions.Shape.Single => "single",
-            RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => "horizontal",
-            RoomObjectShotBlockDrawDefinitions.Shape.Vertical => "vertical",
-            RoomObjectShotBlockDrawDefinitions.Shape.Square => "square",
-            _ => throw new InvalidOperationException($"Undefined shot-block shape {draw.Layout}."),
-        };
-        return draw.Restore ? $"{shape}-restore" : $"{shape}-breakup-{draw.Frame}";
-    }
-
-    /// <summary>The published artwork identity of a shot-block <paramref name="draw"/>.</summary>
+    /// <summary>The published artwork identity of a shot-block draw: its shape and breakup stage, or its restoration (#1994).</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
-    internal static string VisualId(RoomObjectDraw draw) => VisualId(RoomObjectDraw.FrameOf<ShotBlockObjectDraws.Draw>(draw, "shot-block"));
+    internal static string VisualId(RoomObjectDraw draw) => draw switch
+    {
+        RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => $"{ShapeName(breakup.Layout)}-{StageName(breakup.Stage)}",
+        RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => $"{ShapeName(restoration.Layout)}-restore",
+        _ => throw new InvalidDataException($"{draw} is not a shot-block draw."),
+    };
+
+    /// <summary>A shape's word in a shot-block draw's identity.</summary>
+    private static string ShapeName(RoomObjectShotBlockDrawDefinitions.Shape shape) => shape switch
+    {
+        RoomObjectShotBlockDrawDefinitions.Shape.Single => "single",
+        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => "horizontal",
+        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => "vertical",
+        RoomObjectShotBlockDrawDefinitions.Shape.Square => "square",
+        _ => throw new InvalidOperationException($"Undefined shot-block shape {shape}."),
+    };
+
+    /// <summary>A breakup stage's words in a shot-block draw's identity.</summary>
+    private static string StageName(BlockBreakupStage stage) => stage switch
+    {
+        BlockBreakupStage.Rock => "rock",
+        BlockBreakupStage.Pieces => "pieces",
+        BlockBreakupStage.Dust => "dust",
+        BlockBreakupStage.Gone => "gone",
+        _ => throw new InvalidOperationException($"Undefined {nameof(BlockBreakupStage)} {stage}."),
+    };
 
     /// <summary>The draw lists of every breakup and restoration draw, built from the calculated draws.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All => Calculated.Select(Export);
 
     /// <summary>The draw list of a shot-block draw: its block shape written in its arrangement's runs (#1862).</summary>
-    private static RoomObjectDrawLists.DrawList Export(ShotBlockObjectDraws.Draw draw) =>
-        RoomObjectShapeRun.DrawList(RoomObjectDraw.Of(draw), draw.Blocks, RoomObjectShapeRun.Arrangement(draw.Layout));
+    private static RoomObjectDrawLists.DrawList Export(RoomObjectDraw draw) => draw switch
+    {
+        RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } =>
+            RoomObjectShapeRun.DrawList(draw, breakup.Blocks, RoomObjectShapeRun.Arrangement(breakup.Layout)),
+        RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } =>
+            RoomObjectShapeRun.DrawList(draw, restoration.Blocks, RoomObjectShapeRun.Arrangement(restoration.Layout)),
+        _ => throw new InvalidOperationException($"{draw} is not a shot-block draw."),
+    };
 
-    /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
-    internal static IEnumerable<ShotBlockObjectDraws.Draw> Calculated
+    /// <summary>Yields breakup stages interleaved by shape, followed by the three restoration draws.</summary>
+    internal static IEnumerable<RoomObjectDraw> Calculated
     {
         get
         {
-            for (int frame = 0; frame < RoomObjectShotBlockDrawDefinitions.BreakupFrameCount; frame++)
+            foreach (BlockBreakupStage stage in Enum.GetValues<BlockBreakupStage>())
             {
-                yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Single, frame, Restore: false);
-                yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Horizontal, frame, Restore: false);
-                yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Vertical, frame, Restore: false);
-                yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Square, frame, Restore: false);
+                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, stage);
+                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Horizontal, stage);
+                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Vertical, stage);
+                yield return ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Square, stage);
             }
-            yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Horizontal, 0, Restore: true);
-            yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Vertical, 0, Restore: true);
-            yield return new(RoomObjectShotBlockDrawDefinitions.Shape.Square, 0, Restore: true);
+            yield return ShotBlockObjectDraws.Restoration(RoomObjectShotBlockDrawDefinitions.Shape.Horizontal);
+            yield return ShotBlockObjectDraws.Restoration(RoomObjectShotBlockDrawDefinitions.Shape.Vertical);
+            yield return ShotBlockObjectDraws.Restoration(RoomObjectShotBlockDrawDefinitions.Shape.Square);
         }
     }
 }

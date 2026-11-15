@@ -5,25 +5,25 @@ public enum CollectiblePhase
 {
     /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate removal from the room.</summary>
     CollectedEmpty,
-    /// <summary>The exposed item alternates its two visible frames and accepts a touch trigger for acquisition.</summary>
+    /// <summary>The exposed item alternates its two looks and accepts a touch trigger for acquisition.</summary>
     Visible,
-    /// <summary>The intact Chozo orb cycles its four shell frames while waiting for a projectile trigger.</summary>
+    /// <summary>The intact Chozo orb pulses its shell while waiting for a projectile trigger.</summary>
     ChozoOrb,
-    /// <summary>The triggered Chozo orb runs its timed empty/burst draws before revealing the item.</summary>
+    /// <summary>The triggered Chozo orb bursts open before revealing the item.</summary>
     ChozoOrbBurst,
     /// <summary>An uncollected item is concealed in its saved shot block and waits for a projectile trigger.</summary>
     ShotBlock,
-    /// <summary>The shot block runs three reveal frames before showing either the item or its already-collected empty space.</summary>
+    /// <summary>The shot block crumbles away before showing either the item or its already-collected empty space.</summary>
     ShotBlockReveal,
-    /// <summary>The revealed item accepts touch acquisition during twenty-two pairs of four-frame animation draws.</summary>
+    /// <summary>The revealed item accepts touch acquisition while it alternates its two looks twenty-two times.</summary>
     ShotBlockVisible,
-    /// <summary>An uncollected revealed item runs the reverse reveal sequence and restores its concealed shot block.</summary>
+    /// <summary>An uncollected revealed item is hidden as its shot block forms again and restores its concealed shot block.</summary>
     ShotBlockReconceal,
     /// <summary>A previously collected item's restored shot block waits for another projectile trigger.</summary>
     CollectedShotBlock,
     /// <summary>The collected shot block remains empty for twenty-two eight-frame intervals before respawning.</summary>
     CollectedShotBlockEmpty,
-    /// <summary>The collected shot block runs three four-frame respawn draws before restoring its saved block.</summary>
+    /// <summary>The collected shot block grows back before restoring its saved block.</summary>
     CollectedShotBlockRespawn,
     /// <summary>Inventory and persistence have been granted; the room object and its drawn block remain while the synchronous pickup message runs.</summary>
     AwaitingMessage,

@@ -22,18 +22,18 @@ internal static class DoorCapSequenceDefinitions
     internal static IReadOnlyList<DoorCapStep> CapClosing { get; } =
     [
         new(DoorCapFrame.Clear, 2),
-        new(DoorCapFrame.Closed3, 2),
-        new(DoorCapFrame.Closed2, 2, CloseSound),
-        new(DoorCapFrame.Closed1, 2),
-        new(DoorCapFrame.Closed0, 1),
+        new(DoorCapFrame.NearlyOpen, 2),
+        new(DoorCapFrame.HalfOpen, 2, CloseSound),
+        new(DoorCapFrame.Ajar, 2),
+        new(DoorCapFrame.Closed, 1),
     ];
 
     /// <summary>A shot blue cap opening: its three opening images, six updates each, then the cleared opening for 94.</summary>
     internal static IReadOnlyList<DoorCapStep> BlueOpening { get; } =
     [
-        new(DoorCapFrame.Closed1, 6, OpenSound),
-        new(DoorCapFrame.Closed2, 6),
-        new(DoorCapFrame.Closed3, 6),
+        new(DoorCapFrame.Ajar, 6, OpenSound),
+        new(DoorCapFrame.HalfOpen, 6),
+        new(DoorCapFrame.NearlyOpen, 6),
         new(DoorCapFrame.Clear, 94),
     ];
 
@@ -44,11 +44,11 @@ internal static class DoorCapSequenceDefinitions
     internal static IReadOnlyList<DoorCapStep> BlueClosing { get; } =
     [
         new(DoorCapFrame.Clear, 2),
-        new(DoorCapFrame.Closed3, 2),
-        new(DoorCapFrame.Closed2, 2, CloseSound),
-        new(DoorCapFrame.Closed1, 2),
+        new(DoorCapFrame.NearlyOpen, 2),
+        new(DoorCapFrame.HalfOpen, 2, CloseSound),
+        new(DoorCapFrame.Ajar, 2),
     ];
 
     /// <summary>A blue cap closed again: its closed image for one update.</summary>
-    internal static IReadOnlyList<DoorCapStep> BlueClosed { get; } = [new(DoorCapFrame.Closed0, 1)];
+    internal static IReadOnlyList<DoorCapStep> BlueClosed { get; } = [new(DoorCapFrame.Closed, 1)];
 }

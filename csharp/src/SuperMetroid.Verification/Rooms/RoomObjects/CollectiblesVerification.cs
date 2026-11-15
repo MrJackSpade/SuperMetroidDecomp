@@ -90,7 +90,7 @@ internal static class CollectiblesVerification
                     fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
                     $"{kind} writes the first block pair's first-frame block");
                 AssertEqual(
-                    RoomCellPicture.Of(new CollectiblePicture(kind, 0)),
+                    RoomCellPicture.Of(new CollectiblePicture(kind, CollectibleLook.Primary)),
                     fixture.Level.ForegroundPlane.Cells.Cells[fixture.BlockIndex].Picture,
                     $"{kind} shows its own picture's first frame");
             }

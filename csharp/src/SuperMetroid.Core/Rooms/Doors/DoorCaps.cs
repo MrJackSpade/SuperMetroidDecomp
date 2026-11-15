@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The draws of the door caps (#1296, #1554): the cleared opening, the blue, grey and coloured caps through their four
-/// closing images, and the blue image a hit flashes, each per facing.
+/// The draws of the door caps (#1296, #1554, #1994): the cleared opening, the blue, grey and coloured caps closed and
+/// sliding aside, and the blue image a hit flashes, each per facing.
 /// </summary>
 internal static class DoorCaps
 {
@@ -15,11 +15,11 @@ internal static class DoorCaps
     internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapFrame image) => image switch
     {
         DoorCapFrame.Clear => RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(orientation)),
-        DoorCapFrame.Closed0 => Closed(paint, orientation, 0),
-        DoorCapFrame.Closed1 => Closed(paint, orientation, 1),
-        DoorCapFrame.Closed2 => Closed(paint, orientation, 2),
-        DoorCapFrame.Closed3 => Closed(paint, orientation, 3),
-        DoorCapFrame.BlueFlash => Closed(DoorCapPaint.Blue, orientation, 0),
+        DoorCapFrame.Closed => Painted(paint, orientation, DoorCapLook.Closed),
+        DoorCapFrame.Ajar => Painted(paint, orientation, DoorCapLook.Ajar),
+        DoorCapFrame.HalfOpen => Painted(paint, orientation, DoorCapLook.HalfOpen),
+        DoorCapFrame.NearlyOpen => Painted(paint, orientation, DoorCapLook.NearlyOpen),
+        DoorCapFrame.BlueFlash => Painted(DoorCapPaint.Blue, orientation, DoorCapLook.Closed),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {image}."),
     };
 
@@ -32,14 +32,22 @@ internal static class DoorCaps
         _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {color}."),
     };
 
-    /// <summary>The <paramref name="paint"/> cap facing <paramref name="orientation"/> at closing image <paramref name="closingImage"/>.</summary>
-    private static RoomObjectDraw Closed(DoorCapPaint paint, ColoredDoorOrientation orientation, int closingImage) => paint switch
+    /// <summary>The <paramref name="paint"/> cap facing <paramref name="orientation"/> showing <paramref name="look"/>.</summary>
+    private static RoomObjectDraw Painted(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapLook look) => paint switch
     {
-        DoorCapPaint.Blue => RoomObjectDraw.Of(new BlueDoorCaps.Draw(orientation, closingImage)),
-        DoorCapPaint.Grey => RoomObjectDraw.Of(new GreyDoorCaps.Draw(orientation, closingImage)),
-        DoorCapPaint.Yellow => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Yellow, orientation, closingImage)),
-        DoorCapPaint.Green => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Green, orientation, closingImage)),
-        DoorCapPaint.Red => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Red, orientation, closingImage)),
+        DoorCapPaint.Blue => RoomObjectDraw.Of(new BlueDoorCaps.Draw(orientation, look)),
+        DoorCapPaint.Grey => RoomObjectDraw.Of(new GreyDoorCaps.Draw(orientation, look)),
+        DoorCapPaint.Yellow => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Yellow, orientation, look)),
+        DoorCapPaint.Green => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Green, orientation, look)),
+        DoorCapPaint.Red => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Red, orientation, look)),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapPaint)} {paint}."),
     };
+
+    /// <summary>The four looks of a cap closing and sliding aside, in the order it opens.</summary>
+    internal static IReadOnlyList<DoorCapLook> OpeningLooks { get; } =
+        [DoorCapLook.Closed, DoorCapLook.Ajar, DoorCapLook.HalfOpen, DoorCapLook.NearlyOpen];
+
+    /// <summary>Whether <paramref name="look"/> is the cap closed or sliding aside, the looks every painted cap draws.</summary>
+    internal static bool IsOpeningLook(DoorCapLook look) =>
+        look is DoorCapLook.Closed or DoorCapLook.Ajar or DoorCapLook.HalfOpen or DoorCapLook.NearlyOpen;
 }

@@ -10,25 +10,25 @@ internal static class GreyDoorDefinitions
     internal const int HitThreshold = 1;
 
     /// <summary>A locked cap's closed image, for one update.</summary>
-    internal static IReadOnlyList<DoorCapStep> Locked { get; } = [new(DoorCapFrame.Closed0, 1)];
+    internal static IReadOnlyList<DoorCapStep> Locked { get; } = [new(DoorCapFrame.Closed, 1)];
 
     /// <summary>An unlocked cap's flash, which repeats until a shot opens it: the blue image for three updates and the cap for four, three times.</summary>
     internal static IReadOnlyList<DoorCapStep> Flash { get; } =
     [
         new(DoorCapFrame.BlueFlash, 3),
-        new(DoorCapFrame.Closed0, 4),
+        new(DoorCapFrame.Closed, 4),
         new(DoorCapFrame.BlueFlash, 3),
-        new(DoorCapFrame.Closed0, 4),
+        new(DoorCapFrame.Closed, 4),
         new(DoorCapFrame.BlueFlash, 3),
-        new(DoorCapFrame.Closed0, 4),
+        new(DoorCapFrame.Closed, 4),
     ];
 
     /// <summary>A shot cap opening: its three opening images, four updates each, then the cleared opening for one.</summary>
     internal static IReadOnlyList<DoorCapStep> Opening { get; } =
     [
-        new(DoorCapFrame.Closed1, 4, DoorCapSequenceDefinitions.OpenSound),
-        new(DoorCapFrame.Closed2, 4),
-        new(DoorCapFrame.Closed3, 4),
+        new(DoorCapFrame.Ajar, 4, DoorCapSequenceDefinitions.OpenSound),
+        new(DoorCapFrame.HalfOpen, 4),
+        new(DoorCapFrame.NearlyOpen, 4),
         new(DoorCapFrame.Clear, 1),
     ];
 
@@ -42,9 +42,9 @@ internal static class GreyDoorDefinitions
     internal static IReadOnlyList<DoorCapStep> BombTorizoClosing { get; } =
     [
         new(DoorCapFrame.Clear, 40),
-        new(DoorCapFrame.Closed3, 2, DoorCapSequenceDefinitions.CloseSound),
-        new(DoorCapFrame.Closed2, 2),
-        new(DoorCapFrame.Closed1, 2),
-        new(DoorCapFrame.Closed0, 1),
+        new(DoorCapFrame.NearlyOpen, 2, DoorCapSequenceDefinitions.CloseSound),
+        new(DoorCapFrame.HalfOpen, 2),
+        new(DoorCapFrame.Ajar, 2),
+        new(DoorCapFrame.Closed, 1),
     ];
 }

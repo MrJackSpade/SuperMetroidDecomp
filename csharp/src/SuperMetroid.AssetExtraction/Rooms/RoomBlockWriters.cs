@@ -92,8 +92,8 @@ internal static class RoomBlockWriters
     /// <exception cref="InvalidDataException">The draw is not a shot block's breakup or restoration.</exception>
     private static Func<InventoriedRoomState, bool> ShotBlockFrameWrittenIn(RoomObjectDraw draw) => draw switch
     {
-        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.Restore: true } => static state => state.HoldsRespawningShotBlocks,
-        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> => static state => state.HoldsBreakingBlocks ||
+        RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> => static state => state.HoldsRespawningShotBlocks,
+        RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> => static state => state.HoldsBreakingBlocks ||
             state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock) ||
             state.Enemies.Contains(EnemyDefinitionId.Botwoon) || state.Enemies.Contains(EnemyDefinitionId.Chozo),
         _ => throw new InvalidDataException($"Shot-block frame {draw} is not a shot block's breakup or restoration."),
@@ -167,11 +167,11 @@ internal static class RoomBlockWriters
             throw new InvalidDataException($"Station frame {draw} is not a station's frame.");
         return Placing(station switch
         {
-            StationDraw.MapFrame0 or StationDraw.MapFrame1 or StationDraw.MapFrame2 or StationDraw.MapRightRetracted or
+            StationDraw.MapDim or StationDraw.MapLit or StationDraw.MapBright or StationDraw.MapRightRetracted or
                 StationDraw.MapRightExtended or StationDraw.MapLeftRetracted or StationDraw.MapLeftExtended => [RoomObjectKind.MapStation],
-            StationDraw.EnergyFrame0 or StationDraw.EnergyFrame1 or StationDraw.EnergyFrame2 => [RoomObjectKind.EnergyStation],
-            StationDraw.MissileFrame0 or StationDraw.MissileFrame1 or StationDraw.MissileFrame2 => [RoomObjectKind.MissileStation],
-            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => [RoomObjectKind.SaveStation],
+            StationDraw.EnergyDim or StationDraw.EnergyLit or StationDraw.EnergyBright => [RoomObjectKind.EnergyStation],
+            StationDraw.MissileDim or StationDraw.MissileLit or StationDraw.MissileBright => [RoomObjectKind.MissileStation],
+            StationDraw.SaveIdle or StationDraw.SaveLit or StationDraw.SaveDark => [RoomObjectKind.SaveStation],
             StationDraw.ResourceRightRetracted or StationDraw.ResourceLeftRetracted or StationDraw.ResourceRightExtended or
                 StationDraw.ResourceLeftExtended => [RoomObjectKind.EnergyStation, RoomObjectKind.MissileStation],
             _ => throw new InvalidDataException($"Station frame {draw} is of no station."),
@@ -206,7 +206,7 @@ internal static class RoomBlockWriters
             case DrawGroup.ShotReveal:
                 return static state => state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock);
             case DrawGroup.Tank:
-                InWorldCollectibleKind tank = TankKinds.Single(kind => TankFrames[kind].Contains(frame));
+                InWorldCollectibleKind tank = TankKinds.Single(kind => TankLooks[kind] is var looks && (looks.Primary == frame || looks.Alternate == frame));
                 return state => state.PlacesCollectible((kind, _) => kind == tank);
             case DrawGroup.OwnPicture:
                 return static state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind));

@@ -32,7 +32,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
         RoomObjectDrawLists.DrawList[] lists =
             RoomObjectColoredDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         InstalledRoomObjectColoredDoorVisuals stock = InstalledRoomObjectColoredDoorVisuals.Stock();
-        AssertEqual("green-left-frame-0", RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)),
+        AssertEqual("green-left-closed", RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)),
             "the green left cap's first frame is the draw the cartridge stores at $A827");
         AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (0xa827 + 2))).Appearance,
             stock.Image(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)).At(Offset16<RoomBlocks>.Zero),

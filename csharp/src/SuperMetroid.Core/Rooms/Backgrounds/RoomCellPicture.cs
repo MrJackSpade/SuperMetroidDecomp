@@ -46,5 +46,5 @@ public readonly record struct RoomCellPicture
 
     /// <summary>The block or the collectible picture shown, for diagnostics.</summary>
     public override string ToString() =>
-        collectible is { } shown ? $"collectible {shown.Kind} frame {shown.Frame}" : $"block {block}";
+        collectible is { } shown ? $"collectible {shown.Kind} {shown.Look}" : $"block {block}";
 }

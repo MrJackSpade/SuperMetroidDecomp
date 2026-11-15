@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The three Mother Brain escape-gate draw lists.</summary>
+/// <summary>The three Mother Brain escape-gate draws.</summary>
 internal enum MotherBrainEscapeGateDraw
 {
     /// <summary>Fully open vertical gate draw.</summary>

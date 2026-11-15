@@ -9,9 +9,7 @@ internal enum NoobTubePhase
     WaitingForPowerBomb,
     /// <summary>A Power Bomb struck it: waiting for the player's input, which breaks it.</summary>
     WaitingForInput,
-    /// <summary>The player's input woke it: the update locks Samus, cracks the glass and shows the first cracking image.</summary>
-    Breaking,
-    /// <summary>Cracking, image by image.</summary>
+    /// <summary>The player's input woke it, locking Samus and cracking the glass: cracking, image by image.</summary>
     Cracking,
     /// <summary>Shattered and open; the water returns once this image's time is up.</summary>
     Shattered,

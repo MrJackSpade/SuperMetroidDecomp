@@ -54,16 +54,16 @@ internal static class EyeDoorSequenceDefinitions
     internal static IReadOnlyList<EyeDoorStep> Flinching { get; } =
     [
         new(EyeDoorObjectFrame.FlinchingEye, 2),
-        new(EyeDoorObjectFrame.ScrewedShutEye, 2),
+        new(EyeDoorObjectFrame.OpenSolidEye, 2),
         new(EyeDoorObjectFrame.FlinchingEye, 2, EyeDoorAction.SpawnTwoSmoke),
-        new(EyeDoorObjectFrame.ScrewedShutEye, 2),
+        new(EyeDoorObjectFrame.OpenSolidEye, 2),
         new(EyeDoorObjectFrame.FlinchingEye, 2),
-        new(EyeDoorObjectFrame.ScrewedShutEye, 2, EyeDoorAction.SpawnTwoSmoke),
+        new(EyeDoorObjectFrame.OpenSolidEye, 2, EyeDoorAction.SpawnTwoSmoke),
         new(EyeDoorObjectFrame.HalfOpenEye, 4),
         new(EyeDoorObjectFrame.ClosedEye, 8),
         new(EyeDoorObjectFrame.ClosedEye, 56, EyeDoorAction.SpawnSweat),
         new(EyeDoorObjectFrame.HalfOpenEye, 4),
-        new(EyeDoorObjectFrame.ScrewedShutEye, 4),
+        new(EyeDoorObjectFrame.OpenSolidEye, 4),
     ];
 
     /// <summary>One flash of the destroyed eye: the cleared opening for three updates, then the blue cap for four.</summary>

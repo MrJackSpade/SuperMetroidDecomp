@@ -4,11 +4,11 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 
 /// <summary>
 /// The installed pictures of the room objects' frames, keyed by the frame's draw (#1557, #1732). Each provider's
-/// <c>Image</c> rejects a draw outside its family's descriptor and otherwise returns the family's installed picture of
-/// the frame; the family's loader builds the provider from <c>RoomObjectFrameImageFiles.Load</c>, which requires a
-/// picture of every frame the family's descriptor enumerates and rejects any other, so no frame the drawing passes is
-/// absent. The drawing (<c>RoomObjectBlockDrawing</c>) calls each provider only on the branch its descriptor accepts.
-/// A construction outside the reviewed loader revokes the proof.
+/// <c>Image</c> returns the family's installed picture of the frame; the family's loader builds the provider from
+/// <c>RoomObjectFrameImageFiles.Load</c>, which requires a picture of every frame the family's descriptor enumerates and
+/// rejects any other, so no frame its family draws is absent. Each draw is drawn by its own family
+/// (<c>RoomObjectDrawFamily</c>, #2034), whose pictures are that one provider. A construction outside the reviewed loader
+/// revokes the proof.
 /// </summary>
 internal static class RoomObjectFrameClosedContractDefinitions
 {
@@ -22,6 +22,7 @@ internal static class RoomObjectFrameClosedContractDefinitions
         new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameImage.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectDraw.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameDraw.cs"),
+        new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectDrawFamily.cs"),
         new("csharp/src/SuperMetroid.Core/World/RoomObjectBlockDrawing.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameImageFiles.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameFamily.cs"),
@@ -48,7 +49,7 @@ internal static class RoomObjectFrameClosedContractDefinitions
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/CrateriaMainstreetEscapePassageObjectDefinitions.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/OldTourianEscapeShaftWallDraws.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/OldTourianEscapeShaftWallObjectDefinitions.cs",
-            "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeAnimalWalls.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/EscapeAnimalWalls.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/EscapeAnimalDraw.cs"),
         Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectShotBlockVisuals", "room-object-shot-block-complete-frames",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectShotBlockVisuals.cs",
@@ -118,10 +119,10 @@ internal static class RoomObjectFrameClosedContractDefinitions
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectStationVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectStationVisualFiles.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationObjectDraws.cs"),
-        Family("SuperMetroid.Core.Enemies.Elevator.Artwork.InstalledRoomObjectElevatorPlatformVisuals", "room-object-elevator-platform-complete-frames",
-            "csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/InstalledRoomObjectElevatorPlatformVisuals.cs",
+        Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectElevatorPlatformVisuals", "room-object-elevator-platform-complete-frames",
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectElevatorPlatformVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectElevatorPlatformVisualFiles.cs",
-            "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorPlatformDraws.cs"),
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/ElevatorPlatformDraws.cs"),
         Family("SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectDownwardGateVisuals", "room-object-downward-gate-complete-frames",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectDownwardGateVisuals.cs",
             "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDownwardGateVisualFiles.cs",

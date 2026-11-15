@@ -22,7 +22,7 @@ internal static class LookupCollectibleSelectorsVerification
         {
             var image = AssertIs<AnimationBeat<CollectibleDraw, NoAnimationCue>.Frame>(images[phase], $"orb image {phase}");
             AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xdfb5 + phase * 4)),
-                RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image.Shown)), "Collectible native orb phase draw");
+                RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(image.Shown)), "Collectible native orb phase draw");
         }
         AssertEqual(AnimationEnd.LoopsFrom(0), CollectibleOrbAnimation.Pulsing.End, "the orb's animation starts again after its fourth image");
     }

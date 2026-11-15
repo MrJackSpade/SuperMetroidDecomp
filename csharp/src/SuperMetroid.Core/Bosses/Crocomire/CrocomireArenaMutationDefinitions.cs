@@ -9,10 +9,10 @@ internal static class CrocomireArenaMutationDefinitions
     internal static readonly IReadOnlyDictionary<CrocomireArenaMutation, TerrainChange> Changes =
         new Dictionary<CrocomireArenaMutation, TerrainChange>
         {
-            [CrocomireArenaMutation.ClearBridge] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.ClearBridge)),
-            [CrocomireArenaMutation.CrumbleBridgeBlock] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.CrumbleBridgeBlock)),
-            [CrocomireArenaMutation.ClearBridgeBlock] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.ClearBridgeBlock)),
-            [CrocomireArenaMutation.ClearInvisibleWall] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.ClearInvisibleWall)),
-            [CrocomireArenaMutation.CreateInvisibleWall] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.CreateInvisibleWall)),
+            [CrocomireArenaMutation.ClearBridge] = TerrainChange.DrawnOnce(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.ClearBridge)),
+            [CrocomireArenaMutation.CrumbleBridgeBlock] = TerrainChange.DrawnOnce(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.CrumbleBridgeBlock)),
+            [CrocomireArenaMutation.ClearBridgeBlock] = TerrainChange.DrawnOnce(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.ClearBridgeBlock)),
+            [CrocomireArenaMutation.ClearInvisibleWall] = TerrainChange.DrawnOnce(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.ClearInvisibleWall)),
+            [CrocomireArenaMutation.CreateInvisibleWall] = TerrainChange.DrawnOnce(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.CreateInvisibleWall)),
         };
 }

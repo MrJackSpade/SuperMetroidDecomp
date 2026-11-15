@@ -44,7 +44,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
         switch (Phase)
         {
             case BombTorizoHandPhase.Starting:
-                context.Draw(place, RoomObjectDraw.Of(BombTorizoHandCrumbleDefinitions.RestingImage));
+                context.Draw(place, BombTorizoHandDraws.Family, BombTorizoHandCrumbleDefinitions.RestingImage);
                 _updatesBeforeNextStep = 1;
                 Phase = BombTorizoHandPhase.Arming;
                 return;
@@ -68,7 +68,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
                 BombTorizoHandCrumbleStep step = BombTorizoHandCrumbleDefinitions.Crumble[next];
                 if (step.FragmentBefore is { } fragment)
                     _owner.SpawnFragment(place, fragment);
-                context.Draw(place, RoomObjectDraw.Of(step.Image));
+                context.Draw(place, BombTorizoHandDraws.Family, step.Image);
                 _updatesBeforeNextStep = step.Updates;
                 return;
             default:

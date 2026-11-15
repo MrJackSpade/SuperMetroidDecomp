@@ -13,8 +13,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal readonly record struct RoomObjectStepContext(
     IRoomObjects RoomObjects, RoomLevelData Level, RoomObjectFrameInputs Frame)
 {
-    /// <summary>Draws <paramref name="draw"/> at the place's block, as a timed draw does.</summary>
-    internal void Draw(RoomObjectPlace place, RoomObjectDraw draw) => RoomObjects.Drawing.Draw(Level, place.Block, draw);
+    /// <summary>Draws <paramref name="draw"/> at the place's block through its family, as a timed draw does.</summary>
+    internal void Draw(RoomObjectPlace place, RoomObjectDraw draw) => Ensure.NotNull(draw).Draw(Level, place.Block, RoomObjects.Drawing);
+
+    /// <summary>Draws <paramref name="frame"/> of <paramref name="family"/> at the place's block.</summary>
+    internal void Draw<TFrame>(RoomObjectPlace place, RoomObjectDrawFamily<TFrame> family, TFrame frame) where TFrame : struct =>
+        Ensure.NotNull(family).Draw(Level, place.Block, RoomObjects.Drawing, frame);
 
     /// <summary>
     /// Redraws the place's saved terrain at its block, as the draw-block step restores a

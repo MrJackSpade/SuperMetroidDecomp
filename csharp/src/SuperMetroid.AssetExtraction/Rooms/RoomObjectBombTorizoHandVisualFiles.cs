@@ -34,9 +34,9 @@ public static class RoomObjectBombTorizoHandVisualFiles
     {
         get
         {
-            TryGet(RoomObjectDraw.Of(BombTorizoHandDraw.Intact), out var intact);
+            TryGet(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Intact), out var intact);
             yield return intact;
-            TryGet(RoomObjectDraw.Of(BombTorizoHandDraw.Cleared), out var cleared);
+            TryGet(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Cleared), out var cleared);
             yield return cleared;
         }
     }
@@ -48,7 +48,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!BombTorizoHandDraws.TryDescribe(request, out RoomBlockShape? described))
+        if (!RoomObjectDrawIdentity.TryShape(BombTorizoHandDraws.Family, request, out RoomBlockShape? described))
         {
             list = default;
             return false;
@@ -61,7 +61,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
         int[] intactCounts = [2, 1, 2, 3];
         Offset16<RoomBlocks>[] clearedStarts = [new(0, 0), new(-2, 0), new(-2, 1), new(-2, -2), new(-2, -1)];
         int[] clearedCounts = [2, 2, 4, 4, 4];
-        bool intact = RoomObjectDraw.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand") == BombTorizoHandDraw.Intact;
+        bool intact = RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand") == BombTorizoHandDraw.Intact;
         Offset16<RoomBlocks>[] starts = intact ? intactStarts : clearedStarts;
         int[] counts = intact ? intactCounts : clearedCounts;
         list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
@@ -71,7 +71,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
 
     /// <summary>Gets the stable artwork ID for a supported hand draw.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        VisualId(RoomObjectDraw.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
+        VisualId(RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
 
     /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
     internal static string VisualId(BombTorizoHandDraw frame) =>

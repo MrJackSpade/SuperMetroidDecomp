@@ -81,7 +81,7 @@ internal static class SamusEaterVisualsVerification
         {
             ushort pointer = (ushort)raw;
             int frame = Array.IndexOf(pointers, pointer);
-            AssertEqual(frame >= 0, SamusEaterObjectDraws.TryDescribe(NativeObjectDraws.At<SamusEaterDraw>(pointer), out var draw),
+            AssertEqual(frame >= 0, RoomObjectDrawIdentity.TryShape(SamusEaterObjectDraws.Family, NativeObjectDraws.At<SamusEaterDraw>(pointer), out var draw),
                 "plant draw pointer ownership includes only supported records");
             AssertEqual(frame >= 0, RoomObjectSamusEaterVisualFiles.TryGet(NativeObjectDraws.At<SamusEaterDraw>(pointer), out var dto),
                 "plant draw DTO pointer ownership");

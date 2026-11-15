@@ -1745,22 +1745,22 @@ public enum EnemyProjectileFrameId
     MiscDustDraygonBreathBubblesNinth,
     /// <summary><c>downward_gate_moving</c>, an installed animation frame.</summary>
     DownwardGateMoving,
-    /// <summary><c>downward_gate_third_moving_step</c>, an installed animation frame.</summary>
-    DownwardGateThirdMovingStep,
-    /// <summary><c>downward_gate_fourth_moving_step</c>, an installed animation frame.</summary>
-    DownwardGateFourthMovingStep,
-    /// <summary><c>downward_gate_fifth_moving_step</c>, an installed animation frame.</summary>
-    DownwardGateFifthMovingStep,
+    /// <summary><c>downward_gate_lowered_one_block</c>, an installed animation frame.</summary>
+    DownwardGateLoweredOneBlock,
+    /// <summary><c>downward_gate_lowered_two_blocks</c>, an installed animation frame.</summary>
+    DownwardGateLoweredTwoBlocks,
+    /// <summary><c>downward_gate_lowered_three_blocks</c>, an installed animation frame.</summary>
+    DownwardGateLoweredThreeBlocks,
     /// <summary><c>downward_gate_closed</c>, an installed animation frame.</summary>
     DownwardGateClosed,
-    /// <summary><c>downward_gate_third_closed_step</c>, an installed animation frame.</summary>
-    DownwardGateThirdClosedStep,
-    /// <summary><c>downward_gate_fourth_closed_step</c>, an installed animation frame.</summary>
-    DownwardGateFourthClosedStep,
-    /// <summary><c>downward_gate_fifth_closed_step</c>, an installed animation frame.</summary>
-    DownwardGateFifthClosedStep,
-    /// <summary><c>downward_gate_sixth_closed_step</c>, an installed animation frame.</summary>
-    DownwardGateSixthClosedStep,
+    /// <summary><c>downward_gate_rising</c>, an installed animation frame.</summary>
+    DownwardGateRising,
+    /// <summary><c>downward_gate_risen_one_block</c>, an installed animation frame.</summary>
+    DownwardGateRisenOneBlock,
+    /// <summary><c>downward_gate_risen_two_blocks</c>, an installed animation frame.</summary>
+    DownwardGateRisenTwoBlocks,
+    /// <summary><c>downward_gate_risen_three_blocks</c>, an installed animation frame.</summary>
+    DownwardGateRisenThreeBlocks,
     /// <summary><c>save_station_electricity_start_first</c>, an installed animation frame.</summary>
     SaveStationElectricityStartFirst,
     /// <summary><c>save_station_electricity_start_second</c>, an installed animation frame.</summary>

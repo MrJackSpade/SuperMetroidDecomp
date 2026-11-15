@@ -13,12 +13,12 @@ internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock) 
     internal Position16<RoomBlocks> RoomObjectBlock { get; } = roomObjectBlock;
 
     /// <summary>
-    /// How far the gate has moved since it last advanced a block, in 256ths of a pixel; it advances a block, and starts
-    /// again from zero, once this reaches <see cref="DownwardGateDefinitions.OneBlockDistance"/>.
+    /// How many whole pixels the gate has moved since it last reached a block (#2047); it reaches the next block, and starts
+    /// again from zero, once it has moved <see cref="DownwardGateDefinitions.PixelsPerRoomBlock"/>.
     /// </summary>
-    internal int TravelSinceBlock
+    internal int PixelsSinceBlock
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, DownwardGateDefinitions.OneBlockDistance - 1, value);
+        set => field = Ensure.BetweenInclusive(0, DownwardGateDefinitions.PixelsPerRoomBlock - 1, value);
     }
 }

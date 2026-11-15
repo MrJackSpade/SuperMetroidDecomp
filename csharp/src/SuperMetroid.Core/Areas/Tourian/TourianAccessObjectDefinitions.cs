@@ -17,10 +17,10 @@ internal static class TourianAccessObjectDefinitions
     /// <summary>One row's crumble, three breakup images and then the empty row, the first drawn after <paramref name="moveBefore"/>.</summary>
     private static TerrainChangeFrame[] CrumbleRow(Offset16<RoomBlocks> moveBefore) =>
     [
-        new(RoomObjectDraw.Of(TourianAccessDraw.CrumbleFirst), CrumbleFrameDuration, moveBefore),
-        new(RoomObjectDraw.Of(TourianAccessDraw.CrumbleSecond), CrumbleFrameDuration),
-        new(RoomObjectDraw.Of(TourianAccessDraw.CrumbleThird), CrumbleFrameDuration),
-        new(RoomObjectDraw.Of(TourianAccessDraw.EmptyRow), CrumbleFrameDuration),
+        new(TourianAccessDraws.Family.Of(TourianAccessDraw.CrumbleFirst), CrumbleFrameDuration, moveBefore),
+        new(TourianAccessDraws.Family.Of(TourianAccessDraw.CrumbleSecond), CrumbleFrameDuration),
+        new(TourianAccessDraws.Family.Of(TourianAccessDraw.CrumbleThird), CrumbleFrameDuration),
+        new(TourianAccessDraws.Family.Of(TourianAccessDraw.EmptyRow), CrumbleFrameDuration),
     ];
 
     /// <summary>
@@ -30,7 +30,7 @@ internal static class TourianAccessObjectDefinitions
     internal static readonly IReadOnlyDictionary<TourianAccessFloor, TerrainChange> Floors =
         new Dictionary<TourianAccessFloor, TerrainChange>
         {
-            [TourianAccessFloor.Clear] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(TourianAccessDraw.Clear)),
+            [TourianAccessFloor.Clear] = TerrainChange.DrawnOnce(TourianAccessDraws.Family.Of(TourianAccessDraw.Clear)),
             [TourianAccessFloor.Crumble] = new TerrainChange(1,
             [
                 .. CrumbleRow(Offset16<RoomBlocks>.Zero),

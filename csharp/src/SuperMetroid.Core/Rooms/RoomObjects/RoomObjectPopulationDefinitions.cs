@@ -455,7 +455,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarFirefleas room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarFirefleas { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarFirefleas),
     [
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent), Site: RoomObjectSite.BeyondTheRoom),
     ]);
 
     /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
@@ -2102,7 +2102,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation Colosseum { get; } = RoomObjectPopulation.FromPlacements(nameof(Colosseum),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(110, 6), new DoorBitArgument(LockedDoorDefinitions.ColosseumRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new DoorBitArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent)),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new DoorBitArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent), Site: RoomObjectSite.BeyondTheRoom),
         new(RoomObjectKind.GreenDoorFacingLeft, new(110, 22), new DoorBitArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt110x22, DoorOpeningPersistence.Persistent)),
     ]);
 

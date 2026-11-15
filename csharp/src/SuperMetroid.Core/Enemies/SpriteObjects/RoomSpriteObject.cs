@@ -98,21 +98,16 @@ public sealed class RoomSpriteObject
     }
 
     /// <summary>
-    /// Points the object at the animation starting at <paramref name="segment"/>, past its first frame, and shows that
-    /// frame, keeping the current countdown: the frozen Metroid shell shows the animation's first frame without reloading
-    /// the timer, so the next expiry continues at the animation's second beat.
+    /// Starts the animation beginning at <paramref name="segment"/> from its first frame, as a spawn starts one (#2047):
+    /// the frozen Metroid shell restarts its animation in its frozen colours.
     /// </summary>
     /// <param name="segment">The segment whose animation the object plays from now on.</param>
-    internal void ShowFirstFrameKeepingTimer(RoomSpriteObjectSegment segment)
+    internal void StartAnimation(RoomSpriteObjectSegment segment)
     {
         if (!IsActive)
             throw new InvalidOperationException($"Sprite object {Kind} has ended and shows no frame.");
-        if (Holds)
-            throw new InvalidOperationException($"Sprite object {Kind} holds its frame and has no countdown to keep.");
-        if (RoomSpriteObjectAnimations.Segments.Beats(segment)[0] is not AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame first)
-            throw new InvalidOperationException($"Sprite object animation {segment} does not begin with a timed frame.");
-        // The animation's first phase plays the segment from its first beat: past that beat is the phase's second.
-        Playback = new(RoomSpriteObjectAnimations.StartingWith(segment), new AnimationPlace(0, 1));
-        Frame = first.Shown;
+        Holds = false;
+        Playback = new(RoomSpriteObjectAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        AdvanceAnimation();
     }
 }

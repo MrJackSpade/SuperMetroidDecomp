@@ -70,8 +70,8 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
         var layouts = new Dictionary<MotherBrainFakeDeathDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainFakeDeathDraw frame in Enum.GetValues<MotherBrainFakeDeathDraw>())
         {
-            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-            if (!MotherBrainFakeDeathDraws.TryDescribe(draw, out RoomBlockShape? shape))
+            RoomObjectDraw draw = MotherBrainFakeDeathDraws.Family.Of(frame);
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain fake-death frame {frame} has no shape.");
             layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame]));
         }

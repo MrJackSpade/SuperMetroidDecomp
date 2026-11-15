@@ -39,7 +39,7 @@ internal static class LookupStationLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, StationObjectDraws.TryDescribe(NativeObjectDraws.At<StationDraw>(pointer), out var shape), "Station layout shape domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryShape(StationObjectDraws.Family, NativeObjectDraws.At<StationDraw>(pointer), out var shape), "Station layout shape domain");
                 AssertEqual(owned, RoomObjectStationVisualFiles.TryGet(NativeObjectDraws.At<StationDraw>(pointer), out var dto), "Station layout DTO domain");
                 if (!owned)
                 {
@@ -55,7 +55,7 @@ internal static class LookupStationLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            var shape = StationObjectDraws.TryDescribe(NativeObjectDraws.At<StationDraw>(pointer), out RoomBlockShape? described)
+            var shape = RoomObjectDrawIdentity.TryShape(StationObjectDraws.Family, NativeObjectDraws.At<StationDraw>(pointer), out RoomBlockShape? described)
                 ? described : throw new InvalidOperationException($"${pointer:X4} is not a station draw list.");
             RoomObjectStationVisualFiles.TryGet(NativeObjectDraws.At<StationDraw>(pointer), out var dto);
             RoomObjectDraw byId = RoomObjectStationVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;

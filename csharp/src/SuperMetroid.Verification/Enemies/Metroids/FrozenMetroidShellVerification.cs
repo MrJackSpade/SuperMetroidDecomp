@@ -15,7 +15,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 /// <summary>Checks that freezing during an empty Metroid shell frame immediately selects visible frozen artwork.</summary>
 internal static class FrozenMetroidShellVerification
 {
-    /// <summary>Reproduces the empty shell frame and compares all emitted frozen sprite parts while the animation timer remains held (#1207).</summary>
+    /// <summary>Reproduces the empty shell frame and compares all emitted frozen sprite parts while the frozen animation rests on its first frame (#1207, #2047).</summary>
     internal static int VerifyFrozenMetroidShell()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: InstalledFixtures.BossArtwork);
@@ -43,7 +43,6 @@ internal static class FrozenMetroidShellVerification
         OamBuffer actual = ShellOam();
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
-        ushort retainedTimer = shell.FrameHold;
         ushort expectedPointer = RoomSpriteObjectVisualDefinitionsConstants.Spritemap(first.Shown);
         Require((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed enemy compositions.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
             "Installed frozen shell artwork must exist.");
@@ -58,15 +57,15 @@ internal static class FrozenMetroidShellVerification
             enemies.SpriteObjects.StepRoomSpriteObjects();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
-            Require(shell.FrameHold == retainedTimer && shell.DisableFlags == 1,
-                "Freezing must preserve the native animation timer while disabling advancement.");
+            Require(shell.Timer == first.Duration && shell.DisableFlags == 1,
+                "Freezing starts the frozen animation at its first frame's whole duration while disabling advancement.");
             actual = ShellOam();
             Require(actual.NextByteOffset == expected.NextByteOffset &&
                 actual.ImageEquals(expected),
                 $"Frozen shell OAM must match every authored part and frozen palette attribute: expected {Convert.ToHexString(expected.LowTable[..expected.NextByteOffset])}, " +
                 $"got {Convert.ToHexString(actual.LowTable[..Math.Max(actual.NextByteOffset, actual.LastFinalizedSpriteCount * 4)])}.");
         }
-        Console.WriteLine("Frozen Metroid shell: empty-frame reproduction, visible frozen OAM and retained timer passed.");
+        Console.WriteLine("Frozen Metroid shell: empty-frame reproduction, visible frozen OAM and restarted animation passed.");
         return 0;
 
         OamBuffer ShellOam()

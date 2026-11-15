@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class EyeDoorDraws
 {
-    /// <summary>The block shape of each eye-door draw: its blocks down its column or along its row.</summary>
-    private static readonly Dictionary<Draw, RoomBlockShape> Shapes = EyeDoorObjectDrawDefinitions.Collisions
+    /// <summary>
+    /// The block shape of each eye-door draw: its blocks down its column or along its row. Built on first use: the eye
+    /// doors' definitions make their two clears through <see cref="Family"/>, so the shapes cannot be read while they load.
+    /// </summary>
+    private static Dictionary<Draw, RoomBlockShape> Shapes => field ??= EyeDoorObjectDrawDefinitions.Collisions
         .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
 
     /// <summary>The draw <paramref name="frame"/> shows for <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
@@ -27,7 +30,7 @@ internal static class EyeDoorDraws
             EyeDoorComponent.Bottom => true,
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorComponent)} {component}."),
         };
-        RoomObjectDraw Shown(EyeDoorLook look) => RoomObjectDraw.Of(new Draw(look, left));
+        RoomObjectDraw Shown(EyeDoorLook look) => Family.Of(new Draw(look, left));
         return frame switch
         {
             EyeDoorObjectFrame.ClosedEye => Shown(EyeDoorLook.EyeClosed),
@@ -85,11 +88,15 @@ internal static class EyeDoorDraws
         internal RoomBlockShape Blocks => Shapes[this];
     }
 
+    /// <summary>
+    /// Both eye doors' frames (#2034), pictured by the installed eye-door frames; the mirrored opening clear shows the
+    /// shared clear mirrored.
+    /// </summary>
+    internal static RoomObjectDrawFamily<Draw> Family { get; } =
+        RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectEyeDoorVisuals>("eye-door", frame => frame.Blocks,
+            (visuals, draw) => visuals.Image(draw));
+
     /// <summary>Maps the mirrored opening clear to its shared editable visual source.</summary>
     internal static RoomObjectDraw VisualSource(RoomObjectDraw request) =>
         request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear ? EyeDoorObjectDrawDefinitions.SharedClear : request;
-
-    /// <summary>Accepts an eye-door draw of a defined look.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
-        RoomObjectDraw.TryFrame(request, static (Draw frame) => Enum.IsDefined(frame.Look), out draw);
 }

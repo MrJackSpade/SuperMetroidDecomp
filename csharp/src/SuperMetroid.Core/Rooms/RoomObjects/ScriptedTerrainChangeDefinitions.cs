@@ -35,11 +35,11 @@ internal static class ScriptedTerrainChangeDefinitions
     /// </summary>
     internal static TerrainChange CritterWallBreakthrough { get; } = new(1,
     [
-        new(RoomObjectDraw.Of(EscapeAnimalDraw.Cracking), BreakupFrameDuration,
+        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Cracking), BreakupFrameDuration,
             SoundBefore: EnemySound.BlockCrumble),
-        new(RoomObjectDraw.Of(EscapeAnimalDraw.Breaking), BreakupFrameDuration),
-        new(RoomObjectDraw.Of(EscapeAnimalDraw.Crumbling), BreakupFrameDuration),
-        new(RoomObjectDraw.Of(EscapeAnimalDraw.Blank), 1),
+        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Breaking), BreakupFrameDuration),
+        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Crumbling), BreakupFrameDuration),
+        new(EscapeAnimalWalls.Family.Of(EscapeAnimalDraw.Blank), 1),
     ]);
 
     /// <summary>Crateria's main-street escape passage: its first pair of blocks clears, then, an update later, the pair four blocks right.</summary>

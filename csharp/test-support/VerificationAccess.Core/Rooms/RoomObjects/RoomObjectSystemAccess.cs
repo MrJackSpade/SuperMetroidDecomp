@@ -85,7 +85,8 @@ internal static class RoomObjectSystemAccess
                     entry.Place.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
                     entry.Door.Condition,
-                    entry.Door.Phase, checked((byte)entry.Door.HitCounter), entry.Door)),
+                    // A grey cap counts only the one shot that opens it, so an opening cap has counted its hit.
+                    entry.Door.Phase, entry.Door.Phase == GreyDoorPhase.Opening ? (byte)1 : (byte)0, entry.Door)),
         ];
 
         /// <summary>Views of every eye-door eye, body and bottom in the room.</summary>
@@ -147,7 +148,7 @@ internal static class RoomObjectSystemAccess
             RoomObjectPlace[] active = [.. ActivePlaces(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.Draw(level, active[0].Block, draw);
+            draw.Draw(level, active[0].Block, self.Drawing);
         }
 
         /// <summary>

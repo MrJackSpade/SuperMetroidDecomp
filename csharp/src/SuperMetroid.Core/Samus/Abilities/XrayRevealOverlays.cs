@@ -43,16 +43,9 @@ public static class XrayRevealOverlays
             Write(blocks, Arranged(visual.Appearance), visual.Block, foregroundPosition);
     }
 
-    /// <summary>
-    /// A visible overlay's whole block, its rows swapped for vertical mirroring without mirroring its picture.
-    /// </summary>
-    private static RevealedBlock Arranged(RoomBlockAppearance appearance)
-    {
-        // The overlay swaps the block's top and bottom halves for vertical mirroring. It neither toggles each quarter's mirroring nor
-        // implements horizontal mirroring; preserve that game behaviour.
-        bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
-        return new RevealedBlock(RoomCellPicture.OfBlock(appearance.Block), flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
-    }
+    /// <summary>A visible overlay's whole block, mirrored as its appearance mirrors it (#2047).</summary>
+    private static RevealedBlock Arranged(RoomBlockAppearance appearance) =>
+        new(RoomCellPicture.OfBlock(appearance.Block), XrayRevealMap.Mirrored(appearance.Mirroring));
 
     /// <summary>Places an overlay's block where it lies, when that is inside the revealed area.</summary>
     private static void Write(Span<RevealedBlock?> blocks, RevealedBlock revealed, Position16<RoomBlocks> block,

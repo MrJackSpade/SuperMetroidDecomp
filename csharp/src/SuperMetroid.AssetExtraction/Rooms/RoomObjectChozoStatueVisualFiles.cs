@@ -32,9 +32,9 @@ public static class RoomObjectChozoStatueVisualFiles
     /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
-        yield return RoomObjectDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand);
-        yield return RoomObjectDraw.Of(ChozoStatueDraw.ClearSlopeAccess);
-        yield return RoomObjectDraw.Of(ChozoStatueDraw.BlockSlopeAccess);
+        yield return ChozoStatueDraws.Family.Of(ChozoStatueDraw.LowerNorfairClearedHand);
+        yield return ChozoStatueDraws.Family.Of(ChozoStatueDraw.ClearSlopeAccess);
+        yield return ChozoStatueDraws.Family.Of(ChozoStatueDraw.BlockSlopeAccess);
     }
 
     /// <summary>The draw lists of the three statue draws.</summary>
@@ -57,7 +57,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!ChozoStatueDraws.TryDescribe(request, out RoomBlockShape? described))
+        if (!RoomObjectDrawIdentity.TryShape(ChozoStatueDraws.Family, request, out RoomBlockShape? described))
         {
             list = default;
             return false;
@@ -69,7 +69,7 @@ public static class RoomObjectChozoStatueVisualFiles
         int[] handCounts = [1];
         Offset16<RoomBlocks>[] accessStarts = [new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)];
         int[] accessCounts = [14, 9, 2, 1, 1];
-        bool hand = RoomObjectDraw.FrameOf<ChozoStatueDraw>(request, "Chozo statue") == ChozoStatueDraw.LowerNorfairClearedHand;
+        bool hand = RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue") == ChozoStatueDraw.LowerNorfairClearedHand;
         Offset16<RoomBlocks>[] starts = hand ? handStarts : accessStarts;
         int[] counts = hand ? handCounts : accessCounts;
         list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
@@ -80,7 +80,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
         RoomObjectVisualIdDefinitions.ChozoStatue.TryGetValue(
-            RoomObjectDraw.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"), out string? id)
+            RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"), out string? id)
             ? id
             : throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {request}.");
 }

@@ -196,13 +196,13 @@ internal sealed class CollectibleObject(
             Triggered = false;
             WasCollectedBeforeReveal = true;
             Phase = CollectiblePhase.CollectedShotBlockEmpty;
-            drawing.Draw(level, place.Block, RoomObjectCollectibleDrawDefinitions.Empty);
+            RoomObjectCollectibleDrawDefinitions.Empty.Draw(level, place.Block, drawing);
             Timer = CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates;
             return;
         }
 
         // The empty item draws for one update; it leaves on the following update.
-        drawing.Draw(level, place.Block, RoomObjectCollectibleDrawDefinitions.Empty);
+        RoomObjectCollectibleDrawDefinitions.Empty.Draw(level, place.Block, drawing);
         Phase = CollectiblePhase.EmptyAwaitingDelete;
         Timer = CollectibleTimingDefinitions.PickedUpEmptyUpdates;
     }
@@ -241,7 +241,7 @@ internal sealed class CollectibleObject(
         if (shown is not AnimationShown<CollectibleOrbSegment, CollectibleDraw>.Frame image)
             throw new InvalidOperationException($"The Chozo orb's animation showed {shown} instead of its next image.");
         OrbPlace = orbPlace;
-        context.Draw(place, RoomObjectDraw.Of(image.Shown));
+        context.Draw(place, CollectibleObjectDraws.Family, image.Shown);
         Timer = image.Duration;
     }
 

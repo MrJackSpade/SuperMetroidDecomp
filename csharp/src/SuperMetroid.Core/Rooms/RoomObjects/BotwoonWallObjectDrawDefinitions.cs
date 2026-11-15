@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class BotwoonWallObjectDrawDefinitions
 {
     /// <summary>The nine cleared wall blocks of an already-defeated room; the crumble frames are shot-block breakup draws.</summary>
-    internal static RoomObjectFrameDraw<BotwoonWallDraw> Clear { get; } = RoomObjectDraw.Of(BotwoonWallDraw.Clear);
+    internal static RoomObjectFrameDraw<BotwoonWallDraw> Clear { get; } = BotwoonWallObjectDraws.Family.Of(BotwoonWallDraw.Clear);
 
     /// <summary>The cleared wall: nine open blocks down the column from the wall's top block.</summary>
     private static readonly RoomBlockShape ClearedWall = new(

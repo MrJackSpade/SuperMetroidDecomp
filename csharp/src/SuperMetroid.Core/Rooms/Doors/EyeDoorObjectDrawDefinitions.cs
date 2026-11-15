@@ -9,14 +9,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class EyeDoorObjectDrawDefinitions
 {
-    /// <summary>The left side's opening clear, which shares the right side's clearing artwork.</summary>
-    internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> MirroredOpeningClear { get; } =
-        RoomObjectDraw.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: true));
-
-    /// <summary>The right side's clearing frame, whose artwork both clears show.</summary>
-    internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> SharedClear { get; } =
-        RoomObjectDraw.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: false));
-
     /// <summary>
     /// How the blocks of each eye-door draw collide, from its first block down its column or along its row: the four-block clear, the two-block eye and the
     /// one-block middle and bottom. Of the eye's closed, half-open, open, flinching and open-but-solid looks, only
@@ -139,4 +131,12 @@ internal static class EyeDoorObjectDrawDefinitions
                 RoomCollisionType.SpikeBlock,
             ],
         };
+
+    /// <summary>The left side's opening clear, which shares the right side's clearing artwork.</summary>
+    internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> MirroredOpeningClear { get; } =
+        EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: true));
+
+    /// <summary>The right side's clearing frame, whose artwork both clears show.</summary>
+    internal static RoomObjectFrameDraw<EyeDoorDraws.Draw> SharedClear { get; } =
+        EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, Left: false));
 }

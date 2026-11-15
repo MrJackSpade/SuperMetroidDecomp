@@ -35,11 +35,11 @@ public static class RoomObjectEyeDoorVisualFiles
         {
             foreach (bool left in new[] { true, false })
             {
-                TryGet(RoomObjectDraw.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, left)), out var clear);
+                TryGet(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(EyeDoorLook.Clear, left)), out var clear);
                 yield return clear;
                 foreach (EyeDoorLook look in EyeDoorLookNames.TableOrder)
                 {
-                    TryGet(RoomObjectDraw.Of(new EyeDoorDraws.Draw(look, left)), out var value);
+                    TryGet(EyeDoorDraws.Family.Of(new EyeDoorDraws.Draw(look, left)), out var value);
                     yield return value;
                 }
             }
@@ -53,7 +53,7 @@ public static class RoomObjectEyeDoorVisualFiles
     /// <summary>Builds the one-run draw list of a recognized eye-door draw from its cells' collision.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!EyeDoorDraws.TryDescribe(request, out var draw)) { list = default; return false; }
+        if (!RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(request, out var draw)) { list = default; return false; }
         list = RoomObjectShapeRun.DrawList(request, draw.Blocks, RoomObjectShapeRun.Line(draw.Vertical, draw.Blocks));
         return true;
     }
@@ -61,7 +61,7 @@ public static class RoomObjectEyeDoorVisualFiles
     /// <summary>Gets a stable side and look identifier for an editable draw (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
-        if (!EyeDoorDraws.TryDescribe(request, out var draw) || request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear)
+        if (!RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(request, out var draw) || request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear)
             throw new InvalidDataException($"Eye-door draw {request} has no visual ID.");
         return draw.Look == EyeDoorLook.Clear ? "left-eye-clear" : $"{(draw.Left ? "left" : "right")}-{EyeDoorLookNames.VisualName(draw.Look)}";
     }

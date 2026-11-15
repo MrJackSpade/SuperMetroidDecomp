@@ -43,7 +43,7 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>Builds the draw list of a recognized grey or cleared cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = GreyDoorCaps.TryDescribe(request, out GreyDoorCaps.Draw cap);
+        bool found = RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(request, out GreyDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
         return found;
     }
@@ -51,7 +51,7 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>Names a cleared opening or grey cap by direction and what it shows (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
-        if (!GreyDoorCaps.TryDescribe(request, out var draw))
+        if (!RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Grey-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         return draw.IsCleared ? $"clear-{direction}" : $"grey-{direction}-{DoorCapLookNames.VisualName(draw.Look)}";
@@ -61,9 +61,9 @@ public static class RoomObjectGreyDoorVisualFiles
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         for (int orientation = 0; orientation < 4; orientation++)
-            yield return RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
+            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
         for (int orientation = 0; orientation < 4; orientation++)
             foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                yield return RoomObjectDraw.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look));
+                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look));
     }
 }

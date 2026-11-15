@@ -174,7 +174,7 @@ internal static class BossRoomObjectProgramsVerification
         void AssertShown(int cursor, MotherBrainGlassDraw image, int updates, string at)
         {
             AssertEqual(updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(MotherBrainGlassDraws.Family.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
         void AssertBurst(int cursor, IReadOnlyList<MotherBrainGlassShard> shards, string at)
         {
@@ -245,7 +245,7 @@ internal static class BossRoomObjectProgramsVerification
         void AssertShown(int cursor, BombTorizoHandDraw image, int updates, string at)
         {
             AssertEqual(updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(BombTorizoHandDraws.Family.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
         int cursor = Word(RoomObjectNativeWords.Word(RoomObjectKind.BombTorizoHand) + 2);

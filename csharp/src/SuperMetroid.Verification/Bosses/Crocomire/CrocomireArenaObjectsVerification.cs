@@ -95,7 +95,7 @@ internal static class CrocomireArenaObjectsVerification
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     (BossRoomObjectNativeListAddresses.IsTypedProgramByte(pointer) ||
-                     (pointer >= RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(CrocomireArenaDraw.ClearBridge)) &&
+                     (pointer >= RoomObjectDrawAddressCodec.Of(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.ClearBridge)) &&
                       pointer < CrocomireArenaObjectDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
 

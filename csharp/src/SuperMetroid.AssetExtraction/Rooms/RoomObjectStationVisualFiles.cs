@@ -33,13 +33,13 @@ public static class RoomObjectStationVisualFiles
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        if (!StationObjectDraws.TryDescribe(request, out RoomBlockShape? shape))
+        if (!RoomObjectDrawIdentity.TryShape(StationObjectDraws.Family, request, out RoomBlockShape? shape))
         {
             list = default;
             return false;
         }
         RoomObjectShapeRun own = RoomObjectShapeRun.Row(new(0, 0), 1);
-        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDraw.FrameOf<StationDraw>(request, "station") switch
+        list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station") switch
         {
             StationDraw.MapDim or StationDraw.MapLit or StationDraw.MapBright => [own, RoomObjectShapeRun.Row(new(-1, 0), 1)],
             StationDraw.EnergyDim or StationDraw.EnergyLit or StationDraw.EnergyBright or StationDraw.MissileDim
@@ -60,7 +60,7 @@ public static class RoomObjectStationVisualFiles
     /// arms' states. These are identity selections, independent of the terrain. Only complete lists have IDs.
     /// </summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectDraw.FrameOf<StationDraw>(request, "station draw list") switch
+        RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station draw list") switch
         {
             StationDraw.MapDim => "map-dim",
             StationDraw.MapLit => "map-lit",
@@ -92,7 +92,7 @@ public static class RoomObjectStationVisualFiles
         {
             foreach (StationDraw frame in RoomObjectVisualIdDefinitions.StationPublishedOrder)
             {
-                TryGet(RoomObjectDraw.Of(frame), out var list);
+                TryGet(StationObjectDraws.Family.Of(frame), out var list);
                 yield return list;
             }
         }

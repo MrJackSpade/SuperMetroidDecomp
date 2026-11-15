@@ -30,7 +30,7 @@ public static class RoomObjectKraidVisualFiles
 
     /// <summary>Gets the stable artwork identifier of a Kraid room draw.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        VisualId(RoomObjectDraw.FrameOf<KraidRoomDraw>(request, "Kraid room draw with a visual ID"));
+        VisualId(RoomObjectDrawIdentity.FrameOf<KraidRoomDraw>(request, "Kraid room draw with a visual ID"));
 
     /// <summary>Maps a named ceiling or spike draw to its stable artwork identifier.</summary>
     private static string VisualId(KraidRoomDraw draw) => draw switch
@@ -59,8 +59,8 @@ public static class RoomObjectKraidVisualFiles
         {
             foreach (KraidRoomDraw frame in Enum.GetValues<KraidRoomDraw>())
             {
-                RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-                if (!KraidRoomObjectDraws.TryDescribe(draw, out RoomBlockShape? shape))
+                RoomObjectDraw draw = KraidRoomObjectDraws.Family.Of(frame);
+                if (!RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, draw, out RoomBlockShape? shape))
                     throw new InvalidOperationException($"Kraid room frame {frame} has no shape.");
                 var collisions = new RoomCollisionType[shape.Cells.Count];
                 for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = shape.CollisionAt(new Offset16<RoomBlocks>(cell, 0));

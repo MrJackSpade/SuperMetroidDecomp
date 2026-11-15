@@ -12,16 +12,12 @@ internal static class DownwardGateObjectDraws
     private const int ColumnHeight = 5;
 
     /// <summary>The part and shape of one of the column's draws or one of the eight trigger draws.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
-    {
-        if (request is not RoomObjectFrameDraw<DownwardGateDraw> { Frame: var gate })
-        {
-            draw = default;
-            return false;
-        }
-        draw = new(PartOf(gate), gate);
-        return true;
-    }
+    internal static Draw Describe(DownwardGateDraw gate) => new(PartOf(gate), gate);
+
+    /// <summary>The gate's column and trigger frames (#2034), pictured by the installed downward gate frames.</summary>
+    internal static RoomObjectDrawFamily<DownwardGateDraw> Family { get; } =
+        RoomObjectDrawFamily<DownwardGateDraw>.Pictured<InstalledRoomObjectDownwardGateVisuals>("downward gate",
+            gate => Describe(gate).Blocks, (visuals, draw) => visuals.Image(draw));
 
     /// <summary>The part of the gate <paramref name="gate"/> writes.</summary>
     /// <exception cref="InvalidOperationException">The draw is undefined.</exception>

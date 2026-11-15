@@ -115,9 +115,8 @@ public static class XrayRevealVisualFiles
         for (int draw = 0; draw < CollectibleBlockPairs.InTurn.Count; draw++)
         {
             CollectibleBlockPairs.Pair pair = CollectibleBlockPairs.InTurn[draw];
-            RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlockPairTerrain(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, CollectibleLook.Primary, pair),
-                out RoomTerrainBlock written) ? written.Appearance
-                : throw new InvalidOperationException($"Block pair {pair}'s first frame writes no block pair's terrain.");
+            RoomBlockAppearance firstFrame = (CollectibleObjectDraws.BlockPairTerrain(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, CollectibleLook.Primary, pair).Frame)
+                ?? throw new InvalidOperationException($"Block pair {pair}'s first frame writes no block pair's terrain.")).Appearance;
             if (ItemDrawAppearance(bus, draw) != firstFrame)
                 throw new InvalidDataException($"The X-ray reveals the item in block pair {pair} other than by the pair's first frame.");
         }

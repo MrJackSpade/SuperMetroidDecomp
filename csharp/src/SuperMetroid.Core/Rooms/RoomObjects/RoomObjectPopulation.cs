@@ -37,7 +37,7 @@ public sealed class RoomObjectPopulation
     internal static RoomObjectPopulation FromPlacements(string name, RoomObjectPlacementDefinition[] placements) =>
         new(name, Ensure.NotNull(placements).Select(placement => new RoomObjectPlacement(
             RoomObjectKinds.RequirePlaced(placement.Kind), placement.Block, placement.Argument, Cannon: placement.Cannon)
-            { CompiledScrollChange = placement.ScrollChange }));
+            { CompiledScrollChange = placement.ScrollChange, Site = placement.Site }));
 
     /// <summary>Copies one placement's scroll change and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)

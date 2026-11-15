@@ -11,10 +11,10 @@ internal static class ElevatorPlatformObjectDefinitions
     /// <summary>The platform's loop, which it plays from its first update for as long as it stays: each layout four updates, there and back.</summary>
     internal static IReadOnlyList<TerrainChangeFrame> Cycle { get; } =
     [
-        new(RoomObjectDraw.Of(ElevatorPlatformDraw.First), 4),
-        new(RoomObjectDraw.Of(ElevatorPlatformDraw.Second), 4),
-        new(RoomObjectDraw.Of(ElevatorPlatformDraw.Third), 4),
-        new(RoomObjectDraw.Of(ElevatorPlatformDraw.Second), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.First), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Second), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Third), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Second), 4),
     ];
 
     /// <summary>

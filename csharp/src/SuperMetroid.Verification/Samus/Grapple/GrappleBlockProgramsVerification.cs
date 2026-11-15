@@ -69,25 +69,23 @@ internal static class GrappleBlockProgramsVerification
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
         var exported = RoomObjectGrappleBlockVisualFiles.All.ToArray();
-        AssertTrue(pointers.SequenceEqual(exported.Select(draw => NativeObjectDraws.AddressOf(RoomObjectDraw.Of(draw.Draw)))), "Grapple native draw export order");
+        AssertTrue(pointers.SequenceEqual(exported.Select(draw => NativeObjectDraws.AddressOf(GrappleBlockObjectDraws.Family.Of(draw.Draw)))), "Grapple native draw export order");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            bool found = GrappleBlockObjectDraws.TryGet(GrappleAt(pointer),out var draw);
+            bool found = RoomObjectDrawIdentity.TryFrame(GrappleAt(pointer), out GrappleBlockDraw frame);
             AssertEqual(pointers.Contains((ushort)pointer),found,"Grapple full native draw pointer domain");
             if (!found)
-            {
-                AssertEqual(default(RoomObjectGrappleBlockDrawDefinitions.DrawnBlock),draw,"Grapple missing draw cleared");
                 continue;
-            }
-            AssertEqual((ushort)pointer,NativeObjectDraws.AddressOf(RoomObjectDraw.Of(draw.Draw)),"Grapple draw identity");
-            RoomObjectFrameLayout layout = RoomObjectGrappleBlockVisualFiles.Family.Layouts[RoomObjectDraw.Of(draw.Draw)];
+            RoomObjectGrappleBlockDrawDefinitions.DrawnBlock draw = GrappleBlockObjectDraws.Drawn(frame);
+            AssertEqual((ushort)pointer,NativeObjectDraws.AddressOf(GrappleBlockObjectDraws.Family.Of(draw.Draw)),"Grapple draw identity");
+            RoomObjectFrameLayout layout = RoomObjectGrappleBlockVisualFiles.Family.Layouts[GrappleBlockObjectDraws.Family.Of(draw.Draw)];
             AssertEqual(1, layout.Runs.Length, "Grapple frame is one run");
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),layout.Runs.Span[0].Direction,layout.Runs.Span[0].Count,"Grapple native single-block geometry");
             // What the block shows is its installed picture, which the Grapple picture check compares with the cartridge.
             AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))).Collision,draw.Collision,"Grapple native collision");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),layout.NextStart(0).X,"Grapple native terminal X");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),layout.NextStart(0).Y,"Grapple native terminal Y");
-            AssertEqual(draw,exported.Single(entry => NativeObjectDraws.AddressOf(RoomObjectDraw.Of(entry.Draw)) == pointer),"Grapple exported draw matches calculation");
+            AssertEqual(draw,exported.Single(entry => NativeObjectDraws.AddressOf(GrappleBlockObjectDraws.Family.Of(entry.Draw)) == pointer),"Grapple exported draw matches calculation");
         }
     }
 
@@ -96,7 +94,7 @@ internal static class GrappleBlockProgramsVerification
 
     /// <summary>The artwork identity of the Grapple-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
     private static string GrappleId(int pointer) =>
-        RoomObjectGrappleBlockVisualFiles.VisualId(RoomObjectDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
+        RoomObjectGrappleBlockVisualFiles.VisualId(RoomObjectDrawIdentity.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
 
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
@@ -206,7 +204,7 @@ internal static class GrappleBlockProgramsVerification
         RoomObjectGrappleBlockVisualFilesConstants.ValidateStock(
             installation.RoomObjectGrappleBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x0b7),
-            installation.LoadRoomObjectGrappleBlockVisuals().Image(RoomObjectDraw.Of(GrappleBlockDraw.Intact)).At(Offset16<RoomBlocks>.Zero),
+            installation.LoadRoomObjectGrappleBlockVisuals().Image(GrappleBlockObjectDraws.Family.Of(GrappleBlockDraw.Intact)).At(Offset16<RoomBlocks>.Zero),
             "installed Grapple frame matches native stock art");
 
         string stockPath = Path.Combine(

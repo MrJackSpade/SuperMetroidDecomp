@@ -22,13 +22,13 @@ internal static class LookupCannonLayoutsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = Frames.Any(frame => frame.Pointer == raw);
-            AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(raw), out RoomBlockShape? shape), "Cannon layout shape domain");
+            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, NativeObjectDraws.At<DraygonCannonDraw>(raw), out RoomBlockShape? shape), "Cannon layout shape domain");
             if (!owned) AssertTrue(shape is null, "Cannon layout missing shape");
         }
         AssertLayoutsAsNative(rom, RoomObjectDraygonCannonVisualFiles.Family, Frames, collision: false);
         foreach (LookupEscapeGateStockFrame frame in Frames)
         {
-            if (!DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(frame.Pointer), out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, NativeObjectDraws.At<DraygonCannonDraw>(frame.Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Cannon frame {frame.Id} has no shape.");
             RoomBlockShape described = shape;
             AssertEqual(4, described.Cells.Count, "Cannon shape covers its 2x2 frame");

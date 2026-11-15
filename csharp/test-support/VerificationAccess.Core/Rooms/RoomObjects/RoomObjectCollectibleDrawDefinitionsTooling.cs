@@ -8,7 +8,7 @@ internal static class RoomObjectCollectibleDrawDefinitionsTooling
     /// <summary>The exported frame of <paramref name="request"/> when it is one of the twenty-four collectible draws.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectCollectibleDrawFrame frame)
     {
-        frame = RoomObjectCollectibleVisualFiles.All.FirstOrDefault(candidate => RoomObjectDraw.Of(candidate.Draw) == request);
+        frame = RoomObjectCollectibleVisualFiles.All.FirstOrDefault(candidate => CollectibleObjectDraws.Family.Of(candidate.Draw) == request);
         return frame != default;
     }
 }

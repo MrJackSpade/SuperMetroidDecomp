@@ -43,7 +43,7 @@ public static class RoomObjectBotwoonWallVisualFiles
         get
         {
             RoomObjectDraw draw = BotwoonWallObjectDrawDefinitions.Clear;
-            if (!BotwoonWallObjectDraws.TryDescribe(draw, out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(BotwoonWallObjectDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException("Botwoon's wall clear has no shape.");
             var collisions = new RoomCollisionType[shape.Cells.Count];
             for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = shape.CollisionAt(new Offset16<RoomBlocks>(0, cell));

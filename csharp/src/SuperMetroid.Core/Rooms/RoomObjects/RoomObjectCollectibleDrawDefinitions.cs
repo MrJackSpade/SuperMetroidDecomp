@@ -35,13 +35,13 @@ internal static class RoomObjectCollectibleDrawDefinitions
     }
 
     /// <summary>The air block left after an item is removed.</summary>
-    internal static RoomObjectFrameDraw<D> Empty { get; } = RoomObjectDraw.Of(D.Empty);
+    internal static RoomObjectFrameDraw<D> Empty { get; } = CollectibleObjectDraws.Family.Of(D.Empty);
 
     /// <summary>The solid burst frame drawn when a Chozo orb opens.</summary>
-    internal static RoomObjectFrameDraw<D> OrbBurst { get; } = RoomObjectDraw.Of(D.ChozoOrbBurst);
+    internal static RoomObjectFrameDraw<D> OrbBurst { get; } = CollectibleObjectDraws.Family.Of(D.ChozoOrbBurst);
 
     /// <summary>A concealed item's shot block whole, as its reveal begins and its hiding ends (<see cref="CollectibleSequenceAnimations"/>).</summary>
-    internal static RoomObjectFrameDraw<D> ShotBlockIntact { get; } = RoomObjectDraw.Of(D.ShotBlockIntact);
+    internal static RoomObjectFrameDraw<D> ShotBlockIntact { get; } = CollectibleObjectDraws.Family.Of(D.ShotBlockIntact);
 
     /// <summary>The tank kinds in the order of their draws.</summary>
     internal static readonly InWorldCollectibleKind[] TankKinds =

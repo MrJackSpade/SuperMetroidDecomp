@@ -77,7 +77,7 @@ static const uint RoomMessagePictureWord = 27;
 static const uint RoomHudWord = 28;
 // The X-ray reveal (XrayRevealPlane, #1514): the foreground pixel its first block lies on, x below y, then 17 block columns
 // by 16 rows, each its picture's parts, the first with the block's arrangement in the top four bits: as defined, mirrored
-// horizontally, vertically or both, or its tile rows swapped.
+// horizontally, vertically or both.
 static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
@@ -293,7 +293,6 @@ bool RevealPicture(uint2 scrolled, uint part, out uint picture, out uint2 within
     picture = RoomLevels[record + part] & 0x0FFFFFFF;
     if (arrangement == 1 || arrangement == 3) within.x = 15 - within.x;
     if (arrangement == 2 || arrangement == 3) within.y = 15 - within.y;
-    if (arrangement == 4) within.y = (within.y + 8) & 15;
     // A block copied from beyond the room has no picture and shows nothing.
     return picture != 0;
 }

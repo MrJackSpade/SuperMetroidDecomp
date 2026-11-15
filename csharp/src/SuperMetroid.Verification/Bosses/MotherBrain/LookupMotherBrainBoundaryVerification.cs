@@ -23,7 +23,7 @@ internal static class LookupMotherBrainBoundaryVerification
     {
         foreach (LookupEscapeGateStockFrame frame in Boundaries)
         {
-            if (!MotherBrainFakeDeathDraws.TryDescribe(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer), out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain boundary {frame.Id} has no shape.");
             AssertShapeAsNative(rom, shape, frame.Pointer, frame.Id);
         }

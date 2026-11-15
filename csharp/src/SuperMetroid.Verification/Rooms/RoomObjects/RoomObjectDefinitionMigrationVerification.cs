@@ -48,7 +48,8 @@ internal static class RoomObjectDefinitionMigrationVerification
         // The deleted RomData catalogs' values.
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
         AssertEqual(RoomBlockBehaviorCodec.Decode(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
-        AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
+        // The cartridge counts the gate's travel in 256ths of a pixel to $1000; the port counts the same block in pixels.
+        AssertEqual(16, DownwardGateDefinitions.PixelsPerRoomBlock, "gate projectile reaches a block every sixteen pixels");
         AssertEqual(RoomCollisionType.SolidBlock, NoobTubeObjectDefinitions.OriginCollision, "n00b tube origin collision");
         AssertEqual(11, NativeEarthquakeTypes.TypeOf(NoobTubeObjectDefinitions.Earthquake), "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubeObjectDefinitions.EarthquakeFrames, "n00b tube earthquake length");
@@ -82,13 +83,13 @@ internal static class RoomObjectDefinitionMigrationVerification
         var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);
         AssertEqual(RoomCollisionType.BombableBlock, bombHorizontal.Blocks.CollisionAt(new(0, 0)), "bomb block parent");
         AssertEqual(RoomCollisionType.HorizontalExtension, bombHorizontal.Blocks.CollisionAt(new(1, 0)), "bomb block horizontal child");
-        RoomObjectFrameImage bombPicture = restorations.Image(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal));
+        RoomObjectFrameImage bombPicture = restorations.Image(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal));
         AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(0, 0)), "bomb block parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(1, 0)), "bomb block horizontal child picture");
         var crumbleVertical = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Vertical, LinkedRestoreObjectFamily.ContactCrumble);
         AssertEqual(RoomCollisionType.SpecialBlock, crumbleVertical.Blocks.CollisionAt(new(0, 0)), "contact crumble parent");
         AssertEqual(RoomCollisionType.VerticalExtension, crumbleVertical.Blocks.CollisionAt(new(0, 1)), "contact crumble vertical child");
-        RoomObjectFrameImage crumblePicture = restorations.Image(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Vertical));
+        RoomObjectFrameImage crumblePicture = restorations.Image(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical));
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 0)), "contact crumble parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 1)), "contact crumble vertical child picture");
 

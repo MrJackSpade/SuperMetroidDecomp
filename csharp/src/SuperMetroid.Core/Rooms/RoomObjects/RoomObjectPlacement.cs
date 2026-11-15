@@ -20,4 +20,7 @@ public sealed record RoomObjectPlacement(
 {
     /// <summary>The retail scroll change a retail scroll trigger runs; constructed placements supply validated decoded writes instead.</summary>
     internal RoomScrollChange? CompiledScrollChange { get; init; }
+
+    /// <summary>Whether <see cref="Block"/> is a block of the room's grid or of the terrain beyond the room, decoded at import.</summary>
+    public RoomObjectSite Site { get; init; }
 }

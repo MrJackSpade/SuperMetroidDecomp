@@ -25,13 +25,13 @@ internal static class CollectibleSequenceAnimations
             [CollectibleSequence.ShotBlockReveal] =
             [
                 Show(RoomObjectCollectibleDrawDefinitions.ShotBlockIntact, CollectibleTimingDefinitions.RevealImageUpdates),
-                Show(RoomObjectDraw.Of(CollectibleDraw.ShotBlockCracking), CollectibleTimingDefinitions.RevealImageUpdates),
-                Show(RoomObjectDraw.Of(CollectibleDraw.ShotBlockDust), CollectibleTimingDefinitions.RevealImageUpdates),
+                Show(CollectibleObjectDraws.Family.Of(CollectibleDraw.ShotBlockCracking), CollectibleTimingDefinitions.RevealImageUpdates),
+                Show(CollectibleObjectDraws.Family.Of(CollectibleDraw.ShotBlockDust), CollectibleTimingDefinitions.RevealImageUpdates),
             ],
             [CollectibleSequence.ShotBlockConceal] =
             [
-                Show(RoomObjectDraw.Of(CollectibleDraw.ShotBlockDust), CollectibleTimingDefinitions.RevealImageUpdates),
-                Show(RoomObjectDraw.Of(CollectibleDraw.ShotBlockCracking), CollectibleTimingDefinitions.RevealImageUpdates),
+                Show(CollectibleObjectDraws.Family.Of(CollectibleDraw.ShotBlockDust), CollectibleTimingDefinitions.RevealImageUpdates),
+                Show(CollectibleObjectDraws.Family.Of(CollectibleDraw.ShotBlockCracking), CollectibleTimingDefinitions.RevealImageUpdates),
             ],
             [CollectibleSequence.ShotBlockRespawn] =
             [

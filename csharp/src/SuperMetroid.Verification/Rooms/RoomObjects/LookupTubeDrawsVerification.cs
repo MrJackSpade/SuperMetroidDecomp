@@ -32,7 +32,7 @@ internal static class LookupTubeDrawsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, NoobTubeObjectDraws.TryDescribe(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var shape), "Tube shape domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryShape(NoobTubeObjectDraws.Family, NativeObjectDraws.At<NoobTubeDraw>(pointer), out var shape), "Tube shape domain");
                 AssertEqual(owned, RoomObjectNoobTubeVisualFiles.TryGet(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var dto), "Tube DTO domain");
                 if (!owned)
                 {
@@ -48,7 +48,7 @@ internal static class LookupTubeDrawsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            RoomBlockShape shape = NoobTubeObjectDraws.TryDescribe(NativeObjectDraws.At<NoobTubeDraw>(pointer), out RoomBlockShape? described)
+            RoomBlockShape shape = RoomObjectDrawIdentity.TryShape(NoobTubeObjectDraws.Family, NativeObjectDraws.At<NoobTubeDraw>(pointer), out RoomBlockShape? described)
                 ? described : throw new InvalidOperationException($"${pointer:X4} is not a n00b tube draw.");
             RoomObjectNoobTubeVisualFiles.TryGet(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var dto);
             RoomObjectDraw byId = RoomObjectNoobTubeVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;

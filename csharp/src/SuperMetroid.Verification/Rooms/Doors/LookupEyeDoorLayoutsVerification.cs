@@ -38,7 +38,7 @@ internal static class LookupEyeDoorLayoutsVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 bool owned = pointers.Contains((ushort)raw);
-                AssertEqual(owned,EyeDoorDraws.TryDescribe(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw),out var shape),"Eye door complete shape domain");
+                AssertEqual(owned,RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw),out var shape),"Eye door complete shape domain");
                 AssertEqual(owned,RoomObjectEyeDoorVisualFiles.TryGet(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw),out var dto),"Eye door complete DTO domain");
                 if (!owned)
                 {
@@ -50,7 +50,7 @@ internal static class LookupEyeDoorLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            EyeDoorDraws.TryDescribe(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer),out var shape);
+            RoomObjectDrawIdentity.TryFrame<EyeDoorDraws.Draw>(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer),out var shape);
             RoomObjectEyeDoorVisualFiles.TryGet(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer),out var direct);
             var views = new List<RoomObjectDrawLists.DrawList> {direct,exported[index]};
             if (pointer != 0x9bf7)

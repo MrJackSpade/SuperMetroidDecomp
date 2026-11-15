@@ -26,16 +26,15 @@ internal static class BombBlockProgramsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = LinkedRestoreObjectFamily.BombBlock.TryDescribe(NativeObjectDraws.At<BombBlockRestoreDraw>(pointer), out var draw);
-            bool exported = LinkedRestoreObjectFamily.BombBlock.TryGet(NativeObjectDraws.At<BombBlockRestoreDraw>(pointer), out var list);
-            AssertEqual(expected, found, "bomb restoration full native pointer domain");
-            AssertEqual(expected, exported, "bomb restoration export pointer domain");
+            bool found = LinkedRestoreObjectFamily.BombBlock.TryGet(NativeObjectDraws.At<BombBlockRestoreDraw>(pointer), out var list);
+            AssertEqual(expected, found, "bomb restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(LinkedRestoreObjectFamily.Draw), draw, "missing restoration descriptor cleared");
                 AssertEqual(default(RoomObjectDrawLists.DrawList), list, "missing restoration export cleared");
                 continue;
             }
+            LinkedRestoreObjectFamily.Draw draw = LinkedRestoreObjectFamily.BombBlock.Describe(LinkedRestoreObjectFamily.BombBlock.Draws
+                .Single(shape => shape.Value == NativeObjectDraws.At<BombBlockRestoreDraw>(pointer)).Key);
             int cursor = pointer;
             int run = 0;
             while (true)

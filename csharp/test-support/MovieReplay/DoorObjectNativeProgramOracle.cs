@@ -130,7 +130,8 @@ internal static class DoorObjectNativeProgramOracle
 
             VerificationAssertions.AssertEqual(RoomObjectInstruction.IncrementDoorHitCounterAndGoto, InstructionAt<RoomObjectInstruction>(cartridge, lists.Hit),
                 $"{at} counts its hit");
-            VerificationAssertions.AssertEqual(GreyDoorDefinitions.HitThreshold, (int)ReadOperandByte(cartridge, lists.Hit + 2), $"{at} hit count");
+            // The port opens a grey cap at the first shot after its condition holds.
+            VerificationAssertions.AssertEqual(1, (int)ReadOperandByte(cartridge, lists.Hit + 2), $"{at} opens at its first hit");
             VerificationAssertions.AssertEqual(lists.Open, Word(cartridge, lists.Hit + 3), $"{at} opens at its count");
             VerificationAssertions.AssertEqual(lists.Open, unchecked((ushort)(lists.Hit + 5)), $"{at} hit falls into its opening");
 

@@ -1,6 +1,18 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One frame of a room-object draw family; two draws are the same draw when their frames are equal.</summary>
+/// <summary>The draw of one frame of a family (#1402, #2034).</summary>
 /// <typeparam name="TFrame">The family's frame: an enum of its frames, or a record of what varies between them.</typeparam>
-/// <param name="Frame">Which of the family's draws this is.</param>
-internal sealed record RoomObjectFrameDraw<TFrame>(TFrame Frame) : RoomObjectDraw where TFrame : struct;
+/// <param name="Family">The family the frame belongs to, which draws it.</param>
+/// <param name="Frame">The frame.</param>
+internal sealed record RoomObjectFrameDraw<TFrame>(RoomObjectDrawFamily<TFrame> Family, TFrame Frame) : RoomObjectDraw
+    where TFrame : struct
+{
+    /// <inheritdoc/>
+    internal override void Draw(RoomLevelData level, Position16<RoomBlocks> origin, IRoomObjectDrawing drawing) =>
+        Family.Draw(level, origin, drawing, this);
+
+    /// <summary>The family's name and the frame, as diagnostics name the draw.</summary>
+    public override string ToString() => $"{Family.Name} {Frame}";
+}

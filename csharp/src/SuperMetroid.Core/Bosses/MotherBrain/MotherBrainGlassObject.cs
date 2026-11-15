@@ -116,7 +116,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     /// <summary>Draws <paramref name="image"/> and holds it for <paramref name="updates"/> in <paramref name="phase"/>.</summary>
     private void Show(RoomObjectPlace place, RoomObjectStepContext context, MotherBrainGlassDraw image, int updates, MotherBrainGlassPhase phase)
     {
-        context.Draw(place, RoomObjectDraw.Of(image));
+        context.Draw(place, MotherBrainGlassDraws.Family, image);
         _updatesBeforeNextStep = updates;
         Phase = phase;
     }

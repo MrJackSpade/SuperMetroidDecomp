@@ -36,7 +36,7 @@ internal static class LookupBlueCapVerification
                 bool owned = pointers.Contains(pointer);
                 ushort alias = pointer switch { 0xa9a7 => 0xa9b3, 0xa9e3 => 0xa9ef, 0xaa1f => 0xaa2b, 0xaa5b => 0xaa67, _ => pointer };
                 AssertEqual(NativeObjectDraws.At<BlueDoorCaps.Draw>(alias), BlueDoorCaps.VisualSource(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap alias and passthrough domain");
-                AssertEqual(owned, BlueDoorCaps.TryDescribe(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var shape), "Blue cap descriptor domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var shape), "Blue cap descriptor domain");
                 AssertEqual(owned, RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var dto), "Blue cap DTO domain");
                 if (!owned)
                 {
@@ -51,7 +51,7 @@ internal static class LookupBlueCapVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            BlueDoorCaps.TryDescribe(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var shape);
+            RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var shape);
             RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer), out var dto);
             if (field == 0)
             {

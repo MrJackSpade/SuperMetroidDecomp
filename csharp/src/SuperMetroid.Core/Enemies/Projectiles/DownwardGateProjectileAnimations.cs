@@ -23,15 +23,15 @@ internal static class DownwardGateProjectileAnimations
         ],
         [P.MovedOneBlock] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateThirdMovingStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateLoweredOneBlock, 1),
         ],
         [P.MovedTwoBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFourthMovingStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateLoweredTwoBlocks, 1),
         ],
         [P.MovedThreeBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFifthMovingStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateLoweredThreeBlocks, 1),
         ],
         [P.Stopping] =
         [
@@ -45,19 +45,19 @@ internal static class DownwardGateProjectileAnimations
         [P.Rising] =
         [
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
-            Show(EnemyProjectileFrameId.DownwardGateThirdClosedStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateRising, 1),
         ],
         [P.RisenOneBlock] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFourthClosedStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateRisenOneBlock, 1),
         ],
         [P.RisenTwoBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFifthClosedStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateRisenTwoBlocks, 1),
         ],
         [P.RisenThreeBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateSixthClosedStep, 1),
+            Show(EnemyProjectileFrameId.DownwardGateRisenThreeBlocks, 1),
         ],
         [P.Vanishing] =
         [

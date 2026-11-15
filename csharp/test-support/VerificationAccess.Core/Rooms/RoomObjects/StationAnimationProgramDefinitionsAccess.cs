@@ -21,7 +21,7 @@ internal static class StationAnimationProgramDefinitionsAccess
                         throw new InvalidOperationException($"Station animation {animation} beat {beat} is not an image held for a time.");
                     ushort record = StationNativeWords.Record(animation, beat);
                     yield return new NativeWord(record, checked((ushort)frame.Duration));
-                    yield return new NativeWord(checked((ushort)(record + 2)), RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(frame.Shown)));
+                    yield return new NativeWord(checked((ushort)(record + 2)), RoomObjectDrawAddressCodec.Of(StationObjectDraws.Family.Of(frame.Shown)));
                 }
             }
         }

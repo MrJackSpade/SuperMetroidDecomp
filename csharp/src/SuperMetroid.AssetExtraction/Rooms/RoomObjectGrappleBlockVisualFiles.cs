@@ -10,7 +10,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     public const string VisualFileName = "grapple-blocks.json";
     /// <summary>The Grapple-block as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
-        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Grapple-block", Frames, draw => VisualId(RoomObjectDraw.FrameOf<GrappleBlockDraw>(draw, "Grapple-block")));
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Grapple-block", Frames, draw => VisualId(RoomObjectDrawIdentity.FrameOf<GrappleBlockDraw>(draw, "Grapple-block")));
 
     /// <summary>Pictures every Grapple-block frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
@@ -42,14 +42,11 @@ public static class RoomObjectGrappleBlockVisualFiles
         get
         {
             foreach (GrappleBlockDraw frame in Enum.GetValues<GrappleBlockDraw>())
-            {
-                GrappleBlockObjectDraws.TryGet(RoomObjectDraw.Of(frame), out var draw);
-                yield return draw;
-            }
+                yield return GrappleBlockObjectDraws.Drawn(frame);
         }
     }
 
     /// <summary>Every Grapple-block frame's one-block draw list, built from the collision the game writes.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> Frames =>
-        All.Select(draw => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(draw.Draw), RoomObjectRunDirection.Horizontal, [draw.Collision]));
+        All.Select(draw => RoomObjectDrawListExport.SingleRun(GrappleBlockObjectDraws.Family.Of(draw.Draw), RoomObjectRunDirection.Horizontal, [draw.Collision]));
 }

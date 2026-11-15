@@ -30,13 +30,14 @@ public static class RoomObjectDownwardGateVisualFiles
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         foreach (DownwardGateDraw gate in Enum.GetValues<DownwardGateDraw>())
-            yield return RoomObjectDraw.Of(gate);
+            yield return DownwardGateObjectDraws.Family.Of(gate);
     }
 
     /// <summary>Builds the draw list of a recognized column or trigger draw from its geometry.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
-        bool found = DownwardGateObjectDraws.TryDescribe(request, out DownwardGateObjectDraws.Draw draw);
+        bool found = RoomObjectDrawIdentity.TryFrame(request, out DownwardGateDraw gate);
+        DownwardGateObjectDraws.Draw draw = DownwardGateObjectDraws.Describe(gate);
         // The column is written as one five-block column, a right trigger as one row of two, and a left trigger as its
         // block then the trigger left of it (#1862).
         list = found
@@ -54,9 +55,9 @@ public static class RoomObjectDownwardGateVisualFiles
     /// <summary>Maps a draw to its published artwork identity: the column by how far it is lowered, a trigger by its colour and side (#1994).</summary>
     internal static string VisualId(RoomObjectDraw request)
     {
-        if (!DownwardGateObjectDraws.TryDescribe(request, out var draw))
+        if (!RoomObjectDrawIdentity.TryFrame(request, out DownwardGateDraw gate))
             throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
-        return draw.Gate switch
+        return gate switch
         {
             DownwardGateDraw.Open => "column-open",
             DownwardGateDraw.QuarterLowered => "column-quarter-lowered",

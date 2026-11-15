@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The block shape of the three frames of the Mother Brain escape gate (#1608). What each frame shows is its installed

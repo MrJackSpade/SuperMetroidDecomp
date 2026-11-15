@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
-namespace SuperMetroid.Core.Enemies.Animals;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The rescue walls' block shapes (#1862): solid three-block columns down from the wall's top block. What each frame shows

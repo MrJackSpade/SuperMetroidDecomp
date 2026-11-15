@@ -4694,14 +4694,14 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly EnemyProjectileFrameId[] CommonDownwardGateBehaviorProjectiles =
     [
         EnemyProjectileFrameId.DownwardGateMoving,
-        EnemyProjectileFrameId.DownwardGateThirdMovingStep,
-        EnemyProjectileFrameId.DownwardGateFourthMovingStep,
-        EnemyProjectileFrameId.DownwardGateFifthMovingStep,
+        EnemyProjectileFrameId.DownwardGateLoweredOneBlock,
+        EnemyProjectileFrameId.DownwardGateLoweredTwoBlocks,
+        EnemyProjectileFrameId.DownwardGateLoweredThreeBlocks,
         EnemyProjectileFrameId.DownwardGateClosed,
-        EnemyProjectileFrameId.DownwardGateThirdClosedStep,
-        EnemyProjectileFrameId.DownwardGateFourthClosedStep,
-        EnemyProjectileFrameId.DownwardGateFifthClosedStep,
-        EnemyProjectileFrameId.DownwardGateSixthClosedStep,
+        EnemyProjectileFrameId.DownwardGateRising,
+        EnemyProjectileFrameId.DownwardGateRisenOneBlock,
+        EnemyProjectileFrameId.DownwardGateRisenTwoBlocks,
+        EnemyProjectileFrameId.DownwardGateRisenThreeBlocks,
     ];
 
     /// <summary>The room sprite objects <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>

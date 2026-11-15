@@ -40,22 +40,22 @@ public static class RoomObjectRevealAndWallVisualFiles
             // each rescue wall as one column of three (#1862).
             foreach (RoomObjectBombedRevealDraw reveal in Enum.GetValues<RoomObjectBombedRevealDraw>())
             {
-                RoomObjectDraw draw = RoomObjectDraw.Of(reveal);
-                yield return RoomObjectShapeRun.DrawList(draw, Required(draw, BombedRevealObjectDraws.TryDescribe(draw, out var shape), shape),
+                RoomObjectDraw draw = BombedRevealObjectDraws.Family.Of(reveal);
+                yield return RoomObjectShapeRun.DrawList(draw, Required(draw, RoomObjectDrawIdentity.TryShape(BombedRevealObjectDraws.Family, draw, out var shape), shape),
                     RoomObjectShapeRun.Row(new(0, 0), 1));
             }
             RoomObjectDraw passage = CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw;
             yield return RoomObjectShapeRun.DrawList(passage,
-                Required(passage, CrateriaMainstreetEscapePassageDraws.TryDescribe(passage, out var passageShape), passageShape),
+                Required(passage, RoomObjectDrawIdentity.TryShape(CrateriaMainstreetEscapePassageDraws.Family, passage, out var passageShape), passageShape),
                 RoomObjectShapeRun.Row(new(0, 0), 2));
             RoomObjectDraw wall = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw;
-            yield return RoomObjectShapeRun.DrawList(wall, Required(wall, OldTourianEscapeShaftWallDraws.TryDescribe(wall, out var wallShape), wallShape),
+            yield return RoomObjectShapeRun.DrawList(wall, Required(wall, RoomObjectDrawIdentity.TryShape(OldTourianEscapeShaftWallDraws.Family, wall, out var wallShape), wallShape),
                 RoomObjectShapeRun.Column(new(0, 0), 3), RoomObjectShapeRun.Column(new(1, 0), 3));
             foreach (EscapeAnimalDraw frame in Enum.GetValues<EscapeAnimalDraw>())
             {
-                RoomObjectDraw animalWall = RoomObjectDraw.Of(frame);
+                RoomObjectDraw animalWall = EscapeAnimalWalls.Family.Of(frame);
                 yield return RoomObjectShapeRun.DrawList(animalWall,
-                    Required(animalWall, EscapeAnimalWalls.TryDescribe(animalWall, out var animalShape), animalShape),
+                    Required(animalWall, RoomObjectDrawIdentity.TryShape(EscapeAnimalWalls.Family, animalWall, out var animalShape), animalShape),
                     RoomObjectShapeRun.Column(new(0, 0), 3));
             }
         }

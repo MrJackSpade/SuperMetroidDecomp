@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -23,30 +24,30 @@ internal static class NativeObjectDraws
     /// <summary>Every compiled PLM draw of every family.</summary>
     internal static IEnumerable<RoomObjectDraw> All =>
         Enumerable.Empty<RoomObjectDraw>()
-            .Concat(Enum.GetValues<BombBlockRestoreDraw>().Select(Of))
-            .Concat(Enum.GetValues<BombTorizoHandDraw>().Select(Of))
+            .Concat(Enum.GetValues<BombBlockRestoreDraw>().Select(LinkedRestoreObjectFamily.BombBlockDraws.Of))
+            .Concat(Enum.GetValues<BombTorizoHandDraw>().Select(BombTorizoHandDraws.Family.Of))
             .Concat([BotwoonWallObjectDrawDefinitions.Clear])
-            .Concat(Enum.GetValues<ChozoStatueDraw>().Select(Of))
-            .Concat(Enum.GetValues<ContactCrumbleRestoreDraw>().Select(Of))
-            .Concat(Enum.GetValues<CrocomireArenaDraw>().Select(Of))
-            .Concat(Enum.GetValues<DownwardGateDraw>().Select(Of))
-            .Concat(Enum.GetValues<DraygonCannonDraw>().Select(Of))
-            .Concat(Enum.GetValues<ElevatorPlatformDraw>().Select(Of))
-            .Concat(Enum.GetValues<EscapeAnimalDraw>().Select(Of))
-            .Concat(Enum.GetValues<KraidRoomDraw>().Select(Of))
-            .Concat(Enum.GetValues<MotherBrainEscapeGateDraw>().Select(Of))
-            .Concat(Enum.GetValues<MotherBrainFakeDeathDraw>().Select(Of))
-            .Concat(Enum.GetValues<MotherBrainGlassDraw>().Select(Of))
-            .Concat(Enum.GetValues<NoobTubeDraw>().Select(Of))
-            .Concat(Enum.GetValues<PhantoonDoorDraw>().Select(Of))
-            .Concat(Enum.GetValues<RoomObjectBombedRevealDraw>().Select(Of))
-            .Concat(Enum.GetValues<SamusEaterDraw>().Select(Of))
-            .Concat(Enum.GetValues<SporeSpawnCeilingDraw>().Select(Of))
-            .Concat(Enum.GetValues<StationDraw>().Select(Of))
-            .Concat(Enum.GetValues<TourianAccessDraw>().Select(Of))
-            .Concat(Enum.GetValues<GrappleBlockDraw>().Select(Of))
+            .Concat(Enum.GetValues<ChozoStatueDraw>().Select(ChozoStatueDraws.Family.Of))
+            .Concat(Enum.GetValues<ContactCrumbleRestoreDraw>().Select(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of))
+            .Concat(Enum.GetValues<CrocomireArenaDraw>().Select(CrocomireArenaDraws.Family.Of))
+            .Concat(Enum.GetValues<DownwardGateDraw>().Select(DownwardGateObjectDraws.Family.Of))
+            .Concat(Enum.GetValues<DraygonCannonDraw>().Select(DraygonCannonDraws.Family.Of))
+            .Concat(Enum.GetValues<ElevatorPlatformDraw>().Select(ElevatorPlatformDraws.Family.Of))
+            .Concat(Enum.GetValues<EscapeAnimalDraw>().Select(EscapeAnimalWalls.Family.Of))
+            .Concat(Enum.GetValues<KraidRoomDraw>().Select(KraidRoomObjectDraws.Family.Of))
+            .Concat(Enum.GetValues<MotherBrainEscapeGateDraw>().Select(MotherBrainEscapeGateDraws.Family.Of))
+            .Concat(Enum.GetValues<MotherBrainFakeDeathDraw>().Select(MotherBrainFakeDeathDraws.Family.Of))
+            .Concat(Enum.GetValues<MotherBrainGlassDraw>().Select(MotherBrainGlassDraws.Family.Of))
+            .Concat(Enum.GetValues<NoobTubeDraw>().Select(NoobTubeObjectDraws.Family.Of))
+            .Concat(Enum.GetValues<PhantoonDoorDraw>().Select(PhantoonDoorDraws.Family.Of))
+            .Concat(Enum.GetValues<RoomObjectBombedRevealDraw>().Select(BombedRevealObjectDraws.Family.Of))
+            .Concat(Enum.GetValues<SamusEaterDraw>().Select(SamusEaterObjectDraws.Family.Of))
+            .Concat(Enum.GetValues<SporeSpawnCeilingDraw>().Select(SporeSpawnCeilingDraws.Family.Of))
+            .Concat(Enum.GetValues<StationDraw>().Select(StationObjectDraws.Family.Of))
+            .Concat(Enum.GetValues<TourianAccessDraw>().Select(TourianAccessDraws.Family.Of))
+            .Concat(Enum.GetValues<GrappleBlockDraw>().Select(GrappleBlockObjectDraws.Family.Of))
             .Concat(RoomObjectShotBlockVisualFiles.Calculated)
-            .Concat(RoomObjectCollectibleVisualFiles.All.Select(frame => Of(frame.Draw)))
+            .Concat(RoomObjectCollectibleVisualFiles.All.Select(frame => CollectibleObjectDraws.Family.Of(frame.Draw)))
             .Concat(RoomObjectBlueDoorVisualFiles.Editable.Select(list => list.Draw))
             .Concat(Enum.GetValues<ColoredDoorOrientation>().Select(BlueDoorCaps.ClosedSolid))
             .Concat(RoomObjectGreyDoorVisualFiles.All.Select(list => list.Draw))
@@ -56,7 +57,9 @@ internal static class NativeObjectDraws
                 MaridiaElevatubeObjectDefinitions.BlockDraw, SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw]);
 
     /// <summary>A draw that belongs to no family.</summary>
-    internal static RoomObjectDraw Unowned { get; } = RoomObjectDraw.Of(new UnownedFrame());
+    internal static RoomObjectDraw Unowned { get; } = new RoomObjectDrawFamily<UnownedFrame>("unowned",
+        frame => throw new InvalidOperationException($"{frame} has no shape."),
+        (_, draw) => throw new InvalidOperationException($"{draw} has no picture.")).Of(new UnownedFrame());
 
     /// <summary>Every compiled draw, grouped by the address the cartridge stores it at.</summary>
     private static readonly ILookup<int, RoomObjectDraw> ByAddress = All.ToLookup(draw => (int)RoomObjectDrawAddressCodec.Of(draw));
@@ -81,6 +84,4 @@ internal static class NativeObjectDraws
     /// <summary>The frame of a draw that belongs to no family.</summary>
     internal readonly record struct UnownedFrame;
 
-    /// <summary>The draw of a frame.</summary>
-    private static RoomObjectFrameDraw<TFrame> Of<TFrame>(TFrame frame) where TFrame : struct => RoomObjectDraw.Of(frame);
 }

@@ -55,5 +55,5 @@ internal static class MotherBrainRoomMutationDefinitions
     };
 
     /// <summary>The change that draws <paramref name="layout"/> once.</summary>
-    private static TerrainChange Drawn(MotherBrainFakeDeathDraw layout) => TerrainChange.DrawnOnce(RoomObjectDraw.Of(layout));
+    private static TerrainChange Drawn(MotherBrainFakeDeathDraw layout) => TerrainChange.DrawnOnce(MotherBrainFakeDeathDraws.Family.Of(layout));
 }

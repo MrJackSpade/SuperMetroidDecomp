@@ -131,7 +131,7 @@ internal static class RoomBlockWriters
     /// <exception cref="InvalidDataException">The draw is not a blue door cap's frame.</exception>
     private static Func<InventoriedRoomState, bool> BlueDoorFrameWrittenIn(RoomObjectDraw draw)
     {
-        if (!BlueDoorCaps.TryDescribe(draw, out BlueDoorCaps.Draw cap))
+        if (!RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(draw, out BlueDoorCaps.Draw cap))
             throw new InvalidDataException($"Blue door frame {draw} is not a blue door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
         return state => state.HoldsBlueDoorCap(facing) ||
@@ -147,7 +147,7 @@ internal static class RoomBlockWriters
     /// <exception cref="InvalidDataException">The draw is not a grey door cap's frame.</exception>
     private static Func<InventoriedRoomState, bool> GreyDoorFrameWrittenIn(RoomObjectDraw draw)
     {
-        if (!GreyDoorCaps.TryDescribe(draw, out GreyDoorCaps.Draw cap))
+        if (!RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(draw, out GreyDoorCaps.Draw cap))
             throw new InvalidDataException($"Grey door frame {draw} is not a grey door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
         Func<InventoriedRoomState, bool> grey = Placing(DoorObjectKindDefinitions.GreyDoors.Where(door => door.Value == facing).Select(door => door.Key));
@@ -182,7 +182,7 @@ internal static class RoomBlockWriters
     /// <exception cref="InvalidDataException">The draw is not a coloured door cap's frame.</exception>
     private static Func<InventoriedRoomState, bool> ColoredDoorFrameWrittenIn(RoomObjectDraw draw)
     {
-        if (!ColoredDoorCaps.TryDescribe(draw, out ColoredDoorCaps.Draw cap))
+        if (!RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(draw, out ColoredDoorCaps.Draw cap))
             throw new InvalidDataException($"Coloured door frame {draw} is not a coloured door cap's frame.");
         return Placing(DoorObjectKindDefinitions.ColoredDoors.Where(door => door.Value.Color == cap.Color).Select(door => door.Key));
     }

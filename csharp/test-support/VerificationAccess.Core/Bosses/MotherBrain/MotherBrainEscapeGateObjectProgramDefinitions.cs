@@ -40,9 +40,9 @@ internal static class MotherBrainEscapeGateObjectProgramDefinitions
             0xbb3e => 94,
             0xbb44 or 0xbb48 or 0xbb4c => 2,
             0xbb38 or 0xbb42 or 0xbb50 => (ushort)RoomObjectInstruction.Delete,
-            0xbb36 or 0xbb4e => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(MotherBrainEscapeGateDraw.Closed)),
-            0xbb3c or 0xbb4a => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(MotherBrainEscapeGateDraw.HalfClosed)),
-            _ => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(MotherBrainEscapeGateDraw.Open)), // BB40 and BB46 only.
+            0xbb36 or 0xbb4e => RoomObjectDrawAddressCodec.Of(MotherBrainEscapeGateDraws.Family.Of(MotherBrainEscapeGateDraw.Closed)),
+            0xbb3c or 0xbb4a => RoomObjectDrawAddressCodec.Of(MotherBrainEscapeGateDraws.Family.Of(MotherBrainEscapeGateDraw.HalfClosed)),
+            _ => RoomObjectDrawAddressCodec.Of(MotherBrainEscapeGateDraws.Family.Of(MotherBrainEscapeGateDraw.Open)), // BB40 and BB46 only.
         };
         value = (byte)(word >> ((address & 1) * 8));
         return true;

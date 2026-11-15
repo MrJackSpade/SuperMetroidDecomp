@@ -734,7 +734,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RevealedBlockArrangement.MirroredHorizontally => 1,
         RevealedBlockArrangement.MirroredVertically => 2,
         RevealedBlockArrangement.MirroredBoth => 3,
-        RevealedBlockArrangement.RowsSwapped => 4,
         _ => throw new InvalidDataException($"Unknown revealed block arrangement {arrangement}."),
     };
 

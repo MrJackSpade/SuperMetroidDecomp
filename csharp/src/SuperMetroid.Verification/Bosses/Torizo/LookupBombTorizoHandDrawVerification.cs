@@ -36,7 +36,7 @@ internal static class LookupBombTorizoHandDrawVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out RoomBlockShape? shape), "Torizo hand shape domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryShape(BombTorizoHandDraws.Family, NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out RoomBlockShape? shape), "Torizo hand shape domain");
                 AssertEqual(owned, RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto), "Torizo hand DTO domain");
                 if (!owned)
                 {
@@ -52,7 +52,7 @@ internal static class LookupBombTorizoHandDrawVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            if (!BombTorizoHandDraws.TryDescribe(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out RoomBlockShape? described))
+            if (!RoomObjectDrawIdentity.TryShape(BombTorizoHandDraws.Family, NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out RoomBlockShape? described))
                 throw new InvalidOperationException($"Torizo hand frame {ids[index]} has no shape.");
             RoomBlockShape shape = described;
             RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto);

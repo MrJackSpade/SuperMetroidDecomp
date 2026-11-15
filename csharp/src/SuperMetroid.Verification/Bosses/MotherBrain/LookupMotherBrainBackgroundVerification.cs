@@ -37,15 +37,15 @@ internal static class LookupMotherBrainBackgroundVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             bool owned = family.Any(frame => frame.Pointer == value);
-            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribe(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(value), out RoomBlockShape? shape),
+            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, NativeObjectDraws.At<MotherBrainFakeDeathDraw>(value), out RoomBlockShape? shape),
                 "Mother Brain fake-death room ownership");
             if (!owned) AssertTrue(shape is null, "Mother Brain missing fake-death room shape");
         }
         for (int row = 0; row < Rows.Length; row++)
         {
-            AssertEqual(MuralOrder[row], RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(Rows[row].Pointer),
+            AssertEqual(MuralOrder[row], RoomObjectDrawIdentity.FrameOf<MotherBrainFakeDeathDraw>(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(Rows[row].Pointer),
                 "Mother Brain mural row"), "Mother Brain native row order");
-            if (!MotherBrainFakeDeathDraws.TryDescribe(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(Rows[row].Pointer), out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, NativeObjectDraws.At<MotherBrainFakeDeathDraw>(Rows[row].Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain mural row {Rows[row].Id} has no shape.");
             AssertShapeAsNative(rom, shape, Rows[row].Pointer, Rows[row].Id);
         }

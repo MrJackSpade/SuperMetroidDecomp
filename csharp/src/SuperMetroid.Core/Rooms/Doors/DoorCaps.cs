@@ -14,7 +14,7 @@ internal static class DoorCaps
     /// </summary>
     internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapFrame image) => image switch
     {
-        DoorCapFrame.Clear => RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(orientation)),
+        DoorCapFrame.Clear => GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(orientation)),
         DoorCapFrame.Closed => Painted(paint, orientation, DoorCapLook.Closed),
         DoorCapFrame.Ajar => Painted(paint, orientation, DoorCapLook.Ajar),
         DoorCapFrame.HalfOpen => Painted(paint, orientation, DoorCapLook.HalfOpen),
@@ -35,11 +35,11 @@ internal static class DoorCaps
     /// <summary>The <paramref name="paint"/> cap facing <paramref name="orientation"/> showing <paramref name="look"/>.</summary>
     private static RoomObjectDraw Painted(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapLook look) => paint switch
     {
-        DoorCapPaint.Blue => RoomObjectDraw.Of(new BlueDoorCaps.Draw(orientation, look)),
-        DoorCapPaint.Grey => RoomObjectDraw.Of(new GreyDoorCaps.Draw(orientation, look)),
-        DoorCapPaint.Yellow => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Yellow, orientation, look)),
-        DoorCapPaint.Green => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Green, orientation, look)),
-        DoorCapPaint.Red => RoomObjectDraw.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Red, orientation, look)),
+        DoorCapPaint.Blue => BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(orientation, look)),
+        DoorCapPaint.Grey => GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(orientation, look)),
+        DoorCapPaint.Yellow => ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Yellow, orientation, look)),
+        DoorCapPaint.Green => ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Green, orientation, look)),
+        DoorCapPaint.Red => ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Red, orientation, look)),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapPaint)} {paint}."),
     };
 

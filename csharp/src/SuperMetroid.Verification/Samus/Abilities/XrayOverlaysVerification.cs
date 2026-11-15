@@ -53,11 +53,12 @@ internal static class XrayOverlaysVerification
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
         AssertEqual(Defined(5), map[0], "collected items do not obscure another live reveal, and the Energy Tank shows its installed block");
         XrayRevealOverlays.Apply(map, items, system, SpecialRoom, new(16, 16), visuals);
-        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(9), RevealedBlockArrangement.RowsSwapped), map[0],
-            "special-room override follows item writes, and its vertical flip swaps the block's rows without mirroring them");
-        AssertEqual(Defined(3), map[1], "an overlay's horizontal flip is not drawn, as natively");
-        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(4), RevealedBlockArrangement.RowsSwapped), map[2],
-            "an overlay flipped both ways only swaps the block's rows");
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(9), RevealedBlockArrangement.MirroredVertically), map[0],
+            "special-room override follows item writes, and its vertical flip mirrors the block top to bottom");
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(3), RevealedBlockArrangement.MirroredHorizontally), map[1],
+            "an overlay's horizontal flip mirrors the block left to right");
+        AssertEqual(new RevealedBlock(RoomCellPicture.OfBlock(4), RevealedBlockArrangement.MirroredBoth), map[2],
+            "an overlay flipped both ways is mirrored both ways");
         Array.Clear(map);
         items[0] = items[0] with { Location = null };
         system.SetCollectedItemBit(2);

@@ -25,13 +25,13 @@ internal static class LookupGlassLayoutsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             bool owned = Frames.Any(frame => frame.Pointer == raw);
-            AssertEqual(owned, MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(raw), out RoomBlockShape? shape), "Glass layout shape domain");
+            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(MotherBrainGlassDraws.Family, NativeObjectDraws.At<MotherBrainGlassDraw>(raw), out RoomBlockShape? shape), "Glass layout shape domain");
             if (!owned) AssertTrue(shape is null, "Glass layout missing shape");
         }
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainGlassVisualFiles.Family, Frames, collision: false);
         foreach (LookupEscapeGateStockFrame frame in Frames)
         {
-            if (!MotherBrainGlassDraws.TryDescribe(NativeObjectDraws.At<MotherBrainGlassDraw>(frame.Pointer), out RoomBlockShape? shape))
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainGlassDraws.Family, NativeObjectDraws.At<MotherBrainGlassDraw>(frame.Pointer), out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Glass frame {frame.Id} has no shape.");
             RoomBlockShape described = shape;
             AssertShapeAsNative(rom, described, frame.Pointer, frame.Id);

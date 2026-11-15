@@ -42,7 +42,7 @@ internal static class BlockReactionSelectorsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             RoomObjectDraw request = NativeObjectDraws.At<RoomObjectBombedRevealDraw>(pointer);
-            bool found = BombedRevealObjectDraws.TryDescribe(request, out RoomBlockShape? shape);
+            bool found = RoomObjectDrawIdentity.TryShape(BombedRevealObjectDraws.Family, request, out RoomBlockShape? shape);
             AssertEqual(nativePointers.Contains((ushort)pointer), found, "bombed reveal complete native draw pointer domain");
             if (!found)
             {

@@ -45,7 +45,7 @@ internal static class RoomObjectProgramsVerification
         int waitForInput = Word(main + 8);
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(main + 10), "tube arms its Power Bomb wait");
         AssertEqual(NoobTubePhase.WaitingForPowerBomb, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Word(main + 12), "tube wait"), "tube Power Bomb wait");
-        AssertShown(main + 14, new TerrainChangeFrame(RoomObjectDraw.Of(NoobTubeObjectDefinitions.IntactImage), 1), "intact tube");
+        AssertShown(main + 14, new TerrainChangeFrame(NoobTubeObjectDraws.Family.Of(NoobTubeObjectDefinitions.IntactImage), 1), "intact tube");
         AssertEqual(RoomObjectInstruction.Sleep, At(main + 18), "intact tube waits");
 
         AssertEqual(RoomObjectInstruction.EnableNoobTubeWaterPhysics, At(alreadyBroken), "broken tube restores the water");
@@ -438,7 +438,7 @@ internal static class RoomObjectProgramsVerification
         void AssertShown(int cursor, SamusEaterDraw image, int updates, string at)
         {
             AssertEqual(updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(SamusEaterObjectDraws.Family.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
         string plantName = plant.Ceiling ? "ceiling plant" : "floor plant";

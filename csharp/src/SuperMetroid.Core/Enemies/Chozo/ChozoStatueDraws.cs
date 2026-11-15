@@ -1,30 +1,18 @@
-using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Chozo statue room objects' block draws: which room-object draws are the statues', and the block shape each draws,
-/// from <see cref="ChozoStatueObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
+/// The Chozo statue room objects' block draws (#2034): the two Wrecked Ship slope-access frames and Lower Norfair's
+/// cleared hand, the block shape each draws, from <see cref="ChozoStatueObjectDrawDefinitions"/>, and the installed
+/// picture (#1557) each shows.
 /// </summary>
 internal static class ChozoStatueDraws
 {
-    /// <summary>The block shape of <paramref name="request"/> when it is one of the statues' frames.</summary>
-    /// <param name="request">The draw to describe.</param>
-    /// <param name="shape">The frame's block shape; null when the draw is not the statues'.</param>
-    /// <returns>Whether the draw is one of the two Wrecked Ship slope-access frames or Lower Norfair's cleared hand.</returns>
-    /// <exception cref="InvalidOperationException">The draw is a statue frame with no shape.</exception>
-    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
-    {
-        if (request is not RoomObjectFrameDraw<ChozoStatueDraw>)
-        {
-            shape = null;
-            return false;
-        }
-        ChozoStatueDraw frame = RoomObjectDraw.FrameOf<ChozoStatueDraw>(request, nameof(ChozoStatueDraw));
-        shape = ChozoStatueObjectDrawDefinitions.Shapes.TryGetValue(frame, out RoomBlockShape? described)
-            ? described
-            : throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {frame}.");
-        return true;
-    }
+    /// <summary>The statues' frames, pictured by the installed Chozo statue frames.</summary>
+    internal static RoomObjectDrawFamily<ChozoStatueDraw> Family { get; } =
+        RoomObjectDrawFamily<ChozoStatueDraw>.Pictured<InstalledRoomObjectChozoStatueVisuals>("Chozo statue",
+            frame => RoomObjectDrawFamily<ChozoStatueDraw>.Defined(ChozoStatueObjectDrawDefinitions.Shapes, frame),
+            (visuals, draw) => visuals.Image(draw));
 }

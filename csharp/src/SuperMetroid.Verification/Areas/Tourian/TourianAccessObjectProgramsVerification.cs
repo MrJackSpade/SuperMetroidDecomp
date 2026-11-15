@@ -76,7 +76,7 @@ internal static class TourianAccessObjectProgramsVerification
             for (int column = 0; column < 4; column++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + row * 12 + column * 2 + 2)));
-                AssertEqual(native.Collision, TourianAccessObjectDrawDefinitions.Shapes[RoomObjectDraw.FrameOf<TourianAccessDraw>(dto.Draw, "Tourian access")]
+                AssertEqual(native.Collision, TourianAccessObjectDrawDefinitions.Shapes[RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(dto.Draw, "Tourian access")]
                     .CollisionAt(new(column, row)), "Tourian block shape covers every cartridge cell");
                 AssertEqual(native.Collision, dto.Runs.Span[row].Collisions.Span[column], "Tourian direct DTO collision");
                 AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(new Offset16<RoomBlocks>(column, row)), "Tourian installed picture");
@@ -102,7 +102,7 @@ internal static class TourianAccessObjectProgramsVerification
             }
             AssertEqual(checked((ushort)(cursor - RoomObjectDrawAddressCodec.Of(draw.Draw))),
                 checked((ushort)(RoomObjectDrawAddressCodec.Of(draw.Draw) ==
-                    RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(TourianAccessDraw.Clear)) ? 72 : 12)),
+                    RoomObjectDrawAddressCodec.Of(TourianAccessDraws.Family.Of(TourianAccessDraw.Clear)) ? 72 : 12)),
                 $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} has the complete native span");
 
             void AssertTourianDrawCollision(RoomCollisionType expected)
@@ -161,7 +161,7 @@ internal static class TourianAccessObjectProgramsVerification
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= RoomObjectNativeListAddresses.TourianAccessEntries[0].Entry &&
                       pointer < RoomObjectNativeListAddresses.TourianAccessEntries[1].Entry + 6) ||
-                     (pointer >= RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(TourianAccessDraw.EmptyRow)) &&
+                     (pointer >= RoomObjectDrawAddressCodec.Of(TourianAccessDraws.Family.Of(TourianAccessDraw.EmptyRow)) &&
                       pointer < 0x930f));
             },
             address => $"Tourian access PLM reread compiled source ${address:X6}.");

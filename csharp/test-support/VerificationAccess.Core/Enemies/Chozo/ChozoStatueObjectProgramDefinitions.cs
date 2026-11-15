@@ -132,7 +132,7 @@ internal static class ChozoStatueObjectProgramDefinitions
                     10 => (ushort)RoomObjectInstruction.Sleep,
                     14 => (ushort)RoomObjectInstruction.SetLoweredAcidHeight,
                     16 => 1,
-                    18 => RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand)),
+                    18 => RoomObjectDrawAddressCodec.Of(ChozoStatueDraws.Family.Of(ChozoStatueDraw.LowerNorfairClearedHand)),
                     _ => (ushort)RoomObjectInstruction.Delete,
                 };
             case ProgramList.ClearSlope:
@@ -142,7 +142,7 @@ internal static class ChozoStatueObjectProgramDefinitions
                 return offset switch
                 {
                     0 => 1,
-                    2 => clear ? RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(ChozoStatueDraw.ClearSlopeAccess)) : RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(ChozoStatueDraw.BlockSlopeAccess)),
+                    2 => clear ? RoomObjectDrawAddressCodec.Of(ChozoStatueDraws.Family.Of(ChozoStatueDraw.ClearSlopeAccess)) : RoomObjectDrawAddressCodec.Of(ChozoStatueDraws.Family.Of(ChozoStatueDraw.BlockSlopeAccess)),
                     4 => clear ? (ushort)RoomObjectInstruction.TransformSpikesToSlopes : (ushort)RoomObjectInstruction.RevertSlopesToSpikes,
                     _ => (ushort)RoomObjectInstruction.Delete,
                 };

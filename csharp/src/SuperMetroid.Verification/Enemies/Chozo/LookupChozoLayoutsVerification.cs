@@ -36,7 +36,7 @@ internal static class LookupChozoLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ChozoStatueDraws.TryDescribe(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out RoomBlockShape? shape), "Chozo layout shape domain");
+                AssertEqual(owned, RoomObjectDrawIdentity.TryShape(ChozoStatueDraws.Family, NativeObjectDraws.At<ChozoStatueDraw>(pointer), out RoomBlockShape? shape), "Chozo layout shape domain");
                 AssertEqual(owned, RoomObjectChozoStatueVisualFiles.TryGet(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var dto), "Chozo layout DTO domain");
                 if (!owned)
                 {
@@ -52,7 +52,7 @@ internal static class LookupChozoLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            if (!ChozoStatueDraws.TryDescribe(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out RoomBlockShape? described))
+            if (!RoomObjectDrawIdentity.TryShape(ChozoStatueDraws.Family, NativeObjectDraws.At<ChozoStatueDraw>(pointer), out RoomBlockShape? described))
                 throw new InvalidOperationException($"Chozo statue frame {ids[index]} has no shape.");
             RoomBlockShape shape = described;
             RoomObjectChozoStatueVisualFiles.TryGet(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var dto);

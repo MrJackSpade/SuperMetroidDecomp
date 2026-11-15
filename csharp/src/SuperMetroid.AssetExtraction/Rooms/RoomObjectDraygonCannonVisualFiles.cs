@@ -46,8 +46,8 @@ public static class RoomObjectDraygonCannonVisualFiles
         var layouts = new Dictionary<DraygonCannonDraw, RoomObjectFrameLayout>();
         foreach (DraygonCannonDraw frame in Enum.GetValues<DraygonCannonDraw>())
         {
-            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
-            if (!DraygonCannonDraws.TryDescribe(draw, out RoomBlockShape? described))
+            RoomObjectDraw draw = DraygonCannonDraws.Family.Of(frame);
+            if (!RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, draw, out RoomBlockShape? described))
                 throw new InvalidOperationException($"Draygon cannon frame {frame} has no shape.");
             RoomBlockShape shape = described;
             bool right = shape.Covers(rightOfCore);

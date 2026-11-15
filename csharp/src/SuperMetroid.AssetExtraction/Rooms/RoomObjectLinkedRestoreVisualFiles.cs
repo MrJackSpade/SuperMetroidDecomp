@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -32,14 +33,8 @@ public static class RoomObjectLinkedRestoreVisualFiles
         LinkedRestoreObjectFamily.Families.SelectMany(AllOf);
 
     /// <summary>The horizontal, vertical and square restoration layouts of <paramref name="family"/>, in that order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> AllOf(LinkedRestoreObjectFamily family)
-    {
-        foreach (RoomObjectDraw candidate in RestorationDraws())
-        {
-            if (family.TryDescribe(candidate, out LinkedRestoreObjectFamily.Draw draw))
-                yield return Export(candidate, draw);
-        }
-    }
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> AllOf(LinkedRestoreObjectFamily family) =>
+        Ensure.NotNull(family).Draws.Select(shape => Export(shape.Value, family.Describe(shape.Key)));
 
     /// <summary>Builds the draw list of the restoration <paramref name="request"/>, whose shape is <paramref name="draw"/>.</summary>
     internal static RoomObjectDrawLists.DrawList Export(RoomObjectDraw request, LinkedRestoreObjectFamily.Draw draw) =>
@@ -63,8 +58,4 @@ public static class RoomObjectLinkedRestoreVisualFiles
         _ => throw new InvalidDataException($"{draw} is not a linked restoration draw."),
     };
 
-    /// <summary>Every bomb-block and contact-crumble restoration draw, each family's in horizontal, vertical, square order.</summary>
-    private static IEnumerable<RoomObjectDraw> RestorationDraws() =>
-        Enum.GetValues<BombBlockRestoreDraw>().Select(draw => (RoomObjectDraw)RoomObjectDraw.Of(draw))
-            .Concat(Enum.GetValues<ContactCrumbleRestoreDraw>().Select(draw => (RoomObjectDraw)RoomObjectDraw.Of(draw)));
 }

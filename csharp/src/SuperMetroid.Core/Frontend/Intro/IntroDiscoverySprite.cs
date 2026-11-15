@@ -5,12 +5,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic sprite object: its position, colouring and frame behaviour, playing one of the typed cinematic sprite
-/// animations (#641, #1600) where every cinematic sprite's update ran its animation.
+/// A cinematic sprite object: its position and colouring, playing one of the typed cinematic sprite animations (#641,
+/// #1600) where every cinematic sprite's update ran its animation.
 /// </summary>
 /// <remarks>
-/// The shared frame-behaviour install is carried out here; every other cue goes to the owner that steps the actor, and
-/// an owner-less cue fails rather than being skipped.
+/// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue
+/// fails rather than being skipped.
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
@@ -69,12 +69,6 @@ internal sealed class IntroDiscoverySprite
     /// </summary>
     internal WrappingCountdown LoopCountdown { get; private set; } = WrappingCountdown.Start(0);
 
-    /// <summary>The frame behaviour the actor runs, or none.</summary>
-    internal CinematicSpriteFrameBehavior? FrameBehavior { get; private set; }
-
-    /// <summary>The frame behaviour the actor's animation installed, until an owner installs its own.</summary>
-    internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
-
     /// <summary>Starts the animation of <paramref name="segment"/> on the sprite's next update, discarding the old frame countdown.</summary>
     public void Start(CinematicSpriteSegment segment)
     {
@@ -96,13 +90,6 @@ internal sealed class IntroDiscoverySprite
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold must be nonzero.");
         frameHold = WrappingCountdown.Start(frames);
-    }
-
-    /// <summary>Installs the frame behaviour the actor's owner selects, or none.</summary>
-    internal void InstallFrameBehavior(CinematicSpriteFrameBehavior? frameBehavior)
-    {
-        FrameBehavior = frameBehavior;
-        ListFrameBehavior = null;
     }
 
     /// <summary>Retires the actor and clears its visible frame.</summary>
@@ -150,15 +137,9 @@ internal sealed class IntroDiscoverySprite
         }
     }
 
-    /// <summary>Installs a frame behaviour, or hands any other cue to the actor's owner.</summary>
+    /// <summary>Hands the cue to the actor's owner.</summary>
     private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
     {
-        if (cue.Kind == CinematicSpriteCueKind.SetFrameBehavior)
-        {
-            FrameBehavior = cue.FrameBehavior;
-            ListFrameBehavior = cue.FrameBehavior;
-            return;
-        }
         (ownerCue ?? throw new InvalidOperationException(
             $"Cinematic sprite animation in {CurrentAnimation} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }

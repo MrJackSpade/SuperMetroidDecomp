@@ -25,10 +25,9 @@ internal static class CeresDestructionActors
             Animation = CinematicSpriteSegment.CeresDestructionLargeAsteroid,
         },
         CeresDestructionActorRole.SmallAsteroids => RearViewVariant(CeresRearViewActorRole.SmallAsteroids),
-        // The stationary vortex's setup replaces its moving behaviour with the no-op.
+        // The destruction's vortex holds still.
         CeresDestructionActorRole.Vortex => RearViewVariant(CeresRearViewActorRole.Vortex) with
         {
-            ActiveFrameBehavior = CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp,
             HorizontalDelta = SignedSixteenSixteen.Zero,
             WrapX = false,
         },
@@ -42,15 +41,14 @@ internal static class CeresDestructionActors
     private static CeresDestructionActorDefinition RearViewVariant(CeresRearViewActorRole role)
     {
         CeresFlightActorDefinition flight = CeresFlightActors.RearViewActor(role);
-        return new(flight.ActiveFrameBehavior, flight.Animation, flight.Colouring, flight.HorizontalDelta, flight.WrapX,
-            SignedEightEight.Zero, null, false);
+        return new(flight.Animation, flight.Colouring, flight.HorizontalDelta, flight.WrapX, null, false);
     }
 
     /// <summary>Selects the definition of the Zebes reveal actor that shows <paramref name="role"/>.</summary>
     /// <remarks>
     /// #1165: the reveal's spawns select the planet, the four star quarters and the title; the title spawns the
     /// Japanese subtitle. All four star quarters start with the same colouring and acceleration; where each
-    /// starts is installed (#1615). Only the lower-right quarter installs the completion behaviour. Planet and title are
+    /// starts is installed (#1615). Only the lower-right quarter completes the scene. Planet and title are
     /// separate named roles with their own starts and animations, not curve exceptions.
     /// One metadata proof against the authored data checks every field. Animations have their existing separate proofs.
     /// </remarks>
@@ -68,13 +66,9 @@ internal static class CeresDestructionActors
     /// <summary>The definition of one quarter of the reveal's star field.</summary>
     private static CeresDestructionActorDefinition ZebesStars(ZebesRevealActorRole quarter)
     {
-        bool completesScene = quarter == SceneCompletingStars;
-        CinematicSpriteFrameBehavior wait = completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionWait : CinematicSpriteFrameBehavior.ZebesStarsWait;
         return new(
-            wait,
             StarSheets[quarter],
             CeresSpriteColouring.SpaceObjects, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 32),
-            completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway : CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway,
-            completesScene);
+            quarter == SceneCompletingStars);
     }
 }

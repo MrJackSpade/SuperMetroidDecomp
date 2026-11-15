@@ -56,8 +56,10 @@ internal static class CeresExplosionDefinitionsVerification
         {
             // The six-byte header's first word (initialization callback) has no compiled owner.
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.FrameBehavior.NativeAddress,
-                $"{name} pre-instruction callback");
+            ushort motion = definition.Animation == CinematicSpriteSegment.CeresExplosionSpawner
+                ? CinematicActorNativeMotions.NoMotion : CinematicActorNativeMotions.CeresExplosion;
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), motion,
+                $"{name} routine: the spawner holds still, a blast drifts with the fleeing gunship");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Animation),
                 $"{name} instruction list");
         }

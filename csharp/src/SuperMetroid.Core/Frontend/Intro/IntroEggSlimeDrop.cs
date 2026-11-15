@@ -30,7 +30,6 @@ internal sealed class IntroEggSlimeDrop
             babyPosition,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: definition.Animation);
-        sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
     /// <summary>Flies the drop by its launch until Y 168, then plays the puddle animation in place.</summary>
@@ -41,21 +40,14 @@ internal sealed class IntroEggSlimeDrop
 
         if (motionEnabled)
         {
-            if (sprite.FrameBehavior != IntroEggEffectDefinitions.SlimeDrop.FrameBehavior)
-            {
-                throw new InvalidDataException(
-                    $"Intro egg slime names invalid frame behaviour {sprite.FrameBehavior}.");
-            }
             AddVelocity(axis: Axis.Horizontal, launch.Drift);
             AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(framesFallen));
 
             if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
             {
-                // Landing changes both animation and frame behaviour, freezing the impact point
+                // Landing changes the animation and stops the drop, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.
                 sprite.Start(CinematicSpriteSegment.MetroidEggSlimeImpact);
-                sprite.InstallFrameBehavior(
-                    CinematicSpriteFrameBehavior.NoOp);
                 motionEnabled = false;
             }
             else

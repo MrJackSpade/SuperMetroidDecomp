@@ -84,7 +84,7 @@ internal static class IntroMotherBrainDefinitionsVerification
                 $"intro Mother Brain hit {hit + 1} starts explosion only on the fourth hit");
         for (ushort frame = 1; frame <= 128; frame++)
         {
-            motherBrain.RunFrameBehavior(frame, introCrossfadeTimer: 1);
+            motherBrain.RunBehavior(frame, introCrossfadeTimer: 1);
             motherBrain.Step();
             if (frame < 128)
                 AssertTrue(!motherBrain.PageTwoRequested,
@@ -94,7 +94,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             "intro Mother Brain page-two callback runs at explosion frame 128");
         for (int frame = 0; frame < 64; frame++)
         {
-            motherBrain.RunFrameBehavior((ushort)(129 + frame),
+            motherBrain.RunBehavior((ushort)(129 + frame),
                 introCrossfadeTimer: 1);
             motherBrain.Step();
             int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainPageTwo) +
@@ -103,7 +103,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
-        motherBrain.RunFrameBehavior(cinematicFrameCounter: 193,
+        motherBrain.RunBehavior(cinematicFrameCounter: 193,
             introCrossfadeTimer: 0);
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");

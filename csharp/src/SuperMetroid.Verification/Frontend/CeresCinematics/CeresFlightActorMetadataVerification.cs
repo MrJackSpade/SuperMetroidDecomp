@@ -42,7 +42,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual(SignedEightEight.Zero, actor.InitialVelocity, "rear initializer leaves cleared timer");
             if (role != CeresRearViewActorRole.RearStars)
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
-                    actor.ActiveFrameBehavior.NativeAddress, "rear initializer preserves the definition callback");
+                    CinematicActorNativeMotions.CeresRearView[role], "rear initializer preserves the definition's routine, the role's drift");
             switch (role)
             {
                 case CeresRearViewActorRole.LargeAsteroids:
@@ -64,8 +64,8 @@ internal static class CeresFlightActorMetadataVerification
                 case CeresRearViewActorRole.RearStars:
                     PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear stars attributes");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActiveFrameBehavior.NativeAddress,
-                        "rear stars initializer callback override");
+                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), CinematicActorNativeMotions.CeresRearView[role],
+                        "rear stars initializer routine override: the vortex's drift");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         (-actor.HorizontalDelta).Fraction, "rear stars speed magnitude");
                     AssertTrue(!actor.WrapX, "rear stars use signed non-wrapping motion");
@@ -82,7 +82,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
         AssertEqual(front.Animation, CeresFlightActors.RearViewActor(CeresRearViewActorRole.RearStars).Animation, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
-            front.ActiveFrameBehavior.NativeAddress, "front stars preserve the definition callback");
+            CinematicActorNativeMotions.CeresFrontStars, "front stars preserve the definition's routine, the rush toward Ceres");
         AssertEqual(SignedSixteenSixteen.Zero, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
         static void VerifyActor(

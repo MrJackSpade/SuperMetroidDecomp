@@ -36,7 +36,6 @@ internal sealed class IntroEggParticle
             IntroEggMotion.FragmentInitialPosition(fragment),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: definition.Animation);
-        sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
     /// <summary>Applies 1/65536-pixel fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
@@ -44,11 +43,6 @@ internal sealed class IntroEggParticle
     {
         if (!sprite.IsActive)
             return;
-        if (sprite.FrameBehavior != IntroEggParticleActors.Particle(fragment).FrameBehavior)
-        {
-            throw new InvalidDataException(
-                $"Intro egg particle names invalid frame behaviour {sprite.FrameBehavior}.");
-        }
 
         // The piece flies sideways at its own speed and vertically at its fall's speed for the updates it has flown.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));

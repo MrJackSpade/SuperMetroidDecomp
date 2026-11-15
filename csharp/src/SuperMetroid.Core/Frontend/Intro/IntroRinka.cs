@@ -15,14 +15,19 @@ internal sealed class IntroRinka
             launch.Position,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: IntroRinkaDefinitions.RinkaActor.Animation);
-        Sprite.InstallFrameBehavior(IntroRinkaDefinitions.RinkaActor.FrameBehavior);
     }
 
     /// <summary>The sprite showing the Rinka: its position and animation.</summary>
     internal IntroDiscoverySprite Sprite { get; }
 
     /// <summary>How the Rinka flies once it starts moving: only the first one launched strikes Samus, the others miss.</summary>
-    internal CinematicSpriteFrameBehavior Flight { get; }
+    internal IntroRinkaFlight Flight { get; }
+
+    /// <summary>Whether the Rinka has started moving: it holds still until its animation starts it.</summary>
+    internal bool IsMoving { get; private set; }
+
+    /// <summary>Starts the Rinka moving on its flight.</summary>
+    internal void StartMoving() => IsMoving = true;
 
     /// <summary>How far the Rinka moves sideways each update.</summary>
     internal SignedSixteenSixteen Drift { get; }

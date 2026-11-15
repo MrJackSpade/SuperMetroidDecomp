@@ -23,7 +23,6 @@ internal sealed class IntroScientistCutsceneState
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
             definition.Animation);
-        baby.InstallFrameBehavior(definition.FrameBehavior);
         Background = delivery ? new(32, 8) : new(0, -24);
     }
 
@@ -103,7 +102,12 @@ internal sealed class IntroScientistCutsceneState
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.WaitForFlyaway:
+            case CinematicSpriteCueKind.StartBodyFlight:
+            case CinematicSpriteCueKind.StartHeadFlight:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionColours:

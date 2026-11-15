@@ -49,8 +49,10 @@ internal static class IntroBabyActorDefinitionsVerification
         {
             IntroBabyActorDefinition actual = actors[index].Actor;
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.FrameBehavior.NativeAddress,
-                $"intro baby actor {index} pre-instruction callback");
+            ushort[] routines = [CinematicActorNativeMotions.MetroidEgg[MetroidEggBehavior.WaitsForSamus], CinematicActorNativeMotions.DeliveredBaby, CinematicActorNativeMotions.ExaminedBaby,
+                CinematicActorNativeMotions.ConfusedBaby[ConfusedBabyMotion.WaitingForHatch]];
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), routines[index],
+                $"intro baby actor {index} routine: the behaviour the actor starts with");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
                 $"intro baby actor {index} instruction list");
 

@@ -25,10 +25,9 @@ internal static class CeresInitialActorMetadataVerification
             CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(role);
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native destruction spawn LDY");
             // The spawn operand names the native definition this compiled actor must match.
-            VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor,
+            VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor, role,
                 preservesDefinitionCallback: role != CeresDestructionActorRole.Vortex, $"destruction {role}");
-            AssertEqual(SignedEightEight.Zero, actor.SlideAcceleration, "destruction actor has no slide acceleration");
-            AssertEqual((ushort)0, actor.SlideFrameBehavior.NativeAddress, "destruction actor has no slide callback");
+            AssertTrue(actor.SlideAcceleration is null, "destruction actor does not slide");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
         }
         Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActors.InitialActor(CeresDestructionActorRole.LargeAsteroids), new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "destruction large asteroids"));
@@ -37,12 +36,12 @@ internal static class CeresInitialActorMetadataVerification
             CeresDestructionActors.InitialActor(CeresDestructionActorRole.Vortex);
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(vortex.Colouring),
             "destruction vortex attributes");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActiveFrameBehavior.NativeAddress,
-            "destruction vortex no-op callback override");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex],
+            "destruction vortex routine override: it holds still");
 
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc292), "stationary vortex parameter opcode");
         AssertEqual((ushort)0, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
-        AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | vortex.ActiveFrameBehavior.NativeAddress), "stationary vortex RTS");
+        AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex]), "stationary vortex RTS");
         AssertEqual(SignedSixteenSixteen.Zero, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
         foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<CeresDestructionActorRole>().Length, int.MaxValue })
@@ -53,6 +52,7 @@ internal static class CeresInitialActorMetadataVerification
             ISnesAddressSpace source,
             ushort definitionPointer,
             CeresDestructionActorDefinition actor,
+            CeresDestructionActorRole role,
             bool preservesDefinitionCallback,
             string name)
         {
@@ -60,8 +60,8 @@ internal static class CeresInitialActorMetadataVerification
             // The asteroid initializers keep the definition's pre-instruction; only the
             // vortex's parameter-zero initializer replaces it with the no-op override.
             if (preservesDefinitionCallback)
-                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), actor.ActiveFrameBehavior.NativeAddress,
-                    $"{name} initializer preserves definition pre-instruction");
+                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.CeresDestruction[role],
+                    $"{name} initializer preserves the definition's routine, the role's drift");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation),
                 $"{name} instruction list");
         }

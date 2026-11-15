@@ -294,7 +294,7 @@ internal sealed class IntroCeresFlightState
         ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, 0);
     }
 
-    /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored timing and active frame behaviour.</summary>
+    /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Position16<ScreenPixels> start)
     {
         var actor = new IntroDiscoverySprite(
@@ -304,7 +304,6 @@ internal sealed class IntroCeresFlightState
         {
             HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
         };
-        actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }
 
@@ -393,12 +392,6 @@ internal sealed class IntroCeresFlightState
         foreach ((CeresRearViewActorRole role, IntroDiscoverySprite actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
-            if (actor.FrameBehavior != definition.ActiveFrameBehavior)
-            {
-                throw new InvalidDataException(
-                    $"The Ceres flight's {role} actor names invalid frame behaviour " +
-                    $"{actor.FrameBehavior}.");
-            }
             if (definition.WrapX)
                 AddWrappedX(actor, definition.HorizontalDelta);
             else
@@ -427,13 +420,6 @@ internal sealed class IntroCeresFlightState
     {
         // The star field adds 128/256 to a signed 1/256-pixel speed, then applies that same growing delta to
         // the star actor and both turning-floor offsets. This is why the ship rush feels diagonal.
-        if (stars.FrameBehavior !=
-            CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
-        {
-            throw new InvalidDataException(
-                $"Ceres front stars name invalid frame behaviour " +
-                $"{stars.FrameBehavior}.");
-        }
         // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
         // pixels an update one way to at most twelve the other.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;

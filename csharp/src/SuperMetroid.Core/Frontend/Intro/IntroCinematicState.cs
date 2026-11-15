@@ -540,7 +540,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // position during this same frame, exactly as the game does.
         if (CurrentFlashbackMotherBrain is not null)
         {
-            CurrentFlashbackMotherBrain.RunFrameBehavior(
+            CurrentFlashbackMotherBrain.RunBehavior(
                 frameCounter,
                 crossfadeCounter.RemainingFrames);
             // Deleting Mother Brain after the page-two crossfade hides Samus from

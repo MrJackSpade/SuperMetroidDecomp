@@ -140,7 +140,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects = new ScreenSprites();
         RestartColourEffects();
 
-        // The Year object's frame behaviour forces full brightness on the first
+        // The Year object forces full brightness on the first
         // processing frame; its position and colouring come from its definition.
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
@@ -243,19 +243,19 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.LowerPan:
-                panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
+                panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
                 if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.LowerPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.UpperPan:
-                panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
+                panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
                 if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.UpperPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.DownwardPan:
-                panPosition = panPosition.WithY(panPosition.Y.MovedBy(TitleSequenceDefinitions.Scenes.PanVelocity));
+                panPosition = panPosition.WithY(panPosition.Y + TitleSequenceDefinitions.Scenes.PanVelocity);
                 if (panPosition.Y.WholePixels >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;

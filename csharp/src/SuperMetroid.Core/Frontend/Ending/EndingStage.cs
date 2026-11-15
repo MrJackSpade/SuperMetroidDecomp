@@ -81,7 +81,7 @@ internal sealed class EndingStage
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
         if (role == EndingSpriteRole.ExplosionStarsLeft)
-            added.Sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway);
+            added.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
         return added;
     }
 
@@ -127,7 +127,7 @@ internal sealed class EndingStage
         Backdrops ?? throw new InvalidOperationException("Ending scenes require their installed backdrops.");
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
-    internal void StepEndingSpriteFrameBehavior(EndingSprite wrapper)
+    internal void StepEndingSpriteMotion(EndingSprite wrapper)
     {
         IntroDiscoverySprite sprite = wrapper.Sprite;
         switch (wrapper.Role)
@@ -149,9 +149,9 @@ internal sealed class EndingStage
                 break;
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
-                // The right starfield runs no flyaway frame behaviour until its animation installs one.
-                if (sprite.FrameBehavior is CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway or CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving)
-                    StepFlyawayStars(wrapper, sprite.FrameBehavior.Value);
+                // The right starfield does not wait for the flyaway until its animation has it wait.
+                if (wrapper.StarsMotion is { } starsMotion)
+                    StepFlyawayStars(wrapper, starsMotion);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -160,7 +160,7 @@ internal sealed class EndingStage
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
-            // These actors run no frame behaviour.
+            // These actors have no motion of their own.
             case EndingSpriteRole.SideCloudRightLeading:
             case EndingSpriteRole.SideCloudLeftLeading:
             case EndingSpriteRole.SideCloudRightTrailing:
@@ -183,59 +183,24 @@ internal sealed class EndingStage
     }
 
     /// <summary>Starts starfield motion at flyaway and advances its velocity, which slows on every update.</summary>
-    private void StepFlyawayStars(EndingSprite stars, CinematicSpriteFrameBehavior frameBehavior)
+    private void StepFlyawayStars(EndingSprite stars, EndingStarsMotion motion)
     {
         IntroDiscoverySprite sprite = stars.Sprite;
-        switch (frameBehavior)
+        switch (motion)
         {
-            case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
+            case EndingStarsMotion.WaitingForFlyaway:
                 if (Phase == EndingCreditsPhase.PlanetEscapeFast)
                 {
-                    sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving);
+                    stars.StarsMotion = EndingStarsMotion.Moving;
                     stars.FlyawayVelocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
                 }
                 break;
-            case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
+            case EndingStarsMotion.Moving:
                 stars.FlyawayVelocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
                 sprite.Position = sprite.Position.WithX(sprite.Position.X.MovedBy(stars.FlyawayVelocity));
                 break;
-            case CinematicSpriteFrameBehavior.NoOp:
-            case CinematicSpriteFrameBehavior.MetroidEgg:
-            case CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade:
-            case CinematicSpriteFrameBehavior.MetroidEggParticle:
-            case CinematicSpriteFrameBehavior.MetroidEggSlimeDrops:
-            case CinematicSpriteFrameBehavior.BabyMetroidBeingDelivered:
-            case CinematicSpriteFrameBehavior.BabyMetroidBeingExamined:
-            case CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading:
-            case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
-            case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
-            case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
-            case CinematicSpriteFrameBehavior.ConfusedBabyHatched:
-            case CinematicSpriteFrameBehavior.ConfusedBabyIdling:
-            case CinematicSpriteFrameBehavior.ConfusedBabyDancing:
-            case CinematicSpriteFrameBehavior.CeresStars:
-            case CinematicSpriteFrameBehavior.CeresLargeAsteroids:
-            case CinematicSpriteFrameBehavior.CeresUnderAttack:
-            case CinematicSpriteFrameBehavior.CeresSmallAsteroid:
-            case CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex:
-            case CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp:
-            case CinematicSpriteFrameBehavior.CeresExplosionSpawnerRepeating:
-            case CinematicSpriteFrameBehavior.CeresExplosion:
-            case CinematicSpriteFrameBehavior.Zebes:
-            case CinematicSpriteFrameBehavior.ZebesSlideSceneAway:
-            case CinematicSpriteFrameBehavior.ZebesStarsCompletionWait:
-            case CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway:
-            case CinematicSpriteFrameBehavior.ZebesStarsWait:
-            case CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway:
-            case CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf:
-            case CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf:
-            case CinematicSpriteFrameBehavior.RewardSuitlessUpperNoOp:
-            case CinematicSpriteFrameBehavior.RewardBodyFlight:
-            case CinematicSpriteFrameBehavior.RewardHeadFlight:
-            case CinematicSpriteFrameBehavior.RewardLanding:
             default:
-                throw new InvalidOperationException(
-                    $"Flyaway stars do not run {frameBehavior}.");
+                throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {motion}.");
         }
     }
 

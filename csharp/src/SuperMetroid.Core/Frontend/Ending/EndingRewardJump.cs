@@ -32,6 +32,10 @@ internal sealed class EndingRewardJump
     private readonly IntroDiscoverySprite body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly IntroDiscoverySprite? head;
+    /// <summary>Whether the suited jump's head flies, as its animation starts it doing ahead of the body.</summary>
+    private bool headFlying;
+    /// <summary>How Samus's body moves: rising on her jump, falling back, or none before the jump and after landing.</summary>
+    private EndingRewardBodyMotion? bodyMotion;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     internal SignedSixteenSixteen Velocity { get; private set; }
     /// <summary>Whether the shooting cue has requested the ending screen capture.</summary>
@@ -54,18 +58,17 @@ internal sealed class EndingRewardJump
     public void Step()
     {
         // Fixed slots put the head above the body in the descending step.
-        // Both frame behaviours use the shared Samus velocity, so each call accelerates it.
+        // Both motions use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
-            if (head.FrameBehavior == CinematicSpriteFrameBehavior.RewardHeadFlight)
+            if (headFlying)
             {
                 Move(head);
                 if (CoordinateAxis.AsSigned(head.WholePosition.Y) < EndingRewardJumpDefinitions.FallStartY) head.Delete();
             }
             head.Step(HandleCue);
         }
-        CinematicSpriteFrameBehavior? bodyFrameBehavior = body.FrameBehavior;
-        if (bodyFrameBehavior == CinematicSpriteFrameBehavior.RewardBodyFlight)
+        if (bodyMotion == EndingRewardBodyMotion.Rising)
         {
             Move(body);
             if (BodyY < EndingRewardJumpDefinitions.FallStartY)
@@ -73,17 +76,17 @@ internal sealed class EndingRewardJump
                 Falling = true;
                 body.SetColouring(EndingShades.Drawn(FallingColouring));
                 body.Start(FallingAnimation);
-                body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
+                bodyMotion = EndingRewardBodyMotion.Falling;
             }
         }
-        else if (bodyFrameBehavior == CinematicSpriteFrameBehavior.RewardLanding)
+        else if (bodyMotion == EndingRewardBodyMotion.Falling)
         {
             Move(body);
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
                 body.Start(LandingAnimation);
-                body.InstallFrameBehavior(null);
+                bodyMotion = null;
             }
         }
         body.Step(HandleCue);
@@ -107,7 +110,7 @@ internal sealed class EndingRewardJump
         actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(Velocity));
     }
 
-    /// <summary>Handles launch, head placement, and the shoot event the jump animations publish.</summary>
+    /// <summary>Handles launch, head placement, the flights and the shoot event the jump animations publish.</summary>
     private void HandleCue(CinematicSpriteCueKind cue)
     {
         switch (cue)
@@ -125,7 +128,16 @@ internal sealed class EndingRewardJump
                 body.SetColouring(EndingShades.Drawn(ShootingColouring));
                 ShotRequested = true;
                 return;
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartBodyFlight:
+                bodyMotion = EndingRewardBodyMotion.Rising;
+                return;
+            case CinematicSpriteCueKind.StartHeadFlight:
+                headFlying = true;
+                return;
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.WaitForFlyaway:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
             case CinematicSpriteCueKind.FadeExplosionColours:
@@ -174,7 +186,6 @@ internal sealed class EndingRewardJump
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
             authored.Animation);
-        actor.InstallFrameBehavior(authored.FrameBehavior);
         return actor;
     }
 }

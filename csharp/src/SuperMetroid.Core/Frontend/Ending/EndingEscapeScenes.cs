@@ -97,8 +97,8 @@ internal sealed class EndingEscapeScenes
         {
             EndingSprite wrapper = sprites[place];
             if (!wrapper.Sprite.IsActive) continue;
-            _stage.StepEndingSpriteFrameBehavior(wrapper);
-            wrapper.Sprite.Step(HandleSpriteCue);
+            _stage.StepEndingSpriteMotion(wrapper);
+            wrapper.Sprite.Step(cue => HandleSpriteCue(wrapper, cue));
             place = sprites.IndexOf(wrapper);
             if (place < 0)
                 throw new InvalidOperationException($"The ending's {wrapper.Role} actor was replaced by its own step.");
@@ -106,11 +106,16 @@ internal sealed class EndingEscapeScenes
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    /// <summary>Carries out the ending sprite animations' cues that spawn actors, trigger colour effects or advance the cinematic phase.</summary>
-    private void HandleSpriteCue(CinematicSpriteCueKind cue)
+    /// <summary>Carries out the ending sprite animations' cues that spawn actors, start the stars' wait, trigger colour effects or advance the cinematic phase.</summary>
+    private void HandleSpriteCue(EndingSprite wrapper, CinematicSpriteCueKind cue)
     {
         switch (cue)
         {
+            case CinematicSpriteCueKind.WaitForFlyaway:
+                // The right-hand stars wait for the flyaway to carry them away.
+                wrapper.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
+                return;
+
             case CinematicSpriteCueKind.FadeExplosionColours:
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
@@ -191,7 +196,11 @@ internal sealed class EndingEscapeScenes
                 _stage.Phase = EndingCreditsPhase.FadeOutToCredits;
                 return;
 
-            case CinematicSpriteCueKind.SetFrameBehavior:
+            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
+            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case CinematicSpriteCueKind.StartRepeatingExplosions:
+            case CinematicSpriteCueKind.StartBodyFlight:
+            case CinematicSpriteCueKind.StartHeadFlight:
             case CinematicSpriteCueKind.FadeInZebesText:
             case CinematicSpriteCueKind.FadeOutZebesText:
             case CinematicSpriteCueKind.GreyOut:

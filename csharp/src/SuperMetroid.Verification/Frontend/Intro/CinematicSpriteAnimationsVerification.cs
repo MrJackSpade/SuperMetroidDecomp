@@ -138,8 +138,8 @@ internal static class CinematicSpriteAnimationsVerification
                     break;
                 case SharedWord.SetFrameBehavior:
                     var install = AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event>(Next(shared.ToString()), $"{at}: pre-instruction install");
-                    AssertEqual(CinematicSpriteCueKind.SetFrameBehavior, install.Raised.Kind, $"{at}: pre-instruction cue");
-                    AssertEqual(operand, install.Raised.FrameBehavior.NativeAddress, $"{at}: pre-instruction");
+                    AssertTrue(CinematicActorNativeMotions.CueInstalling.TryGetValue(operand, out CinematicSpriteCueKind starting), $"{at}: routine ${operand:X4} starts a named motion");
+                    AssertEqual(starting, install.Raised.Kind, $"{at}: the cue starting the routine's motion");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.SetCounter:
@@ -167,7 +167,7 @@ internal static class CinematicSpriteAnimationsVerification
 
     /// <summary>
     /// Plays the animation of <paramref name="program"/> through the real actor beside an independent reader of its native list, comparing
-    /// liveness, the shown spritemap, the pre-instruction, the loop timer and each update's owner cues; returns the updates.
+    /// liveness, the shown spritemap, the loop timer and each update's owner cues, a routine install among them; returns the updates.
     /// </summary>
     private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
     {
@@ -184,7 +184,6 @@ internal static class CinematicSpriteAnimationsVerification
             if (!native.Active)
                 return update + 1;
             AssertEqual(native.Spritemap, CinematicSpritePoseSpritemaps.Of(actor.Pose), $"{at}: spritemap");
-            AssertEqual(native.FrameBehavior, actor.FrameBehaviorPointer, $"{at}: pre-instruction");
             AssertEqual(native.Timer.RawValue, actor.LoopCountdown.RemainingFrames, $"{at}: loop timer");
             AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");
         }
@@ -202,8 +201,6 @@ internal static class CinematicSpriteAnimationsVerification
         internal bool Active { get; private set; } = true;
         /// <summary>The latest frame's spritemap.</summary>
         internal ushort Spritemap { get; private set; }
-        /// <summary>The installed pre-instruction.</summary>
-        internal ushort FrameBehavior { get; private set; }
         /// <summary>The goto timer word.</summary>
         internal WrappingCountdown Timer { get; private set; }
         /// <summary>The owner instructions the latest update ran.</summary>
@@ -244,7 +241,8 @@ internal static class CinematicSpriteAnimationsVerification
                     case SharedWord.Sleep:
                         return;
                     case SharedWord.SetFrameBehavior:
-                        FrameBehavior = operand;
+                        // Installing a routine starts its motion, which the actor's owner runs on the cue Core raises.
+                        Cues.Add(CinematicActorNativeMotions.CueInstalling[operand]);
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case SharedWord.GoTo:

@@ -20,7 +20,7 @@ internal static class IntroCaretHidingVerification
         int shownDraws = intro.PrepareIllustratedPageSprites().Draws.Length;
         AssertTrue(shownDraws > 0, "the shown caret is drawn");
 
-        objects.PlaceCaretOffScreen();
+        objects.HideCaret();
         for (int frame = 0; frame < 3; frame++)
         {
             AssertTrue(objects.CaretPose is null, $"the hidden caret shows no pose on hidden frame {frame}");

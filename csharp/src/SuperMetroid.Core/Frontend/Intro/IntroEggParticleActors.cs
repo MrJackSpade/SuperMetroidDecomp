@@ -13,7 +13,6 @@ internal static class IntroEggParticleActors
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
     public static CinematicActorDefinition Particle(IntroEggShellFragment fragment) =>
-        new(CinematicSpriteFrameBehavior.MetroidEggParticle,
-            ShellFragmentAnimations.TryGetValue(fragment, out CinematicSpriteSegment animation)
+        new(ShellFragmentAnimations.TryGetValue(fragment, out CinematicSpriteSegment animation)
                 ? animation : throw new ArgumentOutOfRangeException(nameof(fragment)));
 }

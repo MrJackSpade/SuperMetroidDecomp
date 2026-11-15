@@ -175,7 +175,7 @@ internal sealed class IntroCinematicObjectSystem
         IntroFinishRequested = false;
         ResetCaret();
 
-        // The eye's frame behaviour observes the page-six cinematic phase and permanently changes the eye
+        // The eye observes the page-six cinematic phase and permanently changes the eye
         // object to its closed/half-open/deadpan animation.
         EyePlayback = new AnimationPlayback<IntroEyeSegment>(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing), AnimationPlace.StartOfAnimation);
         EyeFrameHold = 1;

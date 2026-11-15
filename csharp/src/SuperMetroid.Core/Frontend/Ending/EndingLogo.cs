@@ -36,7 +36,6 @@ internal sealed class EndingLogo
                 EndingLogoActors.Origin(i),
                 EndingShades.Drawn(EndingLogoDefinitions.Colouring),
                 definition.Animation);
-            actors[i].InstallFrameBehavior(definition.FrameBehavior);
         }
         Ensure.NotNull(stage).Colours.Flash(EndingFlash.LogoBackground, null);
         stage.LoadColours(EndingColourLoad.LogoInitial);

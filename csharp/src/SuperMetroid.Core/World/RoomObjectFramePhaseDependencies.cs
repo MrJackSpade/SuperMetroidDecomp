@@ -18,26 +18,24 @@ internal sealed record RoomObjectFramePhaseDependencies
     /// <summary>The options whose controller bindings the message panels name.</summary>
     public required GameplayOptions Options { get; init; }
 
-    /// <summary>Enemy room effects.</summary>
+    /// <summary>The room effects room objects request of the enemies, such as the gates' projectiles.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
-    /// <summary>Freeze.</summary>
+    /// <summary>Whether gameplay time is frozen, which holds the room objects.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>Message box.</summary>
+    /// <summary>The message box an item or station opens.</summary>
     public required GameplayMessageBoxState MessageBox { get; init; }
 
-    /// <summary>Message boxes.</summary>
+    /// <summary>What follows a message box closing, such as a save or a suit's transformation, which the room objects hand on.</summary>
     public required MessageBoxFlow MessageBoxes { get; init; }
 
-    /// <summary>Player.</summary>
+    /// <summary>Samus, whom the room objects touch, and whether the X-ray scope holds the room objects still.</summary>
     public required SamusFrameState Player { get; init; }
 
-
-    /// <summary>Room.</summary>
+    /// <summary>The loaded room, whose level, camera and scrolling the room objects change.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Suit pickup.</summary>
+    /// <summary>The suit transformation, which keeps a second suit from replacing one already running.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
-
 }

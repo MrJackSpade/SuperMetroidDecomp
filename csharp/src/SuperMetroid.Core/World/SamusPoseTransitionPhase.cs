@@ -107,12 +107,12 @@ internal sealed class SamusPoseTransitionPhase
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             SamusAerialPoseTransitions.PublishNormalJumpPoseShotDirection(samus, _playerActions.NewlyPressed);
 
-        // The pose-history shift runs after consuming any transition slot,
-        // including a self-transition. A frame with no selected transition
-        // does not shift it. Keep this after final collision/pose selection.
-        // The grapple launch applies its transitional
-        // slot early and clears the ordinary input phase's input. It still reaches this
-        // same history epilogue, once, after the forced launch pose.
+        // The pose history moves on after any chosen pose transition takes effect,
+        // including a transition to the same pose. An update that chose no transition
+        // does not move it. Keep this after the final collision and pose choice.
+        // The grapple launch applies its transition pose early and clears the ordinary
+        // input phase's input. It still reaches this same history step, once, after the
+        // forced launch pose.
         // X-ray's activation installs its pose and movement early and clears
         // the ordinary input phase's targets. Preserve its final history commit here.
         if (animationTransitionApplied || frame.XrayActivatedThisFrame || _player.LastGrappleMovement is { WallJumpStarted: true } ||
@@ -169,7 +169,7 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Expiry still permits this frame's movement and animation. Its
-        // transitional slot wins over the ordinary input selected in the input phase,
+        // transition pose wins over the ordinary input chosen in the input phase,
         // even when a damage boost has already restored normal movement.
         // With the animation's transition pose already installed, finishing
         // the hit keeps that pose and ALSO clears the hurt state.
@@ -917,13 +917,12 @@ internal sealed class SamusPoseTransitionPhase
                     targetPose);
                 break;
             default:
-                // The movement-coverage check exhaustively audits every active retail
-                // transition pair entering this step. An authored match not
-                // owned by one of the explicit families above means the pose
-                // table or state was mixed from an incompatible revision.
+                // Every pose transition the player's input can choose on the ground
+                // belongs to one of the families above; one that does not means the
+                // installed pose transitions and Samus's state disagree.
                 throw new InvalidDataException(
                     $"Grounded input transition {frame.PoseAtFrameStart} -> " +
-                    $"{targetPose} escaped the exhaustive retail transition list.");
+                    $"{targetPose} belongs to no family of grounded transitions.");
         }
     }
 

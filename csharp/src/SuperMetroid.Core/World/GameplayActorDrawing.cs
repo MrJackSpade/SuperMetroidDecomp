@@ -216,8 +216,8 @@ internal sealed class GameplayActorDrawing
                 // shinespark crashes. Unlike the default drawing, it intentionally
                 // omits charging flare/audio, atmosphere, both arm-cannon priority
                 // paths, ordinary departing speed echoes, and grapple graphics. It
-                // draws the live body first, then crash slot one before slot zero on
-                // odd frames. The shared projectile/trail tail below still follows.
+                // draws the live body first, then the crash's second echo before its
+                // first on odd frames. The shared projectile/trail tail below still follows.
                 _player.Samus.Presentation.Draw(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,

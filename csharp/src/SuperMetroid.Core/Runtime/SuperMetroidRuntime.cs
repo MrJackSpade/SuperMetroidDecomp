@@ -50,34 +50,34 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     internal DoorTransitionFrameCounting DoorFrameCounting { get; } = new();
 
-    /// <summary>The <see cref="GameplayTimeFreeze"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Whether gameplay time is frozen, and whether the X-ray scope freezes it too.</summary>
     internal GameplayTimeFreeze Freeze { get; }
 
-    /// <summary>The <see cref="RoomObjectFramePhase"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The room objects' part of each update: the room's objects run, and an item's or station's message box opens.</summary>
     internal RoomObjectFramePhase RoomObjectPhase { get; }
 
-    /// <summary>The <see cref="RoomMainRoutines"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The rooms' own behaviour each update: Ceres's falling debris, Crocomire's comeback and the block animations.</summary>
     internal RoomMainRoutines RoomMains { get; }
 
-    /// <summary>The <see cref="GameplayHudSetup"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Sets up the HUD when gameplay starts.</summary>
     internal GameplayHudSetup HudSetup { get; }
 
-    /// <summary>The <see cref="BackgroundScrollPhase"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Places the room's foreground and background layers for the camera each update.</summary>
     internal BackgroundScrollPhase BackgroundPhase { get; }
 
-    /// <summary>The <see cref="FrameBoundary"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The start of each update: the previous update's frame is shown, the controllers are read and the frame counters advance.</summary>
     internal AcceptedFrameBoundary FrameBoundary { get; }
 
-    /// <summary>The <see cref="MessageBoxFlow"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>What follows a message box closing: its selection sound, a save, a suit's transformation or the gunship's exit.</summary>
     internal MessageBoxFlow MessageBoxes { get; }
 
-    /// <summary>The <see cref="DeathSequenceRunner"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Samus's death: the update she dies on and the sequence that follows.</summary>
     internal DeathSequenceRunner DeathSequence { get; }
 
-    /// <summary>The <see cref="SamusFramePhases"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Samus's part of each update: her input, movement and animation, the grapple beam and the X-ray scope.</summary>
     internal SamusFramePhases SamusPhases { get; }
 
-    /// <summary>The <see cref="RoomLoader"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Loads games, rooms and doors: each room's level, camera, effects, room objects and enemies.</summary>
     internal RoomLoader RoomLoader { get; }
     /// <summary>Applies room-scoped enemy effects before frame owners advance.</summary>
     internal EnemyRoomEffects EnemyRoomEffects { get; }
@@ -95,28 +95,28 @@ internal sealed class SuperMetroidRuntime
     internal void AttachSessionAudio(AudioQueues audio) =>
         AudioRequests.AttachTo(new SessionGameplayAudioQueues(audio, AttractSession));
 
-    /// <summary>The <see cref="GameplayDisplayState"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>What the gameplay display shows: the turning floor's and the elevator shaft's transforms and the latched scene.</summary>
     internal GameplayDisplayState Display { get; }
 
-    /// <summary>The <see cref="SamusFrameState"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Samus and what her update keeps: her poses, movement mode, colours and death sequence.</summary>
     internal SamusFrameState Player { get; }
 
-    /// <summary>The <see cref="ActiveRoomState"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The loaded room: its definition, door, level, camera and the parts each room builds, and the room being loaded.</summary>
     internal ActiveRoomState Room { get; }
 
-    /// <summary>The <see cref="FrameClock"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The game's frame counters, which time the enemies' cadences, the block animations and blinking.</summary>
     internal FrameClock Clock { get; }
 
-    /// <summary>The <see cref="GameplayOptions"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The in-game options: Moonwalk, Icon Cancel and the controller bindings.</summary>
     internal GameplayOptions Options { get; }
 
     /// <summary>The assists this runtime plays under, and the owner of its granted loadout and saved-encounter reset.</summary>
     internal ActiveAssists Assists { get; }
 
-    /// <summary>The <see cref="RoomObjectVisuals"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The installed pictures of the room objects' blocks, one set for each kind of room object.</summary>
     internal RoomObjectVisuals ShotBlockVisuals { get; }
 
-    /// <summary>The <see cref="GameplayActorDrawing"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Draws Samus, her shots and grapple beam and the enemies each update.</summary>
     internal GameplayActorDrawing ActorDrawing { get; }
 
     /// <summary>
@@ -156,25 +156,25 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     internal SamusOverreadServices SamusOverreads { get; }
 
-    /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>What the X-ray scope reveals of the room's hidden blocks and items.</summary>
     internal XrayReveal Xray { get; }
 
     /// <summary>The layers gameplay chooses to show and the accepted frame shows.</summary>
     internal GameplayScreenLayers ScreenLayers { get; }
 
-    /// <summary>The <see cref="EscapeRoomEffects"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The escapes' room effects: their setup as Samus enters a room and their step each update.</summary>
     internal EscapeRoomEffects EscapeEffects { get; }
 
-    /// <summary>The <see cref="EnemyFramePhase"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The enemies' part of each update: the enemies and their projectiles run, and Samus's shots hit them.</summary>
     internal EnemyFramePhase EnemyPhase { get; }
 
-    /// <summary>The <see cref="AttractDemoDriver"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The title screen's attract demo: its room and Samus, and the recorded input that plays her.</summary>
     internal AttractDemoDriver AttractDemo { get; }
 
-    /// <summary>The <see cref="DoorTransitionRunner"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>Door transitions: the door's setup, its scroll and fades, and the actors drawn while it runs.</summary>
     internal DoorTransitionRunner DoorTransition { get; }
 
-    /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
+    /// <summary>The installed artwork the runtime draws and colours from: rooms, skies, Samus, beams, the grapple beam and the map.</summary>
     internal RuntimeArtwork Artwork { get; }
 
     /// <summary>Creates the frame-steppable runtime under its assists, Samus in her starting shades.</summary>

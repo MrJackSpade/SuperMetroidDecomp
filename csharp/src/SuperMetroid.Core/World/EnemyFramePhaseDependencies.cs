@@ -9,39 +9,30 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="EnemyFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyFramePhaseDependencies
 {
-    /// <summary>Background scroll.</summary>
+    /// <summary>Where the layers stand, which takes Phantoon's body placement before the frame is shown.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
-
 
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }
 
-    /// <summary>Display.</summary>
+    /// <summary>What the gameplay display shows, whose turning floor the enemies read.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-
-    /// <summary>Enemy room effects.</summary>
+    /// <summary>The room effects the enemies request during their pass, applied after it.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
-
-    /// <summary>Freeze.</summary>
+    /// <summary>Whether gameplay time is frozen, which holds the enemies.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>The frame clock.</summary>
+    /// <summary>The game's frame counters, which time enemies, animations and blinking.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>The frame's sprite description, which Ceres Ridley's in-main Baby draw publishes into.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
-
-    /// <summary>Player.</summary>
+    /// <summary>Samus, whose pose, motion and collisions the enemies read and change.</summary>
     public required SamusFrameState Player { get; init; }
 
-
-
-    /// <summary>Room.</summary>
+    /// <summary>The loaded room, whose level and camera the enemies read and whose camera they move.</summary>
     public required ActiveRoomState Room { get; init; }
-
-
-
 }

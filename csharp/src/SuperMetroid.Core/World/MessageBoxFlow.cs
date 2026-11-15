@@ -153,7 +153,7 @@ internal sealed class MessageBoxFlow
         if (_player.Samus is not null && !frameSuspended)
             _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen);
 
-        // The message returns directly to the suspended item's script.
+        // Closing the message resumes the item pickup that opened it.
         // Varia/Gravity immediately call their shared setup; for other items the
         // rest of the pickup already ran when the box opened.
         if (_pendingSuitPickup is { } pendingSuit)

@@ -10,25 +10,25 @@ namespace SuperMetroid.Core.World;
 [RoomLifetime]
 internal sealed record RoomObjectPopulationLoaderDependencies
 {
-    /// <summary>Bomb torizo hand.</summary>
+    /// <summary>The Bomb Torizo statue's hand, which sets up by whether the Torizo is beaten.</summary>
     public required BombTorizoHandObjects BombTorizoHand { get; init; }
 
-    /// <summary>Collectible roomObjects.</summary>
+    /// <summary>The room's items, which set up their pictures as they are placed.</summary>
     public required CollectibleObjects CollectibleObjects { get; init; }
 
-    /// <summary>Eye doors.</summary>
+    /// <summary>The eye doors, which set up once they have taken their places.</summary>
     public required EyeDoorObjects EyeDoors { get; init; }
 
-    /// <summary>Gates.</summary>
+    /// <summary>The gates, which set up their blocks as they are placed.</summary>
     public required GateObjects Gates { get; init; }
 
-    /// <summary>Mother brain glass.</summary>
+    /// <summary>Mother Brain's glass, which sets up as it is placed.</summary>
     public required MotherBrainGlassObjects MotherBrainGlass { get; init; }
 
     /// <summary>The room's room-object places.</summary>
     public required RoomObjectPlaceList Places { get; init; }
 
-    /// <summary>Speed booster escape.</summary>
+    /// <summary>The Speed Booster's escape, which sets up when its room places it.</summary>
     public required SpeedBoosterEscapeObjects SpeedBoosterEscape { get; init; }
 
     /// <summary>Maridia's glass tube, which population sets up.</summary>

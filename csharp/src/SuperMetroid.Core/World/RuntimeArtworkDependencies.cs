@@ -7,17 +7,15 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="RuntimeArtwork"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record RuntimeArtworkDependencies
 {
-
-
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
 
     /// <summary>The loaded room, whose active escape typewriters follow a rebound escape-warning text.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Hud.</summary>
+    /// <summary>The HUD, which takes its installed pictures.</summary>
     public required HudState Hud { get; init; }
 
-    /// <summary>Player.</summary>
+    /// <summary>Samus, who takes her installed colours, pictures and grapple beam.</summary>
     public required SamusFrameState Player { get; init; }
 }

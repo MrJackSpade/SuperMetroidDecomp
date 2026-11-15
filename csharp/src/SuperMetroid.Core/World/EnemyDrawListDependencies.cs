@@ -9,22 +9,22 @@ namespace SuperMetroid.Core.World;
 [RoomLifetime]
 internal sealed record EnemyDrawListDependencies
 {
-    /// <summary>Dead torizo behavior.</summary>
+    /// <summary>The drained Torizo, whose heap of sand is drawn after the other enemies.</summary>
     public required DeadTorizoBehavior DeadTorizoBehavior { get; init; }
 
-    /// <summary>Frame context.</summary>
+    /// <summary>The enemy pass's frame counter, which times an enemy's hit flash.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
     /// <summary>The shared enemy animation.</summary>
     public required EnemyAnimationPlayer AnimationPlayer { get; init; }
 
-    /// <summary>Mother brain behavior.</summary>
+    /// <summary>Mother Brain, whose last parts are drawn after the other enemies.</summary>
     public required MotherBrainBehavior MotherBrainBehavior { get; init; }
 
-    /// <summary>Presentation.</summary>
+    /// <summary>How the room's enemies look, which shows each enemy's frame.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The room's enemy artwork, which every enemy frame is drawn from.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Told of each enemy the draw pass draws, which a Puyo's later ceiling strike reads.</summary>

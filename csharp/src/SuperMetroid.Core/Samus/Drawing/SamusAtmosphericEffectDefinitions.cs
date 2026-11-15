@@ -47,4 +47,10 @@ internal static class SamusAtmosphericEffectDefinitions
             RoomDefinitions.Seaweed,
             RoomDefinitions.TourianEyeDoor,
         }.ToFrozenSet();
+
+    /// <summary>
+    /// The room Y of the waterline in the Wrecked Ship entrance (the West Ocean): above it Samus's landings and footsteps
+    /// are dry, at and below it they splash.
+    /// </summary>
+    internal const int WreckedShipEntranceWaterlineY = 944;
 }

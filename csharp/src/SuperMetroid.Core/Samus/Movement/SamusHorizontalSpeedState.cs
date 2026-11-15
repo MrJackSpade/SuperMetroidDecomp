@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -19,10 +19,19 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>The water speeds Draygon's hold and special movement take in air, which have no speeds of their own there.</summary>
     private readonly WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> _waterSpeedsInAir;
 
+    /// <summary>How the boost restarts after its echo and how a run counted off an empty countdown takes it down a stage.</summary>
+    private readonly BoostRestartAfterEcho _boostRestart;
+
     /// <summary>Creates Samus's horizontal speeds, at rest and moving by air's speeds.</summary>
-    /// <param name="waterSpeedsInAir">Her compatibility service for the movements that take water's speeds in air.</param>
-    public SamusHorizontalSpeedState(WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> waterSpeedsInAir) =>
-        _waterSpeedsInAir = Ensure.NotNull(waterSpeedsInAir);
+    /// <param name="compatibility">
+    /// Her compatibility services: the movements that take water's speeds in air, and how her boost restarts.
+    /// </param>
+    internal SamusHorizontalSpeedState(SamusCompatibility compatibility)
+    {
+        Ensure.NotNull(compatibility);
+        _waterSpeedsInAir = compatibility.WaterSpeedsInAir;
+        _boostRestart = compatibility.BoostRestart;
+    }
 
     /// <summary>Samus's base horizontal speed, whole and fraction.</summary>
     public UnsignedSixteenSixteen BaseSpeed { get; set; }
@@ -38,15 +47,15 @@ public sealed class SamusHorizontalSpeedState
     public bool HasRunningMomentum { get; set; }
 
     /// <summary>
-    /// Speed Booster progress: the boost stage and the running cadence that advances it. Stages zero through four are
-    /// reached by running; No-Speed-Booster Dash keeps it zero. The cadence borrows from the stage when it is counted
-    /// down at zero (<see cref="TryAdvanceSpeedBoosterAnimationStage"/>).
+    /// Speed Booster progress: the boost stage and the countdown of runs that advances it. Stages zero through four are
+    /// reached by running; No-Speed-Booster Dash keeps it zero. A run counted off an empty countdown takes the boost down
+    /// a stage (<see cref="TryAdvanceSpeedBoosterAnimationStage"/>, <see cref="BoostRestartAfterEcho"/>).
     /// </summary>
     public SamusSpeedBoostCounter SpeedBoostCounter { get; set; }
 
     /// <summary>
     /// Whether the boost is at its full stage: Speed Booster blocks, boost contact damage, the echoes, the full-boost
-    /// colouring and lava cancellation test it.
+    /// shade and lava cancellation test it.
     /// </summary>
     public bool IsActivelySpeedBoosting => SpeedBoostCounter.IsAtFullStage;
 
@@ -56,14 +65,14 @@ public sealed class SamusHorizontalSpeedState
     /// list's end; the Screw Attack cycle wraps to zero after its sixth step and the Speed Booster cycle holds its last,
     /// so no step passes five, and the setter rejects any other. Reset when Speed Booster momentum begins or cancels.
     /// </summary>
-    public int CyclePaletteStep
+    public int CycleShadeStep
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1, value);
+        set => field = Ensure.BetweenInclusive(0, SamusShadeDefinitions.FullBodyCycles.ScrewAttackSteps - 1, value);
     }
 
     /// <summary>Seeded to one on the first boosted running frame.</summary>
-    public int SpecialPaletteTimer { get; set; }
+    public int CycleShadeTimer { get; set; }
 
     /// <summary>
     /// Whether the Speed Booster's echo sound is playing: set before the echo sound's start request, cleared with the
@@ -72,18 +81,18 @@ public sealed class SamusHorizontalSpeedState
     public bool EchoSoundPlaying { get; set; }
 
     /// <summary>Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's.</summary>
-    public SamusContactDamageIndex ContactDamageIndex { get; set; }
+    public SamusBodyAttack BodyAttack { get; set; }
 
     /// <summary>
-    /// Publication of the immediate suit-colour copy performed by
+    /// Publication of the immediate suit shade restore performed by
     /// cancelling a speed boost. Movement owns the cancellation,
     /// while the runtime owns the colours, so this flag preserves the same-frame handoff
     /// without passing a renderer through every collision and pose step.
     /// </summary>
-    public bool NormalSuitPaletteRestoreRequested { get; private set; }
+    public bool SuitShadeRestoreRequested { get; private set; }
 
     /// <summary>
-    /// The speed echo cursor. Ordinary active Speed Booster echoes alternate between the first and second slots;
+    /// The speed echo cursor. Ordinary active Speed Booster captures alternate between the first and second echoes;
     /// cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
     public SpeedEchoCursor SpeedEchoCursor { get; private set; }
@@ -91,19 +100,19 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
     public bool SpeedEchoesDeparting => SpeedEchoCursor.IsDeparting;
 
-    /// <summary>Where the first Speed Booster echo stands, or none while its slot holds no echo.</summary>
+    /// <summary>Where the first Speed Booster echo stands, or none while there is no first echo.</summary>
     public Position16<RoomPixels>? FirstSpeedEchoPosition { get; private set; }
 
-    /// <summary>Where the second Speed Booster echo stands, or none while its slot holds no echo.</summary>
+    /// <summary>Where the second Speed Booster echo stands, or none while there is no second echo.</summary>
     public Position16<RoomPixels>? SecondSpeedEchoPosition { get; private set; }
 
     /// <summary>
-    /// Whole-pixel per-frame velocity of departing echo zero; only X moves. Cancellation
+    /// Whole-pixel per-frame velocity of the departing first echo; only X moves. Cancellation
     /// writes -8 while facing left or +8 otherwise.
     /// </summary>
     public Offset16<RoomPixels> FirstSpeedEchoVelocity { get; private set; }
 
-    /// <summary>Whole-pixel per-frame velocity of departing echo one; only X moves.</summary>
+    /// <summary>Whole-pixel per-frame velocity of the departing second echo; only X moves.</summary>
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
     /// <summary>The total horizontal speed produced by the total-speed calculation.</summary>
@@ -201,12 +210,12 @@ public sealed class SamusHorizontalSpeedState
             if (!HasRunningMomentum)
             {
                 // Starts the running momentum and the boost's colour timer and step.
-                // Colour writes themselves remain renderer work, but their
+                // Showing the colours remains drawing work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
-                SpecialPaletteTimer = 1;
-                CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
+                CycleShadeTimer = 1;
+                CycleShadeStep = 0;
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
 
             if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, BoostedExtraRunSpeedCap))
@@ -259,9 +268,9 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call takes the cue.</param>
     /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="requestEchoSound">
-    /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, which selects the
-    /// restart countdown and the first frame's cadence; or none when no queue answered (a Samus outside a session), when
-    /// the stage just stored selects them.
+    /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
+    /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown; or none when no
+    /// queue answered (a Samus outside a session), when the stage just stored picks them.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
@@ -279,32 +288,30 @@ public sealed class SamusHorizontalSpeedState
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 
-        // A cadence countdown already at zero borrows from the stage. A stage advances only
-        // when the decremented cadence countdown is zero; that test leaves the stage unchanged.
-        (SamusSpeedBoostCounter decremented, bool cadenceExpired) = SpeedBoostCounter.CountDownOneRun();
+        // A countdown already empty takes the boost down a stage. A stage advances only
+        // when the counted-down countdown is zero; that test leaves the stage unchanged.
+        (SamusSpeedBoostCounter decremented, bool countdownExpired) = SpeedBoostCounter.CountDownOneRun(_boostRestart);
         SpeedBoostCounter = decremented;
-        if (!cadenceExpired)
+        if (!countdownExpired)
             return false;
 
-        int? echoSelection = null;
+        SamusRunningCadence? cadenceAfterEcho = null;
         if (!SpeedBoostCounter.IsAtFullStage)
         {
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
             if (SpeedBoostCounter.IsAtFullStage)
             {
                 EchoSoundPlaying = true;
-                // What the echo's queue request reports, not the stage just stored, picks
-                // both the restart countdown and the first frame's cadence. Do not clamp
-                // it: a full queue picks the unauthored cadence.
+                // What the echo's queue request found, not the stage just stored, picks
+                // both the restart countdown and the first frame's cadence.
                 if (requestEchoSound() is { } admission)
-                    echoSelection = SamusRunningCadences.EchoQueueSelection(admission);
+                    cadenceAfterEcho = SamusRunningCadences.CadenceAfterEcho(_boostRestart, admission);
             }
         }
 
-        int stage = echoSelection ?? SpeedBoostCounter.Stage;
-        SpeedBoostCounter = SpeedBoostCounter.WithCadence(SamusRunningCadences.CountdownAfterAdvance(stage));
+        SamusRunningCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
+        SpeedBoostCounter = SpeedBoostCounter.WithCountdown(SamusRunningCadences.CountdownAfterAdvance(cadence));
 
-        SamusRunningCadence cadence = SamusRunningCadences.SpeedBoostCadence(stage);
         animationFrame = 0;
         animationFrameTimer = WrappingCountdown.Start(animationFrameBuffer)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
@@ -322,35 +329,35 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Runs the dry-room Speed Booster branch of the Screw Attack and
-    /// speed-boosting colouring.
+    /// Speed Booster glow.
     /// </summary>
-    /// <returns>True when this call copied authored colours into Samus's colours.</returns>
-    /// <param name="colours">Samus's colours, which the copied colours replace.</param>
+    /// <returns>True when this call copied an authored shade into Samus's colours.</returns>
+    /// <param name="colours">Samus's colours, which the copied shade replaces.</param>
     /// <param name="frame">What this update's suit colouring reads of Samus.</param>
-    internal bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame)
+    internal bool UpdateSpeedBoosterGlow(SamusColours colours, SpeedBoosterGlowFrame frame)
     {
         Ensure.NotNull(colours);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems);
+        bool shadeCopied = ApplyPendingSuitShadeRestore(colours, frame.EquippedItems);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // The stored shine's and the shinespark's suit colourings take priority. Cancellation's
         // immediate normal-colour copy above still occurs, but the ordinary colouring must not advance
         // its hidden four-frame Speed Booster cycle beneath the stored shine's or the shinespark's.
-        if (frame.SuppressActiveSpeedBoosterPalette)
-            return paletteCopied;
+        if (frame.SuppressActiveSpeedBoosterGlow)
+            return shadeCopied;
 
-        // Tests the suit-colour Gravity bit before it asks whether
+        // Tests for the Gravity Suit before it asks whether
         // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
         // return at once when submerged: the current colours, common
-        // timer, and colour-list offset all remain untouched. Gravity Suit bypasses this
+        // timer, and cycle shade step all remain untouched. Gravity Suit bypasses this
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
         // though the raw room-FX comparison still says the body is underwater. The caller
         // supplies the raw boundary result so this state owner does not invent a second,
         // subtly different reading of the room's FX values.
         bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
         if (!gravitySuitEquipped && frame.BottomBoundarySubmerged)
-            return paletteCopied;
+            return shadeCopied;
 
         bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
@@ -358,57 +365,57 @@ public sealed class SamusHorizontalSpeedState
             if (frame.AnimationFrame == 0)
             {
                 // Restarts only the colour cycle's step. Frame zero retains
-                // the already loaded normal suit colors; it does not emit a Screw colouring.
-                CyclePaletteStep = 0;
-                return paletteCopied;
+                // the already loaded normal suit colors; it does not emit a Screw shade.
+                CycleShadeStep = 0;
+                return shadeCopied;
             }
 
             if (frame.AnimationFrame >= 27)
             {
                 // From frame 27 onward Samus shows her normal suit colours.
                 // Frames 1..26 cycle below. Samus's colours are what the next shown frame displays.
-                SamusNormalSuitPalette.Load(colours, frame.EquippedItems);
+                SamusSuitShade.Show(colours, frame.EquippedItems);
                 return true;
             }
 
-            CopyAndAdvanceScrewAttackPalette(colours, suit);
+            CopyAndAdvanceScrewAttackGlow(colours, suit);
             return true;
         }
 
         if (frame.MovementType == SamusMovementType.WallJumping)
         {
             if (!screwAttackEquipped)
-                return paletteCopied;
+                return shadeCopied;
 
             if (frame.AnimationFrame < 3)
             {
                 // The wall-jump animation keeps the normal suit colours on frames 0..2;
                 // its Screw frames begin on frame three and share the same six colour steps.
-                CyclePaletteStep = 0;
-                return paletteCopied;
+                CycleShadeStep = 0;
+                return shadeCopied;
             }
 
-            CopyAndAdvanceScrewAttackPalette(colours, suit);
+            CopyAndAdvanceScrewAttackGlow(colours, suit);
             return true;
         }
 
         if (!IsActivelySpeedBoosting)
-            return paletteCopied;
+            return shadeCopied;
 
         // Zero and a count run past zero both reload four, though ordinary execution arrives with timer one.
-        if (--SpecialPaletteTimer > 0)
-            return paletteCopied;
+        if (--CycleShadeTimer > 0)
+            return shadeCopied;
 
-        SpecialPaletteTimer = 4;
+        CycleShadeTimer = 4;
 
-        SamusSpeedBoosterPalette.Apply(colours, SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
-            suit, CyclePaletteStep));
+        SamusSpeedBoosterGlow.Apply(colours, SamusFullBodyCycleShades.ReadActiveSpeedBoosterShade(
+            suit, CycleShadeStep));
 
         // The clamp is AFTER the copy. A step of four or five inherited from Screw Attack's
         // share of this step is held on the suit's own last Speed Booster shade, then pinned to the last step.
-        CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
-            ? SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
-            : CyclePaletteStep + 1;
+        CycleShadeStep = CycleShadeStep >= SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLastStep
+            ? SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLastStep
+            : CycleShadeStep + 1;
         return true;
     }
 
@@ -416,38 +423,38 @@ public sealed class SamusHorizontalSpeedState
     /// Defers restoring Samus's normal suit colours until just before this update's suit colourings run.
     /// The game's pose initialization performs this when leaving a Screw Attack spin family.
     /// </summary>
-    public void RequestNormalSuitPaletteRestore() => NormalSuitPaletteRestoreRequested = true;
+    public void RequestSuitShadeRestore() => SuitShadeRestoreRequested = true;
 
     /// <summary>
     /// Publishes the immediate suit copies requested by momentum cancellation and
-    /// pose initialization. These precede charge and special-colouring handling, which may
+    /// pose initialization. These precede charge and special colouring handling, which may
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
-    public bool ApplyPendingNormalSuitPaletteRestore(
+    public bool ApplyPendingSuitShadeRestore(
         SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
-        if (!NormalSuitPaletteRestoreRequested)
+        if (!SuitShadeRestoreRequested)
             return false;
 
-        SamusNormalSuitPalette.Load(colours, equippedItems);
-        NormalSuitPaletteRestoreRequested = false;
+        SamusSuitShade.Show(colours, equippedItems);
+        SuitShadeRestoreRequested = false;
         return true;
     }
 
-    /// <summary>Copies one of the six authored Screw Attack colourings and wraps its offset.</summary>
-    private void CopyAndAdvanceScrewAttackPalette(
+    /// <summary>Copies one of the six authored Screw Attack shades and wraps its offset.</summary>
+    private void CopyAndAdvanceScrewAttackGlow(
         SamusColours colours,
         SamusSuit suit)
     {
-        colours.ShowSuit(SamusShades.FullBodyCycle(SamusFullBodyCyclePalettes.ReadScrewAttackPalette(
-            suit, CyclePaletteStep)));
+        colours.ShowSuit(SamusShades.FullBodyCycle(SamusFullBodyCycleShades.ReadScrewAttackShade(
+            suit, CycleShadeStep)));
 
         // Steps 0 through 5 form the six-frame cycle. The comparison uses the current
-        // step, so the last wraps to zero only after its colours have been copied.
-        CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1
+        // step, so the last wraps to zero only after its shade has been copied.
+        CycleShadeStep = CycleShadeStep >= SamusShadeDefinitions.FullBodyCycles.ScrewAttackSteps - 1
             ? 0
-            : CyclePaletteStep + 1;
+            : CycleShadeStep + 1;
     }
 
     /// <summary>
@@ -455,7 +462,7 @@ public sealed class SamusHorizontalSpeedState
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
     /// <param name="gameTimeFrames">The gameplay clock's frames within its second, zero or more; only its four-frame phase is read and nothing stores it.</param>
-    /// <param name="position">Samus's whole-pixel room position sampled into the next echo slot.</param>
+    /// <param name="position">Samus's whole-pixel room position sampled into the echo the cursor names.</param>
     public bool CaptureSpeedEchoPosition(
         int gameTimeFrames,
         Position16<RoomPixels> position)
@@ -468,7 +475,7 @@ public sealed class SamusHorizontalSpeedState
             return false;
         }
 
-        if (SpeedEchoCursor.CapturesFirstSlot)
+        if (SpeedEchoCursor.CapturesFirstEcho)
             FirstSpeedEchoPosition = position;
         else
             SecondSpeedEchoPosition = position;
@@ -478,12 +485,12 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Removes both echoes, stops their departure and points the next capture at the first slot: a shinespark's
+    /// Removes both echoes, stops their departure and points the next capture at the first echo: a shinespark's
     /// directional launch, its crash's start and its crash's end do this, and so does a room load.
     /// </summary>
     public void ClearSpeedEchoes()
     {
-        SpeedEchoCursor = SpeedEchoCursor.FirstSlot;
+        SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
         FirstSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = null;
@@ -497,7 +504,7 @@ public sealed class SamusHorizontalSpeedState
     private void PublishBoostContactDamage()
     {
         if (IsActivelySpeedBoosting)
-            ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
+            BodyAttack = SamusBodyAttack.SpeedBooster;
     }
 
     /// <summary>
@@ -505,8 +512,8 @@ public sealed class SamusHorizontalSpeedState
     /// from alternating captured positions into the echoes' departure.
     /// </summary>
     /// <param name="facing">
-    /// Current pose-definition direction. The game treats exactly left (four) as facing left;
-    /// every other direction uses the right-facing +8 echo velocity branch.
+    /// Current pose facing. The game treats exactly <see cref="SamusFacingDirection.Left"/> as facing left;
+    /// every other facing uses the right-facing +8 echo velocity branch.
     /// </param>
     public void CancelRunningMomentum(SamusFacingDirection facing)
     {
@@ -514,9 +521,9 @@ public sealed class SamusHorizontalSpeedState
         {
             HasRunningMomentum = false;
             SpeedBoostCounter = default;
-            CyclePaletteStep = 0;
-            SpecialPaletteTimer = 0;
-            NormalSuitPaletteRestoreRequested = true;
+            CycleShadeStep = 0;
+            CycleShadeTimer = 0;
+            SuitShadeRestoreRequested = true;
         }
 
         // This block is intentionally outside the momentum test. Every caller can
@@ -543,18 +550,18 @@ public sealed class SamusHorizontalSpeedState
         {
             if (HasRunningMomentum && SpeedBoostCounter == default)
             {
-                SpecialPaletteTimer = 0;
-                CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
+                CycleShadeTimer = 0;
+                CycleShadeStep = 0;
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
             return;
         }
 
         HasRunningMomentum = false;
-        SpecialPaletteTimer = 0;
-        CyclePaletteStep = 0;
+        CycleShadeTimer = 0;
+        CycleShadeStep = 0;
         SpeedBoostCounter = default;
-        SpeedEchoCursor = SpeedEchoCursor.FirstSlot;
+        SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
         FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = null;
     }
@@ -616,25 +623,26 @@ public sealed class SamusHorizontalSpeedState
     /// This side effect really belongs to drawing in the game: Y approaches the live
     /// Samus center by two pixels, X advances by the signed eight-pixel velocity, and the
     /// echo is gone on the exact frame it crosses Samus. Returning false means the
-    /// slot is empty or crossed this frame and therefore must not be drawn.
+    /// echo is already gone or crossed this frame and therefore must not be drawn.
     /// </remarks>
     public bool AdvanceDepartingSpeedEcho(
-        int slot,
+        SpeedEcho echo,
         Position16<RoomPixels> samusPosition)
     {
         if (!SpeedEchoesDeparting)
             return false;
-        if (slot is < 0 or > 1)
-            throw new ArgumentOutOfRangeException(nameof(slot));
 
-        Position16<RoomPixels>? stored = slot == 0
-            ? FirstSpeedEchoPosition
-            : SecondSpeedEchoPosition;
-        if (stored is not { } echo)
+        Position16<RoomPixels>? stored = echo switch
+        {
+            SpeedEcho.First => FirstSpeedEchoPosition,
+            SpeedEcho.Second => SecondSpeedEchoPosition,
+            _ => throw new ArgumentOutOfRangeException(nameof(echo), echo, "Undefined speed echo."),
+        };
+        if (stored is not { } standing)
             return false;
 
-        int xPosition = echo.X;
-        int yPosition = echo.Y;
+        int xPosition = standing.X;
+        int yPosition = standing.Y;
         if (yPosition != samusPosition.Y)
         {
             yPosition = CoordinateAxis.Difference(yPosition, samusPosition.Y) < 0
@@ -642,7 +650,7 @@ public sealed class SamusHorizontalSpeedState
                 : CoordinateAxis.Wrap(yPosition - 2);
         }
 
-        Offset16<RoomPixels> velocity = slot == 0
+        Offset16<RoomPixels> velocity = echo == SpeedEcho.First
             ? FirstSpeedEchoVelocity
             : SecondSpeedEchoVelocity;
         xPosition = CoordinateAxis.Wrap(xPosition + velocity.X);
@@ -651,7 +659,7 @@ public sealed class SamusHorizontalSpeedState
             : CoordinateAxis.Difference(xPosition, samusPosition.X) >= 0;
         Position16<RoomPixels>? advanced = crossedSamus ? null : Position16<RoomPixels>.Of(xPosition, yPosition);
 
-        if (slot == 0)
+        if (echo == SpeedEcho.First)
             FirstSpeedEchoPosition = advanced;
         else
             SecondSpeedEchoPosition = advanced;
@@ -660,8 +668,8 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Clears the departure state after both departure slots have been considered.
-    /// Once neither echo remains, the cursor returns to the first slot.
+    /// Clears the departure state after both departing echoes have been considered.
+    /// Once neither echo remains, the cursor returns to the first echo.
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
     {
@@ -669,7 +677,7 @@ public sealed class SamusHorizontalSpeedState
             FirstSpeedEchoPosition is null &&
             SecondSpeedEchoPosition is null)
         {
-            SpeedEchoCursor = SpeedEchoCursor.FirstSlot;
+            SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
         }
     }
 

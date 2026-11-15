@@ -30,7 +30,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -116,7 +116,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var beamColours = new SamusColours();
     var beamPalettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
-    SamusProjectileSystem.LoadBeamPalette(beamColours, equippedBeams: 0);
+    SamusProjectileSystem.ShowBeamShade(beamColours, equippedBeams: 0);
     // Samus's colours name shades (#1512); the import resolves them from the fixture's tables.
     var projSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = beamPalettes, Charge = fixtureChargeColors, Suits = fixtureSuitColors };
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
@@ -438,23 +438,23 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int family = 0; family < 2; family++)
     {
         bool pseudoScrew = family == 1;
-        chargeSamus.HorizontalSpeed.ContactDamageIndex = pseudoScrew ? SamusContactDamageIndex.PseudoScrew : SamusContactDamageIndex.None;
+        chargeSamus.HorizontalSpeed.BodyAttack = pseudoScrew ? SamusBodyAttack.PseudoScrew : SamusBodyAttack.None;
         for (int suit = 0; suit < suitEquipment.Length; suit++)
         {
             chargeSamus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suitEquipment[suit]);
             for (int palette = 0; palette < 6; palette++)
             {
                 // The charge palette step is the palette this call installs.
-                AssertEqual(palette, chargeProjectiles.Charge.ChargePaletteStep,
+                AssertEqual(palette, chargeProjectiles.Charge.ChargeGlowStep,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
-                SamusBeamChargePaletteStepResult liveChargeStep =
-                    chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
+                SamusBeamChargeGlowStep liveChargeStep =
+                    chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus);
                 // The installed colors are unique per family/suit/palette, so the CGRAM check
                 // below identifies the palette the call selected.
                 AssertEqual(
                     pseudoScrew
-                        ? SamusBeamChargePaletteAction.PseudoScrewCycle
-                        : SamusBeamChargePaletteAction.ChargeCycle,
+                        ? SamusBeamChargeGlowAction.PseudoScrewCycle
+                        : SamusBeamChargeGlowAction.ChargeCycle,
                     liveChargeStep.Action,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} palette {palette} branch");
                 for (int color = 0; color < 16; color++)
@@ -467,7 +467,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                         $"palette {palette} color {color}");
                 }
             }
-            AssertEqual(0, chargeProjectiles.Charge.ChargePaletteStep,
+            AssertEqual(0, chargeProjectiles.Charge.ChargeGlowStep,
                 $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} six-entry list wraps");
         }
     }
@@ -475,17 +475,17 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Any grapple function other than inactive takes `$D7B0` immediately. Seed index two
     // with one eligible call, then prove a firing grapple resets it instead of merely
     // pausing and resuming on the second palette.
-    chargeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+    chargeSamus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
     chargeSamus.EquippedItems = 0;
-    chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
-    AssertEqual(1, chargeProjectiles.Charge.ChargePaletteStep,
+    chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus);
+    AssertEqual(1, chargeProjectiles.Charge.ChargeGlowStep,
         "one live charge-palette call advances to the second step");
     chargeSamus.Grapple.Phase = GrapplePhase.Firing;
-    SamusBeamChargePaletteStepResult grappleSuppressesCharge =
-        chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
-    AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
+    SamusBeamChargeGlowStep grappleSuppressesCharge =
+        chargeProjectiles.UpdateBeamChargeGlow(liveChargeColours, chargeSamus);
+    AssertEqual(SamusBeamChargeGlowAction.Inactive, grappleSuppressesCharge.Action,
         "active grapple suppresses charge-body palette");
-    AssertEqual(0, chargeProjectiles.Charge.ChargePaletteStep,
+    AssertEqual(0, chargeProjectiles.Charge.ChargeGlowStep,
         "active grapple resets the charge-palette step");
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
@@ -517,11 +517,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     var chargedGlowColours = new SamusColours();
     for (int call = 0; call < 4; call++)
     {
-        SamusBeamChargePaletteStepResult paletteStep =
-            chargeProjectiles.UpdateBeamChargePalette(chargedGlowColours, chargeSamus);
+        SamusBeamChargeGlowStep paletteStep =
+            chargeProjectiles.UpdateBeamChargeGlow(chargedGlowColours, chargeSamus);
         if (call < 3)
         {
-            AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
+            AssertEqual(SamusBeamChargeGlowAction.OrdinaryWhite, paletteStep.Action,
                 $"ordinary charged glow call {call + 1} selects white branch");
             AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, 3 - call), chargeProjectiles.Charge.ChargedShotGlow,
                 $"ordinary charged glow call {call + 1} decrements before branch");
@@ -535,7 +535,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         }
         else
         {
-            AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
+            AssertEqual(SamusBeamChargeGlowAction.RestoredNormalSuit, paletteStep.Action,
                 "ordinary charged glow fourth call restores suit");
             // Gravity's unique fixture colors prove the restore selected the Gravity palette.
             for (int color = 0; color < 16; color++)
@@ -680,12 +680,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         PictureShade suitBefore = hyperGlowColours.Suit;
         int hyperStepsBefore = hyperProjectiles.Charge.ChargedShotGlow.RemainingSteps;
-        SamusBeamChargePaletteStepResult paletteStep =
-            hyperProjectiles.UpdateBeamChargePalette(hyperGlowColours, hyperSamus);
+        SamusBeamChargeGlowStep paletteStep =
+            hyperProjectiles.UpdateBeamChargeGlow(hyperGlowColours, hyperSamus);
         if (call < 20 && (call & 1) == 0)
         {
             int palette = call / 2;
-            AssertEqual(SamusBeamChargePaletteAction.HyperPalette, paletteStep.Action,
+            AssertEqual(SamusBeamChargeGlowAction.HyperShade, paletteStep.Action,
                 $"Hyper body glow call {call + 1} loads palette");
             // The glow's even steps descend from twenty, selecting palettes 0..9 in order.
             AssertEqual(20 - palette * 2, hyperStepsBefore,
@@ -699,14 +699,14 @@ internal static void VerifySamusPowerBeamProjectiles()
         }
         else if (call < 20)
         {
-            AssertEqual(SamusBeamChargePaletteAction.HyperHold, paletteStep.Action,
+            AssertEqual(SamusBeamChargeGlowAction.HyperHold, paletteStep.Action,
                 $"Hyper body glow call {call + 1} is odd hold");
             AssertEqual(suitBefore, hyperGlowColours.Suit,
                 $"Hyper body glow hold {call + 1} keeps the suit's shade");
         }
         else
         {
-            AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
+            AssertEqual(SamusBeamChargeGlowAction.RestoredNormalSuit, paletteStep.Action,
                 "Hyper body glow call 21 restores suit");
             AssertEqual(SamusShades.Suit(SamusSuit.Power), hyperGlowColours.Suit,
                 "Hyper body glow restore shows the Power Suit");

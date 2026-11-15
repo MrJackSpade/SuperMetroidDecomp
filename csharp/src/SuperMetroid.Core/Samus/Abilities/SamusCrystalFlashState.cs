@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -54,7 +54,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>
     /// Ends Crystal Flash's hold on Samus's movement when another owner takes it (<see cref="SamusMovementHandOver"/>),
-    /// without clearing the live Flash colouring/timer.
+    /// without clearing the live Flash colouring and timer.
     /// </summary>
     internal void RelinquishMovement() => Phase = CrystalFlashPhase.Inactive;
 
@@ -62,7 +62,7 @@ public sealed class SamusCrystalFlashState
     internal void RelinquishSuitColouring()
     {
         BubbleTimer = 0;
-        BeamPaletteRestoreRequested = false;
+        BeamShadeRestoreRequested = false;
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class SamusCrystalFlashState
     public Position16<RoomPixels> RaisedPosition { get; private set; }
 
     /// <summary>Seeded to one for Samus's colour animation.</summary>
-    public int CrystalPaletteTimer { get; private set; }
+    public int CrystalPulseTimer { get; private set; }
 
     /// <summary>
     /// The bubble colour step shown next, 0 through the bubble-set count minus one. Each bubble-timer expiry advances
@@ -82,7 +82,7 @@ public sealed class SamusCrystalFlashState
     public int BubbleStep { get; private set; }
 
     /// <summary>
-    /// The colour updates until the bubble shows its next colour step, one through five while Crystal Flash's colouring
+    /// The colouring updates until the bubble shows its next colour step, one through five while Crystal Flash's shade
     /// runs (it is reloaded on reaching zero), and zero once it stops; other values are rejected.
     /// </summary>
     public int BubbleTimer
@@ -91,14 +91,14 @@ public sealed class SamusCrystalFlashState
         private set => field = Ensure.BetweenInclusive(0, BubbleStepUpdates, value);
     }
 
-    /// <summary>The colour updates each bubble colour step shows for.</summary>
+    /// <summary>The colouring updates each bubble colour step shows for.</summary>
     private const int BubbleStepUpdates = 5;
 
     /// <summary>
-    /// Whether the flash has finished and asks its next colour update to show the equipped beams' colours again and
-    /// release the colouring.
+    /// Whether the flash has finished and asks its next colouring update to show the equipped beams' colours again and
+    /// release the shade.
     /// </summary>
-    public bool BeamPaletteRestoreRequested { get; internal set; }
+    public bool BeamShadeRestoreRequested { get; internal set; }
 
     /// <summary>
     /// The step of the body's colour pulse shown next, zero through nine (#1512): activation starts it at the first, and
@@ -182,11 +182,11 @@ public sealed class SamusCrystalFlashState
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         _ammoCountdown.StartAmmoCountdown(10);
         RaisedPosition = Position16<RoomPixels>.Zero;
-        CrystalPaletteTimer = 1;
-        _colouring.Take(SamusSpecialPaletteType.CrystalFlash);
+        CrystalPulseTimer = 1;
+        _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
         BubbleStep = 0;
         BubbleTimer = 1;
-        BeamPaletteRestoreRequested = false;
+        BeamShadeRestoreRequested = false;
         BodyStep = 0;
         BubbleEffectRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
@@ -314,7 +314,7 @@ public sealed class SamusCrystalFlashState
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 12, timer: 3);
     }
 
-    /// <summary>Waits for standing pose after the finish art, then releases input locks and requests colour restoration.</summary>
+    /// <summary>Waits for standing pose after the finish art, then releases input locks and requests suit shade restoration.</summary>
     private void StepFinish(SamusState samus)
     {
         // Retail usually enters with equality because RaisedPosition was captured at the
@@ -329,7 +329,7 @@ public sealed class SamusCrystalFlashState
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
             return;
 
-        BeamPaletteRestoreRequested = true;
+        BeamShadeRestoreRequested = true;
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
@@ -348,25 +348,25 @@ public sealed class SamusCrystalFlashState
     /// pre-colours Samus in every step of both (#1512); completion shows the beam shade of the currently equipped beam
     /// combination again.
     /// </remarks>
-    public bool UpdatePalette(SamusColours colours, SamusState samus)
+    public bool UpdateColouring(SamusColours colours, SamusState samus)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
-        if (!_colouring.Holds(SamusSpecialPaletteType.CrystalFlash))
+        if (!_colouring.Holds(SamusSpecialColouringKind.CrystalFlash))
             return false;
 
-        if (BeamPaletteRestoreRequested)
+        if (BeamShadeRestoreRequested)
         {
-            // Completion reloads the equipped combination's beam colours with the loader equipping a beam uses, so a Spazer
+            // Completion reloads the equipped combination's beam shade with the loader equipping a beam uses, so a Spazer
             // and Plasma combination shows the same colours as everywhere else (#1506, #1736).
-            SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, samus.EquippedBeams);
+            SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.ShowBeamShade(colours, samus.EquippedBeams);
 
-            _colouring.Release(SamusSpecialPaletteType.CrystalFlash);
+            _colouring.Release(SamusSpecialColouringKind.CrystalFlash);
             BubbleStep = 0;
             BodyStep = 0;
             BubbleTimer = 0;
-            BeamPaletteRestoreRequested = false;
-            CrystalPaletteTimer = 0;
+            BeamShadeRestoreRequested = false;
+            CrystalPulseTimer = 0;
             return true;
         }
 
@@ -378,23 +378,23 @@ public sealed class SamusCrystalFlashState
 
             // The step was validated below the set count above, so this advance stays far below any wrap.
             int nextBubbleStep = BubbleStep + 1;
-            BubbleStep = nextBubbleStep < SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount
+            BubbleStep = nextBubbleStep < SamusShadeDefinitions.CrystalFlash.BubbleShadeCount
                 ? nextBubbleStep
                 : 0;
         }
 
-        if (--CrystalPaletteTimer <= 0)
+        if (--CrystalPulseTimer <= 0)
         {
-            CrystalPaletteTimer = CrystalFlashPaletteTiming.DurationForStep(BodyStep);
+            CrystalPulseTimer = CrystalFlashPulseTiming.DurationForStep(BodyStep);
             colours.LayOverBeams(SamusShades.CrystalFlashBody(BodyStep));
 
             // The step was validated as one of the pulse's above, so this advance cannot wrap.
             int nextStep = BodyStep + 1;
-            BodyStep = nextStep < SamusPaletteDefinitions.CrystalFlash.BodyStepCount ? nextStep : 0;
+            BodyStep = nextStep < SamusShadeDefinitions.CrystalFlash.BodyStepCount ? nextStep : 0;
         }
 
-        // Every active call reports the colouring handled, including frames on which neither timer
-        // expires. The outer colour step must therefore suppress its normal copy.
+        // Every active call reports the shade handled, including frames on which neither timer
+        // expires. The outer colouring step must therefore suppress its normal copy.
         return true;
     }
 }

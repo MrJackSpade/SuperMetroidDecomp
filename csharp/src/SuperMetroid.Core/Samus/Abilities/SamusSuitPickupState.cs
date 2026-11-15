@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
 
@@ -97,8 +97,8 @@ public sealed class SamusSuitPickupState
 
         Kind = kind;
         BeamColor = kind == SamusSuitPickupKind.Varia
-            ? new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.VariaGreen, SamusPaletteDefinitions.SuitPickup.VariaBlue).ToColour()
-            : new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.GravityGreen, SamusPaletteDefinitions.SuitPickup.GravityBlue).ToColour();
+            ? new FadeLevelColour(SamusShadeDefinitions.SuitPickup.InitialRed, SamusShadeDefinitions.SuitPickup.VariaGreen, SamusShadeDefinitions.SuitPickup.VariaBlue).ToColour()
+            : new FadeLevelColour(SamusShadeDefinitions.SuitPickup.InitialRed, SamusShadeDefinitions.SuitPickup.GravityGreen, SamusShadeDefinitions.SuitPickup.GravityBlue).ToColour();
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamLines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
@@ -110,7 +110,7 @@ public sealed class SamusSuitPickupState
 
         // The suit pickup cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the departing-echo
-        // side effect and publishes the immediate colour restore only when boost was live.
+        // side effect and publishes the immediate shade restore only when boost was live.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -301,7 +301,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Installs the equipment bit, suited front pose, and colours at the third-stage handoff.</summary>
+    /// <summary>Installs the equipment bit, suited front pose, and shade at the third-stage handoff.</summary>
     private void RevealSuit(SamusState samus, SamusColours colours)
     {
         SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia
@@ -315,7 +315,7 @@ public sealed class SamusSuitPickupState
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();
-        SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
+        SamusSuitShade.Show(colours, samus.EquippedItems);
         Stage = SamusSuitPickupStage.LightBeamShrinks;
     }
 
@@ -361,8 +361,8 @@ public sealed class SamusSuitPickupState
     /// <summary>Clears the light beam's window and colour, then releases Samus input after the last light-beam stage.</summary>
     private void Finish(SamusState samus)
     {
-        BeamColor = new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,
-            SamusPaletteDefinitions.SuitPickup.ResetBlue).ToColour();
+        BeamColor = new FadeLevelColour(SamusShadeDefinitions.SuitPickup.ResetRed, SamusShadeDefinitions.SuitPickup.ResetGreen,
+            SamusShadeDefinitions.SuitPickup.ResetBlue).ToColour();
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamLines = 0;
@@ -389,21 +389,21 @@ public sealed class SamusSuitPickupState
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>
-        BeamColor = new FadeLevelColour(AddTwoAndClamp(BeamColor.FadeLevels.Red, SamusPaletteDefinitions.SuitPickup.WhiteRed),
-            AddTwoAndClamp(BeamColor.FadeLevels.Green, SamusPaletteDefinitions.SuitPickup.WhiteGreen),
-            AddTwoAndClamp(BeamColor.FadeLevels.Blue, SamusPaletteDefinitions.SuitPickup.WhiteBlue)).ToColour();
+        BeamColor = new FadeLevelColour(AddTwoAndClamp(BeamColor.FadeLevels.Red, SamusShadeDefinitions.SuitPickup.WhiteRed),
+            AddTwoAndClamp(BeamColor.FadeLevels.Green, SamusShadeDefinitions.SuitPickup.WhiteGreen),
+            AddTwoAndClamp(BeamColor.FadeLevels.Blue, SamusShadeDefinitions.SuitPickup.WhiteBlue)).ToColour();
 
     /// <summary>Returns the Varia beam's colour toward its orange target during the shrinking stage.</summary>
     private void AdvanceColorTowardOrange() => StepColorDownToward(
-        SamusPaletteDefinitions.SuitPickup.WhiteRed,
-        SamusPaletteDefinitions.SuitPickup.VariaOrangeGreen,
-        SamusPaletteDefinitions.SuitPickup.VariaOrangeBlue);
+        SamusShadeDefinitions.SuitPickup.WhiteRed,
+        SamusShadeDefinitions.SuitPickup.VariaOrangeGreen,
+        SamusShadeDefinitions.SuitPickup.VariaOrangeBlue);
 
     /// <summary>Returns the Gravity beam's colour toward its blue target during the shrinking stage.</summary>
     private void AdvanceColorTowardBlue() => StepColorDownToward(
-        SamusPaletteDefinitions.SuitPickup.InitialRed,
-        SamusPaletteDefinitions.SuitPickup.GravityGreen,
-        SamusPaletteDefinitions.SuitPickup.GravityBlue);
+        SamusShadeDefinitions.SuitPickup.InitialRed,
+        SamusShadeDefinitions.SuitPickup.GravityGreen,
+        SamusShadeDefinitions.SuitPickup.GravityBlue);
 
     /// <summary>Lowers each channel by one until it reaches its target.</summary>
     private void StepColorDownToward(int red, int green, int blue) =>

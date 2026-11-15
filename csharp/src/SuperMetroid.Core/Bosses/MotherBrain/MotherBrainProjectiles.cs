@@ -306,7 +306,7 @@ internal sealed class MotherBrainProjectiles
             if (samusBombs is null || samusBombs.BombCounter == 0)
                 return false;
 
-            foreach (SamusBombProjectileSlot samusBomb in samusBombs.Slots)
+            foreach (SamusBomb samusBomb in samusBombs.Bombs)
             {
                 if (samusBomb.Type.Family != SamusProjectileFamily.Bomb ||
                     !samusBomb.BombTimer.IsZero ||

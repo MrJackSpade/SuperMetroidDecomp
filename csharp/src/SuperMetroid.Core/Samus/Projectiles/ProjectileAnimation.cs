@@ -4,12 +4,12 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit colours the flare restores.</summary>
+/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit shade the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the animation.</summary>
@@ -144,10 +144,10 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Restores sixteen suit colors from installed artwork.</summary>
-    internal static void LoadNormalSuitPalette(
+    internal static void ShowSuitShade(
         SamusColours colours,
         SamusState samus) =>
-        SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
+        SamusSuitShade.Show(colours, samus.EquippedItems);
 
     /// <summary>The installed composition each projectile animation frame draws, which a projectile's frames need bound.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }

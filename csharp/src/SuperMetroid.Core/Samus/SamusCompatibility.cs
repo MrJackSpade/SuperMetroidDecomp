@@ -31,6 +31,9 @@ internal sealed class SamusCompatibility
     /// <summary>The water speeds Draygon's hold and special movement move her by in air, where they have none of their own.</summary>
     public required WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> WaterSpeedsInAir { get; init; }
 
+    /// <summary>How her Speed Booster boost restarts after its echo and is taken down a stage.</summary>
+    public required BoostRestartAfterEcho BoostRestart { get; init; }
+
     /// <summary>A fresh set for a new Samus.</summary>
     public static SamusCompatibility ForNewSamus() => new()
     {
@@ -41,5 +44,6 @@ internal sealed class SamusCompatibility
         HurtFlash = new SharedHurtFlashCount(),
         EffectWaits = new BreathBubbleAndLavaSprayWaits(),
         WaterSpeedsInAir = new WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds>(SamusHorizontalSpeedDefinitions.WaterSpeedsInAir),
+        BoostRestart = new BoostRestartAfterEcho(SamusSpeedBoostCounter.AuthoredStages),
     };
 }

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Death;
@@ -64,9 +64,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathColorFile.CorpseFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "color") => new(0, MotherBrainDeathColorFormat.CorpseColorCount),
         ("InstalledSamusDeathPalettes", "SuitedColor", "suit") => new(0, InstalledSamusDeathPalettes.SuitCount),
-        ("InstalledSamusDeathPalettes", "SuitedColor" or "SuitlessColor", "palette") => new(0, SamusPaletteDefinitions.Death.PaletteCount),
+        ("InstalledSamusDeathPalettes", "SuitedColor" or "SuitlessColor", "palette") => new(0, SamusShadeDefinitions.Death.ExplosionShadeCount),
         ("InstalledSamusDeathPalettes", "SuitedColor" or "SuitlessColor", "color") => new(0, InstalledSamusDeathPalettes.ColorCount),
-        ("InstalledSamusDeathPalettes", "WhiteoutColor", "index") => new(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount),
+        ("InstalledSamusDeathPalettes", "WhiteoutColor", "index") => new(0, SamusShadeDefinitions.Death.WhiteoutShadeCount),
         ("InstalledSamusDeathPalettes", "ExplosionPaletteIndex", "frame") => new(0, SamusDeathExplosionTimingDefinitions.StepCount),
         ("SamusFullBodyCycleColours", "Resolve", "colorIndex") => new(0, SamusFullBodyCycleColorFormat.ColorsPerPalette),
         ("SamusFullBodyCycleColours", "Apply" or "Resolve", "palette.Suit") => new(0, SamusFullBodyCycleColorFormat.SuitCount),
@@ -86,7 +86,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("InstalledCrystalFlashColors", "ApplyBubble" or "ResolveBubble", "frame") => new(0, CrystalFlashColorFormat.BubbleFrameCount),
         ("InstalledCrystalFlashColors", "ResolveBubble", "color") => new(0, CrystalFlashColorFormat.BubbleColorCount),
         ("InstalledPowerBombGlowColors", "Resolve", "sequence") => new(0, Enum.GetValues<PowerBombGlowSequence>().Length),
-        ("InstalledPowerBombGlowColors", "Resolve", "index") => new(0, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount),
+        ("InstalledPowerBombGlowColors", "Resolve", "index") => new(0, SamusShadeDefinitions.PowerBomb.ExplosionColorCount),
         ("HyperBeamFxColours", "Apply", "frame") => new(0, SamusColourSets.HyperBeamCycleFrames),
         ("BotwoonColorCatalog", "HealthColor", "band") => new(0, BotwoonHealthBandDefinitions.BandCount),
         ("BotwoonColorCatalog", "HealthColor", "color") => new(0, BotwoonColorFormat.ColorsPerPalette),

@@ -24,11 +24,11 @@ internal static class RunningCadenceVerification
         IReadOnlyList<IReadOnlyList<int>> stages = SamusRunningCadenceDefinitions.BoostStageDelays;
         for (int stage = 0; stage < stages.Count; stage++)
             AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage), stages[stage], $"boost stage {stage} delays");
-        for (int selection = 0; selection <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; selection++)
-            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(selection),
+        for (int selection = 0; selection <= SamusRunningCadenceCodec.UnauthoredSelection; selection++)
+            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(CadenceOfSelection(selection)),
                 $"restart countdown after selection {selection}");
-        AssertThrows<InvalidDataException>(() => SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadenceDefinitions.MaximumSoundQueueSelection + 1),
-            "no selection lies past what the echo's queue request reports");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.SpeedBoostCadence(SamusSpeedBoostCounter.AuthoredStages),
+            "no authored stage lies past the full stage");
 
         // The unauthored cadence times each running frame by the delays the getaway's wings last left behind.
         var residue = new UnauthoredBoostCadence();
@@ -53,7 +53,7 @@ internal static class RunningCadenceVerification
             "a negative delay is refused");
         AssertEqual(UnauthoredBoostCadence.LongestDelay, longest.Delay(UnauthoredBoostCadence.FrameCount - 1), "refused delays keep what the wings last left");
 
-        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
         {
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, 0);
@@ -88,7 +88,7 @@ internal static class RunningCadenceVerification
                 next = (ushort)(LittleEndianBytes.HighByteInPlace(next) | SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, low);
-            speed.ContactDamageIndex = SamusContactDamageIndex.None;
+            speed.BodyAttack = SamusBodyAttack.None;
             int frame = 7;
             if (admitted && raw == 0)
             {
@@ -108,11 +108,11 @@ internal static class RunningCadenceVerification
             AssertEqual(intercept ? 0 : 7, frame, "Only intercepted command resets frame");
             AssertEqual(expectedTimer, timer, "Selected first-frame delay and wrapping frame buffer");
             AssertEqual(sound ? 1 : 0, calls, "Echo call only on bit-two stage entry");
-            AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
+            AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "Animation cannot publish movement-owned boost contact damage");
         }
 
         // The queue's report, not the already-published stage, selects both the restart countdown and the first delay.
-        for (int selection = 0; selection <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; selection++)
+        for (int selection = 0; selection <= SamusRunningCadenceCodec.UnauthoredSelection; selection++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
             int buffer = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)selection));
@@ -128,10 +128,25 @@ internal static class RunningCadenceVerification
             AssertEqual(unchecked((ushort)(buffer + expectedDelay)), timer, "Queue-selected first delay, including the residue's");
         }
 
+        // #1911: a turned-away echo request leaves the echo's own sound number, three, which picks stage three's restart
+        // countdown and first delay whatever the queue held.
+        for (int low = 0; low <= byte.MaxValue; low++)
+        {
+            int buffer = LittleEndianBytes.Word(unchecked((byte)low), 0);
+            speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
+            int frame = 9;
+            speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, ControllerButton.B,
+                buffer, ref frame, out int timer, () => SoundQueueAdmission.Rejected(SoundQueueAdmission.MaximumOccupancy));
+            AssertEqual(new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage, SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, 3)),
+                speed.SpeedBoostCounter, "A turned-away echo restarts the countdown stage three's restart word holds");
+            AssertEqual(unchecked((ushort)(buffer + SamusRunningCadenceCodec.BoostDelays(cartridge, 3)[0])), timer,
+                "A turned-away echo's first delay is stage three's");
+        }
+
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int invalidFrame = 9;
-        AssertThrows<InvalidDataException>(
+        AssertThrows<InvalidOperationException>(
             () => speed.TryAdvanceSpeedBoosterAnimationStage(
                 residue,
                 SamusMovementType.Running,
@@ -140,17 +155,23 @@ internal static class RunningCadenceVerification
                 ref invalidFrame,
                 out _,
                 () => SoundQueueAdmission.Admitted(6)),
-            "An occupancy the queue cannot admit selects no cadence");
+            "An occupancy the echo's priority cannot admit selects no cadence");
 
-        speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+        speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); speed.SpecialPaletteTimer = 8; speed.CyclePaletteStep = 3;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); speed.CycleShadeTimer = 8; speed.CycleShadeStep = 3;
         speed.ReconcilePauseSpeedBoosterState(true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "Pause equipment reconciliation seeds native countdown");
-        AssertEqual(0, speed.SpecialPaletteTimer, "Pause reconciliation palette timer differs from initial run");
-        AssertEqual(0, speed.CyclePaletteStep, "Pause reconciliation palette frame reset");
-        Console.WriteLine("Running cadence: six typed cadences and six restarts match the cartridge, the unauthored cadence reads the residue, and 10240 command/gate cases and 1536 queue reports pass.");
+        AssertEqual(0, speed.CycleShadeTimer, "Pause reconciliation palette timer differs from initial run");
+        AssertEqual(0, speed.CycleShadeStep, "Pause reconciliation palette frame reset");
+        Console.WriteLine("Running cadence: six typed cadences and six restarts match the cartridge, the unauthored cadence reads the residue, and 10240 command/gate cases, 1536 queue reports and 256 turned-away echoes pass.");
     }
+
+    /// <summary>The cadence the cartridge's restart and cadence tables number <paramref name="selection"/>.</summary>
+    private static SamusRunningCadence CadenceOfSelection(int selection) =>
+        selection == SamusRunningCadenceCodec.UnauthoredSelection
+            ? SamusRunningCadence.UnauthoredBoost
+            : SamusRunningCadences.SpeedBoostCadence(selection);
 }

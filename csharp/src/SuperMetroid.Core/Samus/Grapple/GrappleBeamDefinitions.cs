@@ -2,15 +2,15 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>The Grapple Beam's definitions: its colours, sounds, swing physics, firing and rope drawing (#1411).</summary>
+/// <summary>The Grapple Beam's definitions: its beam shade, sounds, swing physics, firing and rope drawing (#1411).</summary>
 /// <remarks>
-/// Grapple runtime state deliberately remains elsewhere. This type names the colours, sounds, physics coefficients,
+/// Grapple runtime state deliberately remains elsewhere. This type names the beam shade, sounds, physics coefficients,
 /// firing definitions and rope drawing measures that define the subsystem's data contract.
 /// </remarks>
 public static class GrappleBeamDefinitions
 {
-    /// <summary>Colour values shared by grapple initialization and cleanup tails.</summary>
-    public static class Palettes
+    /// <summary>The beam shade grapple firing shows.</summary>
+    public static class BeamShades
     {
         /// <summary>Firing selects the Ice beam's colours before entering the firing phase.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;

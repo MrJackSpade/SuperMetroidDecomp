@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -38,12 +38,12 @@ public sealed class InstalledSamusChargeColors
     /// </summary>
     public SamusChargeColours ToColours()
     {
-        var palettes = new Dictionary<SamusChargePalette, ImmutableArray<RgbColor>>();
-        foreach (SamusSuit suit in SamusSuitDefinitions.ListOrder)
+        var palettes = new Dictionary<SamusChargeShade, ImmutableArray<RgbColor>>();
+        foreach (SamusSuit suit in SamusSuitListLayout.Order)
         for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
         {
-            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), [.. chargedBeam[suit.ListPlace()][phase]]);
-            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), [.. pseudoScrew[suit.ListPlace()][phase]]);
+            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), [.. chargedBeam[SamusSuitListLayout.Place(suit)][phase]]);
+            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), [.. pseudoScrew[SamusSuitListLayout.Place(suit)][phase]]);
         }
         return new(palettes, hyperShot.ToColours());
     }

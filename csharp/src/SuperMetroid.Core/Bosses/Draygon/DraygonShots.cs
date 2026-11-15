@@ -161,7 +161,7 @@ internal sealed class DraygonShots
             FreePlaceIfPowerBombed(goop, samus);
             if (samus is null)
                 return;
-            if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
+            if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             {
                 RemoveAttachedDraygonGoop(goop, samus);
                 return;

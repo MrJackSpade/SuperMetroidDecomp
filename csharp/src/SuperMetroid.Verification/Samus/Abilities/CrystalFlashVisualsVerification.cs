@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Core.Samus.Palettes.SamusPaletteDefinitions;
+using static SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,7 +28,7 @@ internal static class CrystalFlashVisualsVerification
     {
         var samus = runtime.Player.IntroducedSamus;
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        if (samus.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash))
+        if (samus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash))
         {
             // Independent timeline lookup: expand authored durations into a cycle
             // and index elapsed calls, rather than reading the production timers.
@@ -38,7 +38,7 @@ internal static class CrystalFlashVisualsVerification
             while (remaining >= Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record * CrystalFlash.BodyRecordByteCount + 2))
                 remaining -= Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record++ * CrystalFlash.BodyRecordByteCount + 2);
             int body = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record * CrystalFlash.BodyRecordByteCount);
-            int bubble = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.BubblePointers.Value + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
+            int bubble = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.BubblePointers.Value + elapsed / 5 % CrystalFlash.BubbleShadeCount * 2);
             // Samus names the body and bubble shades (#1512); the installation's shades hold the authored colours.
             RgbColor[] beams = runtime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
@@ -130,7 +130,7 @@ internal static class CrystalFlashVisualsVerification
     private const int DarkBeamsStep = 0;
 
     /// <summary>The whiteout ramp's last step, whose single colour the light scene lays over her beam inks.</summary>
-    private const int LightBeamsStep = SamusPaletteDefinitions.Death.WhiteoutShadeCount - 1;
+    private const int LightBeamsStep = SamusShadeDefinitions.Death.WhiteoutShadeCount - 1;
 
     /// <summary>
     /// <paramref name="draws"/> with <paramref name="beams"/>, a shade colouring all her beam inks in one colour, laid over

@@ -113,8 +113,8 @@ internal static class CrocomireCutsceneVerification
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.PixelPosition.X, "melting cutscene camera cannot show left of screen five");
-        AssertEqual(RoomScrollState.Closed, scrolls.ReadCameraState(4), "bridge threshold locks screen four");
-        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadCameraState(5), "screen five remains visible");
+        AssertEqual(RoomScrollState.Closed, scrolls.ReadScreen(new(4, 0)), "bridge threshold locks screen four");
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(5, 0)), "screen five remains visible");
         samus.Position = samus.Position.WithWholeX(1311);
         run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
@@ -139,9 +139,9 @@ internal static class CrocomireCutsceneVerification
         samus.Position = samus.Position.WithWholeX(639);
         run(body, samus, new Position16<RoomPixels>(544, 0));
         AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathPhase, "left cutscene starts at native Samus threshold");
-        AssertEqual(RoomScrollState.Closed, scrolls.ReadCameraState(1), "left cutscene retains red screen one");
-        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadCameraState(2), "left cutscene retains visible screen two");
-        AssertEqual(RoomScrollState.Closed, scrolls.ReadCameraState(3), "left cutscene closes screen three");
+        AssertEqual(RoomScrollState.Closed, scrolls.ReadScreen(new(1, 0)), "left cutscene retains red screen one");
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(2, 0)), "left cutscene retains visible screen two");
+        AssertEqual(RoomScrollState.Closed, scrolls.ReadScreen(new(3, 0)), "left cutscene closes screen three");
         var point = FixedPosition<RoomPixels>.FromStoredParts(639, 0, 128, 0);
         // Runtime currently selects zero here; the cartridge writes six. Check
         // whether that known difference can explain the reported wall overrun.

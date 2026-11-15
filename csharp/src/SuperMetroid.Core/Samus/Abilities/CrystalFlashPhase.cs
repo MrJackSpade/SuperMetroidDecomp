@@ -9,6 +9,6 @@ public enum CrystalFlashPhase
     Raising,
     /// <summary>The ammunition drains: missiles, supers, then power bombs are consumed, restoring 50 energy per decrement on every eighth frame.</summary>
     DrainingAmmo,
-    /// <summary>Samus settles: Y increases by one pixel whenever it differs from the retained raised position, and the phase waits for the standing movement type before releasing input locks and requesting colour restoration.</summary>
+    /// <summary>Samus settles: Y increases by one pixel whenever it differs from the retained raised position, and the phase waits for the standing movement type before releasing input locks and requesting suit shade restoration.</summary>
     Finishing,
 }

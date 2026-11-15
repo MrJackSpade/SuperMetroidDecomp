@@ -603,8 +603,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
                     "reproducing it needs full memory emulation, which is outside the port's scope.");
             audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
-            SamusBombProjectileSlot last = (bombs ?? throw new InvalidOperationException(
-                "The first reserve row's same-frame toggle needs Samus's bomb slots.")).Slots[^1];
+            SamusBomb last = (bombs ?? throw new InvalidOperationException(
+                "The first reserve row's same-frame toggle needs Samus's bombs.")).Bombs[^1];
             last.BombSpreadVerticalVelocity = last.BombSpreadVerticalVelocity.WithWholePixels(
                 ReserveRowToggleSpreadBombSpeed.Repaint(last.BombSpreadVerticalVelocity.WholePixels));
             return;

@@ -8,7 +8,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -79,23 +79,23 @@ internal static class SamusFullBodyCycleColorsVerification
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 4; phase++)
             {
-                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-                    SpecialPaletteTimer = 1,
-                    CyclePaletteStep = phase,
+                    CycleShadeTimer = 1,
+                    CycleShadeStep = phase,
                 };
                 var cgram = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
+                AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
 
             for (int phase = 0; phase < 6; phase++)
             {
-                var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { CyclePaletteStep = phase };
+                var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CycleShadeStep = phase };
                 var cgram = new SamusColours();
-                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
+                AssertTrue(screw.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));
@@ -106,7 +106,7 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var cgram = new SamusColours();
-                AssertTrue(stored.Shinespark.UpdatePalette(cgram, items),
+                AssertTrue(stored.Shinespark.UpdateColouring(cgram, items),
                     "stored shine reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.StoredShine, suit,
                     Math.Min(phase, 6 - phase));
@@ -118,7 +118,7 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 4; phase++)
             {
                 var cgram = new SamusColours();
-                AssertTrue(active.Shinespark.UpdatePalette(cgram, items),
+                AssertTrue(active.Shinespark.UpdateColouring(cgram, items),
                     "active shinespark reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);
             }
@@ -126,10 +126,10 @@ internal static class SamusFullBodyCycleColorsVerification
             var attached = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 EquippedItems = items,
-                MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext,
+                MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext,
             };
             var attachmentColors = new SamusColours();
-            AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),
+            AssertTrue(SamusMetroidAttachmentFlash.Update(attachmentColors, attached),
                 "Metroid attachment reaches installed Speed Booster color source");
             AssertColors(attachmentColors, SamusFullBodyCycleFamily.SpeedBooster, suit, 3);
         }

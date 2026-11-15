@@ -14,7 +14,7 @@ internal static class InstalledSamusFullBodyCycleColorsAccess
         /// <param name="colorIndex">The colour within the palette, 0 through 15.</param>
         /// <returns>The installed colour.</returns>
         /// <exception cref="ArgumentOutOfRangeException">The palette is not catalogued or the colour is outside it.</exception>
-        public RgbColor Resolve(SamusFullBodyCyclePalette palette, int colorIndex)
+        public RgbColor Resolve(SamusFullBodyCycleShade palette, int colorIndex)
         {
             RgbColor[] colours = self.palettes[SamusFullBodyCycleColorFormat.PaletteIndex(palette)];
             if ((uint)colorIndex >= colours.Length)

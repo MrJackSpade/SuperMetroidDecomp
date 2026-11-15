@@ -48,7 +48,7 @@ internal static class ProjectileCooldownsVerification
             var shared = CreateBombFixture();
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) };
             var result = projectiles.Firing.TryFireBeam(room, samus, edge, shared, null, charged);
-            AssertEqual(0, result.Slot, "Cooldown check exercises the actual successful producer");
+            AssertEqual(0, result.Place, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual(retail.ReadCartridgeByte(address), shared.CooldownTimer.RawValue,
                 "Native charged/fresh/held selection installs exact shared delay");

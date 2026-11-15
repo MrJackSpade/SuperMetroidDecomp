@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The shinespark's phases: a stored shine, and the windup, flight and crash that move Samus.</summary>
 public enum ShinesparkPhase
 {
-    /// <summary>No spark moves Samus and no shine is stored; independent colouring timers, boost state, and released echo storage may still remain live.</summary>
+    /// <summary>No spark moves Samus and no shine is stored; independent shade timers, boost state, and released echo storage may still remain live.</summary>
     Inactive,
     /// <summary>Stored shine admitted by crouching at full boost, with a 180-update colouring timer; it does not move Samus.</summary>
     Stored,

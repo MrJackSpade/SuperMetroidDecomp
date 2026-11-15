@@ -25,8 +25,8 @@ internal sealed class SamusScrollCap
     /// <remarks>
     /// The offset takes the movement's sign: a downward or rightward move puts the previous
     /// position beyond Samus, not behind her. Only the distance reaches the camera, whose
-    /// direction comes from separate values. A magnitude of 32768 stays negative after
-    /// negation but compares as not below twelve, so it is capped too.
+    /// direction comes from separate values. The distance is the shorter way round the room's wrapped coordinates,
+    /// half their range included, so a move that far is capped too.
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
     {

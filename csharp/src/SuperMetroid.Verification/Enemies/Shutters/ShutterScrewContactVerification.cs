@@ -38,14 +38,14 @@ internal static class ShutterScrewContactVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         // Places 11 and 14 share only the shutter's position bits; the shutter's and place 5's share none of them.
-        Confirm(runtime, SamusContactDamageIndex.ScrewAttack, [ShutterPlace, null, null, null], reacts: true, "the shutter met moving left");
-        Confirm(runtime, SamusContactDamageIndex.None, [ShutterPlace, null, null, null], reacts: false, "the shutter met without contact damage");
-        Confirm(runtime, SamusContactDamageIndex.ScrewAttack, [11, null, null, 14], reacts: true, "two other enemies whose places combine to the shutter's");
-        Confirm(runtime, SamusContactDamageIndex.ScrewAttack, [ShutterPlace, null, 5, null], reacts: false, "the shutter and an enemy whose places combine to another");
+        Confirm(runtime, SamusBodyAttack.ScrewAttack, [ShutterPlace, null, null, null], reacts: true, "the shutter met moving left");
+        Confirm(runtime, SamusBodyAttack.None, [ShutterPlace, null, null, null], reacts: false, "the shutter met without contact damage");
+        Confirm(runtime, SamusBodyAttack.ScrewAttack, [11, null, null, 14], reacts: true, "two other enemies whose places combine to the shutter's");
+        Confirm(runtime, SamusBodyAttack.ScrewAttack, [ShutterPlace, null, 5, null], reacts: false, "the shutter and an enemy whose places combine to another");
         Console.WriteLine("Shutter screw contact: an idle shutter reacts like a shot when Samus's contacts, combined, name it and she has contact damage.");
 
         // Each case loads the room afresh, so its shutter starts idle.
-        static void Confirm(SuperMetroidRuntime runtime, SamusContactDamageIndex contactDamage, int?[] contactPlaces, bool reacts, string contacts)
+        static void Confirm(SuperMetroidRuntime runtime, SamusBodyAttack contactDamage, int?[] contactPlaces, bool reacts, string contacts)
         {
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
             var samus = runtime.Player.IntroducedSamus;
@@ -53,7 +53,7 @@ internal static class ShutterScrewContactVerification
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[ShutterPlace] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));
             AssertEqual(ShutterTriggerMode.OneShotReaction, state.TriggerMode, "the movie's shutter waits only for a shot");
 
-            samus.HorizontalSpeed.ContactDamageIndex = contactDamage;
+            samus.HorizontalSpeed.BodyAttack = contactDamage;
             for (int direction = 0; direction < ContactDirections.Length; direction++)
             {
                 samus.Kinematics.RecordSolidEnemyCollision(ContactDirections[direction],

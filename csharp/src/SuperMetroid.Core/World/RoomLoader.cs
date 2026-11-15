@@ -241,7 +241,7 @@ internal sealed class RoomLoader
         // The Zebes start setup does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, the suit's colours, and the 360-call
         // appearance before restoring ordinary input.
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.Room = room.Definition;
@@ -354,7 +354,7 @@ internal sealed class RoomLoader
             station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { GunshipScenario = GunshipLoadScenario.EscapingCeres, LoadStation = station });
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.LiquidPhysics.Room = room.Definition;
@@ -764,7 +764,7 @@ internal sealed class RoomLoader
         // has already driven Samus's colours to black at this point. Omitting this shared
         // reload therefore retained valid sprite and room pictures but rendered Samus as a solid
         // black silhouette after every ordinary desktop door transition.
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.Samus.EquippedItems);
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
@@ -983,7 +983,7 @@ internal sealed class RoomLoader
         // Loading shows the entering beams' colours before it initializes enemies. Golden Torizo's code changes the
         // equipment during initialization and leaves those colours shown; the shots fired after it show the granted
         // beams' own pictures (#1586).
-        SamusProjectileSystem.LoadBeamPalette(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
+        SamusProjectileSystem.ShowBeamShade(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).
@@ -1146,7 +1146,7 @@ internal sealed class RoomLoader
         };
         _player.Samus.BindAudioRequests(_audioRequests);
         _artwork.BindSamusPalettePresentation();
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.LoadPower(_player.Colours);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);

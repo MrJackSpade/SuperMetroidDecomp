@@ -121,9 +121,9 @@ internal sealed class BombSpreadTransitionScenario
     /// at allocation, so an inactive slot records only its ownership, not dead bytes.</summary>
     internal IEnumerable<string> BombRows()
     {
-        for (int slotIndex = 0; slotIndex < SamusBombProjectileSystem.SlotCount; slotIndex++)
+        for (int slotIndex = 0; slotIndex < SamusBombProjectileSystem.PlaceCount; slotIndex++)
         {
-            var slot = Runtime.Room.LoadedScope.BombProjectiles.Slots[slotIndex];
+            var slot = Runtime.Room.LoadedScope.BombProjectiles.Bombs[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
                 bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer.RemainingFrames:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Playback is { } playback ? Lists.Position(SuperMetroid.Core.Samus.Projectiles.SamusProjectilePlayback.BeatOf(playback)) : 0):X4},{slot.FrameHold.RemainingFrames:X4},{slot.Sprite?.Name}";

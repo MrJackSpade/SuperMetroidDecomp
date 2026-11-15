@@ -11,8 +11,8 @@ internal static class SamusDeathExplosionTiming
         if (index is < 0 or >= StepCount)
         {
             throw new InvalidDataException(
-                $"Samus death-explosion timing index {index} is outside the " +
-                $"{StepCount}-record explosion sequence.");
+                $"Samus death-explosion step {index} is not one of the " +
+                $"explosion's {StepCount} steps.");
         }
 
         return Durations[index];

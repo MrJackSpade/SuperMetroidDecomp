@@ -11,7 +11,7 @@ internal static class SamusHorizontalSpeedDefinitions
     /// <summary>Deceleration of every movement in air, half a pixel per update per update.</summary>
     private static SignedSixteenSixteen AirDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Deceleration of every movement in water, a thirty-second of a pixel per update per update.</summary>
-    private static SignedSixteenSixteen WaterDeceleration { get; } = SignedSixteenSixteen.FromParts(0, 2048);
+    private static SignedSixteenSixteen WaterDeceleration { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8);
     /// <summary>Deceleration of every movement in lava or acid, a quarter of a pixel per update per update.</summary>
     private static SignedSixteenSixteen LavaDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
     /// <summary>The maximum of a movement that holds Samus still: standing, crouching, turning and running into a wall.</summary>
@@ -42,8 +42,11 @@ internal static class SamusHorizontalSpeedDefinitions
     private static SignedSixteenSixteen MoonwalkingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Running acceleration in air.</summary>
     private static SignedSixteenSixteen AirRunningAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
-    /// <summary>Acceleration of running in a liquid and of a morph or spring ball in a liquid.</summary>
-    private static SignedSixteenSixteen LiquidGroundAcceleration { get; } = SignedSixteenSixteen.FromParts(0, 1024);
+    /// <summary>
+    /// Acceleration of running in a liquid and of a morph or spring ball in a liquid, a sixty-fourth of a pixel per
+    /// update per update.
+    /// </summary>
+    private static SignedSixteenSixteen LiquidGroundAcceleration { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(4);
     /// <summary>Acceleration of both unused glitch balls.</summary>
     private static SignedSixteenSixteen GlitchBallAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Knockback acceleration.</summary>
@@ -164,15 +167,21 @@ internal static class SamusHorizontalSpeedDefinitions
         [M.Special] = Water[M.Running],
     };
 
-    /// <summary>A diagonal bomb jump's speeds, which it sets whatever Samus's movement and medium.</summary>
+    /// <summary>
+    /// A diagonal bomb jump's speeds, which it sets whatever Samus's movement and medium: three sixteenths of a pixel per
+    /// update per update up to three pixels per update, slowing by a thirty-second.
+    /// </summary>
     internal static SamusHorizontalSpeeds DiagonalBombJump { get; } = new(
-        Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
-        MaximumSpeed: SignedSixteenSixteen.FromParts(3, 0),
-        Deceleration: SignedSixteenSixteen.FromParts(0, 2048));
+        Acceleration: SignedSixteenSixteen.FromSixteenthsOfPixel(3),
+        MaximumSpeed: SignedSixteenSixteen.FromWholePixels(3),
+        Deceleration: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8));
 
-    /// <summary>A grapple release's speeds, the same in every medium, which it sets whatever Samus's movement.</summary>
+    /// <summary>
+    /// A grapple release's speeds, the same in every medium, which it sets whatever Samus's movement: three sixteenths of
+    /// a pixel per update per update up to fifteen pixels per update, slowing by a sixteenth.
+    /// </summary>
     internal static SamusHorizontalSpeeds GrappleRelease { get; } = new(
-        Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
-        MaximumSpeed: SignedSixteenSixteen.FromParts(15, 0),
-        Deceleration: SignedSixteenSixteen.FromParts(0, 4096));
+        Acceleration: SignedSixteenSixteen.FromSixteenthsOfPixel(3),
+        MaximumSpeed: SignedSixteenSixteen.FromWholePixels(15),
+        Deceleration: SignedSixteenSixteen.FromSixteenthsOfPixel(1));
 }

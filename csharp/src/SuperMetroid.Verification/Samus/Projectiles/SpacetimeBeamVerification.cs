@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -317,7 +317,7 @@ internal static class SpacetimeBeamVerification
         // The palette is a defined one (#1318). The enemy-projectile work RAM it once aliased, which this check seeded
         // with two patterns, is gone with the work-RAM image (#1688), so one load states the defined palette.
         var samusColours = new SamusColours();
-        SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
+        SamusProjectileSystem.ShowBeamShade(samusColours, SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
         RgbColor[] spacetime = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
         for (int i = 0; i < 16; i++) AssertEqual(RgbColor.Black, spacetime[i],
             "SpaceTime colors are its defined palette");

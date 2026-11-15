@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Death;
 
@@ -25,9 +25,9 @@ public sealed class SamusDeathSteps
     public SamusDeathSteps(ImmutableArray<int> explosionSteps, ImmutableArray<RgbColor> whiteout)
     {
         if (explosionSteps.IsDefault || explosionSteps.Length != SamusDeathExplosionTimingDefinitions.StepCount ||
-            explosionSteps.Any(step => step is < 0 or >= SamusPaletteDefinitions.Death.PaletteCount))
+            explosionSteps.Any(step => step is < 0 or >= SamusShadeDefinitions.Death.ExplosionShadeCount))
             throw new InvalidDataException("Samus's death explosion names one existing death step per explosion frame.");
-        if (whiteout.IsDefault || whiteout.Length != SamusPaletteDefinitions.Death.WhiteoutShadeCount)
+        if (whiteout.IsDefault || whiteout.Length != SamusShadeDefinitions.Death.WhiteoutShadeCount)
             throw new InvalidDataException("Samus's death whiteout holds one colour per whiteout step.");
         this.explosionSteps = explosionSteps;
         this.whiteout = whiteout;

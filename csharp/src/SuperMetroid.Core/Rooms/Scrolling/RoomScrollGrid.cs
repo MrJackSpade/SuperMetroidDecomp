@@ -114,7 +114,7 @@ public sealed class RoomScrollGrid
     /// clamping to a cell.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The index is negative, or past every stored map.</exception>
-    public RoomScrollState ReadCameraState(int index) => KeptCells.ReadForCamera(index);
+    public RoomScrollState ReadCameraState(Position16<RoomScreens> screen) => KeptCells.ReadForCamera(Size.RowMajorIndex(screen));
 
     /// <summary>
     /// Sets the screen at <paramref name="screen"/>, in one of the room's columns and in one of its rows or a row past them,

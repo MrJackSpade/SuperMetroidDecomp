@@ -22,7 +22,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Progression;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Checks pause equipment, map reveal, sprite placement, and unpause asset transfers.</summary>
 internal static class PauseMenuVerification

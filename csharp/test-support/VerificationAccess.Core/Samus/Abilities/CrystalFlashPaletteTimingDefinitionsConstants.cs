@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Cartridge values of <see cref="CrystalFlashPaletteTimingDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="CrystalFlashPulseTimingDefinitions"/> that only verification reads.</summary>
 internal static class CrystalFlashPaletteTimingDefinitionsConstants
 {
     /// <summary>
@@ -14,7 +14,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsConstants
     public const int RecordByteCount = 4;
 
     /// <summary>Provides the native first timer address for Crystal Flash palette timing verification.</summary>
-    extension(CrystalFlashPaletteTimingDefinitions)
+    extension(CrystalFlashPulseTimingDefinitions)
     {
         /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress"/>
         internal static int NativeFirstTimerAddress => CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress;

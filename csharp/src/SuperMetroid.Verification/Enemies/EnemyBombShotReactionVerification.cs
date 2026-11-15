@@ -40,7 +40,7 @@ internal static class EnemyBombShotReactionVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = LoadedRoomWithMellow(definition, frozenTimer);
             var bombs = new SamusBombProjectileSystem();
-            SamusBombProjectileSlot bomb = bombs.Slots[0];
+            SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);
@@ -94,7 +94,7 @@ internal static class EnemyBombShotReactionVerification
             if (frameHitboxes)
                 slot.Frame = EnemyFrameId.Empty;
             var bombs = new SamusBombProjectileSystem();
-            SamusBombProjectileSlot bomb = bombs.Slots[0];
+            SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);

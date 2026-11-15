@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
@@ -196,9 +196,9 @@ public sealed class SamusState
     public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();
 
     /// <summary>
-    /// The X-speed divisor, 0 through 65535, as Samus's own view of <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>:
-    /// the one stored value is both a movement-speed divisor and the no-FX animation delay buffer, and its setter
-    /// rejects values outside that range.
+    /// The X-speed divisor, 0 through <see cref="SamusHorizontalSpeedState.LargestSpeedDivisor"/>, as Samus's own view of
+    /// <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>: the one stored value is both a movement-speed divisor and the
+    /// no-FX animation delay buffer, and its setter rejects values outside that range.
     /// </summary>
     [IntegerQuantity("right-shift applied to horizontal speed, zero when undivided")]
     public int XSpeedDivisor
@@ -361,7 +361,7 @@ public sealed class SamusState
     /// starts on the Speed Booster colouring; the colour handling then alternates it with the normal suit every update
     /// until the attacker lets go.
     /// </summary>
-    public SamusMetroidAttachmentPalette MetroidAttachmentColouring { get; internal set; }
+    public SamusMetroidAttachmentShade MetroidAttachmentShade { get; internal set; }
 
     /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
     public SamusBallBounceState MorphBallBounceState { get; set; }
@@ -389,7 +389,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt-flash
-    /// colouring advances it and clears it on reaching sixty (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>).
+    /// palette advances it and clears it on reaching sixty (<see cref="SamusHurtFlash.EndingCall"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
@@ -442,7 +442,7 @@ public sealed class SamusState
     /// <summary>
     /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
     /// </summary>
-    public SamusVisorPaletteState VisorPalette { get; } = new();
+    public SamusVisorShadeState VisorShades { get; } = new();
 
     /// <summary>
     /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
@@ -526,7 +526,7 @@ public sealed class SamusState
         FramesBeyondAnimation = Ensure.NotNull(framesBeyondAnimation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
-        HorizontalSpeed = new SamusHorizontalSpeedState(compatibility.WaterSpeedsInAir);
+        HorizontalSpeed = new SamusHorizontalSpeedState(compatibility);
         ProjectileInheritance = compatibility.LaunchInheritance;
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;

@@ -22,27 +22,27 @@ internal static class SamusColorPresentationContractChecks
             using SuperMetroid.Core.Assets;
             using SuperMetroid.AssetExtraction.Samus.Artwork;
             using SuperMetroid.Core.Samus.Artwork;
-            using SuperMetroid.Core.Samus.Palettes;
+            using SuperMetroid.Core.Samus.Colours;
             class ColorConsumer {
                 void Inspect(SamusFullBodyCycleColours body, InstalledSamusSuitColors suit,
                     SamusChargeColours charge, InstalledSamusHurtColors hurt,
                     SamusHyperBeamColours hyper, InstalledSamusVisorColors visor,
                     InstalledCrystalFlashColors flash, InstalledPowerBombGlowColors bomb,
                     HyperBeamFxColours fx) {
-                    body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                    body.Resolve(new SamusFullBodyCycleShade(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusSuit.Gravity, 3), SamusColourSets.ColoursPerSet - 1);
-                    body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
+                    body.Resolve(new SamusFullBodyCycleShade(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusSuit.Gravity, 3), SamusColourSets.ColoursPerSet);
                     hurt.Resolve(SamusHurtColorVariant.Intro, SamusHurtColorFormat.ColorsPerPalette - 1);
                     hurt.Resolve((SamusHurtColorVariant)int.MaxValue, 0);
-                    hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1,
+                    hyper.Resolve(SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1,
                         SamusColourSets.ColoursPerSet - 1);
-                    hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount, 0);
+                    hyper.Resolve(SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount, 0);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);
-                    bomb.Resolve(PowerBombGlowSequence.Explosion, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount - 1);
-                    bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount - 1);
-                    bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount);
+                    bomb.Resolve(PowerBombGlowSequence.Explosion, SamusShadeDefinitions.PowerBomb.ExplosionColorCount - 1);
+                    bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusShadeDefinitions.PowerBomb.PreExplosionColorCount - 1);
+                    bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusShadeDefinitions.PowerBomb.PreExplosionColorCount);
                     bomb.Resolve((PowerBombGlowSequence)int.MaxValue, 0);
                 }
             }
@@ -51,7 +51,7 @@ internal static class SamusColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("SamusColorProviderFixture", trees,
-            platforms.Append(typeof(SamusChargePalette).Assembly.Location).Distinct()
+            platforms.Append(typeof(SamusChargeShade).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "Samus color provider confirmation");

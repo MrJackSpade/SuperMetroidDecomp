@@ -238,7 +238,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// True when the spin's top-boundary test finds Samus
-    /// fully under water/lava. The caller performs the Gravity-Suit colour-bit exemption.
+    /// fully under water/lava. The caller performs the Gravity Suit's exemption.
     /// </summary>
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
@@ -373,7 +373,7 @@ public sealed class SamusLiquidPhysicsState
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
                 // Lava alone cancels the speed boost before the Gravity-Suit branch.
-                // Cancelling the speed boost owns the momentum/counter/colour/echo transition;
+                // Cancelling the speed boost owns the momentum/counter/shade/echo transition;
                 // the two extra-run speeds are then cleared explicitly by the liquid step.
                 // Acid deliberately skips all three writes.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -394,7 +394,8 @@ public sealed class SamusLiquidPhysicsState
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
-            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) && samus.Health >= 71)
+            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+                samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
             // Both lava and acid now share the delay-two submerged path.
@@ -454,8 +455,8 @@ public sealed class SamusLiquidPhysicsState
         }
 
         // A nonzero whole speed that reads as reaching five is a hard landing. Anything else, including a whole
-        // speed of 32773 or more, falls to the sub-speed test: with no sub-speed it returns before both sound and
-        // graphics, and otherwise it is a soft landing.
+        // speed so large that it reads as having passed zero, falls to the sub-speed test: with no sub-speed it
+        // returns before both sound and graphics, and otherwise it is a soft landing.
         bool hardLanding = impactYSpeed.Whole != 0 && SamusSpeedMagnitude.IsAtLeast(impactYSpeed.Whole, 5);
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
@@ -474,8 +475,8 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Selects landing dust or splash by area and room while leaving impact sound policy to the caller.</summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        // Is an eight-entry area table. An invalid area would select
-        // unrelated data; fail loudly instead of manufacturing output.
+        // Each area has its own landing graphics. An undefined area has none;
+        // fail loudly instead of manufacturing output.
         switch (Area)
         {
             case AreaId.Crateria:
@@ -544,8 +545,8 @@ public sealed class SamusLiquidPhysicsState
 
         if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
         {
-            // Above Y=944 the entrance is dry and deletes; at/below it, use wet splashes.
-            if (samus.Position.Y.Whole >= 944)
+            // Above the waterline the entrance is dry and deletes; at and below it, use wet splashes.
+            if (samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY)
                 SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             else
                 EndLandingEffectWait();
@@ -574,8 +575,8 @@ public sealed class SamusLiquidPhysicsState
 
         // Both landing particle steps suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination
-        // preserves the absent surfaces and water option-bit-two exemption used by
-        // those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
+        // preserves the absent surfaces and the water whose surface Samus ignores
+        // (IgnoresWaterSurface) used by those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
@@ -744,7 +745,7 @@ public sealed class SamusLiquidPhysicsState
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = FxType == RoomFxType.Rain;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = samus.Position.Y.Whole >= 944;
+                    useWetFootsteps = samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = true;
             }
@@ -758,7 +759,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress the footstep sound.
-        // This is the special-colouring timer, not the colour cycle timer: the latter is already nonzero during boost buildup.
+        // A held shine suppresses it; the boost's cycle shade timer, already nonzero during boost buildup, does not.
         if (!CinematicActive &&
             !bossPresent &&
             !SamusInputSnapshot.HoldsShine(samus) &&
@@ -775,11 +776,11 @@ public sealed class SamusLiquidPhysicsState
     /// </remarks>
     private void SpawnFootstepPair(SamusState samus, SamusParticleKind kind)
     {
-        bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        int firstX = directionIsFour
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
+        int firstX = facingLeft
             ? CoordinateAxis.Wrap(samus.Position.X.Whole - 12)
             : CoordinateAxis.Wrap(samus.Position.X.Whole + 12);
-        int secondX = directionIsFour
+        int secondX = facingLeft
             ? CoordinateAxis.Wrap(samus.Position.X.Whole + 8)
             : CoordinateAxis.Wrap(samus.Position.X.Whole - 8);
         int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + 16);

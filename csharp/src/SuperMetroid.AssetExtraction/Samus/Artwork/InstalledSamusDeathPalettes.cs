@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Assets;
 
@@ -40,13 +40,13 @@ public sealed class InstalledSamusDeathPalettes
         Ensure.NotNull(suitless);
         Ensure.NotNull(whiteout);
         Ensure.NotNull(explosionPaletteIndices);
-        FixedGridShape deathSteps = new(SamusPaletteDefinitions.Death.PaletteCount, ColorCount);
+        FixedGridShape deathSteps = new(SamusShadeDefinitions.Death.ExplosionShadeCount, ColorCount);
         if (suited.Length != SuitCount ||
             suited.Any(family => !deathSteps.Fits(family)) ||
             !deathSteps.Fits(suitless) ||
-            whiteout.Length != SamusPaletteDefinitions.Death.WhiteoutShadeCount ||
+            whiteout.Length != SamusShadeDefinitions.Death.WhiteoutShadeCount ||
             explosionPaletteIndices.Length != SamusDeathExplosionTimingDefinitions.StepCount ||
-            explosionPaletteIndices.Any(index => index >= SamusPaletteDefinitions.Death.PaletteCount))
+            explosionPaletteIndices.Any(index => index >= SamusShadeDefinitions.Death.ExplosionShadeCount))
             throw new InvalidDataException("Samus death-palette artwork has an invalid shape or RGB5 color.");
         this.suited = [.. suited.Select(Copy)];
         this.suitless = Copy(suitless);
@@ -102,7 +102,7 @@ public sealed class InstalledSamusDeathPalettes
     /// </summary>
     public SamusDeathSteps Steps => new(
         [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(ExplosionPaletteIndex)],
-        [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Select(WhiteoutColor)]);
+        [.. Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Select(WhiteoutColor)]);
 
     /// <summary>The colour at <paramref name="palette"/> and <paramref name="color"/> of one family's death-flash steps.</summary>
     private static RgbColor Step(RgbColor[][] steps, int palette, int color)

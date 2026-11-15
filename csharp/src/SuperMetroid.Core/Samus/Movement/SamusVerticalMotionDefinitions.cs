@@ -59,13 +59,27 @@ internal static class SamusVerticalMotionDefinitions
         [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(44),
     };
 
-    /// <summary>YSubAcceleration/YAcceleration: each medium's gravity, a fraction of a pixel per frame in
-    /// all three media.</summary>
+    /// <summary>
+    /// Each medium's gravity, the downward speed Samus gains per update: seven sixty-fourths of a pixel in air, a
+    /// thirty-second in water and nine 256ths in lava or acid.
+    /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> Gravities =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = new(0, 7168),
-        [SamusLiquidMedium.Water] = new(0, 2048),
-        [SamusLiquidMedium.LavaOrAcid] = new(0, 2304),
+        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(28),
+        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8),
+        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(9),
     };
+
+    /// <summary>The slowest fall in air from which Space Jump restarts the spin jump: two and a half pixels per update.</summary>
+    internal static UnsignedSixteenSixteen SpaceJumpAirMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(40);
+
+    /// <summary>
+    /// The slowest fall in a liquid from which Space Jump restarts the spin jump: half a pixel per update, the medium
+    /// being the one the preceding animation pass remembered.
+    /// </summary>
+    internal static UnsignedSixteenSixteen SpaceJumpLiquidMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(8);
+
+    /// <summary>The falling speed at and above which Space Jump no longer restarts the spin jump: five pixels per update.</summary>
+    internal static UnsignedSixteenSixteen SpaceJumpFallingSpeedLimit { get; } = new(5, 0);
 }

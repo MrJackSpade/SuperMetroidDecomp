@@ -13,12 +13,12 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 public sealed class SamusFullBodyCycleColours
 {
     /// <summary>Each cycle palette's suit colours.</summary>
-    private readonly Dictionary<SamusFullBodyCyclePalette, ImmutableArray<RgbColor>> palettes;
+    private readonly Dictionary<SamusFullBodyCycleShade, ImmutableArray<RgbColor>> palettes;
 
     /// <summary>Keeps the decoded palettes.</summary>
     /// <param name="palettes">Each cycle palette's suit colours, as many as Samus's suit holds.</param>
     /// <exception cref="ArgumentException">A palette does not hold a whole suit's colours.</exception>
-    internal SamusFullBodyCycleColours(IReadOnlyDictionary<SamusFullBodyCyclePalette, ImmutableArray<RgbColor>> palettes)
+    internal SamusFullBodyCycleColours(IReadOnlyDictionary<SamusFullBodyCycleShade, ImmutableArray<RgbColor>> palettes)
     {
         Ensure.NotNull(palettes);
         foreach (ImmutableArray<RgbColor> colours in palettes.Values)
@@ -27,13 +27,13 @@ public sealed class SamusFullBodyCycleColours
     }
 
     /// <summary>Every palette the installation holds, which the import pre-colours Samus's sheets in (#1512).</summary>
-    public IEnumerable<SamusFullBodyCyclePalette> Palettes => palettes.Keys;
+    public IEnumerable<SamusFullBodyCycleShade> Palettes => palettes.Keys;
 
     /// <summary>One colour of Samus's suit under a cycle palette.</summary>
     /// <param name="palette">The cycle palette.</param>
     /// <param name="colorIndex">The colour within Samus's suit.</param>
     /// <exception cref="ArgumentOutOfRangeException">The palette is not catalogued, or the colour is not one of the suit's.</exception>
-    public RgbColor Resolve(SamusFullBodyCyclePalette palette, int colorIndex)
+    public RgbColor Resolve(SamusFullBodyCycleShade palette, int colorIndex)
     {
         ImmutableArray<RgbColor> colours = Palette(palette);
         if ((uint)colorIndex >= (uint)colours.Length) throw new ArgumentOutOfRangeException(nameof(colorIndex));
@@ -41,7 +41,7 @@ public sealed class SamusFullBodyCycleColours
     }
 
     /// <summary>The suit colours of <paramref name="palette"/>.</summary>
-    private ImmutableArray<RgbColor> Palette(SamusFullBodyCyclePalette palette) =>
+    private ImmutableArray<RgbColor> Palette(SamusFullBodyCycleShade palette) =>
         palettes.TryGetValue(palette, out ImmutableArray<RgbColor> colours)
             ? colours
             : throw new ArgumentOutOfRangeException(nameof(palette), $"Uncatalogued full-body palette {palette}.");

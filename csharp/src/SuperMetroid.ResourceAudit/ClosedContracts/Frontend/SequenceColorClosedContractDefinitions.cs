@@ -26,8 +26,8 @@ internal static class SequenceColorClosedContractDefinitions
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledSamusDeathPalettes.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusColourSets.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusFullBodyCyclePalettes.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Colours/SamusShadeDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Colours/SamusFullBodyCycleShades.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTiming.cs")]),
     ];

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class MorphBallBombDefinitions
 {
     /// <summary>How many bombs Samus can have out at once.</summary>
-    public const int SlotCount = 5;
+    public const int PlaceCount = 5;
 
     /// <summary>The wait after placing a normal bomb before Samus can place or fire again.</summary>
     public const int NormalBombCooldown = 16;

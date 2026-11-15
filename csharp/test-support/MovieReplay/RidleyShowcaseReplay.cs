@@ -383,7 +383,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (!SamusSnapshotWords.AlignsToSlopes(W(NativeSnapshotMemory.SlopeCollisionEnable)))
                 mismatches.Add($"Samus slope alignment: native={W(NativeSnapshotMemory.SlopeCollisionEnable):X4} disables it, which the port never does");
             Check("Samus SpeedDivisor", checked((ushort)samus.HorizontalSpeed.SpeedDivisor), NativeSnapshotMemory.SpeedDivisor);
-            Check("Samus ContactDamageIndex", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.ContactDamage.Word(samus.HorizontalSpeed.ContactDamageIndex), NativeSnapshotMemory.ContactDamageIndex);
+            Check("Samus BodyAttack", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.ContactDamage.Word(samus.HorizontalSpeed.BodyAttack), NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", SamusSnapshotWords.EncodeBallBounce(samus.MorphBallBounceState), NativeSnapshotMemory.MorphBallBounceState);
             Check("Samus bomb jump", SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest), NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);
@@ -687,15 +687,15 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
                 Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
-                Check("ChargePaletteStep", runtime.Projectiles.Charge.ChargePaletteStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
+                Check("ChargeGlowStep", runtime.Projectiles.Charge.ChargeGlowStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
                 // This movie never places a bomb. Check every physical bomb slot and
                 // both activation owners so that absence is verified, not assumed from
                 // the aggregate counter or from ordinary beam/missile comparisons.
-                foreach (var bomb in runtime.BombProjectiles.Slots)
+                foreach (var bomb in runtime.BombProjectiles.Bombs)
                 {
-                    int address = NativeSnapshotMemory.ProjectileType + (bomb.Index + 5) * 2;
-                    VerificationAssertions.AssertTrue(bomb.Type.IsNone, $"Bomb {bomb.Index} holds no bomb");
+                    int address = NativeSnapshotMemory.ProjectileType + (bomb.Place + 5) * 2;
+                    VerificationAssertions.AssertTrue(bomb.Type.IsNone, $"Bomb place {bomb.Place} holds no bomb");
                     VerificationAssertions.AssertTrue(W(address) == 0,
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }

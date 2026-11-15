@@ -241,7 +241,7 @@ internal sealed class MotherBrainCombat
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
         RoomEnemySlot head,
-        SamusBombProjectileSlot bomb)
+        SamusBomb bomb)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain head normal-bomb AI ran without its multipart encounter state.");

@@ -239,7 +239,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case ShitroidAction.BeginDrainingSamus:
-                RequireShitroidSamus(samus).MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext;
+                RequireShitroidSamus(samus).MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext;
                 state.Action = ShitroidAction.DrainSamus;
                 goto case ShitroidAction.DrainSamus;
 
@@ -486,8 +486,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
-            state.ColourDelay = 10;
-            samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.Inactive;
+            state.PaletteDelay = 10;
+            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
             RequestShitroidMusic(MusicRequest.SelectTrack(MusicTrack.SilentSong));

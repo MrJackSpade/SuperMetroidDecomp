@@ -1,0 +1,25 @@
+using SuperMetroid.Core.Samus.Movement;
+
+namespace SuperMetroid.Core.Samus.Abilities;
+
+/// <summary>Samus's pose, equipment and submersion as the Speed Booster glow reads them, and whether another special colouring owns her colours this frame (#633).</summary>
+public readonly record struct SpeedBoosterGlowFrame
+{
+    /// <summary>Movement type.</summary>
+    public required SamusMovementType MovementType { get; init; }
+
+    /// <summary>
+    /// Samus's current animation frame index, copied from her animation state; the shade compares it with zero,
+    /// three and twenty-seven.
+    /// </summary>
+    public required int AnimationFrame { get; init; }
+
+    /// <summary>Equipped items.</summary>
+    public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
+
+    /// <summary>Whether another special colouring owns Samus's colours, which keeps the active Speed Booster glow off.</summary>
+    public bool SuppressActiveSpeedBoosterGlow { get; init; }
+
+    /// <summary>Bottom boundary submerged.</summary>
+    public bool BottomBoundarySubmerged { get; init; }
+}

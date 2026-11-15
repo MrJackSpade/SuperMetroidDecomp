@@ -66,6 +66,13 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
     public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
 
+    /// <summary>A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel, which must not be negative.</summary>
+    public static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
+        FromRaw(checked((uint)twoHundredFiftySixths * 256u));
+
+    /// <summary>Whether this speed is slower than <paramref name="other"/>, comparing whole pixels and fraction together.</summary>
+    public bool IsSlowerThan(UnsignedSixteenSixteen other) => RawValue < other.RawValue;
+
     /// <summary>
     /// Adds two values: a fraction sum that passes a whole moves the whole part by one, and the whole part wraps at its
     /// sixteen bits.

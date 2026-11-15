@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.ResourceAudit.Reports;
@@ -69,11 +69,11 @@ internal static class SamusBodyTransferContractChecks
         var atmosphere = new SamusAtmosphericSourceArtwork(
             new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount],
             new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount]);
-        RgbColor[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
+        RgbColor[][] Rows() => Enumerable.Range(0, SamusShadeDefinitions.Death.ExplosionShadeCount)
             .Select(_ => new RgbColor[InstalledSamusDeathPalettes.ColorCount]).ToArray();
         var deathColors = new InstalledSamusDeathPalettes(
             Enumerable.Range(0, InstalledSamusDeathPalettes.SuitCount).Select(_ => Rows()).ToArray(), Rows(),
-            new RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.StepCount]);
+            new RgbColor[SamusShadeDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.StepCount]);
         var cannonDocument = new SamusArmCannonArtworkDocument {
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = EveryRecordedPose(0),

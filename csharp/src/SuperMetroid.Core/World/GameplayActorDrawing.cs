@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -103,7 +103,7 @@ internal sealed class GameplayActorDrawing
             // movement, before this colour step. Flush that deferred write first so charge
             // and drained colourings retain their same-frame priority.
             if (!deathOwnsSamus)
-                _player.Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
+                _player.Samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
                     _player.Colours, _player.Samus.EquippedItems);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 _player.Samus.Drained.UpdatePalette(_player.Colours, _player.Samus.EquippedItems);
@@ -113,8 +113,8 @@ internal sealed class GameplayActorDrawing
                 // The colour update always runs charge/post-shot handling before running the
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
                 // white for three calls and restore the suit on call four; Hyper shots
-                // step ten complete colourings on alternating calls before restore.
-                LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
+                // step ten complete palettes on alternating calls before restore.
+                LastBeamChargeGlowStep = room.Projectiles.UpdateBeamChargeGlow(
                     _player.Colours,
                     _player.Samus,
                     room.FxOverlay.VisorAnimation);
@@ -122,16 +122,16 @@ internal sealed class GameplayActorDrawing
                 // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
                 chargeGlowRestoredNormalPalette =
-                    LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;
+                    LastBeamChargeGlowStep.Action == SamusBeamChargeGlowAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredNormalPalette)
-                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_player.Colours, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.SpecialColouring.Holder != SamusSpecialPaletteType.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
+                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterGlow = _player.Samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
             }
             // The shinespark colouring runs at the same point of the colour step. It
             // executes only when charge handling did not restore the suit.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
-                _player.Samus.Shinespark.UpdatePalette(
+                _player.Samus.Shinespark.UpdateColouring(
                     _player.Colours,
                     _player.Samus.EquippedItems);
             }
@@ -140,7 +140,7 @@ internal sealed class GameplayActorDrawing
             // intentionally runs at the same point of the colour step.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
-                _player.Samus.CrystalFlash.UpdatePalette(
+                _player.Samus.CrystalFlash.UpdateColouring(
                     _player.Colours,
                     _player.Samus);
             }
@@ -148,7 +148,7 @@ internal sealed class GameplayActorDrawing
             // restores the complete Power/Varia/Gravity suit colours once.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
-                _player.Samus.Xray.UpdatePalette(
+                _player.Samus.Xray.UpdateColouring(
                     _player.Colours,
                     _player.Samus.EquippedItems);
             }
@@ -158,10 +158,10 @@ internal sealed class GameplayActorDrawing
             // took the earlier branch.
             bool metroidOwnsSamusPalette = !deathOwnsSamus &&
                 !drainedOwnsSamusPalette &&
-                SamusSpecialSuperPalette.Update(_player.Colours, _player.Samus);
+                SamusMetroidAttachmentFlash.Update(_player.Colours, _player.Samus);
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !metroidOwnsSamusPalette)
             {
-                SamusHurtFlashPalette.Update(
+                SamusHurtFlash.Update(
                     _player.Colours,
                     _player.Samus,
                     _controller1.Current);
@@ -404,7 +404,7 @@ internal sealed class GameplayActorDrawing
     /// The most recent beam-charge or post-shot colouring step of Samus's body. It is distinct from the Hyper Beam's
     /// colouring of her shots: it colours her body rather than her shots.
     /// </summary>
-    public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
+    public SamusBeamChargeGlowStep LastBeamChargeGlowStep { get; internal set; }
 
 
 

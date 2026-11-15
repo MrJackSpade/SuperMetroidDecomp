@@ -68,7 +68,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
-            hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
+            hurt.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
             AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = 11 }), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.YSpeed.Whole, "Hurt native whole launch");
@@ -78,7 +78,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
             AssertEqual(SamusBombJumpRequest.None, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlash.Count, "Hurt starts flash");
-            AssertEqual(SamusContactDamageIndex.None, hurt.HorizontalSpeed.ContactDamageIndex, "Hurt cancels contact attack");
+            AssertEqual(SamusBodyAttack.None, hurt.HorizontalSpeed.BodyAttack, "Hurt cancels contact attack");
             hurtCases++;
         }
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");

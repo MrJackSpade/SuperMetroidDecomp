@@ -32,11 +32,11 @@ public sealed class SamusKinematicsState
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
     /// collision input even when a probe deliberately cannot mutate the full owner.
     /// </summary>
-    internal SamusContactDamageIndex? ProbeContactDamageIndex { get; init; }
+    internal SamusBodyAttack? ProbeBodyAttack { get; init; }
 
     /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
-    internal SamusContactDamageIndex CollisionContactDamageIndex(SamusState? owner) =>
-        ProbeContactDamageIndex ?? owner?.HorizontalSpeed.ContactDamageIndex ?? SamusContactDamageIndex.None;
+    internal SamusBodyAttack CollisionBodyAttack(SamusState? owner) =>
+        ProbeBodyAttack ?? owner?.HorizontalSpeed.BodyAttack ?? SamusBodyAttack.None;
 
     /// <summary>Constructs an ownerless kinematics fixture for block-only probes.</summary>
     public SamusKinematicsState()
@@ -50,7 +50,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal SamusKinematicsState CreateCollisionProbe()
     {
-        var probe = new SamusKinematicsState { ProbeContactDamageIndex = ProbeContactDamageIndex };
+        var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
         probe.CollisionPose = CollisionPose;
         probe.Position = Position;
         probe.Radius = Radius;
@@ -117,8 +117,8 @@ public sealed class SamusKinematicsState
     public UnsignedSixteenSixteen YSpeed { get; set; }
 
     /// <summary>
-    /// Vertical direction: zero is none, one is upward, and two is
-    /// downward. The game stores speed as a magnitude and uses this separate direction;
+    /// Vertical direction: <see cref="SamusVerticalDirection.None"/>, <see cref="SamusVerticalDirection.Up"/> or
+    /// <see cref="SamusVerticalDirection.Down"/>. The game stores speed as a magnitude and uses this separate direction;
     /// treating upward velocity as a negative number would lose the quirks of a speed passing zero
     /// in the vertical move and the jump-release test.
     /// </summary>

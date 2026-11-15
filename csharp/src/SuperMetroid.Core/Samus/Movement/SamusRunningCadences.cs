@@ -5,37 +5,31 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>How Samus's running cadences are chosen and read: the frame delays a run animates by, and a boost stage's restart.</summary>
 internal static class SamusRunningCadences
 {
-    /// <summary>
-    /// The selection the Speed Booster echo's queue request leaves: the occupancy the request saw when admitted, or
-    /// <see cref="SamusRunningCadenceDefinitions.RejectedEchoSelection"/> when the queue already held six requests.
-    /// </summary>
-    internal static int EchoQueueSelection(SoundQueueAdmission admission) =>
-        admission.IsAdmitted ? admission.Occupancy : RejectedEchoSelection;
+    /// <summary>The cadence the boost restarts on after its echo's sound request found <paramref name="echo"/>, as <paramref name="restart"/> picks it.</summary>
+    /// <param name="restart">Samus's rule for how the boost restarts after its echo.</param>
+    /// <param name="echo">What the echo's sound request found.</param>
+    internal static SamusRunningCadence CadenceAfterEcho(BoostRestartAfterEcho restart, SoundQueueAdmission echo) =>
+        Ensure.NotNull(restart).StageAfterEcho(echo) is { } stage ? SpeedBoostCadence(stage) : SamusRunningCadence.UnauthoredBoost;
 
-    /// <summary>The boost cadence <paramref name="selection"/> picks: an authored stage, or the unauthored cadence at five.</summary>
-    /// <exception cref="InvalidDataException">The selection lies past what the echo's queue request can report.</exception>
-    internal static SamusRunningCadence SpeedBoostCadence(int selection) => selection switch
-    {
-        0 => SamusRunningCadence.BoostStage0,
-        1 => SamusRunningCadence.BoostStage1,
-        2 => SamusRunningCadence.BoostStage2,
-        3 => SamusRunningCadence.BoostStage3,
-        4 => SamusRunningCadence.BoostStage4,
-        MaximumSoundQueueSelection => SamusRunningCadence.UnauthoredBoost,
-        _ => throw new InvalidDataException(
-            $"Speed Booster selection {selection} lies past what the echo's queue request can report."),
-    };
+    /// <summary>The cadence of authored boost stage <paramref name="stage"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The stage is not one of the authored stages.</exception>
+    internal static SamusRunningCadence SpeedBoostCadence(int stage) =>
+        (uint)stage < (uint)BoostStageCadences.Count
+            ? BoostStageCadences[stage]
+            : throw new ArgumentOutOfRangeException(nameof(stage), stage, "The boost has five authored stages.");
 
-    /// <summary>The cadence countdown, 0 through 2, the boost restarts with after advancing onto <paramref name="selection"/>.</summary>
-    /// <exception cref="InvalidDataException">The selection lies past what the echo's queue request can report.</exception>
-    internal static int CountdownAfterAdvance(int selection) => SpeedBoostCadence(selection) switch
+    /// <summary>The countdown, 0 through 2, the boost restarts with on <paramref name="cadence"/>.</summary>
+    /// <exception cref="InvalidOperationException">The cadence is ordinary running's, which is no boost cadence.</exception>
+    internal static int CountdownAfterAdvance(SamusRunningCadence cadence) => cadence switch
     {
         SamusRunningCadence.UnauthoredBoost => UnauthoredBoostCadence.CountdownAfterAdvance,
-        SamusRunningCadence.BoostStage0 or SamusRunningCadence.BoostStage1 or SamusRunningCadence.BoostStage2 or
-            SamusRunningCadence.BoostStage3 or SamusRunningCadence.BoostStage4 =>
-            SamusRunningCadenceDefinitions.CountdownAfterAdvance[selection],
+        SamusRunningCadence.BoostStage0 => SamusRunningCadenceDefinitions.CountdownAfterAdvance[0],
+        SamusRunningCadence.BoostStage1 => SamusRunningCadenceDefinitions.CountdownAfterAdvance[1],
+        SamusRunningCadence.BoostStage2 => SamusRunningCadenceDefinitions.CountdownAfterAdvance[2],
+        SamusRunningCadence.BoostStage3 => SamusRunningCadenceDefinitions.CountdownAfterAdvance[3],
+        SamusRunningCadence.BoostStage4 => SamusRunningCadenceDefinitions.CountdownAfterAdvance[4],
         SamusRunningCadence.Ordinary => throw new InvalidOperationException("Ordinary running is not a boost stage."),
-        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusRunningCadence)} {undefined}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusRunningCadence)} {cadence}."),
     };
 
     /// <summary>The delay, in ticks, of running frame <paramref name="frame"/> on <paramref name="cadence"/>.</summary>

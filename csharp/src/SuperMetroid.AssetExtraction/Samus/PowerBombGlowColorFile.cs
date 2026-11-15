@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -32,8 +32,8 @@ public static class PowerBombGlowColorFile
         if (document.Version != Version)
             throw new InvalidDataException("Power Bomb glow colours require the supported version.");
         return new(
-            Compile(document.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount, "pre-explosion"),
-            Compile(document.Explosion, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount, "explosion"));
+            Compile(document.PreExplosion, SamusShadeDefinitions.PowerBomb.PreExplosionColorCount, "pre-explosion"),
+            Compile(document.Explosion, SamusShadeDefinitions.PowerBomb.ExplosionColorCount, "explosion"));
     }
 
     /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON.</summary>

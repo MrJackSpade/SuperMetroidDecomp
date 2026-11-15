@@ -58,7 +58,7 @@ public sealed class SamusArmCannonState
     /// Runs the HUD selection stability update and the arm cannon's open-state update. Calling once
     /// per gameplay frame reproduces the selection stability update followed later by the cover update.
     /// </summary>
-    public SamusArmCannonUpdateResult Update(SamusState samus)
+    public void Update(SamusState samus)
     {
         Ensure.NotNull(samus);
         bool itemChanged = samus.SelectedHudItem != PreviousSelectedHudItem;
@@ -76,14 +76,13 @@ public sealed class SamusArmCannonState
             AdvanceFrame();
 
         DrawOrder = Placement(samus.Pose).DrawOrder;
-        return new SamusArmCannonUpdateResult();
     }
 
     /// <summary>
     /// Draws the direction-specific small sprite showing its selected cover frame. The caller chooses
     /// before/after-body order from <see cref="DrawOrder"/>.
     /// </summary>
-    public SamusArmCannonDrawResult Draw(
+    public void Draw(
         SpriteFrameBuffer sprites,
         SamusState samus,
         Position16<RoomPixels> cameraPosition,
@@ -95,7 +94,7 @@ public sealed class SamusArmCannonState
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither sprite nor artwork work. The game returns before even consulting pose data.
         if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
-            return new SamusArmCannonDrawResult();
+            return;
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
         SamusProjectileDirection direction = placement.Direction(samus.AnimationFrame);
@@ -114,8 +113,6 @@ public sealed class SamusArmCannonState
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
             sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, Frame)),
             new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
-
-        return new SamusArmCannonDrawResult();
     }
 
     /// <summary>Starts opening or closing only after the HUD item has been stable for two updates.</summary>

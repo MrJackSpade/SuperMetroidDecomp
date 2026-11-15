@@ -36,7 +36,7 @@ internal static class SamusHudSelection
         {
             // The selection ring wraps after X-ray and keeps advancing while the selected
             // item is unavailable. The loop always terminates because the first item,
-            // Nothing, is always available.
+            // the beam, is always available.
             do
             {
                 samus.SelectedHudItem = HudItems.Next(samus.SelectedHudItem);

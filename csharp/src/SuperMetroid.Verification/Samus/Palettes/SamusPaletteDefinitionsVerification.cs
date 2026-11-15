@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Palettes;
@@ -29,16 +29,16 @@ internal static class SamusPaletteDefinitionsVerification
             visorColours.ShownSuit(InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex - 192],
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
-            SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount,
-            SamusPaletteDefinitions.HyperBeamFx.FrameCount,
+            SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount,
+            SamusShadeDefinitions.HyperBeamFx.FrameCount,
             "full-body and projectile Hyper Beam cycles have equal record counts");
         AssertTrue(
-            SamusPaletteDefinitions.SuitPickup.WhiteRed >=
-                SamusPaletteDefinitions.SuitPickup.InitialRed &&
-            SamusPaletteDefinitions.SuitPickup.WhiteGreen >=
-                SamusPaletteDefinitions.SuitPickup.VariaGreen &&
-            SamusPaletteDefinitions.SuitPickup.WhiteBlue >=
-                SamusPaletteDefinitions.SuitPickup.GravityBlue,
+            SamusShadeDefinitions.SuitPickup.WhiteRed >=
+                SamusShadeDefinitions.SuitPickup.InitialRed &&
+            SamusShadeDefinitions.SuitPickup.WhiteGreen >=
+                SamusShadeDefinitions.SuitPickup.VariaGreen &&
+            SamusShadeDefinitions.SuitPickup.WhiteBlue >=
+                SamusShadeDefinitions.SuitPickup.GravityBlue,
             "suit-pickup white ramp advances every enabled component");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -58,65 +58,65 @@ internal static class SamusPaletteDefinitionsVerification
             SamusColourSets.ColoursPerSet * sizeof(ushort),
             "intro Samus colors");
         TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
-            SamusPaletteDefinitions.Visor.CycleEndShade * sizeof(ushort),
+            SamusShadeDefinitions.Visor.CycleEndShade * sizeof(ushort),
             "Samus visor colors");
 
         foreach (int table in new[]
         {
-            SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPointers,
-            SamusPaletteDefinitions.FullBodyCycles.ScrewAttackLists,
-            SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLists,
-            SamusPaletteDefinitions.FullBodyCycles.StoredShineLists,
-            SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists,
+            SamusShadeDefinitions.FullBodyCycles.SpeedBoostPointers,
+            SamusShadeDefinitions.FullBodyCycles.ScrewAttackLists,
+            SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLists,
+            SamusShadeDefinitions.FullBodyCycles.StoredShineLists,
+            SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkLists,
         })
         {
             TouchRange(bus, table, 3 * sizeof(ushort),
                 $"suit-indexed palette table ${table:X6}");
         }
-        TouchRange(bus, SamusPaletteDefinitions.FullBodyCycles.HyperBeamPointers,
-            SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount * sizeof(ushort),
+        TouchRange(bus, SamusShadeDefinitions.FullBodyCycles.HyperBeamPointers,
+            SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount * sizeof(ushort),
             "full-body Hyper Beam palette pointers");
 
         TouchRange(bus, SamusPaletteDefinitionsHyperBeamFxConstants.ObjectDefinition,
             2 * sizeof(ushort), "Hyper Beam palette-FX object definition");
         TouchRange(bus,
             SamusPaletteDefinitionsBanksConstants.PaletteFx |
-                SamusPaletteDefinitions.HyperBeamFx.InitialList,
+                SamusShadeDefinitions.HyperBeamFx.InitialList,
             2 * sizeof(ushort) +
-                SamusPaletteDefinitions.HyperBeamFx.FrameCount *
-                    SamusPaletteDefinitions.HyperBeamFx.FrameByteCount +
+                SamusShadeDefinitions.HyperBeamFx.FrameCount *
+                    SamusShadeDefinitions.HyperBeamFx.FrameByteCount +
                 2 * sizeof(ushort),
             "Hyper Beam palette-FX instruction stream");
 
         TouchRange(bus, SamusSourceDefinitions.SuitPointers.Value,
-            3 * SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort),
+            3 * SamusShadeDefinitions.Death.ExplosionShadeCount * sizeof(ushort),
             "suited death palette pointers");
         TouchRange(bus, SamusSourceDefinitions.SuitlessPointers.Value,
-            SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort),
+            SamusShadeDefinitions.Death.ExplosionShadeCount * sizeof(ushort),
             "suitless death palette pointers");
         TouchRange(bus, SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value,
             9 * 2, "death explosion timer/palette records");
         TouchRange(bus, SamusSourceDefinitions.DeathWhiteoutShades.Value,
-            SamusPaletteDefinitions.Death.WhiteoutShadeCount * sizeof(ushort),
+            SamusShadeDefinitions.Death.WhiteoutShadeCount * sizeof(ushort),
             "death whiteout shades");
 
-        TouchRange(bus, SamusPaletteDefinitions.CrystalFlash.BeamPalettePointers,
+        TouchRange(bus, SamusShadeDefinitions.CrystalFlash.BeamPalettePointers,
             SuperMetroid.AssetExtraction.Samus.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
             "Crystal Flash restored beam palettes");
         TouchRange(bus, SamusSourceDefinitions.CrystalFlashBodyRecords.Value,
-            SamusPaletteDefinitions.CrystalFlash.BodyStepCount *
-                SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount,
+            SamusShadeDefinitions.CrystalFlash.BodyStepCount *
+                SamusShadeDefinitions.CrystalFlash.BodyRecordByteCount,
             "Crystal Flash body palette records");
         TouchRange(bus, SamusSourceDefinitions.BubblePointers.Value,
-            SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount * sizeof(ushort),
+            SamusShadeDefinitions.CrystalFlash.BubbleShadeCount * sizeof(ushort),
             "Crystal Flash bubble palette pointers");
 
         TouchRange(bus, SamusSourceDefinitions.PowerBombPreExplosionColors.Value,
-            SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount *
+            SamusShadeDefinitions.PowerBomb.PreExplosionColorCount *
                 SamusSourceDefinitions.PowerBombBytesPerColor,
             "Power Bomb pre-explosion fixed colors");
         TouchRange(bus, SamusSourceDefinitions.PowerBombExplosionColors.Value,
-            SamusPaletteDefinitions.PowerBomb.ExplosionColorCount *
+            SamusShadeDefinitions.PowerBomb.ExplosionColorCount *
                 SamusSourceDefinitions.PowerBombBytesPerColor,
             "Power Bomb explosion fixed colors");
 

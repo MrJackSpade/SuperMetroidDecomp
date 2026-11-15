@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Spike;
 /// <param name="Phase">The expected shinespark phase.</param>
 /// <param name="Pose">The expected pose.</param>
 /// <param name="Palette">The expected special palette.</param>
-internal readonly record struct SpikeSuitLaunchCase(int LaunchFrame, ShinesparkPhase Phase, SamusPoseId Pose, SamusSpecialPaletteType Palette);
+internal readonly record struct SpikeSuitLaunchCase(int LaunchFrame, ShinesparkPhase Phase, SamusPoseId Pose, SamusSpecialColouringKind Palette);

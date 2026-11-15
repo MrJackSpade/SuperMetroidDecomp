@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -16,9 +16,9 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 public static class CrystalFlashColorFormat
 {
     /// <summary>Ten editable body frames, one per pointer/timer record in playback order.</summary>
-    public const int BodyFrameCount = SamusPaletteDefinitions.CrystalFlash.BodyStepCount;
+    public const int BodyFrameCount = SamusShadeDefinitions.CrystalFlash.BodyStepCount;
     /// <summary>Six editable bubble frames selected independently by the pointer table.</summary>
-    public const int BubbleFrameCount = SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount;
+    public const int BubbleFrameCount = SamusShadeDefinitions.CrystalFlash.BubbleShadeCount;
     /// <summary>Ten colors in each body frame, occupying sprite palette six colors 0..9.</summary>
     public const int BodyColorCount = 10;
     /// <summary>Six colors in each bubble frame, occupying sprite palette six colors 10..15.</summary>

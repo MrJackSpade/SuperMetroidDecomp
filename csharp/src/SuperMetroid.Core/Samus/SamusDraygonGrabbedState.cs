@@ -85,7 +85,7 @@ public sealed class SamusDraygonGrabbedState
         IsActive = true;
         MovementTakenOver = false;
         _escapePresses.ClearEscapePresses();
-        // The grab takes Samus's movement and keeps her still, but leaves the Flash colouring and its shared
+        // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
         PreviousDpadInput = 0;
@@ -103,7 +103,7 @@ public sealed class SamusDraygonGrabbedState
     /// pixels right; both place her 40 pixels below the body center. Draygon also places a
     /// Samus who has just escaped, until it consumes the escape flag right after this placement.
     /// </summary>
-    public DraygonOwnerPlacement ApplyOwnerPosition(
+    public void ApplyOwnerPosition(
         SamusState samus,
         Position16<RoomPixels> ownerPosition,
         bool draygonFacingRight)
@@ -120,7 +120,6 @@ public sealed class SamusDraygonGrabbedState
         // The placement writes whole positions only. It does not clear subpositions,
         // so preserving the subpositions is intentional even though the actor overwrites
         // the visible whole coordinates on every owner update.
-        return new DraygonOwnerPlacement();
     }
 
     /// <summary>
@@ -186,7 +185,7 @@ public sealed class SamusDraygonGrabbedState
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Returning her movement to her
-        // pose interrupts a spark without resetting its independent boost/colouring.
+        // pose interrupts a spark without resetting its independent boost/shade.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.DraygonHold);
 
         // Release clears pending input transitions, so commit here rather than

@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -19,7 +19,7 @@ public sealed class SamusHyperBeamColours
     /// <exception cref="ArgumentException">The cycle does not hold every frame, or a frame not a whole suit's colours.</exception>
     internal SamusHyperBeamColours(ImmutableArray<ImmutableArray<RgbColor>> frames)
     {
-        Ensure.LengthEqual(frames.AsSpan(), SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount);
+        Ensure.LengthEqual(frames.AsSpan(), SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount);
         foreach (ImmutableArray<RgbColor> colours in frames)
             Ensure.LengthEqual(colours.AsSpan(), SamusColourSets.ColoursPerSet);
         this.frames = frames;

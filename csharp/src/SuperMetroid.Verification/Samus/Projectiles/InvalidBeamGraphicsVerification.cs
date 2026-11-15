@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
@@ -34,7 +34,7 @@ internal static class InvalidBeamGraphicsVerification
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(ordinary, SamusEquipmentWordCodec.FromBeamWord(beam));
+            SamusProjectileSystem.ShowBeamShade(ordinary, SamusEquipmentWordCodec.FromBeamWord(beam));
             RgbColor[] ordinaryBeams = ordinary.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = artwork.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") });
             int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
             int source = (int)new SnesAddress(0x90, LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
@@ -45,7 +45,7 @@ internal static class InvalidBeamGraphicsVerification
         {
             // The palette table lists no Spazer-and-Plasma colours, so the Chainsaw beam shows Plasma and Wave's (#1736).
             var samusColours = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
+            SamusProjectileSystem.ShowBeamShade(samusColours, SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
             AssertEqual(SamusShades.Beam(SamusBeamCombination.PlasmaWave), samusColours.Beams, "the Chainsaw beam shows Plasma and Wave's shade");
             AssertTrue(samusColours.ShownBeams(InstalledFixtures.SamusShadeSources).SequenceEqual(
                     InstalledFixtures.SamusShadeSources.BeamPalettes.Colours(SamusBeamCombination.PlasmaWave)),

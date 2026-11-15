@@ -124,7 +124,7 @@ internal sealed class RoomObjectFramePhase
                     InWorldCollectibleKind.SpazerBeam or
                     InWorldCollectibleKind.PlasmaBeam)
                 {
-                    SamusProjectileSystem.LoadBeamPalette(_player.Colours, samus.EquippedBeams);
+                    SamusProjectileSystem.ShowBeamShade(_player.Colours, samus.EquippedBeams);
                 }
                 else if (pickup.Kind is
                          InWorldCollectibleKind.VariaSuit or

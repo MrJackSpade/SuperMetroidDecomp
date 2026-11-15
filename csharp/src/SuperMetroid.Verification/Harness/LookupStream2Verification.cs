@@ -42,7 +42,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -1506,7 +1506,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBombProjectileSlot(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             _ = bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

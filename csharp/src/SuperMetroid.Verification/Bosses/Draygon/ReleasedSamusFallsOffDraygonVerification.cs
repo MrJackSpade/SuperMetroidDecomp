@@ -48,8 +48,8 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         samus.Control.Unlock();
         samus.EquippedItems |= SamusEquipmentFlags.ScrewAttack;
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
-        // EnemyMain reads the contact-damage index the previous frame's spin movement set.
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
+        // EnemyMain reads the body attack the previous frame's spin movement set.
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(draygon.Body.Position.X.Whole - 8)), unchecked((ushort)(draygon.Body.Position.Y.Whole - 64))));
         SamusPoseMetadata.RefreshCollisionRadii(samus);

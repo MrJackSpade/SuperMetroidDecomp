@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -211,7 +211,7 @@ internal static class SuperMetroidRuntimeAccess
             };
             self.Artwork.BindSamusPalettePresentation();
 
-            SamusNormalSuitPalette.LoadPower(self.Player.Colours);
+            SamusSuitShade.ShowPower(self.Player.Colours);
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             SamusPresentation.InitializeAnimation(self.Player.Samus);
             if (self.Room.LandingSiteEntry is not null)

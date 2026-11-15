@@ -53,7 +53,7 @@ internal static class SamusSnapshotWords
 
     /// <summary>Encodes the Speed Booster counter as the word native code holds.</summary>
     internal static int EncodeSpeedBoostCounter(SamusSpeedBoostCounter counter) =>
-        counter.Stage * SpeedBoostStageStep + counter.Cadence;
+        counter.Stage * SpeedBoostStageStep + counter.Countdown;
 
     /// <summary>The high byte the Spring Ball landing puts on <c>$0B20</c> above the rebound count.</summary>
     internal const ushort SpringBallBounceFamily = 6 << 8;

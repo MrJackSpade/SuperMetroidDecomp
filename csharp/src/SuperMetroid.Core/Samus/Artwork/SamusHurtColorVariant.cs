@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>The two mutually exclusive full-body colourings of Samus's hurt flash.</summary>
+/// <summary>The two mutually exclusive full-body shades of Samus's hurt flash.</summary>
 public enum SamusHurtColorVariant
 {
     /// <summary>The bright hurt flash, selected on hurt-counter calls one, three, and five.</summary>

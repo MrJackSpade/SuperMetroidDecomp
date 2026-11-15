@@ -248,7 +248,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
-        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
+        if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
             {
@@ -283,7 +283,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Movement = MetroidMovement.AttachedToSamus;
-        samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.SpeedBoostNext;
+        samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext;
         SetMetroidAnimation(slot, state, MetroidSegment.DrainingSamus);
     }
 
@@ -359,7 +359,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
         if (samus is not null)
-            samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.Inactive;
+            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
@@ -370,7 +370,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Electricity.End();
         state.Shell.End();
         if (samus is not null)
-            samus.MetroidAttachmentColouring = SamusMetroidAttachmentPalette.Inactive;
+            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
     }
 
     /// <summary>

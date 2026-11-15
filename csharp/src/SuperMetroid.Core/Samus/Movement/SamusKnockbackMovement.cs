@@ -113,11 +113,11 @@ public static class SamusKnockbackMovement
             SamusMovementType.Special;
         if (!morphed && !humanoid && !glitchBall && !suppressesKnockback)
         {
-            // The knockback check contains exactly 28 entries, indexed by the movement type.
-            // A larger value cannot name another game behavior; it means the caller supplied
+            // Every movement type is morphed, humanoid, the glitch ball or one that suppresses knockback.
+            // Any other cannot name another game behaviour; it means the caller supplied
             // corrupt pose metadata rather than an unmodelled movement family.
             throw new InvalidDataException(
-                $"Movement type {sourceMovementType} lies outside the 28-entry knockback table.");
+                $"Movement type {sourceMovementType} has no knockback response.");
         }
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
@@ -158,8 +158,8 @@ level, targetPose, frameCounter, roomObjects))
         }
 
         // Deliberately ignores both the damage-source side and controller input
-        // when choosing a ball's vertical branch: right-facing ball art always gets up-right
-        // direction two, and left-facing art gets up-left direction one. The humanoid branch
+        // when choosing a ball's vertical branch: right-facing ball art always gets
+        // SamusKnockbackDirection.UpRight, and left-facing art UpLeft. The humanoid branch
         // retains the unusual forward-held selection of down-left/down-right directions.
         samus.KnockbackXDirection = launch.KnockbackXDirection;
         if (morphed)
@@ -193,10 +193,10 @@ level, targetPose, frameCounter, roomObjects))
         // does not yet release its independent lock on her pose input.
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // Starts the hurt flash after cancelling bomb-jump/contact damage. This is an independent
-        // 60-call colour/audio lifetime, not the five-frame knockback timer established above.
+        // 60-call shade/audio lifetime, not the five-frame knockback timer established above.
         samus.HurtFlash.Start();
 
         // Hurt launch retains the bottom-edge and Gravity-Suit selection.
@@ -392,10 +392,10 @@ level, targetPose, frameCounter, roomObjects))
         samus.BombJumpPoseInputLocked = false;
         // Returns her movement to her pose. A Shinespark windup can
         // have been initialized after the knockback check latched this expiry, so end that
-        // spark's hold while retaining its independently owned colouring and timer.
+        // spark's hold while retaining its independently owned shade and timer.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
-        // flag has no field of its own; Y-direction two is its movement-visible
+        // flag has no field of its own; moving down is its movement-visible
         // publication and is consumed by every normal/ball step.
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;

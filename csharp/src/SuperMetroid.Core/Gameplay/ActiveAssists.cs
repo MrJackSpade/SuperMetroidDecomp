@@ -97,6 +97,6 @@ internal sealed class ActiveAssists
         samus.PowerBombs = samus.MaxPowerBombs = loadout.PowerBombs;
         if (loadout.CollectsEveryItemLocation)
             _system.Progress.CollectedItems.AddAll();
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
     }
 }

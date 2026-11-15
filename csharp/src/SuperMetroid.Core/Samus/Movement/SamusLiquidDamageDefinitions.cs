@@ -8,4 +8,7 @@ internal static class SamusLiquidDamageDefinitions
 
     /// <summary>Acid rate: one and one-half energy per frame.</summary>
     internal static readonly SamusLiquidDamageRate Acid = SamusLiquidDamageRate.FromHalfEnergies(3);
+
+    /// <summary>The least energy at which lava or acid damage plays its periodic sound; below it the damage is silent.</summary>
+    internal const int DamageSoundLeastEnergy = 71;
 }

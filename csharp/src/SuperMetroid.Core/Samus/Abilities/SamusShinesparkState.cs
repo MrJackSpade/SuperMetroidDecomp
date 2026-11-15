@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// This is the game's state machine, not a desktop “dash”
 /// controller. Timers wrap at 65536, movement retains split 1/65536-pixel values, and every
-/// colouring is selected through the user's installed artwork. Block collision uses the shared step; solid
+/// shade is selected through the user's installed artwork. Block collision uses the shared step; solid
 /// enemies stop a sideways spark through it, and an upward spark tests them before its block move.
 /// </remarks>
 public sealed class SamusShinesparkState
@@ -56,14 +56,14 @@ public sealed class SamusShinesparkState
     /// <summary>Points the spark's sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
-    /// <summary>The special-colouring timer: 180 stored, 60 windup, and 15 during active motion.</summary>
+    /// <summary>The special colouring timer: 180 stored, 60 windup, and 15 during active motion.</summary>
     public int ShineTimer { get; private set; }
 
     /// <summary>
     /// The next step of the shine colour cycle, below the stored-shine list's six steps for the stored shine and below the
-    /// active list's four while sparking: each colouring call advances it by one and returns it to zero at that limit.
+    /// active list's four while sparking: each colouring update advances it by one and returns it to zero at that limit.
     /// </summary>
-    public int PaletteStep { get; private set; }
+    public int ShadeStep { get; private set; }
 
     /// <summary>The shared 30-frame windup/crash countdown.</summary>
     public int StartStopTimer { get; internal set; }
@@ -95,14 +95,14 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Crystal Flash takes over both Samus's movement and the shared special
-    /// colour timer, and takes Samus's suit colouring. The new owner holds them; do not resume this old owner
+    /// colouring timer, and takes Samus's suit colouring. The new owner holds them; do not resume this old owner
     /// after Flash finishes. Extra run speed and the boost counter are not cleared.
     /// </summary>
     internal void RelinquishToCrystalFlash()
     {
         Phase = ShinesparkPhase.Inactive;
         ShineTimer = 0;
-        PaletteStep = 0;
+        ShadeStep = 0;
     }
 
 
@@ -147,10 +147,10 @@ public sealed class SamusShinesparkState
     /// takes over Samus's suit. Release the shine's colouring so it cannot keep ticking or
     /// repaint over the visor's new colours.
     /// </summary>
-    internal void RelinquishPaletteToXray()
+    internal void RelinquishColoursToXray()
     {
         ShineTimer = 0;
-        PaletteStep = 0;
+        ShadeStep = 0;
         if (Phase == ShinesparkPhase.Stored)
             Phase = ShinesparkPhase.Inactive;
     }
@@ -181,8 +181,8 @@ public sealed class SamusShinesparkState
             return false;
 
         ShineTimer = 180;
-        _colouring.Take(SamusSpecialPaletteType.SpeedBoosterShine);
-        PaletteStep = 0;
+        _colouring.Take(SamusSpecialColouringKind.SpeedBoosterShine);
+        ShadeStep = 0;
         Phase = ShinesparkPhase.Stored;
         return true;
     }
@@ -207,7 +207,7 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(samus, targetPose);
     }
 
-    /// <summary>Cancels beam charge and installs the 30-frame spark windup, colouring and boost state.</summary>
+    /// <summary>Cancels beam charge and installs the 30-frame spark windup, shade and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
         // The windup checks the charge counter before clearing it. A charge that has
@@ -222,7 +222,7 @@ public sealed class SamusShinesparkState
         }
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
-        // colour timer can admit this launch even after its movement was interrupted.
+        // colouring timer can admit this launch even after its movement was interrupted.
         SamusMovementHandOver.To(samus, SamusMovementOwner.Shinespark);
         samus.CrystalFlash.RelinquishSuitColouring();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
@@ -243,8 +243,8 @@ public sealed class SamusShinesparkState
         _acceleration.StartSpark(InitialVerticalAcceleration);
         StartStopTimer = 30;
         ShineTimer = 60;
-        _colouring.Take(SamusSpecialPaletteType.Shinesparking);
-        PaletteStep = 0;
+        _colouring.Take(SamusSpecialColouringKind.Shinesparking);
+        ShadeStep = 0;
         Phase = ShinesparkPhase.Windup;
         samus.HurtFlash.Clear();
     }
@@ -569,7 +569,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
 false);
         }
 
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.Shinespark;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.Shinespark;
         samus.HurtFlash.HoldAt(MovingSparkHurtFlashCount);
 
         // Each moving phase samples echoes before motion. Runtime suppresses its ordinary
@@ -623,45 +623,45 @@ false);
     /// Runs the stored shine's or the shinespark's suit colouring, restoring Samus's
     /// normal colours when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+    public bool UpdateColouring(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
-        SamusSpecialPaletteType colouring = _colouring.Holder;
-        if (colouring is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
+        SamusSpecialColouringKind colouring = _colouring.Holder;
+        if (colouring is not (SamusSpecialColouringKind.SpeedBoosterShine or SamusSpecialColouringKind.Shinesparking))
             return false;
 
-        if (colouring == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer == 170)
+        if (colouring == SamusSpecialColouringKind.SpeedBoosterShine && ShineTimer == 170)
             AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High);
 
         bool expired = --ShineTimer <= 0;
         if (expired)
         {
             _colouring.Release(colouring);
-            PaletteStep = 0;
+            ShadeStep = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
-            SamusNormalSuitPalette.Load(colours, equippedItems);
+            SamusSuitShade.Show(colours, equippedItems);
             return true;
         }
 
         SamusSuit suit = equippedItems.ShownSuit();
-        bool catalogued = colouring == SamusSpecialPaletteType.SpeedBoosterShine
-            ? SamusFullBodyCyclePalettes.TryStoredShinePalette(
-                suit, PaletteStep, out SamusFullBodyCyclePalette palette)
-            : SamusFullBodyCyclePalettes.TryActiveShinesparkPalette(
-                suit, PaletteStep, out palette);
+        bool catalogued = colouring == SamusSpecialColouringKind.SpeedBoosterShine
+            ? SamusFullBodyCycleShades.TryStoredShineShade(
+                suit, ShadeStep, out SamusFullBodyCycleShade palette)
+            : SamusFullBodyCycleShades.TryActiveShinesparkShade(
+                suit, ShadeStep, out palette);
         if (!catalogued)
             throw new InvalidDataException(
-                $"Shinespark colouring {colouring} step {PaletteStep} is not compiled.");
+                $"Shinespark colouring {colouring} step {ShadeStep} has no shade.");
         colours.ShowSuit(SamusShades.FullBodyCycle(palette));
 
-        int steps = colouring == SamusSpecialPaletteType.SpeedBoosterShine
-            ? SamusPaletteDefinitions.FullBodyCycles.StoredShineSteps
-            : SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkSteps;
+        int steps = colouring == SamusSpecialColouringKind.SpeedBoosterShine
+            ? SamusShadeDefinitions.FullBodyCycles.StoredShineSteps
+            : SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkSteps;
         // The step is always below its limit before this advance, so it never approaches a wrap.
-        PaletteStep++;
-        if (PaletteStep >= steps)
-            PaletteStep = 0;
+        ShadeStep++;
+        if (ShadeStep >= steps)
+            ShadeStep = 0;
         return true;
     }
 
@@ -760,7 +760,7 @@ false);
 
     /// <summary>
     /// The crash's end: releases its echoes on Samus's shots as far as her shot count leaves room, restores standing,
-    /// and expires the shinesparking colouring. A released first echo leaves Samus's height as the next orbit's travel; a
+    /// and expires the shinesparking shade. A released first echo leaves Samus's height as the next orbit's travel; a
     /// crash that releases no first echo leaves the travel its own orbit ended on.
     /// </summary>
     internal ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)

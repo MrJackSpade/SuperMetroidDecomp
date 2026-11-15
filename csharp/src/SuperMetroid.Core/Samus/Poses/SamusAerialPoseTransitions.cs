@@ -80,7 +80,7 @@ internal static class SamusAerialPoseTransitions
             // below. The pose change still runs and sees the spin/wall-jump previous movement type.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-                samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+                samus.HorizontalSpeed.RequestSuitShadeRestore();
             return true;
         }
 
@@ -97,11 +97,11 @@ internal static class SamusAerialPoseTransitions
         if (!beganShinespark)
             InitializeOrdinaryAerialAcceleration(samus);
 
-        // The pose-metadata refresh reloads the ordinary suit colours whenever the previous movement
+        // The pose-metadata refresh reloads the ordinary suit shade whenever the previous movement
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
         // happened to be generic spin or Space Jump art.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-            samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            samus.HorizontalSpeed.RequestSuitShadeRestore();
 
         if (beganShinespark)
             return true;
@@ -123,7 +123,7 @@ internal static class SamusAerialPoseTransitions
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="roomObjects">Optional live room-object owner for those collision reactions.</param>
     /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
-    /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until the next alpha pass.</remarks>
+    /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until Samus's next input phase.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
@@ -150,7 +150,7 @@ internal static class SamusAerialPoseTransitions
         if ((!jumping && !falling) || (!turnsLeft && !turnsRight))
         {
             throw new InvalidOperationException(
-                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a verified type-2/type-6 transition.");
+                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
         }
 
         // These are literal copies of the two aerial turn tables. The straight-down aims are
@@ -303,10 +303,10 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
-        // immediately reloads the normal suit colours before the wall jump starts. The desktop
-        // runtime performs colour writes later in the frame, so preserve that phase split.
+        // immediately reloads the normal suit shade before the wall jump starts. The desktop
+        // runtime performs shade writes later in the frame, so preserve that phase split.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-            samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            samus.HorizontalSpeed.RequestSuitShadeRestore();
 
         samus.Pose = targetPose;
         // Leaves the collision radius at the spin body's radius; the input phase's radius update takes
@@ -320,8 +320,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
 
-        // A triggered wall jump queues the landing sound with a
-        // six-entry threshold after clearing the base speed and before pose setup.
+        // A triggered wall jump queues the landing sound at normal priority
+        // after clearing the base speed and before pose setup.
         samus.LiquidPhysics.QueueMovementSound(RoomSound.Landing, priority: SoundRequestPriority.Normal);
 
         SamusAerialMovement.InitializeWallJump(samus);
@@ -404,7 +404,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
         if (!supportedTarget)
         {
-            // Chooses from the complete twelve-entry dropped-pose table, whose
+            // Chooses from every pose a grapple drop can take, whose
             // outputs are exactly the standing/aim/crouch set above. Other releases use
             // separate grapple wall-jump or swing-release movements, not this API.
             throw new InvalidOperationException(
@@ -759,7 +759,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// neutral and aimed jump-transition art. The game does not consume stored shine when Jump is
     /// first pressed; it waits until the animation's pose-transition cue installs the neutral,
     /// aimed-up or diagonally-up normal jump.
-    /// That delay is visible both to animation and to the 180-frame colouring countdown.
+    /// That delay is visible both to animation and to the 180-frame shade countdown.
     /// </remarks>
     internal static bool TryBeginShinesparkWindup(SamusState samus, 
         SamusPoseId targetPose,

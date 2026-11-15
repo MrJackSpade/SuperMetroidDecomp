@@ -364,8 +364,8 @@ internal static class SamusGroundedPoseTransitions
     /// right <see cref="SamusPoseId.MovingRightNormalPose"/> at the end-of-frame transition seam.
     /// </summary>
     /// <remarks>
-    /// This is intentionally not a general pose setter. For this transition, momentum
-    /// index zero is a no-op, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
+    /// This is intentionally not a general pose setter. For this transition, the momentum
+    /// response is <see cref="SamusMomentumResponse.None"/>, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
     /// already-supported default render/picture paths. Other transitions can change momentum,
     /// align radii, invoke collision, or run specialized movement and remain rejected.
     /// </remarks>
@@ -403,7 +403,7 @@ internal static class SamusGroundedPoseTransitions
 
         // MovingRightNormalPose's new-pose-unless-buttons entry is the right-facing normal pose. Once the pose
         // handling selects
-        // momentum index two, the momentum cancellation cancels the boost state but deliberately leaves the
+        // the SamusMomentumResponse.Stop response, the momentum cancellation cancels the boost state but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion value.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Palettes;
+﻿using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 

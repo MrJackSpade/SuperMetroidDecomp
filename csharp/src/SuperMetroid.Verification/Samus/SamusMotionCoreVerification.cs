@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
@@ -113,7 +113,7 @@ internal static void VerifySamusHorizontalSpeed()
         0x00, 0x00, 0x00, 0x80,
     ]);
 
-    var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+    var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     speed.SelectAirSpeeds();
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
@@ -186,14 +186,14 @@ internal static void VerifySamusHorizontalSpeed()
     // Native stages zero through three last one command loop; stage four lasts two.
     // Their compiled cadence still publishes the native echo/contact-damage events.
 
-    var booster = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+    var booster = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     booster.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: ControllerButton.B,
         speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
     AssertEqual(new SamusSpeedBoostCounter(0, 1), booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
-    AssertEqual(1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
+    AssertEqual(1, booster.CycleShadeTimer, "Speed Booster seeds special-palette timer");
 
     // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
     for (int frame = 1; frame < 112; frame++)
@@ -231,7 +231,7 @@ internal static void VerifySamusHorizontalSpeed()
     }
     AssertEqual(new SamusSpeedBoostCounter(4, 2), booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
     AssertEqual(1, echoRequests, "reaching stage four requests the speed-echo sound once, as the stage advances");
-    AssertEqual(SamusContactDamageIndex.None, booster.ContactDamageIndex, "stage four animation waits for movement to publish contact damage");
+    AssertEqual(SamusBodyAttack.None, booster.BodyAttack, "stage four animation waits for movement to publish contact damage");
 
     // $90:9813 is a common epilogue, including the released/airborne/liquid
     // branches. Beta clears contact damage each frame; retained blue speed
@@ -240,24 +240,24 @@ internal static void VerifySamusHorizontalSpeed()
     foreach (bool liquid in new[] { false, true })
     foreach (bool activeStage in new[] { false, true })
     {
-        var retainedBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
+        var retainedBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             HasRunningMomentum = true,
             ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0),
             SpeedBoostCounter = activeStage ? new SamusSpeedBoostCounter(4, 1) : new SamusSpeedBoostCounter(3, 1),
-            ContactDamageIndex = SamusContactDamageIndex.None,
+            BodyAttack = SamusBodyAttack.None,
         };
         retainedBoost.HandleExtraRunSpeed(movement, 0, true, liquidImpeded: liquid);
-        AssertEqual(activeStage ? SamusContactDamageIndex.SpeedBooster : SamusContactDamageIndex.None, retainedBoost.ContactDamageIndex,
+        AssertEqual(activeStage ? SamusBodyAttack.SpeedBooster : SamusBodyAttack.None, retainedBoost.BodyAttack,
             "retained boost publishes contact protection only in active stage");
         AssertEqual(7, retainedBoost.ExtraRunSpeed.Whole, "released boost retains numeric speed");
     }
 
     // The active suit/phase pointer lists are compiled. Distinct first/second
     // colors at their actual targets prove the one-then-four timer progression.
-    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+    AssertTrue(SamusShadeDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         0, 0, out ushort powerBoostFirst), "compiled first Power boost phase exists");
-    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+    AssertTrue(SamusShadeDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         0, 2, out ushort powerBoostSecond), "compiled second Power boost phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostFirst, 0x1234);
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostSecond, 0x4567);
@@ -265,17 +265,17 @@ internal static void VerifySamusHorizontalSpeed()
         bus, SamusPaletteNative.NormalSuitPalettePointer(0), 0x0321);
 
     var boostColours = new SamusColours();
-    AssertTrue(booster.UpdateSpeedBoosterPalette(boostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
+    AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "first Speed Booster palette comes from bank $9B");
-    AssertEqual(1, booster.CyclePaletteStep, "Speed Booster palette advances to its second step");
-    AssertEqual(4, booster.SpecialPaletteTimer, "Speed Booster palette reloads four-frame timer");
+    AssertEqual(1, booster.CycleShadeStep, "Speed Booster palette advances to its second step");
+    AssertEqual(4, booster.CycleShadeTimer, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
-        AssertTrue(!booster.UpdateSpeedBoosterPalette(boostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
+        AssertTrue(!booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
             "Speed Booster palette waits during positive timer");
     }
-    AssertTrue(booster.UpdateSpeedBoosterPalette(boostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
+    AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual(0x4567, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "second Speed Booster palette pointer");
 
@@ -283,50 +283,50 @@ internal static void VerifySamusHorizontalSpeed()
     // Attack or active Speed Booster branches. A submerged Power/Varia body returns with
     // carry set: neither CGRAM nor the shared timer/index words may move. Gravity Suit's
     // palette-index bit two bypasses that exact gate and must still follow the ROM pointer.
-    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
+    AssertTrue(SamusShadeDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         4, 0, out ushort gravityBoostFirst), "compiled first Gravity boost phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
-    var submergedBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1) };
+    var submergedBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1) };
     var submergedBoostColours = new SamusColours();
     // A sentinel shade shows whether the handler changed the suit's (#1512).
     submergedBoostColours.ShowSuit(SamusShades.ChargedShotGlow);
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Speed Booster palette copy");
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
         "submerged Varia Suit suppresses active Speed Booster palette copy");
     AssertEqual(SamusShades.ChargedShotGlow, submergedBoostColours.Suit,
         "submerged Speed Booster leaves live Samus palette untouched");
-    AssertEqual(0, submergedBoost.SpecialPaletteTimer,
+    AssertEqual(0, submergedBoost.CycleShadeTimer,
         "submerged Speed Booster freezes common palette timer");
-    AssertEqual(0, submergedBoost.CyclePaletteStep,
+    AssertEqual(0, submergedBoost.CycleShadeStep,
         "submerged Speed Booster freezes palette-list offset");
-    AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(submergedBoostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
+    AssertTrue(submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true }),
         "submerged Gravity Suit bypasses Speed Booster palette suppression");
     AssertEqual(0x6a5a, submergedBoostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "submerged Gravity Suit Speed Booster palette remains ROM-authored");
 
     // The same early return surrounds Screw Attack. Exercise it independently so a future
     // refactor cannot fix running boost while accidentally leaving the spin palette active.
-    AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
+    AssertTrue(SamusShadeDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
         4, 0, out ushort gravityScrewFirst), "compiled first Gravity Screw phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityScrewFirst, 0x5b4b);
-    var submergedScrew = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+    var submergedScrew = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     var submergedScrewColours = new SamusColours();
     submergedScrewColours.ShowSuit(SamusShades.ChargedShotGlow);
-    AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Screw Attack palette copy");
     AssertEqual(SamusShades.ChargedShotGlow, submergedScrewColours.Suit,
         "submerged Screw Attack retains the current suit colors");
-    AssertEqual(0, submergedScrew.CyclePaletteStep,
+    AssertEqual(0, submergedScrew.CycleShadeStep,
         "submerged Screw Attack freezes palette-list offset");
-    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }),
+    AssertTrue(submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }),
         "submerged Gravity Suit bypasses Screw Attack palette suppression");
     AssertEqual(0x5b4b, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "submerged Gravity Screw palette remains ROM-authored");
 
     SyntheticSamusCartridge.WriteSamusPaletteColors(
         bus, SamusPaletteNative.NormalSuitPalettePointer(4), 0x3a2a);
-    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 27, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }),
+    AssertTrue(submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 27, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true }),
         "Gravity Screw frame 27 restores normal suit colors underwater");
     AssertEqual(0x3a2a, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "late Gravity Screw uses the fixture's normal suit palette");
@@ -334,15 +334,15 @@ internal static void VerifySamusHorizontalSpeed()
     // alternates native word offsets zero/two. These become the two trailing bodies drawn
     // by `$90:87BD`; capture itself deliberately contains no interpolation.
     AssertTrue(!booster.CaptureSpeedEchoPosition(3, new(100, 80)), "speed echo skips non-fourth frame");
-    AssertTrue(booster.CaptureSpeedEchoPosition(4, new(101, 81)), "speed echo captures slot zero");
-    AssertEqual(SpeedEchoCursor.SecondSlot, booster.SpeedEchoCursor, "speed echo advances to slot one");
-    AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures slot one");
-    AssertEqual(SpeedEchoCursor.FirstSlot, booster.SpeedEchoCursor, "speed echo alternation wraps after slot one");
+    AssertTrue(booster.CaptureSpeedEchoPosition(4, new(101, 81)), "speed echo captures the first echo");
+    AssertEqual(SpeedEchoCursor.SecondEcho, booster.SpeedEchoCursor, "speed echo advances to the second echo");
+    AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures the second echo");
+    AssertEqual(SpeedEchoCursor.FirstEcho, booster.SpeedEchoCursor, "speed echo alternation wraps after the second echo");
     AssertEqual(101, booster.FirstSpeedEchoPosition!.Value.X, "first speed echo X snapshot");
     AssertEqual(105, booster.SecondSpeedEchoPosition!.Value.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
-    AssertTrue(booster.NormalSuitPaletteRestoreRequested,
+    AssertTrue(booster.SuitShadeRestoreRequested,
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
         "right-facing cancellation enters high-bit echo departure");
@@ -351,21 +351,21 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(new Offset16<RoomPixels>(8, 0), booster.SecondSpeedEchoVelocity,
         "right-facing second departure speed is positive eight");
 
-    // `$90:87D3-$90:884B` advances slot one, then slot zero as an actual draw side effect.
+    // `$90:87D3-$90:884B` advances the second echo, then the first echo as an actual draw side effect.
     // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
-    // independently approaches 90 by two. Crossing clears a slot before it can emit OAM.
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
-        "right departure slot one remains before crossing");
+    // independently approaches 90 by two. Crossing clears an echo before it can emit OAM.
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
+        "right departure the second echo remains before crossing");
     AssertEqual(113, booster.SecondSpeedEchoPosition!.Value.X,
-        "right departure slot one advances positive eight");
+        "right departure the second echo advances positive eight");
     AssertEqual(84, booster.SecondSpeedEchoPosition!.Value.Y,
-        "right departure slot one approaches Samus Y by two");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
-        "right departure slot zero remains before crossing");
+        "right departure the second echo approaches Samus Y by two");
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+        "right departure the first echo remains before crossing");
     AssertEqual(109, booster.FirstSpeedEchoPosition!.Value.X,
-        "right departure slot zero advances positive eight");
+        "right departure the first echo advances positive eight");
     AssertEqual(83, booster.FirstSpeedEchoPosition!.Value.Y,
-        "right departure slot zero approaches Samus Y by two");
+        "right departure the first echo approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
         "departure index survives while either echo remains");
@@ -375,24 +375,24 @@ internal static void VerifySamusHorizontalSpeed()
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(new Offset16<RoomPixels>(8, 0), booster.FirstSpeedEchoVelocity,
         "repeated cancellation cannot reverse an active departure");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
-        "right departure slot one clears on crossing");
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
+        "right departure the second echo clears on crossing");
     AssertTrue(booster.SecondSpeedEchoPosition is null,
-        "crossed slot one holds no echo");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
-        "right departure slot zero remains one more frame");
+        "crossed the second echo holds no echo");
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+        "right departure the first echo remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
         "one surviving departure keeps high-bit index");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
-        "right departure slot zero eventually crosses");
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+        "right departure the first echo eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual(SpeedEchoCursor.FirstSlot, booster.SpeedEchoCursor,
+    AssertEqual(SpeedEchoCursor.FirstEcho, booster.SpeedEchoCursor,
         "last crossed departure restores ordinary echo index");
 
     // Mirror the same signed-word comparison for a left-facing cancellation, with both echoes
     // captured by an ordinary full boost.
-    var leftDeparture = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage };
+    var leftDeparture = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage };
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(0, new(150, 90)), "left departure captures its first echo");
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(4, new(154, 94)), "left departure captures its second echo");
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
@@ -400,28 +400,28 @@ internal static void VerifySamusHorizontalSpeed()
         "left-facing first departure speed is negative eight");
     AssertEqual(new Offset16<RoomPixels>(-8, 0), leftDeparture.SecondSpeedEchoVelocity,
         "left-facing second departure speed is negative eight");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
-        "left departure slot one remains before crossing");
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
+        "left departure the second echo remains before crossing");
     AssertEqual(146, leftDeparture.SecondSpeedEchoPosition!.Value.X,
-        "left departure slot one advances negative eight");
+        "left departure the second echo advances negative eight");
     AssertEqual(96, leftDeparture.SecondSpeedEchoPosition!.Value.Y,
-        "left departure slot one approaches Samus Y by two");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, new(140, 100)),
-        "left departure slot zero remains before crossing");
+        "left departure the second echo approaches Samus Y by two");
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
+        "left departure the first echo remains before crossing");
     AssertEqual(142, leftDeparture.FirstSpeedEchoPosition!.Value.X,
-        "left departure slot zero advances negative eight");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
-        "left departure slot one clears after passing Samus");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, new(140, 100)),
-        "left departure slot zero clears after passing Samus");
+        "left departure the first echo advances negative eight");
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
+        "left departure the second echo clears after passing Samus");
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
+        "left departure the first echo clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
-    AssertEqual(SpeedEchoCursor.FirstSlot, leftDeparture.SpeedEchoCursor,
+    AssertEqual(SpeedEchoCursor.FirstEcho, leftDeparture.SpeedEchoCursor,
         "left departure clears shared index after both slots cross");
 
-    AssertTrue(booster.UpdateSpeedBoosterPalette(boostColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Standing, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
+    AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, AnimationFrame = 0, EquippedItems = SamusEquipmentFlags.SpeedBooster }),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "cancel restores ROM-authored Power Suit palette");
-    AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
+    AssertTrue(!booster.SuitShadeRestoreRequested, "normal-suit palette request is one-shot");
 
     var boostedJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
     boostedJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 0xe000);

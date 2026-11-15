@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -1040,7 +1040,7 @@ level, samus, frameCounter);
         // The intro demo runs Samus's ordinary colouring even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-colour restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
-        SamusHurtFlashPalette.Update(flashbackSamusColours, samus, demoInput);
+        SamusHurtFlash.Update(flashbackSamusColours, samus, demoInput);
 
         // The cinematic ages Samus's two hurt timers after both of her state updates, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Primitives used by Samus's non-square slope collision path.
 /// </summary>
 /// <remarks>
-/// Super Metroid does not reduce slopes to a line equation. behaviour bits select one of 32
-/// sixteen-sample height profiles, while a separate table scales grounded horizontal
+/// Super Metroid does not reduce slopes to a line equation. A block's slope shape selects one of 32
+/// sixteen-sample height profiles, while a separate multiplier scales grounded horizontal
 /// displacement. Compiled profiles and multipliers preserve the exact discrete geometry
 /// and integer movement calculations without reading game tables at runtime.
 /// </remarks>
@@ -78,7 +78,7 @@ public static class SamusSlopePhysics
         bool adjusted = false;
 
         // First probes the center-X block containing Samus's bottom pixel. Only
-        // slope blocks, shapes >=5, and the behaviour's ceiling bit clear participate as floor slopes.
+        // slope blocks with a non-square shape that is not flipped vertically participate as floor slopes.
         int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
@@ -97,8 +97,8 @@ public static class SamusSlopePhysics
             }
         }
 
-        // Recompute the top probe after any floor correction. Ceiling slopes use behaviour bit
-        // the ceiling bit set and reverse the same signed correction.
+        // Recompute the top probe after any floor correction. Vertically flipped slopes are ceilings and reverse the same signed
+        // correction.
         int topPosition = CoordinateAxis.Wrap(yPosition - yRadius);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&

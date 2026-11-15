@@ -179,7 +179,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot, state, MochtroidSegment.Attached);
         state.CountAttachedUpdate();
 
-        bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
+        bool applyCommonTouch = samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
         if (!applyCommonTouch)
         {
             // Every overlapping actor queues its sound independently. Using the
@@ -198,7 +198,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!applyCommonTouch)
             return;
 
-        if (samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
+        if (samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
         {
             // Common touch would publish 96/5 here, but the Mochtroid's touch clears both values before
             // Samus's movement phase can consume them. Apply only the suit-divided health

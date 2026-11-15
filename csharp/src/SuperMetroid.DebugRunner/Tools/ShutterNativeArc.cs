@@ -33,11 +33,11 @@ internal static class ShutterNativeArc
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame < ShutterBombArcScenario.FirstArcFrame)
                 continue;
-            foreach (var bomb in scenario.Runtime.Room.LoadedScope.BombProjectiles.Slots)
+            foreach (var bomb in scenario.Runtime.Room.LoadedScope.BombProjectiles.Bombs)
             {
                 bombInputs.Write(bomb.Position.X.Whole); bombInputs.Write(bomb.Position.Y.Whole);
                 bombInputs.Write(bomb.Radius.X); bombInputs.Write(bomb.Radius.Y);
-                bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeDirection(SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSlot.Direction, bomb.IsSpent)); bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(bomb.Type, bomb.IsBombSpread, bomb.HasReactedToTerrain));
+                bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeDirection(SuperMetroid.Core.Samus.Projectiles.SamusBomb.Direction, bomb.IsSpent)); bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(bomb.Type, bomb.IsBombSpread, bomb.HasReactedToTerrain));
                 bombInputs.Write(bomb.Damage); bombInputs.Write(checked((ushort)bomb.BombTimer.RemainingFrames));
             }
             arc.Add(scenario.ArcRow(frame));

@@ -34,9 +34,9 @@ internal static class SpikeShinesparkSuitVerification
         // has restored the ordinary movement handler: that mismatch is the technique.
         foreach (SpikeSuitLaunchCase expected in new SpikeSuitLaunchCase[]
         {
-            new(8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
-            new(9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialPaletteType.Shinesparking),
-            new(10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, SamusSpecialPaletteType.SpeedBoosterShine),
+            new(8, ShinesparkPhase.Windup, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialColouringKind.Shinesparking),
+            new(9, ShinesparkPhase.Inactive, SamusPoseId.ShinesparkWindupRightPose, SamusSpecialColouringKind.Shinesparking),
+            new(10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, SamusSpecialColouringKind.SpeedBoosterShine),
         })
         {
             SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(underwater: false);
@@ -75,7 +75,7 @@ internal static class SpikeShinesparkSuitVerification
         int frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
-        SamusSpecialPaletteType frozenPalette = frozenSamus.SpecialColouring.Holder;
+        SamusSpecialColouringKind frozenPalette = frozenSamus.SpecialColouring.Holder;
         int frozenKnockbackTimer = frozenSamus.KnockbackTimer;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
             shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter) });
@@ -110,7 +110,7 @@ internal static class SpikeShinesparkSuitVerification
             SamusState samus = RunReserveSpikeSuitCase(expected.FreezeAfter, expected.LaunchAfter);
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
-                samus.SpecialColouring.Holds(SamusSpecialPaletteType.Shinesparking) &&
+                samus.SpecialColouring.Holds(SamusSpecialColouringKind.Shinesparking) &&
                 SamusInputSnapshot.HoldsShine(samus);
             AssertEqual(expected.RetainsSuit, retainedSuit,
                 $"underwater Reserve suit freeze {expected.FreezeAfter}, launch {expected.LaunchAfter}");

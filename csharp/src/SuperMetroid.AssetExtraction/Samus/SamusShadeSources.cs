@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Fx;
@@ -62,20 +62,20 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         };
         foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
             shades.Add(Suit(SamusShades.Suit(suit), Colours(colour => Suits.Resolve(suit, colour))));
-        foreach (SamusChargePalette palette in Charge.Palettes)
+        foreach (SamusChargeShade palette in Charge.Palettes)
             shades.Add(Suit(SamusShades.Charge(palette), Colours(colour => Charge.Resolve(palette, colour))));
-        for (int frame = 0; frame < SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount; frame++)
+        for (int frame = 0; frame < SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount; frame++)
         {
             int shown = frame;
             shades.Add(Suit(SamusShades.HyperBeamSuit(shown), Colours(colour => HyperBeamSuit.Resolve(shown, colour))));
         }
-        for (int frame = 0; frame < SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount; frame++)
+        for (int frame = 0; frame < SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount; frame++)
         {
             // The charge colours hold the Hyper shot's own copy of the glow in playback order, the cycle's last frame first.
-            int playback = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1 - frame;
+            int playback = SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - frame;
             shades.Add(Suit(SamusShades.HyperShot(frame), Colours(colour => Charge.ResolveHyper(playback, colour))));
         }
-        foreach (SamusFullBodyCyclePalette palette in FullBodyCycles.Palettes)
+        foreach (SamusFullBodyCycleShade palette in FullBodyCycles.Palettes)
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
             shades.Add(Suit(SamusShades.Hurt(variant), Colours(colour => Hurt.Resolve(variant, colour))));
@@ -103,18 +103,18 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             shades.Add(SheetShade.Run(SamusShades.HyperBeamCycle(frame), SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour,
                 HyperBeamCycle.Frame(frame).AsSpan()));
         }
-        for (int step = 0; step < SamusPaletteDefinitions.Death.PaletteCount; step++)
+        for (int step = 0; step < SamusShadeDefinitions.Death.ExplosionShadeCount; step++)
         {
             int shown = step;
             foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
             {
                 shades.Add(Suit(SamusShades.DeathSuit(suit, shown),
-                    Colours(colour => Death.SuitedColor(suit.ListPlace(), shown, colour))));
+                    Colours(colour => Death.SuitedColor(SamusSuitListLayout.Place(suit), shown, colour))));
             }
             shades.Add(SheetShade.Run(SamusShades.DeathSuitless(shown), SamusSheetInks.Suitless,
                 Colours(colour => Death.SuitlessColor(shown, colour))));
         }
-        for (int step = 0; step < SamusPaletteDefinitions.Death.WhiteoutShadeCount; step++)
+        for (int step = 0; step < SamusShadeDefinitions.Death.WhiteoutShadeCount; step++)
         {
             // The whiteout fills her beams' colours and her grapple flare's.
             RgbColor white = Death.WhiteoutColor(step);

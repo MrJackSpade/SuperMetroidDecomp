@@ -12,7 +12,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
@@ -139,13 +139,13 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(SamusMovementType.Special, samus.PoseHistory.PreviousMovement, "Crystal Flash commits right metadata");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
-    AssertEqual(SamusSpecialPaletteType.CrystalFlash, samus.SpecialColouring.Holder,
+    AssertEqual(SamusSpecialColouringKind.CrystalFlash, samus.SpecialColouring.Holder,
         "Crystal Flash takes Samus's suit colouring");
 
     var crystalColours = new SamusColours();
     // Crystal Flash names shades (#1512); the import resolves them from the fixture's colours and beam palettes.
     var crystalSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = crystalColors, BeamPalettes = beamPalettes };
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalColours, samus),
+    AssertTrue(samus.CrystalFlash.UpdateColouring(crystalColours, samus),
         "Crystal Flash palette handler owns first visible frame");
     AssertEqual(0x0100, crystalColours.ShownBeams(crystalSources)[0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
@@ -157,7 +157,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble palette copies six colors");
     AssertEqual(5, samus.CrystalFlash.BubbleTimer,
         "Crystal Flash bubble timer reloads five");
-    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer,
+    AssertEqual(10, samus.CrystalFlash.CrystalPulseTimer,
         "Crystal Flash body timer comes from interleaved ROM record");
     AssertEqual(1, samus.CrystalFlash.BodyStep,
         "Crystal Flash body pulse advances one step");
@@ -165,10 +165,10 @@ internal static void VerifySamusCrystalFlash()
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
-        samus.CrystalFlash.UpdatePalette(crystalColours, samus);
+        samus.CrystalFlash.UpdateColouring(crystalColours, samus);
     AssertEqual(0x0220, crystalColours.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette advances independently");
-    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer,
+    AssertEqual(5, samus.CrystalFlash.CrystalPulseTimer,
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.Position.Y.Whole;
@@ -299,15 +299,15 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
-    AssertTrue(samus.CrystalFlash.BeamPaletteRestoreRequested,
+    AssertTrue(samus.CrystalFlash.BeamShadeRestoreRequested,
         "cleanup requests normal palette restoration");
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalColours, samus),
+    AssertTrue(samus.CrystalFlash.UpdateColouring(crystalColours, samus),
         "Crystal Flash finish restores beam palette");
     AssertEqual(0x0300, crystalColours.ShownBeams(crystalSources)[0],
         "Crystal Flash finish restores beam palette color zero");
     AssertEqual(0x030f, crystalColours.ShownBeams(crystalSources)[15],
         "Crystal Flash finish restores all sixteen beam palette colors");
-    AssertTrue(!samus.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash),
+    AssertTrue(!samus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash),
         "Crystal Flash palette handler clears after restoration");
 
     var left = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -363,13 +363,13 @@ static void SeedXrayCartridge(TestAddressSpace bus)
     // 43FF/2F5A/1AB5. The normal-palette pointer is deliberately synthetic so teardown's
     // complete 16-color restoration cannot pass by leaving the previous visor word behind.
     ushort[] visorColors = [0x3be0, 0x5ff0, 0x7fff, 0x43ff, 0x2f5a, 0x1ab5];
-    WriteTestWords(bus, XrayScopeDefinitions.Palette.VisorWords, visorColors);
-    WriteTestWord(bus, XrayScopeDefinitions.Palette.NormalSuitPointers, 0x9400);
-    for (ushort index = 0; index < XrayScopeDefinitions.Palette.SuitColorCount; index++)
+    WriteTestWords(bus, XrayScopeDefinitions.VisorShades.VisorWords, visorColors);
+    WriteTestWord(bus, XrayScopeDefinitions.VisorShades.NormalSuitPointers, 0x9400);
+    for (ushort index = 0; index < XrayScopeDefinitions.VisorShades.SuitColorCount; index++)
     {
         WriteTestWord(
             bus,
-            XrayScopeDefinitions.Palette.PaletteBank | (0x9400 + index * 2),
+            XrayScopeDefinitions.VisorShades.PaletteBank | (0x9400 + index * 2),
             unchecked((ushort)(0x0100 + index)));
     }
 
@@ -423,11 +423,11 @@ internal static void VerifySamusXray()
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only the visor colour, advances shade zero to one, and reloads five.
-    AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
-    AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonColourTimer,
+    AssertEqual(XrayScopeDefinitions.VisorShades.FrameDelay, standing.Xray.VisorShadeTimer,
         "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction: the warm-up's
@@ -473,9 +473,9 @@ internal static void VerifySamusXray()
             new TrigonometryAngle(54), new TrigonometryAngle(74)), DisplayScreen.HudHeight),
         xrayWindow, "the full X-ray beam is a cone from Samus's eye, ten units either side of her aim");
 
-    AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "full beam enters visor cycle");
-    AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
+    AssertEqual(XrayVisorShadeMode.FullBeam, standing.Xray.VisorShadeMode, "full beam palette mode");
     AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
     AssertEqual(4, standing.Xray.VisorShade, "full-beam visor shade advances");
 
@@ -534,13 +534,13 @@ internal static void VerifySamusXray()
     AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
         "X-ray teardown restores time and handlers");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
-    AssertEqual(XrayVisorPaletteMode.RestoreSuitPalette, standing.Xray.VisorPaletteMode,
+    AssertEqual(XrayVisorShadeMode.RestoreSuitShade, standing.Xray.VisorShadeMode,
         "X-ray teardown requests palette restoration");
     AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayEnd), "X-ray teardown queues its sound once");
-    AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, xrayColours.ShownSuit(xraySources)[4], "normal palette replaces visor color");
-    AssertTrue(!standing.SpecialColouring.Holds(SamusSpecialPaletteType.Xray), "X-ray palette handler clears");
+    AssertTrue(!standing.SpecialColouring.Holds(SamusSpecialColouringKind.Xray), "X-ray palette handler clears");
 
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
     // `$91:E2AD` classify movement type `$0E` as standing, choose left `$02`, expand radius
@@ -592,7 +592,7 @@ internal static void VerifySamusXray()
         "deferred setup immediately disables all four native subsystems");
     AssertEqual(RotationAngle.ThreeQuarterTurn.ToTrigonometryAngle().RawValue, interrupted.Xray.Angle.ToTrigonometryAngle().RawValue,
         "deferred left-facing setup publishes native angle C0");
-    AssertTrue(!interrupted.SpecialColouring.Holds(SamusSpecialPaletteType.Xray),
+    AssertTrue(!interrupted.SpecialColouring.Holds(SamusSpecialColouringKind.Xray),
         "deferred setup does not install command-five palette ownership early");
     AssertEqual(0, interrupted.AudioRequests.CountOf(SamusSound.XrayStart),
         "deferred setup does not queue command-five activation sound early");

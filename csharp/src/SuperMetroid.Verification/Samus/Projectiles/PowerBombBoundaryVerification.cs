@@ -16,6 +16,15 @@ internal static class PowerBombBoundaryVerification
             new BotwoonRadiusOpcode(1,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(3,2), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(3,2)]);
         Check(0, 0, 16, [new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(1,0)]);
         Check(32, 32, 0, [new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2)]);
+        // #1920: a blast both left of and above the room, whose far edges pass 65535, has each far edge held to the
+        // room's last block, which leaves every edge before its near one: the blast reaches nothing.
+        foreach (ushort type in new ushort[] { 0x0300, 0x800d })
+        {
+            var cornerVisits = new List<BombBlockReaction>();
+            SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(65530, 65530), PowerBombRadius.FromWholePixels(16),
+                cornerVisits, null, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            AssertEqual(0, cornerVisits.Count, "a blast left of and above the room reaches no block");
+        }
 
         void Check(ushort x, ushort y, int radiusPixels, BotwoonRadiusOpcode[] expected)
         {

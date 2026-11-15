@@ -96,7 +96,7 @@ internal static class RidleyMissedLungeVerification
         var bomb = new SamusPowerBombExplosionState();
         bomb.Arm();
         bomb.Spawn(new(200, 400));
-        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Palettes.SamusColours(), bomb);
+        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours(), bomb);
         ResetLunge(160, 400);
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyPhase.NorfairReturnToArena, state.Phase, "bomb selects native dodge instead of ordinary retreat");

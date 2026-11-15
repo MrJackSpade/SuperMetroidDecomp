@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -20,10 +20,10 @@ internal static class FullBodyPalettePointerListsVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => (uint)(address - SamusPaletteDefinitions.FullBodyCycles.ScrewAttackLists) < 0x2a ||
-                (uint)(address - SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLists) < 0x1e ||
-                (uint)(address - SamusPaletteDefinitions.FullBodyCycles.StoredShineLists) < 0x2a ||
-                (uint)(address - SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
+            address => (uint)(address - SamusShadeDefinitions.FullBodyCycles.ScrewAttackLists) < 0x2a ||
+                (uint)(address - SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLists) < 0x1e ||
+                (uint)(address - SamusShadeDefinitions.FullBodyCycles.StoredShineLists) < 0x2a ||
+                (uint)(address - SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
             address => $"Runtime read of compiled full-body palette pointer ${address:X6}.");
         SamusEquipmentFlags[] equipment =
         [
@@ -34,10 +34,10 @@ internal static class FullBodyPalettePointerListsVerification
         ];
         FullBodyPalettePointerListsFamily[] families =
         [
-            new FullBodyPalettePointerListsFamily("Screw Attack", SamusPaletteDefinitions.FullBodyCycles.ScrewAttackLists, 0xda50, 0x9ca0, 6, true),
-            new FullBodyPalettePointerListsFamily("Speed Booster", SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLists, 0xdaaf, 0x9b20, 4, false),
-            new FullBodyPalettePointerListsFamily("stored shine", SamusPaletteDefinitions.FullBodyCycles.StoredShineLists, 0xdb16, 0x9ba0, 6, true),
-            new FullBodyPalettePointerListsFamily("active shinespark", SamusPaletteDefinitions.FullBodyCycles.ActiveShinesparkLists, 0xdb7b, 0x9c20, 4, false),
+            new FullBodyPalettePointerListsFamily("Screw Attack", SamusShadeDefinitions.FullBodyCycles.ScrewAttackLists, 0xda50, 0x9ca0, 6, true),
+            new FullBodyPalettePointerListsFamily("Speed Booster", SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLists, 0xdaaf, 0x9b20, 4, false),
+            new FullBodyPalettePointerListsFamily("stored shine", SamusShadeDefinitions.FullBodyCycles.StoredShineLists, 0xdb16, 0x9ba0, 6, true),
+            new FullBodyPalettePointerListsFamily("active shinespark", SamusShadeDefinitions.FullBodyCycles.ActiveShinesparkLists, 0xdb7b, 0x9c20, 4, false),
         ];
 
         foreach (var family in families)
@@ -65,31 +65,31 @@ internal static class FullBodyPalettePointerListsVerification
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 6; phase++)
             {
-                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { CyclePaletteStep = phase };
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CycleShadeStep = phase };
                 var actual = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
+                AssertTrue(speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
                     $"Screw Attack suit {suit}, phase {phase}");
-                AssertEqual(phase == 5 ? 0 : phase + 1, speed.CyclePaletteStep,
+                AssertEqual(phase == 5 ? 0 : phase + 1, speed.CycleShadeStep,
                     "Screw Attack palette phase wraps after its sixth frame");
             }
 
             for (int phase = 0; phase < 4; phase++)
             {
-                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-                    SpecialPaletteTimer = 1,
-                    CyclePaletteStep = phase,
+                    CycleShadeTimer = 1,
+                    CycleShadeStep = phase,
                 };
                 var actual = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
+                AssertTrue(speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
                     "active Speed Booster copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
-                AssertEqual(phase == 3 ? 3 : phase + 1, speed.CyclePaletteStep,
+                AssertEqual(phase == 3 ? 3 : phase + 1, speed.CycleShadeStep,
                     "active Speed Booster palette pins its fourth frame");
             }
 
@@ -98,13 +98,13 @@ internal static class FullBodyPalettePointerListsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var actual = new SamusColours();
-                AssertTrue(stored.Shinespark.UpdatePalette(actual, items),
+                AssertTrue(stored.Shinespark.UpdateColouring(actual, items),
                     "stored shine copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ba0 + suit * 0x200 + shade * 0x20,
                     $"stored shine suit {suit}, phase {phase}");
                 AssertEqual(phase == 5 ? 0 : phase + 1,
-                    stored.Shinespark.PaletteStep, "stored shine cycles six phases");
+                    stored.Shinespark.ShadeStep, "stored shine cycles six phases");
             }
 
             var active = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = items };
@@ -113,22 +113,22 @@ internal static class FullBodyPalettePointerListsVerification
             for (int phase = 0; phase < 4; phase++)
             {
                 var actual = new SamusColours();
-                AssertTrue(active.Shinespark.UpdatePalette(actual, items),
+                AssertTrue(active.Shinespark.UpdateColouring(actual, items),
                     "active shinespark copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9c20 + suit * 0x200 + phase * 0x20,
                     $"active shinespark suit {suit}, phase {phase}");
                 AssertEqual(phase == 3 ? 0 : phase + 1,
-                    active.Shinespark.PaletteStep, "active shinespark cycles four phases");
+                    active.Shinespark.ShadeStep, "active shinespark cycles four phases");
             }
         }
 
-        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(0, 12, out _),
+        AssertTrue(!SamusShadeDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(0, 12, out _),
             "Screw Attack does not catalogue a seventh phase");
-        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(0, 8, out _),
+        AssertTrue(!SamusShadeDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(0, 8, out _),
             "active Speed Booster does not catalogue a fifth phase");
-        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalettePointer(1, 0, out _),
+        AssertTrue(!SamusShadeDefinitions.FullBodyCycles.TryStoredShinePalettePointer(1, 0, out _),
             "stored shine does not catalogue an unaligned suit offset");
-        AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
+        AssertTrue(!SamusShadeDefinitions.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
             "active shinespark does not catalogue an unaligned phase offset");
 
         Console.WriteLine("Full-body palettes: all four suit-indexed list families match ROM and live CGRAM without pointer-table reads.");

@@ -12,7 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -88,7 +88,7 @@ internal static class EnemyDropsVerification
     internal static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);

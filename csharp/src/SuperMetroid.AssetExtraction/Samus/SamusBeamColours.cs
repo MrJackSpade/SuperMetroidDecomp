@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -32,7 +32,7 @@ internal static class SamusBeamColours
         Ensure.NotNull(palettes);
         return combination switch
         {
-            ChainsawBeamGraphicsDefinitions.Selection => palettes.Colours(SamusShades.ShownPalette(combination)),
+            ChainsawBeamGraphicsDefinitions.Selection => palettes.Colours(SamusShades.ShownBeamShade(combination)),
             SpacetimeBeamGraphicsDefinitions.Selection => Enumerable.Repeat(SpacetimeColour, BeamPaletteDefinitions.ColorCount).ToArray(),
             SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or SamusBeamCombination.IceWave
                 or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIce

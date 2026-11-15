@@ -8,7 +8,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -93,7 +93,7 @@ internal static class EnemyHitBurstVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health: 1000, frozenTimer);
             var bombs = new SamusBombProjectileSystem();
-            SamusBombProjectileSlot bomb = bombs.Slots[0];
+            SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);
@@ -205,7 +205,7 @@ internal static class EnemyHitBurstVerification
         foreach (SamusBeamCombination beams in SuperMetroid.AssetExtraction.Samus.SamusBeamColours.Shown)
             cases.Add(($"{beams} equipped", beams, _ => { }));
         cases.Add(("the grapple firing", SamusBeamCombination.Power,
-            colours => colours.ShowBeams(SamusShades.Beam(GrappleBeamDefinitions.Palettes.FiringSelection))));
+            colours => colours.ShowBeams(SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection))));
         cases.Add(("the Crystal Flash", SamusBeamCombination.Plasma, colours =>
         {
             colours.LayOverBeams(SamusShades.CrystalFlashBody(1));
@@ -217,7 +217,7 @@ internal static class EnemyHitBurstVerification
         foreach ((string name, SamusBeamCombination equipped, Action<SamusColours> lay) in cases)
         {
             var colours = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(colours, equipped);
+            SamusProjectileSystem.ShowBeamShade(colours, equipped);
             lay(colours);
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();

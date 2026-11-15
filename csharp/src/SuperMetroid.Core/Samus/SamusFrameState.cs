@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -63,8 +63,8 @@ internal sealed class SamusFrameState
 
     /// <summary>
     /// Block-only result of the wall check after movement. This is separate from the input
-    /// table record because a killed running speed can create a ran-into-wall pose even when
-    /// no controller record matched, and a one-pixel probe can replace a running target.
+    /// transition because a killed running speed can create a ran-into-wall pose even when
+    /// no input transition matched, and a one-pixel probe can replace a running target.
     /// </summary>
     public SamusPoseId? ProspectiveSamusWallCollisionPose { get; internal set; }
 
@@ -120,7 +120,7 @@ internal sealed class SamusFrameState
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
 
 
-    /// <summary>Most recent game-state-owned fatal-damage animation/colour/artwork call.</summary>
+    /// <summary>Most recent game-state-owned fatal-damage animation/shade/artwork call.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
 

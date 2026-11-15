@@ -21,13 +21,13 @@ internal static class SamusMovementNativeWords
         [SamusKnockbackDirection.DownRight] = 5,
     });
 
-    /// <summary>The contact-damage index the enemy touch handling selects Samus's attacking body by.</summary>
-    internal static readonly NativeWordIdentities<SamusContactDamageIndex> ContactDamage = new(new Dictionary<SamusContactDamageIndex, ushort>
+    /// <summary>The stored word of Samus's body attack, which enemy touch handling reads.</summary>
+    internal static readonly NativeWordIdentities<SamusBodyAttack> ContactDamage = new(new Dictionary<SamusBodyAttack, ushort>
     {
-        [SamusContactDamageIndex.None] = 0,
-        [SamusContactDamageIndex.SpeedBooster] = 1,
-        [SamusContactDamageIndex.Shinespark] = 2,
-        [SamusContactDamageIndex.ScrewAttack] = 3,
-        [SamusContactDamageIndex.PseudoScrew] = 4,
+        [SamusBodyAttack.None] = 0,
+        [SamusBodyAttack.SpeedBooster] = 1,
+        [SamusBodyAttack.Shinespark] = 2,
+        [SamusBodyAttack.ScrewAttack] = 3,
+        [SamusBodyAttack.PseudoScrew] = 4,
     });
 }

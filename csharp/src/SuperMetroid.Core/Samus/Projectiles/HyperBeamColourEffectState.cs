@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -60,7 +60,7 @@ public sealed class HyperBeamColourEffectState
         }
 
         ColourEffectDefinition definition = HyperBeamDefinition();
-        if (definition.Start != SamusPaletteDefinitions.HyperBeamFx.Start ||
+        if (definition.Start != SamusShadeDefinitions.HyperBeamFx.Start ||
             definition.InitialAnimation != ColourEffectAnimation.HyperBeam)
         {
             throw new InvalidDataException(

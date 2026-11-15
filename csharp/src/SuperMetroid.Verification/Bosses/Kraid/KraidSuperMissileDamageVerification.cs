@@ -195,7 +195,7 @@ internal static class KraidSuperMissileDamageVerification
             "The first charged shot's bound rejects a second charged shot at the same height");
 
         Prepare(5);
-        var bomb = runtime.BombProjectiles.Slots[0];
+        var bomb = runtime.BombProjectiles.Bombs[0];
         bomb.Type = SamusBombProjectileSystem.NormalBombType;
         bomb.Damage = 30;
         bomb.Position = bomb.Position.WithWhole(new(176, 486));

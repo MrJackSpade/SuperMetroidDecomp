@@ -78,7 +78,7 @@ internal static class RoomScopeVerification
             !ReferenceEquals(source.BombProjectiles.PowerBombExplosion, destination.BombProjectiles.PowerBombExplosion),
             "the destination builds its own projectile and bomb systems");
         VerificationAssertions.AssertTrue(destination.Projectiles.Slots.All(slot => !slot.IsActive) &&
-            destination.BombProjectiles.Slots.All(slot => !slot.IsActive) && destination.Projectiles.SlotTable.ProjectileCounter == 0 &&
+            destination.BombProjectiles.Bombs.All(slot => !slot.IsActive) && destination.Projectiles.SlotTable.ProjectileCounter == 0 &&
             destination.BombProjectiles.BombCounter == 0,
             "the destination's projectile pools are empty");
         VerificationAssertions.AssertTrue(ReferenceEquals(source.Projectiles.Charge, destination.Projectiles.Charge) &&

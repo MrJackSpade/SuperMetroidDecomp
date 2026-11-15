@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -666,7 +666,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = samus.Position.WithWhole(new(512, 400));
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(runtime.Player.Colours, samus.EquippedItems);
         // Samus's suit colours are her shades (#1512): the selection leaves the suit showing the shade its load named.
         RgbColor[] expected = runtime.Player.Colours.ShownSuit(InstalledFixtures.SamusShadeSources);
         runtime.StepFrame(ControllerButton.Select);

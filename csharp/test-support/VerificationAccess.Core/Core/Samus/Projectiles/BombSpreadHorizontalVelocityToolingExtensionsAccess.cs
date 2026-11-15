@@ -12,7 +12,9 @@ internal static class BombSpreadHorizontalVelocityToolingExtensionsAccess
         {
             int high = UnsignedEightEight.Whole(launchWord);
             bool movingLeft = high >= BombSpreadHorizontalVelocityToolingExtensions.LeftwardBit;
-            return BombSpreadHorizontalVelocity.Of(movingLeft, movingLeft ? high - BombSpreadHorizontalVelocityToolingExtensions.LeftwardBit : high, unchecked((byte)launchWord));
+            return movingLeft
+                ? BombSpreadHorizontalVelocity.Leftward(high - BombSpreadHorizontalVelocityToolingExtensions.LeftwardBit, unchecked((byte)launchWord))
+                : BombSpreadHorizontalVelocity.Rightward(high, unchecked((byte)launchWord));
         }
     }
 }

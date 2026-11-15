@@ -106,7 +106,7 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public int BodyStep { get; private set; }
 
-    /// <summary>Set when the raise finishes and the bubble's two per-line window effects start.</summary>
+    /// <summary>Set when the raise finishes and the bubble's explosion and its glow start.</summary>
     public bool BubbleEffectRequested { get; private set; }
 
 

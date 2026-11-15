@@ -105,11 +105,11 @@ internal sealed class SamusPresentation
     /// the same gameplay frame; exposing this narrow writer prevents grapple code from
     /// acquiring a general-purpose escape hatch around animation invariants.
     /// </summary>
-    public static void SetGrappleSwingAnimationFrame(SamusState samus, int frame)
+    public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)
     {
         if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
-        samus.AnimationFrame = frame;
+        samus.AnimationFrame = picture.AnimationFrame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(15);
     }
 

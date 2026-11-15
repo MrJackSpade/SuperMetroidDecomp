@@ -500,10 +500,10 @@ internal static void VerifySamusArmCannon()
     // flag across one update proves no transition began during it.
     SamusArmCannonState cannon = samus.ArmCannon;
     cannon.Update(samus);
-    AssertEqual(0, cannon.Frame,
+    AssertEqual(null, cannon.Frame,
         "first closed HUD sample leaves cannon invisible");
     cannon.Update(samus);
-    AssertEqual(0, cannon.Frame,
+    AssertEqual(null, cannon.Frame,
         "second closed HUD sample agrees with already-closed state");
     AssertEqual(2, cannon.StableSelectionUpdates,
         "stable HUD selection saturates arm-cannon toggle at two");
@@ -515,23 +515,23 @@ internal static void VerifySamusArmCannon()
     cannon.Update(samus);
     AssertTrue(cannon.StableSelectionUpdates == 1 && cannon.IsOpen == openBeforeSelection,
         "new missile selection waits one stable HUD frame");
-    AssertEqual(0, cannon.Frame,
+    AssertEqual(null, cannon.Frame,
         "selection-change frame keeps cannon closed");
 
     bool openBeforeOpening = cannon.IsOpen;
     cannon.Update(samus);
     AssertTrue(!openBeforeOpening && cannon.IsOpen != openBeforeOpening,
         "second missile sample begins opening");
-    AssertEqual(1, cannon.Frame,
-        "opening starts at zero and advances to frame one in the same call");
+    AssertEqual(SamusArmCannonCoverFrame.SlightlyOpen, cannon.Frame,
+        "opening shows the slightly open cover in the starting call");
     AssertTrue(cannon.IsOpen, "missile selection opens the cover");
-    AssertTrue(cannon.IsTransitioning, "opening frame one is still transitioning");
+    AssertTrue(cannon.IsTransitioning, "the slightly open cover is still transitioning");
 
     cannon.Update(samus);
-    AssertEqual(2, cannon.Frame, "opening advances to cover frame two");
-    AssertTrue(cannon.IsTransitioning, "frame two remains transitional");
+    AssertEqual(SamusArmCannonCoverFrame.HalfOpen, cannon.Frame, "opening advances to the half open cover");
+    AssertTrue(cannon.IsTransitioning, "the half open cover remains transitional");
     cannon.Update(samus);
-    AssertEqual(3, cannon.Frame, "opening clamps at cover frame three");
+    AssertEqual(SamusArmCannonCoverFrame.FullyOpen, cannon.Frame, "opening stops at the fully open cover");
     AssertTrue(!cannon.IsTransitioning, "fully open cover ends the transition");
 
     // Rewind is intentionally unnecessary: selecting frame one in the public state is not
@@ -577,8 +577,8 @@ internal static void VerifySamusArmCannon()
         "off-screen cover lies a screen left of the view, where the camera's extra 256 pixels place it");
     AssertEqual(coverFrame.Draws[0].Origin.Y, offScreenFrame.Draws[0].Origin.Y, "off-screen cover keeps its row");
 
-    // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
-    // call decrements immediately to three, followed by two, one, and invisible zero.
+    // Closing mirrors opening: the stable-sample call starts it on the fully open cover, followed by the half and
+    // slightly open covers and then the closed cover.
     samus.SelectedHudItem = HudItem.Beam;
     bool openBeforeDeselection = cannon.IsOpen;
     cannon.Update(samus);
@@ -588,13 +588,13 @@ internal static void VerifySamusArmCannon()
     cannon.Update(samus);
     AssertTrue(openBeforeClosing && !cannon.IsOpen,
         "second empty-item sample begins closing");
-    AssertEqual(3, cannon.Frame, "closing begins visibly at frame three");
+    AssertEqual(SamusArmCannonCoverFrame.FullyOpen, cannon.Frame, "closing begins visibly on the fully open cover");
     cannon.Update(samus);
-    AssertEqual(2, cannon.Frame, "closing decrements to frame two");
+    AssertEqual(SamusArmCannonCoverFrame.HalfOpen, cannon.Frame, "closing steps to the half open cover");
     cannon.Update(samus);
-    AssertEqual(1, cannon.Frame, "closing decrements to frame one");
+    AssertEqual(SamusArmCannonCoverFrame.SlightlyOpen, cannon.Frame, "closing steps to the slightly open cover");
     cannon.Update(samus);
-    AssertEqual(0, cannon.Frame, "closing reaches invisible frame zero");
+    AssertEqual(null, cannon.Frame, "closing reaches the closed cover, which shows nothing");
     AssertTrue(!cannon.IsTransitioning, "fully closed cover ends the transition");
 
     Console.WriteLine(

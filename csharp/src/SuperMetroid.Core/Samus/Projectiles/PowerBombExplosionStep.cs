@@ -6,6 +6,6 @@ public enum PowerBombExplosionStep
     /// <summary>The explosion advances.</summary>
     Advance,
 
-    /// <summary>The per-line effect phase advances it this frame instead.</summary>
+    /// <summary>The blast already advanced this update, right after the liquid wave and statue descent.</summary>
     Skip,
 }

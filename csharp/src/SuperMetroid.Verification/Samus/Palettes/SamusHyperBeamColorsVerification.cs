@@ -100,7 +100,7 @@ internal static class SamusHyperBeamColorsVerification
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 22; call++)
         {
-            AssertTrue(installedSamus.Drained.UpdatePalette(installedColours, 0),
+            AssertTrue(installedSamus.Drained.UpdateColouring(installedColours, 0),
                 $"Hyper Beam call {call} owns palette");
             // Original91D96F copies the selected row before DEC; EnableRainbow's
             // timer/reload are1, so every call advances and wraps at native limit10.

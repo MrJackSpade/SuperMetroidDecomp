@@ -23,9 +23,13 @@ public readonly record struct BombSpreadHorizontalVelocity
     /// <summary>Additional 1/256 pixels travelled per frame, 0 through 255.</summary>
     public int FractionSteps { get; }
 
-    /// <summary>A launch moving left or right at <paramref name="wholePixels"/> and <paramref name="fractionSteps"/> 256ths of a pixel per frame.</summary>
-    internal static BombSpreadHorizontalVelocity Of(bool movingLeft, int wholePixels, int fractionSteps) =>
-        new(movingLeft, wholePixels, fractionSteps);
+    /// <summary>A launch moving left at <paramref name="wholePixels"/> and <paramref name="fractionSteps"/> 256ths of a pixel per frame.</summary>
+    internal static BombSpreadHorizontalVelocity Leftward(int wholePixels, int fractionSteps) =>
+        new(movingLeft: true, wholePixels, fractionSteps);
+
+    /// <summary>A launch moving right at <paramref name="wholePixels"/> and <paramref name="fractionSteps"/> 256ths of a pixel per frame.</summary>
+    internal static BombSpreadHorizontalVelocity Rightward(int wholePixels, int fractionSteps) =>
+        new(movingLeft: false, wholePixels, fractionSteps);
 
     /// <summary>The same speed in the opposite direction, as a wall collision leaves it.</summary>
     public BombSpreadHorizontalVelocity Reversed() => new(!MovingLeft, WholePixels, FractionSteps);

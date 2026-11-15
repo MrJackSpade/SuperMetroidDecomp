@@ -160,13 +160,20 @@ public sealed class SamusLiquidPhysicsState
     public UnsignedSixteenSixteen PendingPeriodicDamage { get; internal set; }
 
     /// <summary>
-    /// The room Samus is in, consumed by area- and room-specific footstep and landing graphics. Every room load sets it;
-    /// until the first does, it is Landing Site, the room the game's cleared area and room state name.
+    /// The room Samus is in, consumed by area- and room-specific footstep and landing graphics; null until a room load
+    /// sets it. The intro's flashback, which runs in no room, names the Landing Site, as the game's cleared area and room
+    /// state do.
     /// </summary>
-    public RoomDefinition Room { get; set; } = RoomDefinitions.LandingSite;
+    public RoomDefinition? Room { get; set; }
 
     /// <summary>The area of <see cref="Room"/>, used by area-only consumers.</summary>
-    public AreaId Area => Room.Area;
+    /// <exception cref="InvalidOperationException">No room has loaded.</exception>
+    public AreaId Area => CurrentRoom.Area;
+
+    /// <summary>The room Samus is in, which a footstep or a landing needs.</summary>
+    /// <exception cref="InvalidOperationException">No room has loaded.</exception>
+    private RoomDefinition CurrentRoom =>
+        Room ?? throw new InvalidOperationException("Samus is in no room until a room load places her in one.");
 
     /// <summary>An active cinematic suppresses ordinary footstep audio.</summary>
     public bool CinematicActive { get; set; }
@@ -394,7 +401,8 @@ public sealed class SamusLiquidPhysicsState
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
-            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) && samus.Health >= 71)
+            if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
+                samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
             // Both lava and acid now share the delay-two submerged path.
@@ -484,7 +492,7 @@ public sealed class SamusLiquidPhysicsState
 
             case AreaId.Brinstar:
             case AreaId.Tourian:
-                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(Room))
+                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(CurrentRoom))
                     SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 else
                     EndLandingEffectWait();
@@ -521,7 +529,7 @@ public sealed class SamusLiquidPhysicsState
 
         // The Green Pirates Shaft bypasses the room policy and always chooses the
         // dry-dust step, still subject to live liquid submersion.
-        if (Room == RoomDefinitions.GreenPiratesShaft)
+        if (CurrentRoom == RoomDefinitions.GreenPiratesShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
             return;
@@ -530,7 +538,7 @@ public sealed class SamusLiquidPhysicsState
         // The game duplicates this room policy for running footsteps and landing
         // effects. Preserve its flag priority even though retail rows contain one flag each.
         CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffects.ForCrateriaRoom(Room);
+            SamusAtmosphericEffects.ForCrateriaRoom(CurrentRoom);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
             // Landing Site creates splashes only while it rains; its normal scrolling-sky
@@ -544,8 +552,8 @@ public sealed class SamusLiquidPhysicsState
 
         if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
         {
-            // Above Y=944 the entrance is dry and deletes; at/below it, use wet splashes.
-            if (samus.Position.Y.Whole >= 944)
+            // Above the waterline the entrance is dry and deletes; at and below it, use wet splashes.
+            if (samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY)
                 SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             else
                 EndLandingEffectWait();
@@ -738,13 +746,13 @@ public sealed class SamusLiquidPhysicsState
             else
             {
                 CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffects.ForCrateriaRoom(Room);
+                    SamusAtmosphericEffects.ForCrateriaRoom(CurrentRoom);
                 // The three flag tests have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = FxType == RoomFxType.Rain;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = samus.Position.Y.Whole >= 944;
+                    useWetFootsteps = samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
                     useWetFootsteps = true;
             }

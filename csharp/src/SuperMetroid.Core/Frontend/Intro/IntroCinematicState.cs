@@ -608,6 +608,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Samus's shared frame phases read the active cinematic phase to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
+        CurrentFlashbackSamus.LiquidPhysics.Room = SuperMetroid.Core.Rooms.RoomDefinitions.LandingSite;
         CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
         CurrentFlashbackSamus.Presentation.BindSheets(spriteSheets);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);

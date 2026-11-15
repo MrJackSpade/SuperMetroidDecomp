@@ -599,7 +599,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     SamusPoseMetadata.RefreshCollisionRadii(noBombItemSamus);
     var noBombItemSystem = CreateBombFixture();
     noBombItemSystem.StepFrame(new SamusTerrain { Level = floor }, noBombItemSamus, ControllerButton.X, ControllerButton.X);
-    AssertTrue(noBombItemSystem.BombCounter == 0 && noBombItemSystem.Slots.All(slot => !slot.IsActive),
+    AssertTrue(noBombItemSystem.BombCounter == 0 && noBombItemSystem.Bombs.All(slot => !slot.IsActive),
         "bomb item bit gates placement");
 
     var bombProjectileSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -650,7 +650,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         SamusPoseMetadata.RefreshCollisionRadii(fixtureSamus);
         var fixtureSystem = CreateBombFixture();
         fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, ControllerButton.X, ControllerButton.X);
-        while (fixtureSystem.Slots[0].BombTimer.RawValue > 9)
+        while (fixtureSystem.Bombs[0].BombTimer.RawValue > 9)
             fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor }, fixtureSamus, 0, 0);
         return new MakeDirectionFixtureResult(fixtureSystem, fixtureSamus);
     }

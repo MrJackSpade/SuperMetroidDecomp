@@ -511,7 +511,6 @@ internal sealed class SamusPresentation
     /// Draws an echo, when it stands somewhere, with the picture the body last drew, published wherever it lies; the
     /// display clips it to the view, as it does the body (#1625).
     /// </summary>
-    /// <param name="instance">Which echo picture this is among Samus's echoes, zero through three.</param>
     private void DrawActiveSpeedBoosterEcho(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels>? stored,

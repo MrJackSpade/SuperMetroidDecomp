@@ -41,8 +41,8 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     public IReadOnlyList<SamusBomb> Bombs => _bombs;
 
-    /// <summary>Creates the new bomb of place <paramref name="index"/>, ending the one there.</summary>
-    /// <param name="index">The zero-based bomb place.</param>
+    /// <summary>Creates the new bomb of place <paramref name="place"/>, ending the one there.</summary>
+    /// <param name="place">The bomb place, from zero.</param>
     /// <returns>The new bomb, at rest at the room's origin with nothing set.</returns>
     private SamusBomb Occupy(int place)
     {
@@ -785,7 +785,7 @@ public sealed class SamusBombProjectileSystem
         // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
         // or above the room holds a coordinate near 65535, and its far edge would pass 65535, which PixelToBlock rejects,
         // so that edge is first held to the last room coordinate a block can be read at; the room's own clip then leaves
-        // that edge before the near one.
+        // that edge before the near one. A blast both left of and above the room so visits no edge at all.
         int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,

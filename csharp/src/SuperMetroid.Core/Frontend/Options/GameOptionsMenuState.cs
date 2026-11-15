@@ -445,15 +445,15 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 
-    /// <summary>Queues the cursor sound within the menu sound limit.</summary>
+    /// <summary>Queues the cursor sound at the menu's sound priority.</summary>
     private void QueueMoveSound() =>
         audio?.QueueSound(
             SamusSound.MenuCursor,
-            priority: GameOptionsDefinitions.MaximumQueuedMenuSounds);
+            priority: GameOptionsDefinitions.MenuSoundPriority);
 
-    /// <summary>Queues the confirmation sound within the menu sound limit.</summary>
+    /// <summary>Queues the confirmation sound at the menu's sound priority.</summary>
     private void QueueSelectSound() =>
         audio?.QueueSound(
             SamusSound.MenuConfirm,
-            priority: GameOptionsDefinitions.MaximumQueuedMenuSounds);
+            priority: GameOptionsDefinitions.MenuSoundPriority);
 }

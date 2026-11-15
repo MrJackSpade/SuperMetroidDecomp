@@ -12,8 +12,11 @@ public static class GameOptionsDefinitions
     public const int ControllerScrollLimit = 32;
     /// <summary>Pixels the controller page scrolls per update.</summary>
     public const int ControllerScrollPixelsPerFrame = 2;
-    /// <summary>The queue limit options navigation and confirmation sounds are requested under.</summary>
-    public static readonly SoundRequestPriority MaximumQueuedMenuSounds = SoundRequestPriority.Normal;
+    /// <summary>
+    /// How crowded the sound queue may be for the options menu's cursor and confirmation sounds to join it: the usual
+    /// priority.
+    /// </summary>
+    public static readonly SoundRequestPriority MenuSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>Row counts and the controller page's navigation rows.</summary>
     public static class Rows

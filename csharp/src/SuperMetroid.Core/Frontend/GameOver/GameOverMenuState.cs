@@ -149,7 +149,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // black; the menu blanks it and waits out one update before configuring itself.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.MaximumQueuedSounds);
+                audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
                 IsWaitingOutDisplayFrame = true;
                 break;
 
@@ -189,7 +189,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 {
                     audio.QueueSound(
                         SamusSound.MenuCursor,
-                        priority: GameOverMenuDefinitions.MaximumQueuedSounds);
+                        priority: GameOverMenuDefinitions.SoundPriority);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }
                 else if ((pressed & ControllerButton.A) != ControllerButton.None)
@@ -280,9 +280,9 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         BabyFrameHold = look.Duration;
     }
 
-    /// <summary>Queues one of the Baby's cries on the retail sound queue.</summary>
+    /// <summary>Queues one of the Baby's cries at the menu's sound priority.</summary>
     private void QueueCry(GameOverBabySound sound) =>
-        audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.MaximumQueuedSounds);
+        audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.SoundPriority);
 
     /// <summary>The sound of one of the Baby's cries.</summary>
     /// <exception cref="InvalidDataException">The cry is not one of the Baby's.</exception>

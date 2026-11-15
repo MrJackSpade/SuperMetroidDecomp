@@ -17,6 +17,6 @@ internal static class PauseReserveEnergyDefinitions
     internal const int RefillSoundInterval = 8;
     /// <summary>The sound each refill interval plays.</summary>
     internal static readonly SoundEffectId RefillSound = RoomSound.IncrementalEnergy;
-    /// <summary>The queue limit the refill sound is requested under.</summary>
-    internal static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
+    /// <summary>How crowded the sound queue may be for a refill sound to join it: the usual priority.</summary>
+    internal static readonly SoundRequestPriority RefillSoundPriority = SoundRequestPriority.Normal;
 }

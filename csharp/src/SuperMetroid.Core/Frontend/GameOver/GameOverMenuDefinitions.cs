@@ -6,8 +6,11 @@ public static class GameOverMenuDefinitions
     /// <summary>The full screen brightness; the fade-in enters the interactive menu on reaching it.</summary>
     public const int MaximumBrightness = 15;
 
-    /// <summary>The priority of the selection missile's sound and all three Baby cries: normal.</summary>
-    public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
+    /// <summary>
+    /// How crowded the sound queue may be for the menu's sounds to join it: the silence it opens with, the selection
+    /// missile's move and all three Baby cries are requested at the usual priority.
+    /// </summary>
+    public static readonly SoundRequestPriority SoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>The statue-hall song, requested once the initial music queue drains.</summary>
     public const MusicTrack MenuSong = MusicTrack.StatueHall;

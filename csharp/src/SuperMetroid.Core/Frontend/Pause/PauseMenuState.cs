@@ -799,7 +799,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ReserveRefillSoundDelay--;
         int placeInInterval = (ReserveRefillSoundDelay % interval + interval) % interval;
         if (placeInInterval == interval - 1)
-            audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.MaximumQueuedSounds);
+            audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.RefillSoundPriority);
 
         int amount = PauseEquipmentRules.ReserveEnergyPerFrame;
         samus.Health += amount;

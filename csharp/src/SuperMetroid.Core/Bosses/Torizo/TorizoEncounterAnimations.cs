@@ -38,7 +38,7 @@ internal static class TorizoEncounterAnimations
             ShowArtwork(L.FaceBlownUp),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
-            Cue(new TorizoCue.Signal(K.Return)),
+            Cue(new TorizoCue.Turn(WhenFacingRight: A.FacelessTurningLeft, WhenFacingLeft: A.FacelessTurningRight)),
         ],
         [A.Dying] =
         [
@@ -137,7 +137,7 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.UnmarkStunned)),
             Cue(new TorizoCue.Signal(K.StartWalking)),
-            Cue(new TorizoCue.Signal(K.Return)),
+            Cue(new TorizoCue.Signal(K.ResumeWalk)),
         ],
     };
 }

@@ -69,7 +69,7 @@ internal static class TorizoRestingLandingVerification
         // A leap's landing quakes and rests the Torizo.
         (RoomEnemySystem leaping, RoomEnemySlot leapingSlot, TorizoEnemyState leapingState) = NewTorizo(AboveFloor);
         leapingState.Motion = TorizoBodyMotion.Leaping;
-        leapingState.ReturnPlayback = TorizoAnimations.Start(TorizoAnimation.FacingLeftLanding);
+        leapingState.Landing = TorizoAnimation.FacingLeftLanding;
         leapingState.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);
         leapingState.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         updates = 0;

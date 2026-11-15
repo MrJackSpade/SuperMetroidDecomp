@@ -59,7 +59,7 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-    /// <summary>Uses the room RNG to select a forward-facing attack at medium horizontal range.</summary>
+    /// <summary>Uses the room RNG to interrupt the walk with an attack forward at medium horizontal range, keeping the walk's place.</summary>
     internal AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoMediumRangeBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -77,7 +77,7 @@ internal sealed class TorizoChoices
             return null;
         }
 
-        state.ReturnPlayback = continuation;
+        state.InterruptedWalk = continuation;
         return TorizoAnimations.ContinueWith(target);
     }
 
@@ -200,7 +200,7 @@ internal sealed class TorizoChoices
         return null;
     }
 
-    /// <summary>Saves the next cue and branches when Samus is within 56 pixels behind the statue.</summary>
+    /// <summary>Interrupts the walk with the swipe, keeping the walk's place, when Samus is within 56 pixels behind the statue.</summary>
     internal static AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -212,7 +212,7 @@ internal sealed class TorizoChoices
             return null;
         if (FacesAwayFromSamus(torizo, samus))
             return null;
-        state.ReturnPlayback = continuation;
+        state.InterruptedWalk = continuation;
         return TorizoAnimations.ContinueWith(target);
     }
 

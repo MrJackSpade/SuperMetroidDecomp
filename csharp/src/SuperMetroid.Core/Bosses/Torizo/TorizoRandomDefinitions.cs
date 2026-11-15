@@ -11,8 +11,8 @@ internal static class TorizoRandomDefinitions
     internal static readonly TorizoRandomDecision LowHealthDrool = TorizoRandomDecision.WhenAllClear(
         new RandomSampleField(1, 1), new RandomSampleField(6, 1), new RandomSampleField(8, 1), new RandomSampleField(15, 1));
 
-    /// <summary>Golden Torizo's low-health call is taken when two single-bit fields of the sample both read zero: one time in four.</summary>
-    internal static readonly TorizoRandomDecision LowHealthCall = TorizoRandomDecision.WhenAllClear(
+    /// <summary>Golden Torizo releases its eggs at low health when two single-bit fields of the sample both read zero: one time in four.</summary>
+    internal static readonly TorizoRandomDecision LowHealthEggs = TorizoRandomDecision.WhenAllClear(
         new RandomSampleField(1, 1), new RandomSampleField(8, 1));
 
     /// <summary>Golden Torizo's medium-range attack is taken when two single-bit fields of the sample both read zero: one time in four.</summary>

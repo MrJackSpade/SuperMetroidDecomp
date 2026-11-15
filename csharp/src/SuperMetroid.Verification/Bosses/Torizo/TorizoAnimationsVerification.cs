@@ -106,6 +106,7 @@ internal static class TorizoAnimationsVerification
             steps += CompareAnimation(cartridge, lists, animation, played);
         AssertTrue(played.SetEquals(BodyLists), $"every native Torizo body list is played by some animation; unplayed: {string.Join(", ", BodyLists.Except(played).Select(list => $"${list:X4}"))}");
         VerifyResumedSleeps(cartridge, lists);
+        VerifyContinuations(cartridge, lists);
         var poses = new HashSet<ushort>(TorizoAnimations.Segments.Frames.Select(TorizoFrameDefinitionsConstants.Spritemap));
         AssertEqual(TorizoFrameDefinitionsConstants.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
         AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllAnimations)), "the body animations show every Torizo pose");
@@ -272,7 +273,9 @@ internal static class TorizoAnimationsVerification
                 TorizoOperand.Target => Entry(cue switch
                 {
                     TorizoCue.Branch branch => branch.Target,
+                    TorizoCue.Interrupt interrupt => interrupt.Animation,
                     TorizoCue.Choice choice => choice.Target,
+                    TorizoCue.LandIn landIn => landIn.Landing,
                     _ => throw new InvalidOperationException($"{at}: {cue} carries no target."),
                 }),
                 TorizoOperand.Alternate => Entry(AssertIs<TorizoCue.Choice>(cue, $"{at}: cue").Alternate),
@@ -362,7 +365,7 @@ internal static class TorizoAnimationsVerification
                     else if (instruction.Cue.Matches(new TorizoCue.Signal(TorizoCueKind.SpawnDeathExplosion)))
                         beats.Add(new(cursor, BodyBeatKind.CallbackSleep, DeathExplosionSleep));
                     // A return always continues elsewhere and saves no return point: the list ends there.
-                    if (Returns(instruction))
+                    if (Returns(word))
                     {
                         controls.Add(new(NativeEnemyControlKind.Sleep, beats.Count, null, null));
                         break;
@@ -377,9 +380,103 @@ internal static class TorizoAnimationsVerification
         return new BodyList([.. beats], [.. controls]);
     }
 
-    /// <summary>Whether <paramref name="instruction"/> returns: to a saved place, or to the animation an interruption saved.</summary>
-    private static bool Returns(TorizoNativeListAddressesBodyInstruction instruction) =>
-        instruction.Cue.Matches(new TorizoCue.Signal(TorizoCueKind.Return)) || instruction.Cue.Matches(new TorizoCue.Signal(TorizoCueKind.ResumeInterrupted));
+    /// <summary>Whether the native instruction <paramref name="word"/> returns: to a place a call saved, or to the animation an interruption saved.</summary>
+    private static bool Returns(ushort word) => word is ReturnInstruction or ResumeInterruptedInstruction;
+
+    /// <summary>
+    /// The native calls that interrupted the walk, keeping its place to return to (#2028): Bomb Torizo's swipe and Golden
+    /// Torizo's stagger, eye beam and eggs. Each animation they call ends by resuming the walk.
+    /// </summary>
+    private static readonly HashSet<ushort> WalkInterruptions = [0xc567, 0xd49b, 0xd445, 0xd474];
+
+    /// <summary>
+    /// The native calls that chose an attack on landing, returning to the landing's list past the call (#2028). Each attack
+    /// they call ends by walking on in the animation that starts where that return continued.
+    /// </summary>
+    private static readonly HashSet<ushort> AttackChoicesOnLanding = [0xc5a4, 0xd526];
+
+    /// <summary>
+    /// The cartridge's calls returned to the place they saved; each typed animation instead names where it continues
+    /// (#2028). Every animation a walk interruption calls must resume the walk; every attack a landing chooses must walk on
+    /// in the animation that starts where the cartridge's return continued, past any goto; and every named continuation
+    /// must be one a native call establishes, but the face blow-up's turn, which the AI's own code chose.
+    /// </summary>
+    private static void VerifyContinuations(IImportCartridgeSource cartridge, Dictionary<ushort, BodyList> lists)
+    {
+        var resumers = new HashSet<TorizoAnimation>();
+        var walksOn = new Dictionary<TorizoAnimation, TorizoAnimation>();
+        int calls = 0;
+        foreach (BodyBeat beat in lists.Values.SelectMany(list => list.Beats).Where(beat => beat.Kind == BodyBeatKind.Instruction))
+        {
+            int address = (BodyBankNumber << 16) | beat.Address;
+            ushort word = cartridge.ReadCartridgeWord(address);
+            bool interrupts = WalkInterruptions.Contains(word);
+            if (!interrupts && !AttackChoicesOnLanding.Contains(word))
+                continue;
+            calls++;
+            int operands = BodyInstructions[word].Operands.Length;
+            // A walk interruption returns into the middle of the walk's list, which the kept playback stands in.
+            ushort? returnPoint = interrupts ? null : PastGoTos(cartridge, unchecked((ushort)(beat.Address + 2 + 2 * operands)));
+            for (int operand = 0; operand < operands; operand++)
+            {
+                ushort target = cartridge.ReadCartridgeWord(address + 2 + 2 * operand);
+                TorizoAnimation called = AnimationAt(target)
+                    ?? throw new InvalidDataException($"Torizo call at $AA:{beat.Address:X4} calls ${target:X4}, where no animation starts.");
+                string at = $"Torizo {called}, called at $AA:{beat.Address:X4}";
+                TorizoCue end = EndCue(called);
+                if (interrupts)
+                {
+                    AssertEqual<TorizoCue>(new TorizoCue.Signal(TorizoCueKind.ResumeWalk), end, $"{at}: resumes the walk it interrupted");
+                    resumers.Add(called);
+                    continue;
+                }
+                var walkOn = AssertIs<TorizoCue.WalkOn>(end, $"{at}: walks on");
+                AssertEqual(returnPoint, (ushort?)Entry(walkOn.Walking), $"{at}: walks on where the cartridge's return continued, ${returnPoint:X4}");
+                walksOn[called] = walkOn.Walking;
+            }
+        }
+        foreach (TorizoAnimation animation in Enum.GetValues<TorizoAnimation>())
+        {
+            IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> steps = TorizoAnimations.Segments.Beats(animation);
+            if (steps[^1] is not AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: var cue })
+                continue;
+            switch (cue)
+            {
+                case TorizoCue.WalkOn:
+                    AssertTrue(walksOn.ContainsKey(animation), $"Torizo {animation} walks on as some native attack choice returned");
+                    break;
+                case TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }:
+                    AssertTrue(resumers.Contains(animation), $"Torizo {animation} resumes a walk some native call interrupted");
+                    break;
+                case TorizoCue.Turn turn:
+                    AssertEqual(TorizoAnimation.BombTorizoFaceBlowingUp, animation, "only the face blow-up ends in a turn");
+                    AssertEqual(TorizoAnimation.FacelessTurningLeft, turn.WhenFacingRight, "the face blow-up turns a right-facing Torizo left");
+                    AssertEqual(TorizoAnimation.FacelessTurningRight, turn.WhenFacingLeft, "the face blow-up turns a left-facing Torizo right");
+                    break;
+                default:
+                    // Every other cue ends an animation that holds, stops or loops on in its own steps.
+                    break;
+            }
+        }
+        Console.WriteLine($"  Torizo continuations: {calls} native calls; {resumers.Count} animations resume the walk, {walksOn.Count} walk on where the cartridge returned.");
+    }
+
+    /// <summary>The cue <paramref name="animation"/>'s steps end with: where an attack, a stagger or a blow-up continues.</summary>
+    private static TorizoCue EndCue(TorizoAnimation animation) =>
+        AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(TorizoAnimations.Segments.Beats(animation)[^1], $"Torizo {animation} ends in a cue").Raised;
+
+    /// <summary>The native list a return to <paramref name="address"/> continues in, following any gotos there.</summary>
+    private static ushort PastGoTos(IImportCartridgeSource cartridge, ushort address)
+    {
+        while (!IsBodyList(address))
+        {
+            ushort word = cartridge.ReadCartridgeWord((BodyBankNumber << 16) | address);
+            if (NativeEnemyListDefinitions.Classify(word) != NativeEnemyListDefinitions.WordKind.GoTo)
+                throw new InvalidDataException($"The Torizo return point $AA:{address:X4} is neither a list's entry nor a goto.");
+            address = cartridge.ReadCartridgeWord(((BodyBankNumber << 16) | address) + 2);
+        }
+        return address;
+    }
 
     /// <summary>
     /// The runs and plays the native lists play from <paramref name="start"/>, by the typed animations' rules, and how the
@@ -482,7 +579,7 @@ internal static class TorizoAnimationsVerification
                 {
                     TorizoNativeListAddressesBodyInstruction instruction = BodyInstructions[word];
                     // A return ends its list without a sleep.
-                    if (Returns(instruction))
+                    if (Returns(word))
                         return null;
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands.Length));
                     continue;

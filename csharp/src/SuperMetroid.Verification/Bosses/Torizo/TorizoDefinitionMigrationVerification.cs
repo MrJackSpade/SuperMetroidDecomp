@@ -41,7 +41,7 @@ internal static class TorizoDefinitionMigrationVerification
             AssertEqual(0, mismatches, $"{name} is taken by every sample its mask leaves clear and no other");
         }
         AssertMaskedDecision(0x8142, TorizoRandomDefinitions.LowHealthDrool, "low-health drool");
-        AssertMaskedDecision(0x0102, TorizoRandomDefinitions.LowHealthCall, "low-health call");
+        AssertMaskedDecision(0x0102, TorizoRandomDefinitions.LowHealthEggs, "low-health eggs");
         AssertMaskedDecision(0x0110, TorizoRandomDefinitions.MediumRangeAttack, "medium-range attack");
         AssertMaskedDecision(0x0101, TorizoRandomDefinitions.ForwardLeap, "forward leap");
 

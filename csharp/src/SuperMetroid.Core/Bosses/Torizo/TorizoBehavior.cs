@@ -239,9 +239,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation.ShowLook(look.Of(state.IsGolden ? EncounterArtwork.GoldenTorizo : EncounterArtwork.BombTorizo));
 
     /// <summary>
-    /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a branch, call or return
-    /// continues the play, or null to play on. <paramref name="continuation"/> is where the play stands just past the
-    /// cue: the return point a call saves. <see cref="TorizoCueInputs.FrameCounter"/> is the frame
+    /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a decision, an interruption or the end
+    /// of one continues the play, or null to play on. <paramref name="continuation"/> is where the play stands just past the
+    /// cue: the place in the walk an interruption keeps (#2028). <see cref="TorizoCueInputs.FrameCounter"/> is the frame
     /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
     /// </summary>
     internal AnimationContinuation<TorizoAnimation>? ApplyTorizoCue(
@@ -322,7 +322,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AnimationLocked = false;
                 return null;
 
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.GoToIfFaceBlownUpElseIfGolden } choice:
+            case TorizoCue.Choice { Kind: TorizoChoiceKind.LandFacelessOrGolden } choice:
             {
                 if (TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
                     return TorizoAnimations.ContinueWith(choice.Target);
@@ -330,12 +330,19 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return state.IsGolden ? TorizoAnimations.ContinueWith(choice.Alternate) : null;
             }
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.Link } branch:
-                state.ReturnPlayback = TorizoAnimations.Start(branch.Target);
+            case TorizoCue.LandIn landIn:
+                state.Landing = landIn.Landing;
                 return null;
 
-            case TorizoCue.Signal { Kind: TorizoCueKind.Return }:
-                return TorizoAnimations.ContinueAt(state.ReturnPlayback);
+            case TorizoCue.WalkOn walkOn:
+                return TorizoAnimations.ContinueWith(walkOn.Walking);
+
+            case TorizoCue.Turn turn:
+                return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft);
+
+            case TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }:
+                return TorizoAnimations.ContinueAt(state.InterruptedWalk
+                    ?? throw new InvalidOperationException("A Torizo's attack resumes a walk no attack interrupted."));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.ResumeInterrupted }:
                 return TorizoAnimations.ContinueAt(state.InterruptedPlayback);
@@ -404,26 +411,25 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Replay { Kind: TorizoReplayKind.WhileRising }:
                 return state.Velocity.Y.IsNegative ? TorizoAnimations.ReplayPhase(continuation) : null;
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.CallIfSamusCloseBehind } branch:
+            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.BombSwipeAtSamusBehind } interrupt:
                 return TorizoChoices.SelectBombTorizoCloseBehindBranch(
                     torizo,
                     state,
                     inputs.Samus,
                     continuation,
-                    branch.Target);
+                    interrupt.Animation);
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.JumpBackIfSamusCloseInFront } branch:
+            case TorizoCue.Branch { Kind: TorizoBranchKind.BombJumpBackFromSamusInFront } branch:
                 return TorizoChoices.SelectBombTorizoCloseFrontJump(
                     torizo,
                     state,
                     inputs.Samus,
                     branch.Target);
 
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.CallBombTorizoAttack } choice:
+            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
             {
                 if (inputs.Samus is null)
                     throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
-                state.ReturnPlayback = continuation;
                 bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.BombFirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
@@ -510,7 +516,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnGoldenTorizoSuperMissile(torizo);
                 return null;
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfSamusMorphedBehind } branch:
+            case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenSitOnSamusMorphedBehind } branch:
                 return TorizoChoices.SelectGoldenTorizoMorphBallBranch(
                     torizo,
                     state,
@@ -521,29 +527,29 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnGoldenTorizoEyeBeam(torizo);
                 return null;
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.CallSometimesIfSamusMorphedInFront } branch:
+            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenEyeBeamAtMediumRange } interrupt:
                 return Choices.SelectGoldenTorizoMediumRangeBranch(
                     torizo,
                     state,
                     inputs.Samus,
                     continuation,
-                    branch.Target);
+                    interrupt.Animation);
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.CallSometimesIfHealthLow } branch:
-                if (torizo.Health > TorizoDecisionDefinitions.GoldenLowHealthCallHealth || !TorizoRandomDefinitions.LowHealthCall.IsTakenBy(_room.Random.Generate()))
+            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenEggsAtLowHealth } interrupt:
+                if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomDefinitions.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
                     return null;
                 state.DecisionCounter = 0;
-                state.ReturnPlayback = continuation;
-                return TorizoAnimations.ContinueWith(branch.Target);
+                state.InterruptedWalk = continuation;
+                return TorizoAnimations.ContinueWith(interrupt.Animation);
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.CallIfStunHealthHigh } branch:
-                if (torizo.Health <= TorizoDecisionDefinitions.GoldenStunCallHealth ||
+            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenStaggerWhenStunned } interrupt:
+                if (torizo.Health <= TorizoDecisionDefinitions.GoldenStaggerHealth ||
                     !TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.Stunned))
                     return null;
-                state.ReturnPlayback = continuation;
-                return TorizoAnimations.ContinueWith(branch.Target);
+                state.InterruptedWalk = continuation;
+                return TorizoAnimations.ContinueWith(interrupt.Animation);
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.JumpForwardIfSamusFar } branch:
+            case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenLeapAtDistantSamus } branch:
                 return Choices.SelectGoldenTorizoSpaceJumpCounter(
                     torizo,
                     state,
@@ -555,17 +561,16 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnGoldenTorizoChozoOrb(torizo);
                 return null;
 
-            case TorizoCue.Branch { Kind: TorizoBranchKind.JumpBackIfSamusCloseInFrontGolden } branch:
+            case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenJumpBackFromSamusInFront } branch:
                 return TorizoChoices.SelectGoldenTorizoRepeatedJump(
                     torizo,
                     state,
                     inputs.Samus,
                     branch.Target);
 
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.CallGoldenTorizoAttack } choice:
+            case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
             {
                 SamusState activeSamus = RequireGoldenTorizoSamus(inputs.Samus);
-                state.ReturnPlayback = continuation;
                 bool chooseFirst = activeSamus.Missiles < TorizoDecisionDefinitions.GoldenFirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, activeSamus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);

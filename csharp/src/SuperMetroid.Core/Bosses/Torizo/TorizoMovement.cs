@@ -122,9 +122,7 @@ internal sealed class TorizoMovement
         if (!TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp) &&
             torizo.Health < TorizoDecisionDefinitions.FaceBlowUpHealth)
         {
-            state.ReturnPlayback = TorizoAnimations.Start(TorizoFacing.FacesRight(torizo)
-                ? TorizoAnimation.FacelessTurningLeft
-                : TorizoAnimation.FacelessTurningRight);
+            // The face's blow-up ends in the faceless turn away from the way Bomb Torizo faces (#2028).
             TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoFaceBlowingUp));
             return;
         }
@@ -196,7 +194,8 @@ internal sealed class TorizoMovement
                 torizo,
                 state.Velocity.Y.ToSixteenSixteenDelta()))
         {
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, state.ReturnPlayback);
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Landing
+                ?? throw new InvalidOperationException("A Torizo's leap lands it in no landing its jump or fall named.")));
             state.FallAtRestingSpeed();
             _earthquake.Start(LandingShake, TorizoMotionDefinitions.LandingQuakeUpdates);
             return;

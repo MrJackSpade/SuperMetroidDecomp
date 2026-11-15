@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using SuperMetroid.Core.Animation;
 using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -95,6 +95,12 @@ internal static class TorizoAnimations
         [A.GoldenDodgeTurningRight] = new([new(A.GoldenDodgeTurningRight, 0, 5, 1), new(A.GoldenDodgeTurningRight, 5, 20, 1), new(A.GoldenDodgeTurningRight, 25, 21, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenTurningRight] = new([new(A.GoldenTurningRight, 0, 3, 1), new(A.GoldenTurningRight, 3, 20, 1), new(A.GoldenTurningRight, 23, 21, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenWalkingRightRightLegMoving] = new([new(A.GoldenWalkingRightRightLegMoving, 0, 21, 1), new(A.GoldenWalkingRightRightLegMoving, 21, 20, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.FacingLeftWalkingRightLegMoving] = new([new(A.FacingLeftWalkingRightLegMoving, 0, 20, 1), new(A.FacingLeftWalkingRightLegMoving, 20, 20, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.FacingLeftWalkingLeftLegMoving] = new([new(A.FacingLeftWalkingLeftLegMoving, 0, 20, 1), new(A.FacingLeftWalkingLeftLegMoving, 20, 20, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.FacingRightWalkingLeftLegMoving] = new([new(A.FacingRightWalkingLeftLegMoving, 0, 21, 1), new(A.FacingRightWalkingLeftLegMoving, 21, 20, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.FacingRightWalkingRightLegMoving] = new([new(A.FacingRightWalkingRightLegMoving, 0, 20, 1), new(A.FacingRightWalkingRightLegMoving, 20, 21, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.GoldenWalkingLeftRightLegMoving] = new([new(A.GoldenWalkingLeftRightLegMoving, 0, 20, 1), new(A.GoldenWalkingLeftRightLegMoving, 20, 21, 1)], AnimationEnd.LoopsFrom(0)),
+        [A.GoldenWalkingRightLeftLegMoving] = new([new(A.GoldenWalkingRightLeftLegMoving, 0, 20, 1), new(A.GoldenWalkingRightLeftLegMoving, 20, 21, 1)], AnimationEnd.LoopsFrom(0)),
     }.ToFrozenDictionary();
 
     /// <summary>Each animation's identity, by the animation itself.</summary>
@@ -121,7 +127,7 @@ internal static class TorizoAnimations
     /// <summary>A cue's continuation into <paramref name="animation"/>, from its start.</summary>
     internal static AnimationContinuation<TorizoAnimation> ContinueWith(TorizoAnimation animation) => new(StartingWith(animation), AnimationPlace.StartOfAnimation);
 
-    /// <summary>A cue's continuation where <paramref name="playback"/> stood, as a return to a saved place continues there.</summary>
+    /// <summary>A cue's continuation where <paramref name="playback"/> stood, as a resumed walk or interrupted animation continues there.</summary>
     internal static AnimationContinuation<TorizoAnimation> ContinueAt(AnimationPlayback<TorizoAnimation> playback) =>
         new(Ensure.NotNull(playback.Animation), playback.Place);
 

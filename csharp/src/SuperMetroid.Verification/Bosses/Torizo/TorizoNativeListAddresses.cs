@@ -45,7 +45,7 @@ internal static class TorizoNativeListAddresses
         0xd1f1, 0xd203, 0xd20d, 0xd259, 0xd2ad, 0xd2bf, 0xd2c9, 0xd315,
     ];
 
-    /// <summary>The native list each body animation starts at (#1788).</summary>
+    /// <summary>The native list each body animation starts at (#1788); the walks the attacks chosen on landing end in start at their step lists (#2028).</summary>
     internal static readonly IReadOnlyDictionary<TorizoAnimation, ushort> AnimationEntries = new Dictionary<TorizoAnimation, ushort>
     {
         [TorizoAnimation.BombTorizoGutBlowingUp] = 0xb0e5,
@@ -55,6 +55,8 @@ internal static class TorizoNativeListAddresses
         [TorizoAnimation.BombTorizoAwakening] = 0xb887,
         [TorizoAnimation.Stunned] = 0xd193,
         [TorizoAnimation.TurningLeft] = 0xb962,
+        [TorizoAnimation.FacingLeftWalkingRightLegMoving] = 0xb96c,
+        [TorizoAnimation.FacingLeftWalkingLeftLegMoving] = 0xb9b6,
         [TorizoAnimation.FacingLeftSpewingChozoOrbsRightFootForward] = 0xba04,
         [TorizoAnimation.FacingLeftSpewingChozoOrbsLeftFootForward] = 0xba46,
         [TorizoAnimation.FacingLeftSonicBoomsRightFootForward] = 0xba88,
@@ -74,6 +76,8 @@ internal static class TorizoNativeListAddresses
         [TorizoAnimation.FacingLeftFacelessWalkingRightLegMoving] = 0xbd18,
         [TorizoAnimation.FacingLeftFacelessWalkingLeftLegMoving] = 0xbd52,
         [TorizoAnimation.TurningRight] = 0xbdd8,
+        [TorizoAnimation.FacingRightWalkingLeftLegMoving] = 0xbde2,
+        [TorizoAnimation.FacingRightWalkingRightLegMoving] = 0xbe30,
         [TorizoAnimation.FacingRightSpewingChozoOrbsLeftFootForward] = 0xbe7e,
         [TorizoAnimation.FacingRightSpewingChozoOrbsRightFootForward] = 0xbec0,
         [TorizoAnimation.FacingRightSonicBoomsLeftFootForward] = 0xbf02,
@@ -116,9 +120,11 @@ internal static class TorizoNativeListAddresses
         [TorizoAnimation.GoldenEyeBeamAttack] = 0xd10d,
         [TorizoAnimation.GoldenDodgeTurningLeft] = 0xd1f1,
         [TorizoAnimation.GoldenTurningLeft] = 0xd203,
+        [TorizoAnimation.GoldenWalkingLeftRightLegMoving] = 0xd20d,
         [TorizoAnimation.GoldenWalkingLeftLeftLegMoving] = 0xd259,
         [TorizoAnimation.GoldenDodgeTurningRight] = 0xd2ad,
         [TorizoAnimation.GoldenTurningRight] = 0xd2bf,
+        [TorizoAnimation.GoldenWalkingRightLeftLegMoving] = 0xd2c9,
         [TorizoAnimation.GoldenWalkingRightRightLegMoving] = 0xd315,
     };
 
@@ -142,10 +148,13 @@ internal static class TorizoNativeListAddresses
         [0xb951] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.StartBombTorizoFight)), []),
         [0xc2c9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.LockAnimation)), []),
         [0xc2d1] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.UnlockAnimation)), []),
-        [0xc2d9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice GoToIfFaceBlownUpElseIfGolden", cue => cue.Kind == TorizoChoiceKind.GoToIfFaceBlownUpElseIfGolden), [TorizoOperand.Target, TorizoOperand.Alternate]),
-        [0xc2ed] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch Link", cue => cue.Kind == TorizoBranchKind.Link), [TorizoOperand.Target]),
-        [0xc2f7] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.Return)), []),
-        [0xc2fd] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ResumeInterrupted)), []),
+        [0xc2d9] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice LandFacelessOrGolden", cue => cue.Kind == TorizoChoiceKind.LandFacelessOrGolden), [TorizoOperand.Target, TorizoOperand.Alternate]),
+        [0xc2ed] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.LandIn>(""), [TorizoOperand.Target]),
+        // The cartridge returned to the place a call saved; each typed animation names where it continues instead (#2028),
+        // which VerifyContinuations checks against the native calls.
+        [ReturnInstruction] = new TorizoNativeListAddressesBodyInstruction(new NativeCueShape<TorizoCue>("an attack's or a blow-up's named continuation",
+            cue => cue is TorizoCue.WalkOn or TorizoCue.Turn or TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }, ""), []),
+        [ResumeInterruptedInstruction] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ResumeInterrupted)), []),
         [0xc303] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.LowHealthExplosions>(""), [TorizoOperand.Value]),
         [0xc32f] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnDeathExplosion)), []),
         [0xc34a] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnLandingDust)), []),
@@ -160,9 +169,9 @@ internal static class TorizoNativeListAddresses
         [0xc470] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkBombTorizo", cue => cue.Kind == TorizoWalkKind.WalkBombTorizo), [TorizoOperand.Value]),
         [0xc4e5] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkFacelessBombTorizo", cue => cue.Kind == TorizoWalkKind.WalkFacelessBombTorizo), [TorizoOperand.Value]),
         [0xc55a] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Replay>("", "Replay WhileRising", cue => cue.Kind == TorizoReplayKind.WhileRising), [TorizoOperand.ReplayedRun]),
-        [0xc567] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch CallIfSamusCloseBehind", cue => cue.Kind == TorizoBranchKind.CallIfSamusCloseBehind), [TorizoOperand.Target]),
-        [0xc58b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch JumpBackIfSamusCloseInFront", cue => cue.Kind == TorizoBranchKind.JumpBackIfSamusCloseInFront), [TorizoOperand.Target]),
-        [0xc5a4] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice CallBombTorizoAttack", cue => cue.Kind == TorizoChoiceKind.CallBombTorizoAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
+        [0xc567] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Interrupt>("", "Interrupt BombSwipeAtSamusBehind", cue => cue.Kind == TorizoInterruptKind.BombSwipeAtSamusBehind), [TorizoOperand.Target]),
+        [0xc58b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch BombJumpBackFromSamusInFront", cue => cue.Kind == TorizoBranchKind.BombJumpBackFromSamusInFront), [TorizoOperand.Target]),
+        [0xc5a4] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice BombAttack", cue => cue.Kind == TorizoChoiceKind.BombAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
         [0xc5cb] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnBombTorizoChozoOrbs)), []),
         [0xc5e3] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnBombTorizoSonicBoom)), [TorizoOperand.Unread]),
         [0xc5f2] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnGoldenTorizoSonicBoom)), [TorizoOperand.Unread]),
@@ -182,17 +191,23 @@ internal static class TorizoNativeListAddresses
         [0xd397] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.PlayLaserSound)), []),
         [0xd39f] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.PlaySonicBoomSound)), []),
         [0xd3e0] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnSuperMissile)), []),
-        [0xd3ea] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch GoToIfSamusMorphedBehind", cue => cue.Kind == TorizoBranchKind.GoToIfSamusMorphedBehind), [TorizoOperand.Target]),
+        [0xd3ea] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch GoldenSitOnSamusMorphedBehind", cue => cue.Kind == TorizoBranchKind.GoldenSitOnSamusMorphedBehind), [TorizoOperand.Target]),
         [0xd436] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnEyeBeam)), [TorizoOperand.Unread]),
-        [0xd445] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch CallSometimesIfSamusMorphedInFront", cue => cue.Kind == TorizoBranchKind.CallSometimesIfSamusMorphedInFront), [TorizoOperand.Target]),
-        [0xd474] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch CallSometimesIfHealthLow", cue => cue.Kind == TorizoBranchKind.CallSometimesIfHealthLow), [TorizoOperand.Target]),
-        [0xd49b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch CallIfStunHealthHigh", cue => cue.Kind == TorizoBranchKind.CallIfStunHealthHigh), [TorizoOperand.Target]),
-        [0xd4ba] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch JumpForwardIfSamusFar", cue => cue.Kind == TorizoBranchKind.JumpForwardIfSamusFar), [TorizoOperand.Target]),
+        [0xd445] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Interrupt>("", "Interrupt GoldenEyeBeamAtMediumRange", cue => cue.Kind == TorizoInterruptKind.GoldenEyeBeamAtMediumRange), [TorizoOperand.Target]),
+        [0xd474] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Interrupt>("", "Interrupt GoldenEggsAtLowHealth", cue => cue.Kind == TorizoInterruptKind.GoldenEggsAtLowHealth), [TorizoOperand.Target]),
+        [0xd49b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Interrupt>("", "Interrupt GoldenStaggerWhenStunned", cue => cue.Kind == TorizoInterruptKind.GoldenStaggerWhenStunned), [TorizoOperand.Target]),
+        [0xd4ba] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch GoldenLeapAtDistantSamus", cue => cue.Kind == TorizoBranchKind.GoldenLeapAtDistantSamus), [TorizoOperand.Target]),
         [0xd4f3] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.SpawnGoldenTorizoChozoOrbs)), []),
-        [0xd4fd] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch JumpBackIfSamusCloseInFrontGolden", cue => cue.Kind == TorizoBranchKind.JumpBackIfSamusCloseInFrontGolden), [TorizoOperand.Target]),
-        [0xd526] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice CallGoldenTorizoAttack", cue => cue.Kind == TorizoChoiceKind.CallGoldenTorizoAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
+        [0xd4fd] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch GoldenJumpBackFromSamusInFront", cue => cue.Kind == TorizoBranchKind.GoldenJumpBackFromSamusInFront), [TorizoOperand.Target]),
+        [0xd526] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Choice>("", "Choice GoldenAttack", cue => cue.Kind == TorizoChoiceKind.GoldenAttack), [TorizoOperand.Target, TorizoOperand.Alternate]),
         [0xd54d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Walk>("", "Walk WalkGoldenTorizo", cue => cue.Kind == TorizoWalkKind.WalkGoldenTorizo), [TorizoOperand.Value]),
     };
+
+    /// <summary>The bank-$AA instruction that returned to the place a call saved: an attack's, a stagger's or the face blow-up's end.</summary>
+    internal const ushort ReturnInstruction = 0xc2f7;
+
+    /// <summary>The bank-$AA instruction that resumed the animation the gut's blow-up interrupted.</summary>
+    internal const ushort ResumeInterruptedInstruction = 0xc2fd;
 
     /// <summary>
     /// The bank-$AA routine both Torizos' stand-up lists call between the colour fade and the unlock (#1870): it returned at

@@ -63,12 +63,30 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// The segment a part's animation rests in. Resting after the last beat of a segment that runs on into the next, it
-    /// already rests in the next, as the part's animation position then lies inside it.
+    /// Whether the arm swings normally (#1886): it plays its normal swing or that swing's pause, the animations from which it
+    /// slows once Kraid is below half health. An arm already slow, rising or sinking, dying or preparing a lunge keeps its
+    /// animation.
     /// </summary>
-    private KraidPartSegment KraidPartResidentAnimation(RoomEnemySlot part) =>
-        AnimationResidence.ResidentSegment(KraidAnimations.Segments, KraidAnimations.StartingAt, KraidAnimations.RunsOnInto,
-            _access.Part(part).Playback);
+    private bool ArmSwingsNormally() =>
+        _access.Part(_parts.Arm).Playback.PlayingSegment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
+
+    /// <summary>
+    /// Whether the arm has yet to reach its pause (#1886): it plays its normal swing and has not shown the swing's last
+    /// frame. While that last frame shows, the arm already counts as paused, as it does through the pause and any later
+    /// animation.
+    /// </summary>
+    private bool ArmYetToPause()
+    {
+        AnimationPlayback<KraidPartSegment> arm = _access.Part(_parts.Arm).Playback;
+        return arm.PlayingSegment == KraidPartSegment.ArmNormal && !arm.HasShownPhaseEnd;
+    }
+
+    /// <summary>
+    /// Whether the foot plays <paramref name="walk"/> and shows its last frame (#1886): a forward walk or lunge has finished
+    /// and rests on it, and the backward walk has reached the frame from which it loops.
+    /// </summary>
+    private bool FootShowsLastFrameOf(KraidPartSegment walk) =>
+        _access.Part(_parts.Foot).Playback.HasShownLastBeatOf(walk);
 
     /// <summary>
     /// Runs a Kraid part's animation where the shared enemy animation runs: the frame expires on the update
@@ -80,7 +98,7 @@ internal sealed class KraidLimbs
             return;
         KraidPartState partState = _access.Part(part);
         AnimationPlayback<KraidPartSegment> playback = partState.Playback;
-        EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback, KraidPartFrameDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback,
             cue => ApplyKraidPartCue(cue) is { } started
                 ? new AnimationContinuation<KraidPartSegment>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
@@ -131,7 +149,7 @@ internal sealed class KraidLimbs
     /// <summary>Starts growth only after the small-form transition requirements are met.</summary>
     internal bool TryBeginKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (body.Health >= state.HealthEighthThreshold(6))
+        if (body.Health >= state.SevenEighthsHealth)
             return false;
 
         state.BodyState.Phase = KraidPhase.AdvanceHeadAnimationAndTimer;
@@ -161,9 +179,7 @@ internal sealed class KraidLimbs
     private KraidPartSegment? SelectKraidArmSpeedAnimation()
     {
         RoomEnemySlot body = _parts.Body;
-        RoomEnemySlot arm = _parts.Arm;
-        int halfHealth = _access.RequireKraidState(body).HealthEighthThreshold(3);
-        return body.Health < halfHealth && KraidPhaseGroups.ArmSwingingNormally.Contains(KraidPartResidentAnimation(arm))
+        return body.Health < _access.RequireKraidState(body).HalfHealth && ArmSwingsNormally()
             ? KraidPartSegment.ArmSlow
             : null;
     }
@@ -243,8 +259,8 @@ internal sealed class KraidLimbs
                 return;
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowShowLowerBodyInFront:
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowSettleParts:
+            case KraidPhase.GrowShowRoomBackdrop:
             case KraidPhase.GrowFadeInRoomBackground:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
@@ -265,21 +281,17 @@ internal sealed class KraidLimbs
             case KraidPhase.GrowReleaseCamera:
             case KraidPhase.DeathInitialize:
             case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowUpperBody:
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathShowBody:
+            case KraidPhase.DeathStartSinking:
             case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideUpperBody:
-            case KraidPhase.DeathHideLowerBody:
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathHideBody:
+            case KraidPhase.DeathWaitBeforeFadeIn:
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
             case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseKraidThroughFloor:
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseShowBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
@@ -295,7 +307,7 @@ internal sealed class KraidLimbs
         if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _parts.Arm;
-        if (KraidPhaseGroups.ArmYetToPause.Contains(KraidPartResidentAnimation(arm)))
+        if (ArmYetToPause())
             return;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
@@ -313,7 +325,7 @@ internal sealed class KraidLimbs
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 92) < 0)
             body.Position = body.Position.WithWholeX(92);
-        if (KraidPartResidentAnimation(foot) != KraidPartSegment.FootLungeForwardFinished)
+        if (!FootShowsLastFrameOf(KraidPartSegment.FootLungeForward))
             return;
         if (body.Position.X.Whole == 92)
         {
@@ -352,7 +364,7 @@ internal sealed class KraidLimbs
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 176) >= 0)
             body.Position = body.Position.WithWholeX(176);
-        if (KraidPhaseGroups.FootYetToLoopBackwardWalk.Contains(KraidPartResidentAnimation(foot)))
+        if (!FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
             return;
         if (body.Position.X.Whole == 176)
         {
@@ -382,7 +394,7 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (KraidPhaseGroups.FootYetToLoopBackwardWalk.Contains(KraidPartResidentAnimation(foot)))
+        if (!FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
             return;
         _access.Part(foot).Phase = KraidPhase.WaitToResumePhase;
         _access.Part(foot).PhaseTimer = 180;
@@ -430,7 +442,7 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (!KraidPhaseGroups.FootYetToLoopBackwardWalk.Contains(KraidPartResidentAnimation(foot)))
+        if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
         {
             _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
@@ -443,14 +455,14 @@ internal sealed class KraidLimbs
         Position16<RoomPixels> target = _access.RequireKraidState(body).WalkTarget;
         if ((target - body.Position.Whole).X < 0)
         {
-            if (KraidPartResidentAnimation(foot) == KraidPartSegment.FootWalkingForwardFinished)
+            if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingForward))
             {
                 _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingForward);
             }
             return;
         }
         body.Position = body.Position.WithWholeX(target.X);
-        if (KraidPartResidentAnimation(foot) == KraidPartSegment.FootWalkingForwardFinished)
+        if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingForward))
         {
             _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);

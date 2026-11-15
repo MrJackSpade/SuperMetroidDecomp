@@ -32,8 +32,8 @@ internal static class KraidDrawMappingsVerification
     private static Definition[] KraidDrawOracle() =>
     [
         new Definition(0x9367, 1, "crumble-first"), new Definition(0x936d, 1, "crumble-second"),
-        new Definition(0x9373, 1, "crumble-third"), new Definition(0x9379, 1, "ceiling-background-one"),
-        new Definition(0x937f, 1, "ceiling-background-two"), new Definition(0x9385, 1, "ceiling-background-three"),
+        new Definition(0x9373, 1, "crumble-third"), new Definition(0x9379, 1, "ceiling-background-left-edge"),
+        new Definition(0x937f, 1, "ceiling-background-odd-column"), new Definition(0x9385, 1, "ceiling-background-even-column"),
         new Definition(0x9391, 1, "spike-first"), new Definition(0x9397, 1, "spike-second"),
         new Definition(0x939d, 15, "clear-ceiling"), new Definition(0x93bf, 22, "clear-spikes"),
     ];

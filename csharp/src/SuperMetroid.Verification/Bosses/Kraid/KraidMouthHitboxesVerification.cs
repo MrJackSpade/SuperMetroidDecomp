@@ -39,6 +39,9 @@ internal static class KraidMouthHitboxesVerification
         shot.Radius = new(4, 4);
         for (int entry = 0; entry < 8; entry++)
         {
+            // The fifth record, an all-zero rectangle no head pose selects, is no mouth shape (#1889).
+            if (entry == 4)
+                continue;
             ushort pointer = (ushort)(0x9788 + entry * 8);
             int address = 0xa70000 | pointer;
             short left = (short)Word(address), top = (short)Word(address + 2), right = (short)Word(address + 4), bottom = (short)Word(address + 6);
@@ -61,14 +64,14 @@ internal static class KraidMouthHitboxesVerification
                 $"Kraid mouth collision rejects low-half pointer ${pointer:X4}");
         }
 
-        foreach (ushort pointer in new ushort[] { 0x8000, 0x9787, 0x9789, 0x97c8, 0xffff })
+        foreach (ushort pointer in new ushort[] { 0x8000, 0x9787, 0x9789, 0x97a8, 0x97c8, 0xffff })
         {
             AssertThrows<InvalidDataException>(
                 () => KraidMouthHitboxDefinitionsConstants.ResolveCollision(pointer),
                 $"Kraid non-catalog cartridge pointer ${pointer:X4} rejects");
         }
 
-        Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words and low-half rejection agree.");
+        Console.WriteLine("Kraid mouth geometry: all head-program pointers, the 28 native words of the seven mouth shapes and low-half rejection agree.");
     }
 
     /// <summary>

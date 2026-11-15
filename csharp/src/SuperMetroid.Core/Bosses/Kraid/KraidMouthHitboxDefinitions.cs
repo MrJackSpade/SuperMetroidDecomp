@@ -12,7 +12,6 @@ internal static class KraidMouthHitboxDefinitions
         [KraidMouthHitbox.OpeningVulnerable] = new(16, -120, 40, -104),
         [KraidMouthHitbox.WiderVulnerable] = new(16, -128, 40, -112),
         [KraidMouthHitbox.OpenVulnerable] = new(16, -128, 40, -120),
-        [KraidMouthHitbox.EmptyShape] = new(0, 0, 0, 0),
         [KraidMouthHitbox.OpeningInvulnerable] = new(6, -96, 32, -80),
         [KraidMouthHitbox.WiderInvulnerable] = new(0, -104, 32, -80),
         [KraidMouthHitbox.OpenInvulnerable] = new(0, -112, 32, -80),

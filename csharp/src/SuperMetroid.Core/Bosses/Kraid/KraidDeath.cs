@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -12,6 +13,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidDeath
 {
+    /// <summary>The updates the room stays dark between hiding Kraid's body and fading the room back in (#1888).</summary>
+    private const int DeathDarkUpdates = 5;
+
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Room services used throughout the Kraid fight.</summary>
@@ -20,7 +24,7 @@ internal sealed class KraidDeath
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
+    /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -30,7 +34,7 @@ internal sealed class KraidDeath
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
-    /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
+    /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
     private readonly KraidHead _head;
 
 
@@ -61,7 +65,7 @@ internal sealed class KraidDeath
         state.ShowsBodyLayer = true;
     }
 
-    /// <summary>Dispatches the staged sinking, palette, and room-repair death sequence.</summary>
+    /// <summary>Dispatches the staged sinking, colour, and room-repair death sequence.</summary>
     internal void RunKraidDeathPhase(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -77,16 +81,16 @@ internal sealed class KraidDeath
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
-                    state.BodyState.Phase = KraidPhase.DeathShowUpperBody;
+                    state.BodyState.Phase = KraidPhase.DeathShowBody;
                     state.HurtFrameTimer = 1;
                     state.HurtFrame = 1;
                     state.ShowBody();
                 }
                 return;
 
-            case KraidPhase.DeathShowUpperBody:
+            case KraidPhase.DeathShowBody:
                 _ = _head.AdvanceKraidHeadAnimation(state);
-                state.BodyState.Phase = KraidPhase.DeathShowLowerBody;
+                state.BodyState.Phase = KraidPhase.DeathStartSinking;
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
                     _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
@@ -95,7 +99,7 @@ internal sealed class KraidDeath
                 state.ShowBody();
                 return;
 
-            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathStartSinking:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.Phase = KraidPhase.DeathSink;
                 state.DeathSoundTimer = 43;
@@ -110,25 +114,14 @@ internal sealed class KraidDeath
                 RunKraidDeathSink(body, state);
                 return;
 
-            case KraidPhase.DeathHideUpperBody:
-                state.BodyState.Phase = KraidPhase.DeathHideLowerBody;
+            case KraidPhase.DeathHideBody:
+                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn;
+                state.BodyState.PhaseTimer = DeathDarkUpdates;
                 HideKraidBody(state);
                 return;
-            case KraidPhase.DeathHideLowerBody:
-                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn1;
-                return;
-            // The death waits four updates before the room fades back in.
-            case KraidPhase.DeathWaitBeforeFadeIn1:
-                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn2;
-                return;
-            case KraidPhase.DeathWaitBeforeFadeIn2:
-                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn3;
-                return;
-            case KraidPhase.DeathWaitBeforeFadeIn3:
-                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn4;
-                return;
-            case KraidPhase.DeathWaitBeforeFadeIn4:
-                state.BodyState.Phase = KraidPhase.DeathFadeInBackground;
+            case KraidPhase.DeathWaitBeforeFadeIn:
+                if (--state.BodyState.PhaseTimer == 0)
+                    state.BodyState.Phase = KraidPhase.DeathFadeInBackground;
                 return;
             case KraidPhase.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
@@ -152,8 +145,8 @@ internal sealed class KraidDeath
                 return;
             case KraidPhase.GrowBreakCeilingPlatforms:
             case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowShowLowerBodyInFront:
-            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowSettleParts:
+            case KraidPhase.GrowShowRoomBackdrop:
             case KraidPhase.GrowFadeInRoomBackground:
             case KraidPhase.MainloopThinking:
             case KraidPhase.SecondPhaseThinking:
@@ -184,8 +177,8 @@ internal sealed class KraidDeath
             case KraidPhase.FootFirstPhaseRetreat:
             case KraidPhase.GrowReleaseCamera:
             case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseKraidThroughFloor:
-            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseShowBody:
+            case KraidPhase.RaiseStartQuakeAndMusic:
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
@@ -260,8 +253,8 @@ internal sealed class KraidDeath
         _parts.Foot.Contact = otherContact;
         _parts.Foot.Processing = otherProcessing;
         _parts.Foot.Presence = arm.Presence;
-        state.BodyState.Phase = KraidPhase.DeathHideUpperBody;
-        // The death returns the camera to distance index zero before the death drop.
+        state.BodyState.Phase = KraidPhase.DeathHideBody;
+        // The death returns the camera to its normal tracking before the death drop.
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
 
         // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
@@ -281,19 +274,11 @@ internal sealed class KraidDeath
     /// <summary>Consumes sink-table entries as the body descends.</summary>
     internal void ProcessKraidSinkTable(RoomEnemySlot body)
     {
-        if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is KraidSinkStep step)
-        {
-            // Every eight-pixel sinking row runs its step, including the
-            // deliberately empty step used by rows whose only job is clearing a strip of his body.
-            // Do not merge that step with the adjacent crumble step: they are
-            // distinct steps in the retail schedule.
-            if (KraidObjects.ForSinkStep(step) is { } request)
-            {
-                // Each sinking rock starts at the left pixel edge of the removed block.
-                _background.SpawnKraidCeilingRock(request.Block.X * 16);
-                _frameResults.KraidObjects.Add(request);
-            }
+        if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is not KraidSinkStep step)
             return;
-        }
+        RoomObjectSpawnRequest<KraidRoomMutation> request = KraidObjects.ForSinkStep(step);
+        // Each sinking rock starts at the left pixel edge of the removed block.
+        _background.SpawnKraidCeilingRock(request.Block.X * 16);
+        _frameResults.KraidObjects.Add(request);
     }
 }

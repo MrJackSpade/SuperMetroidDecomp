@@ -14,12 +14,7 @@ public abstract class KraidPartState
     internal AnimationPlayback<KraidPartSegment> Playback { get; set; } =
         new(KraidAnimations.StartingWith(KraidPartSegment.FootInitial), AnimationPlace.StartOfAnimation);
 
-    /// <summary>
-    /// Gets the phase a part resumes when its phase timer expires. The game keeps the foot's in the
-    /// same value as its think timer (<see cref="KraidFootState.ThinkTimer"/>); the foot never reads one after writing the
-    /// other (it writes its think timer whenever it starts a second-phase walk and its phase to resume whenever it starts a
-    /// timed phase), so each is held on its own. Null resumes no phase.
-    /// </summary>
+    /// <summary>Gets the phase a part resumes when its phase timer expires; null resumes no phase.</summary>
     public KraidPhase? PhaseToResume { get; internal set; }
 
     /// <summary>

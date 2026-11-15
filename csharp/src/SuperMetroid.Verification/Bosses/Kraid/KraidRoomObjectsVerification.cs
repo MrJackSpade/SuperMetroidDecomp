@@ -28,15 +28,15 @@ internal static class KraidRoomObjectsVerification
         Suite(nameof(VerifyKraidDrawWords), () => VerifyKraidDrawWords(rom));
         Suite(nameof(VerifyKraidDrawVisualIds), () => VerifyKraidDrawVisualIds());
 
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingIntoBackground1,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingAtLeftEdge,
             12, RoomTerrainBlock.Of(0x13c, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingIntoBackground2,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingInOddColumn,
             12, RoomTerrainBlock.Of(0x131, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingIntoBackground3,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumbleCeilingInEvenColumn,
             12, RoomTerrainBlock.Of(0x130, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumblePlatformVariant1,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumblePlatformInOddColumn,
             3, RoomTerrainBlock.Of(0x131, BlockMirroring.None, RoomCollisionType.Air), 1));
-        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumblePlatformVariant2,
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.CrumblePlatformInEvenColumn,
             3, RoomTerrainBlock.Of(0x130, BlockMirroring.None, RoomCollisionType.Air), 1));
         Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(KraidRoomMutation.ClearCeiling,
             1, RoomTerrainBlock.Of(0x13c, BlockMirroring.None, RoomCollisionType.Air), 15));
@@ -73,9 +73,9 @@ internal static class KraidRoomObjectsVerification
         {
             roomObjects.Step(level);
             if (frame == 0 && mutation is
-                KraidRoomMutation.CrumbleCeilingIntoBackground1 or
-                KraidRoomMutation.CrumbleCeilingIntoBackground2 or
-                KraidRoomMutation.CrumbleCeilingIntoBackground3 or
+                KraidRoomMutation.CrumbleCeilingAtLeftEdge or
+                KraidRoomMutation.CrumbleCeilingInOddColumn or
+                KraidRoomMutation.CrumbleCeilingInEvenColumn or
                 KraidRoomMutation.CrumbleSpikes)
                 AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock),
                     level.GetCollisionBlock(new Position16<RoomBlocks>(5, 5)).Terrain,

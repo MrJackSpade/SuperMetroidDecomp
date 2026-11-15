@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's four head animations, in the order the game lays them out. The order matters: a head animation's first
-/// mouth reads look back into the animation authored before it (see <see cref="KraidHeadAnimations.ReadsAt"/>).
+/// Kraid's four head animations. At an animation's start his mouth tests find the last pose of the animation laid out
+/// before it, which <see cref="KraidHeadAnimations.ReadsAt"/> names for each (#1886, #1887).
 /// </summary>
 internal enum KraidHeadSegment
 {

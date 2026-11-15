@@ -9,7 +9,7 @@ internal static class KraidHealthThresholdsVerification
 {
     /// <summary>Checks eight thresholds generated from one-eighth initial-health increments.</summary>
     internal static void VerifyKraidHealthEighths(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index)));
+        Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighths(index + 1)));
 
     /// <summary>Checks four thresholds generated from one-quarter initial-health increments.</summary>
     internal static void VerifyKraidHealthQuarters(CartridgeImportAddressSpace rom) =>

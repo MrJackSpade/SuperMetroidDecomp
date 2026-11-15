@@ -1,16 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The steps of Kraid's sinking/death schedule; each member names what its step does.
+/// The platform crumbles of Kraid's sinking schedule (#1889); each member names the block its step crumbles.
 /// </summary>
 public enum KraidSinkStep
 {
-    /// <summary>
-    /// The empty step. Rows that only clear another strip of his body
-    /// select this step so it returns without spawning rocks or room objects.
-    /// </summary>
-    NoOperation,
-
     /// <summary>Crumbles the left platform's left block.</summary>
     CrumbleLeftPlatformLeft,
 

@@ -67,18 +67,24 @@ public sealed class KraidEnemyState
     public int PendingMouthReopens { get; internal set; }
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
-    /// <summary>Returns the game's threshold for the selected eighth of the initializer's captured health.</summary>
-    /// <param name="index">The choice of eighths, zero through seven, selecting one through eight eighths.</param>
-    /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
-    public int HealthEighthThreshold(int index) => KraidHealthThresholds.Eighth(InitialHealth, index);
+    /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
+    /// <param name="eighths">How many eighths, one through eight.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> is not one through eight.</exception>
+    public int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
+
+    /// <summary>Seven eighths of Kraid's initial health: below it, the small Kraid grows (#1890).</summary>
+    internal int SevenEighthsHealth => HealthEighths(7);
+
+    /// <summary>Half of Kraid's initial health, as four eighths: below it, his arm slows (#1890).</summary>
+    internal int HalfHealth => HealthEighths(4);
     /// <summary>
     /// Gets the room position the second-phase body walks to: X from 208 to 384. Only the X axis is meaningful; the
     /// body's position is compared with it by the wrapped spatial difference on X.
     /// </summary>
     public Position16<RoomPixels> WalkTarget { get; internal set; }
-    /// <summary>Gets the hurt-palette phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
+    /// <summary>Gets the hurt-flash phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
     public int HurtFrame { get; internal set; }
-    /// <summary>Gets the countdown pacing hurt-palette phases, normally reloaded to two and reused by background fades during death.</summary>
+    /// <summary>Gets the countdown pacing hurt-flash phases, normally reloaded to two and reused by background fades during death.</summary>
     public int HurtFrameTimer { get; internal set; }
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
@@ -89,16 +95,13 @@ public sealed class KraidEnemyState
     /// </summary>
     internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
 
-    /// <summary>Moves the hurt-palette phase one step toward zero; the caller has established the phase is running.</summary>
+    /// <summary>Moves the hurt-flash phase one step toward zero; the caller has established the phase is running.</summary>
     internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0
         ? HurtFrame - 1
         : throw new InvalidOperationException($"Stepping Kraid's hurt phase {HurtFrame} breaks its caller's running-phase guard.");
 
-    /// <summary>
-    /// Arms three mouth reopens. The game merges the count bitwise into what remains, which from any count it
-    /// reaches (zero to three) leaves three.
-    /// </summary>
-    internal void ArmMouthReopens() => PendingMouthReopens |= ArmedMouthReopens;
+    /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
+    internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
 
     /// <summary>
     /// Removes one pending mouth reopen (#1627). Every caller reaches here only while the mouth's reopen is pending, which a

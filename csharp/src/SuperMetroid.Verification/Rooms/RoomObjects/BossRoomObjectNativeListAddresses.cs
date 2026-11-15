@@ -29,11 +29,11 @@ internal static class BossRoomObjectNativeListAddresses
     /// </summary>
     internal static IReadOnlyList<NativeProgramEntry<KraidRoomMutation>> KraidRoomEntries { get; } =
     [
-        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleCeilingIntoBackground1, 0xab6d),
-        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleCeilingIntoBackground2, 0xab7f),
-        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumblePlatformVariant1, 0xab8b),
-        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleCeilingIntoBackground3, 0xab91),
-        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumblePlatformVariant2, 0xab9d),
+        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleCeilingAtLeftEdge, 0xab6d),
+        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleCeilingInOddColumn, 0xab7f),
+        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumblePlatformInOddColumn, 0xab8b),
+        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleCeilingInEvenColumn, 0xab91),
+        new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumblePlatformInEvenColumn, 0xab9d),
         new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.ClearCeiling, 0xaba3),
         new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.CrumbleSpikes, 0xaba9),
         new NativeProgramEntry<KraidRoomMutation>(KraidRoomMutation.ClearSpikes, 0xabdd),

@@ -37,11 +37,11 @@ internal static class KraidRoomMutationDefinitions
     internal static readonly IReadOnlyDictionary<KraidRoomMutation, TerrainChange> Changes =
         new Dictionary<KraidRoomMutation, TerrainChange>
         {
-            [KraidRoomMutation.CrumbleCeilingIntoBackground1] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackground1, Offset16<RoomBlocks>.Zero)),
-            [KraidRoomMutation.CrumblePlatformVariant1] = new(1, [Shown(KraidRoomDraw.CeilingBackground2)]),
-            [KraidRoomMutation.CrumbleCeilingIntoBackground2] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackground2, Offset16<RoomBlocks>.Zero)),
-            [KraidRoomMutation.CrumblePlatformVariant2] = new(1, [Shown(KraidRoomDraw.CeilingBackground3)]),
-            [KraidRoomMutation.CrumbleCeilingIntoBackground3] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackground3, Offset16<RoomBlocks>.Zero)),
+            [KraidRoomMutation.CrumbleCeilingAtLeftEdge] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundLeftEdge, Offset16<RoomBlocks>.Zero)),
+            [KraidRoomMutation.CrumblePlatformInOddColumn] = new(1, [Shown(KraidRoomDraw.CeilingBackgroundOddColumn)]),
+            [KraidRoomMutation.CrumbleCeilingInOddColumn] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundOddColumn, Offset16<RoomBlocks>.Zero)),
+            [KraidRoomMutation.CrumblePlatformInEvenColumn] = new(1, [Shown(KraidRoomDraw.CeilingBackgroundEvenColumn)]),
+            [KraidRoomMutation.CrumbleCeilingInEvenColumn] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundEvenColumn, Offset16<RoomBlocks>.Zero)),
             [KraidRoomMutation.ClearCeiling] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(KraidRoomDraw.ClearCeiling)),
             [KraidRoomMutation.ClearSpikes] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(KraidRoomDraw.ClearSpikes)),
             [KraidRoomMutation.CrumbleSpikes] = new(1,

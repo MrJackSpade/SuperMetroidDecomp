@@ -15,6 +15,27 @@ internal static class KraidBodyFrameNames
     /// <summary>The frame of the head Kraid's body rises with, which shows until his head shows a pose.</summary>
     internal const string RestingHead = "RestingHead";
 
-    /// <summary>The frame of Kraid's head at <paramref name="mouthStage"/>.</summary>
-    internal static string Head(int mouthStage) => $"Head{mouthStage}";
+    /// <summary>The frame of Kraid's head with his mouth closed.</summary>
+    internal const string HeadMouthClosed = "HeadMouthClosed";
+
+    /// <summary>The frame of Kraid's head as his mouth starts to open.</summary>
+    internal const string HeadMouthOpening = "HeadMouthOpening";
+
+    /// <summary>The frame of Kraid's head with his mouth opened wider.</summary>
+    internal const string HeadMouthWider = "HeadMouthWider";
+
+    /// <summary>The frame of Kraid's head with his mouth fully open.</summary>
+    internal const string HeadMouthOpen = "HeadMouthOpen";
+
+    /// <summary>The frame of Kraid's head at <paramref name="mouthStage"/>, named for how far his mouth is open (#1885).</summary>
+    /// <param name="mouthStage">How far the mouth is open, from zero (closed) to <see cref="KraidHeadFrame.FullyOpenMouthStage"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mouthStage"/> is no mouth stage of his head.</exception>
+    internal static string Head(int mouthStage) => mouthStage switch
+    {
+        0 => HeadMouthClosed,
+        1 => HeadMouthOpening,
+        2 => HeadMouthWider,
+        KraidHeadFrame.FullyOpenMouthStage => HeadMouthOpen,
+        _ => throw new ArgumentOutOfRangeException(nameof(mouthStage), mouthStage, "Kraid's head has no such mouth stage."),
+    };
 }

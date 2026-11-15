@@ -501,9 +501,9 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.IceBeamTutorial),
         [
-            new(EnemyDefinitionId.Boyon, new(120, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 64)),
-            new(EnemyDefinitionId.Boyon, new(168, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 64)),
-            new(EnemyDefinitionId.Boyon, new(216, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 20480, TriggerDistance: 64)),
+            new(EnemyDefinitionId.Boyon, new(120, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 64)),
+            new(EnemyDefinitionId.Boyon, new(168, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 64)),
+            new(EnemyDefinitionId.Boyon, new(216, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 80, TriggerDistance: 64)),
             new(EnemyDefinitionId.RipperII, new(344, 168), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), Direction: HorizontalDirection.Left)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.PostCrocMissile),

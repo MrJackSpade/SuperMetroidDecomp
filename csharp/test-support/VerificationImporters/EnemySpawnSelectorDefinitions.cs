@@ -29,10 +29,10 @@ internal static class EnemySpawnSelectorDefinitions
     public static readonly int[] BoyonSpeedMultipliers = [1, 2, 4, 8, 10, 13, 16, 20];
 
     /// <summary>
-    /// A Boyon's jump height in 256ths of a pixel, by its first parameter's high byte: 48 pixels, rising 16 pixels a
+    /// A Boyon's jump height in whole pixels, by its first parameter's high byte: 48 pixels, rising 16 pixels a
     /// step.
     /// </summary>
-    public static readonly int[] BoyonJumpHeights = [12288, 16384, 20480, 24576, 28672, 32768, 36864, 40960, 45056];
+    public static readonly int[] BoyonJumpHeights = [48, 64, 80, 96, 112, 128, 144, 160, 176];
 
     /// <summary>
     /// A Bull's acceleration and deceleration intervals, in updates, by its first parameter: acceleration is three

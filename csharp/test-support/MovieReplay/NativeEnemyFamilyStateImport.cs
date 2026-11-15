@@ -399,7 +399,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
         {
             boyonRecord.SpeedMultiplier = words.A;
-            boyonRecord.Speed = words.B;
+            boyonRecord.Speed = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.B);
             boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
             boyonRecord.ArcDistance = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
             // The rise leaves the curve index one below the top entry, the word's largest value, past the top.

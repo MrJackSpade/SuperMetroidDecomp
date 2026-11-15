@@ -694,8 +694,7 @@ public sealed class SamusBombProjectileSystem
         SamusKinematicsState samus)
     {
         // Gravity adds with the fraction carrying into the whole pixels.
-        bomb.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
-            samus.YAcceleration.Whole, samus.YAcceleration.Fraction);
+        bomb.BombSpreadVerticalVelocity += samus.YAcceleration.AsDisplacement();
 
         int previousY = bomb.Position.Y.Whole;
         int previousYSub = bomb.Position.Y.Fraction;

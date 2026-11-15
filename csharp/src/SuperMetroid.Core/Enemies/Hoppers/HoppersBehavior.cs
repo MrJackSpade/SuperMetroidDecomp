@@ -82,14 +82,10 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
 
-        // Every Hopper definition authors the same small and big hop heights and speed steps, so the definition
-        // selects nothing here; the two hop sizes' starting speeds are still calculated independently.
-        state.SmallHopInitialYSpeedCurvePlace = CalculateInitialHopperYSpeedCurvePlace(
-            jumpHeight: 4096,
-            curvePlaceStep: 3);
-        state.BigHopInitialYSpeedCurvePlace = CalculateInitialHopperYSpeedCurvePlace(
-            jumpHeight: 12288,
-            curvePlaceStep: 4);
+        // Every Hopper definition authors the same small and big hops, so the definition selects nothing here; the
+        // two hop sizes' starting speeds are still calculated independently.
+        state.SmallHopInitialYSpeedCurvePlace = HopperHopDefinitions.SmallHop.StartPlace;
+        state.BigHopInitialYSpeedCurvePlace = HopperHopDefinitions.BigHop.StartPlace;
     }
 
     /// <summary>Runs the Hopper's current action.</summary>
@@ -253,32 +249,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
             state.YSpeedCurvePlace + QuadraticSpeedCurvePlace.FromMarks(state.YSpeedCurvePlaceDelta),
             MaximumHopperYSpeedCurvePlace);
-    }
-
-    /// <summary>Sums the quadratic speed curve's coarse speeds until the authored jump height is reached.</summary>
-    internal static QuadraticSpeedCurvePlace CalculateInitialHopperYSpeedCurvePlace(
-        int jumpHeight,
-        int curvePlaceStep)
-    {
-        QuadraticSpeedCurvePlace curvePlace = QuadraticSpeedCurvePlace.Start;
-        int accumulatedHeight = 0;
-        // Each pass moves the place on by the delta, so the height is reached within the curve's marks or never: past them
-        // reading the speed rejects the climb before the place could grow further, and a delta of zero sums the start's
-        // speed of zero only (#1627).
-        for (int iteration = 0; iteration < QuadraticSpeedCurveDefinitions.MarkCount; iteration++)
-        {
-            curvePlace += QuadraticSpeedCurvePlace.FromMarks(curvePlaceStep);
-
-            // The height sums each mark's coarse speed, in 256ths of a pixel; summing full speeds changes every
-            // initial jump mark.
-            int heightIncrement = curvePlace.Speed.CoarseToward(EnemySpeedSign.Positive);
-            accumulatedHeight = CoordinateAxis.Wrap(accumulatedHeight + heightIncrement);
-            if (CoordinateAxis.Difference(accumulatedHeight, jumpHeight) >= 0)
-                return curvePlace;
-        }
-
-        throw new InvalidDataException(
-            "Hopper initial-speed calculation did not reach its authored jump height.");
     }
 
     /// <summary>Selects the animation for this kind's facing and jumping or landing half.</summary>

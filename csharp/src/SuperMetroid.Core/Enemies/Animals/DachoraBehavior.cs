@@ -538,10 +538,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Distance(actor, samus) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>
-    private static SignedSixteenSixteen SamusGravity(SamusState samus) =>
-        SignedSixteenSixteen.FromParts(
-            samus.Kinematics.YAcceleration.Whole,
-            samus.Kinematics.YAcceleration.Fraction);
+    private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();
 
     /// <summary>Advances Dachora's typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>

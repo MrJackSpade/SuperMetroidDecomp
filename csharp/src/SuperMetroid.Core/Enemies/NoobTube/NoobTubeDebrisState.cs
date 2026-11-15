@@ -33,13 +33,8 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
     }
 
     /// <summary>Starts the sway <paramref name="halfSteps"/> half steps round the turn, 0 through 511.</summary>
-    internal void StartSway(int halfSteps) =>
-        Sway = RotationAngle.FromSteps(Ensure.BetweenInclusive(0, 2 * RotationAngle.StepsPerTurn - 1, halfSteps) / 2,
-            halfSteps % 2 * HalfStepFraction);
+    internal void StartSway(int halfSteps) => Sway = RotationAngle.FromHalfSteps(halfSteps);
 
     /// <summary>Moves the sway on by <paramref name="steps"/> whole steps, going on round the turn past a full swing.</summary>
     internal void AdvanceSway(int steps) => Sway = Sway.TurnedBySteps(steps);
-
-    /// <summary>Half a step, in the 256ths of a step an angle's fraction counts.</summary>
-    private const int HalfStepFraction = 128;
 }

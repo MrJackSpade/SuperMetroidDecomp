@@ -29,6 +29,9 @@ public readonly record struct FixedCoordinate
     /// <summary>The fractions one pixel is counted in.</summary>
     private const int FractionsPerPixel = 65536;
 
+    /// <summary>The fraction of half a pixel, in 65536ths.</summary>
+    public const int HalfPixelFraction = FractionsPerPixel / 2;
+
     /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
     public static FixedCoordinate Of(int whole, int fraction) => new(whole, fraction);
 

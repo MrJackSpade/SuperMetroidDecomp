@@ -12,7 +12,7 @@ internal static class DraygonAnimations
     internal static AnimationSegments<DraygonSegment, DraygonFrame, DraygonCue> Segments { get; } = new(
         new Dictionary<DraygonSegment, AnimationBeat<DraygonFrame, DraygonCue>[]>
     {
-        [P.Sleep] =
+        [P.Rest] =
         [
         ],
         [P.BodyFacingLeftReset] =
@@ -493,7 +493,7 @@ internal static class DraygonAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
     {
-        [P.Sleep] = new([], AnimationEnd.Holds),
+        [P.Rest] = new([], AnimationEnd.Holds),
         [P.BodyFacingLeftReset] = new([new(P.BodyFacingLeftReset, 0, 3, 1)], AnimationEnd.Holds),
         [P.BodyFacingRightReset] = new([new(P.BodyFacingRightReset, 0, 3, 1)], AnimationEnd.Holds),
         [P.ArmsFacingLeftIdle] = new([new(P.ArmsFacingLeftIdle, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),

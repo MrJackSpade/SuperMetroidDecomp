@@ -629,7 +629,7 @@ internal sealed class PhantoonPatterns
             PhantoonEyeGaze.EyeAnimation(direction));
     }
 
-    /// <summary>Blends the body palette toward hidden colors over the selected interval.</summary>
+    /// <summary>Blends the body colours toward hidden colors over the selected interval.</summary>
     internal void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
         int denominator)

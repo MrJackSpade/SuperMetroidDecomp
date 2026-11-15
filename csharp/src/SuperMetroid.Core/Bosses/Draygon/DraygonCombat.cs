@@ -175,7 +175,7 @@ internal sealed class DraygonCombat
 
     /// <summary>The installed health band; code reads it only after initialization installs one.</summary>
     private static int RequireHealthBand(DraygonEnemyState state) => state.HealthBand
-        ?? throw new InvalidOperationException("Draygon has no installed health palette band.");
+        ?? throw new InvalidOperationException("Draygon has no installed health shade band.");
 
     /// <summary>Shows his selected health band's colours.</summary>
     internal static void ShowDraygonHealthBand(DraygonEnemyState state)

@@ -17,7 +17,7 @@ internal sealed class PhantoonPresentation
         _frameContext = frameContext;
     }
 
-    /// <summary>Blends the body palette toward its visible colors over the selected interval.</summary>
+    /// <summary>Blends the body colours toward its visible colors over the selected interval.</summary>
     internal void AdvancePhantoonFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,

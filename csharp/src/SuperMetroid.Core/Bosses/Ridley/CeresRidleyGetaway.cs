@@ -66,7 +66,7 @@ internal sealed class CeresRidleyGetaway
     private PerspectiveFloorScenery ChamberWall(EnemyFrameId frame, Position16<RoomPixels> point) =>
         new(_presentation.SheetPicture(EnemyDefinitionId.CeresDoor, frame), point, CeresDoorShades.InEscapingColours);
 
-    /// <summary>Sets up the getaway floor: its angle, scroll, zoom and centre before the first getaway-table entry.</summary>
+    /// <summary>Sets up the getaway floor: its angle, scroll, zoom and centre before the getaway's first step.</summary>
     internal static void SetupCeresRidleyGetawayFloor(RidleyEnemyState state)
     {
         state.GetawayActive = true;
@@ -178,13 +178,13 @@ internal sealed class CeresRidleyGetaway
         ? FloorView.Turned(getaway.FloorAngle, getaway.FloorZoom, getaway.FloorCenter.AsSignedOffset(), getaway.FloorOffset)
         : null;
 
-    /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
+    /// <summary>Selects the zoom-dependent fifteen Ceres getaway colours without replacing transparent color zero.</summary>
     /// <param name="state">The getaway's Ridley, whose room colours show the floor.</param>
     /// <param name="zoom">The floor's zoom.</param>
     internal static void UpdateCeresRidleyFloorZoomColours(RidleyEnemyState state, FloorZoom zoom)
     {
         // The floor's shade is chosen by the zoom's whole floor pixels per screen pixel.
-        // There are fifteen colors; palette entry zero remains the shared transparent color.
+        // There are fifteen colors; the shared transparent colour stays as it is.
         int zoomStep = zoom.WholeFloorPixelsPerScreenPixel;
         if (zoomStep < CeresRidleyShadeDefinitions.GetawayZoomStepCount)
         {
@@ -192,7 +192,7 @@ internal sealed class CeresRidleyGetaway
             return;
         }
         throw new InvalidOperationException(
-            $"Ceres Ridley turning-floor zoom step {zoomStep} is not in the installed palette catalog.");
+            $"Ceres Ridley turning-floor zoom step {zoomStep} is not in the installed colour catalog.");
     }
 
     /// <summary>

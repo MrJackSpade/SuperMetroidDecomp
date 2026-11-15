@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainAttacks
 {
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>
+    /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
     private readonly MotherBrainRainbowAndDeath _rainbowAndDeath;
 
 
@@ -428,7 +428,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Positions the head slowly and fires the laser. Its unsigned timer expires only after decrementing through
+    /// Positions the head slowly and fires the laser. Its timer expires only after counting down through
     /// zero to -1, at which point neck rotation slows and the ordinary head animation
     /// owns the muzzle animation and projectile spawn.
     /// </summary>

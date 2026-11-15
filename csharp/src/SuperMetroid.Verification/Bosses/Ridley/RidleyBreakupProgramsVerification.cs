@@ -45,7 +45,7 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
-        AssertEqual(RidleyBreakupFrame.TailTip1, RidleyNativeProgramOracle.BreakupFrameOf(fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Playback),
+        AssertEqual(RidleyBreakupFrame.TailTipPointingDownDownLeft, RidleyNativeProgramOracle.BreakupFrameOf(fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Playback),
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {

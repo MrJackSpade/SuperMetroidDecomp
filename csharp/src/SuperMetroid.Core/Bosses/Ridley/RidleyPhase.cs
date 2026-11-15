@@ -17,9 +17,9 @@ public enum RidleyPhase
     WaitForDoorTransition,
     /// <summary>Counts the initial reveal delay before fading the eyes.</summary>
     InitialDelay,
-    /// <summary>Advances the shared eye-palette fade before body reveal.</summary>
+    /// <summary>Advances the shared eye-colour fade before body reveal.</summary>
     FadeInEyes,
-    /// <summary>Advances the body-palette fade and prepares the roar.</summary>
+    /// <summary>Advances the body-colour fade and prepares the roar.</summary>
     FadeInBody,
     /// <summary>Waits before selecting the pre-flight roar animation.</summary>
     WaitBeforeRoar,
@@ -53,7 +53,7 @@ public enum RidleyPhase
     CeresSwoopAscendingAimingUpFaster,
     /// <summary>Raises Ceres Ridley beyond the room for the real getaway.</summary>
     CeresRealRetreatRising,
-    /// <summary>Prepares retreat palettes and walls while waiting to publish the getaway.</summary>
+    /// <summary>Prepares retreat colours and walls while waiting to publish the getaway.</summary>
     CeresRetreatDelay,
     /// <summary>Publishes the Ceres turning-floor getaway handoff.</summary>
     CeresPublishEscapeHandoff,

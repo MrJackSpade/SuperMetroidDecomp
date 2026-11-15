@@ -9,9 +9,9 @@ internal static class ShitroidSoundDefinitions
     /// <summary>The cry as the Shitroid flies away from Samus.</summary>
     internal static SoundEffectId FlyAwayCry { get; } = EnemySound.BabyMetroidGuilt;
 
-    /// <summary>The cry while draining at the slow palette pace.</summary>
+    /// <summary>The cry while draining at the slow colour pace.</summary>
     internal static SoundEffectId DrainCry { get; } = EnemySound.BabyMetroidCry;
 
-    /// <summary>The cry while draining at the quick palette pace.</summary>
+    /// <summary>The cry while draining at the quick colour pace.</summary>
     internal static SoundEffectId QuickDrainCry { get; } = EnemySound.BabyMetroidDrain;
 }

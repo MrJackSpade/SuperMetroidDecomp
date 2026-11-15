@@ -52,7 +52,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the escape music track was queued.</summary>
     internal bool EscapeMusicTrackQueued { get; set; }
 
-    /// <summary>The escape's palette effects requested.</summary>
+    /// <summary>The escape's colour effects requested.</summary>
     internal List<ColourEffectId> EscapeColourEffectRequests { get; } = new(capacity: 4);
 
     /// <summary>Whether the escape typewriter's setup was requested.</summary>

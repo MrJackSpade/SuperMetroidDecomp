@@ -16,7 +16,7 @@ internal sealed class PhantoonDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Applies body palettes and the background changes.</summary>
+    /// <summary>Applies body colours and the background changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;

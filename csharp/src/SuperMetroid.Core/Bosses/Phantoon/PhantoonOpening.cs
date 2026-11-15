@@ -82,7 +82,7 @@ internal sealed class PhantoonOpening
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
     }
 
-    /// <summary>Raises intro wave amplitude and reveals the body palette.</summary>
+    /// <summary>Raises intro wave amplitude and reveals the body colours.</summary>
     internal void RunPhantoonWavyFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state)

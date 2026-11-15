@@ -24,7 +24,7 @@ internal static class MotherBrainTurretAnimations
     internal static AnimationSegments<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Segments { get; } = new(
         Poses.ToDictionary(pose => pose, pose => pose == MotherBrainTurretPose.BulletImpact ? BulletImpact() : StillPose(pose)), Poses);
 
-    /// <summary>Each segment's animation, played once: a pose then sleeps on its frame, and the deleted smoke rests.</summary>
+    /// <summary>Each segment's animation, played once: a pose then rests on its frame, and the deleted smoke rests.</summary>
     internal static IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt { get; } =
         Poses.ToDictionary(pose => pose, pose => new Animation<MotherBrainTurretPose>([new(pose, 0, Segments.Beats(pose).Count, 1)], AnimationEnd.Holds));
 

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// walks and posture changes, active beam, low-energy attack selection, final charge, the four
 /// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
 /// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
-/// Palette, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
+/// Colour, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
 /// inspectable requests; coordinate, resource, timer, animation, and Samus-control
 /// mutations execute directly.
 /// </remarks>

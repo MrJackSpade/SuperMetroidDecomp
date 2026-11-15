@@ -168,7 +168,7 @@ internal static class DraygonAnimationsVerification
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
-            state.StartAnimation(part, DraygonSegment.Sleep);
+            state.StartAnimation(part, DraygonSegment.Rest);
         enemies.DraygonBehavior.Parts.Draygon = state;
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
@@ -233,7 +233,7 @@ internal static class DraygonAnimationsVerification
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;
-                AssertEqual(Started(DraygonSegment.Sleep), state.Playback(state.Tail), $"{at}: the tail sleeps");
+                AssertEqual(Started(DraygonSegment.Rest), state.Playback(state.Tail), $"{at}: the tail sleeps");
                 AnimationPlayback<DraygonSegment> armsPlayback = state.Playback(arms);
                 AssertEqual(DraygonSegment.BodyDyingExplosionsLoop, armsPlayback.Animation.Phases[armsPlayback.Place.Phase].Segment,
                     $"{at}: the running arms keep their own program, as the native final store replaces the paralysis");

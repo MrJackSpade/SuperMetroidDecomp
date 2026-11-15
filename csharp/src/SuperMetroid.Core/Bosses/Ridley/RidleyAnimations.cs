@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair.</summary>
 internal static class RidleyAnimations
 {
-    /// <summary>How long the standing pose lasts before the animation sleeps.</summary>
+    /// <summary>How long the standing pose lasts before the animation rests.</summary>
     private const int StandingDuration = 12;
     /// <summary>The lunge's full leg extension.</summary>
     private const int LungeExtendedDuration = 80;
@@ -23,7 +23,7 @@ internal static class RidleyAnimations
     /// <summary>Each lift-off pose after the jump.</summary>
     private const int LiftoffPoseDuration = 17;
 
-    /// <summary>Every body segment's beats; each sleeps after its last, but the fireballing segments, which run on into their ends.</summary>
+    /// <summary>Every body segment's beats; each rests after its last, but the fireballing segments, which run on into their ends.</summary>
     internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
         new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
     {
@@ -56,8 +56,8 @@ internal static class RidleyAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment: its segment played once, then a sleep on its last frame; a fireballing segment
-    /// runs on into its end, authored next, which sleeps.
+    /// The animation that starts at each segment: its segment played once, then a rest on its last frame; a fireballing segment
+    /// runs on into its end, authored next, which rests.
     /// </summary>
     internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
@@ -87,7 +87,7 @@ internal static class RidleyAnimations
     /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
     private static AnimationPhase<RidleyBodySegment> Whole(RidleyBodySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>The animation that plays <paramref name="segment"/> once and sleeps on its last frame.</summary>
+    /// <summary>The animation that plays <paramref name="segment"/> once and rests on its last frame.</summary>
     private static Animation<RidleyBodySegment> Sleeps(RidleyBodySegment segment) => new([Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>The poses of one facing.</summary>
@@ -131,7 +131,7 @@ internal static class RidleyAnimations
         Show(side.Standing, 1),
     ];
 
-    /// <summary>The death roar of one facing; it sleeps on the open mouth.</summary>
+    /// <summary>The death roar of one facing; it rests on the open mouth.</summary>
     private static AnimationBeat<F, RidleyBodyCue>[] DeathRoar(Side side) =>
     [
         Show(side.Standing, 6),

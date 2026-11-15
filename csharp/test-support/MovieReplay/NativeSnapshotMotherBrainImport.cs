@@ -216,6 +216,8 @@ internal static class NativeSnapshotMotherBrainImport
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = phase;
         sequence.State.PhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
+        // The cartridge keeps the brain's fall speed in the body's phase timer.
+        sequence.State.BrainFallSpeed = W(MotherBrainMemory.BodyFunctionTimer);
         sequence.RainbowAttack.AngularWidth = RotationAngle.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;

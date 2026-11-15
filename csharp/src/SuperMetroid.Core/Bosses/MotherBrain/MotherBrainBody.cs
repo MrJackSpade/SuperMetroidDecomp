@@ -24,7 +24,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -60,7 +60,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Runs a falling tube's animation where the shared enemy animation runs: its pose shows on the update the
-    /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
+    /// timer expires, raising the new-frame flag, and the animation then keeps it.
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
@@ -140,8 +140,8 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Plays the body's animation, or the head slot's dummy, where the shared enemy animation runs: the frame
-    /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation is the
-    /// script's sleep: the timer wraps from zero and the last frame stays.
+    /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation
+    /// rests: the timer wraps from zero and the last frame stays.
     /// </summary>
     internal void AdvanceMotherBrainSlotAnimation(RoomEnemySlot slot, SamusState? samus)
     {
@@ -350,7 +350,7 @@ internal sealed class MotherBrainBody
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain body bytecode ran without its multipart encounter state.");
+            "Mother Brain's body animation ran without its multipart encounter state.");
         state.Body.Position += displacement;
         PlaceMotherBrainBody(state, new(
             CoordinateAxis.Wrap(state.Body.Position.X.Whole - 34),
@@ -366,7 +366,7 @@ internal sealed class MotherBrainBody
         int horizontalScrollBias)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain posture bytecode ran without its multipart encounter state.");
+            "Mother Brain's posture animation ran without its multipart encounter state.");
         state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole + yDisplacement);
         PlaceMotherBrainBody(state, new(
             CoordinateAxis.Wrap(state.Body.Position.X.Whole - 34 - horizontalScrollBias),

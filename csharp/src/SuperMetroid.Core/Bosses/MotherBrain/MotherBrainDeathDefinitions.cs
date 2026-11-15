@@ -55,7 +55,7 @@ public static class MotherBrainDeathDefinitions
         new(24, 116),
     ];
 
-    /// <summary>The escape door's behaviour: it leads through door-list entry one.</summary>
+    /// <summary>The escape door's behaviour: it leads through the room's second door.</summary>
     public static readonly RoomBlockBehavior EscapeDoorBehavior = RoomBlockBehavior.LinkingDoor(1);
 
     /// <summary>Each escape-door extension's behaviour: a link to the block one row upward.</summary>

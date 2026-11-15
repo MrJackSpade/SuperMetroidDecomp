@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>
 /// Phantoon's presentation as the display latch captured it: the wave of his body (#1353, #1468), whether his body
 /// shows, hidden or translucent (#1545), and his body's pixelation. Later passes cannot change them. His fades show
-/// through the body palette the frame's colour snapshot carries, which is exact palette state.
+/// through the body colours the frame's colour snapshot carries, which are exact.
 /// </summary>
 /// <param name="Wave">The active wave rippling his body, or null when no wave is active.</param>
 /// <param name="BodyVisibility">Whether his body shows as the room shows it, hidden or translucent.</param>

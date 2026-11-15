@@ -15,7 +15,7 @@ internal sealed class MotherBrainFakeDeath
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Spawns the enemies the fake death releases into the room.</summary>
     private readonly IEnemyLifecycle _lifecycle;
-    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -50,7 +50,7 @@ internal sealed class MotherBrainFakeDeath
     internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
-    /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
+    /// <summary>Steps Mother Brain's fake-death gray fade and advances when its colour cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
         if (--state.PhaseTimer < 0)
@@ -64,14 +64,14 @@ internal sealed class MotherBrainFakeDeath
             else
             {
                 // Fake-death fade greys her brain's three colours only. Copying a convenient
-                // whole palette would visibly alter unrelated room art and is not what
+                // whole colour set would visibly alter unrelated room art and is not what
                 // the fake-death fade does.
                 state.Colours.ShowFakeDeathToGrey(step);
             }
         }
 
         // The grey fade's last step is an unconditional tail-call. Tube sequencing and dust therefore
-        // begin during the grey fade rather than waiting for the eighth palette entry.
+        // begin during the grey fade rather than waiting for the eighth fade step.
         RunMotherBrainTubeCollapse(state);
         RunMotherBrainFakeDeathExplosion(state);
     }
@@ -519,7 +519,7 @@ internal sealed class MotherBrainFakeDeath
         state.Phase = next;
     }
 
-    /// <summary>Restores the combat palette after the gray fake-death phase.</summary>
+    /// <summary>Restores the combat colours after the gray fake-death phase.</summary>
     internal static void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))

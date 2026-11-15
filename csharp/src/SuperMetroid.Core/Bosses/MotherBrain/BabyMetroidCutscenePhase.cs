@@ -75,7 +75,7 @@ public enum BabyMetroidCutscenePhase
     /// <summary>Transfers the Hyper Beam setup to Samus while preparing the Baby's death fall.</summary>
     PrepareSamusForHyperBeam,
 
-    /// <summary>Runs the falling, palette-fading death sequence and periodic dust explosions.</summary>
+    /// <summary>Runs the falling, colour-fading death sequence and periodic dust explosions.</summary>
     DeathSequence,
 
     /// <summary>
@@ -84,7 +84,7 @@ public enum BabyMetroidCutscenePhase
     /// </summary>
     ReadyMotherBrainAttacksAgain,
 
-    /// <summary>Keeps Samus's restored rainbow palette cycling through the remaining scripted delay.</summary>
+    /// <summary>Keeps Samus's restored rainbow colours cycling through the remaining scripted delay.</summary>
     LetSamusRainbowSomeMore,
 
     /// <summary>Hands control to the final Mother Brain combat/cutscene state after the Baby sequence completes.</summary>

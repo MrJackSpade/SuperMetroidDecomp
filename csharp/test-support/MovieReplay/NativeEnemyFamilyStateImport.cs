@@ -123,9 +123,10 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
+            bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
             kraidPartRecord.Phase = words.A is 0 or KraidNativeWords.NoPhase
                 ? null
-                : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
+                : deathWait ? KraidPhase.DeathWaitBeforeFadeIn : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
             if (kraidPartRecord is KraidNailState kraidNail)
@@ -141,6 +142,8 @@ internal static class NativeEnemyFamilyStateImport
                 kraidBody.HeadTimer = words.C;
                 if (kraidBody.Phase == KraidPhase.GrowBreakCeilingPlatforms)
                     kraidBody.CeilingRock = words.F / sizeof(ushort);
+                else if (deathWait)
+                    kraidBody.PhaseTimer = deathWaitLeft;
                 else
                     kraidBody.PhaseTimer = words.F;
             }
@@ -250,8 +253,8 @@ internal static class NativeEnemyFamilyStateImport
             shitroidRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
-            shitroidRecord.PaletteTimer = LittleEndianBytes.HighByte(words.D);
-            shitroidRecord.PaletteDelay = words.E;
+            shitroidRecord.ColourTimer = LittleEndianBytes.HighByte(words.D);
+            shitroidRecord.ColourDelay = words.E;
             shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);
         }
         if (slot.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
@@ -320,7 +323,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (slot.SlotIndex == 0)
-            enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
+            enemies.ZebetiteBehavior.SharedColourCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
             chozoStatueRecord.FrameBehavior = ChozoNativeWords.FrameBehaviorAt(words.F);

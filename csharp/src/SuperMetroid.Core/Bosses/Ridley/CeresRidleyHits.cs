@@ -86,7 +86,7 @@ internal sealed class CeresRidleyHits
 
         // The hurt flash starts at 13 and selects 14 only when the old nonzero timer is odd.
         // Testing any other property of it (or simply toggling the new value) changes repeated-hit
-        // timing and eventually moves the escape threshold relative to the hurt palette.
+        // timing and eventually moves the escape threshold relative to the hurt flash.
         slot.FlashTimer = slot.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(slot.FlashTimer)
             ? 14
             : 13;

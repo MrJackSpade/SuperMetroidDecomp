@@ -50,7 +50,7 @@ public sealed class SporeSpawnEnemyState
     public bool SporeGenerationSuppressed { get; internal set; }
     /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the animation clears it.</summary>
     public bool Damaged { get; internal set; }
-    /// <summary>Health value last recorded by the guarded damaging-hit palette update; used to avoid reloading an unchanged health palette.</summary>
+    /// <summary>Health value last recorded by the guarded damaging-hit colour update; used to avoid reloading unchanged health colours.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Fixed death-drift direction toward (128,624) in 256ths of a turn: zero is right, a quarter turn up, a half turn left and three quarters down.</summary>
     public RotationAngle DeathAngle { get; internal set; }

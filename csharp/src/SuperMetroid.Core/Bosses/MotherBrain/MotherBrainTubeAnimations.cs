@@ -23,7 +23,7 @@ internal static class MotherBrainTubeAnimations
             new AnimationBeat<MotherBrainTubeFrame, NoAnimationCue>.Frame(PoseOf[piece], 1),
         }));
 
-    /// <summary>Each piece's animation: its pose, which the script's sleep then keeps.</summary>
+    /// <summary>Each piece's animation: its pose, which it then keeps.</summary>
     internal static IReadOnlyDictionary<MotherBrainTubePiece, Animation<MotherBrainTubePiece>> StartingAt { get; } =
         Enum.GetValues<MotherBrainTubePiece>().ToDictionary(piece => piece,
             piece => new Animation<MotherBrainTubePiece>([new(piece, 0, 1, 1)], AnimationEnd.Holds));

@@ -466,7 +466,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationPlayback<SporeSpawnBodySegment> playback = state.BodyPlayback;
         // The open-pulse and death-burst repeats count the body's frame timer, as the animations' counted loops do.
-        EnemyAnimationPlayback.Play(body, SporeSpawnAnimations.Segments, ref playback, SporeSpawnFrameDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(body, SporeSpawnAnimations.Segments, ref playback,
             cue =>
             {
                 ApplySporeSpawnCue(body, state, cue);
@@ -788,7 +788,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         set => _encounter.SporeSpawn = value;
     }
 
-    /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
+    /// <summary>Publishes Spore Spawn's pending target colour writes, if the boss is present.</summary>
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
     internal static bool? FindSporeSpawnHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)

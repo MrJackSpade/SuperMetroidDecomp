@@ -25,10 +25,10 @@ internal static class RidleyExplosionDefinitions
     /// sixteenth is centred on it, so the first opens half a pose before straight down.
     /// </summary>
     internal static readonly TurnArcs<RidleyBreakupFrame> TailTipBreakupFrames = new(TrigonometryAngle.Wrapped(-8),
-        RidleyBreakupFrame.TailTip0, RidleyBreakupFrame.TailTip1, RidleyBreakupFrame.TailTip2, RidleyBreakupFrame.TailTip3,
-        RidleyBreakupFrame.TailTip4, RidleyBreakupFrame.TailTip5, RidleyBreakupFrame.TailTip6, RidleyBreakupFrame.TailTip7,
-        RidleyBreakupFrame.TailTip8, RidleyBreakupFrame.TailTip9, RidleyBreakupFrame.TailTip10, RidleyBreakupFrame.TailTip11,
-        RidleyBreakupFrame.TailTip12, RidleyBreakupFrame.TailTip13, RidleyBreakupFrame.TailTip14, RidleyBreakupFrame.TailTip15);
+        RidleyBreakupFrame.TailTipPointingDown, RidleyBreakupFrame.TailTipPointingDownDownLeft, RidleyBreakupFrame.TailTipPointingDownLeft, RidleyBreakupFrame.TailTipPointingLeftDownLeft,
+        RidleyBreakupFrame.TailTipPointingLeft, RidleyBreakupFrame.TailTipPointingLeftUpLeft, RidleyBreakupFrame.TailTipPointingUpLeft, RidleyBreakupFrame.TailTipPointingUpUpLeft,
+        RidleyBreakupFrame.TailTipPointingUp, RidleyBreakupFrame.TailTipPointingUpUpRight, RidleyBreakupFrame.TailTipPointingUpRight, RidleyBreakupFrame.TailTipPointingRightUpRight,
+        RidleyBreakupFrame.TailTipPointingRight, RidleyBreakupFrame.TailTipPointingRightDownRight, RidleyBreakupFrame.TailTipPointingDownRight, RidleyBreakupFrame.TailTipPointingDownDownRight);
 
     /// <summary>
     /// The breakup's allocation order: the tail from tip to base, then wings, legs, torso, head and claw. Enemy-slot
@@ -36,8 +36,8 @@ internal static class RidleyExplosionDefinitions
     /// </summary>
     internal static readonly RidleyExplosionPart[] BreakupOrder =
     [
-        RidleyExplosionPart.TailTip, RidleyExplosionPart.Tail5, RidleyExplosionPart.Tail4, RidleyExplosionPart.Tail3,
-        RidleyExplosionPart.Tail2, RidleyExplosionPart.Tail1, RidleyExplosionPart.Tail0, RidleyExplosionPart.Wings,
+        RidleyExplosionPart.TailTip, RidleyExplosionPart.TailSixthSegment, RidleyExplosionPart.TailFifthSegment, RidleyExplosionPart.TailFourthSegment,
+        RidleyExplosionPart.TailThirdSegment, RidleyExplosionPart.TailSecondSegment, RidleyExplosionPart.TailBaseSegment, RidleyExplosionPart.Wings,
         RidleyExplosionPart.Legs, RidleyExplosionPart.Torso, RidleyExplosionPart.OpenHeadAndNeck, RidleyExplosionPart.Claw,
     ];
 
@@ -47,12 +47,12 @@ internal static class RidleyExplosionDefinitions
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
     {
-        [RidleyExplosionPart.Tail0] = 72,
-        [RidleyExplosionPart.Tail1] = 80,
-        [RidleyExplosionPart.Tail2] = 88,
-        [RidleyExplosionPart.Tail3] = 96,
-        [RidleyExplosionPart.Tail4] = 104,
-        [RidleyExplosionPart.Tail5] = 112,
+        [RidleyExplosionPart.TailBaseSegment] = 72,
+        [RidleyExplosionPart.TailSecondSegment] = 80,
+        [RidleyExplosionPart.TailThirdSegment] = 88,
+        [RidleyExplosionPart.TailFourthSegment] = 96,
+        [RidleyExplosionPart.TailFifthSegment] = 104,
+        [RidleyExplosionPart.TailSixthSegment] = 112,
         [RidleyExplosionPart.TailTip] = 120,
         [RidleyExplosionPart.Wings] = 40,
         [RidleyExplosionPart.Legs] = 48,
@@ -64,12 +64,12 @@ internal static class RidleyExplosionDefinitions
     /// <summary>The tail segment each tail fragment starts from.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, int> TailSegment = new Dictionary<RidleyExplosionPart, int>
     {
-        [RidleyExplosionPart.Tail0] = 0,
-        [RidleyExplosionPart.Tail1] = 1,
-        [RidleyExplosionPart.Tail2] = 2,
-        [RidleyExplosionPart.Tail3] = 3,
-        [RidleyExplosionPart.Tail4] = 4,
-        [RidleyExplosionPart.Tail5] = 5,
+        [RidleyExplosionPart.TailBaseSegment] = 0,
+        [RidleyExplosionPart.TailSecondSegment] = 1,
+        [RidleyExplosionPart.TailThirdSegment] = 2,
+        [RidleyExplosionPart.TailFourthSegment] = 3,
+        [RidleyExplosionPart.TailFifthSegment] = 4,
+        [RidleyExplosionPart.TailSixthSegment] = 5,
         [RidleyExplosionPart.TailTip] = 6,
     }.ToFrozenDictionary();
 
@@ -86,12 +86,12 @@ internal static class RidleyExplosionDefinitions
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyBreakupFrame> TailFrames = new Dictionary<RidleyExplosionPart, RidleyBreakupFrame>
     {
-        [RidleyExplosionPart.Tail0] = RidleyBreakupFrame.TailSegmentSmall,
-        [RidleyExplosionPart.Tail1] = RidleyBreakupFrame.TailSegmentSmall,
-        [RidleyExplosionPart.Tail2] = RidleyBreakupFrame.TailSegmentMedium,
-        [RidleyExplosionPart.Tail3] = RidleyBreakupFrame.TailSegmentMedium,
-        [RidleyExplosionPart.Tail4] = RidleyBreakupFrame.TailSegmentLarge,
-        [RidleyExplosionPart.Tail5] = RidleyBreakupFrame.TailSegmentLarge,
+        [RidleyExplosionPart.TailBaseSegment] = RidleyBreakupFrame.TailSegmentSmall,
+        [RidleyExplosionPart.TailSecondSegment] = RidleyBreakupFrame.TailSegmentSmall,
+        [RidleyExplosionPart.TailThirdSegment] = RidleyBreakupFrame.TailSegmentMedium,
+        [RidleyExplosionPart.TailFourthSegment] = RidleyBreakupFrame.TailSegmentMedium,
+        [RidleyExplosionPart.TailFifthSegment] = RidleyBreakupFrame.TailSegmentLarge,
+        [RidleyExplosionPart.TailSixthSegment] = RidleyBreakupFrame.TailSegmentLarge,
     }.ToFrozenDictionary();
 
     /// <summary>

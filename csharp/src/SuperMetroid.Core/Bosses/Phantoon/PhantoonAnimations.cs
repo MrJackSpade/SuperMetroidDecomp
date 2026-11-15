@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Animation;
 using C = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartCue;
-using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartFrameKind;
+using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
+using SuperMetroid.Core.Enemies.Artwork;
 using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartSegment;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600).</summary>
+/// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600), each beat naming the installed frame it shows (#1885).</summary>
 internal static class PhantoonAnimations
 {
     /// <summary>The eyelid's dwell on each of its two moving poses.</summary>
@@ -16,59 +17,59 @@ internal static class PhantoonAnimations
     private const int MouthFrameDuration = 5;
 
     /// <summary>Every body, eye, tentacle and mouth segment.</summary>
-    internal static AnimationSegments<PhantoonPartSegment, PhantoonPartFrame, PhantoonPartCue> Segments { get; } = new(
-        new Dictionary<PhantoonPartSegment, AnimationBeat<PhantoonPartFrame, PhantoonPartCue>[]>
+    internal static AnimationSegments<PhantoonPartSegment, EnemyFrameId, PhantoonPartCue> Segments { get; } = new(
+        new Dictionary<PhantoonPartSegment, AnimationBeat<EnemyFrameId, PhantoonPartCue>[]>
     {
-        [P.InvulnerableBody] = Still(new(F.InvulnerableBody, 0)),
-        [P.FullHitboxBody] = Still(new(F.FullHitboxBody, 0)),
-        [P.EyeHitboxBody] = Still(new(F.EyeHitboxBody, 0)),
+        [P.InvulnerableBody] = Still(F.PhantoonInvulnerableBody),
+        [P.FullHitboxBody] = Still(F.PhantoonFullHitboxBody),
+        [P.EyeHitboxBody] = Still(F.PhantoonEyeHitboxBody),
         [P.EyeOpen] =
         [
-            Show(new(F.OpeningEye, 0), EyelidFrameDuration),
-            Show(new(F.OpeningEye, 1), EyelidFrameDuration),
-            Show(new(F.OpeningEye, 2), 1),
+            Show(F.PhantoonEyeOpenFirst, EyelidFrameDuration),
+            Show(F.PhantoonEyeOpenSecond, EyelidFrameDuration),
+            Show(F.PhantoonEyeOpenThird, 1),
             Cue(C.PlayMaterializationSound),
             Cue(C.BeginEyeTracking),
         ],
-        [P.EyeClosed] = Still(new(F.ClosedEye, 0)),
+        [P.EyeClosed] = Still(F.PhantoonEyeClosed),
         [P.EyeCloseAndPickNewPattern] =
         [
-            Show(new(F.OpeningEye, 2), 1),
-            Show(new(F.OpeningEye, 1), EyelidFrameDuration),
+            Show(F.PhantoonEyeOpenThird, 1),
+            Show(F.PhantoonEyeOpenSecond, EyelidFrameDuration),
             Cue(C.PickNewPattern),
         ],
         [P.EyeClose] =
         [
-            Show(new(F.OpeningEye, 2), 1),
-            Show(new(F.OpeningEye, 1), EyelidFrameDuration),
+            Show(F.PhantoonEyeOpenThird, 1),
+            Show(F.PhantoonEyeOpenSecond, EyelidFrameDuration),
         ],
         [P.EyeballCentered] =
         [
-            Show(new(F.CenteredEye, 0), 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Cue(C.PlayMaterializationSound),
         ],
-        [P.EyeLookingUp] = Still(new(F.Gaze, 0)),
-        [P.EyeLookingUpRight] = Still(new(F.Gaze, 1)),
-        [P.EyeLookingRight] = Still(new(F.Gaze, 2)),
-        [P.EyeLookingDownRight] = Still(new(F.Gaze, 3)),
-        [P.EyeLookingDown] = Still(new(F.Gaze, 4)),
-        [P.EyeLookingDownLeft] = Still(new(F.Gaze, 5)),
-        [P.EyeLookingLeft] = Still(new(F.Gaze, 6)),
-        [P.EyeLookingUpLeft] = Still(new(F.Gaze, 7)),
+        [P.EyeLookingUp] = Still(F.PhantoonEyeLookingUp),
+        [P.EyeLookingUpRight] = Still(F.PhantoonEyeLookingUpRight),
+        [P.EyeLookingRight] = Still(F.PhantoonEyeLookingRight),
+        [P.EyeLookingDownRight] = Still(F.PhantoonEyeLookingDownRight),
+        [P.EyeLookingDown] = Still(F.PhantoonEyeLookingDown),
+        [P.EyeLookingDownLeft] = Still(F.PhantoonEyeLookingDownLeft),
+        [P.EyeLookingLeft] = Still(F.PhantoonEyeLookingLeft),
+        [P.EyeLookingUpLeft] = Still(F.PhantoonEyeLookingUpLeft),
         [P.Tentacles] =
         [
-            Show(new(F.Tentacle, 0), TentacleFrameDuration),
-            Show(new(F.Tentacle, 1), TentacleFrameDuration),
-            Show(new(F.Tentacle, 2), TentacleFrameDuration),
-            Show(new(F.Tentacle, 1), TentacleFrameDuration),
+            Show(F.PhantoonTentaclesFirst, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesSecond, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesThird, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesSecond, TentacleFrameDuration),
         ],
         [P.MouthSpawnFlame] =
         [
-            Show(new(F.Mouth, 2), MouthFrameDuration),
-            Show(new(F.Mouth, 1), MouthFrameDuration),
+            Show(F.PhantoonMouthSpawnFlameFirst, MouthFrameDuration),
+            Show(F.PhantoonMouthSpawnFlameSecond, MouthFrameDuration),
             Cue(C.SpawnCasualFlame),
         ],
-        [P.MouthInitial] = Still(new(F.Mouth, 0)),
+        [P.MouthInitial] = Still(F.PhantoonMouthInitial),
     });
 
     /// <summary>
@@ -112,14 +113,14 @@ internal static class PhantoonAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<PhantoonPartSegment> Whole(PhantoonPartSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>Shows one frame for an update; its animation holds it, as the script's sleep does.</summary>
-    private static AnimationBeat<PhantoonPartFrame, PhantoonPartCue>[] Still(PhantoonPartFrame frame) => [Show(frame, 1)];
+    /// <summary>Shows one frame for an update; its animation then holds it.</summary>
+    private static AnimationBeat<EnemyFrameId, PhantoonPartCue>[] Still(EnemyFrameId frame) => [Show(frame, 1)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<PhantoonPartFrame, PhantoonPartCue> Show(PhantoonPartFrame frame, int duration) =>
-        new AnimationBeat<PhantoonPartFrame, PhantoonPartCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyFrameId, PhantoonPartCue> Show(EnemyFrameId frame, int duration) =>
+        new AnimationBeat<EnemyFrameId, PhantoonPartCue>.Frame(frame, duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<PhantoonPartFrame, PhantoonPartCue> Cue(PhantoonPartCue cue) =>
-        new AnimationBeat<PhantoonPartFrame, PhantoonPartCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, PhantoonPartCue> Cue(PhantoonPartCue cue) =>
+        new AnimationBeat<EnemyFrameId, PhantoonPartCue>.Event(cue);
 }

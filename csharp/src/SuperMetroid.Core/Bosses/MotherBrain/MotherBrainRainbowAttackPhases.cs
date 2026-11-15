@@ -102,7 +102,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Advances the held beam's sound countdown, alternating palette request, aim, width,
+    /// Advances the held beam's sound countdown, alternating colour request, aim, width,
     /// and explosion timer in the same call after the charge phase completes.
     /// </summary>
     private void RunContinuingBeamEffects(

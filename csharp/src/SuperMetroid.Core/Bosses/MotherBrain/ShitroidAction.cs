@@ -20,7 +20,7 @@ public enum ShitroidAction
     ChaseSidehopper,
     /// <summary>Attaches to the Sidehopper and begins the feeding pose.</summary>
     AttachToSidehopper,
-    /// <summary>Drains the Sidehopper while advancing its palette.</summary>
+    /// <summary>Drains the Sidehopper while advancing its colours.</summary>
     DrainSidehopper,
     /// <summary>Activates the dead Sidehopper corpse actor.</summary>
     ActivateSidehopperCorpse,

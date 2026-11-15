@@ -259,8 +259,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
         if (--_state.PhaseTimer < 0)
         {
-            // Disabling the brain's effects removes the neck/breath/palette producers, copies the body's
-            // shared colours into the brain's, performs one health-palette refresh, and then
+            // Disabling the brain's effects removes the neck/breath/colour producers, copies the body's
+            // shared colours into the brain's, performs one health-colour refresh, and then
             // deliberately falls through with the already-negative timer.
             _state.LowerNeckMovement = MotherBrainNeckMovement.None;
             _state.UpperNeckMovement = MotherBrainNeckMovement.None;
@@ -301,8 +301,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathFadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // Body flickering runs every AI call, independently of the seventeen-call
-        // palette cadence. Counter values 0..15 copy blackening palettes; value 16
-        // is past the last palette and completes the transition without a copy.
+        // colour cadence. Counter values 0..15 copy blackening colour steps; value 16
+        // is past the last step and completes the transition without a copy.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         if (--_state.PhaseTimer < 0)
@@ -345,10 +345,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathRealizeDecapitation()
     {
         // The body starts the decapitated animation and a separate brain-slot draw
-        // setup, clears its 1/256-pixel falling velocity, then falls through immediately.
+        // setup, starts the brain falling from rest, then falls through immediately.
         _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;
-        _state.PhaseTimer = 0;
+        _state.BrainFallSpeed = 0;
         _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround;
         return true;
     }
@@ -359,11 +359,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The fall treats PhaseTimer as unsigned 1/256-pixel velocity: add 32, use only
-        // its whole pixels as this frame's displacement, and accumulate Y.
+        // The brain gains 32/256 pixels an update of fall speed and falls the speed's whole pixels.
         // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
-        _state.PhaseTimer += 32;
-        int fallingDisplacement = UnsignedEightEight.Whole(_state.PhaseTimer);
+        _state.BrainFallSpeed += 32;
+        int fallingDisplacement = UnsignedEightEight.Whole(_state.BrainFallSpeed);
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
         if (candidate.Y >= 196)
         {
@@ -371,7 +370,6 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.BrainPosition = _state.BrainPosition.WithY(196);
             CorpseReadyingElapsed = 0;
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse;
-            _state.PhaseTimer = 256;
         }
         else
         {

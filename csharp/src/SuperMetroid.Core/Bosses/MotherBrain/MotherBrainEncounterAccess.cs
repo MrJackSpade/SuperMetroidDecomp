@@ -51,7 +51,7 @@ internal sealed class MotherBrainEncounterAccess
     }
 
     /// <summary>
-    /// Timers expire only after an unsigned decrement produces a negative signed value.
+    /// Timers expire only once a decrement takes them below zero.
     /// A zero timer therefore expires immediately, while a value N remains live for N ticks.
     /// </summary>
     internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)

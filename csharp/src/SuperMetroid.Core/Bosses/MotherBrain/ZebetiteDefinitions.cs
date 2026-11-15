@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class ZebetiteDefinitions
 {
     /// <summary>The steps of the Zebetites' shared pulse cycle before it restarts.</summary>
-    public const int PaletteCycleLength = 8;
+    public const int ColourCycleLength = 8;
 
     /// <summary>The primary half's embedded population entry.</summary>
     internal static readonly RoomEnemyPlacement PrimarySpawn =

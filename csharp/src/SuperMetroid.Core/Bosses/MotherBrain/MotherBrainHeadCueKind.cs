@@ -27,7 +27,7 @@ internal enum MotherBrainHeadCueKind
     ResetBabyMetroidAttacks,
     /// <summary>Queues the attack cry unless the Baby Metroid attack has run its course.</summary>
     QueueBabyMetroidAttackSound,
-    /// <summary>Sets up the palette, breath and sound for the rainbow-beam charge.</summary>
+    /// <summary>Sets up the colours, breath and sound for the rainbow-beam charge.</summary>
     PrepareRainbowBeamCharge,
     /// <summary>Spawns a rainbow-beam charge particle.</summary>
     SpawnRainbowBeamChargeParticle,

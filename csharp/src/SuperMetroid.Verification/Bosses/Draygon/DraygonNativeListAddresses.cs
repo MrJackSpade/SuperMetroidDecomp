@@ -19,7 +19,7 @@ internal static class DraygonNativeListAddresses
     /// <summary>Each typed program's native entry point in bank $A5, in authored order.</summary>
     internal static readonly DraygonNativeListAddressesEntry[] Entries =
     [
-        new DraygonNativeListAddressesEntry(DraygonSegment.Sleep, 0x97b9),
+        new DraygonNativeListAddressesEntry(DraygonSegment.Rest, 0x97b9),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftReset, 0x97bb),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightReset, 0x97d1),
         new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingLeftIdle, 0x97e7),

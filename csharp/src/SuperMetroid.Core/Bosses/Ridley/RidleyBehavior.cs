@@ -428,7 +428,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>
     /// Runs Ridley's hurt AI. Phase, movement, wing, and tail updates execute only on
-    /// even actor frames; tail armor, flash/palette work, and the grabbed-Samus lag counter
+    /// even actor frames; tail armor, flash/colour work, and the grabbed-Samus lag counter
     /// remain active on every hurt frame.
     /// </summary>
     internal void RunNorfairRidleyHurt(
@@ -466,7 +466,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>Adds Ridley's hurt behaviour for the post-hit AI window.</summary>
     /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement and phase work runs only
-    /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
+    /// on even actor frames, while tail projectile armor and hurt flashes remain live on every frame.</remarks>
     internal void RunRidleyHurt(RoomEnemySlot slot, RoomEnemyFrame frame) =>
         RunNorfairRidleyHurt(
             slot,

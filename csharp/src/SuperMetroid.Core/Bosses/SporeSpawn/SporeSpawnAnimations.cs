@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Animation;
-using F = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnFrameKind;
+using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
+using SuperMetroid.Core.Enemies.Artwork;
 using K = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCueKind;
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed body animations (#641).</summary>
+/// <summary>Spore Spawn's typed body animations (#641), each beat naming the installed frame it shows (#1885).</summary>
 internal static class SporeSpawnAnimations
 {
     /// <summary>How long the living room waits before the descent.</summary>
@@ -24,78 +25,85 @@ internal static class SporeSpawnAnimations
     private const int DeathBurstRepeats = 10;
     /// <summary>The wait between death bursts.</summary>
     private const int DeathBurstWait = 8;
-    /// <summary>Each death-palette fade step's dwell.</summary>
+    /// <summary>Each death-colour fade step's dwell.</summary>
     private const int FadeStepDuration = 16;
-    /// <summary>The death palette's fade steps; the husk's palette is the last.</summary>
+    /// <summary>The death colours' fade steps; the husk's colours are the last.</summary>
     internal const int DeathShadeSteps = 7;
     /// <summary>The sway's maximum X radius as the fight starts.</summary>
     private const int FirstMaximumXRadius = 64;
+
+    /// <summary>The opening poses, closed through fully open; the death shows the second-to-last.</summary>
+    private static readonly EnemyFrameId[] OpeningFrames =
+    [
+        F.SporeSpawnOpeningFirst, F.SporeSpawnOpeningSecond, F.SporeSpawnOpeningThird, F.SporeSpawnOpeningFourth,
+        F.SporeSpawnOpeningFifth, F.SporeSpawnDeath, F.SporeSpawnOpeningSeventh,
+    ];
 
     /// <summary>The opening poses' dwells, closed through fully open.</summary>
     private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
 
     /// <summary>Every body animation.</summary>
-    internal static AnimationSegments<SporeSpawnBodySegment, SporeSpawnFrame, SporeSpawnCue> Segments { get; } = new(
-        new Dictionary<SporeSpawnBodySegment, AnimationBeat<SporeSpawnFrame, SporeSpawnCue>[]>
+    internal static AnimationSegments<SporeSpawnBodySegment, EnemyFrameId, SporeSpawnCue> Segments { get; } = new(
+        new Dictionary<SporeSpawnBodySegment, AnimationBeat<EnemyFrameId, SporeSpawnCue>[]>
     {
         [P.InitialDead] =
         [
             Cue(new SporeSpawnCue.TargetDeathShade(DeathShadeStep: DeathShadeSteps - 1)),
             SelectMovement(SporeSpawnMovement.Idle),
-            Show(new(F.Dead, 0), 1),
+            Show(F.SporeSpawnInitialDead, 1),
         ],
         [P.InitialAlive] =
         [
-            Show(new(F.Closed, 0), DescentWait),
+            Show(F.SporeSpawnInitialAlive, DescentWait),
             SelectMovement(SporeSpawnMovement.Descending),
-            Show(new(F.Closed, 0), 1),
+            Show(F.SporeSpawnInitialAlive, 1),
         ],
         [P.FightStarted] =
         [
             Cue(new SporeSpawnCue.SetMaxXRadiusAndAngleDelta(MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
             SelectMovement(SporeSpawnMovement.Moving),
-            Show(new(F.Closed, 0), FirstSway),
+            Show(F.SporeSpawnInitialAlive, FirstSway),
         ],
         [P.OpenAndStop] =
         [
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
             Cue(new SporeSpawnCue.QueueSound(Sound: SporeSpawnSoundDefinitions.Opening)),
-            Show(new(F.Closed, 0), 1),
-            .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(new(F.Opening, pose), OpeningDurations[pose])),
+            Show(F.SporeSpawnInitialAlive, 1),
+            .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(OpeningFrames[pose], OpeningDurations[pose])),
             Cue(new SporeSpawnCue.Signal(K.ClearDamagedFlag)),
             SelectMovement(SporeSpawnMovement.Idle),
         ],
         [P.OpenPulse] =
         [
-            Show(new(F.Open, 0), PoseDuration),
-            Show(new(F.Open, 1), PoseDuration),
-            Show(new(F.Open, 2), PoseDuration),
-            Show(new(F.Open, 1), PoseDuration),
+            Show(F.SporeSpawnOpenPulseFirst, PoseDuration),
+            Show(F.SporeSpawnOpenPulseSecond, PoseDuration),
+            Show(F.SporeSpawnOpenPulseThird, PoseDuration),
+            Show(F.SporeSpawnOpenPulseSecond, PoseDuration),
         ],
         [P.CloseAndMove] =
         [
             .. Closing(),
-            Show(new(F.Closed, 0), 1),
+            Show(F.SporeSpawnInitialAlive, 1),
             SelectMovement(SporeSpawnMovement.Moving),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: false)),
             Cue(new SporeSpawnCue.Signal(K.IncreaseMaxXRadius)),
-            Show(new(F.Closed, 0), ClosedSway),
+            Show(F.SporeSpawnInitialAlive, ClosedSway),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
-            Show(new(F.Closed, 0), SporingSway),
+            Show(F.SporeSpawnInitialAlive, SporingSway),
         ],
         [P.Death] =
         [
             SelectMovement(SporeSpawnMovement.SetupDeath),
-            Show(new(F.Opening, 5), 1),
+            Show(F.SporeSpawnDeath, 1),
             SelectMovement(SporeSpawnMovement.Dying),
         ],
         [P.DyingExplosions] =
         [
-            Show(new(F.Opening, 5), 1),
+            Show(F.SporeSpawnDeath, 1),
             Cue(new SporeSpawnCue.Signal(K.SpawnDyingExplosion)),
             Wait(DeathBurstWait),
             .. Closing(),
-            Show(new(F.Dead, 0), 1),
+            Show(F.SporeSpawnInitialDead, 1),
             Cue(new SporeSpawnCue.Signal(K.Harden)),
         ],
         [P.Hardening] =
@@ -106,7 +114,7 @@ internal static class SporeSpawnAnimations
             {
                 Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
                 Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
-                Show(new(F.Dead, 0), FadeStepDuration),
+                Show(F.SporeSpawnInitialDead, FadeStepDuration),
             }),
             Cue(new SporeSpawnCue.Signal(K.RequestDeathDrops)),
         ],
@@ -127,23 +135,23 @@ internal static class SporeSpawnAnimations
     internal static Animation<SporeSpawnBodySegment> StartingWith(SporeSpawnBodySegment segment) => StartingAt[segment];
 
     /// <summary>The six closing poses, from the second-to-last opening pose back to the first.</summary>
-    private static IEnumerable<AnimationBeat<SporeSpawnFrame, SporeSpawnCue>> Closing() =>
-        Enumerable.Range(0, OpeningDurations.Length - 1).Reverse().Select(pose => Show(new(F.Opening, pose), PoseDuration));
+    private static IEnumerable<AnimationBeat<EnemyFrameId, SporeSpawnCue>> Closing() =>
+        Enumerable.Range(0, OpeningDurations.Length - 1).Reverse().Select(pose => Show(OpeningFrames[pose], PoseDuration));
 
     /// <summary>Selects <paramref name="movement"/> as the main-AI movement.</summary>
-    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> SelectMovement(SporeSpawnMovement movement) =>
+    private static AnimationBeat<EnemyFrameId, SporeSpawnCue> SelectMovement(SporeSpawnMovement movement) =>
         Cue(new SporeSpawnCue.SetMovement(Movement: movement));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Cue(SporeSpawnCue cue) =>
-        new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, SporeSpawnCue> Cue(SporeSpawnCue cue) =>
+        new AnimationBeat<EnemyFrameId, SporeSpawnCue>.Event(cue);
 
     /// <summary>Pauses on the shown frame for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Wait(int duration) =>
-        new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Pause(duration);
+    private static AnimationBeat<EnemyFrameId, SporeSpawnCue> Wait(int duration) =>
+        new AnimationBeat<EnemyFrameId, SporeSpawnCue>.Pause(duration);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Show(SporeSpawnFrame frame, int duration) =>
-        new AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyFrameId, SporeSpawnCue> Show(EnemyFrameId frame, int duration) =>
+        new AnimationBeat<EnemyFrameId, SporeSpawnCue>.Frame(frame, duration);
 
 }

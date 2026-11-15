@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Hud;
 
-/// <summary>Compiled controller binding represented by a panel's safe button-glyph slot.</summary>
+/// <summary>The controller action whose button a message's panel names, as the player has bound it.</summary>
 public enum GameplayMessagePanelButtonBinding
 {
-    /// <summary>The message has no large-panel controller-glyph slot.</summary>
+    /// <summary>The message's panel names no button.</summary>
     None,
-    /// <summary>The panel displays the configured shoot-button glyph.</summary>
+    /// <summary>The panel names the button bound to shoot.</summary>
     Shoot,
-    /// <summary>The panel displays the configured run-button glyph.</summary>
+    /// <summary>The panel names the button bound to run.</summary>
     Run,
 }

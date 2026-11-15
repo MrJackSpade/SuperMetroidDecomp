@@ -9,7 +9,7 @@ public static class FileSelectPresentationDefinitions
     public const int PageWidthPixels = 256;
     /// <summary>The height in pixels of each page file select shows.</summary>
     public const int PageHeightPixels = 256;
-    /// <summary>Ten consecutive digit cells in the import's digit glyphs.</summary>
+    /// <summary>The decimal digits, zero through nine, file select writes its counts with.</summary>
     public const int DigitCount = 10;
     /// <summary>The name each save slot's letter is pictured under.</summary>
     internal static readonly IReadOnlyDictionary<SaveSlot, string> SlotLetterNames =

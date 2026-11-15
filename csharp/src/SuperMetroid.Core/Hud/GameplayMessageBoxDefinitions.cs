@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
-/// The gameplay message box's definitions (#1416, #1466): its rows and window placement, its waits and display durations,
-/// the two colours it borrows while open, and which button its panels name.
+/// The gameplay message box's definitions (#1416, #1466): where its window shows, its waits, the window's opening steps and
+/// display durations, and which button its item panels name.
 /// </summary>
 public static class GameplayMessageBoxDefinitions
 {

@@ -12,9 +12,8 @@ namespace SuperMetroid.Verification.Audio;
 /// <summary>
 /// Confirms #1305's clip export (confirmation 1): exported clips equal an independent offline
 /// render through <see cref="ManagedSpcAudioBackend"/> from the same entry state, each loop region
-/// equals the render's next pass, the clip index stores each sound by its name and only its schema fields, and the clip
-/// loader rejects path and format mismatches and a request for an effect its bank context cannot render. The catalog
-/// rendered from is the audio's import data (#1693).
+/// equals the render's next pass, the clip index stores each sound once (#2057), by its name and only its schema fields,
+/// and the clip loader rejects path and format mismatches. The catalog rendered from is the audio's import data (#1693).
 /// </summary>
 internal static class AudioClipExportVerification
 {
@@ -56,10 +55,7 @@ internal static class AudioClipExportVerification
                 catalog,
                 scratch.FullName,
                 music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
-                music ? [] : [
-                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, SoundEffectCommands.Command(effect))),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Enemies, SoundEffectCommands.Command(EnemySound.EtecoonTheme)),
-                ]);
+                music ? [] : [.. effects.Select(effect => new AudioClipExporter.SoundEffectKey(effect.Library, SoundEffectCommands.Command(effect)))]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             if (independentMusic is not null)
             {
@@ -72,13 +68,11 @@ internal static class AudioClipExportVerification
                 return;
             }
             VerifyStoredSoundEffectFields(Path.Combine(scratch.FullName, InstalledAudioClips.ManifestFileName));
+            AssertEqual(effects.Length, clips.Manifest.SoundEffects.Count, "each effect is exported once");
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(clips, effect);
-            AssertThrows<InvalidDataException>(
-                () => clips.Clips.GetSoundEffect(MusicDataSet.EmptyCrateria, EnemySound.EtecoonTheme),
-                "an effect whose sample the bank context lacks fails loudly");
             Console.WriteLine(
-                "  Effect clip export: three effects equal an independent render; an effect its bank context cannot render fails loudly.");
+                "  Effect clip export: three effects are exported once each, the Etecoons' theme among them, from the shared sounds.");
         }
         finally
         {
@@ -130,8 +124,7 @@ internal static class AudioClipExportVerification
     /// <summary>An effect's clip entry ends exactly when it stops sounding, unless it repeats forever.</summary>
     private static void VerifySoundEffect(InstalledClipAudioLibrary clips, SoundEffectId effect)
     {
-        InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate =>
-            candidate.Context == MusicDataSet.GreenBrinstar && candidate.Sound == effect);
+        InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate => candidate.Sound == effect);
         AssertEqual(effect == RoomSound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
 
@@ -230,7 +223,7 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>
-    /// Confirms the index stores itself, each sound effect, layer, clip and unrenderable effect as exactly its schema
+    /// Confirms the index stores itself, each sound effect, layer and clip as exactly its schema
     /// fields: the game's views the records convert to are not written beside them (a stored <c>layer</c> copy changed
     /// the receipt in #1503), and no source catalog identity, clip digest, request number or instrument source is
     /// written (#1693). Each sound is stored by its name.
@@ -238,12 +231,12 @@ internal static class AudioClipExportVerification
     private static void VerifyStoredSoundEffectFields(string manifestPath)
     {
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(manifestPath));
-        string[] indexFields = ["formatVersion", "sampleRate", "initialBeat", "music", "soundEffects", "unrenderable"];
-        string[] effectFields = ["context", "sound", "policy", "activeFrames", "layers"];
-        // A layer no longer records the voices it was rendered from: only layer replacement read them (#1533).
-        string[] layerFields = ["clip", "loopStart", "noteStarts"];
+        string[] indexFields = ["formatVersion", "sampleRate", "initialBeat", "music", "soundEffects"];
+        string[] effectFields = ["sound", "policy", "activeFrames", "layers"];
+        // A layer no longer records the voices it was rendered from: only layer replacement read them (#1533). Nor does it
+        // record its note starts, which only the clip-set switch's re-key read (#2057).
+        string[] layerFields = ["clip", "loopStart"];
         string[] clipFields = ["path", "frames"];
-        string[] unrenderableFields = ["context", "sound"];
         AssertTrue(manifest.RootElement.EnumerateObject().Select(field => field.Name).SequenceEqual(indexFields),
             "the stored index holds exactly its schema fields");
         foreach (JsonElement effect in manifest.RootElement.GetProperty("soundEffects").EnumerateArray())
@@ -258,11 +251,6 @@ internal static class AudioClipExportVerification
                     "a stored clip holds exactly its path and length");
             }
         }
-        JsonElement[] unrenderable = [.. manifest.RootElement.GetProperty("unrenderable").EnumerateArray()];
-        AssertEqual(1, unrenderable.Length, "the Etecoons' theme is the one effect its Empty Crateria context cannot render");
-        AssertTrue(unrenderable[0].EnumerateObject().Select(field => field.Name).SequenceEqual(unrenderableFields),
-            "a stored unrenderable effect holds exactly its schema fields");
-        AssertEqual("EnemySound.EtecoonTheme", unrenderable[0].GetProperty("sound").GetString(), "an unrenderable effect is stored by its sound's name");
         AssertTrue(manifest.RootElement.GetProperty("soundEffects").EnumerateArray()
                 .Any(effect => effect.GetProperty("sound").GetString() == "SamusSound.UnchargedPowerBeam"),
             "a sound effect is stored by its sound's name");

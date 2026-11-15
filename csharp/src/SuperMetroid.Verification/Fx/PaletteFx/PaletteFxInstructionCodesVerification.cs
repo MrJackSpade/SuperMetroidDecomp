@@ -123,6 +123,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             paletteFx.Start(definitionPointer, 0);
             for (int step = 0;
                  step < NintendoLogoFadePaletteFxColorDefinitions.CycleFrames;
@@ -154,6 +155,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -198,6 +200,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -260,6 +263,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -307,6 +311,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             paletteFx.Start(definitionPointer, 0);
             for (int step = 0;
                  step <= ZebesExplosionWhiteoutPaletteFxColorDefinitions.CycleFrames;
@@ -335,6 +340,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -365,6 +371,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -395,6 +402,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -458,6 +466,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             paletteFx.Start(definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
                 StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
@@ -480,6 +489,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.CycleFrames; step++)
             StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
@@ -500,6 +510,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         paletteFx.Start(
             OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
@@ -534,6 +545,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             paletteFx.Start(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step <= TourianEscapeSharedRedFlashPaletteFxColorDefinitions.CycleFrames;
@@ -565,6 +577,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         var cgram = new SnesCgram();
         paletteFx.Start(
             BeaconPaletteFxColorDefinitions.DefinitionPointer,
@@ -625,6 +638,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             var cgram = new SnesCgram();
             paletteFx.Start(definition, equippedItems: 0);
             for (int step = 0;
@@ -666,6 +680,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         var cgram = new SnesCgram();
         const ushort definition =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
@@ -702,6 +717,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             paletteFx.Start(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step < TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion;
@@ -735,6 +751,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
+            paletteFx.BindAudioRequests(new GameplayAudioRequests());
             var cgram = new SnesCgram();
             paletteFx.Start(definition, equippedItems: 0);
             int steps = 1 +
@@ -819,6 +836,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         var cgram = new SnesCgram();
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99 };
         paletteFx.Start(definition: 0xf761, equippedItems: 0);
@@ -1486,6 +1504,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
+        paletteFx.BindAudioRequests(new GameplayAudioRequests());
         var cgram = new SnesCgram();
         paletteFx.Start(definition: 0xf781, equippedItems: 0);
 

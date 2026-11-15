@@ -252,6 +252,7 @@ internal static class LookupStream2Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
             var actual = new ColourEffectSystem(actualSession);
+            actual.BindAudioRequests(new GameplayAudioRequests());
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);

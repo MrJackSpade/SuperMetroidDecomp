@@ -321,8 +321,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                         MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
                     audio.ScheduleMusic(
                         MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
-                        MusicQueueDelay.AtLeastShortest(
-                            IntroCinematicDefinitions.Music.SceneTrackDelay));
+                        IntroCinematicDefinitions.Music.SceneTrackDelay);
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
                 }
                 break;
@@ -1179,8 +1178,7 @@ level, samus, frameCounter);
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
         audio.ScheduleMusic(
             MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.IntroductionSong),
-            MusicQueueDelay.AtLeastShortest(
-                IntroCinematicDefinitions.Music.SceneTrackDelay));
+            IntroCinematicDefinitions.Music.SceneTrackDelay);
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
     }
 

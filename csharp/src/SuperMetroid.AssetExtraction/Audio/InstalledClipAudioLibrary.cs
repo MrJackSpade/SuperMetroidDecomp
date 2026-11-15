@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Audio;
 
@@ -11,9 +10,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 public sealed class InstalledClipAudioLibrary
 {
-    /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
-    private const int UpdatesPerSecond = 60;
-
     /// <summary>
     /// Creates a catalog over <paramref name="manifest"/>, whose clips <paramref name="source"/> supplies;
     /// <paramref name="contentIdentity"/> identifies the selected audio.
@@ -27,7 +23,7 @@ public sealed class InstalledClipAudioLibrary
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
     {
         Clips = new ClipAudioLibrary(Validated(manifest).InitialBeat, manifest.Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())],
-            manifest.Unrenderable, source);
+            source);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;
         ContentIdentity = contentIdentity;
@@ -49,7 +45,7 @@ public sealed class InstalledClipAudioLibrary
     private static AudioClipManifest Validated(AudioClipManifest manifest)
     {
         Ensure.NotNull(manifest);
-        if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
+        if (manifest.SampleRate != AudioSession.SampleRate)
             throw new InvalidDataException($"Audio clip manifest has rate {manifest.SampleRate}.");
         if (manifest.InitialBeat is null)
             throw new InvalidDataException("Audio clip manifest gives no beat length before any song has played.");
@@ -64,7 +60,7 @@ public sealed class InstalledClipAudioLibrary
         foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
         {
             if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
-                throw new InvalidDataException($"Never-ending {entry.Sound} in {ContextName(entry.Context)} has no layers.");
+                throw new InvalidDataException($"Never-ending {entry.Sound} has no layers.");
             foreach (InstalledSoundEffectLayer layer in entry.Layers)
             {
                 ValidateClip(layer.Clip);
@@ -72,7 +68,7 @@ public sealed class InstalledClipAudioLibrary
                     layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
                 {
                     throw new InvalidDataException(
-                        $"{entry.Sound} in {ContextName(entry.Context)} has inconsistent loop bounds.");
+                        $"{entry.Sound} has inconsistent loop bounds.");
                 }
             }
         }
@@ -85,7 +81,4 @@ public sealed class InstalledClipAudioLibrary
         if (clip.Frames <= 0)
             throw new InvalidDataException($"Audio clip '{clip.Path}' has {clip.Frames} frames.");
     }
-
-    /// <summary>A data set's name in diagnostics.</summary>
-    private static string ContextName(MusicDataSet? context) => context?.ToString() ?? "the shared sounds";
 }

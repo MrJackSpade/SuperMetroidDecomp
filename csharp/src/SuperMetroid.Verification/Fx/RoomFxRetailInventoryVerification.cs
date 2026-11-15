@@ -267,6 +267,7 @@ internal static class RoomFxRetailInventoryVerification
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
+        actual.BindAudioRequests(new GameplayAudioRequests());
         AssertEqual(expectedRecord,
             RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, EntryDoor(doorPointer)),
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
@@ -419,6 +420,7 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new RgbColor[SnesCgram.ColorCount];
         var fxSession = new RoomFxSession();
         var fx = RoomFxOverlayState.ForRoom(fxSession, room.State.Fx, door: null, randomNumber: 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -738,6 +740,7 @@ internal static class RoomFxRetailInventoryVerification
             door,
             randomNumber: 0,
             room: room.Definition);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room.Name} rising FX type");
         AssertEqual(definition.InitialY, fx.NamedBaseY.Whole,
             $"room {definition.Room.Name} initial lava Y");
@@ -930,6 +933,7 @@ internal static class RoomFxRetailInventoryVerification
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
 
         int maximumAbsoluteOffset = 0;
@@ -971,6 +975,7 @@ internal static class RoomFxRetailInventoryVerification
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = new RoomFxSession();
         var fx = RoomFxOverlayState.ForRoom(fxSession, visibleRoom.State.Fx, door: null, randomNumber: 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
@@ -978,12 +983,14 @@ internal static class RoomFxRetailInventoryVerification
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
         fx = RoomFxOverlayState.ForRoom(fxSession, fx: null, door: null, randomNumber: 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
         fx = RoomFxOverlayState.ForRoom(fxSession, hiddenRoom.State.Fx, door: null, randomNumber: 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         ushort[] hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });

@@ -214,8 +214,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                     audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Credits));
                     audio.ScheduleMusic(
                         MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.CreditsSong),
-                        MusicQueueDelay.AtLeastShortest(
-                            EndingSequenceDefinitions.Music.DelayArgument));
+                        EndingSequenceDefinitions.Music.CreditsSongDelay);
                     Stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
                 }
                 break;
@@ -411,9 +410,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
 
         // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
+        // The screen binds no audio requests, so an effect that made a sound would fail loudly (#2057).
         Stage.ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        if (Stage.ColourEffects.AudioRequests.SoundRequests.Count != 0)
-            throw new InvalidDataException("An ending colour effect requested an unhandled sound.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-started colour effects when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))

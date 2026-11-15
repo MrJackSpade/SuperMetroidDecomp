@@ -350,6 +350,7 @@ internal static class NoobTubeObjectVerification
         var roomFxSession = new RoomFxSession();
         var roomFx = RoomFxOverlayState.ForRoom(roomFxSession, RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
+        roomFx.BindAudioRequests(new GameplayAudioRequests());
         return roomFx;
     }
 

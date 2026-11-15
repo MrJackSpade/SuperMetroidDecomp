@@ -9,8 +9,8 @@ public static class AudioQueueDefinitions
     /// <summary>Sound-queue passes after a track change or a data set change during which every library's request is withdrawn.</summary>
     public const int MusicChangeSoundDowntimePasses = 8;
 
-    /// <summary>Music-queue passes a permanent item's fanfare plays before the queued stop; the room's track follows eight passes later.</summary>
-    public const int PermanentItemFanfareFrames = 360;
+    /// <summary>How long a permanent item's fanfare plays before the queued stop: 360 music-queue passes; the room's track follows eight passes later.</summary>
+    public static MusicQueueDelay PermanentItemFanfareDelay { get; } = new(360);
 
     /// <summary>The song a permanent item's fanfare plays.</summary>
     public const MusicTrack PermanentItemTrack = MusicTrack.ItemFanfare;

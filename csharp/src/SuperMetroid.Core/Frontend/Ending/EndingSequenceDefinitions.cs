@@ -15,8 +15,8 @@ public static class EndingSequenceDefinitions
         /// <summary>The song the ending selects once the credits' music has loaded.</summary>
         public const MusicTrack CreditsSong = MusicTrack.Credits;
 
-        /// <summary>The delayed-music argument fourteen, which the music queue's delay conversion reads rather than counting frames.</summary>
-        public const int DelayArgument = 14;
+        /// <summary>How long the credits' song waits on the music queue: fourteen passes.</summary>
+        public static MusicQueueDelay CreditsSongDelay { get; } = new(14);
     }
 
     /// <summary>Whole-hour thresholds selecting the suitless, helmetless or fully armored Samus reward.</summary>

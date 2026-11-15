@@ -15,7 +15,7 @@ internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets
     /// <summary>The emulated driver rendering the events.</summary>
     private readonly ManagedSpcAudioBackend backend = new(assets);
 
-    /// <summary>The most recent update's interleaved 48-kHz PCM; silence before the first.</summary>
+    /// <summary>The most recent update's interleaved PCM at the session's rate; silence before the first.</summary>
     private readonly short[] lastPcm = new short[AudioSession.PcmSamplesPerFrame];
 
     /// <summary>The acknowledgement bytes the most recent update published.</summary>

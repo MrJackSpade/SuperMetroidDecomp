@@ -8,8 +8,8 @@ internal static class CeresFlightSceneDefinitions
 {
     /// <summary>The song that starts with the flight.</summary>
     internal const MusicTrack FlightSong = MusicTrack.CeresFlight;
-    /// <summary>The queue delay the flight's track is requested with.</summary>
-    internal const int MusicDelay = 14;
+    /// <summary>How long the flight's track waits on the music queue: fourteen passes.</summary>
+    internal static MusicQueueDelay MusicDelay { get; } = new(14);
 
     /// <summary>
     /// The gunship engine's flickering colours on the rear view's floor, started as the rear view is set up, just before the

@@ -745,6 +745,7 @@ internal static class EnemyTrigonometryVerification
         if (definitionsOnly) return;
         var tideSession = new RoomFxSession();
         var tide = new RoomFxOverlayState(tideSession);
+        tide.BindAudioRequests(new GameplayAudioRequests());
         var step = new Action(tide.StepLiquidTide);
         // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide.
         foreach (LiquidTide option in Enum.GetValues<LiquidTide>())

@@ -64,8 +64,10 @@ internal static class RoomPaletteFxPresentationVerification
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
         var native = new ColourEffectSystem(nativeSession);
+        native.BindAudioRequests(new GameplayAudioRequests());
         var installedSession = new ColourEffectSessionState();
         var installed = new ColourEffectSystem(installedSession);
+        installed.BindAudioRequests(new GameplayAudioRequests());
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -237,8 +239,10 @@ internal static class RoomPaletteFxPresentationVerification
             var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession);
+            native.BindAudioRequests(new GameplayAudioRequests());
             var installedSession = new ColourEffectSessionState();
             var installed = new ColourEffectSystem(installedSession);
+            installed.BindAudioRequests(new GameplayAudioRequests());
             ushort equipment = definition.Suit switch
             {
                 ColourEffectHeatSuit.Power => 0,
@@ -293,8 +297,10 @@ internal static class RoomPaletteFxPresentationVerification
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession);
+            native.BindAudioRequests(new GameplayAudioRequests());
             var installedSession = new ColourEffectSessionState();
             var installed = new ColourEffectSystem(installedSession);
+            installed.BindAudioRequests(new GameplayAudioRequests());
             StartFamily(native, shape, definition);
             StartFamily(installed, shape, definition);
             var nativeCgram = new SnesCgram();
@@ -356,8 +362,10 @@ internal static class RoomPaletteFxPresentationVerification
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession);
+            native.BindAudioRequests(new GameplayAudioRequests());
             var installedSession = new ColourEffectSessionState();
             var installed = new ColourEffectSystem(installedSession);
+            installed.BindAudioRequests(new GameplayAudioRequests());
             native.Start(definition, equippedItems: 0);
             installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -409,8 +417,10 @@ internal static class RoomPaletteFxPresentationVerification
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
         var native = new ColourEffectSystem(nativeSession);
+        native.BindAudioRequests(new GameplayAudioRequests());
         var installedSession = new ColourEffectSessionState();
         var installed = new ColourEffectSystem(installedSession);
+        installed.BindAudioRequests(new GameplayAudioRequests());
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {

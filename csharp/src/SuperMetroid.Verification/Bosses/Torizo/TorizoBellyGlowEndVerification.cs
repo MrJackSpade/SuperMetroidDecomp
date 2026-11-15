@@ -81,6 +81,7 @@ internal static class TorizoBellyGlowEndVerification
         AssertTrue(ReferenceEquals(state, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
 
         var fx = new ColourEffectSystem(new ColourEffectSessionState());
+        fx.BindAudioRequests(new GameplayAudioRequests());
         fx.StartTorizoBellyGlow(request.Glow, request.Torizo, equippedItems: 0);
         var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         bool originalEnded = false;

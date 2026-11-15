@@ -3,22 +3,20 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// The installed pre-rendered audio's index (#1305): every music track and every sound effect in every data set, each
+/// The installed pre-rendered audio's index (#1305): every music track of every data set and every sound effect, each
 /// with its clip files. The catalog the clips were rendered from is the import's data and is not installed (#1693).
 /// </summary>
 /// <param name="FormatVersion">Must equal <see cref="CurrentFormatVersion"/>.</param>
 /// <param name="SampleRate">The clips' rate in stereo frames per second: 32,040, one update's clock samples sixty times.</param>
 /// <param name="InitialBeat">How long the music's beat lasts at power-on, before any song has played.</param>
 /// <param name="Music">One clip per song of each clip set.</param>
-/// <param name="SoundEffects">One entry per renderable (data set, effect).</param>
-/// <param name="Unrenderable">The (data set, effect) pairs with no clip.</param>
+/// <param name="SoundEffects">One entry per sound effect.</param>
 public sealed record AudioClipManifest(
     int FormatVersion,
     int SampleRate,
     BeatLength InitialBeat,
     IReadOnlyList<MusicClipEntry> Music,
-    IReadOnlyList<InstalledSoundEffectClip> SoundEffects,
-    IReadOnlyList<UnrenderableSoundEffect> Unrenderable)
+    IReadOnlyList<InstalledSoundEffectClip> SoundEffects)
 {
     /// <summary>
     /// The manifest schema this build reads and writes. Version 2 (#1553) names each song by its part in its data set
@@ -28,7 +26,9 @@ public sealed record AudioClipManifest(
     /// clip frames: the power-on beat and each tempo segment hold how long the beat lasts, where version 3 held the sound
     /// driver's tempo values, and each sound-effect layer lists its note starts as <c>noteStarts</c>. Version 5 (#1749) records no voice count in a
     /// sound's policy. Version 6 (#1748) names each song for what it is, where version 5 named its part in its data set,
-    /// and names the boss data sets for their content.
+    /// and names the boss data sets for their content. Version 7 (#2057) holds each sound effect once, rendered from the
+    /// shared sounds' samples, where version 6 held one per data set and the sounds a data set could not render, and
+    /// records no note starts.
     /// </summary>
-    public const int CurrentFormatVersion = 6;
+    public const int CurrentFormatVersion = 7;
 }

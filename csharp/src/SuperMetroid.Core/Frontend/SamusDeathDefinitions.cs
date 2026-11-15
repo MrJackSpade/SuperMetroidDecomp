@@ -6,6 +6,9 @@ internal static class SamusDeathDefinitions
     /// <summary>The death fanfare, selected after every sound and the current music stop.</summary>
     public const MusicTrack FanfareTrack = MusicTrack.SamusDeath;
 
+    /// <summary>How long the death fanfare waits on the music queue: fourteen passes.</summary>
+    public static MusicQueueDelay FanfareDelay { get; } = new(14);
+
     /// <summary>The steps of the gradual colour change in which the display fades to black as Samus dies.</summary>
     public const int FadeDenominator = 6;
 }

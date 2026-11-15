@@ -34,6 +34,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
         fx = RoomFxOverlayState.ForRoom(session, null, null, 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         system.SetRandomNumber(0x1234);
         fx.AdvanceLiquidMotion(system, false);
         fx.AdvanceLiquidMotion(system, false);

@@ -62,8 +62,10 @@ internal static class RoomFxRecordDefinitionsVerification
         RoomFxOverlayState compiledFx;
         nativeFx = RoomFxOverlayState.ForRoom(nativeFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
+        nativeFx.BindAudioRequests(new GameplayAudioRequests());
         compiledFx = RoomFxOverlayState.ForRoom(compiledFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
+        compiledFx.BindAudioRequests(new GameplayAudioRequests());
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");

@@ -60,13 +60,13 @@ internal static class FileSelectCaptureComparison
             throw new InvalidDataException("Expected one audible file selection in this reset-origin journal.");
         // A quarter-second window beginning at actual PCM onset isolates the swoosh
         // from later option-screen actions. Do not align using silence before onset.
-        int length = Math.Min(12000, expected.Count - firstDifference);
+        int length = Math.Min(AudioSession.SampleRate / 4, expected.Count - firstDifference);
         var target = expected.GetRange(firstDifference, length).ToArray();
         var absent = control.GetRange(firstDifference, length).ToArray();
         double[] captured = ReadWave(wavePath);
         var best = Find(captured, target);
         double absentScore = Correlation(captured, absent, best.Offset, 1);
-        Console.WriteLine($"PCM onset={firstDifference / 48000.0:F6}s; capture offset={best.Offset / 48000.0:F6}s; window={length / 48000.0:F3}s");
+        Console.WriteLine($"PCM onset={firstDifference / (double)AudioSession.SampleRate:F6}s; capture offset={best.Offset / (double)AudioSession.SampleRate:F6}s; window={length / (double)AudioSession.SampleRate:F3}s");
         Console.WriteLine($"Correlation: with swoosh={best.Score:F6}; suppressed at same offset={absentScore:F6}");
         return 0;
     }
@@ -126,7 +126,7 @@ score = candidate;
         return a == 0 || b == 0 ? 0 : dot / Math.Sqrt(a * b);
     }
 
-    /// <summary>Reads a 48 kHz stereo PCM16 WAV and averages each pair into a mono comparison sample.</summary>
+    /// <summary>Reads a stereo PCM16 WAV at the session's rate and averages each pair into a mono comparison sample.</summary>
     private static double[] ReadWave(string path)
     {
         using var reader = new BinaryReader(File.OpenRead(path));
@@ -143,13 +143,13 @@ score = candidate;
             if (end > reader.BaseStream.Length) throw new InvalidDataException("Truncated WAV chunk.");
             if (tag == "fmt " && size >= 16)
             {
-                supported = reader.ReadUInt16() == 1 && reader.ReadUInt16() == 2 && reader.ReadUInt32() == 48000;
+                supported = reader.ReadUInt16() == 1 && reader.ReadUInt16() == 2 && reader.ReadUInt32() == AudioSession.SampleRate;
                 reader.BaseStream.Position += 6;
                 supported &= reader.ReadUInt16() == 16;
             }
             else if (tag == "data")
             {
-                if (!supported || size % 4 != 0) throw new InvalidDataException("Expected 48 kHz stereo PCM16 WAV.");
+                if (!supported || size % 4 != 0) throw new InvalidDataException($"Expected {AudioSession.SampleRate} Hz stereo PCM16 WAV.");
                 var samples = new double[size / 4];
                 for (int i = 0; i < samples.Length; i++) samples[i] = (reader.ReadInt16() + reader.ReadInt16()) * 0.5;
                 return samples;

@@ -633,6 +633,7 @@ internal static class RoomObjectPopulationVerification
         {
             var fxSession = new RoomFxSession();
             var fx = new RoomFxOverlayState(fxSession);
+            fx.BindAudioRequests(new GameplayAudioRequests());
             fx.SetLiquidLevel(baseY);
             if (targetY is int target)
                 fx.MoveLiquidTo(target, new SignedEightEight(velocity), timer);

@@ -26,6 +26,7 @@ internal static class NorfairGlowVerification
         {
             var fxSession = new ColourEffectSessionState();
             var fx = new ColourEffectSystem(fxSession);
+            fx.BindAudioRequests(new GameplayAudioRequests());
             var colors = new SnesCgram();
             fx.Start(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;

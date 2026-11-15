@@ -115,6 +115,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         var cgram = new SnesCgram();
         fx.Start(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
@@ -208,6 +209,7 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new ColourEffectSessionState();
             var fx = new ColourEffectSystem(fxSession);
+            fx.BindAudioRequests(new GameplayAudioRequests());
             var cgram = new SnesCgram();
             fx.Start(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -243,6 +245,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.Start(program.DefinitionPointer, 0);
         for (int tick = 0; tick <= 80; tick++)
@@ -309,7 +312,9 @@ internal static class LookupStream4Verification
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
+            native.BindAudioRequests(new GameplayAudioRequests());
                                                                  var installed = new ColourEffectSystem(installedSession);
+                                                                 installed.BindAudioRequests(new GameplayAudioRequests());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -353,7 +358,9 @@ internal static class LookupStream4Verification
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
+            native.BindAudioRequests(new GameplayAudioRequests());
                                                                  var installed = new ColourEffectSystem(installedSession);
+                                                                 installed.BindAudioRequests(new GameplayAudioRequests());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -1951,6 +1958,7 @@ internal static class LookupStream4Verification
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
                 var liquid = new RoomFxOverlayState(new RoomFxSession());
+                liquid.BindAudioRequests(new GameplayAudioRequests());
                 enemies.RoomFx.BindRoomFx(liquid);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)

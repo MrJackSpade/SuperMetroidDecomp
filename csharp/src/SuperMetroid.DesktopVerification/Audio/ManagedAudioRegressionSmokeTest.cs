@@ -17,9 +17,9 @@ namespace SuperMetroid.DesktopVerification.Audio;
 /// </summary>
 public static class ManagedAudioRegressionSmokeTest
 {
-    /// <summary>Digest of the signed stereo PCM emitted by the pinned corpus; re-recorded when key-on began restarting the S-DSP interpolation position and envelope counter (#1305).</summary>
+    /// <summary>Digest of the signed stereo PCM emitted by the pinned corpus; re-recorded at the session's PCM rate, the driver's native frames (#2057).</summary>
     private const string ExpectedPcmSha256 =
-        "A2B82D8FE135588F9CCF562AD2E8497512B12AAF654036DC4500E3E86564E226";
+        "32682F22299F1737CF7536D2B99E0D823224EEC3645BC3E9F86B81F72404E19D";
     /// <summary>Digest of all four APU acknowledgement ports after each corpus frame.</summary>
     private const string ExpectedAcknowledgementSha256 =
         "35436A1DFC6846D7A00EBD58CF2F51CB16BCCB197F8B56ACE433CE2F85DAFE99";

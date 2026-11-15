@@ -42,10 +42,9 @@ internal static class AudioVerification
             "a track request names its track");
         AssertTrue(MusicRequest.Stop is MusicRequest.StopMusic, "the stop request");
         AssertEqual(MusicRequest.Stop, MusicRequest.SelectTrackOrStop(null), "no track stops the music");
-        AssertEqual(8, MusicQueueDelay.AtLeastShortest(0).Updates,
-            "music delay applies native minimum");
-        AssertEqual(0x0168, MusicQueueDelay.AtLeastShortest(0x0168).Updates,
-            "music delay preserves longer countdown");
+        AssertEqual(8, MusicQueueDelay.Shortest.Updates, "the shortest music delay");
+        AssertEqual(360, AudioQueueDefinitions.PermanentItemFanfareDelay.Updates,
+            "a permanent item's fanfare plays for its named delay");
         // #1553: a track is a name, so the stop has no track number; the import codec rejects a number no song has.
         AssertThrows<InvalidDataException>(
             () => MusicTrackNumbers.Decode(MusicDataSet.TitleSequence, 0),

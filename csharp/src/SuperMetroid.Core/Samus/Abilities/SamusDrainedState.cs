@@ -101,11 +101,11 @@ public sealed class SamusDrainedState
     /// it after movement and immediately before animation, so a written timer of one is
     /// decremented and the selected art begins advancing in that same movement phase.
     /// </summary>
-    public bool RunGetUpCheck(SamusState samus, ControllerButton newlyPressedInput)
+    public bool RunGetUpCheck(SamusState samus, GameplayAction newlyPressedInput)
     {
         Ensure.NotNull(samus);
-        ControllerButton newlyPressed = newlyPressedInput;
-        if (!newlyPressed.HasAny(ControllerButton.Up))
+        GameplayAction newlyPressed = newlyPressedInput;
+        if (!newlyPressed.HasAny(GameplayAction.Up))
             return false;
 
         if (GetUpCheck == DrainedGetUpCheck.AbleToStand &&

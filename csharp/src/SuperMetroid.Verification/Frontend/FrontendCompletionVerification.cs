@@ -58,16 +58,15 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         physicalButton: ControllerButton.R);
     AssertEqual(ControllerButton.R, swapped.Shoot, "controller swap assigns requested button");
     AssertEqual(ControllerButton.X, swapped.AimUp, "controller swap preserves permutation");
-    ControllerButton normalized = swapped.Normalize(
-        (ControllerButton.R | ControllerButton.X | ControllerButton.Left | ControllerButton.Right |
-                 ControllerButton.Start));
-    AssertTrue((normalized & ControllerButton.X) != 0,
-        "physical remapped Shoot becomes canonical Shoot");
-    AssertTrue((normalized & ControllerButton.R) != 0,
-        "displaced physical button becomes canonical Aim Up");
-    AssertTrue((normalized & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Start)) ==
-               (ControllerButton.Left | ControllerButton.Right | ControllerButton.Start),
-        "opposed fixed directions and Start survive binding normalization");
+    GameplayAction actions = swapped.ToActions(
+        ControllerButton.R | ControllerButton.X | ControllerButton.Left | ControllerButton.Right | ControllerButton.Start);
+    AssertEqual(
+        GameplayAction.Shoot | GameplayAction.AimUp | GameplayAction.Left | GameplayAction.Right | GameplayAction.Start,
+        actions,
+        "the remapped Shoot button reads as Shoot, the displaced button as Aim Up, and the opposed directions and Start as themselves");
+    AssertEqual(GameplayAction.Shoot, swapped.ToActions(ControllerButton.R),
+        "the button bound to Shoot reads as Shoot alone");
+    AssertEqual(GameplayAction.None, swapped.ToActions(ControllerButton.None), "no button reads as no action");
 
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
     // Five independent all-blank pages are enough to exercise the state machine. The

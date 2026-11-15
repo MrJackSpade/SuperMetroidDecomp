@@ -50,7 +50,7 @@ internal static class MetroidBombPlacementVerification
         int firstExplosion = -1, detached = -1;
         for (int frame = 0; frame < 120; frame++)
         {
-            ControllerButton input = frame == 0 ? ControllerButton.X : 0;
+            GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
             bombs.StepFrame(new SamusTerrain { Level = assets.LevelData }, samus, input, input);
             if (firstExplosion < 0 && bombs.Bombs.Any(b => !b.Type.IsNone && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });

@@ -458,7 +458,7 @@ internal static class SamusGroundedPoseTransitions
     /// first publish the generic standing turn; the initializer indexes the previous pose's shot
     /// direction through the grounded turn table and may replace it with an aimed standing turn.
     /// </summary>
-    public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, ControllerButton controllerInput = ControllerButton.None)
+    public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, GameplayAction controllerInput = GameplayAction.None)
     {
 
         // Gives the two front-view poses a deliberately unusual route.
@@ -509,7 +509,7 @@ internal static class SamusGroundedPoseTransitions
         // The turn's jump check reads held Jump, not a fresh press. Releasing Shoot from a buffered
         // Moonwalk selects a generic turn in the input table, then reaches this same
         // turn/jump initializer without a new Jump edge.
-        if (wasMoonwalking && (controllerInput & ControllerButton.A) != ControllerButton.None)
+        if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
             ApplyMoonwalkTurnJump(samus, turnsLeft
                 ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose);

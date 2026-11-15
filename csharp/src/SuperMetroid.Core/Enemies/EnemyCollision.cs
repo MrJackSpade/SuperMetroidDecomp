@@ -79,7 +79,7 @@ internal sealed class EnemyCollision
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         RoomLevelData? level = null,
         RoomEnemySlot? onlyEnemy = null,
         Position16<RoomPixels> camera = default)

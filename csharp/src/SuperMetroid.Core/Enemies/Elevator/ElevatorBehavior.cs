@@ -89,7 +89,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>
     /// Publishes the elevator's pseudo-door collision before the next enemy pass.
     /// Repeated collision scans may set the same status again; the waiting AI clears it when
-    /// the direction button is not newly pressed, exactly like the elevator's waiting step.
+    /// the direction is not newly pressed, exactly like the elevator's waiting step.
     /// </summary>
     public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 
@@ -152,7 +152,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         RoomEnemySlot slot,
         ElevatorEnemyState state,
         SamusState? samus,
-        ControllerButton newlyPressedControllerInput,
+        GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
         if (ElevatorDoorTransitionActive ||
@@ -199,10 +199,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         RoomEnemySlot slot,
         ElevatorEnemyState state,
         SamusState samus,
-        ControllerButton newlyPressedControllerInput,
+        GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
-        ControllerButton requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[state.Direction];
+        GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[state.Direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
             ElevatorFlags = ElevatorJourneyFlag.None;

@@ -28,7 +28,7 @@ internal static class TorizoInitializationDefinitionsVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            Action<RoomEnemySlot, SamusState?, ControllerButton> initializeWithInput = enemies.TorizoBehavior.Movement.InitializeTorizo;
+            Action<RoomEnemySlot, SamusState?, GameplayAction> initializeWithInput = enemies.TorizoBehavior.Movement.InitializeTorizo;
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);

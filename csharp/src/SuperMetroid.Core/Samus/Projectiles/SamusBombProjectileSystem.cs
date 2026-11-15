@@ -123,7 +123,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public void AdvancePowerBombExplosion(
         SamusState samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         SuperMetroid.Core.Progression.SuperMetroidGameState gameState = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(samus);
@@ -144,7 +144,6 @@ public sealed class SamusBombProjectileSystem
                 samus.CrystalFlash.TryBegin(
                     samus,
                     controllerInput,
-                    ControllerButton.X,
                     inputCheck: CrystalFlashInputCheck.Required);
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
@@ -160,7 +159,7 @@ public sealed class SamusBombProjectileSystem
     /// overlap pass that the main gameplay loop invokes before the movement phase: <see cref="RunHudProducer"/>,
     /// then <see cref="HandleBombs"/>.
     /// </summary>
-    public void StepFrame(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
+    public void StepFrame(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -176,7 +175,7 @@ public sealed class SamusBombProjectileSystem
     /// cooldown, then the morph ball's bomb producer.
     /// </summary>
     /// <returns>Whether the producer consumed the beam charge.</returns>
-    public bool RunHudProducer(SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput)
+    public bool RunHudProducer(SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
 
@@ -391,15 +390,15 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb place.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
-        ControllerButton controllerInput,
-        ControllerButton controllerNewInput,
+        GameplayAction controllerInput,
+        GameplayAction controllerNewInput,
         out bool rejectedPlacementClearedCharge)
     {
         rejectedPlacementClearedCharge = false;
         // Placement starts while Shoot is held; reserving the bomb, for either kind, then
         // also needs Shoot newly pressed.
-        const ControllerButton shoot = ControllerButton.X;
-        if ((controllerInput & shoot) == ControllerButton.None)
+        const GameplayAction shoot = GameplayAction.Shoot;
+        if ((controllerInput & shoot) == GameplayAction.None)
             return null;
 
         bool placingPowerBomb = samus.SelectedHudItem == HudItem.PowerBomb;
@@ -466,9 +465,9 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Consumes Morph Ball charge input and either continues its Down hold or emits all five spread bombs.</summary>
     private BombSpreadAdmission HandleBombSpreadInput(
         SamusState samus,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
-        bool shootHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
+        bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         if (!shootHeld)
         {
             // The outer Morph-Ball step cancels charge before testing HUD selection
@@ -490,7 +489,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
         }
 
-        if ((controllerInput & ControllerButton.Down) != ControllerButton.None &&
+        if ((controllerInput & GameplayAction.Down) != GameplayAction.None &&
             samus.BombSpreadChargeTimeoutCounter < MorphBallBombDefinitions.DownChargeTimeoutUpdates)
         {
             samus.BombSpreadChargeTimeoutCounter++;
@@ -531,9 +530,9 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing the cooldown after the first bomb.</summary>
-    private bool TryReserveBomb(ControllerButton controllerNewInput, ControllerButton shoot)
+    private bool TryReserveBomb(GameplayAction controllerNewInput, GameplayAction shoot)
     {
-        if ((controllerNewInput & shoot) == ControllerButton.None)
+        if ((controllerNewInput & shoot) == GameplayAction.None)
             return false;
 
         // The first bomb is allowed regardless of cooldown. With any active bomb,

@@ -271,7 +271,7 @@ level, right, unchecked((ushort)(frame + 1))),
     able.Drained.PutCrouchingOrFalling(able);
     AssertTrue(!able.Drained.RunGetUpCheck(able, newlyPressedInput: 0),
         "able timer handler ignores absent Up edge");
-    AssertTrue(able.Drained.RunGetUpCheck(able, newlyPressedInput: ControllerButton.Up),
+    AssertTrue(able.Drained.RunGetUpCheck(able, newlyPressedInput: GameplayAction.Up),
         "able timer handler accepts Up from E9 frame eight");
     AssertEqual(13, able.AnimationFrame, "able timer handler selects stand-up frame thirteen");
     AssertEqual(1, able.AnimationFrameTimer.RawValue, "able timer handler selects one-tick timer");
@@ -289,7 +289,7 @@ level, right, unchecked((ushort)(frame + 1))),
     unable.Drained.PutCrouchingOrFalling(unable);
     AssertEqual(DrainedGetUpCheck.UnableToStand, unable.Drained.GetUpCheck,
         "rainbow command $18 installs failed-stand timer handler");
-    AssertTrue(unable.Drained.RunGetUpCheck(unable, newlyPressedInput: ControllerButton.Up),
+    AssertTrue(unable.Drained.RunGetUpCheck(unable, newlyPressedInput: GameplayAction.Up),
         "failed-stand handler accepts Up only inside frames eight through eleven");
     AssertEqual(18, unable.AnimationFrame, "failed-stand handler selects frame eighteen");
     AssertEqual(DrainedGetUpCheck.UnableToStand, unable.Drained.GetUpCheck,
@@ -749,7 +749,7 @@ internal static void VerifySamusGrabbedByDraygon()
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
     SamusPoseTransition rightUpShoot = (SamusPoseTransitionTable.Find(
-        samus.Pose, canonicalHeldInput: ControllerButton.Up | ControllerButton.Right | ControllerButton.X, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
+        samus.Pose, heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Shoot, newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, heldActions: 0x0940, canonicalNe...."));
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, rightUpShoot.ProspectivePose);
@@ -771,11 +771,11 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0, samus.DraygonGrabbed.EscapeButtonCounter, "no D-pad edge does not count");
 
     samus.DraygonGrabbed.CheckDraygonEscape(
-        samus, newlyPressedInput: ControllerButton.Up, grappleLockedInPlace: false);
+        samus, newlyPressedInput: GameplayAction.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "first Up edge increments escape counter");
     DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.CheckDraygonEscape(
-        samus, newlyPressedInput: ControllerButton.Up, grappleLockedInPlace: false);
+        samus, newlyPressedInput: GameplayAction.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
 
@@ -789,7 +789,7 @@ internal static void VerifySamusGrabbedByDraygon()
     DraygonEscapeResult release = repeatedUp;
     for (int inputNumber = 1; inputNumber < SamusDraygonGrabbedState.EscapeButtonCounterTarget; inputNumber++)
     {
-        ControllerButton direction = (inputNumber & 1) != 0 ? ControllerButton.Down : ControllerButton.Up;
+        GameplayAction direction = (inputNumber & 1) != 0 ? GameplayAction.Down : GameplayAction.Up;
         release = samus.DraygonGrabbed.CheckDraygonEscape(
             samus, direction, grappleLockedInPlace: false);
     }
@@ -832,7 +832,7 @@ internal static void VerifySamusGrabbedByDraygon()
     {
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
         samus.EscapeAndDrainCount.StartAmmoCountdown(countLeft);
-        DraygonEscapeResult counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, ControllerButton.Up, grappleLockedInPlace: false);
+        DraygonEscapeResult counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, GameplayAction.Up, grappleLockedInPlace: false);
         AssertEqual(countLeft + 1, samus.DraygonGrabbed.EscapeButtonCounter, $"a press counts onto the {countLeft} another sequence left");
         AssertEqual(frees, counted.Released, $"a press counted onto {countLeft} {(frees ? "frees" : "does not free")} Samus");
         if (!frees)

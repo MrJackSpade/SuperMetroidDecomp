@@ -823,13 +823,13 @@ internal static void VerifySamusHurtFlashPalette()
         Pose = SamusPoseId.FacingRightNormalPose,
     }.WithBeamChargeCount(0x10).WithHurtFlashCount(39);
     SamusHurtFlash.Update(
-        samusColours, charging, ControllerButton.X);
+        samusColours, charging, GameplayAction.Shoot);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
     AssertTrue(charging.ResumeChargingBeamSoundPending,
         "charging recovery publishes native flag one");
     AssertTrue(SamusHurtFlash.ConsumeResumeChargingBeamSound(
-            charging, ControllerButton.X),
+            charging, GameplayAction.Shoot),
         "post-draw handler queues held charging sound");
     AssertTrue(!charging.ResumeChargingBeamSoundPending,
         "post-draw handler clears charging recovery flag");

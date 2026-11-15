@@ -65,7 +65,7 @@ internal static class WrapShotEnemiesVerification
             int health = enemy.Health;
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
-                ControllerButton input = frame == 0 ? ControllerButton.X : 0;
+                GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, runtime.Room.LoadedRoom.Area), "Tile alias does not redirect the projectile enemy hitbox");

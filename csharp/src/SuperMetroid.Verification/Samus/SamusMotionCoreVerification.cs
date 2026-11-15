@@ -31,45 +31,45 @@ internal static void VerifySamusPoseTransitionMatching()
 
     SamusPoseTransition jumpUp = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
-        canonicalHeldInput: ControllerButton.Up | ControllerButton.Right | ControllerButton.A,
-        canonicalNewInput: ControllerButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
+        heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Jump,
+        newlyPressedActions: GameplayAction.Jump) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: 0x098...."));
     AssertEqual(0x55, SamusPoseNumbers.Number(jumpUp.ProspectivePose), "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputs.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
-        canonicalHeldInput: (ControllerButton.Up | ControllerButton.Y),
-        canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: (usho...."));
+        heldActions: (GameplayAction.Up | GameplayAction.ItemCancel),
+        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: (usho...."));
     AssertEqual(0x03, SamusPoseNumbers.Number(up.ProspectivePose), "Samus transition permits extra held action");
 
     SamusPoseTransition right = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
-        canonicalHeldInput: ControllerButton.Right,
-        canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x010...."));
+        heldActions: GameplayAction.Right,
+        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: 0x010...."));
     AssertEqual(0x09, SamusPoseNumbers.Number(right.ProspectivePose), "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0),
+        SamusPoseTransitionTable.Find(fixturePose, heldActions: 0, newlyPressedActions: 0),
         "Samus zero input bypasses transition table");
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(
             SamusPoseId.MovingRightGunExtendedPose,
-            canonicalHeldInput: (ControllerButton.Right | ControllerButton.X),
-            canonicalNewInput: 0),
+            heldActions: (GameplayAction.Right | GameplayAction.Shoot),
+            newlyPressedActions: 0),
         "Samus same-pose transition is suppressed");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: ControllerButton.Down, canonicalNewInput: 0),
+        SamusPoseTransitionTable.Find(fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0),
         "Samus transition terminator returns no match");
 
     SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
-        fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0);
+        fixturePose, heldActions: 0, newlyPressedActions: 0);
     SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
         SamusPoseId.MovingRightGunExtendedPose,
-        canonicalHeldInput: (ControllerButton.Right | ControllerButton.X),
-        canonicalNewInput: 0);
+        heldActions: (GameplayAction.Right | GameplayAction.Shoot),
+        newlyPressedActions: 0);
     SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
-        fixturePose, canonicalHeldInput: ControllerButton.Down, canonicalNewInput: 0);
+        fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0);
     AssertTrue(zeroInput.UsesPoseDefinitionFallback,
         "Samus zero input enters pose-definition fallback");
     AssertTrue(!samePose.UsesPoseDefinitionFallback,
@@ -80,7 +80,7 @@ internal static void VerifySamusPoseTransitionMatching()
     // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
     // direct return for held input, unlike exhaustion after at least one unmatched record.
     const SamusPoseId emptyListPose = SamusPoseId.TurningRightToLeftJumpPose;
-    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, ControllerButton.A, 0).UsesPoseDefinitionFallback,
+    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, GameplayAction.Jump, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
     AssertTrue(SamusPoseTransitionTable.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
         "releasing all input still invokes fallback before reading an empty table");
@@ -145,13 +145,13 @@ internal static void VerifySamusHorizontalSpeed()
     StepFrames(32, _ =>
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
-            controllerInput: ControllerButton.B,
+            controllerInput: GameplayAction.Dash,
             speedBoosterEquipped: false));
     AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
     AssertEqual(new SamusSpeedBoostCounter(0, 0), speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
     AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash whole-speed cap");
     AssertEqual(0, speed.ExtraRunSpeed.Fraction, "ordinary Dash fractional-speed cap");
-    speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, speedBoosterEquipped: false);
+    speed.HandleExtraRunSpeed(SamusMovementType.Running, GameplayAction.Dash, speedBoosterEquipped: false);
     AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash remains clamped on next call");
 
     // B release and an airborne movement type both take `$90:9808`; a set momentum flag
@@ -172,14 +172,14 @@ internal static void VerifySamusHorizontalSpeed()
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: ControllerButton.B,
+        controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = ControllerButton.B });
+        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = ControllerButton.B });
+        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 
@@ -189,7 +189,7 @@ internal static void VerifySamusHorizontalSpeed()
     var booster = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     booster.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: ControllerButton.B,
+        controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
     AssertEqual(new SamusSpeedBoostCounter(0, 1), booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
@@ -200,7 +200,7 @@ internal static void VerifySamusHorizontalSpeed()
     {
         booster.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
-            controllerInput: ControllerButton.B,
+            controllerInput: GameplayAction.Dash,
             speedBoosterEquipped: true);
     }
     AssertEqual(7, booster.ExtraRunSpeed.Whole, "Speed Booster reaches exact 7.0000 cap");
@@ -213,7 +213,7 @@ internal static void VerifySamusHorizontalSpeed()
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             movementType: SamusMovementType.Running,
-            controllerInput: ControllerButton.B,
+            controllerInput: GameplayAction.Dash,
             animationFrameBuffer: 0,
             ref boostFrame,
             out int boostTimer,
@@ -533,7 +533,7 @@ internal static void VerifySamusExtraDisplacement()
 
         level,
         transition,
-        ControllerButton.A,
+        GameplayAction.Jump,
         frameCounter: 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(unchecked((int)0xffff8000)), transition.Kinematics.Position.X - transitionXBefore,
         "jump transition applies signed external X with zero base speed");
@@ -554,7 +554,7 @@ internal static void VerifySamusExtraDisplacement()
 
         level,
         rising,
-        ControllerButton.A,
+        GameplayAction.Jump,
         frameCounter: 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00008000), rising.Kinematics.Position.Y - risingYBefore,
         "gravity path adds external Y directly and may reverse actual direction");

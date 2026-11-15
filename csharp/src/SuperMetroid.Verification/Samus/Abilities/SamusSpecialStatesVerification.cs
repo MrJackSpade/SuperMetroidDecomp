@@ -105,7 +105,7 @@ internal static void VerifySamusCrystalFlash()
         SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(bus)));
     var beamPalettes = BeamPaletteFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.BeamPaletteExtractor.Extract(bus)));
-    const ControllerButton chord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
+    const GameplayAction chord = (GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot);
     var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
@@ -122,7 +122,7 @@ internal static void VerifySamusCrystalFlash()
     samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
     samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
     samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
-    AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | ControllerButton.A),
+    AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | GameplayAction.Jump),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(1);
@@ -433,10 +433,10 @@ internal static void VerifySamusXray()
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction: the warm-up's
     // eight updates. The eighth ends the warm-up; the next call changes X-ray state zero to one.
     for (int update = 1; update <= 8; update++)
-        standing.Xray.StepBeam(standing, ControllerButton.B);
+        standing.Xray.StepBeam(standing, GameplayAction.Dash);
     AssertTrue(standing.Xray.WarmUp.IsOver, "X-ray's eight warm-up updates complete");
     AssertEqual(XrayBeamPhase.NoBeam, standing.Xray.BeamPhase, "setup retains state zero");
-    standing.Xray.StepBeam(standing, ControllerButton.B);
+    standing.Xray.StepBeam(standing, GameplayAction.Dash);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase, "state zero starts widening");
 
     // Fixed-point acceleration reaches 10.F800 after 26 widening calls and would cross
@@ -450,7 +450,7 @@ internal static void VerifySamusXray()
     int sixteenSixteenWidth = 0;
     for (int call = 1; call <= 27; call++)
     {
-        standing.Xray.StepBeam(standing, ControllerButton.B);
+        standing.Xray.StepBeam(standing, GameplayAction.Dash);
         sixteenSixteenSpeed += sixteenSixteenStep;
         sixteenSixteenWidth += sixteenSixteenSpeed;
         bool full = sixteenSixteenWidth >> 16 >= 11;
@@ -483,10 +483,10 @@ internal static void VerifySamusXray()
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.
     standing.Xray.StepBeam(
         standing,
-        (ControllerButton.B | ControllerButton.Up | ControllerButton.Down));
+        (GameplayAction.Dash | GameplayAction.Up | GameplayAction.Down));
     AssertEqual(0x3f, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "X-ray Up wins over Down");
     for (int frame = 0; frame < 80; frame++)
-        standing.Xray.StepBeam(standing, (ControllerButton.B | ControllerButton.Up));
+        standing.Xray.StepBeam(standing, (GameplayAction.Dash | GameplayAction.Up));
     AssertEqual(10, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "right X-ray upper clamp includes width");
     AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "upper-clamped angle selects looking-up art");
@@ -500,7 +500,7 @@ internal static void VerifySamusXray()
     SamusPoseId xrayPoseBeforeTurn = standing.Pose;
     standing.Xray.HandlePoseInput(
         standing,
-        ControllerButton.Left);
+        GameplayAction.Left);
     AssertTrue(standing.Pose != xrayPoseBeforeTurn, "X-ray starts standing turn");
     AssertEqual(SamusMovementType.Standing, standing.PoseHistory.LastDifferentMovement, "X-ray turn shifts previous metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray turn publishes turning pose");
@@ -556,7 +556,7 @@ internal static void VerifySamusXray()
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched X-ray radius");
-    crouched.Xray.HandlePoseInput(crouched, ControllerButton.Left);
+    crouched.Xray.HandlePoseInput(crouched, GameplayAction.Left);
     AssertEqual(SamusPoseId.TurningRightToLeftCrouchingPose, crouched.Pose, "crouched X-ray turn pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched turn retains radius");
     for (int stage = 1; stage <= 8; stage++)
@@ -608,7 +608,7 @@ internal static void VerifySamusXray()
         "interrupted X-Mode retains normal Samus handler ownership");
     AssertEqual(XrayWarmUp.Started, interrupted.Xray.WarmUp,
         "interrupted X-Mode retains the beam's unspent warm-up");
-    interrupted.Xray.StepBeam(interrupted, ControllerButton.B);
+    interrupted.Xray.StepBeam(interrupted, GameplayAction.Dash);
     AssertEqual(XrayWarmUp.Updates - 1, interrupted.Xray.WarmUp.UpdatesLeft,
         "interrupted X-Mode continues the independent beam warm-up");
 

@@ -43,8 +43,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
             session.audio.QueueSound(SamusSound.SpinJumpEnd,
                 priority: SoundRequestPriority.Essential);
         }
-        // The door's spin-sound check tests the shot binding; the action latch holds it as X.
-        else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == ControllerButton.None &&
+        // The door's spin-sound check tests whether Shoot is held.
+        else if (!session.GameplayRuntime.Controller1.Current.HasAny(GameplayAction.Shoot) &&
             !session.GameplayRuntime.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
         {
             session.audio.QueueSound(SamusSound.Silence,

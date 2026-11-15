@@ -29,11 +29,11 @@ public static class SamusHurtFlash
     /// </summary>
     /// <param name="colours">Samus's colours, whose suit shade the flash may replace.</param>
     /// <param name="samus">Owner of the hurt counter, equipment shades, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
-    /// <param name="controllerInput">Current held buttons; X permits the deferred charging-beam sound request.</param>
+    /// <param name="controllerInput">Current held actions; Shoot permits the deferred charging-beam sound request.</param>
     public static void Update(
         SamusColours colours,
         SamusState samus,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -92,15 +92,15 @@ public static class SamusHurtFlash
     /// Consumes the pending charging-sound resume in the same post-draw position as the game's post-draw check.
     /// </summary>
     /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever set regardless of the held buttons.</param>
-    /// <param name="controllerInput">Current held buttons; X must still be held to queue the resume-charging sound.</param>
+    /// <param name="controllerInput">Current held actions; Shoot must still be held to queue the resume-charging sound.</param>
     /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
-    public static bool ConsumeResumeChargingBeamSound(SamusState samus, ControllerButton controllerInput)
+    public static bool ConsumeResumeChargingBeamSound(SamusState samus, GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
         if (!samus.ResumeChargingBeamSoundPending)
             return false;
 
-        bool queued = (controllerInput & ControllerButton.X) != ControllerButton.None;
+        bool queued = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         if (queued)
         {
             samus.LiquidPhysics.QueueMovementSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
@@ -116,7 +116,7 @@ public static class SamusHurtFlash
     /// </summary>
     private static void RecoverInterruptedSound(
         SamusState samus,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
@@ -127,7 +127,7 @@ public static class SamusHurtFlash
             }
 
             if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
-                (controllerInput & ControllerButton.X) != ControllerButton.None)
+                (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
             {
                 samus.ResumeChargingBeamSoundPending = true;
             }

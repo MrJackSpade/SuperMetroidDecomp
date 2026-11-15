@@ -66,7 +66,7 @@ internal static class CrampedAerialLandingVerification
 
             level,
             wasSpinning: true,
-            controllerInput: (ControllerButton.Right | ControllerButton.A),
+            controllerInput: (GameplayAction.Right | GameplayAction.Jump),
             frameCounter: 39440);
 
         AssertTrue(!installedLanding,

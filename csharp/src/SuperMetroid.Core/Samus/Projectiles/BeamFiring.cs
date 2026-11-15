@@ -75,12 +75,12 @@ internal sealed class BeamFiring
     internal BeamFiringResult HandleBeamInput(
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerInput,
-        ControllerButton controllerNewInput,
+        GameplayAction controllerInput,
+        GameplayAction controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {
-        const ControllerButton shoot = ControllerButton.X;
+        const GameplayAction shoot = GameplayAction.Shoot;
         _charge.PreviousCharge = _charge.Level;
 
         // Firing gives the Hyper flag priority over Charge equipment. It still uses
@@ -88,14 +88,14 @@ internal sealed class BeamFiring
         // desktop-held button from allocating more frequently than the game.
         if (samus.HyperBeamEnabled)
         {
-            (int? place, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
+            (int? place, SoundEffectId? sound) = (controllerInput & shoot) != GameplayAction.None
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomObjects)
                 : new BeamShot(null, null);
             return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         bool chargeEquipped = samus.EquippedBeams.HasAny(SamusBeamFlags.Charge);
-        bool held = (controllerInput & shoot) != ControllerButton.None;
+        bool held = (controllerInput & shoot) != GameplayAction.None;
         if (!chargeEquipped)
         {
             _charge.ClearCount();
@@ -219,12 +219,12 @@ internal sealed class BeamFiring
     internal BeamShot TryFireBeam(
         RoomLevelData level,
         SamusState samus,
-        ControllerButton controllerNewInput,
+        GameplayAction controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects,
         bool charged)
     {
-        const ControllerButton shoot = ControllerButton.X;
+        const GameplayAction shoot = GameplayAction.Shoot;
 
         // Both release paths converge on this allocation gate for every ordinary and
         // charged beam combination. Without Charge Beam, callers attempt a shot every held
@@ -297,7 +297,7 @@ internal sealed class BeamFiring
         // selecting ordinary cooldown. Only uncharged auto-fire without those
         // conditions uses the longer held-fire delay.
         BeamShotCooldowns.Shot shot = charged ? BeamShotCooldowns.Shot.Charged
-            : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != ControllerButton.None
+            : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != GameplayAction.None
                 ? BeamShotCooldowns.Shot.Uncharged
                 : BeamShotCooldowns.Shot.HeldFire;
         // A Spazer and Plasma combination waits its own cooldowns (UnauthoredBeamFiring, #1506).
@@ -411,18 +411,18 @@ internal sealed class BeamFiring
     /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
     internal BeamShot TryFireMissile(
         SamusState samus,
-        ControllerButton controllerNewInput,
-        ControllerButton controllerPreviousNewInput,
+        GameplayAction controllerNewInput,
+        GameplayAction controllerPreviousNewInput,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        const ControllerButton shoot = ControllerButton.X;
+        const GameplayAction shoot = GameplayAction.Shoot;
 
         // The fire test accepts either the current new-press input or the previous filtered
         // drawing input. Live gameplay retains that edge through the next input phase, allowing
         // a press one frame before cooldown expires to fire on the following frame.
         // Demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
-        if (((controllerNewInput | controllerPreviousNewInput) & shoot) == ControllerButton.None)
+        if (((controllerNewInput | controllerPreviousNewInput) & shoot) == GameplayAction.None)
             return new BeamShot(null, null);
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
@@ -478,7 +478,7 @@ internal sealed class BeamFiring
             ? SamusShotBehaviors.SuperMissile
             : SamusShotBehaviors.Missile;
 
-        // The missile sound and the ten-frame shared cooldown. A Select press made while Item Cancel
+        // The missile sound and the ten-frame shared cooldown. An item-selection press made while item cancel
         // is held records a one-shot auto-cancel index; a successful missile consumes that
         // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
         // to begin charging safely while the missile cooldown suppresses its unsafe initial

@@ -42,7 +42,7 @@ internal sealed class TorizoMovement
     /// Golden definitions. The concrete definition selects the values, so the room's area
     /// cannot become a second authority for actor identity.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemySlot torizo, SamusState? samus, ControllerButton controllerInput)
+    internal void InitializeTorizo(RoomEnemySlot torizo, SamusState? samus, GameplayAction controllerInput)
     {
         bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(torizo, isGolden)

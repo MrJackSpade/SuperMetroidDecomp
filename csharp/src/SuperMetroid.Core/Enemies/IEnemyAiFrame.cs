@@ -18,11 +18,11 @@ internal interface IEnemyAiFrame
     /// <summary>Samus, when the frame has one.</summary>
     SamusState? Samus { get; }
 
-    /// <summary>Controller buttons newly pressed this frame.</summary>
-    ControllerButton NewlyPressedControllerInput { get; }
+    /// <summary>The actions newly pressed this frame.</summary>
+    GameplayAction NewlyPressedControllerInput { get; }
 
-    /// <summary>Controller buttons held this frame.</summary>
-    ControllerButton ControllerInput { get; }
+    /// <summary>The actions held this frame.</summary>
+    GameplayAction ControllerInput { get; }
 
     /// <summary>The room's collision data.</summary>
     RoomLevelData Level { get; }

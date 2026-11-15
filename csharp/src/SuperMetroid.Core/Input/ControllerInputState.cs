@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// Reads the controller-1 sample near the end of every
-/// frame boundary, after the automatic controller read has completed.
+/// The player's controller buttons, latched once per update by the screens that read buttons rather than gameplay
+/// actions (menus, the message box's save choice, the pause screen): the buttons held, newly pressed and previously held.
+/// Gameplay reads <see cref="GameplayActionInput"/> instead.
 /// </summary>
 public sealed class ControllerInputState
 {
@@ -17,34 +18,6 @@ public sealed class ControllerInputState
 
     /// <summary>The controller buttons that were down on the previous update.</summary>
     public ControllerButton Previous { get; private set; }
-
-    /// <summary>
-    /// Temporarily publishes the demo's explicit held/edge pair, as the demo's
-    /// does. Disposing restores the real latched sample for the demo-cancellation check.
-    /// This is deliberately not Latch: recorded edges need not equal held-input changes.
-    /// </summary>
-    internal IDisposable UseDemoInput(ControllerButton held, ControllerButton newlyPressed)
-    {
-        var restore = new DemoInputRestore(this, Current, NewlyPressed);
-        Current = held;
-        NewlyPressed = newlyPressed;
-        return restore;
-    }
-
-    /// <summary>Restores the real latched controller sample after a scoped demo input override.</summary>
-    private sealed class DemoInputRestore(ControllerInputState owner, ControllerButton held, ControllerButton newlyPressed) : IDisposable
-    {
-        /// <summary>Prevents a repeated dispose from replacing a later controller sample.</summary>
-        private bool disposed;
-        /// <summary>Restores the held and edge buttons captured before the demo override.</summary>
-        public void Dispose()
-        {
-            if (disposed) return;
-            owner.Current = held;
-            owner.NewlyPressed = newlyPressed;
-            disposed = true;
-        }
-    }
 
     /// <summary>Latches one completed automatic controller sample.</summary>
     /// <remarks>Raw input is validated where it enters the game (recordings, replays, hosts), not here.</remarks>

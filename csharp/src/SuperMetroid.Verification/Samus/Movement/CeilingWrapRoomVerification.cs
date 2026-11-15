@@ -76,8 +76,8 @@ internal static class CeilingWrapRoomVerification
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
         {
-            ControllerButton held = ControllerButton.X;
-            ControllerButton pressed = frame == 0 ? held : ControllerButton.None;
+            GameplayAction held = GameplayAction.Shoot;
+            GameplayAction pressed = frame == 0 ? held : GameplayAction.None;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             roomObjects.Step(level);

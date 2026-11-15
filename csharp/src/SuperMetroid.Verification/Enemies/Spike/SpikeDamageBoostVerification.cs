@@ -93,7 +93,7 @@ internal static class SpikeDamageBoostVerification
         samus.KnockbackActive = false;
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackTimer = 0;
-        runtime.Controller1.Latch((ControllerButton.Right | ControllerButton.A));
+        runtime.Controller1.Latch((GameplayAction.Right | GameplayAction.Jump));
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
         AssertEqual(FixedCoordinate.Of(0x0053, 0x4000), samus.Kinematics.Position.X, "expired hurt floor probe keeps X");
@@ -164,7 +164,7 @@ internal static class SpikeDamageBoostVerification
             if (retainedPose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
                 SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningLeftToRightPose)
                 samus.Position = samus.Position.WithWholeY(235);
-            runtime.Controller1.Latch(ControllerButton.A);
+            runtime.Controller1.Latch(GameplayAction.Jump);
             runtime.StepFrame(ControllerButton.A);
             AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin/turn pose");
         }
@@ -184,7 +184,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(0, 0x9000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-        runtime.Controller1.Latch((ControllerButton.Left | ControllerButton.A));
+        runtime.Controller1.Latch((GameplayAction.Left | GameplayAction.Jump));
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0063c000u, 0x00edffffu, 0x0000a000u),
             new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Kinematics.YSpeed.RawValue),

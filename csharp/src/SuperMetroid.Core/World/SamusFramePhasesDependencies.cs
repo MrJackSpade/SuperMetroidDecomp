@@ -15,7 +15,7 @@ internal sealed record SamusFramePhasesDependencies
 
 
     /// <summary>Controller1.</summary>
-    public required ControllerInputState Controller1 { get; init; }
+    public required GameplayActionInput Controller1 { get; init; }
 
 
 

@@ -1385,7 +1385,7 @@ internal static class RoomObjectPopulationVerification
 
         var messages = new GameplayMessageArtwork(null, notices: presentation);
         var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        message.Begin(GameplayMessageId.SaveConfirmation, 0);
+        message.Begin(GameplayMessageId.SaveConfirmation, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -1422,7 +1422,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(GameplayMessageId.SaveConfirmation, 0);
+        message.Begin(GameplayMessageId.SaveConfirmation, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)

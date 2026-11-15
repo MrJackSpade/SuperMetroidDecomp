@@ -9,9 +9,9 @@ public static class ElevatorActorDefinitions
     public const int SamusYOffset = 26;
 
     /// <summary>The newly pressed input that begins each direction's travel.</summary>
-    internal static readonly Dictionary<ElevatorTravelDirection, ControllerButton> RequiredDirectionInputs = new()
+    internal static readonly Dictionary<ElevatorTravelDirection, GameplayAction> RequiredDirectionInputs = new()
     {
-        [ElevatorTravelDirection.Down] = ControllerButton.Down,
-        [ElevatorTravelDirection.Up] = ControllerButton.Up,
+        [ElevatorTravelDirection.Down] = GameplayAction.Down,
+        [ElevatorTravelDirection.Up] = GameplayAction.Up,
     };
 }

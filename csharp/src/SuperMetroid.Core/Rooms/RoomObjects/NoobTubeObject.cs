@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// Maridia's glass tube (#1554). On its first update, a tube broken on an earlier visit restores the room's water and
 /// leaves; otherwise it shows the intact tube. From its second update on, before its timing runs, a Power Bomb that
 /// struck its block wakes it to wait for input, and any other strike plays the ineffective-shot sound; every strike is
-/// then read. While it waits, a newly pressed accepted button breaks it on that update: Samus is locked, the crack
+/// then read. While it waits, a newly pressed accepted action breaks it on that update: Samus is locked, the crack
 /// appears and the tube cracks image by image, then shatters with its sound, shards, bubbles and earthquake, and once
 /// the open tube's time is up the broken event is set, the water returns, Samus is released and the tube leaves.
 /// </summary>
@@ -100,7 +100,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : RoomObjectBehaviou
                 }
                 PendingHit = null;
                 return;
-            case NoobTubePhase.WaitingForInput when (context.Frame.ControllerNewInput & NoobTubeObjectDefinitions.AcceptedWakeInputMask) != ControllerButton.None:
+            case NoobTubePhase.WaitingForInput when (context.Frame.ControllerNewInput & NoobTubeObjectDefinitions.AcceptedWakeInputMask) != GameplayAction.None:
                 // The break starts on this update.
                 Phase = NoobTubePhase.Breaking;
                 _updatesBeforeNextStep = 1;

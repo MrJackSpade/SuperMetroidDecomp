@@ -48,7 +48,7 @@ internal static class RidleyMovementTargetsVerification
         Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, RidleyWallSweepTarget> sweep = enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToSide;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         var slot = enemies.SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         // Independent closed form of native inertia from zero velocity: target selection

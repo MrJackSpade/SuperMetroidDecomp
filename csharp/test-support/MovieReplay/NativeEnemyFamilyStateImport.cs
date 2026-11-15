@@ -1,4 +1,5 @@
 using SuperMetroid.Diagnostics.Input;
+using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -558,7 +559,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Action = words.C == 0 ? null : BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
             beetom.ActionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
-            beetom.PreviousController1Input = ControllerWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
+            beetom.PreviousController1Input = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
         }
         if (slot.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {

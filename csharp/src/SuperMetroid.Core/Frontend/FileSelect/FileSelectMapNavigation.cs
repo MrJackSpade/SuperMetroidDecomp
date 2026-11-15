@@ -47,7 +47,7 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void Step(ControllerButton heldInput)
     {
-        // Same edge rule as ControllerInputState.NewlyPressedButtons, over the held buttons.
+        // Same edge rule as ControllerInputState.NewlyPressed, over the held buttons.
         ControllerButton pressed = heldInput & ~previousInput;
         previousInput = heldInput;
         bool cancel = (pressed & ControllerButton.B) != ControllerButton.None;

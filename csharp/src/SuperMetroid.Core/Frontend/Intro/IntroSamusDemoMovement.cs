@@ -23,8 +23,8 @@ internal static class IntroSamusDemoMovement
 
         RoomLevelData level,
         SamusState samus,
-        ControllerButton heldInput,
-        ControllerButton newlyPressedInput,
+        GameplayAction heldInput,
+        GameplayAction newlyPressedInput,
         int frameCounter,
         SharedRandom random)
     {

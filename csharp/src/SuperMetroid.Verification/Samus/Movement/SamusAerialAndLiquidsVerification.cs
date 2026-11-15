@@ -64,7 +64,7 @@ internal static void VerifySamusAerialMovement()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes neutral jump radius");
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
-level, samus, ControllerButton.A, frameCounter: 0);
+level, samus, GameplayAction.Jump, frameCounter: 0);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
     SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "FD installs neutral jump pose");
@@ -72,7 +72,7 @@ level, samus, ControllerButton.A, frameCounter: 0);
 
     // The first real airborne frame moves by OLD 4.E000, then stores 4.C400 after gravity.
     AerialMovementResult firstRise = SamusAerialMovement.StepNormalJump(
-level, samus, ControllerButton.A, frameCounter: 1);
+level, samus, GameplayAction.Jump, frameCounter: 1);
     AssertEqual(72, samus.Position.Y.Whole, "first rise old-speed whole displacement");
     AssertEqual(0x2000, samus.Kinematics.Position.Y.Fraction, "first rise old-speed fraction");
     AssertEqual(0x0004, samus.Kinematics.YSpeed.Whole, "first rise stored whole speed");
@@ -136,7 +136,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
 
         level,
         spinLeft,
-        (ControllerButton.Left | ControllerButton.A),
+        (GameplayAction.Left | GameplayAction.Jump),
         frameCounter: 0);
     AssertEqual(-0x00016000,
         ((SixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
@@ -390,11 +390,11 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     {
         Pose = SamusPoseId.NormalJumpGunExtendedRightPose,
     }.WithBeamChargeCount(BeamChargeDefinitions.ChargeSoundStartCounter);
-    SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.SpinJumping, ControllerButton.X);
+    SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.SpinJumping, GameplayAction.Shoot);
     AssertTrue(resumeCharge.ResumeChargingBeamSoundPending, "spin exit defers charge resume");
     AssertEqual(1, resumeCharge.LiquidPhysics.SoundRequests.Count, "only stop is queued on spin exit");
     resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.NormalJumping, ControllerButton.X);
+    SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.NormalJumping, GameplayAction.Shoot);
     AssertEqual(new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High),
         resumeCharge.LiquidPhysics.SoundRequests.Single(), "next frame resumes charge after stop");
     AssertTrue(!resumeCharge.ResumeChargingBeamSoundPending, "the resumed charge sound clears the pending resume");
@@ -461,7 +461,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
-        controllerNewInput: ControllerButton.X),
+        controllerNewInput: GameplayAction.Shoot),
         "spin Fire body expansion fits empty room");
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
@@ -502,7 +502,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
-        controllerNewInput: ControllerButton.X),
+        controllerNewInput: GameplayAction.Shoot),
         "wall-jump Shot body expansion fits empty room");
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, wallFire.Pose,
         "wall-jump Shot selects cartridge target $13");
@@ -576,9 +576,9 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
 
         empty,
         minimum,
-        ControllerButton.A,
+        GameplayAction.Jump,
         frameCounter: 0,
-        controllerNewInput: ControllerButton.A);
+        controllerNewInput: GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Up, minimum.Kinematics.YDirection, "Space Jump minimum velocity restarts upward");
     AssertEqual(4, minimum.Kinematics.YSpeed.Whole, "Space Jump restart whole speed");
     AssertEqual(0xc400, minimum.Kinematics.YSpeed.Fraction, "Space Jump restart applies refreshed native gravity after movement");
@@ -587,25 +587,25 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     SamusState below = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x7fff);
     SamusAerialMovement.StepSpinJump(
-empty, below, ControllerButton.A, 0, ControllerButton.A);
+empty, below, GameplayAction.Jump, 0, GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Down, below.Kinematics.YDirection, "Space Jump rejects velocity $027F");
 
     SamusState maximum = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 5, subspeed: 0);
     SamusAerialMovement.StepSpinJump(
-empty, maximum, ControllerButton.A, 0, ControllerButton.A);
+empty, maximum, GameplayAction.Jump, 0, GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Down, maximum.Kinematics.YDirection, "Space Jump maximum $0500 is exclusive");
 
     SamusState heldOnly = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
-    SamusAerialMovement.StepSpinJump(empty, heldOnly, ControllerButton.A, 0);
+    SamusAerialMovement.StepSpinJump(empty, heldOnly, GameplayAction.Jump, 0);
     AssertEqual(SamusVerticalDirection.Down, heldOnly.Kinematics.YDirection, "Space Jump requires a fresh Jump edge");
 
     // Both item bits retain Space Jump physics while Screw Attack owns art and damage.
     SamusState screwRepeat = CreateFallingSpin(
         SamusPoseId.ScrewAttackRightPose, 0x0208, speed: 3, subspeed: 0);
     SamusAerialMovement.StepSpinJump(
-empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
+empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Up, screwRepeat.Kinematics.YDirection,
         "Screw Attack with Space Jump repeats upward");
     AssertEqual(SamusBodyAttack.ScrewAttack, screwRepeat.HorizontalSpeed.BodyAttack,
@@ -831,16 +831,16 @@ internal static void VerifySamusLiquidPhysics()
     var submergedDash = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     submergedDash.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: ControllerButton.B,
+        controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false,
         liquidImpeded: true);
     AssertTrue(!submergedDash.HasRunningMomentum, "submerged Dash cannot establish momentum");
     AssertEqual(0, submergedDash.ExtraRunSpeed.Fraction, "submerged no-momentum Dash stays zero");
-    submergedDash.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, false);
+    submergedDash.HandleExtraRunSpeed(SamusMovementType.Running, GameplayAction.Dash, false);
     int carriedFraction = submergedDash.ExtraRunSpeed.Fraction;
     submergedDash.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: ControllerButton.B,
+        controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false,
         liquidImpeded: true);
     AssertTrue(submergedDash.HasRunningMomentum, "existing Dash momentum survives submersion");
@@ -870,7 +870,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     sample.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: ControllerButton.B,
+        controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
     sample.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
@@ -888,7 +888,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.EquippedItems = 0;
     sample.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
-        controllerInput: ControllerButton.B,
+        controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(2, 1);
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
@@ -996,9 +996,9 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
 
         empty,
         partialWaterSpaceJump,
-        ControllerButton.A,
+        GameplayAction.Jump,
         frameCounter: 0,
-        controllerNewInput: ControllerButton.A);
+        controllerNewInput: GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Up, partialWaterSpaceJump.Kinematics.YDirection,
         "partially submerged Space Jump accepts water minimum $0080");
     AssertEqual(1, partialWaterSpaceJump.Kinematics.YSpeed.Whole,
@@ -1025,9 +1025,9 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
 
         empty,
         fullySubmergedScrew,
-        ControllerButton.A,
+        GameplayAction.Jump,
         frameCounter: 0,
-        controllerNewInput: ControllerButton.A);
+        controllerNewInput: GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Down, fullySubmergedScrew.Kinematics.YDirection,
         "fully submerged non-Gravity Space Jump cannot restart");
     AssertEqual(SamusBodyAttack.None, fullySubmergedScrew.HorizontalSpeed.BodyAttack,

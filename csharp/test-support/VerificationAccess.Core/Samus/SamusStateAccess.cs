@@ -28,7 +28,7 @@ internal static class SamusStateAccess
             RoomLevelData level,
             SamusPoseId targetPose,
             int frameCounter,
-            ControllerButton controllerNewInput,
+            GameplayAction controllerNewInput,
             RoomObjectSystem? roomObjects = null)
         {
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))

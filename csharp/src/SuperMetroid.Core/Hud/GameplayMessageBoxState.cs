@@ -76,10 +76,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>The audio processing and liquid wave and statue advance of the update <see cref="Step"/> just ran.</summary>
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
-    /// <summary>Current Shoot binding used when panel artwork includes a button glyph.</summary>
-    private ControllerButton _shootBinding = ControllerButton.X;
-    /// <summary>Current Run binding used when panel artwork includes a button glyph.</summary>
-    private ControllerButton _runBinding = ControllerButton.B;
+    /// <summary>The controller bindings when the message began, whose Shoot or Dash button a panel's glyph shows.</summary>
+    private ControllerBindings _bindings;
 
     /// <summary>Consumes the accepted gunship save's one-shot saving sound, independently of gameplay publication.</summary>
     public bool ConsumeSavingSoundRequest()
@@ -136,22 +134,21 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>
     /// Starts one ordinary gameplay message with its authored layout.
-    /// Bindings are parameters because the options menu may remap them; their defaults are
-    /// the bindings a new save file starts with.
     /// </summary>
     /// <param name="messageId">The ordinary message or the gunship save confirmation to show.</param>
     /// <param name="controllerRead">
-    /// The controller held at the update's last controller read. While the box is shown only
+    /// The physical buttons held at the update's last controller read. While the box is shown only
     /// the box itself reads the controller, so the save choice's presses are relative to this.
     /// </param>
-    /// <param name="shootBinding">Current binding for Shoot, whose button the applicable item panels name.</param>
-    /// <param name="runBinding">Current binding for Run, whose button the applicable item panels name.</param>
+    /// <param name="bindings">
+    /// The current controller bindings: the applicable item panels name the button bound to Shoot or to Dash, as the
+    /// options menu may have remapped them.
+    /// </param>
     /// <param name="sourceContext">Caller identity included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
         GameplayMessageId messageId,
         ControllerButton controllerRead,
-        ControllerButton shootBinding = ControllerButton.X,
-        ControllerButton runBinding = ControllerButton.B,
+        ControllerBindings bindings,
         string sourceContext = nameof(GameplayMessageBoxState))
     {
         if (!IsOrdinary(messageId))
@@ -164,8 +161,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 
-        _shootBinding = shootBinding;
-        _runBinding = runBinding;
+        _bindings = bindings;
         MessageId = messageId;
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
@@ -333,7 +329,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     // The completion notice opens only after the saving sound's wait.
                     // Preserve YES across that message.
                     Phase = GameplayMessageBoxPhase.Inactive;
-                    Begin(GameplayMessageId.SaveCompleted, _controller.Current);
+                    Begin(GameplayMessageId.SaveCompleted, _controller.Current, _bindings);
                     // The second box needs no screen preparation or clearing, which
                     // preceded the saving sound.
                     BeginPreparingSecondBox();
@@ -408,8 +404,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// </summary>
     private ControllerButton? PanelButton(GameplayMessageId messageId) => GameplayMessageButtons.PanelBinding(messageId) switch
     {
-        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_shootBinding),
-        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_runBinding),
+        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_bindings.Shoot),
+        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_bindings.Dash),
         GameplayMessagePanelButtonBinding.None => null,
         _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
     };

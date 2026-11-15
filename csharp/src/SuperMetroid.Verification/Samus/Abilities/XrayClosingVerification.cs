@@ -28,20 +28,20 @@ internal static class XrayClosingVerification
         // closing update keeps time frozen and Samus held; the update after the last releases her.
         SamusState samus = XrayBeamFixtures.AdmittedStanding();
         for (int update = 0; update < XrayWarmUp.Updates; update++)
-            samus.Xray.StepBeam(samus, ControllerButton.None);
-        samus.Xray.StepBeam(samus, ControllerButton.None);
+            samus.Xray.StepBeam(samus, GameplayAction.None);
+        samus.Xray.StepBeam(samus, GameplayAction.None);
         AssertEqual(XrayBeamPhase.Closing, samus.Xray.BeamPhase, "Run's release starts the beam's closing");
         AssertEqual(XrayClosing.Started, samus.Xray.Closing, "the closing starts with none of its updates spent");
         for (int update = 1; update <= XrayClosing.Updates; update++)
         {
-            XrayBeamStepResult step = samus.Xray.StepBeam(samus, ControllerButton.None);
+            XrayBeamStepResult step = samus.Xray.StepBeam(samus, GameplayAction.None);
             AssertEqual(XrayClosing.Updates - update, samus.Xray.Closing.UpdatesLeft, $"closing update {update} spends one update");
             AssertEqual(update < XrayClosing.Updates ? XrayBeamPhase.Closing : XrayBeamPhase.Finish, samus.Xray.BeamPhase,
                 $"the beam's phase after closing update {update}");
             AssertTrue(!step.Completed && samus.Xray.IsActive && samus.Xray.TimeIsFrozen && samus.Xray.OwnsSamusControl,
                 $"closing update {update} keeps time frozen and Samus held");
         }
-        XrayBeamStepResult last = samus.Xray.StepBeam(samus, ControllerButton.None);
+        XrayBeamStepResult last = samus.Xray.StepBeam(samus, GameplayAction.None);
         AssertTrue(last.Completed && !samus.Xray.IsActive && !samus.Xray.TimeIsFrozen && !samus.Xray.OwnsSamusControl,
             "the update after the closing releases Samus and the room's time");
         AssertEqual(XrayClosing.Over, samus.Xray.Closing, "a released X-ray holds the closing that is over");

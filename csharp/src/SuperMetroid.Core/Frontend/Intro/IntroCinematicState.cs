@@ -900,7 +900,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         SamusState samus = FlashbackSamus;
         RoomLevelData level = FlashbackLevel;
-        ControllerButton demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
+        GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
 
         // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding artwork rather than

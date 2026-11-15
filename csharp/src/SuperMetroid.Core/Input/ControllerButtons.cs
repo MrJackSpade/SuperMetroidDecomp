@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// Named combinations of the player's controller buttons.
-/// Keeping these combinations beside <see cref="ControllerButton"/> prevents gameplay code from
-/// reintroducing opaque masks for the horizontal directions.
+/// Named combinations of the player's controller buttons, for the screens and hosts that read buttons; gameplay reads
+/// <see cref="GameplayAction"/>s and their combinations in <see cref="GameplayActions"/>.
 /// </summary>
 public static class ControllerButtons
 {
@@ -19,10 +18,6 @@ public static class ControllerButtons
 
     /// <summary>The mutually opposed horizontal directional bits.</summary>
     public const ControllerButton HorizontalDirections = ControllerButton.Right | ControllerButton.Left;
-
-    /// <summary>The fixed portion of the retail Crystal Flash chord.</summary>
-    public const ControllerButton CrystalFlashWithoutShot =
-        ControllerButton.Down | ControllerButton.L | ControllerButton.R;
 
     /// <summary>Tests whether at least one requested button is present.</summary>
     public static bool HasAny(this ControllerButton input, ControllerButton buttons) =>

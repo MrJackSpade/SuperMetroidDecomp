@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 public static class SamusPoseTransitionTable
 {
-    /// <summary>Held Start and Select bits excluded from the pose-table input match.</summary>
-    private const ControllerButton StartAndSelectMask = ControllerButton.Start | ControllerButton.Select;
+    /// <summary>Held Start and item selection, excluded from the pose-table input match.</summary>
+    private const GameplayAction StartAndItemSelect = GameplayAction.Start | GameplayAction.ItemSelect;
 
     /// <summary>
     /// Runs the complete lookup and preserves whether failure enters
@@ -30,19 +30,19 @@ public static class SamusPoseTransitionTable
     /// </remarks>
     public static SamusPoseTransitionLookup Lookup(
         SamusPoseId currentPose,
-        ControllerButton canonicalHeldInput,
-        ControllerButton canonicalNewInput)
+        GameplayAction heldActions,
+        GameplayAction newlyPressedActions)
     {
 
-        // Branches directly to lookup-failure handling when the raw controller
-        // input is empty, before it reads this table at all.
-        if (canonicalHeldInput == ControllerButton.None)
+        // Branches directly to lookup-failure handling when no action is held,
+        // before it reads this table at all.
+        if (heldActions == GameplayAction.None)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
 
-        // Start and Select never participate in pose chords. The lookup initializes its two
-        // complement masks from only the direction bits, then adds canonical action bits explicitly.
-        ControllerButton held = canonicalHeldInput & ~StartAndSelectMask;
-        ControllerButton newlyPressed = canonicalNewInput & ~StartAndSelectMask;
+        // Start and item selection never participate in pose chords: the lookup reads only the directions and the
+        // actions its chords name.
+        GameplayAction held = heldActions & ~StartAndItemSelect;
+        GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
         if (!SamusPoseInputs.TryGetInputList(currentPose, out SamusPoseInputList inputList))
         {

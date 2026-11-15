@@ -178,7 +178,7 @@ internal static class GrappleConnectionDefinitionsVerification
     /// <summary>Checks firing cancellation and directional drop pose choices against native policy bytes for reachable poses and radius boundaries.</summary>
     private static void VerifyGrappleCancellationAndDrop(CartridgeImportAddressSpace rom)
     {
-        var cancel = new Func<RoomLevelData, SamusState, ControllerButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
+        var cancel = new Func<RoomLevelData, SamusState, GameplayAction, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
         var drop = (ISnesAddressSpace memory, SamusState player) => SamusPoseNumbers.Number(SamusGrappleMovement.SelectDroppedPose(player));
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable

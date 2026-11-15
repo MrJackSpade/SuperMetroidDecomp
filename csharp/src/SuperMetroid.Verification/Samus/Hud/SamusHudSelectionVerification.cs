@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Samus.Hud;
 internal static class SamusHudSelectionVerification
 {
     /// <summary>Runs one selector frame; true when it moved the selected index.</summary>
-    internal static bool SelectionChanged(SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput)
+    internal static bool SelectionChanged(SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput)
     {
         HudItem before = samus.SelectedHudItem;
         SamusHudSelection.HandleHudSelection(samus, controllerInput, controllerNewInput);
@@ -23,8 +23,8 @@ internal static class SamusHudSelectionVerification
     /// </summary>
     internal static void VerifySamusHudSelection()
     {
-        const ControllerButton select = ControllerButton.Select;
-        const ControllerButton cancel = ControllerButton.Y;
+        const GameplayAction select = GameplayAction.ItemSelect;
+        const GameplayAction cancel = GameplayAction.ItemCancel;
 
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {

@@ -25,11 +25,11 @@ public sealed class SamusSnapshot
     /// <summary>Samus's position in the room, in whole pixels.</summary>
     public required Position16<RoomPixels> Position { get; init; }
 
-    /// <summary>The buttons held on the player's controller.</summary>
-    public required ControllerButton HeldButtons { get; init; }
+    /// <summary>The gameplay actions the player holds.</summary>
+    public required GameplayAction HeldActions { get; init; }
 
-    /// <summary>The buttons newly pressed on the player's controller this update.</summary>
-    public required ControllerButton NewlyPressedButtons { get; init; }
+    /// <summary>The gameplay actions the player newly pressed this update.</summary>
+    public required GameplayAction NewlyPressedActions { get; init; }
 
     /// <summary>Whether the game has taken control of Samus away from the player.</summary>
     public required bool InputLocked { get; init; }

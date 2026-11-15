@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>What Maridia's n00b tube does: what wakes it, the block it occupies, its sounds, its earthquake and its debris counts.</summary>
 public static class NoobTubeObjectDefinitions
 {
-    /// <summary>The newly pressed buttons that wake the tube once it is cracked: B, Y, Left, Right, A and X.</summary>
-    public const ControllerButton AcceptedWakeInputMask =
-        ControllerButton.B | ControllerButton.Y | ControllerButton.Left | ControllerButton.Right | ControllerButton.A | ControllerButton.X;
+    /// <summary>The newly pressed actions that wake the tube once it is cracked: Dash, item cancel, Left, Right, Jump and Shoot.</summary>
+    public const GameplayAction AcceptedWakeInputMask =
+        GameplayAction.Dash | GameplayAction.ItemCancel | GameplayAction.Left | GameplayAction.Right | GameplayAction.Jump | GameplayAction.Shoot;
 
     /// <summary>The collision kind the tube's setup gives its origin block, which keeps what it shows.</summary>
     public const RoomCollisionType OriginCollision = RoomCollisionType.SolidBlock;

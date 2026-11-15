@@ -19,8 +19,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusCrystalFlashState
 {
-    /// <summary>The exact normal-game controller chord: Down + L + R + the Shot binding.</summary>
-    public const ControllerButton RequiredInputWithoutShot = ControllerButtons.CrystalFlashWithoutShot;
+    /// <summary>The exact held actions that start Crystal Flash: Down, both aims and Shoot, and nothing else.</summary>
+    public const GameplayAction RequiredInput =
+        GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
 
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
     public CrystalFlashPhase Phase { get; private set; }
@@ -114,29 +115,24 @@ public sealed class SamusCrystalFlashState
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
     /// </summary>
     /// <param name="samus">Live actor whose admission state is checked and whose pose, movement owner, shared timers, and hit state are updated on success.</param>
-    /// <param name="controllerInput">The held buttons; ordinary admission requires exactly Down, L, R and the Shot button held.</param>
-    /// <param name="shotBinding">The button bound to Shot, defaulting to X; a binding that names no button is rejected.</param>
+    /// <param name="controllerInput">The held actions; ordinary admission requires exactly <see cref="RequiredInput"/> held.</param>
     /// <param name="inputCheck">
     /// True only while a title demo is ending and the game is returning from it. Ordinary
     /// gameplay must supply the exact chord; extra held buttons make initiation fail.
     /// </param>
     /// <returns>True after starting the raising phase; false when the chord or the speed, health, reserve, or ammunition preconditions reject activation.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
-    /// <exception cref="InvalidDataException">The held buttons or the Shot binding name something that is not a button, or the Crystal Flash pose no longer has special movement.</exception>
+    /// <exception cref="InvalidDataException">The Crystal Flash pose no longer has special movement.</exception>
     public bool TryBegin(
         SamusState samus,
-        ControllerButton controllerInput,
-        ControllerButton shotBinding = ControllerButton.X,
+        GameplayAction controllerInput,
         CrystalFlashInputCheck inputCheck = CrystalFlashInputCheck.Required)
     {
         Ensure.NotNull(samus);
 
         // The chord test uses an equality comparison, not a bit test. This deliberately rejects any extra
-        // held button, including Jump, Dash, Select, or the opposite D-pad directions.
-        ControllerButton heldButtons = controllerInput;
-        ControllerButton shotButton = shotBinding;
-        ControllerButton requiredInput = RequiredInputWithoutShot | shotButton;
-        if (inputCheck != CrystalFlashInputCheck.Skipped && heldButtons != requiredInput)
+        // held action, including Jump, Dash, item selection, or the other directions.
+        if (inputCheck != CrystalFlashInputCheck.Skipped && controllerInput != RequiredInput)
             return false;
 
         // The remaining preconditions are literal comparisons. Reserve energy must

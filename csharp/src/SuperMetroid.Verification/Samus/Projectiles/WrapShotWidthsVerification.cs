@@ -63,7 +63,7 @@ internal static class WrapShotWidthsVerification
             int hit = -1;
             for (int frame = 0; frame < 40; frame++)
             {
-                ControllerButton input = frame == 0 ? ControllerButton.X : 0;
+                GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
                 var shot = shots.Shots[0];

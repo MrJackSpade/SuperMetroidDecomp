@@ -89,7 +89,7 @@ internal sealed class TorizoChoices
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        ControllerButton controllerInput,
+        GameplayAction controllerInput,
         TorizoAnimation target)
     {
         if (samus is null)
@@ -97,9 +97,9 @@ internal sealed class TorizoChoices
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !_access.FacesSamus(torizo, samus))
             return null;
-        ControllerButton heldButtons = controllerInput;
+        GameplayAction heldButtons = controllerInput;
         if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
-            (!heldButtons.HasAny(ControllerButtons.HorizontalDirections) ||
+            (!heldButtons.HasAny(GameplayActions.HorizontalDirections) ||
                 TorizoRandomDefinitions.ForwardLeap.IsTakenBy(_room.Random.Generate())))
         {
             return null;

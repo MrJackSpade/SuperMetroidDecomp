@@ -14,6 +14,9 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Runtime.Attract;
+using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>
@@ -41,6 +44,45 @@ internal static class YardAirborneVerification
         runtime.StepFrame(0);
         AssertEqual(SignedSixteenSixteen.FromParts(0, 57344), runtime.YardKickDistance.HorizontalDistancePlusOne,
             "the whole-pixel direction test leaves a measure below one pixel");
+    }
+
+    /// <summary>
+    /// Confirms every initialisation of a new Samus records the one-pixel camera measure her initialisation leaves (#1990),
+    /// replacing whatever measure the runtime held: starting at Ceres, arriving on Zebes after Ceres, loading a saved game
+    /// and loading an attract demo. A kick before the camera next tracks her therefore flies at one pixel an update.
+    /// </summary>
+    internal static void VerifyYardKickDistanceStartsAtSamusInitialization()
+    {
+        SignedSixteenSixteen initial = SignedSixteenSixteen.FromWholePixels(1);
+        SignedSixteenSixteen stale = SignedSixteenSixteen.FromParts(3, 0x8000);
+
+        var runtime = CreateRetailRuntimeFixture();
+        AssertEqual(SignedSixteenSixteen.Zero, runtime.YardKickDistance.HorizontalDistancePlusOne,
+            "a runtime starts with no measure before its first Samus");
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.YardKickDistance.Record(stale);
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        AssertEqual(initial, runtime.YardKickDistance.HorizontalDistancePlusOne, "starting at Ceres initialises Samus with one pixel");
+        runtime.YardKickDistance.Record(stale);
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
+        AssertEqual(initial, runtime.YardKickDistance.HorizontalDistancePlusOne,
+            "arriving on Zebes after Ceres initialises Samus with one pixel");
+
+        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = LoadStationDefinitions.CrateriaSave };
+        var saves = new SaveSlotStore(RetailPresentationFixtureVerification.RetailPresentationFixture());
+        saves.SaveSlot(0, snapshot);
+        SuperMetroidSaveSlot slot = saves.ReadSlot(0) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
+        var loaded = CreateRetailRuntimeFixture();
+        loaded.YardKickDistance.Record(stale);
+        loaded.RoomLoader.InitializeSavedGame(slot);
+        AssertEqual(initial, loaded.YardKickDistance.HorizontalDistancePlusOne, "loading a saved game initialises Samus with one pixel");
+
+        var attract = CreateRetailRuntimeFixture();
+        attract.YardKickDistance.Record(stale);
+        attract.AttractDemo.InitializeAttractDemo(StockAttractDemoScenes.FirstSet.Scenes[0]);
+        AssertEqual(initial, attract.YardKickDistance.HorizontalDistancePlusOne, "loading an attract demo initialises Samus with one pixel");
     }
 
     /// <summary>

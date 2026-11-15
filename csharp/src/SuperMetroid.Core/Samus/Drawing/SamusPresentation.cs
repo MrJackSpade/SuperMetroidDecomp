@@ -187,7 +187,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Runs the step the animation reaches when its frame timer expires: a frame's delay, or a cue.</summary>
-    private static void HandleAnimationDelay(SamusState samus, ControllerButton controllerInput,
+    private static void HandleAnimationDelay(SamusState samus, GameplayAction controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
@@ -208,7 +208,7 @@ internal sealed class SamusPresentation
 
         bool activeDashAnimation = samus.HorizontalSpeed.HasRunningMomentum &&
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running &&
-            (controllerInput & ControllerButton.B) != ControllerButton.None;
+            (controllerInput & GameplayAction.Dash) != GameplayAction.None;
         if (activeDashAnimation)
         {
             // An active Dash takes the cue that closes the run before the pose's animation does. Without the

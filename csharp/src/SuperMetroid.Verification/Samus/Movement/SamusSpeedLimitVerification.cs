@@ -53,11 +53,11 @@ internal static class SamusSpeedLimitVerification
         // The dash's extra speed with a fraction of half a pixel or more is not held at the Speed Booster's seven pixels:
         // it keeps accelerating.
         var boosted = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0x8000) };
-        boosted.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, speedBoosterEquipped: true);
+        boosted.HandleExtraRunSpeed(SamusMovementType.Running, GameplayAction.Dash, speedBoosterEquipped: true);
         AssertEqual(new UnsignedSixteenSixteen(7, 0x8000) + SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration, boosted.ExtraRunSpeed,
             "an extra speed above seven pixels with half a pixel's fraction is not held at the cap");
         var held = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0x7fff) };
-        held.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, speedBoosterEquipped: true);
+        held.HandleExtraRunSpeed(SamusMovementType.Running, GameplayAction.Dash, speedBoosterEquipped: true);
         AssertEqual(new UnsignedSixteenSixteen(7, 0), held.ExtraRunSpeed, "an extra speed above seven pixels under half a pixel's fraction is held at the cap");
 
         // A base speed accelerated exactly onto its maximum keeps it; one past it in the fraction is replaced by it.

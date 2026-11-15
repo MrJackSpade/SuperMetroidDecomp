@@ -79,7 +79,7 @@ internal static class RidleyPogoDefinitionsVerification
         ushort seed = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
         enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> attack = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToHeight;
         var slot = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

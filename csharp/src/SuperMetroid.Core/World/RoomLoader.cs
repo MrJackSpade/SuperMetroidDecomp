@@ -45,7 +45,7 @@ internal sealed class RoomLoader
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
-    private readonly ControllerInputState _controller1;
+    private readonly GameplayActionInput _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Coordinates the door loader's transition steps.</summary>
@@ -266,6 +266,18 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
+    /// Initialises a new Samus, as the game does when it loads a saved game, starts at Ceres, arrives on Zebes after
+    /// Ceres or loads an attract demo: a fresh Samus in her default state, and the camera's horizontal measure of her
+    /// movement set to one pixel (<see cref="YardKickTrackingDistance.RecordSamusInitialization"/>) until the camera
+    /// first tracks her. The caller sets her pose, place and inventory.
+    /// </summary>
+    internal SamusState InitializeSamus()
+    {
+        _yardKickDistance.RecordSamusInitialization();
+        return new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge);
+    }
+
+    /// <summary>
     /// Restores the player and persistent mirror before selecting rooms or a saved
     /// cinematic. A Ceres-destruction checkpoint has no playable Ceres room to load;
     /// its inventory must nevertheless survive into the Zebes landing sequence.
@@ -273,11 +285,10 @@ internal sealed class RoomLoader
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        _player.Samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
-        {
-            Pose = SamusPoseId.FacingRightNormalPose,
-            AnimationFrame = 0,
-        };
+        SamusState samus = InitializeSamus();
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.AnimationFrame = 0;
+        _player.Samus = samus;
         _player.Samus.BindAudioRequests(_audioRequests);
         _artwork.BindSamusArtwork();
         slot.ApplyTo(_player.Samus, _system);
@@ -310,7 +321,9 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
         // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = SamusPoseId.ForwardFacingPowerSuitPose, AnimationFrame = 0 };
+        SamusState samus = InitializeSamus();
+        samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
+        samus.AnimationFrame = 0;
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
@@ -1143,12 +1156,11 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
             throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
 
-        _player.Samus = new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
-        {
-            Pose = SamusPoseId.ForwardFacingPowerSuitPose,
-            AnimationFrame = 0,
-            Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0)),
-        };
+        SamusState samus = InitializeSamus();
+        samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
+        samus.AnimationFrame = 0;
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
+        _player.Samus = samus;
         _player.Samus.BindAudioRequests(_audioRequests);
         _artwork.BindSamusArtwork();
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);

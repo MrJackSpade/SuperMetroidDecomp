@@ -43,7 +43,7 @@ internal static class SamusAerialPoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ControllerButton controllerNewInput,
+        GameplayAction controllerNewInput,
         ISamusRoomObjects? roomObjects = null)
     {
 
@@ -108,7 +108,7 @@ internal static class SamusAerialPoseTransitions
 
         // Publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
-        if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
+        if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
             samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -817,7 +817,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     public static void ApplyOrdinaryJumpTransition(SamusState samus, 
         SamusPoseId targetPose,
-        ControllerButton controllerNewInput = ControllerButton.None)
+        GameplayAction controllerNewInput = GameplayAction.None)
     {
         bool verified =
             SamusPoseMetadata.IsStandingGroundTurnToJumpTransition(samus.Pose, targetPose) ||
@@ -887,7 +887,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         SamusAerialMovement.InitializeJump(samus);
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & ControllerButton.X) != ControllerButton.None)
+            (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
         {
             // Runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction and hands it to the weapon firing; spin-jump's separate
@@ -914,7 +914,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <returns>True when the initializer began a shinespark windup instead.</returns>
     internal static bool InitializeInstalledNormalJumpPose(SamusState samus, 
         SamusMovementType previousMovementType,
-        ControllerButton controllerNewInput)
+        GameplayAction controllerNewInput)
     {
         if (TryBeginShinesparkWindup(samus, samus.Pose, previousMovementType))
             return true;
@@ -925,10 +925,10 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>Publishes the normal jump's echo and sound bookkeeping after an accepted normal-jump pose initializer.</summary>
-    internal static void PublishNormalJumpPoseShotDirection(SamusState samus, ControllerButton controllerNewInput)
+    internal static void PublishNormalJumpPoseShotDirection(SamusState samus, GameplayAction controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & ControllerButton.X) != ControllerButton.None)
+            (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
             samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
     }
 

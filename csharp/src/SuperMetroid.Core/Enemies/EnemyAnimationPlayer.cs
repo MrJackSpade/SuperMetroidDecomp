@@ -49,7 +49,7 @@ internal sealed class EnemyAnimationPlayer
         SamusState? samus,
         RoomLevelData? level,
         Position16<RoomPixels> camera,
-        ControllerButton controllerInput)
+        GameplayAction controllerInput)
     {
         if (slot.Entity is not IEnemyTypedAnimation { HasTypedAnimation: true } animation)
         {

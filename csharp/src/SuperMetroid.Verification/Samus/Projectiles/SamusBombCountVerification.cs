@@ -38,14 +38,14 @@ internal static class SamusBombCountVerification
         // A full count rejects a fresh Shoot edge even with no cooldown running: nothing is placed and the count stays full.
         SamusBombProjectileSystem full = CreateBombFixture();
         full.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount);
-        full.StepFrame(terrain, MorphedSamus(), ControllerButton.X, ControllerButton.X);
+        full.StepFrame(terrain, MorphedSamus(), GameplayAction.Shoot, GameplayAction.Shoot);
         AssertEqual(SamusBombProjectileSystem.PlaceCount, full.BombCounter, "a full count stays full");
         AssertTrue(full.Bombs.All(bomb => !bomb.IsActive), "a full count places no bomb");
 
         // The Shitroid's drain clears the count while a bomb is out; the bomb's end then leaves it at zero.
         SamusBombProjectileSystem cleared = CreateBombFixture();
         SamusState samus = MorphedSamus();
-        cleared.StepFrame(terrain, samus, ControllerButton.X, ControllerButton.X);
+        cleared.StepFrame(terrain, samus, GameplayAction.Shoot, GameplayAction.Shoot);
         AssertEqual(1, cleared.BombCounter, "a placed bomb counts one");
         cleared.SetSharedBombCounter(0);
         for (int update = 0; update < LongestBombLife && cleared.Bombs[0].IsActive; update++)
@@ -62,7 +62,7 @@ internal static class SamusBombCountVerification
         inconsistent.SpawnBombSpread(spreading);
         inconsistent.SetSharedBombCounter(0);
         AssertThrows<InvalidOperationException>(
-            () => inconsistent.StepFrame(terrain, spreading, ControllerButton.X, ControllerButton.X),
+            () => inconsistent.StepFrame(terrain, spreading, GameplayAction.Shoot, GameplayAction.Shoot),
             "a bomb admitted with every place held fails instead of reusing the last place");
         Console.WriteLine("Samus bomb count: holds 0 through the place count, a full count places nothing, a cleared count stays at zero, and an inconsistent count fails.");
     }

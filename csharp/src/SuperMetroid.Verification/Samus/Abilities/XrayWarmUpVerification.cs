@@ -39,7 +39,7 @@ internal static class XrayWarmUpVerification
         {
             SamusState samus = XrayBeamFixtures.AdmittedStanding();
             AssertEqual(XrayWarmUp.Started, samus.Xray.WarmUp, "X-ray admission starts the warm-up");
-            ControllerButton input = holdingRun ? ControllerButton.B : ControllerButton.None;
+            GameplayAction input = holdingRun ? GameplayAction.Dash : GameplayAction.None;
             for (int update = 1; update <= 8; update++)
             {
                 XrayBeamStepResult step = samus.Xray.StepBeam(samus, input);

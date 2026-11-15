@@ -22,14 +22,14 @@ internal sealed record RoomEnemyFrame
     /// <summary>Samus, or null while the running scenario has not introduced her.</summary>
     public required SamusState? Samus { get; init; }
 
-    /// <summary>Raw button-edge mask for this update, distinct from held buttons.</summary>
-    public ControllerButton NewlyPressedControllerInput { get; init; } = 0;
+    /// <summary>The actions newly pressed this update, distinct from the held actions.</summary>
+    public GameplayAction NewlyPressedControllerInput { get; init; } = 0;
 
     /// <summary>The room's terrain and collision data.</summary>
     public required RoomLevelData Level { get; init; }
 
-    /// <summary>Raw held controller-button mask for this update.</summary>
-    public ControllerButton ControllerInput { get; init; } = 0;
+    /// <summary>The actions held this update.</summary>
+    public GameplayAction ControllerInput { get; init; } = 0;
 
     /// <summary>Samus's beams and missiles, which enemy collision and custom touch paths read.</summary>
     public required SamusProjectileSystem SamusProjectiles { get; init; }

@@ -312,7 +312,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
-    /// <param name="buttons">The buttons Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
+    /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Samus's bombs, carrying the shared projectile cooldown. The runtime steps that
@@ -333,7 +333,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
-    /// <param name="buttons">The buttons Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
+    /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="sharedProjectiles">Samus's bombs, carrying the shared projectile cooldown, which a successful shot replaces.</param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; the shots are handled whether or not it runs.</param>
     public void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled)
@@ -374,10 +374,10 @@ public sealed class SamusProjectileSystem
         {
             // The X-ray HUD item fires the normal beam when selected X-ray's Run
             // action is released. Holding Run owns this step even if setup is
-            // rejected; selection alone must not consume Shoot. Inputs are normalized
-            // by the runtime, so the canonical Run bit also honors remapped bindings.
+            // rejected; selection alone must not consume Shoot. The bindings are read as actions
+            // at the latch, so Dash honors remapped bindings.
             bool xrayBeamFallback = samus.SelectedHudItem == HudItem.XRay &&
-                (buttons.ControllerInput & ControllerButton.B) == ControllerButton.None;
+                (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
                 (_, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(

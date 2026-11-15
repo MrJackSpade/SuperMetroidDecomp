@@ -6,27 +6,27 @@ namespace SuperMetroid.Verification.Runtime.Attract;
 internal static class AttractDemoControllerVerification
 {
     /// <summary>
-    /// Checks that consecutive scripted X presses retain their explicit new-press edges
+    /// Checks that consecutive scripted Shoot presses retain their explicit new-press edges
     /// while the Start latch history survives each temporary override.
     /// A later real Start latch must see no edge leaked from the demo.
     /// </summary>
     internal static void VerifyAttractDemoControllerOverride()
     {
-        var controller = new ControllerInputState();
-        controller.Latch(ControllerButton.Start);
+        var controller = new GameplayActionInput();
+        controller.Latch(GameplayAction.Start);
         for (int frame = 0; frame < 2; frame++)
         {
-            using (controller.UseDemoInput(ControllerButton.X, ControllerButton.X))
+            using (controller.UseDemoInput(GameplayAction.Shoot, GameplayAction.Shoot))
             {
-                if (controller.Current != ControllerButton.X || controller.NewlyPressed != ControllerButton.X)
+                if (controller.Current != GameplayAction.Shoot || controller.NewlyPressed != GameplayAction.Shoot)
                     throw new InvalidDataException("Demo controller did not preserve the explicit scripted edge.");
-                if (controller.Previous != ControllerButton.Start)
-                    throw new InvalidDataException("Demo override modified the hardware latch history.");
+                if (controller.Previous != GameplayAction.Start)
+                    throw new InvalidDataException("Demo override modified the latch history.");
             }
-            if (controller.Current != ControllerButton.Start || controller.NewlyPressed != ControllerButton.Start)
+            if (controller.Current != GameplayAction.Start || controller.NewlyPressed != GameplayAction.Start)
                 throw new InvalidDataException("Demo beta failed to restore the player cancellation input.");
         }
-        controller.Latch(ControllerButton.Start);
+        controller.Latch(GameplayAction.Start);
         if (controller.NewlyPressed != 0)
             throw new InvalidDataException("Demo input leaked into the next real controller edge calculation.");
         Console.WriteLine("  Attract controller: explicit script edges and restored hardware history agree.");

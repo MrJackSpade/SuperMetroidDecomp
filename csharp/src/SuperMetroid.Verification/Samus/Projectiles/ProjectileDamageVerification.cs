@@ -54,7 +54,7 @@ internal static class ProjectileDamageVerification
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var samus = Samus(); samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam);
-            system.Firing.TryFireBeam(room, samus, ControllerButton.X, new SamusBombProjectileSystem(), null, charged);
+            system.Firing.TryFireBeam(room, samus, GameplayAction.Shoot, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Shots[0];
             int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction.ToAimIndex());
@@ -64,7 +64,7 @@ internal static class ProjectileDamageVerification
         foreach (ushort item in new ushort[] { 1, 2 })
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)); var samus = Samus(); samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(item);
-            var result = system.Firing.TryFireMissile(samus, ControllerButton.X, 0, new SamusBombProjectileSystem());
+            var result = system.Firing.TryFireMissile(samus, GameplayAction.Shoot, 0, new SamusBombProjectileSystem());
             AssertEqual(0, result.Place, "Missile allocation succeeds");
             Check(system.Shots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Shots[0].Direction.ToAimIndex());
             system.EnemyImpacts.ReflectFromEnemy(samus, system.Shots[0]);

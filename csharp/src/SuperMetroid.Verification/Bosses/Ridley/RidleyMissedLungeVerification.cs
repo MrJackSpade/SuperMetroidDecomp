@@ -17,7 +17,7 @@ internal static class RidleyMissedLungeVerification
     internal static void VerifyRidleyMissedLunge()
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         Action<RoomEnemySlot, RidleyEnemyState, RidleyWallImpact> move = enemies.CeresRidleyBehavior.Flight.IntegrateRidleyMovement;
         var slot = enemies.SlotTable.Slots[0];
         slot.Health = 1000;

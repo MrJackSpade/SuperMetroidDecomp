@@ -84,7 +84,7 @@ internal static class SpacetimeBeamVerification
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), shared);
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertEqual(0x9137, projectiles.Shots[0].InstructionPointer,

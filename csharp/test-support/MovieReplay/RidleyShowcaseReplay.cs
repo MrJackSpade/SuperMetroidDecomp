@@ -351,8 +351,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus Y", samus.Position.Y.Whole, NativeSnapshotMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
             Check("Samus pose", SamusPoseNumbers.Number(samus.Pose), NativeSnapshotMemory.Pose);
-            Check("PreviousDrawHeldInput", ControllerWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawHeldInput), NativeSnapshotMemory.SamusFilteredHeld);
-            Check("PreviousDrawNewInput", ControllerWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawNewInput), NativeSnapshotMemory.SamusFilteredNew);
+            Check("PreviousDrawHeldInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawHeldInput), NativeSnapshotMemory.SamusFilteredHeld);
+            Check("PreviousDrawNewInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawNewInput), NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
             Check("PreviousHealthForHurtCheck", SamusCountWords.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             VerificationAssertions.AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,

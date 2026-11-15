@@ -37,7 +37,7 @@ internal static class BombChargeRejectionVerification
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
-            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, (ControllerButton.X | ControllerButton.Down), freshShoot ? ControllerButton.X : 0);
+            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, (GameplayAction.Shoot | GameplayAction.Down), freshShoot ? GameplayAction.Shoot : 0);
             bool helperRuns = powerBombSelected || bombsEquipped && charge < 60;
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
@@ -63,7 +63,7 @@ internal static class BombChargeRejectionVerification
                 SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selection), PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) }.WithBeamChargeCount(charge);
             var bombs = CreateBombFixture();
-            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, ControllerButton.Down, 0);
+            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, GameplayAction.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
             AssertEqual(charge != 0, chargeConsumed, $"outer native cancellation command: {context}");
             AssertEqual(charge != 0 ? 1 : 0, bombs.AudioRequests.SoundRequests.Count(sound => sound ==

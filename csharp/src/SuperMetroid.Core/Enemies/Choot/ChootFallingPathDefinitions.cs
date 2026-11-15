@@ -1,95 +1,89 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>Compiled physical paths used by Choot after reaching its jump apex.</summary>
+/// <summary>The paths a Choot follows down from its jump's apex, one sample after another.</summary>
 internal static class ChootFallingPathDefinitions
 {
-    /// <summary>First physical frame after the normal path's positive-X plateau sample.</summary>
-    internal const int PositivePlateauIndex = 28;
-    /// <summary>First physical frame after the normal path's negative-X plateau sample.</summary>
-    internal const int NegativePlateauIndex = 63;
-    /// <summary>Additional copies of each plateau sample in the slow path.</summary>
-    private const int SlowPlateauFrames = 10;
-    /// <summary>Additional copies of each plateau sample in the very-slow path.</summary>
-    private const int VerySlowPlateauFrames = 30;
+    /// <summary>The normal path's swing out to the right, from the falling origin to its rightmost sample.</summary>
+    private static readonly ChootFallSample[] NormalSwingOut =
+    [
+        At(new(0, 0)), At(new(1, 1)), At(new(2, 1)), At(new(3, 2)), At(new(4, 2)), At(new(5, 2)), At(new(6, 3)), At(new(7, 3)),
+        At(new(8, 3)), At(new(9, 3)), At(new(10, 3)), At(new(11, 3)), At(new(12, 3)), At(new(12, 3)), At(new(13, 3)), At(new(13, 3)),
+        At(new(13, 3)), At(new(14, 3)), At(new(14, 3)), At(new(14, 3)), At(new(15, 3)), At(new(15, 3)), At(new(16, 3)), At(new(16, 3)),
+        At(new(16, 3)), At(new(16, 3)), At(new(17, 3)),
+    ];
+
+    /// <summary>The normal path's swing back across to the left, between its rightmost and leftmost samples.</summary>
+    private static readonly ChootFallSample[] NormalSwingBack =
+    [
+        At(new(16, 5)), At(new(15, 6)), At(new(14, 8)), At(new(12, 9)), At(new(11, 10)), At(new(10, 12)), At(new(8, 13)), At(new(7, 14)),
+        At(new(6, 14)), At(new(4, 15)), At(new(3, 16)), At(new(2, 16)), At(new(1, 17)), At(new(0, 17)), At(new(-1, 17)), At(new(-2, 18)),
+        At(new(-4, 18)), At(new(-4, 18)), At(new(-5, 18)), At(new(-6, 18)), At(new(-7, 18)), At(new(-8, 18)), At(new(-9, 18)), At(new(-9, 18)),
+        At(new(-9, 18)), At(new(-10, 18)), At(new(-10, 18)), At(new(-11, 18)), At(new(-11, 18)), At(new(-12, 18)), At(new(-12, 18)), At(new(-12, 18)),
+        At(new(-13, 18)), At(new(-13, 18)),
+    ];
+
+    /// <summary>The normal path's final drop, from its leftmost sample to the loop's end.</summary>
+    private static readonly ChootFallSample[] NormalDrop =
+    [
+        At(new(-12, 20)), At(new(-11, 22)), At(new(-10, 23)), At(new(-9, 25)), At(new(-7, 26)), At(new(-6, 27)), At(new(-5, 28)), At(new(-3, 29)),
+        At(new(-2, 30)), At(new(-1, 31)),
+    ];
 
     /// <summary>
-    /// The normal falling pattern.
-    /// Each sample is a signed X/Y offset; the frame after the last sample ends one loop of the path.
+    /// The normal falling pattern: a swing out to the right, back across to the left and a drop, one update a sample. The
+    /// loop's Y distance is separate from the path.
     /// </summary>
-    /// <remarks>
-    /// The authored path holds all 73 motion pairs. Choot consumes one pair per fall frame and
-    /// adds its signed offsets to the wrapping path origin; the following
-    /// loop Y distance is separate from this path.
-    /// </remarks>
-    private static readonly Offset16<RoomPixels>[] Normal =
+    private static readonly ChootFallSample[] Normal =
+        [.. NormalSwingOut, At(new(17, 3)), .. NormalSwingBack, At(new(-13, 18)), .. NormalDrop];
+
+    /// <summary>The normal path holding its rightmost and leftmost samples eleven updates each.</summary>
+    private static readonly ChootFallSample[] Slow =
+        [.. NormalSwingOut, At(new(17, 3), updates: 11), .. NormalSwingBack, At(new(-13, 18), updates: 11), .. NormalDrop];
+
+    /// <summary>The normal path holding its rightmost and leftmost samples thirty-one updates each.</summary>
+    private static readonly ChootFallSample[] VerySlow =
+        [.. NormalSwingOut, At(new(17, 3), updates: 31), .. NormalSwingBack, At(new(-13, 18), updates: 31), .. NormalDrop];
+
+    /// <summary>The wide falling pattern, one update a sample.</summary>
+    private static readonly ChootFallSample[] Wide =
     [
-        new(0, 0), new(1, 1), new(2, 1), new(3, 2), new(4, 2), new(5, 2), new(6, 3), new(7, 3),
-        new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(12, 3), new(13, 3), new(13, 3),
-        new(13, 3), new(14, 3), new(14, 3), new(14, 3), new(15, 3), new(15, 3), new(16, 3), new(16, 3),
-        new(16, 3), new(16, 3), new(17, 3), new(17, 3), new(16, 5), new(15, 6), new(14, 8), new(12, 9),
-        new(11, 10), new(10, 12), new(8, 13), new(7, 14), new(6, 14), new(4, 15), new(3, 16), new(2, 16),
-        new(1, 17), new(0, 17), new(-1, 17), new(-2, 18), new(-4, 18), new(-4, 18), new(-5, 18), new(-6, 18),
-        new(-7, 18), new(-8, 18), new(-9, 18), new(-9, 18), new(-9, 18), new(-10, 18), new(-10, 18), new(-11, 18),
-        new(-11, 18), new(-12, 18), new(-12, 18), new(-12, 18), new(-13, 18), new(-13, 18), new(-13, 18), new(-12, 20),
-        new(-11, 22), new(-10, 23), new(-9, 25), new(-7, 26), new(-6, 27), new(-5, 28), new(-3, 29), new(-2, 30),
-        new(-1, 31),
+        At(new(0, 0)), At(new(3, 0)), At(new(5, 1)), At(new(7, 1)), At(new(9, 2)), At(new(11, 2)), At(new(13, 2)), At(new(14, 2)),
+        At(new(16, 3)), At(new(18, 3)), At(new(19, 3)), At(new(21, 3)), At(new(22, 3)), At(new(23, 3)), At(new(24, 3)), At(new(25, 3)),
+        At(new(25, 3)), At(new(26, 3)), At(new(27, 3)), At(new(28, 3)), At(new(29, 3)), At(new(30, 3)), At(new(30, 3)), At(new(31, 3)),
+        At(new(31, 3)), At(new(32, 3)), At(new(32, 3)), At(new(32, 3)), At(new(30, 4)), At(new(28, 6)), At(new(26, 7)), At(new(23, 8)),
+        At(new(21, 10)), At(new(19, 11)), At(new(16, 12)), At(new(14, 12)), At(new(11, 13)), At(new(9, 14)), At(new(7, 14)), At(new(5, 15)),
+        At(new(2, 15)), At(new(0, 16)), At(new(-2, 16)), At(new(-4, 16)), At(new(-6, 16)), At(new(-7, 17)), At(new(-9, 17)), At(new(-11, 17)),
+        At(new(-12, 17)), At(new(-14, 17)), At(new(-15, 17)), At(new(-16, 17)), At(new(-16, 17)), At(new(-17, 17)), At(new(-18, 17)), At(new(-19, 17)),
+        At(new(-20, 17)), At(new(-21, 17)), At(new(-22, 17)), At(new(-22, 17)), At(new(-23, 17)), At(new(-24, 17)), At(new(-24, 17)), At(new(-22, 19)),
+        At(new(-20, 20)), At(new(-18, 22)), At(new(-16, 23)), At(new(-14, 24)), At(new(-11, 25)), At(new(-9, 26)), At(new(-6, 27)), At(new(-4, 28)),
+        At(new(-2, 29)),
     ];
 
-    /// <summary>The wide falling pattern.</summary>
-    /// <remarks>
-    /// All 73 signed X/Y motion pairs are authored values. The path consumes one pair per
-    /// frame; its loop Y distance is separate.
-    /// </remarks>
-    private static readonly Offset16<RoomPixels>[] Wide =
+    /// <summary>The very wide falling pattern, one update a sample.</summary>
+    private static readonly ChootFallSample[] VeryWide =
     [
-        new(0, 0), new(3, 0), new(5, 1), new(7, 1), new(9, 2), new(11, 2), new(13, 2), new(14, 2),
-        new(16, 3), new(18, 3), new(19, 3), new(21, 3), new(22, 3), new(23, 3), new(24, 3), new(25, 3),
-        new(25, 3), new(26, 3), new(27, 3), new(28, 3), new(29, 3), new(30, 3), new(30, 3), new(31, 3),
-        new(31, 3), new(32, 3), new(32, 3), new(32, 3), new(30, 4), new(28, 6), new(26, 7), new(23, 8),
-        new(21, 10), new(19, 11), new(16, 12), new(14, 12), new(11, 13), new(9, 14), new(7, 14), new(5, 15),
-        new(2, 15), new(0, 16), new(-2, 16), new(-4, 16), new(-6, 16), new(-7, 17), new(-9, 17), new(-11, 17),
-        new(-12, 17), new(-14, 17), new(-15, 17), new(-16, 17), new(-16, 17), new(-17, 17), new(-18, 17), new(-19, 17),
-        new(-20, 17), new(-21, 17), new(-22, 17), new(-22, 17), new(-23, 17), new(-24, 17), new(-24, 17), new(-22, 19),
-        new(-20, 20), new(-18, 22), new(-16, 23), new(-14, 24), new(-11, 25), new(-9, 26), new(-6, 27), new(-4, 28),
-        new(-2, 29),
+        At(new(0, 0)), At(new(3, 1)), At(new(6, 1)), At(new(9, 2)), At(new(12, 2)), At(new(15, 3)), At(new(17, 3)), At(new(20, 3)),
+        At(new(22, 3)), At(new(24, 3)), At(new(26, 3)), At(new(28, 4)), At(new(30, 4)), At(new(32, 4)), At(new(34, 4)), At(new(35, 4)),
+        At(new(36, 4)), At(new(37, 4)), At(new(38, 4)), At(new(40, 4)), At(new(41, 4)), At(new(42, 4)), At(new(42, 4)), At(new(43, 4)),
+        At(new(44, 3)), At(new(45, 3)), At(new(45, 3)), At(new(45, 3)), At(new(42, 5)), At(new(39, 7)), At(new(36, 9)), At(new(33, 10)),
+        At(new(30, 11)), At(new(26, 13)), At(new(23, 14)), At(new(20, 15)), At(new(16, 15)), At(new(13, 16)), At(new(10, 17)), At(new(6, 17)),
+        At(new(3, 18)), At(new(0, 18)), At(new(-3, 19)), At(new(-5, 19)), At(new(-8, 19)), At(new(-10, 19)), At(new(-13, 19)), At(new(-15, 20)),
+        At(new(-17, 20)), At(new(-19, 20)), At(new(-21, 20)), At(new(-23, 20)), At(new(-24, 20)), At(new(-25, 20)), At(new(-27, 20)), At(new(-28, 20)),
+        At(new(-29, 20)), At(new(-30, 20)), At(new(-31, 19)), At(new(-32, 19)), At(new(-33, 19)), At(new(-34, 19)), At(new(-34, 19)), At(new(-31, 21)),
+        At(new(-28, 23)), At(new(-25, 24)), At(new(-22, 26)), At(new(-18, 27)), At(new(-15, 28)), At(new(-12, 29)), At(new(-8, 30)), At(new(-5, 31)),
+        At(new(-2, 32)),
     ];
 
-    /// <summary>The very wide falling pattern.</summary>
-    /// <remarks>
-    /// All 73 signed X/Y motion pairs are authored values. The path consumes one pair per
-    /// frame; its loop Y distance is separate.
-    /// </remarks>
-    private static readonly Offset16<RoomPixels>[] VeryWide =
-    [
-        new(0, 0), new(3, 1), new(6, 1), new(9, 2), new(12, 2), new(15, 3), new(17, 3), new(20, 3),
-        new(22, 3), new(24, 3), new(26, 3), new(28, 4), new(30, 4), new(32, 4), new(34, 4), new(35, 4),
-        new(36, 4), new(37, 4), new(38, 4), new(40, 4), new(41, 4), new(42, 4), new(42, 4), new(43, 4),
-        new(44, 3), new(45, 3), new(45, 3), new(45, 3), new(42, 5), new(39, 7), new(36, 9), new(33, 10),
-        new(30, 11), new(26, 13), new(23, 14), new(20, 15), new(16, 15), new(13, 16), new(10, 17), new(6, 17),
-        new(3, 18), new(0, 18), new(-3, 19), new(-5, 19), new(-8, 19), new(-10, 19), new(-13, 19), new(-15, 20),
-        new(-17, 20), new(-19, 20), new(-21, 20), new(-23, 20), new(-24, 20), new(-25, 20), new(-27, 20), new(-28, 20),
-        new(-29, 20), new(-30, 20), new(-31, 19), new(-32, 19), new(-33, 19), new(-34, 19), new(-34, 19), new(-31, 21),
-        new(-28, 23), new(-25, 24), new(-22, 26), new(-18, 27), new(-15, 28), new(-12, 29), new(-8, 30), new(-5, 31),
-        new(-2, 32),
-    ];
-
-    /// <summary>The authored samples each falling path follows; the slow paths follow the normal path.</summary>
-    internal static readonly Dictionary<ChootFallingPath, Offset16<RoomPixels>[]> Paths = new()
+    /// <summary>The samples each falling path follows; the update after its last sample ends one loop of the path.</summary>
+    internal static readonly Dictionary<ChootFallingPath, ChootFallSample[]> Paths = new()
     {
         [ChootFallingPath.Normal] = Normal,
         [ChootFallingPath.Wide] = Wide,
         [ChootFallingPath.VeryWide] = VeryWide,
-        [ChootFallingPath.Slow] = Normal,
-        [ChootFallingPath.VerySlow] = Normal,
+        [ChootFallingPath.Slow] = Slow,
+        [ChootFallingPath.VerySlow] = VerySlow,
     };
 
-    /// <summary>How many extra frames each falling path holds each of the normal path's two plateau samples.</summary>
-    internal static readonly Dictionary<ChootFallingPath, int> PlateauHolds = new()
-    {
-        [ChootFallingPath.Normal] = 0,
-        [ChootFallingPath.Wide] = 0,
-        [ChootFallingPath.VeryWide] = 0,
-        [ChootFallingPath.Slow] = SlowPlateauFrames,
-        [ChootFallingPath.VerySlow] = VerySlowPlateauFrames,
-    };
+    /// <summary>A sample at <paramref name="offset"/> from the falling origin, held <paramref name="updates"/> updates.</summary>
+    private static ChootFallSample At(Offset16<RoomPixels> offset, int updates = 1) => new(offset, updates);
 }

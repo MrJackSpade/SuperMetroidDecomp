@@ -149,7 +149,6 @@ internal static class LookupStream2Verification
         AssertEqual(ChozoCarry.Read(new(HorizontalDirection.Left, ChozoCarryPose.StrideLift)).Velocity, (short)-0x300, "Chozo carry mechanics velocity");
         AssertEqual(ChozoCarry.Read(new(HorizontalDirection.Left, ChozoCarryPose.StrideSwing)).Velocity, (short)-0xe00, "Chozo late support displacement");
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
-        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStride.SupportFootX(4), "Chozo support-phase upper bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
 

@@ -13,8 +13,6 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
             [new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySpritemapCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySpritemapSelection.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySpritemaps.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStride.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStrideDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySpritemapParts.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemySpritemapDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemySpritemapFrameList.cs"),

@@ -110,7 +110,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly bool japaneseText;
 
     /// <summary>Signed 1/65536-pixel camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
-    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(CoordinateAxis.Wrap(-44), 0), new(CoordinateAxis.Wrap(-112), 0));
+    internal FixedVector<FloorPixels> Background { get; private set; } = new(SignedSixteenSixteen.FromWholePixels(-44), SignedSixteenSixteen.FromWholePixels(-112));
     /// <summary>
     /// The floor's zoom. Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit"/> plus one fast step, and the only decrease
@@ -296,7 +296,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingAwayFromExplosion:
-                Background = Background.WithX(Background.X.WithWhole(CoordinateAxis.Wrap(Background.X.Whole + 2)));
+                Background = Background.WithX(Background.X + SignedSixteenSixteen.FromWholePixels(2));
                 angle = angle.TurnedBySteps(-1);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumZoom)
                 {
@@ -351,8 +351,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesA:
-                Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
-                Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel));
+                Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+                Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
                     Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
                 else
@@ -361,9 +361,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesB:
-                Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
-                Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel));
-                if (CoordinateAxis.AsSigned(Background.X.Whole) < -128)
+                Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+                Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
+                if (Background.X.WholePixels < -128)
                 {
                     Phase = CeresDestructionPhase.FlyingTowardZebesC;
                 }
@@ -376,8 +376,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesC:
-                Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
-                Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
+                Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
+                Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
                 {
                     Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.FastZoomStep);
@@ -473,7 +473,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ColourEffects.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
 
         actors.Clear();
-        Background = FixedPosition<FloorPixels>.Zero;
+        Background = FixedVector<FloorPixels>.Zero;
         angle = RotationAngle.Zero;
         Zoom = FloorZoom.OwnSize;
         brightness = 0;
@@ -486,8 +486,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void SetupZebesFloorActors()
     {
         usesFloor = true;
-        Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
-            Background.Y.WithWrappedWhole(-104));
+        Background = new(Background.X.WithWholePixels(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
+            Background.Y.WithWholePixels(-104));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
         Zoom = FloorZoom.OwnSize;
         actors.Clear();
@@ -505,8 +505,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Drifts the Ceres camera by one sixteenth pixel down and one quarter pixel left.</summary>
     private void StepInitialDrift()
     {
-        Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.SixteenthPixel));
-        Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel));
+        Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.SixteenthPixel);
+        Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel);
     }
 
     /// <summary>Raises master brightness one level on alternating calls, capped at fifteen.</summary>
@@ -645,14 +645,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         // The final blast calls the ordinary enemy explosion with screen-space coordinates,
         // before replacing the station picture. Keep its authored curves/colors/lifetime.
-        stationExplosion.Spawn(new(
-            CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
-            CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
+        // The blast centres on the station's floor centre as the moved floor shows it on the screen.
+        int blastX = CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels;
+        int blastY = CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels;
+        stationExplosion.Spawn(Position16<RoomPixels>.Wrapped(blastX, blastY));
         audio?.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
-            new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
-                CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)),
+            Position16<ScreenPixels>.Wrapped(blastX, blastY),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
             CeresExplosionDefinitions.StationBlastActor.Animation);
         cinematicExplosion.InstallFrameBehavior(
@@ -668,10 +668,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
-            new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X -
-                    CoordinateAxis.AsSigned(Background.X.Whole) + placement.Offset.X),
-                CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
-                    CoordinateAxis.AsSigned(Background.Y.Whole) + placement.Offset.Y)),
+            Position16<ScreenPixels>.Wrapped(
+                CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels + placement.Offset.X,
+                CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels + placement.Offset.Y),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
             definition.Animation);
         actor.InstallFrameBehavior(definition.FrameBehavior);
@@ -774,8 +773,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.StartFlyingToZebes:
                 // The title actor, not a separate timer, publishes the camera flight exactly
                 // where its animation reaches the flight step.
-                Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    Background.Y.WithWrappedWhole(-112));
+                Background = new(Background.X.WithWholePixels(CeresDestructionSceneDefinitions.Motion.FloorExitX),
+                    Background.Y.WithWholePixels(-112));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
@@ -823,7 +822,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // The wrapping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
         // whose fraction is the rest of a pixel, carries the actor right instead.
         FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
+        actor.Position = actor.Position.WithX(x.WithWhole(x.Whole % CeresDestructionSceneDefinitions.WorldWidth));
     }
 
 
@@ -848,7 +847,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
-                Background.Whole.AsSignedOffset());
+                Background.Whole);
             // Before the station is set up, and after the explosion with Samus aboard clears it, the floor shows nothing.
             if (FloorShot is not { } shot)
                 layers = [sprites];

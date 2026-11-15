@@ -44,7 +44,7 @@ internal sealed class EndingFlyaway
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, 0);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(-72), SignedSixteenSixteen.FromWholePixels(-104));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.WrappedSteps(-112);
         _stage.PhaseTimer = 192;
@@ -98,7 +98,7 @@ internal sealed class EndingFlyaway
     /// <summary>Moves the gunship by its shake's next displacement and moves the shake on.</summary>
     private void ShakeShip()
     {
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(ShipShake.Displacement));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X + ShipShake.Displacement);
         ShipShake = ShipShake.Advanced();
     }
 
@@ -107,7 +107,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(PlanetVelocity));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X + PlanetVelocity);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartZoom &&
             EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(CinematicFrame) &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)

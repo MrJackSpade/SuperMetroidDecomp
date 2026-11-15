@@ -377,7 +377,7 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 1/256 pixels.
-        int targetY = CoordinateAxis.Wrap(Samus.Position.Y.Whole - 32);
+        int targetY = Samus.Position.Y.Whole - 32;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
@@ -427,7 +427,7 @@ internal sealed class IntroBabyDiscoveryState
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
 
-        int targetY = CoordinateAxis.Wrap(Samus.Position.Y.Whole - 8);
+        int targetY = Samus.Position.Y.Whole - 8;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,

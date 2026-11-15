@@ -44,7 +44,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftLeading, EndingSpriteRole.SideCloudLeftLeading);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightTrailing, EndingSpriteRole.SideCloudRightTrailing);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftTrailing, EndingSpriteRole.SideCloudLeftTrailing);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
@@ -67,7 +67,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudEdge, EndingSpriteRole.TopCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudEdge, EndingSpriteRole.BottomCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudPattern, EndingSpriteRole.BottomCloudPattern);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;

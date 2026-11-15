@@ -38,7 +38,7 @@ internal sealed class EndingStage
     internal int Brightness { get; set; }
 
     /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
-    internal FixedPosition<FloorPixels> FloorPosition { get; set; }
+    internal FixedVector<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
     /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
@@ -95,7 +95,7 @@ internal sealed class EndingStage
     /// <returns>The actor added.</returns>
     internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
-            definition.Position,
+            Position16<ScreenPixels>.Zero + definition.Position,
             definition.Colouring,
             definition.Animation,
             role);
@@ -134,7 +134,7 @@ internal sealed class EndingStage
         {
             case EndingSpriteRole.AnimalEscape:
                 sprite.Position = new(
-                    sprite.Position.X.WithWhole(CoordinateAxis.Wrap(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity)),
+                    sprite.Position.X.WithWhole(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity),
                     IntroCinematicMotion.AddFraction(sprite.Position.Y, EndingAnimalEscapeDefinitions.YFractionVelocity));
                 if (sprite.Position.X.Whole >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();

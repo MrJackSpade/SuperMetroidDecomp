@@ -82,7 +82,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// </summary>
     internal bool CopyrightRestored { get; private set; }
     /// <summary>The floor's pan position, whose whole pixels are read as signed.</summary>
-    private FixedPosition<FloorPixels> panPosition;
+    private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
     internal FloorZoom Zoom { get; private set; }
     /// <summary>Current screen brightness applied after composing title layers.</summary>
@@ -244,19 +244,19 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.LowerPan:
                 panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.LowerPanEndX)
+                if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.LowerPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.UpperPan:
                 panPosition = panPosition.WithX(panPosition.X.MovedBy(-TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.UpperPanEndX)
+                if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.UpperPanEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.DownwardPan:
                 panPosition = panPosition.WithY(panPosition.Y.MovedBy(TitleSequenceDefinitions.Scenes.PanVelocity));
-                if (CoordinateAxis.AsSigned(panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
+                if (panPosition.Y.WholePixels >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;
 
@@ -400,7 +400,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return new(new FramePaint(Backdrop, objects.Draws),
             floorBackgroundEnabled
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
-                    panPosition.Whole.AsSignedOffset())
+                    panPosition.Whole)
                 : null,
             Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
@@ -571,7 +571,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
         ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
         floorBackgroundEnabled = true;
-        panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
+        panPosition = new(panPosition.X.WithWholePixels(0), panPosition.Y.WithWholePixels(0));
         Zoom = FloorZoom.OwnSize;
     }
 
@@ -600,8 +600,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         Phase = definition.Phase;
         floorBackgroundEnabled = true;
         Zoom = definition.Zoom;
-        panPosition = new(panPosition.X.WithWhole(CoordinateAxis.Wrap(definition.Position.X)),
-            panPosition.Y.WithWhole(CoordinateAxis.Wrap(definition.Position.Y)));
+        panPosition = panPosition.WithWhole(definition.Position);
         ActiveSprite = null;
     }
 }

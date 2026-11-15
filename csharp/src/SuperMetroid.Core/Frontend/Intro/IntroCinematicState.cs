@@ -1271,7 +1271,7 @@ level, samus, frameCounter);
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             sprites = PrepareScientistSprites();
-            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), crossfade.SceneShading), ScientistCutscene.Background.AsPlaneOffset());
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene), crossfade.SceneShading), ScientistCutscene.Background);
         }
         else if (CurrentObjects is null)
         {

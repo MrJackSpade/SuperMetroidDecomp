@@ -34,7 +34,7 @@ internal sealed class EndingZebesExplosion
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionLava, EndingSpriteRole.ExplosionLava);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionStars, EndingSpriteRole.ExplosionStars);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.Zero;
         _stage.Brightness = 0;

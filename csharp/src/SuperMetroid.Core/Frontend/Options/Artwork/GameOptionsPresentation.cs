@@ -42,8 +42,8 @@ public sealed class GameOptionsPresentation
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {
         Position16<SpritePixels> point = headingAnchors[page];
-        // The authored X is validated on screen; scrolling the heading wraps its Y.
-        Position16<SpritePixels> origin = new(checked(point.X), CoordinateAxis.Wrap(point.Y - verticalScroll));
+        // Scrolling moves the heading up by the menu's scroll.
+        Position16<SpritePixels> origin = point + new Offset16<SpritePixels>(0, -verticalScroll);
         sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin, shading: PictureShading.Standard);
     }
 

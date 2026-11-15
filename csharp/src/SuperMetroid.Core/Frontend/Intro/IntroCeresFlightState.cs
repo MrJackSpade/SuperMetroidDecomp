@@ -36,7 +36,7 @@ internal sealed class IntroCeresFlightState
     private SignedEightEight starsVelocity = CeresFlightActorDefinitions.FrontStars.InitialVelocity;
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
-    private FixedPosition<FloorPixels> background = new(new(CoordinateAxis.Wrap(-72), 0), new(CoordinateAxis.Wrap(-104), 0));
+    private FixedVector<FloorPixels> background = new(SignedSixteenSixteen.FromWholePixels(-72), SignedSixteenSixteen.FromWholePixels(-104));
     /// <summary>
     /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
     /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
@@ -218,7 +218,7 @@ internal sealed class IntroCeresFlightState
         else
         {
             layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
-                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedOffset()),
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole),
                 CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront).Shaded(FloorShading)));
         }
@@ -273,7 +273,7 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
-        background = new(new(CoordinateAxis.Wrap(-32), 0), new(CoordinateAxis.Wrap(-128), 0));
+        background = new(SignedSixteenSixteen.FromWholePixels(-32), SignedSixteenSixteen.FromWholePixels(-128));
         angle = RotationAngle.FromSteps(32);
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
@@ -316,7 +316,7 @@ internal sealed class IntroCeresFlightState
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
-        background = background.WithX(background.X.MovedBy(-SignedSixteenSixteen.FromSixteenthsOfPixel(2)));
+        background = background.WithX(background.X - SignedSixteenSixteen.FromSixteenthsOfPixel(2));
         if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
             zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
         else if (zoom < CeresFlightRenderDefinitions.RearFastWideningLimit)
@@ -413,7 +413,7 @@ internal sealed class IntroCeresFlightState
         // The wrapping star field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta,
         // whose fraction is the rest of a pixel, carries the actor right instead.
         FixedCoordinate x = IntroCinematicMotion.AddFraction(actor.Position.X, horizontalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
+        actor.Position = actor.Position.WithX(x.WithWhole(x.Whole % CeresDestructionSceneDefinitions.WorldWidth));
     }
 
     /// <summary>Applies signed horizontal motion without the front-star wrap.</summary>
@@ -441,9 +441,8 @@ internal sealed class IntroCeresFlightState
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));
-        background = new(
-            IntroCinematicMotion.AddEightEight(background.X, velocity),
-            IntroCinematicMotion.AddEightEight(background.Y, velocity));
+        SignedSixteenSixteen rush = velocity.ToSixteenSixteenDelta();
+        background = new(background.X + rush, background.Y + rush);
     }
 
 }

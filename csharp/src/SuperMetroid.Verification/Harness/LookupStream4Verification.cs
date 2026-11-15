@@ -522,7 +522,7 @@ internal static class LookupStream4Verification
             IReadOnlyList<SignedSixteenSixteen> sequence = fast ? EndingShipShake.Fast : EndingShipShake.Slow;
             int count = sequence.Count, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
-            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
+            state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(100, 0xC000));
             state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
             state.Flyaway.ShipShake = EndingShipShakeCursor.StartOf(sequence);
@@ -537,7 +537,7 @@ internal static class LookupStream4Verification
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), state.Stage.FloorPosition.X.Whole, "production shake whole position follows the authored sequence");
+                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), state.Stage.FloorPosition.X.UnsignedWholePixels, "production shake whole position follows the authored sequence");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
             }
@@ -546,10 +546,10 @@ internal static class LookupStream4Verification
                 last = last.Advanced();
             state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom;
             state.Flyaway.ShipShake = last;
-            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
+            state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(0, 0x4000));
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), state.Stage.FloorPosition.X.Whole, "terminal negative displacement wraps whole position before handoff");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), state.Stage.FloorPosition.X.UnsignedWholePixels, "terminal negative displacement wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
             if (fast)

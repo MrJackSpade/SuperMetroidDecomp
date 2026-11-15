@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -58,7 +59,7 @@ internal static class TorizoOwnershipVerification
 
         torizo.Position = torizo.Position.WithWhole(new(300, 350));
         state.Posture = TorizoPostureFlags.FacingRight;
-        enemies.StepEnemyProjectiles(level, samus: null);
+        enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new Position16<RoomPixels>(300, 350) + TorizoProjectilePlacementDefinitions.HeldSuperMissile, missile.Position.Whole,
             "the held Super Missile stays at the hand of the Golden Torizo that caught it");
     }
@@ -81,9 +82,10 @@ internal static class TorizoOwnershipVerification
         beam.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeamFloorImpact));
 
         bool sparkedOn = false;
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         for (int update = 0; update < SparkUpdates; update++)
         {
-            enemies.StepEnemyProjectiles(level, samus: null);
+            enemies.StepEnemyProjectiles(level, samus);
             sparkedOn |= beam.Frame == EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopSecond;
         }
         AssertEqual(explosionsEnabled, sparkedOn,

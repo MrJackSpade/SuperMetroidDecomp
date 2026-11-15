@@ -191,7 +191,8 @@ public sealed class RoomEnemySlot : ISolidEnemy
     }
     /// <summary>
     /// Where the enemy draws relative to its position: zero for every population entry; Ceres's steam sets it to
-    /// place its puffs on the rotating station.
+    /// place its puffs on the rotating station, and Crocomire's tongue to keep its picture against his body's picture
+    /// when he steps after placing it.
     /// </summary>
     public Offset16<RoomPixels> DrawOffset { get; internal set; }
 

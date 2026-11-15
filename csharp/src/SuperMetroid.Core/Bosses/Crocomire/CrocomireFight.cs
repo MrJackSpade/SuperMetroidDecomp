@@ -172,6 +172,7 @@ internal sealed class CrocomireFight
         if (!body.AnimationClock.Expire())
             return;
 
+        Position16<RoomPixels> placedAt = body.Position.Whole;
         Animation<CrocomireBodySegment> animation = state.BodyPlayback.Animation;
         AnimationPlace place = state.BodyPlayback.Place;
         // Each cue's reaction reads where the play stands just past the cue, which the play has written to these
@@ -183,6 +184,11 @@ internal sealed class CrocomireFight
                 ? new AnimationContinuation<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(animation, place);
+        // His steps move him after his update has placed his tongue, and his body's picture shows where they leave him:
+        // the tongue's picture follows them so that it stays against the body's. The tongue itself, which Samus touches,
+        // stays where it was placed until its next placement.
+        if (state.Tongue is { } tongue)
+            tongue.DrawOffset += body.Position.Whole - placedAt;
         // A hold rests the animation: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
         // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
         switch (outcome)

@@ -2,61 +2,79 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres door species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>
+/// The room's owner of the Ceres station's doors and walls (#1953): it places each placement's own actor (an ordinary
+/// door, the door of Ridley's room, the elevator room's blocked door, the elevator room's wall or a wall of Ridley's
+/// getaway chamber) and lends them the animation they share, the station's escape quake and the room's services.
+/// </summary>
 [RoomLifetime]
 internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresDoor];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresDoorEntity(this, slot, common);
+    /// <summary>The door or wall actor <paramref name="slot"/>'s placement places.</summary>
+    /// <exception cref="InvalidDataException">The placement names no Ceres door or wall.</exception>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) =>
+        Ensure.NotNull(slot).SpawnSettings<CeresDoorOrWallSpawnSettings>().Actor switch
+        {
+            CeresDoorOrWall.DoorFacingRight => new CeresDoorEntity(this, slot, common, CeresDoorSegment.DoorFacingRight),
+            CeresDoorOrWall.DoorFacingLeft => new CeresDoorEntity(this, slot, common, CeresDoorSegment.DoorFacingLeft),
+            CeresDoorOrWall.ElevatorDoor => new CeresElevatorDoorEntity(this, slot, common),
+            CeresDoorOrWall.RidleyRoomDoor => new CeresRidleyRoomDoorEntity(this, slot, common),
+            CeresDoorOrWall.ElevatorRoomWall => new CeresElevatorRoomWallEntity(this, slot, common),
+            CeresDoorOrWall.GetawayChamberLeftWall => new CeresGetawayChamberWallEntity(this, slot, common, CeresDoorSegment.GetawayChamberLeftWall),
+            CeresDoorOrWall.GetawayChamberRightWall => new CeresGetawayChamberWallEntity(this, slot, common, CeresDoorSegment.GetawayChamberRightWall),
+            var other => throw new InvalidDataException($"No Ceres door or wall is placed as {other}."),
+        };
 
-    /// <summary>Provides Ceres room artwork, boss status, and the gameplay RNG.</summary>
-    private readonly EnemyRoomBinding _room;
-    /// <summary>Receives the quake type and duration selected during the escape.</summary>
-    private readonly RoomEarthquake _earthquake;
-    /// <summary>Queues the door's opening and destruction sounds.</summary>
-    private readonly EnemyAudioQueue _audio;
-    /// <summary>Shows the door's pre-explosion overlay look over its ordinary artwork.</summary>
-    private readonly EnemyPresentation _presentation;
-    /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
-    private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
-    private readonly ICeresEscapeStatus _ridleyEncounter;
-
-    /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to.</summary>
-    private readonly ICeresRidleyScene _ridleyScene;
-
-
-    /// <summary>Captures the room systems used by the Ceres door's variants and escape sequence.</summary>
+    /// <summary>Captures the room systems the Ceres doors and walls use.</summary>
     internal CeresDoorBehavior(CeresDoorBehaviorDependencies dependencies)
     {
-        _room = dependencies.Room;
-        _earthquake = dependencies.Earthquake;
-        _audio = dependencies.Audio;
-        _presentation = dependencies.Presentation;
-        _projectiles = dependencies.Projectiles;
-        _ridleyEncounter = dependencies.CeresEscape;
-        _ridleyScene = dependencies.RidleyScene;
+        Ensure.NotNull(dependencies);
+        Room = dependencies.Room;
+        Audio = dependencies.Audio;
+        Presentation = dependencies.Presentation;
+        Projectiles = dependencies.Projectiles;
+        Escape = dependencies.CeresEscape;
+        RidleyScene = dependencies.RidleyScene;
+        EscapeQuake = new CeresEscapeQuake(dependencies.Room, dependencies.Earthquake, dependencies.CeresEscape);
     }
 
+    /// <summary>Provides Ceres room artwork, boss status, the floor and the gameplay RNG.</summary>
+    internal EnemyRoomBinding Room { get; }
+
+    /// <summary>Queues the doors' opening sound and the elevator door's explosions.</summary>
+    internal EnemyAudioQueue Audio { get; }
+
+    /// <summary>Shows the elevator door's own look over the doors' ordinary artwork.</summary>
+    internal EnemyPresentation Presentation { get; }
+
+    /// <summary>Spawns the elevator door's smoke and explosions.</summary>
+    internal EnemyProjectileEngine Projectiles { get; }
+
+    /// <summary>Supplies Ridley's escape status and receives the elevator door's destruction.</summary>
+    internal ICeresEscapeStatus Escape { get; }
+
+    /// <summary>Ceres Ridley's scene, which the door of his room attaches itself to.</summary>
+    internal ICeresRidleyScene RidleyScene { get; }
+
+    /// <summary>The quake every door and the elevator room's wall keeps up while the station self-destructs.</summary>
+    internal CeresEscapeQuake EscapeQuake { get; }
+
     /// <summary>
-    /// The step of the elevator room's six-colour glow the rotating-room door cycles, which the room's pictures show as
+    /// The step of the elevator room's six-colour glow the elevator door cycles, which the room's pictures show as
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
-    internal int? ElevatorRoomGlowStep { get; private set; }
+    internal int? ElevatorRoomGlowStep { get; set; }
 
     /// <summary>Lays the elevator room's glow step, once the door has cycled one, over the room's pictures (#1512).</summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -66,22 +84,44 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             frame.Shade(GameplayPictures.Room, CeresDoorShades.ElevatorRoomGlow(step));
     }
 
-    /// <summary>Plays a door's typed animation in place of the shared enemy animation.</summary>
-    private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
+    /// <summary>
+    /// Starts <paramref name="slot"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage.
+    /// </summary>
+    internal void Start(RoomEnemySlot slot, CeresDoorSegment animation)
     {
+        Ensure.NotNull(slot);
+        slot.Frame = EnemyFrameId.CeresDoorInitial;
+        slot.AnimationClock.Restart();
+        slot.SetSpeciesState(new CeresDoorAnimationState
+        {
+            Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(animation), AnimationPlace.StartOfAnimation),
+        });
+
+        // The game loads the door's colours into one of two colour sets, the inactive door's or the active door's, whose
+        // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the
+        // normal ones. The door shows them as its shade (#1512); which set held them is not kept.
+        slot.Shading = Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
+            ? CeresDoorShades.InEscapingColours
+            : CeresDoorShades.InNormalColours;
+    }
+
+    /// <summary>Plays a door's or wall's typed animation in place of the shared enemy animation.</summary>
+    internal void AdvanceAnimation(RoomEnemySlot slot, SamusState? samus)
+    {
+        Ensure.NotNull(slot);
         if (!slot.AnimationClock.Expire())
             return;
-        CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
+        CeresDoorAnimationState state = slot.RequireSpeciesState<CeresDoorAnimationState>();
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(slot, CeresDoorAnimations.Segments, ref playback,
-            cue => ApplyCeresDoorCue(slot, samus, cue) is { } target
+            cue => ApplyCue(slot, samus, cue) is { } target
                 ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of a door's animation, returning the segment a branch continues at, or null to run on.</summary>
-    private CeresDoorSegment? ApplyCeresDoorCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
+    /// <summary>Carries out one cue of a door's or wall's animation, returning the segment a branch continues at, or null to run on.</summary>
+    private CeresDoorSegment? ApplyCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
@@ -102,15 +142,15 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
                 // The test reads whether the current area's boss is saved
-                // as defeated. Ceres begins with that flag clear, so the facing-right door
+                // as defeated. Ceres begins with that flag clear, so the door of Ridley's room
                 // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
                 // the boss's defeat together with Ceres's escape status; the next pass must then run on
                 // past the branch to the intangible setup.
                 // Hardcoding the early-game branch stranded the invisible 8x32 actor at
                 // X=8 and clipped Samus at X=29 after the getaway cutscene.
-                return _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : cue.Target;
+                return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : cue.Target;
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
-                return _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
+                return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
             case CeresDoorCueKind.MakeIntangible:
                 slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
@@ -118,196 +158,23 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.HandDrawingToRidley:
-                slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley = true;
+                slot.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = true;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
-                slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley = false;
+                slot.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = false;
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.PlayOpeningSound:
-                _audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
+                Audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresDoorCueKind)} {cue.Kind}.");
         }
-    }
-
-    /// <summary>Initial countdown that ends the 49-update destruction sequence when it passes zero.</summary>
-    private const int CeresDoorRumbleDuration = 48;
-    /// <summary>Reload value for the interval between destruction effects.</summary>
-    private const int CeresDoorRumbleInterval = 4;
-    /// <summary>Room graphics animation selected for the smoke outcome.</summary>
-    private const MiscDustAnimation CeresDoorSmokeAnimation = MiscDustAnimation.SmallExplosion;
-    /// <summary>Room graphics animation selected for the explosion outcome.</summary>
-    private const MiscDustAnimation CeresDoorExplosionAnimation = MiscDustAnimation.Smoke;
-
-    /// <summary>Initializes the Ceres door for every retail population variant.</summary>
-    internal void InitializeCeresDoor(RoomEnemySlot slot)
-    {
-        CeresDoorVariant variant = slot.Spawn.Population.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant;
-        CeresDoorInitializationDefinition initialization = CeresDoorInitializations.For(variant);
-
-        slot.Frame = EnemyFrameId.CeresDoorInitial;
-        slot.AnimationClock.Restart();
-        var state = new CeresDoorEnemyState
-        {
-            Action = initialization.MainAction,
-            Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
-        };
-        slot.SetSpeciesState(state);
-
-        // The door of Ridley's room is the one his scene draws while the door hands its drawing to him (#1877).
-        if (variant == CeresDoorVariant.RidleyRoomFacingRight)
-            _ridleyScene.AttachRoomDoor(slot);
-
-        // Only the pre-explosion overlay shows the door's own look (#1406, #1538).
-        if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)
-            _presentation.ShowLook(CeresDoorLookDefinitions.OverlayLook);
-
-        // The game loads the door's colours into one of two colour sets, the inactive door's or the active door's, whose
-        // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the
-        // normal ones. The door shows them as its shade (#1512); which set held them is not kept.
-        slot.Shading = _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
-            ? CeresDoorShades.InEscapingColours
-            : CeresDoorShades.InNormalColours;
-    }
-
-    /// <summary>Runs the door's main-AI action.</summary>
-    internal void RunCeresDoorMain(RoomEnemySlot slot)
-    {
-        CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        CeresDoorAction action = state.Action
-            ?? throw new InvalidDataException("A Ceres door has no action.");
-        switch (action)
-        {
-            case CeresDoorAction.HandleEarthquakeDuringEscape:
-                RunCeresDoorEarthquake(EarthquakeReach.ForegroundBackgroundAndEnemies);
-                return;
-            case CeresDoorAction.HandleEarthquakeDuringEscapeInRidleysRoom:
-                RunCeresDoorEarthquake(EarthquakeReach.BackgroundAndEnemies);
-                return;
-
-            case CeresDoorAction.RidleyEscapeFloorWall:
-                // A getaway wall actor only holds its place: the getaway scene shows the chamber's walls (#1545).
-                return;
-
-            case CeresDoorAction.RotatingElevatorRoomDefault:
-                RunCeresElevatorGlowAndPlatform(slot);
-                if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
-                {
-                    // Entering the destruction state enters the destruction action and initializes all three
-                    // actor-owned counters, but deliberately does not run the destruction step until
-                    // the following enemy frame.
-                    state.Action = CeresDoorAction.RotatingElevatorRumble;
-                    state.RumbleCallsLeft = CeresDoorRumbleDuration;
-                    state.ExplosionIntervalLeft = 0;
-                    state.LastExplosionPlace = 0;
-                }
-                return;
-
-            case CeresDoorAction.RotatingElevatorRumble:
-                RunCeresDoorRumbleAndExplosions(slot);
-                return;
-
-            case CeresDoorAction.ElevatorAnimation:
-                RunCeresElevatorGlowAndPlatform(slot);
-                return;
-
-            default:
-                throw new InvalidOperationException($"A Ceres door has no behaviour for action {action}.");
-        }
-    }
-
-    /// <summary>
-    /// Runs the diagonal earthquake shared by both escape behaviours without advancing the RNG; Ridley's room's door
-    /// leaves the foreground still (<paramref name="reach"/>).
-    /// </summary>
-    private void RunCeresDoorEarthquake(EarthquakeReach reach)
-    {
-        // The door cannot start a second quake while the room still shakes. A separate
-        // engine stage runs the earthquake down; this actor only chooses the next shake and length.
-        if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || _earthquake.IsShaking)
-            return;
-
-        if (CeresDoorQuakeDefinitions.StrongQuake.IsTakenBy(_room.Random.Read()))
-        {
-            // Rarely select the strong quake.
-            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, reach), 4);
-            return;
-        }
-
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, reach), 2);
-    }
-
-    /// <summary>Runs the 49-call destruction state exactly.</summary>
-    internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
-    {
-        CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        // The counters are small counts that each run below zero only once before the call ends the destruction or
-        // reloads them, so nothing reaches the counter's range.
-        state.RumbleCallsLeft--;
-        if (state.RumbleCallsLeft < 0)
-        {
-            // The 49th call takes zero to -1. The door hides, returns
-            // it to the perpetual elevator-animation action, and publishes its destruction so the
-            // room's turning-floor controller begins the rotation after Ridley's escape.
-            slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
-            state.Action = CeresDoorAction.ElevatorAnimation;
-            if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
-                _ridleyEncounter.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
-            return;
-        }
-
-        state.ExplosionIntervalLeft--;
-        if (state.ExplosionIntervalLeft >= 0)
-            return;
-
-        state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
-        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
-        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
-
-        Position16<RoomPixels> explosion = slot.Position.Whole + offsets[state.LastExplosionPlace];
-
-        // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
-        MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(_room.Random.Generate())
-            ? CeresDoorExplosionAnimation
-            : CeresDoorSmokeAnimation;
-        _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
-
-        // The explosion sound is requested even when the finite enemy-projectile pool was full and
-        // could not allocate the visual effect.
-        _audio.QueueEnemySound(EnemySound.BigExplosion, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>
-    /// Cycles the elevator room's glow and the room's turning-floor elevator frame by <paramref name="door"/>'s own update
-    /// count. The glow and the platform strip are only drawn, so the door clocks them itself; the game read the
-    /// room's first enemy's count, which only shifts the drawn phase where another enemy is listed first.
-    /// </summary>
-    internal void RunCeresElevatorGlowAndPlatform(RoomEnemySlot door)
-    {
-        int frame = Ensure.NotNull(door).FrameCounter;
-
-        // The elevator platform's animation does not belong to either arrival
-        // projectile. It survives their touchdown deletion because the rotating-room door
-        // actor keeps alternating the turning floor's platform frames forever. Omitting this
-        // queue made the moving sprite pad flash correctly, then left the landed floor platform
-        // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
-        _room.Services.ShowFloorFrame(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
-
-        // A new step of six colours every eight updates.
-        ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
-    }
-
-    /// <summary>Advances CeresDoor's typed animation.</summary>
-    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
-    {
-        AdvanceCeresDoorAnimation(slot, context.Samus);
     }
 }

@@ -7,7 +7,10 @@ internal interface IEnemyEntityFactory
     IReadOnlyList<EnemyDefinitionId> Definitions { get; }
 
     /// <summary>Creates the entity for a newly installed occupant of <paramref name="slot"/>.</summary>
-    /// <param name="slot">The slot, already holding the new identity.</param>
+    /// <param name="slot">
+    /// The slot, already holding the new identity and, for an occupant placed from a population entry, the entry it is
+    /// spawned from.
+    /// </param>
     /// <param name="common">The shared participation the entity composes.</param>
     IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common);
 }

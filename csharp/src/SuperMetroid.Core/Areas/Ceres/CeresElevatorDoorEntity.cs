@@ -1,0 +1,126 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus.Projectiles;
+
+namespace SuperMetroid.Core.Areas.Ceres;
+
+/// <summary>
+/// The elevator room's blocked door (#1953). It shows its own look over the doors' artwork and keeps the room's glow and
+/// the turning floor's elevator platform cycling. Once the station starts to self-destruct it blows apart in a rumble of
+/// explosions, which publishes its destruction so the shaft starts to turn.
+/// </summary>
+/// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="slot">The slot the door occupies.</param>
+/// <param name="common">The shared participation.</param>
+internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+{
+    /// <summary>Initial countdown that ends the 49-update destruction when it passes zero.</summary>
+    private const int RumbleDuration = 48;
+
+    /// <summary>Reload value for the interval between destruction explosions.</summary>
+    private const int RumbleInterval = 4;
+
+    /// <inheritdoc/>
+    public void Initialize()
+    {
+        doors.Start(Slot, CeresDoorSegment.ElevatorDoor);
+        Slot.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
+        // Only the elevator door shows the door's own look (#1406, #1538).
+        doors.Presentation.ShowLook(CeresDoorLookDefinitions.OverlayLook);
+    }
+
+    /// <inheritdoc/>
+    public void RunMainAi(IEnemyAiFrame frame)
+    {
+        CeresElevatorDoorState state = Slot.RequireSpeciesState<CeresElevatorDoorState>();
+        switch (state.Phase)
+        {
+            case CeresElevatorDoorPhase.Intact:
+                CycleGlowAndPlatform();
+                if (doors.Escape.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
+                {
+                    // Entering the destruction starts its three counters, but deliberately does not run its first step
+                    // until the following enemy frame.
+                    state.Phase = CeresElevatorDoorPhase.Exploding;
+                    state.RumbleCallsLeft = RumbleDuration;
+                    state.ExplosionIntervalLeft = 0;
+                    state.LastExplosionPlace = 0;
+                }
+                return;
+
+            case CeresElevatorDoorPhase.Exploding:
+                Explode();
+                return;
+
+            case CeresElevatorDoorPhase.Destroyed:
+                CycleGlowAndPlatform();
+                return;
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresElevatorDoorPhase)} {state.Phase}.");
+        }
+    }
+
+    /// <inheritdoc/>
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Slot, context.Samus);
+
+    /// <summary>Runs one call of the 49-call destruction exactly.</summary>
+    internal void Explode()
+    {
+        CeresElevatorDoorState state = Slot.RequireSpeciesState<CeresElevatorDoorState>();
+        // The counters are small counts that each run below zero only once before the call ends the destruction or
+        // reloads them, so nothing reaches the counter's range.
+        state.RumbleCallsLeft--;
+        if (state.RumbleCallsLeft < 0)
+        {
+            // The 49th call takes zero to -1. The door hides, keeps cycling the glow and platform from the next call on,
+            // and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
+            Slot.Presence = Slot.Presence.With(EnemyPresence.Hidden);
+            state.Phase = CeresElevatorDoorPhase.Destroyed;
+            if (doors.Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
+                doors.Escape.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
+            return;
+        }
+
+        state.ExplosionIntervalLeft--;
+        if (state.ExplosionIntervalLeft >= 0)
+            return;
+
+        state.ExplosionIntervalLeft = RumbleInterval;
+        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
+        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
+
+        Position16<RoomPixels> explosion = Slot.Position.Whole + offsets[state.LastExplosionPlace];
+
+        // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
+        MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())
+            ? MiscDustAnimation.Smoke
+            : MiscDustAnimation.SmallExplosion;
+        doors.Projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
+
+        // The explosion sound is requested even when the finite enemy-projectile pool was full and
+        // could not allocate the visual effect.
+        doors.Audio.QueueEnemySound(EnemySound.BigExplosion, priority: SoundRequestPriority.Normal);
+    }
+
+    /// <summary>
+    /// Cycles the elevator room's glow and the room's turning-floor elevator frame by the door's own update count. The glow
+    /// and the platform strip are only drawn, so the door clocks them itself; the game read the room's first enemy's count,
+    /// which only shifts the drawn phase where another enemy is listed first.
+    /// </summary>
+    internal void CycleGlowAndPlatform()
+    {
+        int frame = Slot.FrameCounter;
+
+        // The elevator platform's animation does not belong to either arrival
+        // projectile. It survives their touchdown deletion because the elevator door
+        // keeps alternating the turning floor's platform frames forever. Omitting this
+        // queue made the moving sprite pad flash correctly, then left the landed floor platform
+        // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
+        doors.Room.Services.ShowFloorFrame(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
+
+        // A new step of six colours every eight updates.
+        doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
+    }
+}

@@ -55,10 +55,9 @@ internal static class CeresDoorQuakeDefinitionsVerification
         enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Ceres Ridley");
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
-        door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
+        door.BindCeresDoorOrWall(CeresDoorOrWall.RidleyRoomDoor);
         enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
-        var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
-        door.SetSpeciesState(doorState);
+        door.SetSpeciesState(new CeresRidleyRoomDoorState { HandsDrawingToRidley = true });
         door.Position = door.Position.WithWhole(new(100, 80));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);

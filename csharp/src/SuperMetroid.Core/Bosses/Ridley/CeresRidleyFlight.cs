@@ -555,12 +555,12 @@ internal sealed class CeresRidleyFlight
     /// </summary>
     private void SpawnCeresRidleyGetawayWalls()
     {
-        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.LeftWall, CeresDoorVariant.RidleyEscapeFloorLeftWall);
-        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.RightWall, CeresDoorVariant.RidleyEscapeFloorRightWall);
+        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.LeftWall, CeresDoorOrWall.GetawayChamberLeftWall);
+        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.RightWall, CeresDoorOrWall.GetawayChamberRightWall);
     }
 
     /// <summary>Initializes one wall actor at its place and variant, drawing nothing.</summary>
-    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, CeresDoorVariant variant)
+    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, CeresDoorOrWall variant)
     {
         RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a turning-floor wall.");
@@ -573,7 +573,7 @@ internal sealed class CeresRidleyFlight
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
-            SpawnSettings: new CeresDoorSpawnSettings(variant));
+            SpawnSettings: new CeresDoorOrWallSpawnSettings(variant));
         _lifecycle.InitializeSlotFromDefinition(wall, population, definition);
         _lifecycle.RunInitializationAi(wall, EnemySpawnSurroundings.None);
         _slotTable.CoverSpawn(wall);

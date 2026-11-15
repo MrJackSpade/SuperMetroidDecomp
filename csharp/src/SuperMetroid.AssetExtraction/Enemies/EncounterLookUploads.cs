@@ -111,7 +111,7 @@ internal static class EncounterLookUploads
     /// </summary>
     private static bool CopiesLooks(RoomEnemyPlacement placement) =>
         placement.DefinitionId != EnemyDefinitionId.CeresDoor
-        || placement.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay;
+        || placement.SpawnSettingsOf<CeresDoorOrWallSpawnSettings>().Actor == CeresDoorOrWall.ElevatorDoor;
 
     /// <summary>
     /// The encounter gameplay shows <paramref name="encounter"/>'s looks as, or none for an encounter whose looks gameplay

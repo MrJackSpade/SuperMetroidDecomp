@@ -35,6 +35,9 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RoomEnemyPlacement population,
         RoomEnemyDefinition definition)
     {
+        // The placement is recorded before the entity is bound, so a species that places several actors creates the one
+        // the placement names (#1953).
+        slot.Spawn = new RoomEnemySpawnSnapshot(population);
         slot.Bind(population.DefinitionId, definition);
         slot.Radius = new(definition.Radius.X, definition.Radius.Y);
         slot.Health = definition.Health;
@@ -49,7 +52,6 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         slot.FrameCounter = 0;
         slot.HurtFlashFrames = definition.HurtFlashFrames;
         slot.Shading = PictureShading.Standard;
-        slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 
     /// <summary>Runs the definition's initialization for the newly loaded slot.</summary>

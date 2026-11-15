@@ -30,8 +30,8 @@ internal static class AreaDefinitionMigrationVerification
     {
         // The Ceres actors' routine words and the floor animation's list words are verification's; the identities' own
         // values are arbitrary.
-        AssertEqual(0xf7a5, CeresNativeWords.DoorActions.Word(CeresDoorAction.RidleyEscapeFloorWall), "escape-floor wall function word");
-        AssertEqual(CeresDoorAction.ElevatorAnimation, CeresNativeWords.DoorActions.Decode(0xf850, "door function"), "elevator animation decodes");
+        AssertEqual(0xf7a5, (int)CeresNativeWords.GetawayChamberWallWord, "getaway chamber wall function word");
+        AssertEqual(CeresElevatorDoorPhase.Destroyed, CeresNativeWords.ElevatorDoorPhases.Decode(0xf850, "door function"), "destroyed elevator door decodes");
         AssertEqual(0xf019, CeresNativeWords.SteamActions.Word(CeresSteamAction.ApplyRotatingElevatorOffset), "rotating steam function word");
         AssertEqual(0xad80, CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationFrame.WingsLowered), "second wing frame list word");
         AssertEqual(CeresFloorAnimationFrame.BabyRound, CeresFloorAnimation.BabyFrameForPhase(3), "the capsule's fourth phase reuses frame one");

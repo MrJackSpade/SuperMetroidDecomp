@@ -35,13 +35,13 @@ internal static class PowerBombRuntimeIntegrationVerification
 
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
+        runtime.FrameBoundary.BeginAcceptedFrame(playerInput: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             RoomDefinitions.AlphaPowerBomb,
             camera: new Position16<RoomPixels>(0, 0));
-        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
+        runtime.FrameBoundary.BeginAcceptedFrame(playerInput: 0);
 
         RgbaPixel[] baseline = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
@@ -54,7 +54,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         explosion.StepFrame();
         // The window table is read during display, but the pre-instruction's COLDATA
         // write reaches the PPU only with the following accepted NMI (#1307).
-        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
+        runtime.FrameBoundary.BeginAcceptedFrame(playerInput: 0);
 
         GameplayRenderSnapshot ppu = runtime.Display.DisplayedGameplayScrolls;
         ColourAddWindowLayer expected = GameplayEffectCapture.CapturePowerBombGlow(

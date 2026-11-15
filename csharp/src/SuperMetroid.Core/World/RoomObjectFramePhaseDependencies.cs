@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="RoomObjectFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record RoomObjectFramePhaseDependencies
 {
-    /// <summary>Controller1.</summary>
-    public required GameplayActionInput Controller1 { get; init; }
+    /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
+    public required GameplayActionInput PlayerActions { get; init; }
 
     /// <summary>The physical controller buttons, which the message box's own reads continue from.</summary>
-    public required ControllerInputState PhysicalController1 { get; init; }
+    public required ControllerInputState PlayerButtons { get; init; }
 
     /// <summary>The options whose controller bindings the message panels name.</summary>
     public required GameplayOptions Options { get; init; }

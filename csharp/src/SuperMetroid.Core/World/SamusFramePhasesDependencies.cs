@@ -14,8 +14,8 @@ internal sealed record SamusFramePhasesDependencies
     public required IAttractSamusInput AttractDemo { get; init; }
 
 
-    /// <summary>Controller1.</summary>
-    public required GameplayActionInput Controller1 { get; init; }
+    /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
+    public required GameplayActionInput PlayerActions { get; init; }
 
 
 

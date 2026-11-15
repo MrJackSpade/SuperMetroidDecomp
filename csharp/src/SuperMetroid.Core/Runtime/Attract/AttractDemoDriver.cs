@@ -22,7 +22,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
-    private readonly GameplayActionInput _controller1;
+    private readonly GameplayActionInput _playerActions;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
     /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
@@ -41,7 +41,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
-        _controller1 = dependencies.Controller1;
+        _playerActions = dependencies.PlayerActions;
         _hudSetup = dependencies.HudSetup;
         _frameBoundary = dependencies.FrameBoundary;
         _player = dependencies.Player;
@@ -59,7 +59,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.StepStock(SuperMetroidGameState.PlayingDemo,
             SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus));
-        _attractSession.InputRestore = _controller1.UseDemoInput(
+        _attractSession.InputRestore = _playerActions.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
 

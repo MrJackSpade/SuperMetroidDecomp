@@ -119,7 +119,7 @@ internal sealed class RoomLoader
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _controller1 = dependencies.Controller1;
+        _controller1 = dependencies.PlayerActions;
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
         _enemySession = dependencies.EnemySession;

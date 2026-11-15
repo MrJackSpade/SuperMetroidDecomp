@@ -226,22 +226,22 @@ internal sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(PlayerActions, PlayerButtons, Options, Clock), EnemySession = EnemySession, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
-        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room });
+        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, PlayerActions = PlayerActions, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         LiquidWaveAndStatueDescent = new LiquidWaveAndStatueDescent(Freeze, System, LiquidWaveAndStatueDescentOrder);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
-        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Controller1 = Controller1, PhysicalController1 = PhysicalController1, Options = Options, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
+        RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
@@ -343,13 +343,13 @@ internal sealed class SuperMetroidRuntime
     /// The player's gameplay actions as the frame boundary latched them: the configured bindings read the buttons as
     /// actions once at the latch, so gameplay tests actions and never a button.
     /// </summary>
-    public GameplayActionInput Controller1 { get; } = new();
+    public GameplayActionInput PlayerActions { get; } = new();
 
     /// <summary>
     /// The same sample as physical buttons. Code that tests fixed buttons rather than the bindings (the pause menu, the
     /// message box's save choice) reads this latch.
     /// </summary>
-    public ControllerInputState PhysicalController1 { get; } = new();
+    public ControllerInputState PlayerButtons { get; } = new();
 
     /// <summary>Escape timer state machine.</summary>
     public EscapeTimer EscapeTimer { get; } = new();
@@ -443,9 +443,9 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
-    /// <param name="controller1Input">The host's controller buttons, read as gameplay actions through the bindings when the frame boundary latches player input; attract playback publishes its independent scripted actions later.</param>
+    /// <param name="playerInput">The host's controller buttons, read as gameplay actions through the bindings when the frame boundary latches player input; attract playback publishes its independent scripted actions later.</param>
     /// <param name="request">The state policy, audio calls and the host's work after the frame boundary.</param>
-    public void StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
+    public void StepFrame(ControllerButton playerInput, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
         Assists.GrantLoadoutToNewSamus();
@@ -453,7 +453,7 @@ internal sealed class SuperMetroidRuntime
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, Player.Samus);
         try
         {
-            StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
+            StepFrameGuarded(playerInput, request, infiniteAmmoGuard);
         }
         finally
         {
@@ -471,7 +471,7 @@ internal sealed class SuperMetroidRuntime
     /// frame-exit ammo guard remains active through callbacks.
     /// </summary>
     private void StepFrameGuarded(
-        ControllerButton controller1Input,
+        ControllerButton playerInput,
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard)
     {
@@ -482,10 +482,10 @@ internal sealed class SuperMetroidRuntime
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
         {
-            StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
+            StepMessageBoxFrame(playerInput, frameRequest.Policy, infiniteAmmoGuard);
             return;
         }
-        BeginAcceptedGameplayFrame(controller1Input, frameRequest);
+        BeginAcceptedGameplayFrame(playerInput, frameRequest);
         RunLiquidWaveAndStatueDescent();
         AdvanceMainLoopRandom();
         RunEffectsBeforePhase();
@@ -527,10 +527,10 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
-    private void BeginAcceptedGameplayFrame(ControllerButton controller1Input, RuntimeFrameRequest frameRequest)
+    private void BeginAcceptedGameplayFrame(ControllerButton playerInput, RuntimeFrameRequest frameRequest)
     {
         Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
-        FrameBoundary.BeginAcceptedFrame(controller1Input);
+        FrameBoundary.BeginAcceptedFrame(playerInput);
         frameRequest.AfterFrameBoundary();
         ScreenLayers.Choose(Room.LoadedScope);
     }
@@ -547,7 +547,7 @@ internal sealed class SuperMetroidRuntime
         // takes over her movement while the already-spawned blast continues normally.
         // Its cleanup resumes Samus's sounds, which can queue them before Samus's frame.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
-            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, RunningGameState);
+            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
     }
 
     /// <summary>Draws the update's random number.</summary>
@@ -718,7 +718,7 @@ internal sealed class SuperMetroidRuntime
                 throw new InvalidDataException(
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
-            MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, PhysicalController1.Current, Options.ControllerBindings);
+            MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, PlayerButtons.Current, Options.ControllerBindings);
         }
     }
 
@@ -1017,7 +1017,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public void UpdatePauseHeldInput(int timerReset = 3)
     {
-        System.UpdateHeldInput(timerReset, PhysicalController1.Current, PhysicalController1.NewlyPressed);
+        System.UpdateHeldInput(timerReset, PlayerButtons.Current, PlayerButtons.NewlyPressed);
     }
 
     /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
@@ -1138,20 +1138,20 @@ internal sealed class SuperMetroidRuntime
     /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
     internal void StepMessageBoxFrame(
-        ControllerButton controller1Input,
+        ControllerButton playerInput,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard)
     {
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
         // The box reads the controller directly; the frame boundary latches none.
-        MessageBox.Step(controller1Input);
+        MessageBox.Step(playerInput);
         if (MessageBox.LastFrameAudio.AdvancesLiquidWaveAndStatueDescent)
         {
             // The message box's restoring update advances the liquid wave and the statues too.
             if (Room.Camera is not null)
                 LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
             if (Player.Samus is { } samus)
-                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, RunningGameState);
+                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;

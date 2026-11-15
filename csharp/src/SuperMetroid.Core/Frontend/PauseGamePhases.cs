@@ -53,8 +53,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.GameplayRuntime.UpdatePauseHeldInput();
         bool unpauseRequested = session.ActivePauseMenu.Step(
             session.GameplayRuntime.System.TimedHeldInput,
-            session.GameplayRuntime.PhysicalController1.NewlyPressed,
-            session.GameplayRuntime.PhysicalController1.Current,
+            session.GameplayRuntime.PlayerButtons.NewlyPressed,
+            session.GameplayRuntime.PlayerButtons.Current,
             session.GameplayRuntime.Clock.ShortCounter,
             session.GameplayRuntime.Room.BombProjectiles);
         // The paused update writes the HUD after reading pause input; the next displayed frame shows

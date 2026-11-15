@@ -17,9 +17,9 @@ namespace SuperMetroid.Core.World;
 internal sealed class RoomObjectFramePhase
 {
     /// <summary>Newly pressed actions passed to the room objects.</summary>
-    private readonly GameplayActionInput _controller1;
+    private readonly GameplayActionInput _playerActions;
     /// <summary>The physical buttons held at the update's controller read, which an opening message box continues from.</summary>
-    private readonly ControllerInputState _physicalController1;
+    private readonly ControllerInputState _playerButtons;
     /// <summary>The options whose controller bindings an opening message box's panel names.</summary>
     private readonly GameplayOptions _options;
     /// <summary>Applies gate projectiles requested during the room-object pass.</summary>
@@ -40,13 +40,13 @@ internal sealed class RoomObjectFramePhase
 
     /// <summary>Opens the message box on <paramref name="message"/>, continuing from the buttons held at the update's controller read.</summary>
     private void BeginMessage(GameplayMessageId message) =>
-        _messageBox.Begin(message, _physicalController1.Current, _options.ControllerBindings);
+        _messageBox.Begin(message, _playerButtons.Current, _options.ControllerBindings);
 
     /// <summary>Binds the room objects' step to live runtime state and its presentation effects.</summary>
     internal RoomObjectFramePhase(RoomObjectFramePhaseDependencies dependencies)
     {
-        _controller1 = dependencies.Controller1;
-        _physicalController1 = dependencies.PhysicalController1;
+        _playerActions = dependencies.PlayerActions;
+        _playerButtons = dependencies.PlayerButtons;
         _options = dependencies.Options;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
@@ -117,7 +117,7 @@ internal sealed class RoomObjectFramePhase
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.AreObjectsSuspended)
         {
-            StepRoomObjects(_controller1.NewlyPressed, roomObjects, bombProjectiles, room);
+            StepRoomObjects(_playerActions.NewlyPressed, roomObjects, bombProjectiles, room);
 
             // Item room objects publish acquisition only after their trigger and
             // step. Apply their colour consequences at that same seam:

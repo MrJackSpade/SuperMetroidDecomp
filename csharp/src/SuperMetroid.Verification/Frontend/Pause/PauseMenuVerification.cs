@@ -201,7 +201,7 @@ internal static class PauseMenuVerification
 
         var resumeRuntime = CreateRetailRuntimeFixture();
         resumeRuntime.SamusPhases.ShowEquippedBeamColours(samus.EquippedBeams);
-        resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
+        resumeRuntime.FrameBoundary.BeginAcceptedFrame(playerInput: 0);
         // Her beams' colours are a shade the import pre-colours her sheets in (#1512): unpausing names the Wave shade.
         AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave)), resumeRuntime.Player.Colours.Beams,
             "unpause immediately shows the newly equipped Wave beam's shade");

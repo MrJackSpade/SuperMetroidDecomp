@@ -25,7 +25,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly IAttractDemoState _attractSession;
     /// <summary>Supplies the current input state used by Samus's presentation.</summary>
-    private readonly GameplayActionInput _controller1;
+    private readonly GameplayActionInput _playerActions;
     /// <summary>Controls gameplay display modes that can suppress ordinary Samus drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
@@ -45,7 +45,7 @@ internal sealed class GameplayActorDrawing
     {
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
-        _controller1 = dependencies.Controller1;
+        _playerActions = dependencies.PlayerActions;
         _display = dependencies.Display;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
@@ -161,7 +161,7 @@ internal sealed class GameplayActorDrawing
                 SamusHurtFlash.Update(
                     _player.Colours,
                     _player.Samus,
-                    _controller1.Current);
+                    _playerActions.Current);
             }
 
         }
@@ -345,7 +345,7 @@ internal sealed class GameplayActorDrawing
             // The post-draw input snapshot survives the next input phase. In
             // particular, Fire can first cancel a spin and then start Grapple without
             // requiring another physical press after the prospective pose is applied.
-            _player.Samus.InputSnapshot.SnapshotDrawInput(_controller1.Current, _controller1.NewlyPressed);
+            _player.Samus.InputSnapshot.SnapshotDrawInput(_playerActions.Current, _playerActions.NewlyPressed);
             SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(_player.Samus);
             // The demo's input is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) _player.Samus.InputSnapshot.AutoJumpInputPending = false;
@@ -356,7 +356,7 @@ internal sealed class GameplayActorDrawing
             SamusPostDrawAudio.Step(
                 _player.Samus,
                 _player.PreviousMovementTypeForXray,
-                _controller1.Current);
+                _playerActions.Current);
         }
 
         if (!deathOwnsSamus)

@@ -225,7 +225,7 @@ public sealed class SuperMetroidGame
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
         if (pauseInputEpilogue)
-            Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishMainLoopHeldInput(Session.GameplayRuntime.Controller1.Current);
+            Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishMainLoopHeldInput(Session.GameplayRuntime.PlayerActions.Current);
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
@@ -479,8 +479,8 @@ public sealed class SuperMetroidGame
                 AnimationFramesRemaining = samus.AnimationFrameTimer.RemainingFrames,
                 AnimatedPose = samus.AnimatedPose,
                 Position = samus.Position.Whole,
-                HeldActions = runtime.Controller1.Current,
-                NewlyPressedActions = runtime.Controller1.NewlyPressed,
+                HeldActions = runtime.PlayerActions.Current,
+                NewlyPressedActions = runtime.PlayerActions.NewlyPressed,
                 InputLocked = samus.Control.InputLocked,
                 DrainedPhase = samus.Drained.Phase,
                 DrainedGetUp = samus.Drained.GetUpCheck,

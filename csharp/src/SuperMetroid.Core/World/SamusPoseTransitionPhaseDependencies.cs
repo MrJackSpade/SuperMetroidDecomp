@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.World;
 internal sealed record SamusPoseTransitionPhaseDependencies
 {
 
-    /// <summary>Controller1.</summary>
-    public required GameplayActionInput Controller1 { get; init; }
+    /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
+    public required GameplayActionInput PlayerActions { get; init; }
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
     /// <summary>The frame clock.</summary>

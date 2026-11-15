@@ -39,7 +39,7 @@ internal sealed class EnemyFramePhase
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _controller1 = dependencies.Controller1;
+        _controller1 = dependencies.PlayerActions;
         _display = dependencies.Display;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;

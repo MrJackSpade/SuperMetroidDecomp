@@ -29,7 +29,7 @@ internal static class GoldenTorizoCodeEntryVerification
         var runtime = game.GameplayRuntimeForVerification;
         runtime.Player.IntroducedSamus.EquippedBeams = SamusBeamFlags.Wave;
         runtime.Player.IntroducedSamus.CollectedBeams = SamusBeamFlags.Wave;
-        runtime.Controller1.Latch(GoldenTorizoCodeDefinitions.ControllerChord);
+        runtime.PlayerActions.Latch(GoldenTorizoCodeDefinitions.ControllerChord);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GoldenTorizo);
         AssertEqual(GoldenTorizoCodeDefinitions.Beams, runtime.Player.IntroducedSamus.EquippedBeams, "GT code retains exact native beam grant");
         AssertEqual(GoldenTorizoCodeDefinitions.Items, runtime.Player.IntroducedSamus.EquippedItems, "GT code retains exact native equipment grant");

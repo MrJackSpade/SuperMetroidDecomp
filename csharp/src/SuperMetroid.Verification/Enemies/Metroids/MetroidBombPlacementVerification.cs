@@ -118,7 +118,7 @@ internal static class MetroidBombPlacementVerification
         var target = runtime.Enemies.SlotTable.Slots[0];
         foreach (var other in runtime.Enemies.SlotTable.Slots.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));
-        runtime.Controller1.Latch(0);
+        runtime.PlayerActions.Latch(0);
         var state = runtime.Enemies.MetroidStates[0];
 
         // Exact native rows 61..66, case right/travel2/single. The complete 40-case

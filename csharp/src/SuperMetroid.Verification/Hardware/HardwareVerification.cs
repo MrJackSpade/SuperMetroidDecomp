@@ -480,7 +480,7 @@ internal static void VerifyFrameRuntime()
 
     runtime.StepFrame(ControllerButton.Start);
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
-    AssertEqual(GameplayAction.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
+    AssertEqual(GameplayAction.Start, runtime.PlayerActions.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerPhase.InitialDelay, runtime.EscapeTimer.Phase, "runtime dispatches timer after NMI");
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayScrolls.ForegroundScroll),
         runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
@@ -488,7 +488,7 @@ internal static void VerifyFrameRuntime()
     var secondMode7 = new TurningFloorTransform(0.125, new Position16<RoomPixels>(128, 1008));
     runtime.Display.ActiveTurningFloor = secondMode7;
     runtime.StepFrame(ControllerButton.Start);
-    AssertEqual(GameplayAction.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
+    AssertEqual(GameplayAction.None, runtime.PlayerActions.NewlyPressed, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(secondMode7, runtime.Display.DisplayedGameplayScrolls.ForegroundScroll),
         runtime.Display.DisplayedPerspectiveFloor, "the following accepted frame shows the changed transform");

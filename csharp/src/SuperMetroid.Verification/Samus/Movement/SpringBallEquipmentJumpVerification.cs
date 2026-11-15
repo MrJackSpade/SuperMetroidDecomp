@@ -54,7 +54,7 @@ internal static class SpringBallEquipmentJumpVerification
                 AssertEqual(springGround, samus.Pose, "unpause equips jump-enabled Spring Ball even while rising");
                 AssertEqual(0, samus.AnimationFrame, "cross-family equipment conversion restarts ball animation");
                 ushort beforeY = samus.Position.Y.Whole;
-                runtime.Controller1.Latch(0);
+                runtime.PlayerActions.Latch(0);
                 runtime.StepFrame(ControllerButton.A);
                 AssertEqual(left ? SamusPoseId.SpringBallJumpLeftPose : SamusPoseId.SpringBallJumpRightPose,
                     samus.Pose, "new jump input enters powered Spring Ball jump");

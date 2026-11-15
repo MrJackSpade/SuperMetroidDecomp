@@ -23,8 +23,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly GameplayActionInput _controller1;
-    /// <summary>The session's unauthored Speed Booster cadence, which a demo's Samus runs on.</summary>
-    private readonly UnauthoredBoostCadence _unauthoredBoostCadence;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
     /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
@@ -33,15 +31,10 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly SamusFrameState _player;
     /// <summary>Holds demo room viewport, camera scrolls, and load-station state.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Loads the recorded room and door independently using the demo camera position.</summary>
+    /// <summary>Initialises the demo's Samus and loads the recorded room and door independently using the demo camera position.</summary>
     private readonly RoomLoader _roomLoader;
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly SharedGameState _system;
-    /// <summary>What a demo Samus's animation frame past her pose's animation reads.</summary>
-    private readonly FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> _framesBeyondAnimation;
-
-    /// <summary>The session's beam charge, which a demo Samus reads and clears like any other.</summary>
-    private readonly SuperMetroid.Core.Samus.Projectiles.BeamChargeState _beamCharge;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
@@ -49,15 +42,12 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
         _controller1 = dependencies.Controller1;
-        _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
         _hudSetup = dependencies.HudSetup;
         _frameBoundary = dependencies.FrameBoundary;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomLoader = dependencies.RoomLoader;
         _system = dependencies.System;
-        _framesBeyondAnimation = Ensure.NotNull(dependencies.FramesBeyondAnimation);
-        _beamCharge = Ensure.NotNull(dependencies.BeamCharge);
     }
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
     public bool IsAttractDemo => _attractSession.IsAttractDemo;
@@ -105,16 +95,21 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         // The demo load clears the Zebes areas' stored explored maps and leaves the live map as the session left it.
         StoredExploredMapLoads.ClearForDemo(_system.StoredExploredMaps);
 
-        _player.Samus = new SamusState(_framesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
-            EquippedItems = scene.Items, CollectedItems = scene.Items,
-            EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,
-            Health = scene.Health, MaxHealth = scene.Health,
-            Missiles = scene.Missiles, MaxMissiles = scene.Missiles,
-            SuperMissiles = scene.SuperMissiles, MaxSuperMissiles = scene.SuperMissiles,
-            PowerBombs = scene.PowerBombs, MaxPowerBombs = scene.PowerBombs,
-        };
+        SamusState samus = _roomLoader.InitializeSamus();
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition);
+        samus.EquippedItems = scene.Items;
+        samus.CollectedItems = scene.Items;
+        samus.EquippedBeams = scene.EquippedBeams;
+        samus.CollectedBeams = scene.CollectedBeams;
+        samus.Health = scene.Health;
+        samus.MaxHealth = scene.Health;
+        samus.Missiles = scene.Missiles;
+        samus.MaxMissiles = scene.Missiles;
+        samus.SuperMissiles = scene.SuperMissiles;
+        samus.MaxSuperMissiles = scene.SuperMissiles;
+        samus.PowerBombs = scene.PowerBombs;
+        samus.MaxPowerBombs = scene.PowerBombs;
+        _player.Samus = samus;
         _artwork.BindSamusArtwork();
         ApplyAttractSamusSetup(scene.SamusSetup);
         _player.Samus.PreviousHealthForHurtCheck = _player.Samus.Health;

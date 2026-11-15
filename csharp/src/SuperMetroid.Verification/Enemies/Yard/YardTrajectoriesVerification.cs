@@ -29,6 +29,7 @@ internal static class YardTrajectoriesVerification
         var assets = LoadFixtureRoomAssets(room);
         Suite(nameof(VerifyYardLanding), () => VerifyYardLanding(bus, room));
         Suite(nameof(VerifyYardRuntimeDistancePublication), () => VerifyYardRuntimeDistancePublication());
+        Suite(nameof(VerifyYardKickDistanceStartsAtSamusInitialization), () => VerifyYardKickDistanceStartsAtSamusInitialization());
         Suite(nameof(VerifyYardKickTakesTheCameraDistance), () => VerifyYardKickTakesTheCameraDistance());
         Suite(nameof(VerifyYardKickWords), () => VerifyYardKickWords(bus, room));
         Suite(nameof(VerifyYardAirborneTrajectories), () => VerifyYardAirborneTrajectories(room));

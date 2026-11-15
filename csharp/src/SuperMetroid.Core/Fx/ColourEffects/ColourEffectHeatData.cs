@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 public static class ColourEffectHeatData
 {
-    /// <summary>Fractional damage, in 1/65536ths of a unit, the heat condition adds on every unprotected frame.</summary>
-    public const int SubdamagePerFrame = 16384;
+    /// <summary>The damage the heat deals unprotected Samus every update: a quarter of one energy, no whole energy.</summary>
+    public static readonly UnsignedSixteenSixteen DamagePerUpdate = new(whole: 0, fraction: PeriodicDamageEnergyFraction.PartsPerEnergy / 4);
 
     /// <summary>
     /// Energy must be greater than 70 before the heat condition queues another environmental

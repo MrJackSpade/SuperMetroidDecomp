@@ -278,8 +278,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         if (!protectedFromHeat && samus is not null)
         {
             samus.TakePeriodicDamage(
-                ColourEffectHeatData.SubdamagePerFrame,
-                wholeDamage: 0);
+                ColourEffectHeatData.DamagePerUpdate.Fraction,
+                ColourEffectHeatData.DamagePerUpdate.Whole);
             if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {

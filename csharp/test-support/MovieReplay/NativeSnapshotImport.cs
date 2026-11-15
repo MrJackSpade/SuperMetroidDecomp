@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.TestSupport.MovieReplay.NativeSnapshotMotherBrainImport;
 using static SuperMetroid.TestSupport.MovieReplay.NativeSnapshotPauseImport;
+using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -114,7 +115,7 @@ internal static class NativeSnapshotImport
                 PaletteFxNativeProgramOracle.AnimationsOf(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
             ILitTorizo? litTorizo = effect is ColourEffectId.BombTorizoBelly or ColourEffectId.GoldenTorizoBelly
-                ? runtime.Enemies.TorizoBehavior.Access.TorizoState
+                ? runtime.Enemies.SlotTable.Slots.Select(slot => slot.Entity).OfType<TorizoEntity>().SingleOrDefault()
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
             // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783).

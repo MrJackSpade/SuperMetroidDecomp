@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 
@@ -73,7 +73,7 @@ internal sealed class BombTorizoHandObjects
         (_samus?.Current ?? throw new InvalidOperationException(
             "A live Bomb Torizo hand has no active Samus inventory owner.")).CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
     /// <summary>Spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
-    internal void SpawnFragment(RoomObjectPlace place, int fragment) =>
+    internal void SpawnFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
             // The fragment spawn carries both block coordinates, each below 256.

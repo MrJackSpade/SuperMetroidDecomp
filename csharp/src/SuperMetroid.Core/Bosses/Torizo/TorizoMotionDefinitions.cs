@@ -108,6 +108,44 @@ internal static class TorizoMotionDefinitions
     internal const int InitialDroolSideOffset = 8;
 
     /// <summary>
+    /// A facing Torizo's low-health drool heading facing right, an eighth of a turn from up toward its facing (#2032);
+    /// headings point up at zero.
+    /// </summary>
+    internal static readonly TrigonometryAngle DroolHeadingFacingRight = new(32);
+
+    /// <summary>A facing Torizo's low-health drool heading facing left, an eighth of a turn from up toward its facing.</summary>
+    internal static readonly TrigonometryAngle DroolHeadingFacingLeft = new(224);
+
+    /// <summary>
+    /// The steps a facing Torizo's drool spread (<see cref="TorizoRandomDefinitions.DroolFacingSpread"/>) is turned back by,
+    /// so the spread lies either side of the heading.
+    /// </summary>
+    internal const int DroolSpreadCentre = 8;
+
+    /// <summary>The low-health drool's launch speed, one pixel an update along its heading.</summary>
+    internal static readonly SignedEightEight DroolLaunchSpeed = SignedEightEight.FromPixels(1);
+
+    /// <summary>
+    /// Golden Torizo's eye-beam heading facing right, three eighths of a turn from up: ahead and down (#2032).
+    /// </summary>
+    internal static readonly TrigonometryAngle EyeBeamHeadingFacingRight = new(96);
+
+    /// <summary>Golden Torizo's eye-beam heading facing left, three eighths of a turn from up the other way: ahead and down.</summary>
+    internal static readonly TrigonometryAngle EyeBeamHeadingFacingLeft = new(160);
+
+    /// <summary>
+    /// The steps the eye beam's spread (<see cref="TorizoRandomDefinitions.EyeBeamSpread"/>) is turned back by, so the
+    /// spread lies either side of the heading.
+    /// </summary>
+    internal const int EyeBeamSpreadCentre = 8;
+
+    /// <summary>The eye beam's speed, eight pixels an update along its heading.</summary>
+    internal static readonly SignedEightEight EyeBeamSpeed = SignedEightEight.FromPixels(8);
+
+    /// <summary>A thrown Super Missile's speed, four pixels an update toward or away from Samus.</summary>
+    internal static readonly SignedEightEight ThrownSuperMissileSpeed = SignedEightEight.FromPixels(4);
+
+    /// <summary>
     /// Golden Torizo's egg hatch timer, 66 updates for every egg: the egg's initializer meant to draw it at random but
     /// reads a fixed value (#1945).
     /// </summary>

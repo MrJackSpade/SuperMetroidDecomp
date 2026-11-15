@@ -110,7 +110,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         };
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        enemies.TorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
+        torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo);
 
@@ -135,7 +135,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        enemies.TorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
+        torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 
         spawn(enemies, torizo);
 

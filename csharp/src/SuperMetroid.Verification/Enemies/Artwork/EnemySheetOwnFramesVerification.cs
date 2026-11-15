@@ -280,11 +280,15 @@ internal static class EnemySheetOwnFramesVerification
             });
     }
 
-    /// <summary>The body animations a Torizo cue branches, calls or links to.</summary>
+    /// <summary>The body animations a Torizo cue continues in, lands in or interrupts the walk with (#2028).</summary>
     private static IEnumerable<TorizoAnimation> TorizoCueTargets(TorizoCue cue) => cue switch
     {
         TorizoCue.Branch branch => [branch.Target],
+        TorizoCue.Interrupt interrupt => [interrupt.Animation],
         TorizoCue.Choice choice => [choice.Target, choice.Alternate],
+        TorizoCue.LandIn landIn => [landIn.Landing],
+        TorizoCue.WalkOn walkOn => [walkOn.Walking],
+        TorizoCue.Turn turn => [turn.WhenFacingRight, turn.WhenFacingLeft],
         _ => [],
     };
 

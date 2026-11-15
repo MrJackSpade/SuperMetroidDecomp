@@ -8,8 +8,8 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// (#1784), as a spawner starting the program its callers hand it does: a program member named outright; for a parameter of
 /// the method holding it, or a positional record's property, what the calls or constructions passing that parameter pass,
 /// traced on in turn; for a call of a Core method, what each of its returns can be (#1881); and for an element of a
-/// read-only table, what each of the table's entries can be (#1881), as Bomb Torizo's statue fragments take their programs
-/// from <c>TorizoProjectileAnimations.StatueFragment</c>, which indexes a table of the eight fragment programs. Since the
+/// read-only table, what each of the table's entries can be (#1881), as Bomb Torizo's statue pieces take their programs
+/// from the <c>Animation</c> of their entries in <c>BombTorizoStatueFragmentDefinitions.Fragments</c> (#2029). Since the
 /// projectile behaviours took over from the kind-keyed start tables (#1760), this is how a kind's spawner names the program
 /// it starts.
 /// </summary>

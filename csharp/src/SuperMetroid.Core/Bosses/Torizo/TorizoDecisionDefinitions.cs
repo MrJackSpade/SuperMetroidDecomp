@@ -29,11 +29,11 @@ internal static class TorizoDecisionDefinitions
     /// <summary>Golden Torizo takes the first of its two attacks while Samus carries fewer missiles than this.</summary>
     internal const int GoldenFirstAttackMissiles = 32;
 
-    /// <summary>Golden Torizo's low-health call can be taken only at or below this health.</summary>
-    internal const int GoldenLowHealthCallHealth = 1928;
+    /// <summary>Golden Torizo releases its eggs only at or below this health.</summary>
+    internal const int GoldenEggsHealth = 1928;
 
-    /// <summary>Golden Torizo's stunned call is taken only above this health.</summary>
-    internal const int GoldenStunCallHealth = 10800;
+    /// <summary>A stunned Golden Torizo staggers only above this health.</summary>
+    internal const int GoldenStaggerHealth = 10800;
 
     /// <summary>Golden Torizo sits on Samus morphed behind it from this distance.</summary>
     internal const int MorphedBehindNearest = 4;

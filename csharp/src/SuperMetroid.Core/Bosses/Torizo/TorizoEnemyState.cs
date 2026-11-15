@@ -7,19 +7,16 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Torizo's state beyond what every enemy has, kept in named fields rather than in
-/// shared boss values, so no common enemy field takes on a second meaning.
+/// shared boss values, so no common enemy field takes on a second meaning. The Torizo's entity owns it as its species
+/// state (#2030).
 /// </summary>
-public sealed class TorizoEnemyState : ILitTorizo
+public sealed class TorizoEnemyState
 {
-    /// <summary>Attaches variant-specific boss state to the Torizo's existing enemy in the room.</summary>
-    internal TorizoEnemyState(RoomEnemySlot slot, bool isGolden)
+    /// <summary>Creates the state of a Bomb or Golden Torizo.</summary>
+    internal TorizoEnemyState(bool isGolden)
     {
-        Slot = slot;
         IsGolden = isGolden;
     }
-
-    /// <summary>The owning room enemy body slot, whose common position, health, properties, and animation state this extension supplements.</summary>
-    public RoomEnemySlot Slot { get; }
 
     /// <summary>Which way Torizo faces, which leg is forward and whether it is turning around.</summary>
     internal TorizoPostureFlags Posture { get; set; }
@@ -29,17 +26,20 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
 
-    /// <summary>Whether this Torizo has no health left: its belly's glow ends on the first update it sees so (#1700).</summary>
-    public bool IsDefeated => Slot.Health == 0;
-
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
     internal TorizoColours Colours { get; } = new();
 
     /// <summary>The body animation playing and where it stands in it (#1600).</summary>
     internal AnimationPlayback<TorizoAnimation> BodyPlayback { get; set; }
 
-    /// <summary>Where the body's play returns or lands: a call's return point, or a landing's animation.</summary>
-    internal AnimationPlayback<TorizoAnimation> ReturnPlayback { get; set; }
+    /// <summary>The animation the Torizo's jump or fall lands it in, as the jump or fall names it (#2028); null before its first.</summary>
+    internal TorizoAnimation? Landing { get; set; }
+
+    /// <summary>
+    /// Where an attack or a stagger interrupted the Torizo's walk, which resumes there when it ends (#2028); null before the
+    /// first interruption.
+    /// </summary>
+    internal AnimationPlayback<TorizoAnimation>? InterruptedWalk { get; set; }
 
     /// <summary>Where the gut explosion interrupted the body's play, resumed afterwards.</summary>
     internal AnimationPlayback<TorizoAnimation> InterruptedPlayback { get; set; }

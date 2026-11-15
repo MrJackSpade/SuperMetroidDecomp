@@ -79,7 +79,7 @@ internal static class BombTorizoHandVerification
         AssertEqual(0, roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
             "the hand holds through its 120-frame post-pickup delay");
         roomObjects.Step(level);
-        var fragments = new List<int>();
+        var fragments = new List<BombTorizoStatueFragment>();
         int firstFragmentFrame = 0;
         for (int frame = 1; frame <= 400 && roomObjects.BombTorizoHand.HandRemains; frame++)
         {
@@ -91,10 +91,10 @@ internal static class BombTorizoHandVerification
         }
         // The crumble starts on the delay's last frame; the first fragment drops its own delay later, with no step
         // between them for the debris characters the cartridge loaded there (#1406).
-        AssertEqual(BombTorizoHandCrumbleDefinitions.FragmentDelays[0], firstFragmentFrame,
+        AssertEqual(BombTorizoHandCrumbleDefinitions.Crumble[1].Updates, firstFragmentFrame,
             "the first fragment drops its authored delay after the crumble begins");
         AssertSequenceEqual(
-            new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+            BombTorizoStatueFragmentNativeOrder.Pieces,
             fragments,
             "hand fragments preserve cartridge order");
         AssertTrue(!roomObjects.BombTorizoHand.HandRemains,

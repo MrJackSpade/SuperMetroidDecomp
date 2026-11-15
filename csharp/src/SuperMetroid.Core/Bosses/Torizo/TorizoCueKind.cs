@@ -1,6 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Torizo;
+namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's body animations does: start or stop its body's motion, show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, or resume where it was interrupted.</summary>
+/// <summary>What a cue of Torizo's body animations does: start or stop its body's motion, show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, or resume the walk or the animation an attack or the gut explosion interrupted.</summary>
 internal enum TorizoCueKind
 {
     /// <summary>Starts the body walking (#1931).</summary>
@@ -33,8 +33,8 @@ internal enum TorizoCueKind
     LockAnimation,
     /// <summary>Clears the animation lock.</summary>
     UnlockAnimation,
-    /// <summary>Resumes at the saved return point.</summary>
-    Return,
+    /// <summary>Ends an attack or a stagger: the walk it interrupted resumes where it stopped (#2028).</summary>
+    ResumeWalk,
     /// <summary>Resumes the animation the gut explosion interrupted.</summary>
     ResumeInterrupted,
     /// <summary>Spawns a death explosion; the animation then waits one update.</summary>

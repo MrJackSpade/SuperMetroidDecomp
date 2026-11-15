@@ -72,7 +72,7 @@ internal static class BombTorizoDroolSineVerification
 
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
-        enemies.TorizoBehavior.BindFixtureState(torizo, parameter1);
+        torizo.BindTorizoFixtureState(parameter1);
 
         spawn(enemies, torizo);
 

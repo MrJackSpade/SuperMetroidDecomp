@@ -523,7 +523,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
 
     /// <summary>The enemies' colour effect glows and flashes the room's colour effects show.</summary>
-    internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(TorizoBehavior, TourianEntranceStatueBehavior,
+    internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(TourianEntranceStatueBehavior,
         SlotTable);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>

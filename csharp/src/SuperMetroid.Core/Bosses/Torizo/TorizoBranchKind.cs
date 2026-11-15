@@ -1,24 +1,17 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Which branch a <see cref="TorizoCue.Branch"/> cue is. A branch, call or link to another body animation.</summary>
+/// <summary>
+/// Which decision a <see cref="TorizoCue.Branch"/> cue is (#2028): a dodge or an attack that leaves the walk for good
+/// when its test passes, continuing in its animation from the start.
+/// </summary>
 internal enum TorizoBranchKind
 {
-    /// <summary>Saves the target as the return point.</summary>
-    Link,
-    /// <summary>Calls the target when Samus is close behind.</summary>
-    CallIfSamusCloseBehind,
-    /// <summary>Jumps back to the target when Samus is close in front.</summary>
-    JumpBackIfSamusCloseInFront,
-    /// <summary>Continues at the target when Samus is morphed behind the body.</summary>
-    GoToIfSamusMorphedBehind,
-    /// <summary>Calls the target, at random, when Samus is morphed in front.</summary>
-    CallSometimesIfSamusMorphedInFront,
-    /// <summary>Calls the target, at random, when health is low.</summary>
-    CallSometimesIfHealthLow,
-    /// <summary>Calls the target when the stun health is high.</summary>
-    CallIfStunHealthHigh,
-    /// <summary>Jumps forward to the target when Samus is far.</summary>
-    JumpForwardIfSamusFar,
-    /// <summary>Jumps back to the target when Samus is close in front of Golden Torizo.</summary>
-    JumpBackIfSamusCloseInFrontGolden,
+    /// <summary>Bomb Torizo jumps back from Samus close in front of it.</summary>
+    BombJumpBackFromSamusInFront,
+    /// <summary>Golden Torizo sits down on Samus morphed close behind it.</summary>
+    GoldenSitOnSamusMorphedBehind,
+    /// <summary>Golden Torizo leaps forward at Samus far in front of it.</summary>
+    GoldenLeapAtDistantSamus,
+    /// <summary>Golden Torizo jumps back from Samus close in front of it, or after enough steps without a decision.</summary>
+    GoldenJumpBackFromSamusInFront,
 }

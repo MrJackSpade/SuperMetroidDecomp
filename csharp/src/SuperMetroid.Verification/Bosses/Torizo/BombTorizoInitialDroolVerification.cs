@@ -30,7 +30,7 @@ internal static class BombTorizoInitialDroolVerification
         int spawns = 0;
         foreach ((int posture, string name) in new[] { (0x0000, "facing left"), (0x8000, "facing right"), (0x4000, "turning") })
         {
-            enemies.TorizoBehavior.BindFixtureState(torizo, posture);
+            torizo.BindTorizoFixtureState(posture);
             for (int y = HalfHeight; y <= RoomExtent - HalfHeight; y += 3)
             for (int x = HalfWidth; x <= RoomExtent - HalfWidth; x += 79)
             for (int sample = 0; sample < 32; sample += 4)

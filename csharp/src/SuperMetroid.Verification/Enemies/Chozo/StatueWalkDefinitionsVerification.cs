@@ -30,7 +30,8 @@ internal static class StatueWalkDefinitionsVerification
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
-        var torizo = new TorizoEnemyState(slot, true);
+        var torizo = new TorizoEnemyState(true);
+        slot.SetSpeciesState(torizo);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         for (int step = 0; step < GoldenWalkSteps; step++)
         {

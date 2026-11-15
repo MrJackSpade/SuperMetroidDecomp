@@ -8,16 +8,40 @@ internal abstract record TorizoCue
     {
     }
 
-    /// <summary>A branch, call or link to another body animation.</summary>
-    /// <param name="Kind">What the branch tests or does.</param>
-    /// <param name="Target">The animation a branch or call continues in from its start, or a link saves as the return point.</param>
+    /// <summary>A dodge or an attack that leaves the walk for good when its test passes (#2028).</summary>
+    /// <param name="Kind">The decision and what it tests.</param>
+    /// <param name="Target">The animation the decision continues in, from its start.</param>
     internal sealed record Branch(TorizoBranchKind Kind, TorizoAnimation Target) : TorizoCue;
 
-    /// <summary>A two-way branch or call between two body animations.</summary>
-    /// <param name="Kind">What the choice tests.</param>
-    /// <param name="Target">The animation the choice continues in from its start when its test passes.</param>
-    /// <param name="Alternate">The animation a two-way branch or call continues in otherwise.</param>
+    /// <summary>
+    /// An attack or a stagger that interrupts the walk when its test passes (#2028): the walk's place is kept, and
+    /// <paramref name="Animation"/> resumes the walk there when it ends (<see cref="TorizoCueKind.ResumeWalk"/>).
+    /// </summary>
+    /// <param name="Kind">The attack or stagger and what it tests.</param>
+    /// <param name="Animation">The animation that interrupts the walk, from its start.</param>
+    internal sealed record Interrupt(TorizoInterruptKind Kind, TorizoAnimation Animation) : TorizoCue;
+
+    /// <summary>A decision between two body animations (#2028).</summary>
+    /// <param name="Kind">The decision and what it tests.</param>
+    /// <param name="Target">The animation the decision continues in from its start when its test passes.</param>
+    /// <param name="Alternate">The animation the decision continues in otherwise.</param>
     internal sealed record Choice(TorizoChoiceKind Kind, TorizoAnimation Target, TorizoAnimation Alternate) : TorizoCue;
+
+    /// <summary>
+    /// Names the animation the Torizo's jump or fall lands it in (#2028): its leaping motion starts it when the Torizo meets
+    /// the ground.
+    /// </summary>
+    /// <param name="Landing">The landing animation.</param>
+    internal sealed record LandIn(TorizoAnimation Landing) : TorizoCue;
+
+    /// <summary>Ends an attack chosen on landing: the Torizo walks on in <paramref name="Walking"/>, from its start (#2028).</summary>
+    /// <param name="Walking">The walk the attack ends in.</param>
+    internal sealed record WalkOn(TorizoAnimation Walking) : TorizoCue;
+
+    /// <summary>Ends the animation in the turn away from the way the Torizo faces (#2028).</summary>
+    /// <param name="WhenFacingRight">The turn of a Torizo facing right.</param>
+    /// <param name="WhenFacingLeft">The turn of a Torizo facing left.</param>
+    internal sealed record Turn(TorizoAnimation WhenFacingRight, TorizoAnimation WhenFacingLeft) : TorizoCue;
 
     /// <summary>
     /// Plays the run of steps the cue is in again, from that run's first step, while its condition holds (#1788): a jump's

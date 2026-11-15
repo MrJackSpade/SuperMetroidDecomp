@@ -1,96 +1,51 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Bomb Torizo's compiled posture offsets and walk velocities against native tables and their consumers.</summary>
+/// <summary>
+/// Checks that Torizo's posture and walking cues move it as they say (#1891). The animation oracle compares each cue's
+/// displacement and velocity with the cartridge's tables; this checks the consumers apply them.
+/// </summary>
 internal static class BombTorizoMovementDefinitionsVerification
 {
-    /// <summary>Compares six source tables and exercises actual posture and walking consumers with migrated reads forbidden.</summary>
-    internal static void VerifyBombTorizoMovementDefinitions(CartridgeImportAddressSpace rom)
+    /// <summary>
+    /// Every posture cue's displacement moves the Torizo by itself standing up and back sitting down, and every Bomb
+    /// Torizo walking cue's velocity becomes the Torizo's velocity and movement.
+    /// </summary>
+    internal static void VerifyBombTorizoMovementDefinitions()
     {
-        const int standingXAddress = 0xaac3ee;
-        const int standingYAddress = 0xaac40e;
-        const int sittingXAddress = 0xaac440;
-        const int sittingYAddress = 0xaac460;
-        const int normalWalkAddress = 0xaac4bd;
-        const int facelessWalkAddress = 0xaac532;
-
-        // The cartridge's tables hold one word per step; the eight vertical words repeat for both facings.
-        for (int step = 0; step < BombTorizoMovement.PostureStepCount; step++)
+        TorizoCue[] cues =
+        [
+            .. Enum.GetValues<TorizoAnimation>().SelectMany(animation => TorizoAnimations.Segments.Beats(animation))
+                .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).Distinct(),
+        ];
+        Offset16<RoomPixels>[] displacements = [.. cues.OfType<TorizoCue.Posture>().Select(cue => cue.Displacement).Distinct()];
+        AssertTrue(displacements.Length > 1, "Torizo's animations carry posture displacements");
+        foreach (Offset16<RoomPixels> displacement in displacements)
+        foreach (bool sitDown in new[] { false, true })
         {
-            int tableOffset = step * 2;
-            Offset16<RoomPixels> displacement =
-                BombTorizoMovement.Posture(step);
-            int wrappedYOffset = tableOffset & 0x000f;
-
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((standingXAddress + tableOffset))),
-                displacement.X,
-                $"Bomb Torizo standing X offset ${tableOffset:X2}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((standingYAddress + wrappedYOffset))),
-                displacement.Y,
-                $"Bomb Torizo standing Y offset ${tableOffset:X2}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((sittingXAddress + tableOffset))),
-                displacement.X,
-                $"Bomb Torizo sitting X offset ${tableOffset:X2}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((sittingYAddress + wrappedYOffset))),
-                displacement.Y,
-                $"Bomb Torizo sitting Y offset ${tableOffset:X2}");
-        }
-
-        for (int step = 0; step < BombTorizoMovement.WalkStepCount; step++)
-        {
-            int tableOffset = step * 2;
-            int velocity = BombTorizoMovement.WalkVelocity(step);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((normalWalkAddress + tableOffset))), velocity,
-                $"Bomb Torizo normal walk velocity step {step}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((facelessWalkAddress + tableOffset))), velocity,
-                $"Bomb Torizo faceless walk velocity step {step}");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.Posture(-1),
-            "Bomb Torizo negative posture step");
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.Posture(BombTorizoMovement.PostureStepCount),
-            "Bomb Torizo posture step outside table");
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.WalkVelocity(-1),
-            "Bomb Torizo negative walk step");
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.WalkVelocity(BombTorizoMovement.WalkStepCount),
-            "Bomb Torizo walk step outside table");
-
-
-        for (int step = 0; step < BombTorizoMovement.PostureStepCount; step++)
-        foreach (bool subtract in new[] { false, true })
-        {
-            Offset16<RoomPixels> expected =
-                BombTorizoMovement.Posture(step);
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
-
-            BombTorizoBehavior.ApplyBombTorizoPosture(slot, step, subtract ? BombTorizoPostureMove.SitDown : BombTorizoPostureMove.StandUp);
-            int sign = subtract ? -1 : 1;
-            AssertEqual(unchecked((ushort)(1000 + sign * expected.X)), slot.Position.X.Whole,
-                $"Bomb Torizo posture X step {step} subtract {subtract}");
-            AssertEqual(unchecked((ushort)(500 + sign * expected.Y)), slot.Position.Y.Whole,
-                $"Bomb Torizo posture Y step {step} subtract {subtract}");
+            BombTorizoBehavior.ApplyBombTorizoPosture(slot, displacement, sitDown ? BombTorizoPostureMove.SitDown : BombTorizoPostureMove.StandUp);
+            int sign = sitDown ? -1 : 1;
+            AssertEqual(unchecked((ushort)(1000 + sign * displacement.X)), slot.Position.X.Whole, $"Torizo posture X {displacement} sit {sitDown}");
+            AssertEqual(unchecked((ushort)(500 + sign * displacement.Y)), slot.Position.Y.Whole, $"Torizo posture Y {displacement} sit {sitDown}");
         }
 
-        var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new RoomTerrainBlock[4096], new RoomBlockBehavior[4096], new RoomBlockAppearance[4096]), RoomLevelData.NothingBeyondGrid());
-
-        for (int step = 0; step < BombTorizoMovement.WalkStepCount; step++)
+        int[] velocities = [.. cues.OfType<TorizoCue.Walk>().Where(cue => cue.Kind != TorizoWalkKind.WalkGoldenTorizo).Select(cue => cue.Velocity).Distinct()];
+        AssertTrue(velocities.Length > 1, "Bomb Torizo's animations carry walking velocities");
+        foreach (int velocity in velocities)
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
@@ -98,33 +53,21 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(slot, isGolden: false);
-            var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(slot, state, null, level, new TorizoWalkStep { Step = step, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
-
-            AssertEqual(BombTorizoMovement.WalkVelocity(step),
-                state.Velocity.X.InTwoHundredFiftySixthsOfPixel,
-                $"Bomb Torizo walk consumer velocity step {step}");
-            AssertTrue(next is null,
-                $"Bomb Torizo walk consumer runs on without a wall step {step}");
+            var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(slot, state, null, level,
+                new TorizoWalkStep { Velocity = velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
+            AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");
+            AssertTrue(next is null, $"Bomb Torizo walk consumer runs on without a wall at velocity {velocity}");
         }
 
         Console.WriteLine(
-            "Bomb Torizo movement definitions: all 88 native words, 32 real posture applications and 20 real walk consumers pass with all six source tables forbidden.");
+            $"Torizo movement cues: {displacements.Length} posture displacements both ways and {velocities.Length} Bomb Torizo walking velocities move it as they say.");
     }
 
-    /// <summary>Rejects reads of the original posture and walk tables while production behavior runs.</summary>
-    private static CartridgeReadGuard NewBombTorizoMovementReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address =>
-                address is >= 0xaac3ee and < 0xaac41e or
-                    >= 0xaac440 and < 0xaac470 or
-                    >= 0xaac4bd and < 0xaac4e5 or
-                    >= 0xaac532 and < 0xaac55a,
-            address => $"Bomb Torizo movement attempted migrated table read ${address:X6}.");
-
-    /// <summary>Runs the Bomb Torizo movement definition comparison against the retail ROM.</summary>
+    /// <summary>Runs the Torizo movement cue checks.</summary>
     [VerificationCommand("--lookup-stream2-torizo-movement")]
     internal static int LookupStream2TorizoMovementCommand()
     {
-        Suite(nameof(VerifyBombTorizoMovementDefinitions), () => VerifyBombTorizoMovementDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyBombTorizoMovementDefinitions), VerifyBombTorizoMovementDefinitions);
         return 0;
     }
 }

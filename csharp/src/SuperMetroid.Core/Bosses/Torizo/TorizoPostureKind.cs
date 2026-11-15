@@ -1,10 +1,10 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Which posture a <see cref="TorizoCue.Posture"/> cue is. Stands Bomb Torizo up or sits it down, moving it by a movement-table entry.</summary>
+/// <summary>Which posture a <see cref="TorizoCue.Posture"/> cue is: standing a Torizo up or sitting it down.</summary>
 internal enum TorizoPostureKind
 {
-    /// <summary>Applies a standing-up movement step.</summary>
+    /// <summary>Stands the Torizo up, moving it by the cue's displacement.</summary>
     StandUp,
-    /// <summary>Applies a sitting-down movement step.</summary>
+    /// <summary>Sits the Torizo down, moving it back by the cue's displacement.</summary>
     SitDown,
 }

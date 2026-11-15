@@ -423,7 +423,7 @@ internal static class TorizoProjectileAnimations
         P.ThirteenthStatueFragment, P.FourteenthStatueFragment, P.FifteenthStatueFragment, P.SixteenthStatueFragment,
     ];
 
-    /// <summary>The animation each sleeping egg resumes into when its hatch timer wakes it; no other animation sleeps.</summary>
+    /// <summary>The animation each resting egg resumes into when its hatch timer wakes it; no other animation rests.</summary>
     private static readonly FrozenDictionary<P, P> ResumesAfterSleep = new Dictionary<P, P>
     {
         [P.EggBouncingLeft] = P.EggHatchingLeft,
@@ -450,12 +450,12 @@ internal static class TorizoProjectileAnimations
         ? StatueFragments[index]
         : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits sixteen fragments.");
 
-    /// <summary>The animation a sleeping egg resumes into when its hatch timer wakes it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> does not sleep.</exception>
+    /// <summary>The animation a resting egg resumes into when its hatch timer wakes it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> never rests.</exception>
     internal static TorizoProjectileSegment AfterSleep(TorizoProjectileSegment animation) =>
         ResumesAfterSleep.TryGetValue(animation, out P resumed)
             ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation does not sleep.");
+            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation never rests.");
 
     /// <summary>Shows pose <paramref name="phase"/> of the run <paramref name="kind"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue> Show(TorizoProjectileFrameKind kind, int phase, int duration) =>

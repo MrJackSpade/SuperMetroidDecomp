@@ -112,7 +112,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoPhase.WaitForHandTrigger:
-                // Bomb Torizo sleeps, solid, while its statue's hand still stands in the room.
+                // Bomb Torizo stays dormant, solid, while its statue's hand still stands in the room.
                 torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
                 if (_room.Services.RoomObjects.BombTorizoHandRemains)
                     return;
@@ -336,13 +336,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.LowHealthExplosions explosions:
                 for (int explosion = 0; explosion < 6; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                // The animation then waits forty updates, as the cue's sleep does.
+                // The animation then waits forty updates.
                 torizo.FlashTimer = 40;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
-                // The animation then waits one update, as the cue's sleep does.
+                // The animation then waits one update.
                 torizo.FlashTimer = 1;
                 return null;
 
@@ -381,18 +381,18 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Posture { Kind: TorizoPostureKind.StandUp } posture:
-                ApplyBombTorizoPosture(torizo, posture.Step, move: BombTorizoPostureMove.StandUp);
+                ApplyBombTorizoPosture(torizo, posture.Displacement, move: BombTorizoPostureMove.StandUp);
                 return null;
 
             case TorizoCue.Posture { Kind: TorizoPostureKind.SitDown } posture:
-                ApplyBombTorizoPosture(torizo, posture.Step, move: BombTorizoPostureMove.SitDown);
+                ApplyBombTorizoPosture(torizo, posture.Displacement, move: BombTorizoPostureMove.SitDown);
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoAnimation.FacelessTurningLeft, CollisionFacingLeft = TorizoAnimation.FacelessTurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.FacelessTurningLeft, CollisionFacingLeft = TorizoAnimation.FacelessTurningRight });
 
             case TorizoCue.Replay { Kind: TorizoReplayKind.WhileRising }:
                 return state.Velocity.Y.IsNegative ? TorizoAnimations.ReplayPhase(continuation) : null;
@@ -570,7 +570,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     TorizoMovement.RequireBombTorizoLevel(inputs.Level),
-                    walk.Step);
+                    walk.Velocity);
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(state, showArtwork.Look);
@@ -586,15 +586,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         samus ?? throw new InvalidOperationException(
             "Golden Torizo attack selection requires the active Samus actor.");
 
-    /// <summary>Applies or reverses the displacement of a Bomb Torizo posture step.</summary>
+    /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
     internal static void ApplyBombTorizoPosture(
         RoomEnemySlot torizo,
-        int step,
-        BombTorizoPostureMove move)
-    {
-        Offset16<RoomPixels> displacement = BombTorizoMovement.Posture(step);
+        Offset16<RoomPixels> displacement,
+        BombTorizoPostureMove move) =>
         torizo.Position += move == BombTorizoPostureMove.SitDown ? -displacement : displacement;
-    }
 
     /// <summary>Queues the Torizo's music change as the Torizo makes it, after the update's earlier music requests.</summary>
     private void RequestBombTorizoMusic(MusicRequest request) =>

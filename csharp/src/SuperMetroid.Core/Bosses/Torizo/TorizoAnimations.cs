@@ -104,8 +104,8 @@ internal static class TorizoAnimations
         StartingAt.ToFrozenDictionary<KeyValuePair<A, Animation<A>>, Animation<A>, A>(pair => pair.Value, pair => pair.Key, ReferenceEqualityComparer.Instance);
 
     /// <summary>
-    /// The animation each sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
-    /// trigger do; no other animation sleeps.
+    /// The animation each resting animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
+    /// trigger do; no other animation rests.
     /// </summary>
     private static readonly FrozenDictionary<A, A> ResumesAfterSleep = new Dictionary<A, A>
     {
@@ -138,12 +138,12 @@ internal static class TorizoAnimations
     internal static TorizoAnimation Playing(AnimationPlayback<TorizoAnimation> playback) => Identities[Ensure.NotNull(playback.Animation)];
 
     /// <summary>
-    /// The animation a sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
+    /// The animation a resting animation resumes into when the AI wakes it, as Bomb Torizo's wake and Golden Torizo's
     /// trigger do.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> does not sleep.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="animation"/> never rests.</exception>
     internal static TorizoAnimation AfterSleep(TorizoAnimation animation) =>
         ResumesAfterSleep.TryGetValue(animation, out A resumed)
             ? resumed
-            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation does not sleep.");
+            : throw new ArgumentOutOfRangeException(nameof(animation), animation, "The animation never rests.");
 }

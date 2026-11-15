@@ -32,6 +32,27 @@ internal static class TorizoAnimationsVerification
     /// <summary>Bomb Torizo's swipe placement Y table, beside the X table.</summary>
     private const int SwipeYTable = 0x86a74e;
 
+    /// <summary>The standing-up posture X table a posture instruction's operand indexes by byte (#1891).</summary>
+    private const int StandingXTable = 0xaac3ee;
+
+    /// <summary>The standing-up posture Y table; an operand indexes its eight words wrapped to sixteen bytes.</summary>
+    private const int StandingYTable = 0xaac40e;
+
+    /// <summary>The sitting-down posture X table.</summary>
+    private const int SittingXTable = 0xaac440;
+
+    /// <summary>The sitting-down posture Y table; an operand indexes its eight words wrapped to sixteen bytes.</summary>
+    private const int SittingYTable = 0xaac460;
+
+    /// <summary>Bomb Torizo's walking velocity table.</summary>
+    private const int BombWalkTable = 0xaac4bd;
+
+    /// <summary>The faceless Bomb Torizo's walking velocity table.</summary>
+    private const int FacelessWalkTable = 0xaac532;
+
+    /// <summary>Golden Torizo's walking velocity table.</summary>
+    private const int GoldenWalkTable = 0xaad59a;
+
     /// <summary>The bytes a common $814B tile transfer occupies: its opcode word and seven-byte descriptor.</summary>
     private const int TileTransferBytes = 9;
 
@@ -193,15 +214,35 @@ internal static class TorizoAnimationsVerification
                 AssertEqual(native, AssertIs<TorizoCue.Swipe>(cue, $"{at}: cue").Hand, $"{at}: swipe hand placement");
                 continue;
             }
+            if (role == TorizoOperand.Value && cue is TorizoCue.Posture posture)
+            {
+                // The cartridge's operand is the byte offset of the cue's entry in its posture tables (#1891).
+                bool standing = posture.Kind == TorizoPostureKind.StandUp;
+                Offset16<RoomPixels> native = new(
+                    unchecked((short)cartridge.ReadCartridgeWord((standing ? StandingXTable : SittingXTable) + value)),
+                    unchecked((short)cartridge.ReadCartridgeWord((standing ? StandingYTable : SittingYTable) + (value & 0xf))));
+                AssertEqual(native, posture.Displacement, $"{at}: posture displacement");
+                continue;
+            }
+            if (role == TorizoOperand.Value && cue is TorizoCue.Walk walk)
+            {
+                // The cartridge's operand is the byte offset of the cue's entry in its walking table (#1891).
+                int table = walk.Kind switch
+                {
+                    TorizoWalkKind.WalkBombTorizo => BombWalkTable,
+                    TorizoWalkKind.WalkFacelessBombTorizo => FacelessWalkTable,
+                    TorizoWalkKind.WalkGoldenTorizo => GoldenWalkTable,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(TorizoWalkKind)} {walk.Kind}."),
+                };
+                AssertEqual((int)unchecked((short)cartridge.ReadCartridgeWord(table + value)), walk.Velocity, $"{at}: walking velocity");
+                continue;
+            }
             if (role == TorizoOperand.ReplayedRun)
                 AssertEqual(0, run.FirstBeat, $"{at}: a replayed run begins its list");
             ushort typed = role switch
             {
                 TorizoOperand.Value => checked((ushort)(cue switch
                 {
-                    // The cartridge's operand is the step's byte offset into its word table.
-                    TorizoCue.Posture posture => posture.Step * sizeof(ushort),
-                    TorizoCue.Walk walk => walk.Step * sizeof(ushort),
                     // A low-health explosion's operand selects the gut's or the face's rows, six bytes apart.
                     TorizoCue.LowHealthExplosions explosions => (explosions.Site == BombTorizoExplosionSite.Gut ? 0 : 1) * 6,
                     _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),

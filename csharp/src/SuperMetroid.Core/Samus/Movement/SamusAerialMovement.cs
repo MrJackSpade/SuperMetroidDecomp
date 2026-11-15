@@ -577,7 +577,7 @@ public static class SamusAerialMovement
             (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
-            // Clear both the DP displacement and persistent base speed.
+            // Clear both the frame's horizontal displacement and persistent base speed.
             speed.BaseSpeed = default;
             // Then branches past horizontal movement (and the speed calculation, so the
             // previous total-speed pair is retained): no slope alignment runs either.
@@ -742,8 +742,7 @@ public static class SamusAerialMovement
         if (!probe.Collided)
             return false;
 
-        // The accepted whole travel is signed, so its magnitude is at most 32768 and the
-        // distance holds the exact unsigned value.
+        // The accepted travel is a displacement either way; the distance is its whole pixels without their sign.
         int distance = Math.Abs(probe.AcceptedDisplacement.WholePixels);
         if (!launchFrameReached)
         {

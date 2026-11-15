@@ -24,7 +24,7 @@ public static class SamusBombJumpMovement
             throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJumpRequest}.");
 
         // The launch uses the same bottom-edge air/water/lava classification as ordinary
-        // launch, indexing adjacent table entries by medium. Gravity is refreshed by
+        // launch, with a launch speed for each medium. Gravity is refreshed by
         // the input phase, so this launch replaces only the launch speed/direction.
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));

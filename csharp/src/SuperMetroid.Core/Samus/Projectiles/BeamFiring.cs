@@ -467,7 +467,7 @@ internal sealed class BeamFiring
             projectile.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         // The producer first calls the generic velocity initializer with base speed zero.
-        // Ignition replaces that zero with one pixel per update during this same frame's alpha pass;
+        // Ignition replaces that zero with one pixel per update during this same frame's input phase;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, projectile, baseSpeed: SignedEightEight.Zero);
 

@@ -63,8 +63,8 @@ internal sealed class SamusFrameState
 
     /// <summary>
     /// Block-only result of the wall check after movement. This is separate from the input
-    /// table record because a killed running speed can create a ran-into-wall pose even when
-    /// no controller record matched, and a one-pixel probe can replace a running target.
+    /// transition because a killed running speed can create a ran-into-wall pose even when
+    /// no input transition matched, and a one-pixel probe can replace a running target.
     /// </summary>
     public SamusPoseId? ProspectiveSamusWallCollisionPose { get; internal set; }
 

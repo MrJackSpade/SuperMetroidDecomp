@@ -113,11 +113,11 @@ public static class SamusKnockbackMovement
             SamusMovementType.Special;
         if (!morphed && !humanoid && !glitchBall && !suppressesKnockback)
         {
-            // The knockback check contains exactly 28 entries, indexed by the movement type.
-            // A larger value cannot name another game behavior; it means the caller supplied
+            // Every movement type is morphed, humanoid, the glitch ball or one that suppresses knockback.
+            // Any other cannot name another game behaviour; it means the caller supplied
             // corrupt pose metadata rather than an unmodelled movement family.
             throw new InvalidDataException(
-                $"Movement type {sourceMovementType} lies outside the 28-entry knockback table.");
+                $"Movement type {sourceMovementType} has no knockback response.");
         }
 
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.

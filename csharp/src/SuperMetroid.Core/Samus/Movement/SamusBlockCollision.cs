@@ -299,8 +299,8 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.BombableBlock:
-                        // Indexes the collision-bomb-block room-object table with behaviour
-                        // 0..7. Its setup reports the block solid unless Samus
+                        // Spawns the bomb block's room object for the block's reaction.
+                        // Its setup reports the block solid unless Samus
                         // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // reports no collision, so this scan continues through the new air.

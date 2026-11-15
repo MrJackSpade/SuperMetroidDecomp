@@ -123,7 +123,7 @@ internal static class SamusAerialPoseTransitions
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="roomObjects">Optional live room-object owner for those collision reactions.</param>
     /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
-    /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until the next alpha pass.</remarks>
+    /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until Samus's next input phase.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
@@ -320,8 +320,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
 
-        // A triggered wall jump queues the landing sound with a
-        // six-entry threshold after clearing the base speed and before pose setup.
+        // A triggered wall jump queues the landing sound at normal priority
+        // after clearing the base speed and before pose setup.
         samus.LiquidPhysics.QueueMovementSound(RoomSound.Landing, priority: SoundRequestPriority.Normal);
 
         SamusAerialMovement.InitializeWallJump(samus);
@@ -404,7 +404,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
         if (!supportedTarget)
         {
-            // Chooses from the complete twelve-entry dropped-pose table, whose
+            // Chooses from every pose a grapple drop can take, whose
             // outputs are exactly the standing/aim/crouch set above. Other releases use
             // separate grapple wall-jump or swing-release movements, not this API.
             throw new InvalidOperationException(

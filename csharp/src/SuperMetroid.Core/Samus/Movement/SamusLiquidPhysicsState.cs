@@ -462,8 +462,8 @@ public sealed class SamusLiquidPhysicsState
         }
 
         // A nonzero whole speed that reads as reaching five is a hard landing. Anything else, including a whole
-        // speed of 32773 or more, falls to the sub-speed test: with no sub-speed it returns before both sound and
-        // graphics, and otherwise it is a soft landing.
+        // speed so large that it reads as having passed zero, falls to the sub-speed test: with no sub-speed it
+        // returns before both sound and graphics, and otherwise it is a soft landing.
         bool hardLanding = impactYSpeed.Whole != 0 && SamusSpeedMagnitude.IsAtLeast(impactYSpeed.Whole, 5);
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
@@ -482,8 +482,8 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Selects landing dust or splash by area and room while leaving impact sound policy to the caller.</summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        // Is an eight-entry area table. An invalid area would select
-        // unrelated data; fail loudly instead of manufacturing output.
+        // Each area has its own landing graphics. An undefined area has none;
+        // fail loudly instead of manufacturing output.
         switch (Area)
         {
             case AreaId.Crateria:
@@ -582,8 +582,8 @@ public sealed class SamusLiquidPhysicsState
 
         // Both landing particle steps suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination
-        // preserves the absent surfaces and water option-bit-two exemption used by
-        // those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
+        // preserves the absent surfaces and the water whose surface Samus ignores
+        // (IgnoresWaterSurface) used by those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 

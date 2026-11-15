@@ -59,10 +59,4 @@ public static class NoobTubeDebrisDefinitions
     /// as the sway phase in half-angle units.
     /// </summary>
     internal static readonly RandomSampleField FallingSwayPhase = new(8, 8);
-
-    /// <summary>The whole-pixel X a hidden actor is moved to: 4608 pixels left of the room, far off screen.</summary>
-    private const int HiddenX = -4608;
-
-    /// <summary>The stored whole-pixel X of a hidden actor (<see cref="HiddenX"/> wrapped into the coordinate range).</summary>
-    public static int HiddenXPosition { get; } = CoordinateAxis.Wrap(HiddenX);
 }

@@ -53,6 +53,11 @@ public sealed class EnemyProjectile
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the countdown to the animation's next frame; a spawn starts it at one so the animation's first frame shows on its first pass.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
+    /// <summary>
+    /// Whether the projectile is hidden: it is drawn only while shown. A flickering n00b tube crack or shard hides on
+    /// alternate updates (#1839).
+    /// </summary>
+    internal bool IsHidden { get; set; }
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
@@ -184,6 +189,7 @@ public sealed class EnemyProjectile
     {
         Kind = RoomEnemyProjectileKind.None;
         Motion = null;
+        IsHidden = false;
         Frame = null;
         FrameHold = WrappingCountdown.Start(0);
         Animation = null;

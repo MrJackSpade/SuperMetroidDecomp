@@ -13,7 +13,6 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
-using SuperMetroid.Core.Enemies.NoobTube.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -42,10 +41,16 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         NoobTubeProjectileSegment[] shards =
         [
-            NoobTubeProjectileSegment.Shard0, NoobTubeProjectileSegment.Shard1, NoobTubeProjectileSegment.Shard2,
-            NoobTubeProjectileSegment.Shard3, NoobTubeProjectileSegment.Shard4, NoobTubeProjectileSegment.Shard5,
-            NoobTubeProjectileSegment.Shard6, NoobTubeProjectileSegment.Shard7, NoobTubeProjectileSegment.Shard8,
-            NoobTubeProjectileSegment.Shard9,
+            NoobTubeProjectileSegment.ShardDownOutward,
+            NoobTubeProjectileSegment.ShardUpOutward,
+            NoobTubeProjectileSegment.ShardUpSteep,
+            NoobTubeProjectileSegment.ShardUpDiagonalInner,
+            NoobTubeProjectileSegment.ShardUpDiagonalOuter,
+            NoobTubeProjectileSegment.ShardDownDiagonal,
+            NoobTubeProjectileSegment.ShardDownOuter,
+            NoobTubeProjectileSegment.ShardOutward,
+            NoobTubeProjectileSegment.ShardUp,
+            NoobTubeProjectileSegment.ShardDownInner,
         ];
         for (int piece = 0; piece < shards.Length; piece++)
         {
@@ -67,15 +72,17 @@ internal static class NoobTubeProjectileBehaviorVerification
                 $"released-air bubble {piece} completes fifteen frames and deletion");
         }
 
-        AssertEqual(NoobTubeProjectileFrameDefinitions.PoseCount, executedOperands.Count, "every native visual operand is shown");
-        for (int pose = 0; pose < NoobTubeProjectileFrameDefinitions.PoseCount; pose++)
+        EnemyProjectileFrameId[] frames = [.. NoobTubeProjectileAnimations.ShownFrames];
+        AssertEqual(90, frames.Length, "the pieces show ninety frames");
+        AssertEqual(frames.Length, executedOperands.Count, "every native visual operand is shown");
+        foreach (EnemyProjectileFrameId frame in frames)
         {
-            ushort key = EnemyProjectileProgramFrameSources.Operand(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(pose)]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
             AssertTrue(executedOperands.Contains(key), $"production shows n00b-tube presentation $86:{key:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the n00b tube's native list bytes");
         Console.WriteLine("  N00b-tube behavior: the crack, all ten shards and six bubbles live their native lifetimes, " +
-            "every shard flicker picks its parity's pose and column, and all ninety poses draw as their native spritemaps.");
+            "every shard flicker picks its parity's frame, column and visibility, and all ninety poses draw as their native spritemaps.");
 
         RoomEnemySystem NewSystem()
         {
@@ -253,8 +260,9 @@ internal static class NoobTubeProjectileBehaviorVerification
                 else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
-                    AssertEqual(oddFrame ? projectile.StateOf<NoobTubeDebrisState>().X.Whole : NoobTubeDebrisDefinitions.HiddenXPosition, projectile.Position.X.Whole,
+                    AssertEqual(projectile.StateOf<NoobTubeDebrisState>().X.Whole, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
+                    AssertEqual(!oddFrame, projectile.IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
                 }
             }
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands, expectedOperand);

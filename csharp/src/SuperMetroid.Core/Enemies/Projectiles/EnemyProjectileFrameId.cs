@@ -1357,186 +1357,186 @@ public enum EnemyProjectileFrameId
     WorkRobotLaserLoopThird,
     /// <summary><c>work_robot_laser_loop_fourth</c>, an installed animation frame.</summary>
     WorkRobotLaserLoopFourth,
-    /// <summary><c>noob_tube_first</c>, an installed animation frame.</summary>
-    NoobTubeFirst,
-    /// <summary><c>noob_tube_second</c>, an installed animation frame.</summary>
-    NoobTubeSecond,
-    /// <summary><c>noob_tube_third</c>, an installed animation frame.</summary>
-    NoobTubeThird,
-    /// <summary><c>noob_tube_fourth</c>, an installed animation frame.</summary>
-    NoobTubeFourth,
-    /// <summary><c>noob_tube_fifth</c>, an installed animation frame.</summary>
-    NoobTubeFifth,
-    /// <summary><c>noob_tube_sixth</c>, an installed animation frame.</summary>
-    NoobTubeSixth,
-    /// <summary><c>noob_tube_seventh</c>, an installed animation frame.</summary>
-    NoobTubeSeventh,
-    /// <summary><c>noob_tube_eighth</c>, an installed animation frame.</summary>
-    NoobTubeEighth,
-    /// <summary><c>noob_tube_ninth</c>, an installed animation frame.</summary>
-    NoobTubeNinth,
-    /// <summary><c>noob_tube_tenth</c>, an installed animation frame.</summary>
-    NoobTubeTenth,
-    /// <summary><c>noob_tube_eleventh</c>, an installed animation frame.</summary>
-    NoobTubeEleventh,
-    /// <summary><c>noob_tube_twelfth</c>, an installed animation frame.</summary>
-    NoobTubeTwelfth,
-    /// <summary><c>noob_tube_thirteenth</c>, an installed animation frame.</summary>
-    NoobTubeThirteenth,
-    /// <summary><c>noob_tube_fourteenth</c>, an installed animation frame.</summary>
-    NoobTubeFourteenth,
-    /// <summary><c>noob_tube_fifteenth</c>, an installed animation frame.</summary>
-    NoobTubeFifteenth,
-    /// <summary><c>noob_tube_sixteenth</c>, an installed animation frame.</summary>
-    NoobTubeSixteenth,
-    /// <summary><c>noob_tube_seventeenth</c>, an installed animation frame.</summary>
-    NoobTubeSeventeenth,
-    /// <summary><c>noob_tube_eighteenth</c>, an installed animation frame.</summary>
-    NoobTubeEighteenth,
-    /// <summary><c>noob_tube_nineteenth</c>, an installed animation frame.</summary>
-    NoobTubeNineteenth,
-    /// <summary><c>noob_tube_twentieth</c>, an installed animation frame.</summary>
-    NoobTubeTwentieth,
-    /// <summary><c>noob_tube_twenty_first</c>, an installed animation frame.</summary>
-    NoobTubeTwentyFirst,
-    /// <summary><c>noob_tube_twenty_second</c>, an installed animation frame.</summary>
-    NoobTubeTwentySecond,
-    /// <summary><c>noob_tube_twenty_third</c>, an installed animation frame.</summary>
-    NoobTubeTwentyThird,
-    /// <summary><c>noob_tube_twenty_fourth</c>, an installed animation frame.</summary>
-    NoobTubeTwentyFourth,
-    /// <summary><c>noob_tube_twenty_fifth</c>, an installed animation frame.</summary>
-    NoobTubeTwentyFifth,
-    /// <summary><c>noob_tube_twenty_sixth</c>, an installed animation frame.</summary>
-    NoobTubeTwentySixth,
-    /// <summary><c>noob_tube_twenty_seventh</c>, an installed animation frame.</summary>
-    NoobTubeTwentySeventh,
-    /// <summary><c>noob_tube_twenty_eighth</c>, an installed animation frame.</summary>
-    NoobTubeTwentyEighth,
-    /// <summary><c>noob_tube_twenty_ninth</c>, an installed animation frame.</summary>
-    NoobTubeTwentyNinth,
-    /// <summary><c>noob_tube_thirtieth</c>, an installed animation frame.</summary>
-    NoobTubeThirtieth,
-    /// <summary><c>noob_tube_thirty_first</c>, an installed animation frame.</summary>
-    NoobTubeThirtyFirst,
-    /// <summary><c>noob_tube_thirty_second</c>, an installed animation frame.</summary>
-    NoobTubeThirtySecond,
-    /// <summary><c>noob_tube_thirty_third</c>, an installed animation frame.</summary>
-    NoobTubeThirtyThird,
-    /// <summary><c>noob_tube_thirty_fourth</c>, an installed animation frame.</summary>
-    NoobTubeThirtyFourth,
-    /// <summary><c>noob_tube_thirty_fifth</c>, an installed animation frame.</summary>
-    NoobTubeThirtyFifth,
-    /// <summary><c>noob_tube_thirty_sixth</c>, an installed animation frame.</summary>
-    NoobTubeThirtySixth,
-    /// <summary><c>noob_tube_thirty_seventh</c>, an installed animation frame.</summary>
-    NoobTubeThirtySeventh,
-    /// <summary><c>noob_tube_thirty_eighth</c>, an installed animation frame.</summary>
-    NoobTubeThirtyEighth,
-    /// <summary><c>noob_tube_thirty_ninth</c>, an installed animation frame.</summary>
-    NoobTubeThirtyNinth,
-    /// <summary><c>noob_tube_fortieth</c>, an installed animation frame.</summary>
-    NoobTubeFortieth,
-    /// <summary><c>noob_tube_forty_first</c>, an installed animation frame.</summary>
-    NoobTubeFortyFirst,
-    /// <summary><c>noob_tube_forty_second</c>, an installed animation frame.</summary>
-    NoobTubeFortySecond,
-    /// <summary><c>noob_tube_forty_third</c>, an installed animation frame.</summary>
-    NoobTubeFortyThird,
-    /// <summary><c>noob_tube_forty_fourth</c>, an installed animation frame.</summary>
-    NoobTubeFortyFourth,
-    /// <summary><c>noob_tube_forty_fifth</c>, an installed animation frame.</summary>
-    NoobTubeFortyFifth,
-    /// <summary><c>noob_tube_forty_sixth</c>, an installed animation frame.</summary>
-    NoobTubeFortySixth,
-    /// <summary><c>noob_tube_forty_seventh</c>, an installed animation frame.</summary>
-    NoobTubeFortySeventh,
-    /// <summary><c>noob_tube_forty_eighth</c>, an installed animation frame.</summary>
-    NoobTubeFortyEighth,
-    /// <summary><c>noob_tube_forty_ninth</c>, an installed animation frame.</summary>
-    NoobTubeFortyNinth,
-    /// <summary><c>noob_tube_fiftieth</c>, an installed animation frame.</summary>
-    NoobTubeFiftieth,
-    /// <summary><c>noob_tube_fifty_first</c>, an installed animation frame.</summary>
-    NoobTubeFiftyFirst,
-    /// <summary><c>noob_tube_fifty_second</c>, an installed animation frame.</summary>
-    NoobTubeFiftySecond,
-    /// <summary><c>noob_tube_fifty_third</c>, an installed animation frame.</summary>
-    NoobTubeFiftyThird,
-    /// <summary><c>noob_tube_fifty_fourth</c>, an installed animation frame.</summary>
-    NoobTubeFiftyFourth,
-    /// <summary><c>noob_tube_fifty_fifth</c>, an installed animation frame.</summary>
-    NoobTubeFiftyFifth,
-    /// <summary><c>noob_tube_fifty_sixth</c>, an installed animation frame.</summary>
-    NoobTubeFiftySixth,
-    /// <summary><c>noob_tube_fifty_seventh</c>, an installed animation frame.</summary>
-    NoobTubeFiftySeventh,
-    /// <summary><c>noob_tube_fifty_eighth</c>, an installed animation frame.</summary>
-    NoobTubeFiftyEighth,
-    /// <summary><c>noob_tube_fifty_ninth</c>, an installed animation frame.</summary>
-    NoobTubeFiftyNinth,
-    /// <summary><c>noob_tube_sixtieth</c>, an installed animation frame.</summary>
-    NoobTubeSixtieth,
-    /// <summary><c>noob_tube_sixty_first</c>, an installed animation frame.</summary>
-    NoobTubeSixtyFirst,
-    /// <summary><c>noob_tube_sixty_second</c>, an installed animation frame.</summary>
-    NoobTubeSixtySecond,
-    /// <summary><c>noob_tube_sixty_third</c>, an installed animation frame.</summary>
-    NoobTubeSixtyThird,
-    /// <summary><c>noob_tube_sixty_fourth</c>, an installed animation frame.</summary>
-    NoobTubeSixtyFourth,
-    /// <summary><c>noob_tube_sixty_fifth</c>, an installed animation frame.</summary>
-    NoobTubeSixtyFifth,
-    /// <summary><c>noob_tube_sixty_sixth</c>, an installed animation frame.</summary>
-    NoobTubeSixtySixth,
-    /// <summary><c>noob_tube_sixty_seventh</c>, an installed animation frame.</summary>
-    NoobTubeSixtySeventh,
-    /// <summary><c>noob_tube_sixty_eighth</c>, an installed animation frame.</summary>
-    NoobTubeSixtyEighth,
-    /// <summary><c>noob_tube_sixty_ninth</c>, an installed animation frame.</summary>
-    NoobTubeSixtyNinth,
-    /// <summary><c>noob_tube_seventieth</c>, an installed animation frame.</summary>
-    NoobTubeSeventieth,
-    /// <summary><c>noob_tube_seventy_first</c>, an installed animation frame.</summary>
-    NoobTubeSeventyFirst,
-    /// <summary><c>noob_tube_seventy_second</c>, an installed animation frame.</summary>
-    NoobTubeSeventySecond,
-    /// <summary><c>noob_tube_seventy_third</c>, an installed animation frame.</summary>
-    NoobTubeSeventyThird,
-    /// <summary><c>noob_tube_seventy_fourth</c>, an installed animation frame.</summary>
-    NoobTubeSeventyFourth,
-    /// <summary><c>noob_tube_seventy_fifth</c>, an installed animation frame.</summary>
-    NoobTubeSeventyFifth,
-    /// <summary><c>noob_tube_seventy_sixth</c>, an installed animation frame.</summary>
-    NoobTubeSeventySixth,
-    /// <summary><c>noob_tube_seventy_seventh</c>, an installed animation frame.</summary>
-    NoobTubeSeventySeventh,
-    /// <summary><c>noob_tube_seventy_eighth</c>, an installed animation frame.</summary>
-    NoobTubeSeventyEighth,
-    /// <summary><c>noob_tube_seventy_ninth</c>, an installed animation frame.</summary>
-    NoobTubeSeventyNinth,
-    /// <summary><c>noob_tube_eightieth</c>, an installed animation frame.</summary>
-    NoobTubeEightieth,
-    /// <summary><c>noob_tube_eighty_first</c>, an installed animation frame.</summary>
-    NoobTubeEightyFirst,
-    /// <summary><c>noob_tube_eighty_second</c>, an installed animation frame.</summary>
-    NoobTubeEightySecond,
-    /// <summary><c>noob_tube_eighty_third</c>, an installed animation frame.</summary>
-    NoobTubeEightyThird,
-    /// <summary><c>noob_tube_eighty_fourth</c>, an installed animation frame.</summary>
-    NoobTubeEightyFourth,
-    /// <summary><c>noob_tube_eighty_fifth</c>, an installed animation frame.</summary>
-    NoobTubeEightyFifth,
-    /// <summary><c>noob_tube_eighty_sixth</c>, an installed animation frame.</summary>
-    NoobTubeEightySixth,
-    /// <summary><c>noob_tube_eighty_seventh</c>, an installed animation frame.</summary>
-    NoobTubeEightySeventh,
-    /// <summary><c>noob_tube_eighty_eighth</c>, an installed animation frame.</summary>
-    NoobTubeEightyEighth,
-    /// <summary><c>noob_tube_eighty_ninth</c>, an installed animation frame.</summary>
-    NoobTubeEightyNinth,
-    /// <summary><c>noob_tube_ninetieth</c>, an installed animation frame.</summary>
-    NoobTubeNinetieth,
+    /// <summary><c>noob_tube_crack_spreading_first</c>, an installed animation frame.</summary>
+    NoobTubeCrackSpreadingFirst,
+    /// <summary><c>noob_tube_crack_spreading_second</c>, an installed animation frame.</summary>
+    NoobTubeCrackSpreadingSecond,
+    /// <summary><c>noob_tube_crack_spreading_third</c>, an installed animation frame.</summary>
+    NoobTubeCrackSpreadingThird,
+    /// <summary><c>noob_tube_crack_spreading_fourth</c>, an installed animation frame.</summary>
+    NoobTubeCrackSpreadingFourth,
+    /// <summary><c>noob_tube_crack_spreading_fifth</c>, an installed animation frame.</summary>
+    NoobTubeCrackSpreadingFifth,
+    /// <summary><c>noob_tube_crack_spreading_sixth</c>, an installed animation frame.</summary>
+    NoobTubeCrackSpreadingSixth,
+    /// <summary><c>noob_tube_crack_shattering_first</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringFirst,
+    /// <summary><c>noob_tube_crack_shattering_second</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringSecond,
+    /// <summary><c>noob_tube_crack_shattering_third</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringThird,
+    /// <summary><c>noob_tube_crack_shattering_fourth</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringFourth,
+    /// <summary><c>noob_tube_crack_shattering_fifth</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringFifth,
+    /// <summary><c>noob_tube_crack_shattering_sixth</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringSixth,
+    /// <summary><c>noob_tube_crack_shattering_seventh</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringSeventh,
+    /// <summary><c>noob_tube_crack_shattering_eighth</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringEighth,
+    /// <summary><c>noob_tube_crack_shattering_ninth</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringNinth,
+    /// <summary><c>noob_tube_crack_shattering_tenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackShatteringTenth,
+    /// <summary><c>noob_tube_crack_falling_first</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingFirst,
+    /// <summary><c>noob_tube_crack_falling_second</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingSecond,
+    /// <summary><c>noob_tube_crack_falling_third</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingThird,
+    /// <summary><c>noob_tube_crack_falling_fourth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingFourth,
+    /// <summary><c>noob_tube_crack_falling_fifth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingFifth,
+    /// <summary><c>noob_tube_crack_falling_sixth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingSixth,
+    /// <summary><c>noob_tube_crack_falling_seventh</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingSeventh,
+    /// <summary><c>noob_tube_crack_falling_eighth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingEighth,
+    /// <summary><c>noob_tube_crack_falling_ninth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingNinth,
+    /// <summary><c>noob_tube_crack_falling_tenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingTenth,
+    /// <summary><c>noob_tube_crack_falling_eleventh</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingEleventh,
+    /// <summary><c>noob_tube_crack_falling_twelfth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingTwelfth,
+    /// <summary><c>noob_tube_crack_falling_thirteenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingThirteenth,
+    /// <summary><c>noob_tube_crack_falling_fourteenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingFourteenth,
+    /// <summary><c>noob_tube_crack_falling_fifteenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingFifteenth,
+    /// <summary><c>noob_tube_crack_falling_sixteenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingSixteenth,
+    /// <summary><c>noob_tube_crack_falling_seventeenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingSeventeenth,
+    /// <summary><c>noob_tube_crack_falling_eighteenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingEighteenth,
+    /// <summary><c>noob_tube_crack_falling_nineteenth</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallingNineteenth,
+    /// <summary><c>noob_tube_crack_fallen_first</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallenFirst,
+    /// <summary><c>noob_tube_crack_fallen_second</c>, an installed animation frame.</summary>
+    NoobTubeCrackFallenSecond,
+    /// <summary><c>noob_tube_shard_down_outward_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOutwardFlying,
+    /// <summary><c>noob_tube_shard_down_outward_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOutwardFlyingMirrored,
+    /// <summary><c>noob_tube_shard_down_outward_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOutwardFalling,
+    /// <summary><c>noob_tube_shard_down_outward_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOutwardFallingMirrored,
+    /// <summary><c>noob_tube_shard_up_outward_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardUpOutwardFlying,
+    /// <summary><c>noob_tube_shard_up_outward_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpOutwardFlyingMirrored,
+    /// <summary><c>noob_tube_shard_up_outward_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardUpOutwardFalling,
+    /// <summary><c>noob_tube_shard_up_outward_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpOutwardFallingMirrored,
+    /// <summary><c>noob_tube_shard_up_steep_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardUpSteepFlying,
+    /// <summary><c>noob_tube_shard_up_steep_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpSteepFlyingMirrored,
+    /// <summary><c>noob_tube_shard_up_steep_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardUpSteepFalling,
+    /// <summary><c>noob_tube_shard_up_steep_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpSteepFallingMirrored,
+    /// <summary><c>noob_tube_shard_up_diagonal_inner_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalInnerFlying,
+    /// <summary><c>noob_tube_shard_up_diagonal_inner_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalInnerFlyingMirrored,
+    /// <summary><c>noob_tube_shard_up_diagonal_inner_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalInnerFalling,
+    /// <summary><c>noob_tube_shard_up_diagonal_inner_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalInnerFallingMirrored,
+    /// <summary><c>noob_tube_shard_up_diagonal_outer_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalOuterFlying,
+    /// <summary><c>noob_tube_shard_up_diagonal_outer_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalOuterFlyingMirrored,
+    /// <summary><c>noob_tube_shard_up_diagonal_outer_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalOuterFalling,
+    /// <summary><c>noob_tube_shard_up_diagonal_outer_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardUpDiagonalOuterFallingMirrored,
+    /// <summary><c>noob_tube_shard_down_diagonal_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardDownDiagonalFlying,
+    /// <summary><c>noob_tube_shard_down_diagonal_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownDiagonalFlyingMirrored,
+    /// <summary><c>noob_tube_shard_down_diagonal_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardDownDiagonalFalling,
+    /// <summary><c>noob_tube_shard_down_diagonal_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownDiagonalFallingMirrored,
+    /// <summary><c>noob_tube_shard_down_outer_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOuterFlying,
+    /// <summary><c>noob_tube_shard_down_outer_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOuterFlyingMirrored,
+    /// <summary><c>noob_tube_shard_down_outer_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOuterFalling,
+    /// <summary><c>noob_tube_shard_down_outer_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownOuterFallingMirrored,
+    /// <summary><c>noob_tube_shard_outward_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardOutwardFlying,
+    /// <summary><c>noob_tube_shard_outward_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardOutwardFlyingMirrored,
+    /// <summary><c>noob_tube_shard_outward_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardOutwardFalling,
+    /// <summary><c>noob_tube_shard_outward_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardOutwardFallingMirrored,
+    /// <summary><c>noob_tube_shard_up_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardUpFlying,
+    /// <summary><c>noob_tube_shard_up_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardUpFalling,
+    /// <summary><c>noob_tube_shard_down_inner_flying</c>, an installed animation frame.</summary>
+    NoobTubeShardDownInnerFlying,
+    /// <summary><c>noob_tube_shard_down_inner_flying_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownInnerFlyingMirrored,
+    /// <summary><c>noob_tube_shard_down_inner_falling</c>, an installed animation frame.</summary>
+    NoobTubeShardDownInnerFalling,
+    /// <summary><c>noob_tube_shard_down_inner_falling_mirrored</c>, an installed animation frame.</summary>
+    NoobTubeShardDownInnerFallingMirrored,
+    /// <summary><c>noob_tube_bubble_rising_first</c>, an installed animation frame.</summary>
+    NoobTubeBubbleRisingFirst,
+    /// <summary><c>noob_tube_bubble_rising_second</c>, an installed animation frame.</summary>
+    NoobTubeBubbleRisingSecond,
+    /// <summary><c>noob_tube_bubble_rising_third</c>, an installed animation frame.</summary>
+    NoobTubeBubbleRisingThird,
+    /// <summary><c>noob_tube_bubble_rising_fourth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleRisingFourth,
+    /// <summary><c>noob_tube_bubble_falling_first</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingFirst,
+    /// <summary><c>noob_tube_bubble_falling_second</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingSecond,
+    /// <summary><c>noob_tube_bubble_falling_third</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingThird,
+    /// <summary><c>noob_tube_bubble_falling_fourth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingFourth,
+    /// <summary><c>noob_tube_bubble_falling_fifth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingFifth,
+    /// <summary><c>noob_tube_bubble_falling_sixth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingSixth,
+    /// <summary><c>noob_tube_bubble_falling_seventh</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingSeventh,
+    /// <summary><c>noob_tube_bubble_falling_eighth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingEighth,
+    /// <summary><c>noob_tube_bubble_falling_ninth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingNinth,
+    /// <summary><c>noob_tube_bubble_falling_tenth</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingTenth,
+    /// <summary><c>noob_tube_bubble_falling_eleventh</c>, an installed animation frame.</summary>
+    NoobTubeBubbleFallingEleventh,
     /// <summary><c>cacatac_spike_left_facing_up</c>, an installed animation frame.</summary>
     CacatacSpikeLeftFacingUp,
     /// <summary><c>cacatac_spike_up_left</c>, an installed animation frame.</summary>

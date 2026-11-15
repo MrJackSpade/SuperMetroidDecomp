@@ -55,7 +55,6 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(0xfb00, NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue, "bubble velocity");
         AssertEqual(0x00c0, NoobTubeDebrisDefinitions.CrackFallVelocity.RawValue, "crack velocity");
         AssertEqual(0x00c0, NoobTubeDebrisDefinitions.ShardFallYVelocity.RawValue, "shard fall velocity");
-        AssertEqual(0xee00, NoobTubeDebrisDefinitions.HiddenXPosition, "hidden actor X");
         AssertEqual(0x0ae0, SpeedBoosterEscapeDefinitions.StartFxMotionSamusX, "lavaquake start X");
         AssertEqual(0xff80, SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue, "lavaquake velocity");
         AssertEqual(0xffe0, SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue, "pickup lava velocity");

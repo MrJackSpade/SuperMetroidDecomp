@@ -306,6 +306,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectile projectile = _places[place];
 
             if (!projectile.IsActive ||
+                projectile.IsHidden ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;

@@ -57,13 +57,6 @@ internal sealed class IntroDiscoverySprite
     internal AnimationPlayback<CinematicSpriteSegment> Playback { get; private set; }
 
     /// <summary>
-    /// The segment the actor's animation rests in: resting after the last frame of a segment that runs on into the next, it
-    /// already stands in the next (<see cref="CinematicSpriteAnimations.RunsOnInto"/>).
-    /// </summary>
-    internal CinematicSpriteSegment CurrentAnimation => AnimationResidence.ResidentSegment(
-        CinematicSpriteAnimations.Segments, CinematicSpriteAnimations.StartingAt, CinematicSpriteAnimations.RunsOnInto, Playback);
-
-    /// <summary>
     /// The count the animation's counted phases repeat by: a counted phase loads it as it starts and each of its plays
     /// counts it down. Only those phases change it; it starts at zero.
     /// </summary>
@@ -141,7 +134,7 @@ internal sealed class IntroDiscoverySprite
     private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
     {
         (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {CurrentAnimation} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
+            $"Cinematic sprite animation in {Playback.Animation.Phases[Playback.Place.Phase].Segment} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }
 
     /// <summary>

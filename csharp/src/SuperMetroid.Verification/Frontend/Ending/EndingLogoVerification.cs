@@ -137,7 +137,7 @@ internal static class EndingLogoVerification
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
                 $"logo actor {index} routine: the S halves move into place, the circles hold still");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"logo actor {index} initial instruction list");
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");

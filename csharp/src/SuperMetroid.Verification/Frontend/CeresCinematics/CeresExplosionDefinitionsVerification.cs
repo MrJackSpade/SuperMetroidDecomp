@@ -60,7 +60,7 @@ internal static class CeresExplosionDefinitionsVerification
                 ? CinematicActorNativeMotions.NoMotion : CinematicActorNativeMotions.CeresExplosion;
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), motion,
                 $"{name} routine: the spawner holds still, a blast drifts with the fleeing gunship");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Animation),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(definition.Animation),
                 $"{name} instruction list");
         }
     }

@@ -140,12 +140,12 @@ internal sealed class IntroBabyDiscoveryState
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
-        // The egg's wait replaces the egg with the shared delete animation only when page three's reverse
-        // crossfade reaches zero. The egg's animation starts the wait after starting page three.
+        // The egg is gone from the update page three's reverse crossfade ends. The egg's animation starts the wait
+        // after starting page three.
         if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd &&
             introCrossfadeTimer == 0)
         {
-            egg.Start(CinematicSpriteSegment.Delete);
+            egg.Delete();
             // Page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
@@ -295,11 +295,9 @@ internal sealed class IntroBabyDiscoveryState
         switch (babyMotion)
         {
             case ConfusedBabyMotion.WaitingForHatch:
-                // The confused baby watches the egg's *next* animation step reach the first fully-hatched frame:
-                // the egg's animation is then MetroidEggRemnantsSettling or a later one, so the baby starts moving on that
-                // exact handoff.
-                if (egg.CurrentAnimation is CinematicSpriteSegment.MetroidEggRemnantsSettling or
-                    CinematicSpriteSegment.MetroidEggHatched or CinematicSpriteSegment.Delete)
+                // The confused baby starts rising on the update the egg first shows its burst shell, after this
+                // update's egg step.
+                if (egg.Pose is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
                 {
                     babyMotion = ConfusedBabyMotion.Rising;
                     BabyVelocity = BabyVelocity.WithY(default);

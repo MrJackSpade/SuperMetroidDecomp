@@ -60,7 +60,7 @@ internal sealed class IntroScientistCutsceneState
         // cinematic-phase counter while the intro crossfade counter remains 127.
         if (introCrossfadeTimer == 0)
         {
-            baby.Start(CinematicSpriteSegment.Delete);
+            baby.Delete();
         }
         else if (IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(cinematicTimer))
         {

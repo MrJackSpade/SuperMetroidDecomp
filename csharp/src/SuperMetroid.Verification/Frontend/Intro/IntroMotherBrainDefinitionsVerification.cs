@@ -29,7 +29,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             (ushort pointer, IntroMotherBrainActorDefinition actual) = actors[index];
             int address = IntroMotherBrainDefinitions.NativeBank | pointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"intro Mother Brain actor {index} instruction list");
         }
 

@@ -92,7 +92,7 @@ internal static class CeresFlightActorMetadataVerification
             string name)
         {
             int address = ActorBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
                 $"{name} instruction list");
         }
 

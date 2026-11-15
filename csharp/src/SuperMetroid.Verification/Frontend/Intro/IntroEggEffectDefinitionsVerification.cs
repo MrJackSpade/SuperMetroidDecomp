@@ -80,7 +80,7 @@ internal static class IntroEggEffectDefinitionsVerification
         ushort routine = actual.Animation == CinematicSpriteSegment.MetroidEggSlimeDrop ? CinematicActorNativeMotions.EggSlimeDrop : CinematicActorNativeMotions.EggShellFragment;
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), routine,
             $"{name} routine: a slime drop's or a shell fragment's flight");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
             $"{name} instruction list");
     }
 

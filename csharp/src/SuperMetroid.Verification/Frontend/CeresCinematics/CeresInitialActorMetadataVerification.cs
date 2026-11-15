@@ -62,7 +62,7 @@ internal static class CeresInitialActorMetadataVerification
             if (preservesDefinitionCallback)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.CeresDestruction[role],
                     $"{name} initializer preserves the definition's routine, the role's drift");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
                 $"{name} instruction list");
         }
 

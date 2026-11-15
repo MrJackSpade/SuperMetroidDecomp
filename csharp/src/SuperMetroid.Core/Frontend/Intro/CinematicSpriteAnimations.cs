@@ -7,8 +7,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// Every cinematic sprite animation as typed segments and animations (#641, #1600):
-/// each frame shows a <see cref="CinematicSpritePose"/>, each owner cue becomes a
-/// <see cref="CinematicSpriteCue"/>, and the shared delete ends the animation.
+/// each frame shows a <see cref="CinematicSpritePose"/> and each owner cue becomes a
+/// <see cref="CinematicSpriteCue"/>. Each animation lists the whole run of segments it plays, every segment it plays on
+/// into named as its next phase, and a counted animation counts its own segment (#1978).
 /// </summary>
 internal static class CinematicSpriteAnimations
 {
@@ -76,9 +77,6 @@ internal static class CinematicSpriteAnimations
         ],
         [P.BabyMetroidBeingDelivered] =
         [
-        ],
-        [P.BabyMetroidBeingDeliveredLoop] =
-        [
             Show(S.DeliveredBabyPulseLow, 10),
             Show(S.DeliveredBabyPulseMiddle, 10),
             Show(S.DeliveredBabyPulseHigh, 10),
@@ -93,9 +91,6 @@ internal static class CinematicSpriteAnimations
             Show(S.DeliveredBabyPulseMiddle, 10),
         ],
         [P.BabyMetroidBeingExamined] =
-        [
-        ],
-        [P.BabyMetroidBeingExaminedLoop] =
         [
             Show(S.ExaminedBabyWide, 10),
             Show(S.ExaminedBabyNarrowing, 10),
@@ -184,9 +179,6 @@ internal static class CinematicSpriteAnimations
         ],
         [P.CeresRepeatingSmallExplosion] =
         [
-        ],
-        [P.CeresRepeatingSmallExplosionLoop] =
-        [
             Show(S.SmallExplosionSpark, 3),
             Show(S.SmallExplosionFlare, 3),
             Show(S.SmallExplosionFireball, 3),
@@ -196,9 +188,6 @@ internal static class CinematicSpriteAnimations
             Show(S.Blank, 16),
         ],
         [P.CeresLargeExplosion] =
-        [
-        ],
-        [P.CeresLargeExplosionLoop] =
         [
             Show(S.LargeBlastFireballCluster, 5),
             Show(S.LargeBlastBreakingCluster, 5),
@@ -324,13 +313,7 @@ internal static class CinematicSpriteAnimations
         [
             Show(S.LargeAsteroid, 10),
         ],
-        [P.Delete] =
-        [
-        ],
         [P.ZebesExplosionPlanet] =
-        [
-        ],
-        [P.ZebesExplosionPlanetLoop] =
         [
             Show(S.PlanetRumbleDeepShadow, 13),
             Show(S.PlanetRumbleShadow, 13),
@@ -703,7 +686,10 @@ internal static class CinematicSpriteAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at: each names the segments it plays on
+    /// into as its later phases (#1978).
+    /// </summary>
     internal static IReadOnlyDictionary<CinematicSpriteSegment, Animation<CinematicSpriteSegment>> StartingAt { get; } = new Dictionary<CinematicSpriteSegment, Animation<CinematicSpriteSegment>>
     {
         [P.IntroMotherBrain] = new([new(P.IntroMotherBrain, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -713,9 +699,9 @@ internal static class CinematicSpriteAnimations
         [P.MetroidEggHatching] = new([new(P.MetroidEggHatching, 0, 1, 1), new(P.MetroidEggShaking, 0, 4, 4), new(P.MetroidEggShaking, 4, 9, 1), new(P.MetroidEggRemnantsSettling, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(4)),
         [P.MetroidEggRemnantsSettling] = new([new(P.MetroidEggRemnantsSettling, 0, 8, 1), new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.MetroidEggHatched] = new([new(P.MetroidEggHatched, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BabyMetroidBeingDelivered] = new([new(P.BabyMetroidBeingDeliveredLoop, 0, 4, 10), new(P.BabyMetroidBeingDeliveredLoop, 4, 1, 1), new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.BabyMetroidBeingDelivered] = new([new(P.BabyMetroidBeingDelivered, 0, 4, 10), new(P.BabyMetroidBeingDelivered, 4, 1, 1), new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
         [P.BabyMetroidDelivered] = new([new(P.BabyMetroidDelivered, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BabyMetroidBeingExamined] = new([new(P.BabyMetroidBeingExaminedLoop, 0, 4, 10), new(P.BabyMetroidBeingExaminedLoop, 4, 1, 1), new(P.BabyMetroidExamined, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.BabyMetroidBeingExamined] = new([new(P.BabyMetroidBeingExamined, 0, 4, 10), new(P.BabyMetroidBeingExamined, 4, 1, 1), new(P.BabyMetroidExamined, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
         [P.BabyMetroidExamined] = new([new(P.BabyMetroidExamined, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroTextCaret] = new([new(P.IntroTextCaret, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroTextCaretBlink] = new([new(P.IntroTextCaretBlink, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
@@ -730,8 +716,8 @@ internal static class CinematicSpriteAnimations
         [P.ZebesTitle] = new([new(P.ZebesTitle, 0, 8, 1)], AnimationEnd.Stops),
         [P.ZebesJapaneseTitle] = new([new(P.ZebesJapaneseTitle, 0, 1, 1)], AnimationEnd.Stops),
         [P.CeresSmallExplosion] = new([new(P.CeresSmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
-        [P.CeresRepeatingSmallExplosion] = new([new(P.CeresRepeatingSmallExplosionLoop, 0, 7, 6)], AnimationEnd.Stops),
-        [P.CeresLargeExplosion] = new([new(P.CeresLargeExplosionLoop, 0, 5, 7)], AnimationEnd.Stops),
+        [P.CeresRepeatingSmallExplosion] = new([new(P.CeresRepeatingSmallExplosion, 0, 7, 6)], AnimationEnd.Stops),
+        [P.CeresLargeExplosion] = new([new(P.CeresLargeExplosion, 0, 5, 7)], AnimationEnd.Stops),
         [P.MetroidEggShellUpperLeft] = new([new(P.MetroidEggShellUpperLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MetroidEggShellUpperRight] = new([new(P.MetroidEggShellUpperRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MetroidEggShellLeft] = new([new(P.MetroidEggShellLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -753,8 +739,7 @@ internal static class CinematicSpriteAnimations
         [P.CeresStationBlast] = new([new(P.CeresStationBlast, 0, 6, 1)], AnimationEnd.Stops),
         [P.CeresExplosionSpawner] = new([new(P.CeresExplosionSpawner, 0, 6, 1)], AnimationEnd.Stops),
         [P.CeresLargeAsteroid] = new([new(P.CeresLargeAsteroid, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Delete] = new([], AnimationEnd.Stops),
-        [P.ZebesExplosionPlanet] = new([new(P.ZebesExplosionPlanetLoop, 0, 4, 5), new(P.ZebesExplosionPlanetLoop, 4, 6, 1)], AnimationEnd.Stops),
+        [P.ZebesExplosionPlanet] = new([new(P.ZebesExplosionPlanet, 0, 4, 5), new(P.ZebesExplosionPlanet, 4, 6, 1)], AnimationEnd.Stops),
         [P.ZebesExplosionGlow] = new([new(P.ZebesExplosionGlow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZebesExplosionStars] = new([new(P.ZebesExplosionStars, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZebesExplosionLava] = new([new(P.ZebesExplosionLava, 0, 1, 1), new(P.ZebesExplosionLavaLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
@@ -818,32 +803,6 @@ internal static class CinematicSpriteAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CinematicSpriteSegment> StartingWith(CinematicSpriteSegment segment) => StartingAt[segment];
-
-    /// <summary>
-    /// The segment each segment that runs on into the one authored next, directly after its last beat, continues into: a
-    /// sprite resting after that beat already stands in the next.
-    /// </summary>
-    internal static IReadOnlyDictionary<CinematicSpriteSegment, CinematicSpriteSegment> RunsOnInto { get; } =
-        new Dictionary<CinematicSpriteSegment, CinematicSpriteSegment>
-    {
-        [P.IntroMotherBrainStartPage2] = P.IntroMotherBrainPageTwo,
-        [P.MetroidEggShaking] = P.MetroidEggRemnantsSettling,
-        [P.MetroidEggRemnantsSettling] = P.MetroidEggHatched,
-        [P.BabyMetroidBeingDeliveredLoop] = P.BabyMetroidDelivered,
-        [P.BabyMetroidBeingExaminedLoop] = P.BabyMetroidExamined,
-        [P.IntroRinka] = P.IntroRinkaMoving,
-        [P.ZebesExplosionLava] = P.ZebesExplosionLavaLoop,
-        [P.ZebesExplosionRightStars] = P.ZebesExplosionLeftStars,
-        [P.OperationWasText] = P.OperationWasTextHold,
-        [P.CompletedSuccessfullyText] = P.CompletedSuccessfullyTextHold,
-        [P.ClearTimeText] = P.ClearTimeTextHold,
-        [P.SuitlessJump] = P.SuitlessJumpFlight,
-        [P.SuitedJump] = P.SuitedJumpFlight,
-        [P.HelmetJump] = P.HelmetFlight,
-        [P.HeadJump] = P.HeadFlight,
-        [P.LogoUpperCircle] = P.LogoUpperCircleLoop,
-        [P.LogoLowerCircle] = P.LogoLowerCircleLoop,
-    };
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Show(CinematicSpritePose pose, int duration) => new AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame(pose, duration);

@@ -108,11 +108,9 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!IsActive)
                 return;
 
-            // The explosions delete these actors only when the later page-two crossfade timer
-            // reaches zero. Starting the delete before the generic decrement makes deletion
-            // occur in this same update.
+            // The explosions are gone from the update the later page-two crossfade ends.
             if (introCrossfadeTimer == 0)
-                sprite.Start(CinematicSpriteSegment.Delete);
+                sprite.Delete();
             sprite.Step();
         }
     }

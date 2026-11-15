@@ -53,7 +53,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 CinematicActorNativeMotions.ConfusedBaby[ConfusedBabyMotion.WaitingForHatch]];
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), routines[index],
                 $"intro baby actor {index} routine: the behaviour the actor starts with");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"intro baby actor {index} instruction list");
 
             // The definition's initialization callback supplies the compiled placement.

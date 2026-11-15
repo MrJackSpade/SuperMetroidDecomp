@@ -153,7 +153,7 @@ internal static class EndingRewardGestureVerification
             AssertEqual(initializer, EndingRewardNativeWords.Initializations.Word(actual.Initialization), $"reward actor ${pointer:X4} initialization callback");
             ushort routine = pointer == EndingRewardNativeWords.Actors.Word(EndingRewardActor.SuitlessUpper) ? CinematicActorNativeMotions.RewardSuitlessUpper : CinematicActorNativeMotions.NoMotion;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), routine, $"reward actor ${pointer:X4} routine: no motion until the jump starts it");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation), $"reward actor ${pointer:X4} instruction list");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation), $"reward actor ${pointer:X4} instruction list");
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)

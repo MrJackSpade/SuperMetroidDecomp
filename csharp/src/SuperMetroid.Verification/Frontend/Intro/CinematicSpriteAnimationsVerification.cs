@@ -60,18 +60,38 @@ internal static class CinematicSpriteAnimationsVerification
 
         Dictionary<CinematicSpriteSegment, NativeEnemyList<CinematicSpriteSegment>> lists =
             Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry));
-        NativeEnemyAnimationOracle.CompareAnimations(lists, CinematicSpriteAnimations.StartingAt);
-        HashSet<CinematicSpriteSegment> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
-        AssertTrue(runOn.SetEquals(CinematicSpriteAnimations.RunsOnInto.Keys),
-            "the lists that run on into the next authored list, directly after their last beat, are the typed run-ons");
-        foreach (CinematicSpriteSegment segment in runOn)
+        // A counted animation starts at its counted segment (#1978), which the shared comparison takes for a body no
+        // animation starts in; it is compared below from its native counter load.
+        HashSet<CinematicSpriteSegment> preambled = [.. CounterPreambles.Select(preamble => preamble.Program)];
+        NativeEnemyAnimationOracle.CompareAnimations(lists,
+            CinematicSpriteAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value));
+        foreach (CinematicSpriteNativeListAddressesEntry preamble in CounterPreambles)
         {
-            AssertEqual(lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target,
-                (CinematicSpriteSegment?)CinematicSpriteAnimations.RunsOnInto[segment], $"{segment} runs on into the list authored next");
+            AssertEqual(SharedWord.SetCounter, SharedWords[Word(cartridge, preamble.Entry)], $"{preamble.Program}'s native start loads the counter");
+            AssertEqual(Entry(preamble.Program), (ushort)(preamble.Entry + 4), $"{preamble.Program}'s counter load runs on into its list");
+            (List<AnimationPhase<CinematicSpriteSegment>> phases, AnimationEnd end) =
+                NativeEnemyAnimationOracle.Linearize(lists, preamble.Program, Word(cartridge, (ushort)(preamble.Entry + 2)));
+            Animation<CinematicSpriteSegment> typed = CinematicSpriteAnimations.StartingWith(preamble.Program);
+            AssertTrue(typed.Phases.SequenceEqual(phases), $"{preamble.Program}'s phases follow its counter load and native lists");
+            AssertEqual(end, typed.End, $"{preamble.Program}'s end follows its native lists");
+        }
+        // Each list that runs on into the list authored next is followed by that list wherever an animation plays on
+        // from it (#1978): the animation names it as its next phase.
+        foreach (CinematicSpriteSegment segment in NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists))
+        {
+            CinematicSpriteSegment? next = lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target;
+            foreach (Animation<CinematicSpriteSegment> animation in CinematicSpriteAnimations.StartingAt.Values)
+            {
+                for (int phase = 0; phase + 1 < animation.Phases.Count; phase++)
+                {
+                    if (animation.Phases[phase].Segment == segment && animation.Phases[phase + 1].Segment != segment)
+                        AssertEqual(next, (CinematicSpriteSegment?)animation.Phases[phase + 1].Segment, $"{segment} runs on into the list authored next");
+                }
+            }
         }
         int beats = lists.Values.Sum(list => list.BeatAddresses.Length), updates = 0;
         foreach (CinematicSpriteNativeListAddressesEntry item in Entries.Where(item => CinematicSpriteAnimations.StartingAt.ContainsKey(item.Program)))
-            updates += ComparePlayback(cartridge, item.Program, item.Entry);
+            updates += ComparePlayback(cartridge, item.Program, Start(item.Program));
         Console.WriteLine($"  cinematic sprite animations: {Entries.Length} segments ({beats} beats, {updates} played updates) match bank $8B.");
     }
 

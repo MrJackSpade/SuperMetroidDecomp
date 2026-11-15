@@ -37,7 +37,7 @@ internal static class CeresSteamCollisionDefinitionsAccess
 
     /// <summary>The 21 native hitbox lists: the shared empty list the hidden poses select, then each plume frame's.</summary>
     private static readonly EnemyHitboxRectangle[][] Lists =
-        [[], .. PlumeFrames.Select(frame => CeresSteamCollisionDefinitions.Frames.Of(frame).Single().Hitboxes.ToArray())];
+        [[], .. PlumeFrames.Select(frame => new[] { CeresSteamCollisionDefinitions.Plumes[frame] ?? throw new InvalidDataException($"Ceres steam frame {frame} has no plume.") })];
 
     /// <summary>The hitbox lists laid over their native run.</summary>
     private static readonly CollisionRecordRuns<EnemyHitboxRectangle> NativeLists =
@@ -52,10 +52,11 @@ internal static class CeresSteamCollisionDefinitionsAccess
         /// <summary>Native roots of the compiled Ceres steam hitbox lists.</summary>
         internal static IEnumerable<ushort> HitboxPointers => NativeLists.Pointers;
 
-        /// <summary>The components of the steam frame at native address <paramref name="frame"/>.</summary>
-        internal static CeresSteamCollisionComponent[] ComponentsAt(ushort frame) =>
+        /// <summary>The plume of the steam frame at native address <paramref name="frame"/>, or none for a hidden pose.</summary>
+        internal static EnemyHitboxRectangle? PlumeAt(ushort frame) =>
             RoomEnemySlotFrameAccess.Shows(CeresSteamCollisionDefinitions.Bank, frame)
-                ? CeresSteamCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(CeresSteamCollisionDefinitions.Bank, frame))
+                ? Ensure.Listed(CeresSteamCollisionDefinitions.Plumes, RoomEnemySlotFrameAccess.FrameAt(CeresSteamCollisionDefinitions.Bank, frame)
+                    ?? throw new InvalidDataException($"Ceres steam frame $A6:{frame:X4} shows no frame."))
                 : throw new InvalidDataException($"Ceres steam frame $A6:{frame:X4} has no compiled collision.");
 
         /// <summary>The hitbox list at native address <paramref name="list"/>.</summary>
@@ -63,13 +64,9 @@ internal static class CeresSteamCollisionDefinitionsAccess
             NativeLists.TryGet(list, out EnemyHitboxRectangle[] hitboxes)
                 ? hitboxes
                 : throw new InvalidDataException($"Ceres steam hitbox list $A6:{list:X4} is not compiled.");
-    }
 
-    /// <summary>Native views of a component.</summary>
-    extension(CeresSteamCollisionComponent self)
-    {
-        /// <summary>The native address of the component's hitbox list.</summary>
-        internal ushort HitboxPointer =>
-            NativeLists.PointerAt(Array.FindIndex(Lists, list => list.SequenceEqual(self.Hitboxes)));
+        /// <summary>The native address of the hitbox list holding <paramref name="plume"/>, or the shared empty list for none.</summary>
+        internal static ushort HitboxListOf(EnemyHitboxRectangle? plume) =>
+            NativeLists.PointerAt(Array.FindIndex(Lists, list => plume is { } rectangle ? list.SequenceEqual([rectangle]) : list.Length == 0));
     }
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal enum EndingRewardActor
 {
     /// <summary>The suitless upper hair-release actor the gesture spawns.</summary>
-    SuitlessUpper = 1,
+    SuitlessUpper,
     /// <summary>The suitless lower hair-release actor the gesture spawns.</summary>
     SuitlessLower,
     /// <summary>The suitless jumping actor the jump spawns.</summary>

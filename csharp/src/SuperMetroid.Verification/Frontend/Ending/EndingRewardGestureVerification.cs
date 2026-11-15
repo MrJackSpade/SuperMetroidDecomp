@@ -165,9 +165,9 @@ internal static class EndingRewardGestureVerification
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");
-        foreach (int invalid in new[] { 0, 11, 0xef33, 0xffff })
+        foreach (int invalid in new[] { -1, 10, 0xef33, 0xffff })
             AssertThrows<InvalidOperationException>(() => EndingRewardActors.Get((EndingRewardActor)invalid), "reward record membership");
-        foreach (int invalid in new[] { 0, 5, 0xf143, 0xffff })
+        foreach (int invalid in new[] { -1, 4, 0xf143, 0xffff })
             AssertThrows<InvalidOperationException>(() => EndingRewardActors.GetInitialization((EndingRewardInitialization)invalid), "reward initializer membership");
         Console.WriteLine(
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");

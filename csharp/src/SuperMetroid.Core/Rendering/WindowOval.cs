@@ -2,7 +2,8 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// An oval of screen pixels (#1468): every pixel within an ellipse of the given radii of some point on its core, a
-/// horizontal run of pixels from <see cref="CoreStart"/> to <see cref="CoreWidth"/> pixels right of it. A core of width
+/// horizontal run of pixels from <see cref="CoreStart"/> to <see cref="CoreWidth"/> pixels right of it. A pixel exactly on
+/// the ellipse's edge is inside, and the edge is exact, so every device shows the same pixels (#2001). A core of width
 /// zero makes a plain ellipse, such as the Power Bomb's blast; a wider core makes a column with rounded sides, such as the
 /// suit pickup's light beam. The oval may extend off the screen.
 /// </summary>

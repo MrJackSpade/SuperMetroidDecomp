@@ -10,8 +10,8 @@ internal static class IntroRinkaSpriteDefinitions
     /// <summary>The three intro Rinka compositions.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("rinka-0", CinematicSpritePose.Rinka0, 4),
-        new("rinka-1", CinematicSpritePose.Rinka1, 4),
-        new("rinka-2", CinematicSpritePose.Rinka2, 4),
+        new("rinka-0", CinematicSpritePose.RinkaDim, 4),
+        new("rinka-1", CinematicSpritePose.RinkaGlowing, 4),
+        new("rinka-2", CinematicSpritePose.RinkaBright, 4),
     ];
 }

@@ -11,11 +11,11 @@ public static class EndingLogoSpriteDefinitions
     [
         new("s-upper", CinematicSpritePose.LogoSUpper, 14),
         new("s-lower", CinematicSpritePose.LogoSLower, 14),
-        new("circle-right-1", CinematicSpritePose.LogoCircleRight1, 12),
-        new("circle-right-2", CinematicSpritePose.LogoCircleRight2, 18),
-        new("circle-right-3", CinematicSpritePose.LogoCircleRight3, 25),
-        new("circle-left-1", CinematicSpritePose.LogoCircleLeft1, 12),
-        new("circle-left-2", CinematicSpritePose.LogoCircleLeft2, 18),
-        new("circle-left-3", CinematicSpritePose.LogoCircleLeft3, 25),
+        new("circle-right-1", CinematicSpritePose.LogoRightCircleTip, 12),
+        new("circle-right-2", CinematicSpritePose.LogoRightCircleTipAndBlade, 18),
+        new("circle-right-3", CinematicSpritePose.LogoRightCircleWhole, 25),
+        new("circle-left-1", CinematicSpritePose.LogoLeftCircleTip, 12),
+        new("circle-left-2", CinematicSpritePose.LogoLeftCircleTipAndBlade, 18),
+        new("circle-left-3", CinematicSpritePose.LogoLeftCircleWhole, 25),
     ];
 }

@@ -10,8 +10,8 @@ internal static class IntroMotherBrainSpriteDefinitions
     /// <summary>The intro's three Mother Brain frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("mother-brain-frame-0", CinematicSpritePose.MotherBrainFrame0, 9),
-        new("mother-brain-frame-1", CinematicSpritePose.MotherBrainFrame1, 9),
-        new("mother-brain-frame-2", CinematicSpritePose.MotherBrainFrame2, 9),
+        new("mother-brain-frame-0", CinematicSpritePose.MotherBrainPulseLow, 9),
+        new("mother-brain-frame-1", CinematicSpritePose.MotherBrainPulseMiddle, 9),
+        new("mother-brain-frame-2", CinematicSpritePose.MotherBrainPulseHigh, 9),
     ];
 }

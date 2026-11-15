@@ -1189,7 +1189,7 @@ level, samus, frameCounter);
             // The persistent caret begins at its narration place, goes off screen during illustrated
             // crossfades, and is restored when the next narration page starts.
             IntroSprites(CinematicSpriteFamily.IntroCaret).Draw(
-                caretPose, objectSprites, Objects.Caret.ToSpritePosition(),
+                caretPose, objectSprites, (Position16<ScreenPixels>.Zero + Objects.Caret).ToSpritePosition(),
                 IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
         }
         // The Japanese text's next-page arrow is drawn after the caret, whose object comes first (#1655).

@@ -162,13 +162,15 @@ internal sealed class IntroDiscoverySprite
         if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
+        Offset16<ScreenPixels> placed = origin - Position16<ScreenPixels>.Zero;
         if (HorizontalLoopWidth is int loop)
         {
+            // The half of the loop past its middle lies left of the screen, at a negative screen X.
             int alongLoop = origin.X % loop;
-            origin = origin.WithX(CoordinateAxis.Wrap(alongLoop < loop / 2 ? alongLoop : alongLoop - loop));
+            placed = new Offset16<ScreenPixels>(alongLoop < loop / 2 ? alongLoop : alongLoop - loop, placed.Y);
         }
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(pose, objects, origin.ToSpritePosition(), Colouring);
+            .Draw(pose, objects, (Position16<ScreenPixels>.Zero + placed).ToSpritePosition(), Colouring);
     }
 }

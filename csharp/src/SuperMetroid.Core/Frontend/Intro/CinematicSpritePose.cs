@@ -1,77 +1,78 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A pose a cinematic sprite animation shows (#1747); each cinematic sprite family's artwork is keyed by the poses it
-/// draws, and its sheets name their frames by them. Its values are arbitrary.
+/// A picture a cinematic sprite animation shows (#1747, #1964), each named for what it shows; each cinematic sprite
+/// family's artwork is keyed by the poses it draws, and its sheets name their frames by them. A typed text's poses are
+/// the text typed as far as each letter, and an explosion's the stages it burns through. Its values are arbitrary.
 /// </summary>
 public enum CinematicSpritePose
 {
-    /// <summary>Mother brain frame 0.</summary>
-    MotherBrainFrame0,
-    /// <summary>Mother brain frame 1.</summary>
-    MotherBrainFrame1,
-    /// <summary>Mother brain frame 2.</summary>
-    MotherBrainFrame2,
-    /// <summary>Egg intact.</summary>
+    /// <summary>Mother Brain in her tank at the low point of her pulse.</summary>
+    MotherBrainPulseLow,
+    /// <summary>Mother Brain swelling or easing between the low and high points of her pulse.</summary>
+    MotherBrainPulseMiddle,
+    /// <summary>Mother Brain at the high point of her pulse, swollen and brightest.</summary>
+    MotherBrainPulseHigh,
+    /// <summary>The Metroid egg, whole and upright.</summary>
     EggIntact,
-    /// <summary>Egg crack 1.</summary>
-    EggCrack1,
-    /// <summary>Egg crack 2.</summary>
-    EggCrack2,
-    /// <summary>Egg crack 3.</summary>
-    EggCrack3,
-    /// <summary>Egg crack 4.</summary>
-    EggCrack4,
-    /// <summary>Egg crack 5.</summary>
-    EggCrack5,
-    /// <summary>Egg crack 6.</summary>
-    EggCrack6,
-    /// <summary>Egg crack 7.</summary>
-    EggCrack7,
-    /// <summary>Egg hatched.</summary>
+    /// <summary>The egg rocked a pixel to the left as it shakes.</summary>
+    EggRockingLeft,
+    /// <summary>The egg rocked a pixel to the right as it shakes.</summary>
+    EggRockingRight,
+    /// <summary>The upright egg with its first crack, at its upper left.</summary>
+    EggCrackingUpperLeft,
+    /// <summary>The cracking egg, its cracks now reaching across its top.</summary>
+    EggCrackingTop,
+    /// <summary>The cracking egg, a crack now opening on its left.</summary>
+    EggCrackingLeft,
+    /// <summary>The cracking egg, a crack now opening at its upper right.</summary>
+    EggCrackingUpperRight,
+    /// <summary>The cracking egg, a crack now opening on its right, the last before it bursts.</summary>
+    EggCrackingRight,
+    /// <summary>The egg bursting open on its right.</summary>
     EggHatched,
-    /// <summary>Egg remnant 1.</summary>
-    EggRemnant1,
-    /// <summary>Egg remnant 2.</summary>
-    EggRemnant2,
-    /// <summary>Egg remnant 3.</summary>
-    EggRemnant3,
-    /// <summary>Egg remnant 4.</summary>
-    EggRemnant4,
-    /// <summary>Egg remnant 5.</summary>
-    EggRemnant5,
-    /// <summary>Egg remnant 6.</summary>
-    EggRemnant6,
-    /// <summary>Egg remnant 7.</summary>
-    EggRemnant7,
-    /// <summary>Delivered baby 1.</summary>
-    DeliveredBaby1,
-    /// <summary>Delivered baby 2.</summary>
-    DeliveredBaby2,
-    /// <summary>Delivered baby 3.</summary>
-    DeliveredBaby3,
-    /// <summary>Examined baby 1.</summary>
-    ExaminedBaby1,
-    /// <summary>Examined baby 2.</summary>
-    ExaminedBaby2,
-    /// <summary>Examined baby 3.</summary>
-    ExaminedBaby3,
+    /// <summary>The burst shell, its dome sagging into the base.</summary>
+    EggRemnantDomeSagging,
+    /// <summary>The burst shell, its dome falling in.</summary>
+    EggRemnantDomeFalling,
+    /// <summary>The burst shell, the last of its dome crumbling away.</summary>
+    EggRemnantDomeCrumbling,
+    /// <summary>The shell's base with its ribs bared.</summary>
+    EggRemnantRibsBared,
+    /// <summary>The shell's ribs shifting as the base settles.</summary>
+    EggRemnantRibsShifting,
+    /// <summary>The shell's ribs settling.</summary>
+    EggRemnantRibsSettling,
+    /// <summary>The settled remains of the shell, which stay after the hatching.</summary>
+    EggRemnantSettled,
+    /// <summary>The delivered Baby Metroid at the low point of its pulse.</summary>
+    DeliveredBabyPulseLow,
+    /// <summary>The delivered Baby Metroid between the low and high points of its pulse.</summary>
+    DeliveredBabyPulseMiddle,
+    /// <summary>The delivered Baby Metroid at the high point of its pulse.</summary>
+    DeliveredBabyPulseHigh,
+    /// <summary>The examined Baby Metroid in its capsule, spread wide.</summary>
+    ExaminedBabyWide,
+    /// <summary>The examined Baby Metroid drawing in between wide and narrow.</summary>
+    ExaminedBabyNarrowing,
+    /// <summary>The examined Baby Metroid drawn in narrow.</summary>
+    ExaminedBabyNarrow,
     /// <summary>Caret visible.</summary>
     CaretVisible,
     /// <summary>The pose that draws nothing.</summary>
     Blank,
-    /// <summary>Next page arrow 1.</summary>
-    NextPageArrow1,
-    /// <summary>Next page arrow 2.</summary>
-    NextPageArrow2,
-    /// <summary>Next page arrow 3.</summary>
-    NextPageArrow3,
-    /// <summary>Confused baby 1.</summary>
-    ConfusedBaby1,
-    /// <summary>Confused baby 2.</summary>
-    ConfusedBaby2,
-    /// <summary>Confused baby 3.</summary>
-    ConfusedBaby3,
+    /// <summary>The next-page arrow at its brightest.</summary>
+    NextPageArrowBright,
+    /// <summary>The next-page arrow between bright and faint.</summary>
+    NextPageArrowFading,
+    /// <summary>The next-page arrow at its faintest.</summary>
+    NextPageArrowFaint,
+    /// <summary>The confused Baby Metroid stretched tall.</summary>
+    ConfusedBabyStretched,
+    /// <summary>The confused Baby Metroid round, between stretched and squashed.</summary>
+    ConfusedBabyRound,
+    /// <summary>The confused Baby Metroid squashed wide, its legs spread.</summary>
+    ConfusedBabySquashed,
     /// <summary>Station under attack large asteroid.</summary>
     StationUnderAttackLargeAsteroid,
     /// <summary>Station under attack.</summary>
@@ -88,26 +89,26 @@ public enum CinematicSpritePose
     PlanetZebesTitle,
     /// <summary>Zebes's Japanese title.</summary>
     ZebesJapaneseTitle,
-    /// <summary>Small explosion 0.</summary>
-    SmallExplosion0,
-    /// <summary>Small explosion 1.</summary>
-    SmallExplosion1,
-    /// <summary>Small explosion 2.</summary>
-    SmallExplosion2,
-    /// <summary>Small explosion 3.</summary>
-    SmallExplosion3,
-    /// <summary>Small explosion 4.</summary>
-    SmallExplosion4,
-    /// <summary>Small explosion 5.</summary>
-    SmallExplosion5,
-    /// <summary>Large blast 0.</summary>
-    LargeBlast0,
-    /// <summary>Large blast 1.</summary>
-    LargeBlast1,
-    /// <summary>Large blast 2.</summary>
-    LargeBlast2,
-    /// <summary>Large blast 3.</summary>
-    LargeBlast3,
+    /// <summary>A small explosion's opening spark.</summary>
+    SmallExplosionSpark,
+    /// <summary>A small explosion flaring into a small ball.</summary>
+    SmallExplosionFlare,
+    /// <summary>A small explosion's full fireball.</summary>
+    SmallExplosionFireball,
+    /// <summary>A small explosion's fireball hollowing from its centre.</summary>
+    SmallExplosionHollowing,
+    /// <summary>A small explosion burned out to a ring.</summary>
+    SmallExplosionRing,
+    /// <summary>A small explosion's ring fading, its last picture.</summary>
+    SmallExplosionFadingRing,
+    /// <summary>A large blast's cluster of fireballs.</summary>
+    LargeBlastFireballCluster,
+    /// <summary>A large blast's cluster breaking apart.</summary>
+    LargeBlastBreakingCluster,
+    /// <summary>A large blast scattering into embers.</summary>
+    LargeBlastScatteringEmbers,
+    /// <summary>A large blast's embers fading, its last picture.</summary>
+    LargeBlastFadingEmbers,
     /// <summary>The piece at the upper left of the egg's shell.</summary>
     EggShellUpperLeft,
     /// <summary>The piece at the upper right of the egg's shell.</summary>
@@ -122,14 +123,14 @@ public enum CinematicSpritePose
     EggShellLower,
     /// <summary>Slime moving.</summary>
     SlimeMoving,
-    /// <summary>Slime impact 0.</summary>
-    SlimeImpact0,
-    /// <summary>Slime impact 1.</summary>
-    SlimeImpact1,
-    /// <summary>Slime impact 2.</summary>
-    SlimeImpact2,
-    /// <summary>Slime impact 3.</summary>
-    SlimeImpact3,
+    /// <summary>A slime drop splashing into a crown on the floor.</summary>
+    SlimeSplashCrown,
+    /// <summary>A slime splash rising to its peak.</summary>
+    SlimeSplashPeak,
+    /// <summary>A slime splash sinking back.</summary>
+    SlimeSplashSinking,
+    /// <summary>The flat puddle a slime splash leaves.</summary>
+    SlimePuddle,
     /// <summary>Zebes stars upper left.</summary>
     ZebesStarsUpperLeft,
     /// <summary>Zebes stars upper right.</summary>
@@ -140,160 +141,160 @@ public enum CinematicSpritePose
     ZebesStarsLowerRight,
     /// <summary>Flight stars.</summary>
     FlightStars,
-    /// <summary>Big explosion 0.</summary>
-    BigExplosion0,
-    /// <summary>Big explosion 1.</summary>
-    BigExplosion1,
-    /// <summary>Big explosion 2.</summary>
-    BigExplosion2,
-    /// <summary>Big explosion 3.</summary>
-    BigExplosion3,
-    /// <summary>Big explosion 4.</summary>
-    BigExplosion4,
-    /// <summary>Big explosion 5.</summary>
-    BigExplosion5,
-    /// <summary>Rinka 0.</summary>
-    Rinka0,
-    /// <summary>Rinka 1.</summary>
-    Rinka1,
-    /// <summary>Rinka 2.</summary>
-    Rinka2,
-    /// <summary>Station blast 0.</summary>
-    StationBlast0,
-    /// <summary>Station blast 1.</summary>
-    StationBlast1,
-    /// <summary>Station blast 2.</summary>
-    StationBlast2,
-    /// <summary>Station blast 3.</summary>
-    StationBlast3,
-    /// <summary>Station blast 4.</summary>
-    StationBlast4,
-    /// <summary>Station blast 5.</summary>
-    StationBlast5,
+    /// <summary>A big explosion's opening spark.</summary>
+    BigExplosionSpark,
+    /// <summary>A big explosion flaring into a ball.</summary>
+    BigExplosionFlare,
+    /// <summary>A big explosion's full fireball.</summary>
+    BigExplosionFireball,
+    /// <summary>A big explosion's fireball bursting, a ring opening inside its spikes.</summary>
+    BigExplosionBursting,
+    /// <summary>A big explosion burned out to a ring of radiating spikes.</summary>
+    BigExplosionSpikedRing,
+    /// <summary>A big explosion's scattered smoke, its last picture.</summary>
+    BigExplosionScatteredSmoke,
+    /// <summary>A Rinka at its dimmest.</summary>
+    RinkaDim,
+    /// <summary>A Rinka glowing, between dim and bright.</summary>
+    RinkaGlowing,
+    /// <summary>A Rinka at its brightest.</summary>
+    RinkaBright,
+    /// <summary>A station blast flaring into a ball.</summary>
+    StationBlastFlare,
+    /// <summary>A station blast's full fireball.</summary>
+    StationBlastFireball,
+    /// <summary>A station blast's fireball bursting, a ring opening inside its spikes.</summary>
+    StationBlastBursting,
+    /// <summary>A station blast's widened fireball with a ring inside it.</summary>
+    StationBlastRingedFireball,
+    /// <summary>A station blast burned out to a thick ring.</summary>
+    StationBlastRing,
+    /// <summary>A station blast's thin ring fading, its last picture.</summary>
+    StationBlastFadingRing,
     /// <summary>Large asteroid.</summary>
     LargeAsteroid,
-    /// <summary>Planet damage 0.</summary>
-    PlanetDamage0,
-    /// <summary>Planet damage 1.</summary>
-    PlanetDamage1,
-    /// <summary>Planet damage 2.</summary>
-    PlanetDamage2,
-    /// <summary>Planet damage 3.</summary>
-    PlanetDamage3,
-    /// <summary>Planet flash 0.</summary>
-    PlanetFlash0,
-    /// <summary>Planet flash 1.</summary>
-    PlanetFlash1,
-    /// <summary>Planet flash 2.</summary>
-    PlanetFlash2,
-    /// <summary>Planet flash 3.</summary>
-    PlanetFlash3,
-    /// <summary>Planet glow 0.</summary>
-    PlanetGlow0,
-    /// <summary>Planet glow 1.</summary>
-    PlanetGlow1,
-    /// <summary>Planet glow 2.</summary>
-    PlanetGlow2,
+    /// <summary>Zebes rumbling, its lower half in deep shadow.</summary>
+    PlanetRumbleDeepShadow,
+    /// <summary>Zebes rumbling, its shadow lifting.</summary>
+    PlanetRumbleShadow,
+    /// <summary>Zebes rumbling, its surface lit.</summary>
+    PlanetRumbleLit,
+    /// <summary>Zebes rumbling, its surface at its brightest.</summary>
+    PlanetRumbleBright,
+    /// <summary>Zebes cracking, the first fissures across its surface.</summary>
+    PlanetCracking,
+    /// <summary>Zebes fracturing, its fissures widening.</summary>
+    PlanetFracturing,
+    /// <summary>Zebes breaking apart, its lower half falling away.</summary>
+    PlanetBreakingApart,
+    /// <summary>Zebes crumbling, the last picture before it explodes.</summary>
+    PlanetCrumbling,
+    /// <summary>The exploding planet's glow with a tight halo.</summary>
+    PlanetGlowTightHalo,
+    /// <summary>The exploding planet's glow with its halo spreading.</summary>
+    PlanetGlowSpreadingHalo,
+    /// <summary>The exploding planet's glow with its widest halo.</summary>
+    PlanetGlowWideHalo,
     /// <summary>Ending starfield.</summary>
     EndingStarfield,
-    /// <summary>Planet lava 0.</summary>
-    PlanetLava0,
-    /// <summary>Planet lava 1.</summary>
-    PlanetLava1,
+    /// <summary>The planet's molten core, dark at its edge.</summary>
+    PlanetLavaDark,
+    /// <summary>The planet's molten core, bright throughout.</summary>
+    PlanetLavaBright,
     /// <summary>Planet silhouette.</summary>
     PlanetSilhouette,
     /// <summary>Planet afterglow.</summary>
     PlanetAfterglow,
-    /// <summary>Operation text 00.</summary>
-    OperationText00,
-    /// <summary>Operation text 01.</summary>
-    OperationText01,
-    /// <summary>Operation text 02.</summary>
-    OperationText02,
-    /// <summary>Operation text 03.</summary>
-    OperationText03,
-    /// <summary>Operation text 04.</summary>
-    OperationText04,
-    /// <summary>Operation text 05.</summary>
-    OperationText05,
-    /// <summary>Operation text 06.</summary>
-    OperationText06,
-    /// <summary>Operation text 07.</summary>
-    OperationText07,
-    /// <summary>Operation text 08.</summary>
-    OperationText08,
-    /// <summary>Operation text 09.</summary>
-    OperationText09,
-    /// <summary>Operation text 10.</summary>
-    OperationText10,
-    /// <summary>Operation text 11.</summary>
-    OperationText11,
-    /// <summary>Operation text 12.</summary>
-    OperationText12,
-    /// <summary>Operation text 13.</summary>
-    OperationText13,
-    /// <summary>Operation text 14.</summary>
-    OperationText14,
-    /// <summary>Completed text 00.</summary>
-    CompletedText00,
-    /// <summary>Completed text 01.</summary>
-    CompletedText01,
-    /// <summary>Completed text 02.</summary>
-    CompletedText02,
-    /// <summary>Completed text 03.</summary>
-    CompletedText03,
-    /// <summary>Completed text 04.</summary>
-    CompletedText04,
-    /// <summary>Completed text 05.</summary>
-    CompletedText05,
-    /// <summary>Completed text 06.</summary>
-    CompletedText06,
-    /// <summary>Completed text 07.</summary>
-    CompletedText07,
-    /// <summary>Completed text 08.</summary>
-    CompletedText08,
-    /// <summary>Completed text 09.</summary>
-    CompletedText09,
-    /// <summary>Completed text 10.</summary>
-    CompletedText10,
-    /// <summary>Completed text 11.</summary>
-    CompletedText11,
-    /// <summary>Completed text 12.</summary>
-    CompletedText12,
-    /// <summary>Completed text 13.</summary>
-    CompletedText13,
-    /// <summary>Completed text 14.</summary>
-    CompletedText14,
-    /// <summary>Completed text 15.</summary>
-    CompletedText15,
-    /// <summary>Completed text 16.</summary>
-    CompletedText16,
-    /// <summary>Completed text 17.</summary>
-    CompletedText17,
-    /// <summary>Completed text 18.</summary>
-    CompletedText18,
-    /// <summary>Completed text 19.</summary>
-    CompletedText19,
-    /// <summary>Completed text 20.</summary>
-    CompletedText20,
-    /// <summary>Clear time text 00.</summary>
-    ClearTimeText00,
-    /// <summary>Clear time text 01.</summary>
-    ClearTimeText01,
-    /// <summary>Clear time text 02.</summary>
-    ClearTimeText02,
-    /// <summary>Clear time text 03.</summary>
-    ClearTimeText03,
-    /// <summary>Clear time text 04.</summary>
-    ClearTimeText04,
-    /// <summary>Clear time text 05.</summary>
-    ClearTimeText05,
-    /// <summary>Clear time text 06.</summary>
-    ClearTimeText06,
-    /// <summary>Clear time text 07.</summary>
-    ClearTimeText07,
-    /// <summary>Clear time text 08.</summary>
-    ClearTimeText08,
+    /// <summary>THE OPERATION WAS typed as far as "T".</summary>
+    OperationTypedT,
+    /// <summary>THE OPERATION WAS typed as far as "TH".</summary>
+    OperationTypedTh,
+    /// <summary>THE OPERATION WAS typed as far as "THE".</summary>
+    OperationTypedThe,
+    /// <summary>THE OPERATION WAS typed as far as "THE O".</summary>
+    OperationTypedTheO,
+    /// <summary>THE OPERATION WAS typed as far as "THE OP".</summary>
+    OperationTypedTheOp,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPE".</summary>
+    OperationTypedTheOpe,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPER".</summary>
+    OperationTypedTheOper,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERA".</summary>
+    OperationTypedTheOpera,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERAT".</summary>
+    OperationTypedTheOperat,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERATI".</summary>
+    OperationTypedTheOperati,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERATIO".</summary>
+    OperationTypedTheOperatio,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION".</summary>
+    OperationTypedTheOperation,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION W".</summary>
+    OperationTypedTheOperationW,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION WA".</summary>
+    OperationTypedTheOperationWa,
+    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION WAS".</summary>
+    OperationTypedTheOperationWas,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "C".</summary>
+    CompletedTypedC,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "CO".</summary>
+    CompletedTypedCo,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COM".</summary>
+    CompletedTypedCom,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMP".</summary>
+    CompletedTypedComp,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPL".</summary>
+    CompletedTypedCompl,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLE".</summary>
+    CompletedTypedComple,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLET".</summary>
+    CompletedTypedComplet,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETE".</summary>
+    CompletedTypedComplete,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED".</summary>
+    CompletedTypedCompleted,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED S".</summary>
+    CompletedTypedCompletedS,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SU".</summary>
+    CompletedTypedCompletedSu,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUC".</summary>
+    CompletedTypedCompletedSuc,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCC".</summary>
+    CompletedTypedCompletedSucc,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCE".</summary>
+    CompletedTypedCompletedSucce,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCES".</summary>
+    CompletedTypedCompletedSucces,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESS".</summary>
+    CompletedTypedCompletedSuccess,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSF".</summary>
+    CompletedTypedCompletedSuccessf,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFU".</summary>
+    CompletedTypedCompletedSuccessfu,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFUL".</summary>
+    CompletedTypedCompletedSuccessful,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFULL".</summary>
+    CompletedTypedCompletedSuccessfull,
+    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFULLY".</summary>
+    CompletedTypedCompletedSuccessfully,
+    /// <summary>CLEAR TIME typed as far as "C".</summary>
+    ClearTimeTypedC,
+    /// <summary>CLEAR TIME typed as far as "CL".</summary>
+    ClearTimeTypedCl,
+    /// <summary>CLEAR TIME typed as far as "CLE".</summary>
+    ClearTimeTypedCle,
+    /// <summary>CLEAR TIME typed as far as "CLEA".</summary>
+    ClearTimeTypedClea,
+    /// <summary>CLEAR TIME typed as far as "CLEAR".</summary>
+    ClearTimeTypedClear,
+    /// <summary>CLEAR TIME typed as far as "CLEAR T".</summary>
+    ClearTimeTypedClearT,
+    /// <summary>CLEAR TIME typed as far as "CLEAR TI".</summary>
+    ClearTimeTypedClearTi,
+    /// <summary>CLEAR TIME typed as far as "CLEAR TIM".</summary>
+    ClearTimeTypedClearTim,
+    /// <summary>CLEAR TIME typed as far as "CLEAR TIME".</summary>
+    ClearTimeTypedClearTime,
     /// <summary>Clear time digit 0.</summary>
     ClearTimeDigit0,
     /// <summary>Clear time digit 1.</summary>
@@ -316,14 +317,10 @@ public enum CinematicSpritePose
     ClearTimeDigit9,
     /// <summary>Clear time colon.</summary>
     ClearTimeColon,
-    /// <summary>Escape pod 0.</summary>
-    EscapePod0,
-    /// <summary>Escape pod 1.</summary>
-    EscapePod1,
-    /// <summary>Escape pod 2.</summary>
-    EscapePod2,
-    /// <summary>Escape pod 3.</summary>
-    EscapePod3,
+    /// <summary>The animals' escape pod with a short trail.</summary>
+    EscapePodShortTrail,
+    /// <summary>The animals' escape pod with a long trail.</summary>
+    EscapePodLongTrail,
     /// <summary>The upper clouds' pattern, above their edge.</summary>
     TopCloudPattern,
     /// <summary>The upper clouds' lower edge.</summary>
@@ -340,22 +337,22 @@ public enum CinematicSpritePose
     SuitlessIdleUpper,
     /// <summary>Suitless lower.</summary>
     SuitlessLower,
-    /// <summary>Suitless hair 1.</summary>
-    SuitlessHair1,
-    /// <summary>Suitless hair 2.</summary>
-    SuitlessHair2,
-    /// <summary>Suitless hair 3.</summary>
-    SuitlessHair3,
-    /// <summary>Suitless hair 4.</summary>
-    SuitlessHair4,
-    /// <summary>Suitless hair 5.</summary>
-    SuitlessHair5,
-    /// <summary>Suitless hair 6.</summary>
-    SuitlessHair6,
-    /// <summary>Suitless hair 7.</summary>
-    SuitlessHair7,
-    /// <summary>Suitless hair 8.</summary>
-    SuitlessHair8,
+    /// <summary>Suitless Samus, her hair tied in its ponytail and her arms lowered.</summary>
+    SuitlessPonytailTied,
+    /// <summary>Suitless Samus raising her hands to her ponytail.</summary>
+    SuitlessHandsToPonytail,
+    /// <summary>Suitless Samus untying her ponytail.</summary>
+    SuitlessUntyingPonytail,
+    /// <summary>Suitless Samus with her ponytail untied, her hands still at her hair.</summary>
+    SuitlessPonytailUntied,
+    /// <summary>Suitless Samus's hair falling loose as she lowers her arms.</summary>
+    SuitlessHairFallingLoose,
+    /// <summary>Suitless Samus's loose hair swinging out.</summary>
+    SuitlessHairSwinging,
+    /// <summary>Suitless Samus's hair swept back as her arm sweeps down.</summary>
+    SuitlessHairSweptBack,
+    /// <summary>Suitless Samus's hair flowing, settling after the sweep.</summary>
+    SuitlessHairFlowing,
     /// <summary>Suitless standing.</summary>
     SuitlessStanding,
     /// <summary>Suitless prepare jump.</summary>
@@ -374,56 +371,56 @@ public enum CinematicSpritePose
     SuitedIdleBody,
     /// <summary>Suited helmet head.</summary>
     SuitedHelmetHead,
-    /// <summary>Helmetless head 1.</summary>
-    HelmetlessHead1,
+    /// <summary>Samus's helmetless head at rest.</summary>
+    HelmetlessHeadResting,
     /// <summary>Suited headless body.</summary>
     SuitedHeadlessBody,
-    /// <summary>Suited arm 1.</summary>
-    SuitedArm1,
-    /// <summary>Suited arm 2.</summary>
-    SuitedArm2,
-    /// <summary>Suited arm 3.</summary>
-    SuitedArm3,
-    /// <summary>Suited arm 4.</summary>
-    SuitedArm4,
-    /// <summary>Suited arm 5.</summary>
-    SuitedArm5,
-    /// <summary>Suited arm 6.</summary>
-    SuitedArm6,
-    /// <summary>Suited arm 7.</summary>
-    SuitedArm7,
-    /// <summary>Suited arm 8.</summary>
-    SuitedArm8,
-    /// <summary>Helmetless head 2.</summary>
-    HelmetlessHead2,
-    /// <summary>Helmetless head 3.</summary>
-    HelmetlessHead3,
-    /// <summary>Helmetless head 4.</summary>
-    HelmetlessHead4,
+    /// <summary>The suited arm lowered at Samus's side.</summary>
+    SuitedArmLowered,
+    /// <summary>The suited arm swinging up.</summary>
+    SuitedArmSwingingUp,
+    /// <summary>The suited arm raised, its fist forward.</summary>
+    SuitedArmFistForward,
+    /// <summary>The suited arm's fist raised and drawing back.</summary>
+    SuitedArmFistRaised,
+    /// <summary>The suited arm's fist drawing in towards the chest.</summary>
+    SuitedArmFistDrawingIn,
+    /// <summary>The suited arm's fist at the chest.</summary>
+    SuitedArmFistAtChest,
+    /// <summary>The suited arm's fist turning at the chest.</summary>
+    SuitedArmFistTurning,
+    /// <summary>The suited arm's fist turned at the chest, the gesture's held picture.</summary>
+    SuitedArmFistTurned,
+    /// <summary>Samus's helmetless head starting to smile.</summary>
+    HelmetlessHeadSmileStarting,
+    /// <summary>Samus's helmetless head, her smile widening.</summary>
+    HelmetlessHeadSmileWidening,
+    /// <summary>Samus's helmetless head smiling.</summary>
+    HelmetlessHeadSmiling,
     /// <summary>Suited prepare jump.</summary>
     SuitedPrepareJump,
     /// <summary>Suited jumping.</summary>
     SuitedJumping,
-    /// <summary>Suited helmet jump head 1.</summary>
-    SuitedHelmetJumpHead1,
-    /// <summary>Suited helmet jump head 2.</summary>
-    SuitedHelmetJumpHead2,
+    /// <summary>The jumping suited helmet held level, as it leaves the ground.</summary>
+    SuitedHelmetJumpLevel,
+    /// <summary>The jumping suited helmet tilted in flight.</summary>
+    SuitedHelmetJumpTilted,
     /// <summary>Helmetless jump head.</summary>
     HelmetlessJumpHead,
     /// <summary>Logo s upper.</summary>
     LogoSUpper,
     /// <summary>Logo s lower.</summary>
     LogoSLower,
-    /// <summary>Logo circle right 1.</summary>
-    LogoCircleRight1,
-    /// <summary>Logo circle right 2.</summary>
-    LogoCircleRight2,
-    /// <summary>Logo circle right 3.</summary>
-    LogoCircleRight3,
-    /// <summary>Logo circle left 1.</summary>
-    LogoCircleLeft1,
-    /// <summary>Logo circle left 2.</summary>
-    LogoCircleLeft2,
-    /// <summary>Logo circle left 3.</summary>
-    LogoCircleLeft3,
+    /// <summary>The logo's right circle drawn as far as its tip.</summary>
+    LogoRightCircleTip,
+    /// <summary>The logo's right circle drawn as far as its tip and its blade.</summary>
+    LogoRightCircleTipAndBlade,
+    /// <summary>The logo's whole right circle.</summary>
+    LogoRightCircleWhole,
+    /// <summary>The logo's left circle drawn as far as its tip.</summary>
+    LogoLeftCircleTip,
+    /// <summary>The logo's left circle drawn as far as its tip and its blade.</summary>
+    LogoLeftCircleTipAndBlade,
+    /// <summary>The logo's whole left circle.</summary>
+    LogoLeftCircleWhole,
 }

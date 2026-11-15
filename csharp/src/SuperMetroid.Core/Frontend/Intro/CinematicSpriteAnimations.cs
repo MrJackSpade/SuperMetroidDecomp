@@ -18,10 +18,10 @@ internal static class CinematicSpriteAnimations
     {
         [P.IntroMotherBrain] =
         [
-            Show(S.MotherBrainFrame0, 16),
-            Show(S.MotherBrainFrame1, 16),
-            Show(S.MotherBrainFrame2, 16),
-            Show(S.MotherBrainFrame1, 16),
+            Show(S.MotherBrainPulseLow, 16),
+            Show(S.MotherBrainPulseMiddle, 16),
+            Show(S.MotherBrainPulseHigh, 16),
+            Show(S.MotherBrainPulseMiddle, 16),
         ],
         [P.IntroMotherBrainStartPage2] =
         [
@@ -30,10 +30,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.IntroMotherBrainPageTwo] =
         [
-            Show(S.MotherBrainFrame0, 16),
-            Show(S.MotherBrainFrame1, 16),
-            Show(S.MotherBrainFrame2, 16),
-            Show(S.MotherBrainFrame1, 16),
+            Show(S.MotherBrainPulseLow, 16),
+            Show(S.MotherBrainPulseMiddle, 16),
+            Show(S.MotherBrainPulseHigh, 16),
+            Show(S.MotherBrainPulseMiddle, 16),
         ],
         [P.MetroidEgg] =
         [
@@ -46,69 +46,69 @@ internal static class CinematicSpriteAnimations
         [P.MetroidEggShaking] =
         [
             Show(S.EggIntact, 5),
-            Show(S.EggCrack1, 5),
+            Show(S.EggRockingLeft, 5),
             Show(S.EggIntact, 5),
-            Show(S.EggCrack2, 5),
+            Show(S.EggRockingRight, 5),
             Show(S.EggIntact, 10),
-            Show(S.EggCrack3, 10),
-            Show(S.EggCrack4, 10),
-            Show(S.EggCrack5, 10),
-            Show(S.EggCrack6, 10),
-            Show(S.EggCrack7, 10),
+            Show(S.EggCrackingUpperLeft, 10),
+            Show(S.EggCrackingTop, 10),
+            Show(S.EggCrackingLeft, 10),
+            Show(S.EggCrackingUpperRight, 10),
+            Show(S.EggCrackingRight, 10),
             Show(S.EggHatched, 80),
             Cue(new(K.SpawnParticles)),
-            Show(S.EggRemnant1, 10),
+            Show(S.EggRemnantDomeSagging, 10),
         ],
         [P.MetroidEggRemnantsSettling] =
         [
-            Show(S.EggRemnant2, 10),
-            Show(S.EggRemnant3, 10),
-            Show(S.EggRemnant4, 10),
-            Show(S.EggRemnant5, 10),
-            Show(S.EggRemnant6, 10),
-            Show(S.EggRemnant7, 320),
+            Show(S.EggRemnantDomeFalling, 10),
+            Show(S.EggRemnantDomeCrumbling, 10),
+            Show(S.EggRemnantRibsBared, 10),
+            Show(S.EggRemnantRibsShifting, 10),
+            Show(S.EggRemnantRibsSettling, 10),
+            Show(S.EggRemnantSettled, 320),
             Cue(new(K.StartIntroPage3)),
             Cue(new(K.DeleteEggAfterCrossFade)),
         ],
         [P.MetroidEggHatched] =
         [
-            Show(S.EggRemnant7, 80),
+            Show(S.EggRemnantSettled, 80),
         ],
         [P.BabyMetroidBeingDelivered] =
         [
         ],
         [P.BabyMetroidBeingDeliveredLoop] =
         [
-            Show(S.DeliveredBaby1, 10),
-            Show(S.DeliveredBaby2, 10),
-            Show(S.DeliveredBaby3, 10),
-            Show(S.DeliveredBaby2, 10),
+            Show(S.DeliveredBabyPulseLow, 10),
+            Show(S.DeliveredBabyPulseMiddle, 10),
+            Show(S.DeliveredBabyPulseHigh, 10),
+            Show(S.DeliveredBabyPulseMiddle, 10),
             Cue(new(K.StartIntroPage4)),
         ],
         [P.BabyMetroidDelivered] =
         [
-            Show(S.DeliveredBaby1, 10),
-            Show(S.DeliveredBaby2, 10),
-            Show(S.DeliveredBaby3, 10),
-            Show(S.DeliveredBaby2, 10),
+            Show(S.DeliveredBabyPulseLow, 10),
+            Show(S.DeliveredBabyPulseMiddle, 10),
+            Show(S.DeliveredBabyPulseHigh, 10),
+            Show(S.DeliveredBabyPulseMiddle, 10),
         ],
         [P.BabyMetroidBeingExamined] =
         [
         ],
         [P.BabyMetroidBeingExaminedLoop] =
         [
-            Show(S.ExaminedBaby1, 10),
-            Show(S.ExaminedBaby2, 10),
-            Show(S.ExaminedBaby3, 10),
-            Show(S.ExaminedBaby2, 10),
+            Show(S.ExaminedBabyWide, 10),
+            Show(S.ExaminedBabyNarrowing, 10),
+            Show(S.ExaminedBabyNarrow, 10),
+            Show(S.ExaminedBabyNarrowing, 10),
             Cue(new(K.StartIntroPage5)),
         ],
         [P.BabyMetroidExamined] =
         [
-            Show(S.ExaminedBaby1, 10),
-            Show(S.ExaminedBaby2, 10),
-            Show(S.ExaminedBaby3, 10),
-            Show(S.ExaminedBaby2, 10),
+            Show(S.ExaminedBabyWide, 10),
+            Show(S.ExaminedBabyNarrowing, 10),
+            Show(S.ExaminedBabyNarrow, 10),
+            Show(S.ExaminedBabyNarrowing, 10),
         ],
         [P.IntroTextCaret] =
         [
@@ -121,10 +121,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.IntroNextPageArrow] =
         [
-            Show(S.NextPageArrow1, 10),
-            Show(S.NextPageArrow2, 10),
-            Show(S.NextPageArrow3, 10),
-            Show(S.NextPageArrow2, 10),
+            Show(S.NextPageArrowBright, 10),
+            Show(S.NextPageArrowFading, 10),
+            Show(S.NextPageArrowFaint, 10),
+            Show(S.NextPageArrowFading, 10),
         ],
         [P.IntroNextPageArrowDelayed] =
         [
@@ -132,10 +132,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.ConfusedBabyMetroid] =
         [
-            Show(S.ConfusedBaby1, 10),
-            Show(S.ConfusedBaby2, 10),
-            Show(S.ConfusedBaby3, 10),
-            Show(S.ConfusedBaby2, 10),
+            Show(S.ConfusedBabyStretched, 10),
+            Show(S.ConfusedBabyRound, 10),
+            Show(S.ConfusedBabySquashed, 10),
+            Show(S.ConfusedBabyRound, 10),
         ],
         [P.CeresDestructionLargeAsteroid] =
         [
@@ -175,24 +175,24 @@ internal static class CinematicSpriteAnimations
         ],
         [P.CeresSmallExplosion] =
         [
-            Show(S.SmallExplosion0, 3),
-            Show(S.SmallExplosion1, 3),
-            Show(S.SmallExplosion2, 3),
-            Show(S.SmallExplosion3, 3),
-            Show(S.SmallExplosion4, 3),
-            Show(S.SmallExplosion5, 3),
+            Show(S.SmallExplosionSpark, 3),
+            Show(S.SmallExplosionFlare, 3),
+            Show(S.SmallExplosionFireball, 3),
+            Show(S.SmallExplosionHollowing, 3),
+            Show(S.SmallExplosionRing, 3),
+            Show(S.SmallExplosionFadingRing, 3),
         ],
         [P.CeresRepeatingSmallExplosion] =
         [
         ],
         [P.CeresRepeatingSmallExplosionLoop] =
         [
-            Show(S.SmallExplosion0, 3),
-            Show(S.SmallExplosion1, 3),
-            Show(S.SmallExplosion2, 3),
-            Show(S.SmallExplosion3, 3),
-            Show(S.SmallExplosion4, 3),
-            Show(S.SmallExplosion5, 3),
+            Show(S.SmallExplosionSpark, 3),
+            Show(S.SmallExplosionFlare, 3),
+            Show(S.SmallExplosionFireball, 3),
+            Show(S.SmallExplosionHollowing, 3),
+            Show(S.SmallExplosionRing, 3),
+            Show(S.SmallExplosionFadingRing, 3),
             Show(S.Blank, 16),
         ],
         [P.CeresLargeExplosion] =
@@ -200,10 +200,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.CeresLargeExplosionLoop] =
         [
-            Show(S.LargeBlast0, 5),
-            Show(S.LargeBlast1, 5),
-            Show(S.LargeBlast2, 5),
-            Show(S.LargeBlast3, 5),
+            Show(S.LargeBlastFireballCluster, 5),
+            Show(S.LargeBlastBreakingCluster, 5),
+            Show(S.LargeBlastScatteringEmbers, 5),
+            Show(S.LargeBlastFadingEmbers, 5),
             Show(S.Blank, 8),
         ],
         [P.MetroidEggShellUpperLeft] =
@@ -236,10 +236,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.MetroidEggSlimeImpact] =
         [
-            Show(S.SlimeImpact0, 10),
-            Show(S.SlimeImpact1, 10),
-            Show(S.SlimeImpact2, 10),
-            Show(S.SlimeImpact3, 10),
+            Show(S.SlimeSplashCrown, 10),
+            Show(S.SlimeSplashPeak, 10),
+            Show(S.SlimeSplashSinking, 10),
+            Show(S.SlimePuddle, 10),
         ],
         [P.ZebesStarsUpperLeft] =
         [
@@ -263,37 +263,37 @@ internal static class CinematicSpriteAnimations
         ],
         [P.IntroMotherBrainExplosionBig] =
         [
-            Show(S.BigExplosion0, 6),
-            Show(S.BigExplosion1, 6),
-            Show(S.BigExplosion2, 6),
-            Show(S.BigExplosion3, 6),
-            Show(S.BigExplosion4, 6),
-            Show(S.BigExplosion5, 6),
+            Show(S.BigExplosionSpark, 6),
+            Show(S.BigExplosionFlare, 6),
+            Show(S.BigExplosionFireball, 6),
+            Show(S.BigExplosionBursting, 6),
+            Show(S.BigExplosionSpikedRing, 6),
+            Show(S.BigExplosionScatteredSmoke, 6),
             Show(S.Blank, 16),
         ],
         [P.IntroMotherBrainExplosionSmall] =
         [
-            Show(S.SmallExplosion0, 3),
-            Show(S.SmallExplosion1, 3),
-            Show(S.SmallExplosion2, 3),
-            Show(S.SmallExplosion3, 3),
-            Show(S.SmallExplosion4, 3),
-            Show(S.SmallExplosion5, 3),
+            Show(S.SmallExplosionSpark, 3),
+            Show(S.SmallExplosionFlare, 3),
+            Show(S.SmallExplosionFireball, 3),
+            Show(S.SmallExplosionHollowing, 3),
+            Show(S.SmallExplosionRing, 3),
+            Show(S.SmallExplosionFadingRing, 3),
             Show(S.Blank, 16),
         ],
         [P.IntroRinka] =
         [
-            Show(S.Rinka0, 10),
-            Show(S.Rinka1, 10),
-            Show(S.Rinka2, 10),
+            Show(S.RinkaDim, 10),
+            Show(S.RinkaGlowing, 10),
+            Show(S.RinkaBright, 10),
             Cue(new(K.StartRinkaMoving)),
         ],
         [P.IntroRinkaMoving] =
         [
-            Show(S.Rinka1, 10),
-            Show(S.Rinka0, 10),
-            Show(S.Rinka1, 10),
-            Show(S.Rinka2, 10),
+            Show(S.RinkaGlowing, 10),
+            Show(S.RinkaDim, 10),
+            Show(S.RinkaGlowing, 10),
+            Show(S.RinkaBright, 10),
         ],
         [P.IntroRinkaSpawner] =
         [
@@ -304,12 +304,12 @@ internal static class CinematicSpriteAnimations
         ],
         [P.CeresStationBlast] =
         [
-            Show(S.StationBlast0, 5),
-            Show(S.StationBlast1, 5),
-            Show(S.StationBlast2, 5),
-            Show(S.StationBlast3, 5),
-            Show(S.StationBlast4, 5),
-            Show(S.StationBlast5, 5),
+            Show(S.StationBlastFlare, 5),
+            Show(S.StationBlastFireball, 5),
+            Show(S.StationBlastBursting, 5),
+            Show(S.StationBlastRingedFireball, 5),
+            Show(S.StationBlastRing, 5),
+            Show(S.StationBlastFadingRing, 5),
         ],
         [P.CeresExplosionSpawner] =
         [
@@ -332,23 +332,23 @@ internal static class CinematicSpriteAnimations
         ],
         [P.ZebesExplosionPlanetLoop] =
         [
-            Show(S.PlanetDamage0, 13),
-            Show(S.PlanetDamage1, 13),
-            Show(S.PlanetDamage2, 13),
-            Show(S.PlanetDamage3, 13),
+            Show(S.PlanetRumbleDeepShadow, 13),
+            Show(S.PlanetRumbleShadow, 13),
+            Show(S.PlanetRumbleLit, 13),
+            Show(S.PlanetRumbleBright, 13),
             Cue(new(K.FadeExplosionColours)),
-            Show(S.PlanetFlash0, 32),
-            Show(S.PlanetFlash1, 32),
-            Show(S.PlanetFlash2, 32),
-            Show(S.PlanetFlash3, 32),
+            Show(S.PlanetCracking, 32),
+            Show(S.PlanetFracturing, 32),
+            Show(S.PlanetBreakingApart, 32),
+            Show(S.PlanetCrumbling, 32),
             Cue(new(K.SpawnExplosionSilhouette)),
         ],
         [P.ZebesExplosionGlow] =
         [
-            Show(S.PlanetGlow0, 16),
-            Show(S.PlanetGlow1, 16),
-            Show(S.PlanetGlow2, 16),
-            Show(S.PlanetGlow1, 16),
+            Show(S.PlanetGlowTightHalo, 16),
+            Show(S.PlanetGlowSpreadingHalo, 16),
+            Show(S.PlanetGlowWideHalo, 16),
+            Show(S.PlanetGlowSpreadingHalo, 16),
         ],
         [P.ZebesExplosionStars] =
         [
@@ -360,8 +360,8 @@ internal static class CinematicSpriteAnimations
         ],
         [P.ZebesExplosionLavaLoop] =
         [
-            Show(S.PlanetLava0, 10),
-            Show(S.PlanetLava1, 10),
+            Show(S.PlanetLavaDark, 10),
+            Show(S.PlanetLavaBright, 10),
         ],
         [P.ZebesExplosionSilhouette] =
         [
@@ -386,82 +386,82 @@ internal static class CinematicSpriteAnimations
         ],
         [P.OperationWasText] =
         [
-            Show(S.OperationText00, 8),
-            Show(S.OperationText01, 8),
-            Show(S.OperationText02, 15),
-            Show(S.OperationText03, 8),
-            Show(S.OperationText04, 8),
-            Show(S.OperationText05, 8),
-            Show(S.OperationText06, 8),
-            Show(S.OperationText07, 8),
-            Show(S.OperationText08, 8),
-            Show(S.OperationText09, 8),
-            Show(S.OperationText10, 8),
-            Show(S.OperationText11, 15),
-            Show(S.OperationText12, 8),
-            Show(S.OperationText13, 8),
-            Show(S.OperationText14, 15),
+            Show(S.OperationTypedT, 8),
+            Show(S.OperationTypedTh, 8),
+            Show(S.OperationTypedThe, 15),
+            Show(S.OperationTypedTheO, 8),
+            Show(S.OperationTypedTheOp, 8),
+            Show(S.OperationTypedTheOpe, 8),
+            Show(S.OperationTypedTheOper, 8),
+            Show(S.OperationTypedTheOpera, 8),
+            Show(S.OperationTypedTheOperat, 8),
+            Show(S.OperationTypedTheOperati, 8),
+            Show(S.OperationTypedTheOperatio, 8),
+            Show(S.OperationTypedTheOperation, 15),
+            Show(S.OperationTypedTheOperationW, 8),
+            Show(S.OperationTypedTheOperationWa, 8),
+            Show(S.OperationTypedTheOperationWas, 15),
             Cue(new(K.SpawnCompletedText)),
         ],
         [P.OperationWasTextHold] =
         [
-            Show(S.OperationText14, 15),
+            Show(S.OperationTypedTheOperationWas, 15),
         ],
         [P.CompletedSuccessfullyText] =
         [
-            Show(S.CompletedText00, 8),
-            Show(S.CompletedText01, 8),
-            Show(S.CompletedText02, 8),
-            Show(S.CompletedText03, 8),
-            Show(S.CompletedText04, 8),
-            Show(S.CompletedText05, 8),
-            Show(S.CompletedText06, 8),
-            Show(S.CompletedText07, 8),
-            Show(S.CompletedText08, 15),
-            Show(S.CompletedText09, 8),
-            Show(S.CompletedText10, 8),
-            Show(S.CompletedText11, 8),
-            Show(S.CompletedText12, 8),
-            Show(S.CompletedText13, 8),
-            Show(S.CompletedText14, 8),
-            Show(S.CompletedText15, 8),
-            Show(S.CompletedText16, 8),
-            Show(S.CompletedText17, 8),
-            Show(S.CompletedText18, 8),
-            Show(S.CompletedText19, 8),
-            Show(S.CompletedText20, 15),
+            Show(S.CompletedTypedC, 8),
+            Show(S.CompletedTypedCo, 8),
+            Show(S.CompletedTypedCom, 8),
+            Show(S.CompletedTypedComp, 8),
+            Show(S.CompletedTypedCompl, 8),
+            Show(S.CompletedTypedComple, 8),
+            Show(S.CompletedTypedComplet, 8),
+            Show(S.CompletedTypedComplete, 8),
+            Show(S.CompletedTypedCompleted, 15),
+            Show(S.CompletedTypedCompletedS, 8),
+            Show(S.CompletedTypedCompletedSu, 8),
+            Show(S.CompletedTypedCompletedSuc, 8),
+            Show(S.CompletedTypedCompletedSucc, 8),
+            Show(S.CompletedTypedCompletedSucce, 8),
+            Show(S.CompletedTypedCompletedSucces, 8),
+            Show(S.CompletedTypedCompletedSuccess, 8),
+            Show(S.CompletedTypedCompletedSuccessf, 8),
+            Show(S.CompletedTypedCompletedSuccessfu, 8),
+            Show(S.CompletedTypedCompletedSuccessful, 8),
+            Show(S.CompletedTypedCompletedSuccessfull, 8),
+            Show(S.CompletedTypedCompletedSuccessfully, 15),
             Cue(new(K.SpawnClearTime)),
         ],
         [P.CompletedSuccessfullyTextHold] =
         [
-            Show(S.CompletedText20, 8),
+            Show(S.CompletedTypedCompletedSuccessfully, 8),
         ],
         [P.ClearTimeText] =
         [
-            Show(S.ClearTimeText00, 8),
-            Show(S.ClearTimeText01, 8),
-            Show(S.ClearTimeText02, 8),
-            Show(S.ClearTimeText03, 8),
-            Show(S.ClearTimeText04, 15),
-            Show(S.ClearTimeText05, 8),
-            Show(S.ClearTimeText06, 8),
-            Show(S.ClearTimeText07, 8),
-            Show(S.ClearTimeText08, 15),
+            Show(S.ClearTimeTypedC, 8),
+            Show(S.ClearTimeTypedCl, 8),
+            Show(S.ClearTimeTypedCle, 8),
+            Show(S.ClearTimeTypedClea, 8),
+            Show(S.ClearTimeTypedClear, 15),
+            Show(S.ClearTimeTypedClearT, 8),
+            Show(S.ClearTimeTypedClearTi, 8),
+            Show(S.ClearTimeTypedClearTim, 8),
+            Show(S.ClearTimeTypedClearTime, 15),
             Cue(new(K.SpawnHoursTens)),
-            Show(S.ClearTimeText08, 8),
+            Show(S.ClearTimeTypedClearTime, 8),
             Cue(new(K.SpawnHoursUnits)),
-            Show(S.ClearTimeText08, 8),
+            Show(S.ClearTimeTypedClearTime, 8),
             Cue(new(K.SpawnColon)),
-            Show(S.ClearTimeText08, 8),
+            Show(S.ClearTimeTypedClearTime, 8),
             Cue(new(K.SpawnMinutesTens)),
-            Show(S.ClearTimeText08, 8),
+            Show(S.ClearTimeTypedClearTime, 8),
             Cue(new(K.SpawnMinutesUnits)),
-            Show(S.ClearTimeText08, 128),
+            Show(S.ClearTimeTypedClearTime, 128),
             Cue(new(K.TransitionToCredits)),
         ],
         [P.ClearTimeTextHold] =
         [
-            Show(S.ClearTimeText08, 15),
+            Show(S.ClearTimeTypedClearTime, 15),
         ],
         [P.ClearTimeDigit0] =
         [
@@ -509,10 +509,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.EndingAnimalEscape] =
         [
-            Show(S.EscapePod0, 1),
-            Show(S.EscapePod1, 1),
-            Show(S.EscapePod2, 1),
-            Show(S.EscapePod3, 1),
+            Show(S.EscapePodShortTrail, 1),
+            Show(S.EscapePodLongTrail, 1),
+            Show(S.EscapePodLongTrail, 1),
+            Show(S.EscapePodLongTrail, 1),
         ],
         [P.EndingTopCloudPattern] =
         [
@@ -549,14 +549,14 @@ internal static class CinematicSpriteAnimations
         [P.HairRelease] =
         [
             Show(S.SuitlessIdleUpper, 90),
-            Show(S.SuitlessHair1, 8),
-            Show(S.SuitlessHair2, 10),
-            Show(S.SuitlessHair3, 10),
-            Show(S.SuitlessHair4, 32),
-            Show(S.SuitlessHair5, 10),
-            Show(S.SuitlessHair6, 9),
-            Show(S.SuitlessHair7, 16),
-            Show(S.SuitlessHair8, 10),
+            Show(S.SuitlessPonytailTied, 8),
+            Show(S.SuitlessHandsToPonytail, 10),
+            Show(S.SuitlessUntyingPonytail, 10),
+            Show(S.SuitlessPonytailUntied, 32),
+            Show(S.SuitlessHairFallingLoose, 10),
+            Show(S.SuitlessHairSwinging, 9),
+            Show(S.SuitlessHairSweptBack, 16),
+            Show(S.SuitlessHairFlowing, 10),
             Show(S.SuitlessStanding, 48),
             Cue(new(K.SpawnSuitlessJump)),
         ],
@@ -605,7 +605,7 @@ internal static class CinematicSpriteAnimations
         ],
         [P.HeadIdle] =
         [
-            Show(S.HelmetlessHead1, 10),
+            Show(S.HelmetlessHeadResting, 10),
         ],
         [P.GestureBody] =
         [
@@ -615,19 +615,19 @@ internal static class CinematicSpriteAnimations
         [P.GestureArm] =
         [
             Show(S.Blank, 64),
-            Show(S.SuitedArm1, 8),
-            Show(S.SuitedArm2, 8),
-            Show(S.SuitedArm3, 5),
-            Show(S.SuitedArm4, 4),
-            Show(S.SuitedArm5, 3),
-            Show(S.SuitedArm6, 32),
-            Show(S.SuitedArm7, 8),
-            Show(S.SuitedArm8, 64),
-            Show(S.SuitedArm6, 5),
-            Show(S.SuitedArm5, 5),
-            Show(S.SuitedArm4, 5),
-            Show(S.SuitedArm3, 5),
-            Show(S.SuitedArm2, 112),
+            Show(S.SuitedArmLowered, 8),
+            Show(S.SuitedArmSwingingUp, 8),
+            Show(S.SuitedArmFistForward, 5),
+            Show(S.SuitedArmFistRaised, 4),
+            Show(S.SuitedArmFistDrawingIn, 3),
+            Show(S.SuitedArmFistAtChest, 32),
+            Show(S.SuitedArmFistTurning, 8),
+            Show(S.SuitedArmFistTurned, 64),
+            Show(S.SuitedArmFistAtChest, 5),
+            Show(S.SuitedArmFistDrawingIn, 5),
+            Show(S.SuitedArmFistRaised, 5),
+            Show(S.SuitedArmFistForward, 5),
+            Show(S.SuitedArmSwingingUp, 112),
             Cue(new(K.SpawnSuitedJump)),
         ],
         [P.GestureHelmet] =
@@ -636,10 +636,10 @@ internal static class CinematicSpriteAnimations
         ],
         [P.GestureHead] =
         [
-            Show(S.HelmetlessHead1, 128),
-            Show(S.HelmetlessHead2, 5),
-            Show(S.HelmetlessHead3, 5),
-            Show(S.HelmetlessHead4, 190),
+            Show(S.HelmetlessHeadResting, 128),
+            Show(S.HelmetlessHeadSmileStarting, 5),
+            Show(S.HelmetlessHeadSmileWidening, 5),
+            Show(S.HelmetlessHeadSmiling, 190),
         ],
         [P.SuitedJump] =
         [
@@ -655,12 +655,12 @@ internal static class CinematicSpriteAnimations
         ],
         [P.HelmetJump] =
         [
-            Show(S.SuitedHelmetJumpHead1, 10),
+            Show(S.SuitedHelmetJumpLevel, 10),
             Cue(new(K.StartHeadFlight)),
         ],
         [P.HelmetFlight] =
         [
-            Show(S.SuitedHelmetJumpHead2, 5),
+            Show(S.SuitedHelmetJumpTilted, 5),
         ],
         [P.HeadJump] =
         [
@@ -682,24 +682,24 @@ internal static class CinematicSpriteAnimations
         [P.LogoUpperCircle] =
         [
             Show(S.Blank, 96),
-            Show(S.LogoCircleRight1, 5),
-            Show(S.LogoCircleRight2, 5),
-            Show(S.LogoCircleRight3, 64),
+            Show(S.LogoRightCircleTip, 5),
+            Show(S.LogoRightCircleTipAndBlade, 5),
+            Show(S.LogoRightCircleWhole, 64),
             Cue(new(K.GreyOut)),
         ],
         [P.LogoUpperCircleLoop] =
         [
-            Show(S.LogoCircleRight3, 5),
+            Show(S.LogoRightCircleWhole, 5),
         ],
         [P.LogoLowerCircle] =
         [
             Show(S.Blank, 96),
-            Show(S.LogoCircleLeft1, 5),
-            Show(S.LogoCircleLeft2, 5),
+            Show(S.LogoLeftCircleTip, 5),
+            Show(S.LogoLeftCircleTipAndBlade, 5),
         ],
         [P.LogoLowerCircleLoop] =
         [
-            Show(S.LogoCircleLeft3, 5),
+            Show(S.LogoLeftCircleWhole, 5),
         ],
     });
 

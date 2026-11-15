@@ -113,7 +113,7 @@ internal static class CinematicSpriteAnimationsVerification
             {
                 var frame = AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>(Next("frame"), $"{at}: frame");
                 AssertEqual(word, frame.Duration, $"{at}: duration");
-                AssertEqual(operand, CinematicSpritePoseSpritemaps.Of(frame.Shown), $"{at}: spritemap");
+                AssertTrue(CinematicSpritePoseSpritemaps.Shows(frame.Shown, operand), $"{at}: spritemap ${operand:X4} draws {frame.Shown}");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
@@ -183,7 +183,7 @@ internal static class CinematicSpriteAnimationsVerification
             AssertEqual(native.Active, actor.IsActive, $"{at}: liveness");
             if (!native.Active)
                 return update + 1;
-            AssertEqual(native.Spritemap, CinematicSpritePoseSpritemaps.Of(actor.Pose), $"{at}: spritemap");
+            AssertTrue(CinematicSpritePoseSpritemaps.Shows(actor.Pose, native.Spritemap), $"{at}: spritemap ${native.Spritemap:X4} draws {actor.Pose}");
             AssertEqual(native.Timer.RawValue, actor.LoopCountdown.RemainingFrames, $"{at}: loop timer");
             AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");
         }

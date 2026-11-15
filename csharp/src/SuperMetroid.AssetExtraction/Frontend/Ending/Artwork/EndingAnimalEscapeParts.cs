@@ -10,20 +10,19 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <summary>The rescued animals' escape pod's compositions, as the ending's sheet composes them (#1463).</summary>
 internal sealed class EndingAnimalEscapeParts : ICinematicSpriteFrames
 {
-    /// <summary>The pod's four frames.</summary>
+    /// <summary>The pod's two pictures.</summary>
     internal static readonly EndingAnimalEscapeParts Sprites = new();
     /// <summary>Centers the eight-pixel pod sprite four pixels left and above its actor origin.</summary>
     private const int SpriteOffset = 4;
     /// <summary>
-    /// $8C:BC43: the pod's four single-small-OBJ frames in cycle order, centred on the actor, showing the priority-three,
-    /// palette-seven characters $1E0-$1E3.
+    /// $8C:BC43: the pod's single-small-OBJ pictures, centred on the actor, showing the priority-three, palette-seven
+    /// characters $1E0 (the short trail) and $1E1 (the long trail; $1E2 and $1E3, which the flicker also steps through, hold
+    /// the same pixels).
     /// </summary>
     private static readonly Dictionary<CinematicSpritePose, SpriteComposition> frames = new()
     {
-        [CinematicSpritePose.EscapePod0] = Pod(CharacterSheetGrid.Cell(30, 0)),
-        [CinematicSpritePose.EscapePod1] = Pod(CharacterSheetGrid.Cell(30, 1)),
-        [CinematicSpritePose.EscapePod2] = Pod(CharacterSheetGrid.Cell(30, 2)),
-        [CinematicSpritePose.EscapePod3] = Pod(CharacterSheetGrid.Cell(30, 3)),
+        [CinematicSpritePose.EscapePodShortTrail] = Pod(CharacterSheetGrid.Cell(30, 0)),
+        [CinematicSpritePose.EscapePodLongTrail] = Pod(CharacterSheetGrid.Cell(30, 1)),
     };
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingAnimalEscape;

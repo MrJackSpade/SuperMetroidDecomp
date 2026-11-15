@@ -50,7 +50,6 @@ public static class CrocomireDeathPhases
         [CrocomireDeathPhase.WaitForStableSkeleton] = CrocomireDeathPhase.WaitBeforeRecordingDefeat,
         [CrocomireDeathPhase.WaitBeforeRecordingDefeat] = CrocomireDeathPhase.PublishDefeatAndRestoreMusic,
         [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = CrocomireDeathPhase.InertCorpse,
-        [CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer] = CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement,
     };
 
     /// <summary>The phase <paramref name="phase"/> hands over to when it finishes.</summary>

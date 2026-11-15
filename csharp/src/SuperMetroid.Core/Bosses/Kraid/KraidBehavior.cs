@@ -58,7 +58,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.Presentation.Artwork;
         Parts = new KraidParts();
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio, Parts);
-        BodyLayer = new KraidBodyLayer(Access, _bossArtwork);
+        BodyLayer = new KraidBodyLayer(Access, _bossArtwork, Parts);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);
         Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
@@ -99,11 +99,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         if (samus is not null)
             Combat.ResolveKraidBodyContact(body, state, samus);
-        // His body follows Kraid (#1617): its area lies his X radius, the authored body's right-edge origin adjustment, left
-        // of him, and 152 pixels, the authored vertical anchor, above him.
-        state.BodyOrigin = new Position16<RoomPixels>(
-            CoordinateAxis.Wrap(body.Position.X.Whole - body.Radius.X),
-            CoordinateAxis.Wrap(body.Position.Y.Whole - 152));
         if (state.BodyState.Phase is { } phase && KraidPhaseGroups.Rising.Contains(phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);

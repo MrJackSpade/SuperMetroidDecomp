@@ -23,7 +23,7 @@ internal static class BossBodyWords
     /// The tilemap entry each cell of <paramref name="layer"/> shows as the cartridge writes it, row by row, 32 to a row: the
     /// word the frame shown over the cell writes there, a later frame over an earlier, or where no frame shows,
     /// <paramref name="blankWord"/> or else <paramref name="owner"/>'s blank. A cell whose top lies at or below the row above
-    /// which alone the body shows shows the blank.
+    /// which alone the body shows, reckoned from the boss where the import read his area against him (#2031), shows the blank.
     /// </summary>
     /// <exception cref="InvalidDataException">The layer shows a frame <paramref name="bosses"/> does not compose.</exception>
     internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossSourceArtwork bosses, ushort? blankWord = null)
@@ -42,9 +42,10 @@ internal static class BossBodyWords
         }
         if (layer.ShownAbove is { } hidden)
         {
+            int areaTop = BossBodySourceDefinitions.AreaFromBoss[owner].Y;
             for (int cell = 0; cell < words.Length; cell++)
             {
-                if (BossBodyPainter.PixelOf(cell).Y >= hidden)
+                if (BossBodyPainter.PixelOf(cell).Y + areaTop >= hidden)
                     words[cell] = blank;
             }
         }

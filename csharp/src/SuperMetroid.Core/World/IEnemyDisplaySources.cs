@@ -39,15 +39,19 @@ internal interface IEnemyDisplaySources
 
     /// <summary>
     /// The body a boss shows (#1352, #1353, #1466, #1515): Kraid's while he owns it, otherwise the one a boss attached
-    /// while its room shows it, which shows nothing while Crocomire is far from the screen (#1617); null without either.
+    /// while its room shows it; null without either.
     /// </summary>
     BossBodyLayer? BossBody { get; }
 
-    /// <summary>Where Kraid's body lies in the room while it is shown (#1352, #1617); otherwise null.</summary>
-    Position16<RoomPixels>? KraidBodyOrigin { get; }
+    /// <summary>
+    /// Where the room's boss places its body (#2031), the room pixel each of its installed frames lies against: Kraid's
+    /// position while his body shows, Phantoon's and Crocomire's, Draygon's shifted by his tail whip's shake of his body's
+    /// picture, and Mother Brain's once she places hers; null where no boss places a body.
+    /// </summary>
+    Position16<RoomPixels>? BossBodyPlacement { get; }
 
-    /// <summary>Where Crocomire's body lies in the room while Crocomire is loaded (#1617, #1802); otherwise null.</summary>
-    Position16<RoomPixels>? CrocomireBodyOrigin { get; }
+    /// <summary>Whether the boss's body shows nothing this frame: Draygon is deleted, or Mother Brain's death flicker hides hers.</summary>
+    bool BossBodyHidden { get; }
 
     /// <summary>The morph-ball eye's beam.</summary>
     MorphBallEyeBeamState MorphBallEyeBeam { get; }

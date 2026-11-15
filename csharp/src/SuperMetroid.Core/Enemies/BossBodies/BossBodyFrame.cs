@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
 /// One whole frame a part of a boss shows on its body (#1466, #1515, #1540): a body pose, Kraid's head at a mouth stage, an
-/// eye, a mouth or a melt image, as one pre-coloured picture placed on the body's area and drawn whole at one depth among the
-/// room's layers (#1634). The part showing it draws the picture over the parts drawn before it, and a pixel the picture
+/// eye, a mouth or a melt image, as one pre-coloured picture placed against its boss and drawn whole at one depth among the
+/// room's layers (#1634, #2031). The part showing it draws the picture over the parts drawn before it, and a pixel the picture
 /// leaves clear shows them. Each state a room animation gives a frame is a frame of its own, pictured whole (#1513).
 /// </summary>
 public sealed class BossBodyFrame
@@ -14,13 +14,13 @@ public sealed class BossBodyFrame
     /// <summary>Holds the frame's picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="name">The frame's name in its sheet.</param>
     /// <param name="picture">The frame's whole picture, or null when the frame shows nothing.</param>
-    /// <param name="corner">The body pixel the picture's top-left corner lies on.</param>
+    /// <param name="anchor">Where the picture's top-left corner lies from where its boss places its body: its boss's position.</param>
     /// <param name="depth">The depth the picture is drawn at; null exactly when the frame shows nothing.</param>
     /// <param name="dissolving">The picture's cells a column dissolve erases (#1652); empty for a frame no dissolve erases.</param>
     /// <exception cref="ArgumentException">
     /// The frame has no name, a depth without a picture or a picture without one, or dissolving cells but no picture.
     /// </exception>
-    public BossBodyFrame(string name, SpriteSheetFrame? picture, Position16<BackgroundPixels> corner, BossBodyDepth? depth,
+    public BossBodyFrame(string name, SpriteSheetFrame? picture, Offset16<RoomPixels> anchor, BossBodyDepth? depth,
         ImmutableArray<DissolvingCell> dissolving = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
@@ -31,13 +31,13 @@ public sealed class BossBodyFrame
             throw new ArgumentException($"Boss body frame {name} dissolves cells but shows no picture.", nameof(dissolving));
         Name = name;
         Picture = picture;
-        Corner = corner;
+        Anchor = anchor;
         Depth = depth;
     }
 
     /// <summary>This frame showing its picture with <paramref name="hidden"/>'s pixels hidden (#1652).</summary>
     private BossBodyFrame(BossBodyFrame shown, BossBodyDepth? depth, HiddenPictureColumns? hidden)
-        : this(shown.Name, shown.Picture, shown.Corner, depth, shown.Dissolving) =>
+        : this(shown.Name, shown.Picture, shown.Anchor, depth, shown.Dissolving) =>
         Hidden = hidden;
 
     /// <summary>The frame's name in its sheet.</summary>
@@ -49,8 +49,11 @@ public sealed class BossBodyFrame
     /// </summary>
     public SpriteSheetFrame? Picture { get; }
 
-    /// <summary>The body pixel the picture's top-left corner lies on.</summary>
-    public Position16<BackgroundPixels> Corner { get; }
+    /// <summary>
+    /// Where the picture's top-left corner lies from where its boss places its body, its boss's position (#2031), as the import
+    /// placed it against the boss.
+    /// </summary>
+    public Offset16<RoomPixels> Anchor { get; }
 
     /// <summary>
     /// The depth the picture is drawn at among the room's layers (#1634), as the import decided it from where the game draws

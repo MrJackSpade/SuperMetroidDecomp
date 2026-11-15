@@ -110,7 +110,11 @@ internal static class CrocomireStateQuantitiesVerification
             "stalled rise");
     }
 
-    /// <summary>Runs the production sink beside the native reference until the reference reaches the acid floor.</summary>
+    /// <summary>
+    /// Runs the production sink beside the native reference until the reference reaches the acid floor; every update the
+    /// acid hides his body from the room row 288 pixels below the camera's, reckoned from where the update leaves him, which
+    /// is where his body is placed (#2031).
+    /// </summary>
     private static void CompareSink(ushort acceleration, ushort speed, ushort subposition, ushort y, string name)
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
@@ -131,6 +135,8 @@ internal static class CrocomireStateQuantitiesVerification
                 return;
             }
             AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
+            AssertEqual<int?>(288 - body.Position.Y.Whole, enemies.Presentation.RequireBossBody().Publish().ShownAbove,
+                $"{name} frame {frame}: the acid hides his body from room row 288 where he now lies");
         }
         throw new InvalidOperationException($"Verification failed: {name} did not reach the acid floor.");
     }
@@ -149,7 +155,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeRiseStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state, default);
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.FirstHopSink, state.DeathPhase, $"{name}: ends on the native frame");

@@ -117,13 +117,6 @@ public sealed class PhantoonEnemyState
     }
 
     /// <summary>
-    /// Where his body lies in the room (#1858): the room pixel his body's area's top-left corner lies on, which follows his
-    /// body after it moves while no wave ripples it and holds still while one does. The display shows his body's area from
-    /// there against the frame's camera, as it shows Kraid's, Draygon's, Crocomire's and Mother Brain's.
-    /// </summary>
-    public Position16<RoomPixels> BodyOrigin { get; internal set; }
-
-    /// <summary>
     /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever
     /// <see cref="BodyVisibilityRequest"/> asks.
     /// </summary>

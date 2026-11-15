@@ -547,14 +547,18 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
     /// <inheritdoc/>
     BossBodyLayer? IEnemyDisplaySources.BossBody => KraidBehavior.BodyLayer.CaptureBodyLayer()
-        ?? (Presentation.BossBody is not { IsShown: true } body ? null
-            : CrocomireBehavior.Access.Crocomire is not null && !CrocomireBehavior.BodyLayer.ShowsBody ? BossBodyLayer.Empty
-            : body.Publish());
+        ?? (Presentation.BossBody is { IsShown: true } body ? body.Publish() : null);
     /// <inheritdoc/>
-    Position16<RoomPixels>? IEnemyDisplaySources.KraidBodyOrigin => KraidBehavior.BodyLayer.BodyOrigin;
+    Position16<RoomPixels>? IEnemyDisplaySources.BossBodyPlacement =>
+        KraidBehavior.BodyLayer.Placement
+        ?? PhantoonBehavior.Combat.Phantoon?.Body.Position.Whole
+        ?? DraygonBehavior.Parts.Draygon?.BodyPlacement
+        ?? CrocomireBehavior.Access.Crocomire?.Body.Position.Whole
+        ?? MotherBrainEncounter.MotherBrain?.BodyPlacedAt;
     /// <inheritdoc/>
-    Position16<RoomPixels>? IEnemyDisplaySources.CrocomireBodyOrigin =>
-        CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.BodyLayer.BodyOrigin : null;
+    bool IEnemyDisplaySources.BossBodyHidden =>
+        DraygonBehavior.Parts.Draygon?.Body.Presence.HasAny(EnemyPresence.Deleted) == true
+        || MotherBrainEncounter.MotherBrain?.DeathHidesBodyLayer == true;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 

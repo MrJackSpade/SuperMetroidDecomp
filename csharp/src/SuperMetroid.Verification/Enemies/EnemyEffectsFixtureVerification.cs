@@ -87,7 +87,7 @@ internal static class EnemyEffectsFixtureVerification
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
         /// <summary>Advances the production melting behavior for the bound Crocomire actor.</summary>
-        internal void Dissolve() => new Action<CrocomireEnemyState, Position16<RoomPixels>>(Enemies.CrocomireBehavior.Melting.RunCrocomireMelting)(Actor, default);
+        internal void Dissolve() => Enemies.CrocomireBehavior.Melting.RunCrocomireMelting(Actor);
     }
 
     /// <summary>Compares actor, effect, slots, RAM, audio, and PLM requests after a melt operation.</summary>

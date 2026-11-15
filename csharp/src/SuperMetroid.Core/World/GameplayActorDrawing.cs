@@ -372,18 +372,6 @@ internal sealed class GameplayActorDrawing
                 _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
         }
 
-        if (!deathOwnsSamus && room.Enemies.DisplaySources.Draygon is { } draygon)
-        {
-            // Draygon's body draw runs AFTER drawing enemies. Camera scrolling has already
-            // run, so the body must use the same final camera as the appendage sprites above.
-            // Placing it during enemy AI instead detaches the torso whenever scrolling
-            // changes the camera between AI and drawing (especially during a grab). The
-            // placement is Draygon's own published body position (#1354), not the background's scroll.
-            draygon.BodyOrigin = new Position16<RoomPixels>(
-                CoordinateAxis.Wrap(draygon.Body.Position.X.Whole + DraygonBackgroundData.HorizontalOrigin + draygon.BodyPictureShift.X),
-                CoordinateAxis.Wrap(draygon.Body.Position.Y.Whole + DraygonBackgroundData.VerticalOrigin + draygon.BodyPictureShift.Y));
-        }
-
         if (!deathOwnsSamus)
         {
             // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid sprite (plus the arena-door

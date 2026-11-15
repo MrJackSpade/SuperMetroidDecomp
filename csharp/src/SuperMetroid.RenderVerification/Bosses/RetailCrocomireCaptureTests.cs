@@ -37,14 +37,14 @@ internal static class RetailCrocomireCaptureTests
         int latchedScrollChanges = 0;
         for (int tick = 0; tick < 60; tick++)
         {
-            // Crocomire AI places his body in the room during the main loop; the
-            // next accepted frame boundary publishes it with the rest of that frame's latch (#1307, #1802).
-            Position16<RoomPixels> previousOrigin = runtime.Enemies.CrocomireBehavior.BodyLayer.BodyOrigin;
+            // Crocomire moves during the main loop; the next accepted frame boundary publishes his body placed where he
+            // lay, with the rest of that frame's latch (#1307, #2031).
+            Position16<RoomPixels> previousPlacement = boss.Body.Position.Whole;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
-            if (published.Latched.Bosses.CrocomireBodyOrigin != previousOrigin)
-                throw new InvalidOperationException($"Crocomire's body origin was not published by the following frame boundary at tick {tick}.");
-            if (previousOrigin != runtime.Enemies.CrocomireBehavior.BodyLayer.BodyOrigin) latchedScrollChanges++;
+            if (published.Latched.Bosses.Placement != previousPlacement)
+                throw new InvalidOperationException($"Crocomire's body placement was not published by the following frame boundary at tick {tick}.");
+            if (previousPlacement != boss.Body.Position.Whole) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (GameplaySceneLayer)scene.Layers[0];
             if (baseLayer.BackgroundLineScrolls.Vertical is not null || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
@@ -87,6 +87,6 @@ internal static class RetailCrocomireCaptureTests
         if (!complete || !distorted || !phases.Contains(CrocomireDeathPhase.DissolveFirstImage) ||
             !phases.Contains(CrocomireDeathPhase.DissolveSecondImage) || !phases.Contains(CrocomireDeathPhase.BreakSpikeWall))
             throw new InvalidOperationException($"Crocomire fixture incomplete: phase={boss.DeathPhase}, distortion={distorted}.");
-        Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion; {latchedScrollChanges} fight frames displayed the preceding main loop's body origin.");
+        Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion; {latchedScrollChanges} fight frames displayed the preceding main loop's body placement.");
     }
 }

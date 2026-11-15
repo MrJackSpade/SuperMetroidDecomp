@@ -381,18 +381,19 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index)
 // A boss body part's depth (D3D11RoomLevelBuffer.DepthWord, #1634): drawn behind the sprites, or in front of them.
 static const uint BossBodyBehindSprites = 0, BossBodyInFrontOfSprites = 1;
 static const uint BossBodyPartWords = 5;
-// A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
-// layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The
-// frontmost part whose picture is opaque at the position shows there, its pixel `within`; where none is, the frontmost part
-// reaching it gives its clear pixel, and a position no part reaches shows nothing. Each boss part is drawn whole at its
-// depth (#1634): its picture is the layer's behind part (`part` PartBehind) for a boss part drawn behind the sprites and
-// its in-front part (PartInFront) for one drawn in front of them, so `picture` is the shown boss part's picture when its
-// depth is the one `part` asks for, and zero otherwise.
-// Each boss part is five words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of
-// the picture shows across and down from that corner, each x below y, its depth, and the offset of the pixels it hides or
-// zero (#1652): its cells across below its cells down, then each 8x8 cell's hidden pixel columns, a byte a cell, four
-// cells a word. A hidden pixel shows nothing of the part, as a clear one does. Every background sampler reads the boss
-// through this, so a blending pass shows the same body as an ordinary one (#1426).
+// A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer, reckoned from the body's
+// placement (#2031): its parts are placed against that placement with nothing repeating beyond them, and layered in
+// their table's order, each drawn over the parts before it. The frontmost part whose picture is opaque at the position
+// shows there, its pixel `within`; where none is, the frontmost part reaching it gives its clear pixel, and a position no
+// part reaches shows nothing. Each boss part is drawn whole at its depth (#1634): its picture is the layer's behind part
+// (`part` PartBehind) for a boss part drawn behind the sprites and its in-front part (PartInFront) for one drawn in front
+// of them, so `picture` is the shown boss part's picture when its depth is the one `part` asks for, and zero otherwise.
+// Each boss part is five words: its picture's offset, where the picture's top-left corner lies from the placement, each a
+// sixteen-bit half that wraps as the position does, how much of the picture shows across and down from that corner, each
+// x below y, its depth, and the offset of the pixels it hides or zero (#1652): its cells across below its cells down, then
+// each 8x8 cell's hidden pixel columns, a byte a cell, four cells a word. A hidden pixel shows nothing of the part, as a
+// clear one does. Every background sampler reads the boss through this, so a blending pass shows the same body as an
+// ordinary one (#1426).
 bool BossBodyHides(uint hidden, uint2 offset)
 {
     if (hidden == 0) return false;
@@ -411,7 +412,7 @@ void BossBodyPicture(uint2 scrolled, uint part, out uint2 within, out uint pictu
     {
         uint record = table + 1 + (placed - 1) * BossBodyPartWords;
         uint corner = RoomLevels[record + 1], size = RoomLevels[record + 2];
-        uint2 offset = position - uint2(corner & 65535, corner >> 16);
+        uint2 offset = (position - uint2(corner & 65535, corner >> 16)) & 65535;
         if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
         uint shown = RoomLevels[record];
         uint index;

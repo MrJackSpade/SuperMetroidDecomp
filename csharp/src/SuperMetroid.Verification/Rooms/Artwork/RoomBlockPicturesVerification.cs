@@ -376,6 +376,9 @@ internal static class RoomBlockPicturesVerification
                     placement.Placement.Bytes.Span.CopyTo(vram.AsSpan(placement.Placement.FirstCharacter * TileCharacterWords * sizeof(ushort)));
             }
             BossBodyFrame shown = sheet.Frame(frame.Name);
+            // The picture holds the frame's cells from the corner of the rectangle bounding them, wherever the frame lies
+            // against its boss (#1802, #1949, #2031).
+            Position16<BackgroundPixels> cellsCorner = BossBodyPainter.CornerOf(frame.Cells);
             foreach ((int cell, BackgroundTile tile) in frame.Cells)
             {
                 Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(cell);
@@ -388,7 +391,7 @@ internal static class RoomBlockPicturesVerification
                     // A frame that paints nothing has no picture: the tile it writes there paints nothing (#1513).
                     if (shown.Picture is { } picture)
                         AssertPaintsTile($"{owner} {shown.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
-                            new Position16<ImagePixels>(at.X - shown.Corner.X + x, at.Y - shown.Corner.Y + y));
+                            new Position16<ImagePixels>(at.X - cellsCorner.X + x, at.Y - cellsCorner.Y + y));
                     else
                         AssertTrue(TileColour(vram, word, x, y) == 0,
                             $"{owner} {shown.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");

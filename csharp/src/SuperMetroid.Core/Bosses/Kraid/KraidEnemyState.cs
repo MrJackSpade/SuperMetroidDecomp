@@ -157,12 +157,6 @@ public sealed class KraidEnemyState
         ShowsBodyLayer = true;
     }
 
-    /// <summary>
-    /// Where Kraid's body lies in the room (#1617): the room pixel his body's parts' area's top-left corner lies on, which his
-    /// AI sets from his body's position. It is set at AI time and latched with the frame.
-    /// </summary>
-    public Position16<RoomPixels> BodyOrigin { get; internal set; }
-
     /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>
     public int DeathSoundTimer { get; internal set; }
 }

@@ -67,7 +67,7 @@ internal static class MamaTurtleAnimations
             Show(EnemyFrameId.TurtleMamaEnterShellLeftFirst, 32),
             Show(EnemyFrameId.TurtleMamaEnterShellLeftSecond, 5),
             Show(EnemyFrameId.TurtleMamaEnterShellLeftThird, 5),
-            Cue(new(K.RiseToHoverRightwards)),
+            Cue(new(K.RiseToHoverLeftwards)),
             Hold(EnemyFrameId.TurtleMamaSpinningFirst),
         ],
         [P.BabyHidingLeft] =
@@ -131,7 +131,7 @@ internal static class MamaTurtleAnimations
             Show(EnemyFrameId.TurtleMamaEnterShellRightFirst, 1),
             Show(EnemyFrameId.TurtleMamaEnterShellRightSecond, 5),
             Show(EnemyFrameId.TurtleMamaEnterShellRightThird, 5),
-            Cue(new(K.RiseToHoverLeftwards)),
+            Cue(new(K.RiseToHoverRightwards)),
             Hold(EnemyFrameId.TurtleMamaEnterShellRightFourth),
         ],
         [P.BabyHidingRight] =

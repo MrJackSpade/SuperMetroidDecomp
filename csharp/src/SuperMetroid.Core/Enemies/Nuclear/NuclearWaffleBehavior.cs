@@ -283,19 +283,19 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits a turn overlay and direction sprite, queuing sound on the rising turn.</summary>
     private void SpawnNuclearWaffleTurnObjects(
         Position16<RoomPixels> position,
-        SpriteGraphics graphicsAttributes,
+        SpriteGraphics graphics,
         NuclearWaffleOrientation orientation)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
             position,
             RoomSpriteObjectKind.NuclearWaffleTurnOverlay,
-            graphicsAttributes);
+            graphics);
         _ = _spriteObjects.SpawnRoomSpriteObject(
             position,
             orientation.Turn == RotationDirection.Counterclockwise
                 ? RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise
                 : RoomSpriteObjectKind.NuclearWaffleTurnClockwise,
-            graphicsAttributes);
+            graphics);
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.
         if (orientation.State != NuclearWaffleTurnState.PastFallingThreshold)

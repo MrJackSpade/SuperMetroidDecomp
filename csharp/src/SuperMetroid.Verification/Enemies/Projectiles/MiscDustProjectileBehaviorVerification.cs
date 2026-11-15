@@ -52,7 +52,7 @@ internal static class MiscDustProjectileBehaviorVerification
         // Since #1414 the eye door's two smoke puffs are typed definitions rather than packed operands: each starts its
         // misc-dust program and plays to deletion with native frame durations.
         VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.ScatteredSmoke, MiscDustAnimation.CorpseDustCloud);
-        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, MiscDustAnimation.EyeDoorSweatDrop);
+        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, MiscDustAnimation.EyeDoorSmokePuff);
 
         void VerifyEyeDoorSmoke(EyeDoorProjectileDefinition puff, MiscDustAnimation animation)
         {

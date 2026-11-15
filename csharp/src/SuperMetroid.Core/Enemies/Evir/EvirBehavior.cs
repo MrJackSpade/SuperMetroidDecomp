@@ -98,7 +98,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // The body bobs down at its speed and up at the same speed.
             SignedSixteenSixteen speed = slot.SpawnSettings<EvirSpawnSettings>().Speed;
             state.BobbingSpeed = speed;
-            state.MovementTimer = ReadFirstHalfCycle(speed);
+            state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(speed, _slotTable.Slots, SlotLender.Instance);
         }
 
         state.MovingDown = false;
@@ -106,40 +106,20 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = EvirAction.HandleBodyOrArms;
     }
 
-    /// <summary>
-    /// The body's first bobbing half-cycle. Instead of half its own direction-change period, the body takes half the
-    /// upper eight bits of a value of the enemy its room lists at a place fixed by its bobbing speed
-    /// (<see cref="EvirBorrowedFirstHalfCycle"/>, <see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is
-    /// read as it stands while the population loads: for the second Evir of either retail room the third enemy is the
-    /// first Evir's spit, whose colour selection the game reads as the count, so the first half-cycle is not zero
-    /// (<see cref="EvirInitDefinitions.SpitColoursHalfCycle"/>).
-    /// </summary>
-    private int ReadFirstHalfCycle(SignedSixteenSixteen speed)
+    /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
+    private sealed class SlotLender : IEvirHalfCycleLender<RoomEnemySlot>
     {
-        foreach (EvirFirstHalfCycleSource source in EvirInitDefinitions.FirstHalfCycleSources)
-        {
-            if (source.Speed != speed)
-                continue;
-            RoomEnemySlot enemy = EvirBorrowedFirstHalfCycle.Lender(_slotTable.Slots, source.LenderPlace);
-            return source.Field switch
-            {
-                // An enemy whose population entry has not loaded yet is still empty, read as zero.
-                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.IsFree
-                    ? 0
-                    : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
-                // The game reads the enemy's colour selection as the count: an empty place's is zero, an Evir spit's
-                // gives the retail rooms' half-cycle.
-                EvirHalfCycleSourceField.SpitColours => enemy.IsFree
-                    ? 0
-                    : enemy.DefinitionId == EnemyDefinitionId.EvirProjectile
-                        ? EvirInitDefinitions.SpitColoursHalfCycle
-                        : throw new InvalidDataException(
-                            $"An Evir body reads the colours of {enemy.DefinitionId}, which no retail room places where it reads."),
-                _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
-            };
-        }
-        throw new InvalidDataException(
-            $"An Evir bobbing at {speed.WholePixels} pixels and {speed.Fraction} 65536ths per update takes its first half-cycle from a value no retail Evir reads.");
+        /// <summary>The one reader every body uses.</summary>
+        internal static SlotLender Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public bool IsEmpty(RoomEnemySlot enemy) => Ensure.NotNull(enemy).IsFree;
+
+        /// <inheritdoc/>
+        public int DirectionChangePeriod(RoomEnemySlot enemy) => Ensure.NotNull(enemy).SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;
+
+        /// <inheritdoc/>
+        public bool IsEvirSpit(RoomEnemySlot enemy) => Ensure.NotNull(enemy).DefinitionId == EnemyDefinitionId.EvirProjectile;
     }
 
     /// <summary>Initializes the Evir Projectile.</summary>

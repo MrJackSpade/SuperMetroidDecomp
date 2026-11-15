@@ -7,17 +7,17 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Fune's waiting count against its cooldown time, including the count's wrap and signed comparison.</summary>
+/// <summary>Checks Fune's waiting count against its cooldown time (#2045: a plain count up to a one-byte cooldown).</summary>
 internal static class FuneNamiheCooldownVerification
 {
     /// <summary>The cooldown time the cases wait for.</summary>
     private const int CooldownTime = 16;
 
     /// <summary>
-    /// Each waiting update counts up, then ends the wait only when the count minus the cooldown time is not negative as
-    /// a signed word: a count short of the time keeps waiting, a count that wraps from the top of the word to zero keeps
-    /// waiting, and a count that crosses the signed boundary ends the wait, installs the active program and resets the
-    /// count to zero.
+    /// Each waiting update counts up, then ends the wait once the count reaches the cooldown time: a count short of the
+    /// time keeps waiting, and the count that reaches it ends the wait, installs the active program and resets the count
+    /// to zero. The count and the cooldown are plain counts below 256, so a count beyond that is refused rather than
+    /// wrapped.
     /// </summary>
     internal static void VerifyFuneNamiheCooldown()
     {
@@ -25,17 +25,16 @@ internal static class FuneNamiheCooldownVerification
         AssertEqual(CooldownTime - 1, waiting.CooldownTimer, "a count short of the cooldown time advances by one");
         AssertEqual(FuneNamiheAction.FuneWaitForCooldown, waiting.Action, "a count short of the cooldown time keeps waiting");
 
-        FuneNamiheEnemyState wrapped = Wait(ushort.MaxValue);
-        AssertEqual(0, wrapped.CooldownTimer, "the count wraps from the top of the word to zero");
-        AssertEqual(FuneNamiheAction.FuneWaitForCooldown, wrapped.Action, "a count wrapped to zero keeps waiting");
-
-        FuneNamiheEnemyState crossed = Wait(short.MaxValue);
-        AssertEqual(0, crossed.CooldownTimer, "ending the wait resets the count");
-        AssertEqual(FuneNamiheAction.Spitting, crossed.Action, "a count crossing the signed boundary ends the wait");
-        AssertTrue(crossed.ShowsActiveAnimation && !crossed.FacingRight, "ending the wait selects the active animation for the same facing");
-        AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), crossed.Playback,
+        FuneNamiheEnemyState reached = Wait(CooldownTime - 1);
+        AssertEqual(0, reached.CooldownTimer, "ending the wait resets the count");
+        AssertEqual(FuneNamiheAction.Spitting, reached.Action, "a count reaching the cooldown time ends the wait");
+        AssertTrue(reached.ShowsActiveAnimation && !reached.FacingRight, "ending the wait selects the active animation for the same facing");
+        AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
-        Console.WriteLine("  Fune cooldown: short, wrapped and signed-boundary counts pass.");
+
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneNamiheEnemyState { CooldownTimer = byte.MaxValue + 1 },
+            "a waiting count past the largest cooldown is refused");
+        Console.WriteLine("  Fune cooldown: short and reached counts pass.");
     }
 
     /// <summary>Runs one waiting update of a left-facing Fune whose count stands at <paramref name="count"/>.</summary>

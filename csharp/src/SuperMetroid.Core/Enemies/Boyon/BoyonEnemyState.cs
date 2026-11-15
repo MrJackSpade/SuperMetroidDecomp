@@ -18,13 +18,15 @@ public sealed class BoyonEnemyState
     }
 
     /// <summary>
-    /// The latest product of the curve sample and the multiplier, in 256ths of a pixel per update, 0 through
-    /// <see cref="BoyonSpeedDefinitions.LargestScaledSample"/>.
+    /// The latest product of the curve sample and the multiplier, read as a speed in 256ths of a pixel per update, up to
+    /// <see cref="BoyonSpeedDefinitions.LargestScaledSample"/> 256ths; the Boyon moves by its whole pixels.
     /// </summary>
-    public int Speed
+    public UnsignedSixteenSixteen Speed
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, BoyonSpeedDefinitions.LargestScaledSample, value);
+        internal set => field = value.InTwoFiftySixths > BoyonSpeedDefinitions.LargestScaledSample
+            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's speed is no faster than its largest scaled sample.")
+            : value;
     }
 
     /// <summary>
@@ -56,9 +58,8 @@ public sealed class BoyonEnemyState
     /// <summary>Whether the accumulated arc distance has reached the jump height.</summary>
     internal bool HasReachedJumpHeight => ArcDistance.InTwoFiftySixths >= JumpHeight.InTwoFiftySixths;
 
-    /// <summary>Adds one entry's speed, in 256ths of a pixel, to the accumulated arc distance.</summary>
-    internal void AccumulateArcDistance(int speed) =>
-        ArcDistance += SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Ensure.AtLeastZero(speed));
+    /// <summary>Adds one entry's speed, the distance it covers in an update, to the accumulated arc distance.</summary>
+    internal void AccumulateArcDistance(UnsignedSixteenSixteen speed) => ArcDistance += speed.AsDisplacement();
 
     /// <summary>Moves one entry down the curve, as falling does: from past the top, to the top entry.</summary>
     internal void FallOneEntry() => CurvePlace = CurvePlace.Lower;

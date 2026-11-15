@@ -241,18 +241,17 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoCarryStep carryStep)
     {
         var motion = ChozoCarry.Read(carryStep);
-        int signedVelocity = motion.Velocity;
 
-        // The slope-ignoring horizontal mover receives a signed 1/256-pixel speed promoted to 1/65536 pixels by
-        // a shift by 256. The vertical mover receives its absolute magnitude in the same format.
+        // The slope-ignoring horizontal mover receives the signed velocity; the vertical mover receives its speed,
+        // whichever way the statue walks, so a carrying statue always presses down onto the floor.
         _ = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             statue,
-            SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(signedVelocity));
+            motion.Velocity.ToSixteenSixteenDelta());
         _ = _terrain.MoveEnemyVertically(
             level,
             statue,
-            SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Math.Abs(signedVelocity)));
+            motion.Velocity.Magnitude().ToSixteenSixteenDelta());
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
         // The hand offset belongs to the same carry step as the velocity.

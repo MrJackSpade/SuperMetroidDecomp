@@ -22,11 +22,10 @@ public sealed class MagdolliteEnemyState
     public MagdolliteAction? Action { get; internal set; }
 
     /// <summary>
-    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset from the nine
-    /// <see cref="MagdolliteRise.Phase"/> phases. It steps by one as the arm rises past each phase's threshold and
-    /// back as it sinks.
+    /// The arm's stage of its rise, which selects its pillar stack, threshold and overlay offset. It steps up as the arm
+    /// rises past each stage's threshold and back down as it sinks.
     /// </summary>
-    public int BodyPhase { get; internal set; }
+    public MagdolliteRiseStage BodyPhase { get; internal set; }
 
     /// <summary>Whether the hand throws its lava rightward, chosen from Samus's side at the apex.</summary>
     public bool ThrowsRight { get; internal set; }

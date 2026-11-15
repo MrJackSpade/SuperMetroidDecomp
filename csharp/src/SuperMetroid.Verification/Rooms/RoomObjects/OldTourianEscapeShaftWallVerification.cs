@@ -101,7 +101,7 @@ internal static class OldTourianEscapeShaftWallVerification
         for (int frame = 0; frame < 6; frame++, cursor += 4)
         {
             var show = AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Frame>(burst[2 + frame], $"pose {frame} is shown");
-            AssertEqual(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Frames[frame], show.Shown, $"pose {frame} order");
+            AssertEqual(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Beats[frame].Frame, show.Shown, $"pose {frame} order");
             AssertEqual(Word(cursor), show.Duration, $"pose {frame} duration");
             AssertEqual((ushort)(cursor + 2), OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(frame),
                 $"pose {frame} operand follows its duration");

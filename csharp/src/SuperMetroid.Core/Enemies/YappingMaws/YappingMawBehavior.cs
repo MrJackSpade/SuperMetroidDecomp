@@ -16,9 +16,6 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 [RoomLifetime]
 internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The 256ths of a pixel in a whole pixel, the fraction a link's product is counted in.</summary>
-    private const int FractionsPerPixel = 256;
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
 
@@ -569,13 +566,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
         int signedSample = -Trigonometry.FineSignedSine(angle);
         int sampleWhole = UnsignedEightEight.Whole(Math.Abs(signedSample));
-        int product = sampleWhole * ShortCircleProduct.RadiusInUse(length);
-        return 2 * WholePixelsRoundedDown(signedSample < 0 ? -product : product);
+        // The product of a sine's whole part below 128 and a radius below 256 stays below 128 pixels either way.
+        SignedEightEight offset = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(sampleWhole * ShortCircleProduct.RadiusInUse(length));
+        return 2 * (signedSample < 0 ? -offset : offset).WholePixels;
     }
-
-    /// <summary>The whole pixels of <paramref name="fractions"/> 256ths of a pixel, rounded down: a negative fraction reaches the next whole pixel below.</summary>
-    private static int WholePixelsRoundedDown(int fractions) =>
-        fractions >= 0 ? fractions / FractionsPerPixel : -((-fractions + FractionsPerPixel - 1) / FractionsPerPixel);
 
     /// <summary>Routes bomb hits through the Maw's shared shot reaction.</summary>
     internal static EnemyBombReaction YappingMawBombReaction { get; } = new()

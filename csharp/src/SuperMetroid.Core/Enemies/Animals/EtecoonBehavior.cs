@@ -671,25 +671,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         SignedSixteenSixteen displacement = state.Velocity.Y;
+        // Below the cap the Etecoon falls faster by Samus's own downward acceleration.
         if (state.Velocity.Y.WholePixels < 5)
-        {
-            AddEtecoonFixed(
-                state,
-                samus.Kinematics.YAcceleration.Whole,
-                samus.Kinematics.YAcceleration.Fraction);
-        }
+            state.Velocity = state.Velocity.WithY(state.Velocity.Y + samus.Kinematics.YAcceleration.AsDisplacement());
         return _terrain.MoveEnemyVertically(level, slot, displacement);
-    }
-
-    /// <summary>Adds a signed 1/65536-pixel whole/fraction increment to the Etecoon's vertical speed.</summary>
-    private static void AddEtecoonFixed(
-        EtecoonEnemyState state,
-        int wholeIncrement,
-        int fractionIncrement)
-    {
-        SignedSixteenSixteen increment =
-            SignedSixteenSixteen.FromParts(wholeIncrement, fractionIncrement);
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
     /// <summary>Installs a Y speed for the next movement phase.</summary>

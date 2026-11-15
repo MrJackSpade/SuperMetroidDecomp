@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal static class MamaTurtleShell
 {
     /// <summary>
-    /// Returns the signed vertical contour offset for a parent-minus-actor X
-    /// difference whose magnitude is below twenty-four pixels.
+    /// The shell's surface above an actor whose X is <paramref name="parentMinusActorX"/> pixels from the Mama Turtle's
+    /// origin, measured from her origin back to the actor: the contour of the actor's side, at its distance, which must
+    /// be below <see cref="HalfWidth"/>.
     /// </summary>
     internal static int GetOffset(int parentMinusActorX)
     {
         int distance = Math.Abs(parentMinusActorX);
         if (distance >= HalfWidth)
             throw new ArgumentOutOfRangeException(nameof(parentMinusActorX));
-        int index = parentMinusActorX < 0 ? distance + HalfWidth : distance;
-        return Offsets[index];
+        return parentMinusActorX < 0 ? RightOfOrigin[distance] : LeftOfOrigin[distance];
     }
 }

@@ -110,9 +110,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
         state.Action = KiHunterAction.FlyingPatrol;
-        state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
-        state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - 16));
-        state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
+        state.Velocity = FixedVector<RoomPixels>.FromWholePixels(KiHunterMotionDefinitions.PatrolStartVelocity);
+        state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise));
+        state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, KiHunterMotionDefinitions.PatrolDepth);
         state.SpawnPosition = body.Position.Whole;
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
@@ -402,8 +402,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         int random = _room.Random.Read();
         bool jumpLeft = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
-            jumpLeft ? -2 : 2,
-            KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - 8));
+            jumpLeft ? -KiHunterMotionDefinitions.GroundJumpHorizontalSpeed : KiHunterMotionDefinitions.GroundJumpHorizontalSpeed,
+            KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - KiHunterMotionDefinitions.GroundJumpUpwardSpeed));
         StartKiHunterAnimation(
             body,
             body.RequireSpeciesState<KiHunterBodyState>(),
@@ -429,7 +429,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));
+                state.Velocity = state.Velocity.WithY(KiHunterMotionDefinitions.LandedVerticalVelocity);
                 state.Action = KiHunterAction.AnimatingOnGround;
                 state.WaitTimer = KiHunterGroundWaitFrames;
                 StartKiHunterAnimation(
@@ -947,14 +947,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(movingRight
             ? KiHunterAcidHorizontalSpeed
             : -KiHunterAcidHorizontalSpeed);
-        projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + (movingRight ? 22 : -22));
+        projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole +
+            (movingRight ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
-        projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - 16).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
     }
 
     /// <summary>
     /// Runs the acid's one-pass launch: its animation starts the launch after its opening frames, and the launch shifts the
-    /// acid nineteen pixels in its direction and sets it falling.
+    /// acid <see cref="KiHunterMotionDefinitions.AcidLaunchShift"/> pixels in its direction and sets it falling.
     /// </summary>
     internal static void StartKiHunterAcidMovement(
         EnemyProjectile projectile,
@@ -962,7 +963,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.StartMotion(KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWrappedWholeX(
-            projectile.Position.X.Whole + (direction == HorizontalDirection.Right ? 19 : -19));
+            projectile.Position.X.Whole + (direction == HorizontalDirection.Right
+                ? KiHunterMotionDefinitions.AcidLaunchShift
+                : -KiHunterMotionDefinitions.AcidLaunchShift));
     }
 
     /// <summary>

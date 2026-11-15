@@ -282,10 +282,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)
         {
-            // Temporarily extends the whole-pixel move sixteen pixels toward Samus,
+            // Temporarily extends the whole-pixel move toward Samus by the push's reach,
             // performs collision, then retracts the center. Net velocity remains one
             // pixel per frame while wall clipping naturally passes the lost distance to Samus.
-            speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft ? -16 : 16));
+            speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft
+                ? -MaridiaLargeSnailMotionDefinitions.PushReach
+                : MaridiaLargeSnailMotionDefinitions.PushReach));
         }
 
         SignedSixteenSixteen displacement = speed;
@@ -297,7 +299,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (temporarilyReachTowardSamus)
         {
             slot.Position = slot.Position.WithWrappedWholeX(
-                slot.Position.X.Whole + (state.MovingLeft ? 16 : -16));
+                slot.Position.X.Whole + (state.MovingLeft
+                    ? MaridiaLargeSnailMotionDefinitions.PushReach
+                    : -MaridiaLargeSnailMotionDefinitions.PushReach));
         }
 
         if (!collided)
@@ -408,7 +412,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!centerWithinSamusRadius && remainingX >= slot.Radius.X)
             return false;
 
-        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3);
+        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + MaridiaLargeSnailMotionDefinitions.SamusTouchBias);
         if (CoordinateAxis.Difference(biasedSamusY, slot.Position.Y.Whole) >= 0)
             return false;
 
@@ -464,8 +468,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         int shove = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
-            ? -4
-            : 4;
+            ? -MaridiaLargeSnailMotionDefinitions.ShoveDistance
+            : MaridiaLargeSnailMotionDefinitions.ShoveDistance;
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);
     }
 

@@ -42,6 +42,6 @@ internal enum GunshipPhase
     SteadyLiftoff,
     /// <summary>Accelerating liftoff and game-state handoff.</summary>
     AcceleratingLiftoff,
-    /// <summary>Shared accelerating vertical integrator.</summary>
+    /// <summary>The escaping ship and Samus climb on, faster each update, after the takeoff has handed over.</summary>
     MoveAccelerating,
 }

@@ -160,17 +160,16 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Starts smoke showing <paramref name="animation"/> scattered by misc-dust placement <paramref name="placementIndex"/>:
-    /// uses one shared random sample for both smoke offsets, then advances the seed.
+    /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: uses one shared
+    /// random sample for both smoke offsets, then advances the seed.
     /// </summary>
     internal void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
         MiscDustAnimation animation,
-        int placementIndex,
+        MiscDustPlacementDefinition placement,
         Position16<RoomBlocks> block)
     {
         MiscDustProjectileSegment segment = MiscDustProjectiles.Animation(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Stores only the animation, keeping the definition's one-update timer.

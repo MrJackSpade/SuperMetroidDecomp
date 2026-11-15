@@ -8,6 +8,36 @@ public static class KiHunterMotionDefinitions
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(14);
+    /// <summary>A flying Ki-Hunter's first velocity: a pixel an update left and a pixel an update down.</summary>
+    public static Offset16<RoomPixels> PatrolStartVelocity { get; } = new(-1, 1);
+
+    /// <summary>How far above where it is placed a flying Ki-Hunter's patrol turns back down, in pixels.</summary>
+    public const int PatrolRise = 16;
+
+    /// <summary>How far below its upper turn a flying Ki-Hunter's patrol turns back up, in pixels.</summary>
+    public const int PatrolDepth = 32;
+
+    /// <summary>How fast a grounded Ki-Hunter's jump carries it toward or away from Samus, in whole pixels an update.</summary>
+    public const int GroundJumpHorizontalSpeed = 2;
+
+    /// <summary>
+    /// The upward speed a grounded Ki-Hunter's jump starts at, in whole pixels an update, before
+    /// <see cref="ShallowerGroundJump"/> may take one off it.
+    /// </summary>
+    public const int GroundJumpUpwardSpeed = 8;
+
+    /// <summary>The vertical velocity a grounded Ki-Hunter keeps once it lands: four pixels an update upward.</summary>
+    public static SignedSixteenSixteen LandedVerticalVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-4);
+
+    /// <summary>How far ahead of the Ki-Hunter's body its acid spit appears, in pixels.</summary>
+    public const int AcidSpitReach = 22;
+
+    /// <summary>How far above the Ki-Hunter's body its acid spit appears, in pixels.</summary>
+    public const int AcidSpitHeight = 16;
+
+    /// <summary>How far ahead the acid spit jumps as its launch starts, in pixels.</summary>
+    public const int AcidLaunchShift = 19;
+
     /// <summary>The falling wings' arc radius, used by detached-wing setup and both arcs.</summary>
     public const int DetachedWingRadius = 48;
 

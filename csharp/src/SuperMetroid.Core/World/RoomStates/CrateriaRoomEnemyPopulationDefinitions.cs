@@ -229,10 +229,10 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaSuper),
         [
-            new(EnemyDefinitionId.Boyon, new(600, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(632, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(664, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(696, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 16384, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(600, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(632, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(664, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 32)),
+            new(EnemyDefinitionId.Boyon, new(696, 1960), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 64, TriggerDistance: 32)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.PreBowling),
         [

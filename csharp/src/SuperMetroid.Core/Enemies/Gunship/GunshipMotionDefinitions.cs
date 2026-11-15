@@ -42,6 +42,12 @@ internal static class GunshipMotionDefinitions
     /// <summary>The landed ship's X, where Samus stands to board.</summary>
     internal const int LandedX = 1152;
 
+    /// <summary>How far above its placement the landed top hull rests, in pixels.</summary>
+    internal const int LandedTopHullRaise = 25;
+
+    /// <summary>How far below its placement the landed bottom hull rests, in pixels.</summary>
+    internal const int LandedBottomHullDrop = 15;
+
     /// <summary>How far above Samus the top hull sits while she rides in the gunship, in pixels.</summary>
     internal const int TopHullAboveSamus = 17;
 

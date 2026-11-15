@@ -323,98 +323,98 @@ public enum EnemyProjectileFrameId
     SpacePirateClawRightLoopSeventh,
     /// <summary><c>space_pirate_claw_right_loop_eighth</c>, an installed animation frame.</summary>
     SpacePirateClawRightLoopEighth,
-    /// <summary><c>gunship_dust_right_inner_loop_first</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopFirst,
-    /// <summary><c>gunship_dust_right_inner_loop_second</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopSecond,
-    /// <summary><c>gunship_dust_right_inner_loop_third</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopThird,
-    /// <summary><c>gunship_dust_right_inner_loop_fourth</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopFourth,
-    /// <summary><c>gunship_dust_right_inner_loop_fifth</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopFifth,
-    /// <summary><c>gunship_dust_right_inner_loop_sixth</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopSixth,
-    /// <summary><c>gunship_dust_right_inner_loop_seventh</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopSeventh,
-    /// <summary><c>gunship_dust_right_inner_loop_eighth</c>, an installed animation frame.</summary>
-    GunshipDustRightInnerLoopEighth,
-    /// <summary><c>gunship_dust_right_middle_loop_first</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopFirst,
-    /// <summary><c>gunship_dust_right_middle_loop_second</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopSecond,
-    /// <summary><c>gunship_dust_right_middle_loop_third</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopThird,
-    /// <summary><c>gunship_dust_right_middle_loop_fourth</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopFourth,
-    /// <summary><c>gunship_dust_right_middle_loop_fifth</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopFifth,
-    /// <summary><c>gunship_dust_right_middle_loop_sixth</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopSixth,
-    /// <summary><c>gunship_dust_right_middle_loop_seventh</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopSeventh,
-    /// <summary><c>gunship_dust_right_middle_loop_eighth</c>, an installed animation frame.</summary>
-    GunshipDustRightMiddleLoopEighth,
-    /// <summary><c>gunship_dust_right_outer_loop_first</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopFirst,
-    /// <summary><c>gunship_dust_right_outer_loop_second</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopSecond,
-    /// <summary><c>gunship_dust_right_outer_loop_third</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopThird,
-    /// <summary><c>gunship_dust_right_outer_loop_fourth</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopFourth,
-    /// <summary><c>gunship_dust_right_outer_loop_fifth</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopFifth,
-    /// <summary><c>gunship_dust_right_outer_loop_sixth</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopSixth,
-    /// <summary><c>gunship_dust_right_outer_loop_seventh</c>, an installed animation frame.</summary>
-    GunshipDustRightOuterLoopSeventh,
-    /// <summary><c>gunship_dust_left_inner_loop_first</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopFirst,
-    /// <summary><c>gunship_dust_left_inner_loop_second</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopSecond,
-    /// <summary><c>gunship_dust_left_inner_loop_third</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopThird,
-    /// <summary><c>gunship_dust_left_inner_loop_fourth</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopFourth,
-    /// <summary><c>gunship_dust_left_inner_loop_fifth</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopFifth,
-    /// <summary><c>gunship_dust_left_inner_loop_sixth</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopSixth,
-    /// <summary><c>gunship_dust_left_inner_loop_seventh</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopSeventh,
-    /// <summary><c>gunship_dust_left_inner_loop_eighth</c>, an installed animation frame.</summary>
-    GunshipDustLeftInnerLoopEighth,
-    /// <summary><c>gunship_dust_left_middle_loop_first</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopFirst,
-    /// <summary><c>gunship_dust_left_middle_loop_second</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopSecond,
-    /// <summary><c>gunship_dust_left_middle_loop_third</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopThird,
-    /// <summary><c>gunship_dust_left_middle_loop_fourth</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopFourth,
-    /// <summary><c>gunship_dust_left_middle_loop_fifth</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopFifth,
-    /// <summary><c>gunship_dust_left_middle_loop_sixth</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopSixth,
-    /// <summary><c>gunship_dust_left_middle_loop_seventh</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopSeventh,
-    /// <summary><c>gunship_dust_left_middle_loop_eighth</c>, an installed animation frame.</summary>
-    GunshipDustLeftMiddleLoopEighth,
-    /// <summary><c>gunship_dust_left_outer_loop_first</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopFirst,
-    /// <summary><c>gunship_dust_left_outer_loop_second</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopSecond,
-    /// <summary><c>gunship_dust_left_outer_loop_third</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopThird,
-    /// <summary><c>gunship_dust_left_outer_loop_fourth</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopFourth,
-    /// <summary><c>gunship_dust_left_outer_loop_fifth</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopFifth,
-    /// <summary><c>gunship_dust_left_outer_loop_sixth</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopSixth,
-    /// <summary><c>gunship_dust_left_outer_loop_seventh</c>, an installed animation frame.</summary>
-    GunshipDustLeftOuterLoopSeventh,
+    /// <summary><c>gunship_dust_right_inner_first</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerFirst,
+    /// <summary><c>gunship_dust_right_inner_second</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerSecond,
+    /// <summary><c>gunship_dust_right_inner_third</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerThird,
+    /// <summary><c>gunship_dust_right_inner_fourth</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerFourth,
+    /// <summary><c>gunship_dust_right_inner_fifth</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerFifth,
+    /// <summary><c>gunship_dust_right_inner_sixth</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerSixth,
+    /// <summary><c>gunship_dust_right_inner_seventh</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerSeventh,
+    /// <summary><c>gunship_dust_right_inner_eighth</c>, an installed animation frame.</summary>
+    GunshipDustRightInnerEighth,
+    /// <summary><c>gunship_dust_right_middle_first</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleFirst,
+    /// <summary><c>gunship_dust_right_middle_second</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleSecond,
+    /// <summary><c>gunship_dust_right_middle_third</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleThird,
+    /// <summary><c>gunship_dust_right_middle_fourth</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleFourth,
+    /// <summary><c>gunship_dust_right_middle_fifth</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleFifth,
+    /// <summary><c>gunship_dust_right_middle_sixth</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleSixth,
+    /// <summary><c>gunship_dust_right_middle_seventh</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleSeventh,
+    /// <summary><c>gunship_dust_right_middle_eighth</c>, an installed animation frame.</summary>
+    GunshipDustRightMiddleEighth,
+    /// <summary><c>gunship_dust_right_outer_first</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterFirst,
+    /// <summary><c>gunship_dust_right_outer_second</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterSecond,
+    /// <summary><c>gunship_dust_right_outer_third</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterThird,
+    /// <summary><c>gunship_dust_right_outer_fourth</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterFourth,
+    /// <summary><c>gunship_dust_right_outer_fifth</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterFifth,
+    /// <summary><c>gunship_dust_right_outer_sixth</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterSixth,
+    /// <summary><c>gunship_dust_right_outer_seventh</c>, an installed animation frame.</summary>
+    GunshipDustRightOuterSeventh,
+    /// <summary><c>gunship_dust_left_inner_first</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerFirst,
+    /// <summary><c>gunship_dust_left_inner_second</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerSecond,
+    /// <summary><c>gunship_dust_left_inner_third</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerThird,
+    /// <summary><c>gunship_dust_left_inner_fourth</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerFourth,
+    /// <summary><c>gunship_dust_left_inner_fifth</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerFifth,
+    /// <summary><c>gunship_dust_left_inner_sixth</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerSixth,
+    /// <summary><c>gunship_dust_left_inner_seventh</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerSeventh,
+    /// <summary><c>gunship_dust_left_inner_eighth</c>, an installed animation frame.</summary>
+    GunshipDustLeftInnerEighth,
+    /// <summary><c>gunship_dust_left_middle_first</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleFirst,
+    /// <summary><c>gunship_dust_left_middle_second</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleSecond,
+    /// <summary><c>gunship_dust_left_middle_third</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleThird,
+    /// <summary><c>gunship_dust_left_middle_fourth</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleFourth,
+    /// <summary><c>gunship_dust_left_middle_fifth</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleFifth,
+    /// <summary><c>gunship_dust_left_middle_sixth</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleSixth,
+    /// <summary><c>gunship_dust_left_middle_seventh</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleSeventh,
+    /// <summary><c>gunship_dust_left_middle_eighth</c>, an installed animation frame.</summary>
+    GunshipDustLeftMiddleEighth,
+    /// <summary><c>gunship_dust_left_outer_first</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterFirst,
+    /// <summary><c>gunship_dust_left_outer_second</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterSecond,
+    /// <summary><c>gunship_dust_left_outer_third</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterThird,
+    /// <summary><c>gunship_dust_left_outer_fourth</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterFourth,
+    /// <summary><c>gunship_dust_left_outer_fifth</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterFifth,
+    /// <summary><c>gunship_dust_left_outer_sixth</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterSixth,
+    /// <summary><c>gunship_dust_left_outer_seventh</c>, an installed animation frame.</summary>
+    GunshipDustLeftOuterSeventh,
     /// <summary><c>torizo_explosion_low_health_initial_loop_first</c>, an installed animation frame.</summary>
     TorizoExplosionLowHealthInitialLoopFirst,
     /// <summary><c>torizo_explosion_low_health_initial_loop_second</c>, an installed animation frame.</summary>
@@ -1641,14 +1641,14 @@ public enum EnemyProjectileFrameId
     MiscDustCorpseDustCloudThird,
     /// <summary><c>misc_dust_corpse_dust_cloud_fourth</c>, an installed animation frame.</summary>
     MiscDustCorpseDustCloudFourth,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_first</c>, an installed animation frame.</summary>
-    MiscDustEyeDoorSweatDropFirst,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_second</c>, an installed animation frame.</summary>
-    MiscDustEyeDoorSweatDropSecond,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_third</c>, an installed animation frame.</summary>
-    MiscDustEyeDoorSweatDropThird,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_fourth</c>, an installed animation frame.</summary>
-    MiscDustEyeDoorSweatDropFourth,
+    /// <summary><c>misc_dust_eye_door_smoke_puff_first</c>, an installed animation frame.</summary>
+    MiscDustEyeDoorSmokePuffFirst,
+    /// <summary><c>misc_dust_eye_door_smoke_puff_second</c>, an installed animation frame.</summary>
+    MiscDustEyeDoorSmokePuffSecond,
+    /// <summary><c>misc_dust_eye_door_smoke_puff_third</c>, an installed animation frame.</summary>
+    MiscDustEyeDoorSmokePuffThird,
+    /// <summary><c>misc_dust_eye_door_smoke_puff_fourth</c>, an installed animation frame.</summary>
+    MiscDustEyeDoorSmokePuffFourth,
     /// <summary><c>misc_dust_smoke_first</c>, an installed animation frame.</summary>
     MiscDustSmokeFirst,
     /// <summary><c>misc_dust_smoke_second</c>, an installed animation frame.</summary>

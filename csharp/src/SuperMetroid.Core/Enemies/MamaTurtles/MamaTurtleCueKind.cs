@@ -15,9 +15,9 @@ internal enum MamaTurtleCueKind
     LoopOrTurnAround,
     /// <summary>Plays the spinning sound.</summary>
     PlaySpinningSound,
-    /// <summary>Starts the Mama Turtle's leftward rise and continues at its spin.</summary>
+    /// <summary>Starts the Mama Turtle's leftward rise, as she leaves her shell facing left, and continues at its spin.</summary>
     RiseToHoverLeftwards,
-    /// <summary>Starts the Mama Turtle's rightward rise and continues at its spin.</summary>
+    /// <summary>Starts the Mama Turtle's rightward rise, as she leaves her shell facing right, and continues at its spin.</summary>
     RiseToHoverRightwards,
     /// <summary>Lets the baby's spin be stopped.</summary>
     SetSpinningStoppable,

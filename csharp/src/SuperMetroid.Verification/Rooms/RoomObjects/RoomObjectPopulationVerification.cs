@@ -403,7 +403,7 @@ internal static class RoomObjectPopulationVerification
             "Bomb Torizo grey door loads through the shared room population");
 
         var enteringDoor = new DoorDefinition(
-            Name: nameof(CrateriaDoorDefinitions.Flyway1),
+            Name: nameof(CrateriaDoorDefinitions.FlywayToBombTorizo),
             DestinationRoom: RoomDefinitions.BombTorizo,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(doorX, doorY),
@@ -508,7 +508,7 @@ internal static class RoomObjectPopulationVerification
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new DoorDefinition(
-            Name: nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft1),
+            Name: nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaftToBrinstarPreMap),
             DestinationRoom: RoomDefinitions.BrinstarPreMap,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(doorX, doorY),
@@ -872,7 +872,7 @@ internal static class RoomObjectPopulationVerification
         var escape = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref escape, new RoomObjectRoom(escapeLevel, system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new DoorDefinition(
-            Name: nameof(TourianDoorDefinitions.MotherBrain1),
+            Name: nameof(TourianDoorDefinitions.MotherBrainToTourianEscape1),
             DestinationRoom: RoomDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             RoomObjectBlock: new(gateX, gateY),

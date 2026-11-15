@@ -1,534 +1,533 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The Norfair rooms' doors, named by the room they lead from.</summary>
-[NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
+/// <summary>The Norfair rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class NorfairDoorDefinitions
 {
-    /// <summary>The Ice Beam Acid room's door 0.</summary>
-    public static DoorDefinition IceBeamAcid0 { get; } = DoorDefinitions.Find(nameof(IceBeamAcid0));
+    /// <summary>The door from the Ice Beam Acid room to the Ice Beam Gate room.</summary>
+    public static DoorDefinition IceBeamAcidToIceBeamGate { get; } = DoorDefinitions.Find(nameof(IceBeamAcidToIceBeamGate));
 
-    /// <summary>The Ice Beam Acid room's door 1.</summary>
-    public static DoorDefinition IceBeamAcid1 { get; } = DoorDefinitions.Find(nameof(IceBeamAcid1));
+    /// <summary>The door from the Ice Beam Acid room to the Ice Beam Snake room.</summary>
+    public static DoorDefinition IceBeamAcidToIceBeamSnake { get; } = DoorDefinitions.Find(nameof(IceBeamAcidToIceBeamSnake));
 
-    /// <summary>The Cathedral room's door 0.</summary>
-    public static DoorDefinition Cathedral0 { get; } = DoorDefinitions.Find(nameof(Cathedral0));
+    /// <summary>The door from the Cathedral room to the Cathedral Entrance room.</summary>
+    public static DoorDefinition CathedralToCathedralEntrance { get; } = DoorDefinitions.Find(nameof(CathedralToCathedralEntrance));
 
-    /// <summary>The Cathedral room's door 1.</summary>
-    public static DoorDefinition Cathedral1 { get; } = DoorDefinitions.Find(nameof(Cathedral1));
+    /// <summary>The door from the Cathedral room to the Rising Tide room.</summary>
+    public static DoorDefinition CathedralToRisingTide { get; } = DoorDefinitions.Find(nameof(CathedralToRisingTide));
 
-    /// <summary>The Cathedral Entrance room's door 0.</summary>
-    public static DoorDefinition CathedralEntrance0 { get; } = DoorDefinitions.Find(nameof(CathedralEntrance0));
+    /// <summary>The door from the Cathedral Entrance room to the Business Center room.</summary>
+    public static DoorDefinition CathedralEntranceToBusinessCenter { get; } = DoorDefinitions.Find(nameof(CathedralEntranceToBusinessCenter));
 
-    /// <summary>The Cathedral Entrance room's door 1.</summary>
-    public static DoorDefinition CathedralEntrance1 { get; } = DoorDefinitions.Find(nameof(CathedralEntrance1));
+    /// <summary>The door from the Cathedral Entrance room to the Cathedral room.</summary>
+    public static DoorDefinition CathedralEntranceToCathedral { get; } = DoorDefinitions.Find(nameof(CathedralEntranceToCathedral));
 
-    /// <summary>The Business Center room's door 0.</summary>
-    public static DoorDefinition BusinessCenter0 { get; } = DoorDefinitions.Find(nameof(BusinessCenter0));
+    /// <summary>The door from the Business Center room to the Ice Beam Gate room.</summary>
+    public static DoorDefinition BusinessCenterToIceBeamGate { get; } = DoorDefinitions.Find(nameof(BusinessCenterToIceBeamGate));
 
-    /// <summary>The Business Center room's door 1.</summary>
-    public static DoorDefinition BusinessCenter1 { get; } = DoorDefinitions.Find(nameof(BusinessCenter1));
+    /// <summary>The door from the Business Center room to the Cathedral Entrance room.</summary>
+    public static DoorDefinition BusinessCenterToCathedralEntrance { get; } = DoorDefinitions.Find(nameof(BusinessCenterToCathedralEntrance));
 
-    /// <summary>The Business Center room's door 2.</summary>
-    public static DoorDefinition BusinessCenter2 { get; } = DoorDefinitions.Find(nameof(BusinessCenter2));
+    /// <summary>The door from the Business Center room to the Hi Jump E Tank room.</summary>
+    public static DoorDefinition BusinessCenterToHiJumpETank { get; } = DoorDefinitions.Find(nameof(BusinessCenterToHiJumpETank));
 
-    /// <summary>The Business Center room's door 3.</summary>
-    public static DoorDefinition BusinessCenter3 { get; } = DoorDefinitions.Find(nameof(BusinessCenter3));
+    /// <summary>The door from the Business Center room to the Crocomire Escape room.</summary>
+    public static DoorDefinition BusinessCenterToCrocomireEscape { get; } = DoorDefinitions.Find(nameof(BusinessCenterToCrocomireEscape));
 
-    /// <summary>The Business Center room's door 4.</summary>
-    public static DoorDefinition BusinessCenter4 { get; } = DoorDefinitions.Find(nameof(BusinessCenter4));
+    /// <summary>The door from the Business Center room to the Warehouse Entrance room.</summary>
+    public static DoorDefinition BusinessCenterToWarehouseEntrance { get; } = DoorDefinitions.Find(nameof(BusinessCenterToWarehouseEntrance));
 
-    /// <summary>The Business Center room's door 6.</summary>
-    public static DoorDefinition BusinessCenter6 { get; } = DoorDefinitions.Find(nameof(BusinessCenter6));
+    /// <summary>The door from the Business Center room to the Frog Save room.</summary>
+    public static DoorDefinition BusinessCenterToFrogSave { get; } = DoorDefinitions.Find(nameof(BusinessCenterToFrogSave));
 
-    /// <summary>The Business Center room's door 7.</summary>
-    public static DoorDefinition BusinessCenter7 { get; } = DoorDefinitions.Find(nameof(BusinessCenter7));
+    /// <summary>The door from the Business Center room to the Norfair Map room.</summary>
+    public static DoorDefinition BusinessCenterToNorfairMap { get; } = DoorDefinitions.Find(nameof(BusinessCenterToNorfairMap));
 
-    /// <summary>The Ice Beam Gate room's door 0.</summary>
-    public static DoorDefinition IceBeamGate0 { get; } = DoorDefinitions.Find(nameof(IceBeamGate0));
+    /// <summary>The door from the Ice Beam Gate room to the Ice Beam Tutorial room.</summary>
+    public static DoorDefinition IceBeamGateToIceBeamTutorial { get; } = DoorDefinitions.Find(nameof(IceBeamGateToIceBeamTutorial));
 
-    /// <summary>The Ice Beam Gate room's door 1.</summary>
-    public static DoorDefinition IceBeamGate1 { get; } = DoorDefinitions.Find(nameof(IceBeamGate1));
+    /// <summary>The door from the Ice Beam Gate room to the Ice Beam Acid room.</summary>
+    public static DoorDefinition IceBeamGateToIceBeamAcid { get; } = DoorDefinitions.Find(nameof(IceBeamGateToIceBeamAcid));
 
-    /// <summary>The Ice Beam Gate room's door 2.</summary>
-    public static DoorDefinition IceBeamGate2 { get; } = DoorDefinitions.Find(nameof(IceBeamGate2));
+    /// <summary>The door from the Ice Beam Gate room to the Business Center room.</summary>
+    public static DoorDefinition IceBeamGateToBusinessCenter { get; } = DoorDefinitions.Find(nameof(IceBeamGateToBusinessCenter));
 
-    /// <summary>The Ice Beam Gate room's door 3.</summary>
-    public static DoorDefinition IceBeamGate3 { get; } = DoorDefinitions.Find(nameof(IceBeamGate3));
+    /// <summary>The door from the Ice Beam Gate room to the Crumble Shaft room.</summary>
+    public static DoorDefinition IceBeamGateToCrumbleShaft { get; } = DoorDefinitions.Find(nameof(IceBeamGateToCrumbleShaft));
 
-    /// <summary>The Ice Beam Tutorial room's door 0.</summary>
-    public static DoorDefinition IceBeamTutorial0 { get; } = DoorDefinitions.Find(nameof(IceBeamTutorial0));
+    /// <summary>The door from the Ice Beam Tutorial room to the Ice Beam Snake room.</summary>
+    public static DoorDefinition IceBeamTutorialToIceBeamSnake { get; } = DoorDefinitions.Find(nameof(IceBeamTutorialToIceBeamSnake));
 
-    /// <summary>The Ice Beam Tutorial room's door 1.</summary>
-    public static DoorDefinition IceBeamTutorial1 { get; } = DoorDefinitions.Find(nameof(IceBeamTutorial1));
+    /// <summary>The door from the Ice Beam Tutorial room to the Ice Beam Gate room.</summary>
+    public static DoorDefinition IceBeamTutorialToIceBeamGate { get; } = DoorDefinitions.Find(nameof(IceBeamTutorialToIceBeamGate));
 
-    /// <summary>The Ice Beam room's door 0.</summary>
-    public static DoorDefinition IceBeam0 { get; } = DoorDefinitions.Find(nameof(IceBeam0));
+    /// <summary>The door from the Ice Beam room to the Ice Beam Snake room.</summary>
+    public static DoorDefinition IceBeamToIceBeamSnake { get; } = DoorDefinitions.Find(nameof(IceBeamToIceBeamSnake));
 
-    /// <summary>The Ice Beam Snake room's door 0.</summary>
-    public static DoorDefinition IceBeamSnake0 { get; } = DoorDefinitions.Find(nameof(IceBeamSnake0));
+    /// <summary>The door from the Ice Beam Snake room to the Ice Beam Acid room.</summary>
+    public static DoorDefinition IceBeamSnakeToIceBeamAcid { get; } = DoorDefinitions.Find(nameof(IceBeamSnakeToIceBeamAcid));
 
-    /// <summary>The Ice Beam Snake room's door 1.</summary>
-    public static DoorDefinition IceBeamSnake1 { get; } = DoorDefinitions.Find(nameof(IceBeamSnake1));
+    /// <summary>The door from the Ice Beam Snake room to the Ice Beam Tutorial room.</summary>
+    public static DoorDefinition IceBeamSnakeToIceBeamTutorial { get; } = DoorDefinitions.Find(nameof(IceBeamSnakeToIceBeamTutorial));
 
-    /// <summary>The Ice Beam Snake room's door 2.</summary>
-    public static DoorDefinition IceBeamSnake2 { get; } = DoorDefinitions.Find(nameof(IceBeamSnake2));
+    /// <summary>The door from the Ice Beam Snake room to the Ice Beam room.</summary>
+    public static DoorDefinition IceBeamSnakeToIceBeam { get; } = DoorDefinitions.Find(nameof(IceBeamSnakeToIceBeam));
 
-    /// <summary>The Crumble Shaft room's door 0.</summary>
-    public static DoorDefinition CrumbleShaft0 { get; } = DoorDefinitions.Find(nameof(CrumbleShaft0));
+    /// <summary>The door from the Crumble Shaft room to the Ice Beam Gate room.</summary>
+    public static DoorDefinition CrumbleShaftToIceBeamGate { get; } = DoorDefinitions.Find(nameof(CrumbleShaftToIceBeamGate));
 
-    /// <summary>The Crumble Shaft room's door 1.</summary>
-    public static DoorDefinition CrumbleShaft1 { get; } = DoorDefinitions.Find(nameof(CrumbleShaft1));
+    /// <summary>The door from the Crumble Shaft room to the Crocomire Speedway room.</summary>
+    public static DoorDefinition CrumbleShaftToCrocomireSpeedway { get; } = DoorDefinitions.Find(nameof(CrumbleShaftToCrocomireSpeedway));
 
-    /// <summary>The Crocomire Speedway room's door 0.</summary>
-    public static DoorDefinition CrocomireSpeedway0 { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedway0));
+    /// <summary>The door from the Crocomire Speedway room to the Crumble Shaft room.</summary>
+    public static DoorDefinition CrocomireSpeedwayToCrumbleShaft { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedwayToCrumbleShaft));
 
-    /// <summary>The Crocomire Speedway room's door 1.</summary>
-    public static DoorDefinition CrocomireSpeedway1 { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedway1));
+    /// <summary>The door from the Crocomire Speedway room to the Crocomire Escape room.</summary>
+    public static DoorDefinition CrocomireSpeedwayToCrocomireEscape { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedwayToCrocomireEscape));
 
-    /// <summary>The Crocomire Speedway room's door 2.</summary>
-    public static DoorDefinition CrocomireSpeedway2 { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedway2));
+    /// <summary>The door from the Crocomire Speedway room to the Crocomire Save room.</summary>
+    public static DoorDefinition CrocomireSpeedwayToCrocomireSave { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedwayToCrocomireSave));
 
-    /// <summary>The Crocomire Speedway room's door 3.</summary>
-    public static DoorDefinition CrocomireSpeedway3 { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedway3));
+    /// <summary>The door from the Crocomire Speedway room to the Acid Snakes Tunnel room.</summary>
+    public static DoorDefinition CrocomireSpeedwayToAcidSnakesTunnel { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedwayToAcidSnakesTunnel));
 
-    /// <summary>The Crocomire Speedway room's door 4.</summary>
-    public static DoorDefinition CrocomireSpeedway4 { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedway4));
+    /// <summary>The door from the Crocomire Speedway room to the Crocomire room.</summary>
+    public static DoorDefinition CrocomireSpeedwayToCrocomire { get; } = DoorDefinitions.Find(nameof(CrocomireSpeedwayToCrocomire));
 
-    /// <summary>The Crocomire room's door 0.</summary>
-    public static DoorDefinition Crocomire0 { get; } = DoorDefinitions.Find(nameof(Crocomire0));
+    /// <summary>The door from the Crocomire room to the Post Croc Farming room.</summary>
+    public static DoorDefinition CrocomireToPostCrocFarming { get; } = DoorDefinitions.Find(nameof(CrocomireToPostCrocFarming));
 
-    /// <summary>The Crocomire room's door 1.</summary>
-    public static DoorDefinition Crocomire1 { get; } = DoorDefinitions.Find(nameof(Crocomire1));
+    /// <summary>The door from the Crocomire room to the Crocomire Speedway room.</summary>
+    public static DoorDefinition CrocomireToCrocomireSpeedway { get; } = DoorDefinitions.Find(nameof(CrocomireToCrocomireSpeedway));
 
-    /// <summary>The Hi-Jump Boots room's door 0.</summary>
-    public static DoorDefinition HiJumpBoots0 { get; } = DoorDefinitions.Find(nameof(HiJumpBoots0));
+    /// <summary>The door from the Hi Jump Boots room to the Hi Jump E Tank room.</summary>
+    public static DoorDefinition HiJumpBootsToHiJumpETank { get; } = DoorDefinitions.Find(nameof(HiJumpBootsToHiJumpETank));
 
-    /// <summary>The Crocomire Escape room's door 0.</summary>
-    public static DoorDefinition CrocomireEscape0 { get; } = DoorDefinitions.Find(nameof(CrocomireEscape0));
+    /// <summary>The door from the Crocomire Escape room to the Business Center room.</summary>
+    public static DoorDefinition CrocomireEscapeToBusinessCenter { get; } = DoorDefinitions.Find(nameof(CrocomireEscapeToBusinessCenter));
 
-    /// <summary>The Crocomire Escape room's door 1.</summary>
-    public static DoorDefinition CrocomireEscape1 { get; } = DoorDefinitions.Find(nameof(CrocomireEscape1));
+    /// <summary>The door from the Crocomire Escape room to the Crocomire Speedway room.</summary>
+    public static DoorDefinition CrocomireEscapeToCrocomireSpeedway { get; } = DoorDefinitions.Find(nameof(CrocomireEscapeToCrocomireSpeedway));
 
-    /// <summary>The Hi-Jump Energy Tank room's door 0.</summary>
-    public static DoorDefinition HiJumpETank0 { get; } = DoorDefinitions.Find(nameof(HiJumpETank0));
+    /// <summary>The door from the Hi Jump E Tank room to the Business Center room.</summary>
+    public static DoorDefinition HiJumpETankToBusinessCenter { get; } = DoorDefinitions.Find(nameof(HiJumpETankToBusinessCenter));
 
-    /// <summary>The Hi-Jump Energy Tank room's door 1.</summary>
-    public static DoorDefinition HiJumpETank1 { get; } = DoorDefinitions.Find(nameof(HiJumpETank1));
+    /// <summary>The door from the Hi Jump E Tank room to the Hi Jump Boots room.</summary>
+    public static DoorDefinition HiJumpETankToHiJumpBoots { get; } = DoorDefinitions.Find(nameof(HiJumpETankToHiJumpBoots));
 
-    /// <summary>The Post-Crocomire Farming room's door 0.</summary>
-    public static DoorDefinition PostCrocFarming0 { get; } = DoorDefinitions.Find(nameof(PostCrocFarming0));
+    /// <summary>The door from the Post Croc Farming room to the Crocomire room.</summary>
+    public static DoorDefinition PostCrocFarmingToCrocomire { get; } = DoorDefinitions.Find(nameof(PostCrocFarmingToCrocomire));
 
-    /// <summary>The Post-Crocomire Farming room's door 1.</summary>
-    public static DoorDefinition PostCrocFarming1 { get; } = DoorDefinitions.Find(nameof(PostCrocFarming1));
+    /// <summary>The door from the Post Croc Farming room to the Post Croc Power Bombs room.</summary>
+    public static DoorDefinition PostCrocFarmingToPostCrocPowerBombs { get; } = DoorDefinitions.Find(nameof(PostCrocFarmingToPostCrocPowerBombs));
 
-    /// <summary>The Post-Crocomire Farming room's door 2.</summary>
-    public static DoorDefinition PostCrocFarming2 { get; } = DoorDefinitions.Find(nameof(PostCrocFarming2));
+    /// <summary>The door from the Post Croc Farming room to the Post Croc Shaft room.</summary>
+    public static DoorDefinition PostCrocFarmingToPostCrocShaft { get; } = DoorDefinitions.Find(nameof(PostCrocFarmingToPostCrocShaft));
 
-    /// <summary>The Post-Crocomire Farming room's door 3.</summary>
-    public static DoorDefinition PostCrocFarming3 { get; } = DoorDefinitions.Find(nameof(PostCrocFarming3));
+    /// <summary>The door from the Post Croc Farming room to the Post Croc Save room.</summary>
+    public static DoorDefinition PostCrocFarmingToPostCrocSave { get; } = DoorDefinitions.Find(nameof(PostCrocFarmingToPostCrocSave));
 
-    /// <summary>The Post-Crocomire Save room's door 0.</summary>
-    public static DoorDefinition PostCrocSave0 { get; } = DoorDefinitions.Find(nameof(PostCrocSave0));
+    /// <summary>The door from the Post Croc Save room to the Post Croc Farming room.</summary>
+    public static DoorDefinition PostCrocSaveToPostCrocFarming { get; } = DoorDefinitions.Find(nameof(PostCrocSaveToPostCrocFarming));
 
-    /// <summary>The Post-Crocomire Power Bombs room's door 0.</summary>
-    public static DoorDefinition PostCrocPowerBombs0 { get; } = DoorDefinitions.Find(nameof(PostCrocPowerBombs0));
+    /// <summary>The door from the Post Croc Power Bombs room to the Post Croc Farming room.</summary>
+    public static DoorDefinition PostCrocPowerBombsToPostCrocFarming { get; } = DoorDefinitions.Find(nameof(PostCrocPowerBombsToPostCrocFarming));
 
-    /// <summary>The Post-Crocomire Shaft room's door 0.</summary>
-    public static DoorDefinition PostCrocShaft0 { get; } = DoorDefinitions.Find(nameof(PostCrocShaft0));
+    /// <summary>The door from the Post Croc Shaft room to the Post Croc Farming room.</summary>
+    public static DoorDefinition PostCrocShaftToPostCrocFarming { get; } = DoorDefinitions.Find(nameof(PostCrocShaftToPostCrocFarming));
 
-    /// <summary>The Post-Crocomire Shaft room's door 1.</summary>
-    public static DoorDefinition PostCrocShaft1 { get; } = DoorDefinitions.Find(nameof(PostCrocShaft1));
+    /// <summary>The door from the Post Croc Shaft room to the Grapple Tutorial 3 room.</summary>
+    public static DoorDefinition PostCrocShaftToGrappleTutorial3 { get; } = DoorDefinitions.Find(nameof(PostCrocShaftToGrappleTutorial3));
 
-    /// <summary>The Post-Crocomire Shaft room's door 2.</summary>
-    public static DoorDefinition PostCrocShaft2 { get; } = DoorDefinitions.Find(nameof(PostCrocShaft2));
+    /// <summary>The door from the Post Croc Shaft room to the Post Croc Missile room.</summary>
+    public static DoorDefinition PostCrocShaftToPostCrocMissile { get; } = DoorDefinitions.Find(nameof(PostCrocShaftToPostCrocMissile));
 
-    /// <summary>The Post-Crocomire Shaft room's door 3.</summary>
-    public static DoorDefinition PostCrocShaft3 { get; } = DoorDefinitions.Find(nameof(PostCrocShaft3));
+    /// <summary>The door from the Post Croc Shaft room to the Post Croc Jump room.</summary>
+    public static DoorDefinition PostCrocShaftToPostCrocJump { get; } = DoorDefinitions.Find(nameof(PostCrocShaftToPostCrocJump));
 
-    /// <summary>The Post-Crocomire Missile room's door 0.</summary>
-    public static DoorDefinition PostCrocMissile0 { get; } = DoorDefinitions.Find(nameof(PostCrocMissile0));
+    /// <summary>The door from the Post Croc Missile room to the Post Croc Shaft room.</summary>
+    public static DoorDefinition PostCrocMissileToPostCrocShaft { get; } = DoorDefinitions.Find(nameof(PostCrocMissileToPostCrocShaft));
 
-    /// <summary>The Grapple Tutorial 3 room's door 0.</summary>
-    public static DoorDefinition GrappleTutorial30 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial30));
+    /// <summary>The door from the Grapple Tutorial 3 room to the Grapple Tutorial 2 room.</summary>
+    public static DoorDefinition GrappleTutorial3ToGrappleTutorial2 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial3ToGrappleTutorial2));
 
-    /// <summary>The Grapple Tutorial 3 room's door 1.</summary>
-    public static DoorDefinition GrappleTutorial31 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial31));
+    /// <summary>The door from the Grapple Tutorial 3 room to the Post Croc Shaft room.</summary>
+    public static DoorDefinition GrappleTutorial3ToPostCrocShaft { get; } = DoorDefinitions.Find(nameof(GrappleTutorial3ToPostCrocShaft));
 
-    /// <summary>The Post-Crocomire Jump room's door 0.</summary>
-    public static DoorDefinition PostCrocJump0 { get; } = DoorDefinitions.Find(nameof(PostCrocJump0));
+    /// <summary>The door from the Post Croc Jump room to the Post Croc Shaft room.</summary>
+    public static DoorDefinition PostCrocJumpToPostCrocShaft { get; } = DoorDefinitions.Find(nameof(PostCrocJumpToPostCrocShaft));
 
-    /// <summary>The Post-Crocomire Jump room's door 1.</summary>
-    public static DoorDefinition PostCrocJump1 { get; } = DoorDefinitions.Find(nameof(PostCrocJump1));
+    /// <summary>The door from the Post Croc Jump room to the Grapple Beam room.</summary>
+    public static DoorDefinition PostCrocJumpToGrappleBeam { get; } = DoorDefinitions.Find(nameof(PostCrocJumpToGrappleBeam));
 
-    /// <summary>The Grapple Tutorial 2 room's door 0.</summary>
-    public static DoorDefinition GrappleTutorial20 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial20));
+    /// <summary>The door from the Grapple Tutorial 2 room to the Grapple Tutorial 1 room.</summary>
+    public static DoorDefinition GrappleTutorial2ToGrappleTutorial1 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial2ToGrappleTutorial1));
 
-    /// <summary>The Grapple Tutorial 2 room's door 1.</summary>
-    public static DoorDefinition GrappleTutorial21 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial21));
+    /// <summary>The door from the Grapple Tutorial 2 room to the Grapple Tutorial 3 room.</summary>
+    public static DoorDefinition GrappleTutorial2ToGrappleTutorial3 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial2ToGrappleTutorial3));
 
-    /// <summary>The Grapple Tutorial 1 room's door 0.</summary>
-    public static DoorDefinition GrappleTutorial10 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial10));
+    /// <summary>The door from the Grapple Tutorial 1 room to the Grapple Beam room.</summary>
+    public static DoorDefinition GrappleTutorial1ToGrappleBeam { get; } = DoorDefinitions.Find(nameof(GrappleTutorial1ToGrappleBeam));
 
-    /// <summary>The Grapple Tutorial 1 room's door 1.</summary>
-    public static DoorDefinition GrappleTutorial11 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial11));
+    /// <summary>The door from the Grapple Tutorial 1 room to the Grapple Tutorial 2 room.</summary>
+    public static DoorDefinition GrappleTutorial1ToGrappleTutorial2 { get; } = DoorDefinitions.Find(nameof(GrappleTutorial1ToGrappleTutorial2));
 
-    /// <summary>The Grapple Beam room's door 0.</summary>
-    public static DoorDefinition GrappleBeam0 { get; } = DoorDefinitions.Find(nameof(GrappleBeam0));
+    /// <summary>The door from the Grapple Beam room to the Post Croc Jump room.</summary>
+    public static DoorDefinition GrappleBeamToPostCrocJump { get; } = DoorDefinitions.Find(nameof(GrappleBeamToPostCrocJump));
 
-    /// <summary>The Grapple Beam room's door 1.</summary>
-    public static DoorDefinition GrappleBeam1 { get; } = DoorDefinitions.Find(nameof(GrappleBeam1));
+    /// <summary>The door from the Grapple Beam room to the Grapple Tutorial 1 room.</summary>
+    public static DoorDefinition GrappleBeamToGrappleTutorial1 { get; } = DoorDefinitions.Find(nameof(GrappleBeamToGrappleTutorial1));
 
     /// <summary>The Norfair Reserve Tank room's door.</summary>
     public static DoorDefinition NorfairReserveTank { get; } = DoorDefinitions.Find(nameof(NorfairReserveTank));
 
-    /// <summary>The Green Bubbles Missiles room's door 0.</summary>
-    public static DoorDefinition GreenBubblesMissiles0 { get; } = DoorDefinitions.Find(nameof(GreenBubblesMissiles0));
+    /// <summary>The door from the Green Bubbles Missiles room to the Bubble Mountain room.</summary>
+    public static DoorDefinition GreenBubblesMissilesToBubbleMountain { get; } = DoorDefinitions.Find(nameof(GreenBubblesMissilesToBubbleMountain));
 
-    /// <summary>The Green Bubbles Missiles room's door 1.</summary>
-    public static DoorDefinition GreenBubblesMissiles1 { get; } = DoorDefinitions.Find(nameof(GreenBubblesMissiles1));
+    /// <summary>The door from the Green Bubbles Missiles room to the Norfair Reserve Tank room.</summary>
+    public static DoorDefinition GreenBubblesMissilesToNorfairReserveTank { get; } = DoorDefinitions.Find(nameof(GreenBubblesMissilesToNorfairReserveTank));
 
-    /// <summary>The Bubble Mountain room's door 0.</summary>
-    public static DoorDefinition BubbleMountain0 { get; } = DoorDefinitions.Find(nameof(BubbleMountain0));
+    /// <summary>The door from the Bubble Mountain room to the Green Bubbles Missiles room.</summary>
+    public static DoorDefinition BubbleMountainToGreenBubblesMissiles { get; } = DoorDefinitions.Find(nameof(BubbleMountainToGreenBubblesMissiles));
 
-    /// <summary>The Bubble Mountain room's door 1.</summary>
-    public static DoorDefinition BubbleMountain1 { get; } = DoorDefinitions.Find(nameof(BubbleMountain1));
+    /// <summary>The door from the Bubble Mountain room to the Rising Tide room.</summary>
+    public static DoorDefinition BubbleMountainToRisingTide { get; } = DoorDefinitions.Find(nameof(BubbleMountainToRisingTide));
 
-    /// <summary>The Bubble Mountain room's door 2.</summary>
-    public static DoorDefinition BubbleMountain2 { get; } = DoorDefinitions.Find(nameof(BubbleMountain2));
+    /// <summary>The door from the Bubble Mountain room to the Upper Norfair Farming room.</summary>
+    public static DoorDefinition BubbleMountainToUpperNorfairFarming { get; } = DoorDefinitions.Find(nameof(BubbleMountainToUpperNorfairFarming));
 
-    /// <summary>The Bubble Mountain room's door 3.</summary>
-    public static DoorDefinition BubbleMountain3 { get; } = DoorDefinitions.Find(nameof(BubbleMountain3));
+    /// <summary>The door from the Bubble Mountain room to the Purple Shaft room.</summary>
+    public static DoorDefinition BubbleMountainToPurpleShaft { get; } = DoorDefinitions.Find(nameof(BubbleMountainToPurpleShaft));
 
-    /// <summary>The Bubble Mountain room's door 4.</summary>
-    public static DoorDefinition BubbleMountain4 { get; } = DoorDefinitions.Find(nameof(BubbleMountain4));
+    /// <summary>The door from the Bubble Mountain room to the Single Chamber room.</summary>
+    public static DoorDefinition BubbleMountainToSingleChamber { get; } = DoorDefinitions.Find(nameof(BubbleMountainToSingleChamber));
 
-    /// <summary>The Bubble Mountain room's door 5.</summary>
-    public static DoorDefinition BubbleMountain5 { get; } = DoorDefinitions.Find(nameof(BubbleMountain5));
+    /// <summary>The door from the Bubble Mountain room to the Bat Cave room.</summary>
+    public static DoorDefinition BubbleMountainToBatCave { get; } = DoorDefinitions.Find(nameof(BubbleMountainToBatCave));
 
-    /// <summary>The Bubble Mountain room's door 6.</summary>
-    public static DoorDefinition BubbleMountain6 { get; } = DoorDefinitions.Find(nameof(BubbleMountain6));
+    /// <summary>The door from the Bubble Mountain room to the Bubble Mountain Save room.</summary>
+    public static DoorDefinition BubbleMountainToBubbleMountainSave { get; } = DoorDefinitions.Find(nameof(BubbleMountainToBubbleMountainSave));
 
-    /// <summary>The Speed Booster Hall room's door 0.</summary>
-    public static DoorDefinition SpeedBoosterHall0 { get; } = DoorDefinitions.Find(nameof(SpeedBoosterHall0));
+    /// <summary>The door from the Speed Booster Hall room to the Bat Cave room.</summary>
+    public static DoorDefinition SpeedBoosterHallToBatCave { get; } = DoorDefinitions.Find(nameof(SpeedBoosterHallToBatCave));
 
-    /// <summary>The Speed Booster Hall room's door 1.</summary>
-    public static DoorDefinition SpeedBoosterHall1 { get; } = DoorDefinitions.Find(nameof(SpeedBoosterHall1));
+    /// <summary>The door from the Speed Booster Hall room to the Speed Booster room.</summary>
+    public static DoorDefinition SpeedBoosterHallToSpeedBooster { get; } = DoorDefinitions.Find(nameof(SpeedBoosterHallToSpeedBooster));
 
-    /// <summary>The Speed Booster room's door 0.</summary>
-    public static DoorDefinition SpeedBooster0 { get; } = DoorDefinitions.Find(nameof(SpeedBooster0));
+    /// <summary>The door from the Speed Booster room to the Speed Booster Hall room.</summary>
+    public static DoorDefinition SpeedBoosterToSpeedBoosterHall { get; } = DoorDefinitions.Find(nameof(SpeedBoosterToSpeedBoosterHall));
 
-    /// <summary>The Single Chamber room's door 0.</summary>
-    public static DoorDefinition SingleChamber0 { get; } = DoorDefinitions.Find(nameof(SingleChamber0));
+    /// <summary>The door from the Single Chamber room to the Bubble Mountain room.</summary>
+    public static DoorDefinition SingleChamberToBubbleMountain { get; } = DoorDefinitions.Find(nameof(SingleChamberToBubbleMountain));
 
-    /// <summary>The Single Chamber room's door 1.</summary>
-    public static DoorDefinition SingleChamber1 { get; } = DoorDefinitions.Find(nameof(SingleChamber1));
+    /// <summary>The door from the Single Chamber room to the Double Chamber room, arriving at its upper doorway.</summary>
+    public static DoorDefinition SingleChamberToDoubleChamberUpper { get; } = DoorDefinitions.Find(nameof(SingleChamberToDoubleChamberUpper));
 
-    /// <summary>The Single Chamber room's door 2.</summary>
-    public static DoorDefinition SingleChamber2 { get; } = DoorDefinitions.Find(nameof(SingleChamber2));
+    /// <summary>The door from the Single Chamber room to the Double Chamber room, arriving at its lower doorway.</summary>
+    public static DoorDefinition SingleChamberToDoubleChamberLower { get; } = DoorDefinitions.Find(nameof(SingleChamberToDoubleChamberLower));
 
-    /// <summary>The Single Chamber room's door 3.</summary>
-    public static DoorDefinition SingleChamber3 { get; } = DoorDefinitions.Find(nameof(SingleChamber3));
+    /// <summary>The door from the Single Chamber room to the Spiky Platforms Tunnel room.</summary>
+    public static DoorDefinition SingleChamberToSpikyPlatformsTunnel { get; } = DoorDefinitions.Find(nameof(SingleChamberToSpikyPlatformsTunnel));
 
-    /// <summary>The Single Chamber room's door 4.</summary>
-    public static DoorDefinition SingleChamber4 { get; } = DoorDefinitions.Find(nameof(SingleChamber4));
+    /// <summary>The door from the Single Chamber room to the Three Musketeers room.</summary>
+    public static DoorDefinition SingleChamberToThreeMusketeers { get; } = DoorDefinitions.Find(nameof(SingleChamberToThreeMusketeers));
 
-    /// <summary>The Double Chamber room's door 0.</summary>
-    public static DoorDefinition DoubleChamber0 { get; } = DoorDefinitions.Find(nameof(DoubleChamber0));
+    /// <summary>The door from the Double Chamber room to the Single Chamber room, arriving at its upper doorway.</summary>
+    public static DoorDefinition DoubleChamberToSingleChamberUpper { get; } = DoorDefinitions.Find(nameof(DoubleChamberToSingleChamberUpper));
 
-    /// <summary>The Double Chamber room's door 1.</summary>
-    public static DoorDefinition DoubleChamber1 { get; } = DoorDefinitions.Find(nameof(DoubleChamber1));
+    /// <summary>The door from the Double Chamber room to the Single Chamber room, arriving at its lower doorway.</summary>
+    public static DoorDefinition DoubleChamberToSingleChamberLower { get; } = DoorDefinitions.Find(nameof(DoubleChamberToSingleChamberLower));
 
-    /// <summary>The Double Chamber room's door 2.</summary>
-    public static DoorDefinition DoubleChamber2 { get; } = DoorDefinitions.Find(nameof(DoubleChamber2));
+    /// <summary>The door from the Double Chamber room to the Wave Beam room.</summary>
+    public static DoorDefinition DoubleChamberToWaveBeam { get; } = DoorDefinitions.Find(nameof(DoubleChamberToWaveBeam));
 
-    /// <summary>The Wave Beam room's door 0.</summary>
-    public static DoorDefinition WaveBeam0 { get; } = DoorDefinitions.Find(nameof(WaveBeam0));
+    /// <summary>The door from the Wave Beam room to the Double Chamber room.</summary>
+    public static DoorDefinition WaveBeamToDoubleChamber { get; } = DoorDefinitions.Find(nameof(WaveBeamToDoubleChamber));
 
-    /// <summary>The Spiky Platforms Tunnel room's door 0.</summary>
-    public static DoorDefinition SpikyPlatformsTunnel0 { get; } = DoorDefinitions.Find(nameof(SpikyPlatformsTunnel0));
+    /// <summary>The door from the Spiky Platforms Tunnel room to the Single Chamber room.</summary>
+    public static DoorDefinition SpikyPlatformsTunnelToSingleChamber { get; } = DoorDefinitions.Find(nameof(SpikyPlatformsTunnelToSingleChamber));
 
-    /// <summary>The Spiky Platforms Tunnel room's door 1.</summary>
-    public static DoorDefinition SpikyPlatformsTunnel1 { get; } = DoorDefinitions.Find(nameof(SpikyPlatformsTunnel1));
+    /// <summary>The door from the Spiky Platforms Tunnel room to the Volcano room.</summary>
+    public static DoorDefinition SpikyPlatformsTunnelToVolcano { get; } = DoorDefinitions.Find(nameof(SpikyPlatformsTunnelToVolcano));
 
-    /// <summary>The Volcano room's door 0.</summary>
-    public static DoorDefinition Volcano0 { get; } = DoorDefinitions.Find(nameof(Volcano0));
+    /// <summary>The door from the Volcano room to the Spiky Platforms Tunnel room.</summary>
+    public static DoorDefinition VolcanoToSpikyPlatformsTunnel { get; } = DoorDefinitions.Find(nameof(VolcanoToSpikyPlatformsTunnel));
 
-    /// <summary>The Volcano room's door 1.</summary>
-    public static DoorDefinition Volcano1 { get; } = DoorDefinitions.Find(nameof(Volcano1));
+    /// <summary>The door from the Volcano room to the Kronic Boost room.</summary>
+    public static DoorDefinition VolcanoToKronicBoost { get; } = DoorDefinitions.Find(nameof(VolcanoToKronicBoost));
 
-    /// <summary>The Kronic Boost room's door 0.</summary>
-    public static DoorDefinition KronicBoost0 { get; } = DoorDefinitions.Find(nameof(KronicBoost0));
+    /// <summary>The door from the Kronic Boost room to the Magdollite Tunnel room.</summary>
+    public static DoorDefinition KronicBoostToMagdolliteTunnel { get; } = DoorDefinitions.Find(nameof(KronicBoostToMagdolliteTunnel));
 
-    /// <summary>The Kronic Boost room's door 1.</summary>
-    public static DoorDefinition KronicBoost1 { get; } = DoorDefinitions.Find(nameof(KronicBoost1));
+    /// <summary>The door from the Kronic Boost room to the Volcano room.</summary>
+    public static DoorDefinition KronicBoostToVolcano { get; } = DoorDefinitions.Find(nameof(KronicBoostToVolcano));
 
-    /// <summary>The Kronic Boost room's door 2.</summary>
-    public static DoorDefinition KronicBoost2 { get; } = DoorDefinitions.Find(nameof(KronicBoost2));
+    /// <summary>The door from the Kronic Boost room to the Lava Dive room.</summary>
+    public static DoorDefinition KronicBoostToLavaDive { get; } = DoorDefinitions.Find(nameof(KronicBoostToLavaDive));
 
-    /// <summary>The Kronic Boost room's door 3.</summary>
-    public static DoorDefinition KronicBoost3 { get; } = DoorDefinitions.Find(nameof(KronicBoost3));
+    /// <summary>The door from the Kronic Boost room to the Spiky Acid Snakes Tunnel room.</summary>
+    public static DoorDefinition KronicBoostToSpikyAcidSnakesTunnel { get; } = DoorDefinitions.Find(nameof(KronicBoostToSpikyAcidSnakesTunnel));
 
-    /// <summary>The Magdollite Tunnel room's door 0.</summary>
-    public static DoorDefinition MagdolliteTunnel0 { get; } = DoorDefinitions.Find(nameof(MagdolliteTunnel0));
+    /// <summary>The door from the Magdollite Tunnel room to the Purple Shaft room.</summary>
+    public static DoorDefinition MagdolliteTunnelToPurpleShaft { get; } = DoorDefinitions.Find(nameof(MagdolliteTunnelToPurpleShaft));
 
-    /// <summary>The Magdollite Tunnel room's door 1.</summary>
-    public static DoorDefinition MagdolliteTunnel1 { get; } = DoorDefinitions.Find(nameof(MagdolliteTunnel1));
+    /// <summary>The door from the Magdollite Tunnel room to the Kronic Boost room.</summary>
+    public static DoorDefinition MagdolliteTunnelToKronicBoost { get; } = DoorDefinitions.Find(nameof(MagdolliteTunnelToKronicBoost));
 
-    /// <summary>The Purple Shaft room's door 0.</summary>
-    public static DoorDefinition PurpleShaft0 { get; } = DoorDefinitions.Find(nameof(PurpleShaft0));
+    /// <summary>The door from the Purple Shaft room to the Bubble Mountain room.</summary>
+    public static DoorDefinition PurpleShaftToBubbleMountain { get; } = DoorDefinitions.Find(nameof(PurpleShaftToBubbleMountain));
 
-    /// <summary>The Purple Shaft room's door 1.</summary>
-    public static DoorDefinition PurpleShaft1 { get; } = DoorDefinitions.Find(nameof(PurpleShaft1));
+    /// <summary>The door from the Purple Shaft room to the Magdollite Tunnel room.</summary>
+    public static DoorDefinition PurpleShaftToMagdolliteTunnel { get; } = DoorDefinitions.Find(nameof(PurpleShaftToMagdolliteTunnel));
 
-    /// <summary>The Purple Shaft room's door 2.</summary>
-    public static DoorDefinition PurpleShaft2 { get; } = DoorDefinitions.Find(nameof(PurpleShaft2));
+    /// <summary>The door from the Purple Shaft room to the Purple Farming room.</summary>
+    public static DoorDefinition PurpleShaftToPurpleFarming { get; } = DoorDefinitions.Find(nameof(PurpleShaftToPurpleFarming));
 
-    /// <summary>The Lava Dive room's door 0.</summary>
-    public static DoorDefinition LavaDive0 { get; } = DoorDefinitions.Find(nameof(LavaDive0));
+    /// <summary>The door from the Lava Dive room to the Kronic Boost room.</summary>
+    public static DoorDefinition LavaDiveToKronicBoost { get; } = DoorDefinitions.Find(nameof(LavaDiveToKronicBoost));
 
-    /// <summary>The Lava Dive room's door 1.</summary>
-    public static DoorDefinition LavaDive1 { get; } = DoorDefinitions.Find(nameof(LavaDive1));
+    /// <summary>The door from the Lava Dive room to the Lower Norfair Elev room.</summary>
+    public static DoorDefinition LavaDiveToLowerNorfairElev { get; } = DoorDefinitions.Find(nameof(LavaDiveToLowerNorfairElev));
 
-    /// <summary>The Lower Norfair Elevator room's door 0.</summary>
-    public static DoorDefinition LowerNorfairElev0 { get; } = DoorDefinitions.Find(nameof(LowerNorfairElev0));
+    /// <summary>The door from the Lower Norfair Elev room to the Lava Dive room.</summary>
+    public static DoorDefinition LowerNorfairElevToLavaDive { get; } = DoorDefinitions.Find(nameof(LowerNorfairElevToLavaDive));
 
-    /// <summary>The Lower Norfair Elevator room's door 1.</summary>
-    public static DoorDefinition LowerNorfairElev1 { get; } = DoorDefinitions.Find(nameof(LowerNorfairElev1));
+    /// <summary>The door from the Lower Norfair Elev room to the Main Hall room.</summary>
+    public static DoorDefinition LowerNorfairElevToMainHall { get; } = DoorDefinitions.Find(nameof(LowerNorfairElevToMainHall));
 
-    /// <summary>The Lower Norfair Elevator room's door 3.</summary>
-    public static DoorDefinition LowerNorfairElev3 { get; } = DoorDefinitions.Find(nameof(LowerNorfairElev3));
+    /// <summary>The door from the Lower Norfair Elev room to the LN Elev Save room.</summary>
+    public static DoorDefinition LowerNorfairElevToLNElevSave { get; } = DoorDefinitions.Find(nameof(LowerNorfairElevToLNElevSave));
 
-    /// <summary>The Upper Norfair Farming room's door 0.</summary>
-    public static DoorDefinition UpperNorfairFarming0 { get; } = DoorDefinitions.Find(nameof(UpperNorfairFarming0));
+    /// <summary>The door from the Upper Norfair Farming room to the Frog Speedway room.</summary>
+    public static DoorDefinition UpperNorfairFarmingToFrogSpeedway { get; } = DoorDefinitions.Find(nameof(UpperNorfairFarmingToFrogSpeedway));
 
-    /// <summary>The Upper Norfair Farming room's door 1.</summary>
-    public static DoorDefinition UpperNorfairFarming1 { get; } = DoorDefinitions.Find(nameof(UpperNorfairFarming1));
+    /// <summary>The door from the Upper Norfair Farming room to the Bubble Mountain room.</summary>
+    public static DoorDefinition UpperNorfairFarmingToBubbleMountain { get; } = DoorDefinitions.Find(nameof(UpperNorfairFarmingToBubbleMountain));
 
-    /// <summary>The Upper Norfair Farming room's door 2.</summary>
-    public static DoorDefinition UpperNorfairFarming2 { get; } = DoorDefinitions.Find(nameof(UpperNorfairFarming2));
+    /// <summary>The door from the Upper Norfair Farming room to the Red Pirate Shaft room.</summary>
+    public static DoorDefinition UpperNorfairFarmingToRedPirateShaft { get; } = DoorDefinitions.Find(nameof(UpperNorfairFarmingToRedPirateShaft));
 
-    /// <summary>The Rising Tide room's door 0.</summary>
-    public static DoorDefinition RisingTide0 { get; } = DoorDefinitions.Find(nameof(RisingTide0));
+    /// <summary>The door from the Rising Tide room to the Cathedral room.</summary>
+    public static DoorDefinition RisingTideToCathedral { get; } = DoorDefinitions.Find(nameof(RisingTideToCathedral));
 
-    /// <summary>The Rising Tide room's door 1.</summary>
-    public static DoorDefinition RisingTide1 { get; } = DoorDefinitions.Find(nameof(RisingTide1));
+    /// <summary>The door from the Rising Tide room to the Bubble Mountain room.</summary>
+    public static DoorDefinition RisingTideToBubbleMountain { get; } = DoorDefinitions.Find(nameof(RisingTideToBubbleMountain));
 
-    /// <summary>The Acid Snakes Tunnel room's door 0.</summary>
-    public static DoorDefinition AcidSnakesTunnel0 { get; } = DoorDefinitions.Find(nameof(AcidSnakesTunnel0));
+    /// <summary>The door from the Acid Snakes Tunnel room to the Crocomire Speedway room.</summary>
+    public static DoorDefinition AcidSnakesTunnelToCrocomireSpeedway { get; } = DoorDefinitions.Find(nameof(AcidSnakesTunnelToCrocomireSpeedway));
 
-    /// <summary>The Acid Snakes Tunnel room's door 1.</summary>
-    public static DoorDefinition AcidSnakesTunnel1 { get; } = DoorDefinitions.Find(nameof(AcidSnakesTunnel1));
+    /// <summary>The door from the Acid Snakes Tunnel room to the Upper Norfair Refill room.</summary>
+    public static DoorDefinition AcidSnakesTunnelToUpperNorfairRefill { get; } = DoorDefinitions.Find(nameof(AcidSnakesTunnelToUpperNorfairRefill));
 
-    /// <summary>The Acid Snakes Tunnel room's door 2.</summary>
-    public static DoorDefinition AcidSnakesTunnel2 { get; } = DoorDefinitions.Find(nameof(AcidSnakesTunnel2));
+    /// <summary>The door from the Acid Snakes Tunnel room to the Red Pirate Shaft room.</summary>
+    public static DoorDefinition AcidSnakesTunnelToRedPirateShaft { get; } = DoorDefinitions.Find(nameof(AcidSnakesTunnelToRedPirateShaft));
 
-    /// <summary>The Spiky Acid Snakes Tunnel room's door 0.</summary>
-    public static DoorDefinition SpikyAcidSnakesTunnel0 { get; } = DoorDefinitions.Find(nameof(SpikyAcidSnakesTunnel0));
+    /// <summary>The door from the Spiky Acid Snakes Tunnel room to the Upper Norfair Refill room.</summary>
+    public static DoorDefinition SpikyAcidSnakesTunnelToUpperNorfairRefill { get; } = DoorDefinitions.Find(nameof(SpikyAcidSnakesTunnelToUpperNorfairRefill));
 
-    /// <summary>The Spiky Acid Snakes Tunnel room's door 1.</summary>
-    public static DoorDefinition SpikyAcidSnakesTunnel1 { get; } = DoorDefinitions.Find(nameof(SpikyAcidSnakesTunnel1));
+    /// <summary>The door from the Spiky Acid Snakes Tunnel room to the Kronic Boost room.</summary>
+    public static DoorDefinition SpikyAcidSnakesTunnelToKronicBoost { get; } = DoorDefinitions.Find(nameof(SpikyAcidSnakesTunnelToKronicBoost));
 
-    /// <summary>The Upper Norfair Refill room's door 0.</summary>
-    public static DoorDefinition UpperNorfairRefill0 { get; } = DoorDefinitions.Find(nameof(UpperNorfairRefill0));
+    /// <summary>The door from the Upper Norfair Refill room to the Acid Snakes Tunnel room.</summary>
+    public static DoorDefinition UpperNorfairRefillToAcidSnakesTunnel { get; } = DoorDefinitions.Find(nameof(UpperNorfairRefillToAcidSnakesTunnel));
 
-    /// <summary>The Upper Norfair Refill room's door 1.</summary>
-    public static DoorDefinition UpperNorfairRefill1 { get; } = DoorDefinitions.Find(nameof(UpperNorfairRefill1));
+    /// <summary>The door from the Upper Norfair Refill room to the Spiky Acid Snakes Tunnel room.</summary>
+    public static DoorDefinition UpperNorfairRefillToSpikyAcidSnakesTunnel { get; } = DoorDefinitions.Find(nameof(UpperNorfairRefillToSpikyAcidSnakesTunnel));
 
-    /// <summary>The Purple Farming room's door 0.</summary>
-    public static DoorDefinition PurpleFarming0 { get; } = DoorDefinitions.Find(nameof(PurpleFarming0));
+    /// <summary>The door from the Purple Farming room to the Purple Shaft room.</summary>
+    public static DoorDefinition PurpleFarmingToPurpleShaft { get; } = DoorDefinitions.Find(nameof(PurpleFarmingToPurpleShaft));
 
-    /// <summary>The Bat Cave room's door 0.</summary>
-    public static DoorDefinition BatCave0 { get; } = DoorDefinitions.Find(nameof(BatCave0));
+    /// <summary>The door from the Bat Cave room to the Bubble Mountain room.</summary>
+    public static DoorDefinition BatCaveToBubbleMountain { get; } = DoorDefinitions.Find(nameof(BatCaveToBubbleMountain));
 
-    /// <summary>The Bat Cave room's door 1.</summary>
-    public static DoorDefinition BatCave1 { get; } = DoorDefinitions.Find(nameof(BatCave1));
+    /// <summary>The door from the Bat Cave room to the Speed Booster Hall room.</summary>
+    public static DoorDefinition BatCaveToSpeedBoosterHall { get; } = DoorDefinitions.Find(nameof(BatCaveToSpeedBoosterHall));
 
-    /// <summary>The Norfair Map room's door 0.</summary>
-    public static DoorDefinition NorfairMap0 { get; } = DoorDefinitions.Find(nameof(NorfairMap0));
+    /// <summary>The door from the Norfair Map room to the Business Center room.</summary>
+    public static DoorDefinition NorfairMapToBusinessCenter { get; } = DoorDefinitions.Find(nameof(NorfairMapToBusinessCenter));
 
-    /// <summary>The Bubble Mountain Save room's door 0.</summary>
-    public static DoorDefinition BubbleMountainSave0 { get; } = DoorDefinitions.Find(nameof(BubbleMountainSave0));
+    /// <summary>The door from the Bubble Mountain Save room to the Bubble Mountain room.</summary>
+    public static DoorDefinition BubbleMountainSaveToBubbleMountain { get; } = DoorDefinitions.Find(nameof(BubbleMountainSaveToBubbleMountain));
 
-    /// <summary>The Frog Speedway room's door 0.</summary>
-    public static DoorDefinition FrogSpeedway0 { get; } = DoorDefinitions.Find(nameof(FrogSpeedway0));
+    /// <summary>The door from the Frog Speedway room to the Frog Save room.</summary>
+    public static DoorDefinition FrogSpeedwayToFrogSave { get; } = DoorDefinitions.Find(nameof(FrogSpeedwayToFrogSave));
 
-    /// <summary>The Frog Speedway room's door 1.</summary>
-    public static DoorDefinition FrogSpeedway1 { get; } = DoorDefinitions.Find(nameof(FrogSpeedway1));
+    /// <summary>The door from the Frog Speedway room to the Upper Norfair Farming room.</summary>
+    public static DoorDefinition FrogSpeedwayToUpperNorfairFarming { get; } = DoorDefinitions.Find(nameof(FrogSpeedwayToUpperNorfairFarming));
 
-    /// <summary>The Red Pirate Shaft room's door 0.</summary>
-    public static DoorDefinition RedPirateShaft0 { get; } = DoorDefinitions.Find(nameof(RedPirateShaft0));
+    /// <summary>The door from the Red Pirate Shaft room to the Upper Norfair Farming room.</summary>
+    public static DoorDefinition RedPirateShaftToUpperNorfairFarming { get; } = DoorDefinitions.Find(nameof(RedPirateShaftToUpperNorfairFarming));
 
-    /// <summary>The Red Pirate Shaft room's door 1.</summary>
-    public static DoorDefinition RedPirateShaft1 { get; } = DoorDefinitions.Find(nameof(RedPirateShaft1));
+    /// <summary>The door from the Red Pirate Shaft room to the Acid Snakes Tunnel room.</summary>
+    public static DoorDefinition RedPirateShaftToAcidSnakesTunnel { get; } = DoorDefinitions.Find(nameof(RedPirateShaftToAcidSnakesTunnel));
 
-    /// <summary>The Frog Save room's door 0.</summary>
-    public static DoorDefinition FrogSave0 { get; } = DoorDefinitions.Find(nameof(FrogSave0));
+    /// <summary>The door from the Frog Save room to the Frog Speedway room.</summary>
+    public static DoorDefinition FrogSaveToFrogSpeedway { get; } = DoorDefinitions.Find(nameof(FrogSaveToFrogSpeedway));
 
-    /// <summary>The Frog Save room's door 1.</summary>
-    public static DoorDefinition FrogSave1 { get; } = DoorDefinitions.Find(nameof(FrogSave1));
+    /// <summary>The door from the Frog Save room to the Business Center room.</summary>
+    public static DoorDefinition FrogSaveToBusinessCenter { get; } = DoorDefinitions.Find(nameof(FrogSaveToBusinessCenter));
 
-    /// <summary>The Crocomire Save room's door 0.</summary>
-    public static DoorDefinition CrocomireSave0 { get; } = DoorDefinitions.Find(nameof(CrocomireSave0));
+    /// <summary>The door from the Crocomire Save room to the Crocomire Speedway room.</summary>
+    public static DoorDefinition CrocomireSaveToCrocomireSpeedway { get; } = DoorDefinitions.Find(nameof(CrocomireSaveToCrocomireSpeedway));
 
-    /// <summary>The Lower Norfair Elevator Save room's door 0.</summary>
-    public static DoorDefinition LNElevSave0 { get; } = DoorDefinitions.Find(nameof(LNElevSave0));
+    /// <summary>The door from the LN Elev Save room to the Lower Norfair Elev room.</summary>
+    public static DoorDefinition LNElevSaveToLowerNorfairElev { get; } = DoorDefinitions.Find(nameof(LNElevSaveToLowerNorfairElev));
 
-    /// <summary>The Acid Statue room's door 0.</summary>
-    public static DoorDefinition AcidStatue0 { get; } = DoorDefinitions.Find(nameof(AcidStatue0));
+    /// <summary>The door from the Acid Statue room to the Golden Torizo room.</summary>
+    public static DoorDefinition AcidStatueToGoldenTorizo { get; } = DoorDefinitions.Find(nameof(AcidStatueToGoldenTorizo));
 
-    /// <summary>The Acid Statue room's door 1.</summary>
-    public static DoorDefinition AcidStatue1 { get; } = DoorDefinitions.Find(nameof(AcidStatue1));
+    /// <summary>The door from the Acid Statue room to the Main Hall room.</summary>
+    public static DoorDefinition AcidStatueToMainHall { get; } = DoorDefinitions.Find(nameof(AcidStatueToMainHall));
 
-    /// <summary>The Main Hall room's door 0.</summary>
-    public static DoorDefinition MainHall0 { get; } = DoorDefinitions.Find(nameof(MainHall0));
+    /// <summary>The door from the Main Hall room to the Acid Statue room.</summary>
+    public static DoorDefinition MainHallToAcidStatue { get; } = DoorDefinitions.Find(nameof(MainHallToAcidStatue));
 
-    /// <summary>The Main Hall room's door 1.</summary>
-    public static DoorDefinition MainHall1 { get; } = DoorDefinitions.Find(nameof(MainHall1));
+    /// <summary>The door from the Main Hall room to the Fast Pillars Setup room.</summary>
+    public static DoorDefinition MainHallToFastPillarsSetup { get; } = DoorDefinitions.Find(nameof(MainHallToFastPillarsSetup));
 
-    /// <summary>The Main Hall room's door 2.</summary>
-    public static DoorDefinition MainHall2 { get; } = DoorDefinitions.Find(nameof(MainHall2));
+    /// <summary>The door from the Main Hall room to the Lower Norfair Elev room.</summary>
+    public static DoorDefinition MainHallToLowerNorfairElev { get; } = DoorDefinitions.Find(nameof(MainHallToLowerNorfairElev));
 
-    /// <summary>The Golden Torizo room's door 0.</summary>
-    public static DoorDefinition GoldenTorizo0 { get; } = DoorDefinitions.Find(nameof(GoldenTorizo0));
+    /// <summary>The door from the Golden Torizo room to the Acid Statue room.</summary>
+    public static DoorDefinition GoldenTorizoToAcidStatue { get; } = DoorDefinitions.Find(nameof(GoldenTorizoToAcidStatue));
 
-    /// <summary>The Golden Torizo room's door 1.</summary>
-    public static DoorDefinition GoldenTorizo1 { get; } = DoorDefinitions.Find(nameof(GoldenTorizo1));
+    /// <summary>The door from the Golden Torizo room to the Screw Attack room.</summary>
+    public static DoorDefinition GoldenTorizoToScrewAttack { get; } = DoorDefinitions.Find(nameof(GoldenTorizoToScrewAttack));
 
-    /// <summary>The Fast Ripper room's door 0.</summary>
-    public static DoorDefinition FastRipper0 { get; } = DoorDefinitions.Find(nameof(FastRipper0));
+    /// <summary>The door from the Fast Ripper room to the Screw Attack room.</summary>
+    public static DoorDefinition FastRipperToScrewAttack { get; } = DoorDefinitions.Find(nameof(FastRipperToScrewAttack));
 
-    /// <summary>The Fast Ripper room's door 1.</summary>
-    public static DoorDefinition FastRipper1 { get; } = DoorDefinitions.Find(nameof(FastRipper1));
+    /// <summary>The door from the Fast Ripper room to the Fast Pillars Setup room.</summary>
+    public static DoorDefinition FastRipperToFastPillarsSetup { get; } = DoorDefinitions.Find(nameof(FastRipperToFastPillarsSetup));
 
-    /// <summary>The Golden Torizo Energy Refill room's door 0.</summary>
-    public static DoorDefinition GTEnergyRefill0 { get; } = DoorDefinitions.Find(nameof(GTEnergyRefill0));
+    /// <summary>The door from the GT Energy Refill room to the Screw Attack room.</summary>
+    public static DoorDefinition GTEnergyRefillToScrewAttack { get; } = DoorDefinitions.Find(nameof(GTEnergyRefillToScrewAttack));
 
-    /// <summary>The Ridley room's door 0.</summary>
-    public static DoorDefinition Ridley0 { get; } = DoorDefinitions.Find(nameof(Ridley0));
+    /// <summary>The door from the Ridley room to the Ridley E Tank room.</summary>
+    public static DoorDefinition RidleyToRidleyETank { get; } = DoorDefinitions.Find(nameof(RidleyToRidleyETank));
 
-    /// <summary>The Ridley room's door 1.</summary>
-    public static DoorDefinition Ridley1 { get; } = DoorDefinitions.Find(nameof(Ridley1));
+    /// <summary>The door from the Ridley room to the LN Farming room.</summary>
+    public static DoorDefinition RidleyToLNFarming { get; } = DoorDefinitions.Find(nameof(RidleyToLNFarming));
 
-    /// <summary>The Lower Norfair Farming room's door 0.</summary>
-    public static DoorDefinition LNFarming0 { get; } = DoorDefinitions.Find(nameof(LNFarming0));
+    /// <summary>The door from the LN Farming room to the Ridley room.</summary>
+    public static DoorDefinition LNFarmingToRidley { get; } = DoorDefinitions.Find(nameof(LNFarmingToRidley));
 
-    /// <summary>The Lower Norfair Farming room's door 1.</summary>
-    public static DoorDefinition LNFarming1 { get; } = DoorDefinitions.Find(nameof(LNFarming1));
+    /// <summary>The door from the LN Farming room to the Plowerhouse room.</summary>
+    public static DoorDefinition LNFarmingToPlowerhouse { get; } = DoorDefinitions.Find(nameof(LNFarmingToPlowerhouse));
 
-    /// <summary>The Fast Pillars Setup room's door 0.</summary>
-    public static DoorDefinition FastPillarsSetup0 { get; } = DoorDefinitions.Find(nameof(FastPillarsSetup0));
+    /// <summary>The door from the Fast Pillars Setup room to the Main Hall room.</summary>
+    public static DoorDefinition FastPillarsSetupToMainHall { get; } = DoorDefinitions.Find(nameof(FastPillarsSetupToMainHall));
 
-    /// <summary>The Fast Pillars Setup room's door 1.</summary>
-    public static DoorDefinition FastPillarsSetup1 { get; } = DoorDefinitions.Find(nameof(FastPillarsSetup1));
+    /// <summary>The door from the Fast Pillars Setup room to the Mickey Mouse room.</summary>
+    public static DoorDefinition FastPillarsSetupToMickeyMouse { get; } = DoorDefinitions.Find(nameof(FastPillarsSetupToMickeyMouse));
 
-    /// <summary>The Fast Pillars Setup room's door 2.</summary>
-    public static DoorDefinition FastPillarsSetup2 { get; } = DoorDefinitions.Find(nameof(FastPillarsSetup2));
+    /// <summary>The door from the Fast Pillars Setup room to the Main Hall room: a second door the room lists to the Main Hall, leading where the first does.</summary>
+    public static DoorDefinition FastPillarsSetupToMainHallAlternate { get; } = DoorDefinitions.Find(nameof(FastPillarsSetupToMainHallAlternate));
 
-    /// <summary>The Fast Pillars Setup room's door 3.</summary>
-    public static DoorDefinition FastPillarsSetup3 { get; } = DoorDefinitions.Find(nameof(FastPillarsSetup3));
+    /// <summary>The door from the Fast Pillars Setup room to the Fast Ripper room.</summary>
+    public static DoorDefinition FastPillarsSetupToFastRipper { get; } = DoorDefinitions.Find(nameof(FastPillarsSetupToFastRipper));
 
-    /// <summary>The Fast Pillars Setup room's door 4.</summary>
-    public static DoorDefinition FastPillarsSetup4 { get; } = DoorDefinitions.Find(nameof(FastPillarsSetup4));
+    /// <summary>The door from the Fast Pillars Setup room to the Pillar room.</summary>
+    public static DoorDefinition FastPillarsSetupToPillar { get; } = DoorDefinitions.Find(nameof(FastPillarsSetupToPillar));
 
-    /// <summary>The Mickey Mouse room's door 0.</summary>
-    public static DoorDefinition MickeyMouse0 { get; } = DoorDefinitions.Find(nameof(MickeyMouse0));
+    /// <summary>The door from the Mickey Mouse room to the Fast Pillars Setup room.</summary>
+    public static DoorDefinition MickeyMouseToFastPillarsSetup { get; } = DoorDefinitions.Find(nameof(MickeyMouseToFastPillarsSetup));
 
-    /// <summary>The Mickey Mouse room's door 1.</summary>
-    public static DoorDefinition MickeyMouse1 { get; } = DoorDefinitions.Find(nameof(MickeyMouse1));
+    /// <summary>The door from the Mickey Mouse room to the Worst Room In The Game room.</summary>
+    public static DoorDefinition MickeyMouseToWorstRoomInTheGame { get; } = DoorDefinitions.Find(nameof(MickeyMouseToWorstRoomInTheGame));
 
-    /// <summary>The Pillar room's door 0.</summary>
-    public static DoorDefinition Pillar0 { get; } = DoorDefinitions.Find(nameof(Pillar0));
+    /// <summary>The door from the Pillar room to the Fast Pillars Setup room.</summary>
+    public static DoorDefinition PillarToFastPillarsSetup { get; } = DoorDefinitions.Find(nameof(PillarToFastPillarsSetup));
 
-    /// <summary>The Pillar room's door 1.</summary>
-    public static DoorDefinition Pillar1 { get; } = DoorDefinitions.Find(nameof(Pillar1));
+    /// <summary>The door from the Pillar room to the Worst Room In The Game room.</summary>
+    public static DoorDefinition PillarToWorstRoomInTheGame { get; } = DoorDefinitions.Find(nameof(PillarToWorstRoomInTheGame));
 
-    /// <summary>The Plowerhouse room's door 0.</summary>
-    public static DoorDefinition Plowerhouse0 { get; } = DoorDefinitions.Find(nameof(Plowerhouse0));
+    /// <summary>The door from the Plowerhouse room to the LN Farming room.</summary>
+    public static DoorDefinition PlowerhouseToLNFarming { get; } = DoorDefinitions.Find(nameof(PlowerhouseToLNFarming));
 
-    /// <summary>The Plowerhouse room's door 1.</summary>
-    public static DoorDefinition Plowerhouse1 { get; } = DoorDefinitions.Find(nameof(Plowerhouse1));
+    /// <summary>The door from the Plowerhouse room to the Metal Pirates room.</summary>
+    public static DoorDefinition PlowerhouseToMetalPirates { get; } = DoorDefinitions.Find(nameof(PlowerhouseToMetalPirates));
 
-    /// <summary>The Worst Room in the Game's door 0.</summary>
-    public static DoorDefinition WorstRoomInTheGame0 { get; } = DoorDefinitions.Find(nameof(WorstRoomInTheGame0));
+    /// <summary>The door from the Worst Room In The Game room to the Mickey Mouse room.</summary>
+    public static DoorDefinition WorstRoomInTheGameToMickeyMouse { get; } = DoorDefinitions.Find(nameof(WorstRoomInTheGameToMickeyMouse));
 
-    /// <summary>The Worst Room in the Game's door 1.</summary>
-    public static DoorDefinition WorstRoomInTheGame1 { get; } = DoorDefinitions.Find(nameof(WorstRoomInTheGame1));
+    /// <summary>The door from the Worst Room In The Game room to the Amphitheatre room.</summary>
+    public static DoorDefinition WorstRoomInTheGameToAmphitheatre { get; } = DoorDefinitions.Find(nameof(WorstRoomInTheGameToAmphitheatre));
 
-    /// <summary>The Worst Room in the Game's door 2.</summary>
-    public static DoorDefinition WorstRoomInTheGame2 { get; } = DoorDefinitions.Find(nameof(WorstRoomInTheGame2));
+    /// <summary>The door from the Worst Room In The Game room to the Pillar room.</summary>
+    public static DoorDefinition WorstRoomInTheGameToPillar { get; } = DoorDefinitions.Find(nameof(WorstRoomInTheGameToPillar));
 
-    /// <summary>The Amphitheatre room's door 0.</summary>
-    public static DoorDefinition Amphitheatre0 { get; } = DoorDefinitions.Find(nameof(Amphitheatre0));
+    /// <summary>The door from the Amphitheatre room to the Worst Room In The Game room.</summary>
+    public static DoorDefinition AmphitheatreToWorstRoomInTheGame { get; } = DoorDefinitions.Find(nameof(AmphitheatreToWorstRoomInTheGame));
 
-    /// <summary>The Amphitheatre room's door 1.</summary>
-    public static DoorDefinition Amphitheatre1 { get; } = DoorDefinitions.Find(nameof(Amphitheatre1));
+    /// <summary>The door from the Amphitheatre room to the Red Kihunter Shaft room.</summary>
+    public static DoorDefinition AmphitheatreToRedKihunterShaft { get; } = DoorDefinitions.Find(nameof(AmphitheatreToRedKihunterShaft));
 
-    /// <summary>The Lower Norfair Spring Ball Maze room's door 0.</summary>
-    public static DoorDefinition LNSpringBallMaze0 { get; } = DoorDefinitions.Find(nameof(LNSpringBallMaze0));
+    /// <summary>The door from the LN Spring Ball Maze room to the Three Musketeers room.</summary>
+    public static DoorDefinition LNSpringBallMazeToThreeMusketeers { get; } = DoorDefinitions.Find(nameof(LNSpringBallMazeToThreeMusketeers));
 
-    /// <summary>The Lower Norfair Spring Ball Maze room's door 1.</summary>
-    public static DoorDefinition LNSpringBallMaze1 { get; } = DoorDefinitions.Find(nameof(LNSpringBallMaze1));
+    /// <summary>The door from the LN Spring Ball Maze room to the LN Fireflea room.</summary>
+    public static DoorDefinition LNSpringBallMazeToLNFireflea { get; } = DoorDefinitions.Find(nameof(LNSpringBallMazeToLNFireflea));
 
-    /// <summary>The Lower Norfair Spring Ball Maze room's door 2.</summary>
-    public static DoorDefinition LNSpringBallMaze2 { get; } = DoorDefinitions.Find(nameof(LNSpringBallMaze2));
+    /// <summary>The door from the LN Spring Ball Maze room to the LN Escape Power Bombs room.</summary>
+    public static DoorDefinition LNSpringBallMazeToLNEscapePowerBombs { get; } = DoorDefinitions.Find(nameof(LNSpringBallMazeToLNEscapePowerBombs));
 
-    /// <summary>The Lower Norfair Escape Power Bombs room's door 0.</summary>
-    public static DoorDefinition LNEscapePowerBombs0 { get; } = DoorDefinitions.Find(nameof(LNEscapePowerBombs0));
+    /// <summary>The door from the LN Escape Power Bombs room to the LN Fireflea room.</summary>
+    public static DoorDefinition LNEscapePowerBombsToLNFireflea { get; } = DoorDefinitions.Find(nameof(LNEscapePowerBombsToLNFireflea));
 
-    /// <summary>The Lower Norfair Escape Power Bombs room's door 1.</summary>
-    public static DoorDefinition LNEscapePowerBombs1 { get; } = DoorDefinitions.Find(nameof(LNEscapePowerBombs1));
+    /// <summary>The door from the LN Escape Power Bombs room to the LN Spring Ball Maze room.</summary>
+    public static DoorDefinition LNEscapePowerBombsToLNSpringBallMaze { get; } = DoorDefinitions.Find(nameof(LNEscapePowerBombsToLNSpringBallMaze));
 
-    /// <summary>The Red Kihunter Shaft room's door 0.</summary>
-    public static DoorDefinition RedKihunterShaft0 { get; } = DoorDefinitions.Find(nameof(RedKihunterShaft0));
+    /// <summary>The door from the Red Kihunter Shaft room to the Wasteland room.</summary>
+    public static DoorDefinition RedKihunterShaftToWasteland { get; } = DoorDefinitions.Find(nameof(RedKihunterShaftToWasteland));
 
-    /// <summary>The Red Kihunter Shaft room's door 1.</summary>
-    public static DoorDefinition RedKihunterShaft1 { get; } = DoorDefinitions.Find(nameof(RedKihunterShaft1));
+    /// <summary>The door from the Red Kihunter Shaft room to the Amphitheatre room.</summary>
+    public static DoorDefinition RedKihunterShaftToAmphitheatre { get; } = DoorDefinitions.Find(nameof(RedKihunterShaftToAmphitheatre));
 
-    /// <summary>The Red Kihunter Shaft room's door 2.</summary>
-    public static DoorDefinition RedKihunterShaft2 { get; } = DoorDefinitions.Find(nameof(RedKihunterShaft2));
+    /// <summary>The door from the Red Kihunter Shaft room to the LN Fireflea room.</summary>
+    public static DoorDefinition RedKihunterShaftToLNFireflea { get; } = DoorDefinitions.Find(nameof(RedKihunterShaftToLNFireflea));
 
-    /// <summary>The Red Kihunter Shaft room's door 3.</summary>
-    public static DoorDefinition RedKihunterShaft3 { get; } = DoorDefinitions.Find(nameof(RedKihunterShaft3));
+    /// <summary>The door from the Red Kihunter Shaft room to the LN Save room.</summary>
+    public static DoorDefinition RedKihunterShaftToLNSave { get; } = DoorDefinitions.Find(nameof(RedKihunterShaftToLNSave));
 
-    /// <summary>The Wasteland room's door 0.</summary>
-    public static DoorDefinition Wasteland0 { get; } = DoorDefinitions.Find(nameof(Wasteland0));
+    /// <summary>The door from the Wasteland room to the Metal Pirates room.</summary>
+    public static DoorDefinition WastelandToMetalPirates { get; } = DoorDefinitions.Find(nameof(WastelandToMetalPirates));
 
-    /// <summary>The Wasteland room's door 1.</summary>
-    public static DoorDefinition Wasteland1 { get; } = DoorDefinitions.Find(nameof(Wasteland1));
+    /// <summary>The door from the Wasteland room to the Red Kihunter Shaft room.</summary>
+    public static DoorDefinition WastelandToRedKihunterShaft { get; } = DoorDefinitions.Find(nameof(WastelandToRedKihunterShaft));
 
-    /// <summary>The Metal Pirates room's door 0.</summary>
-    public static DoorDefinition MetalPirates0 { get; } = DoorDefinitions.Find(nameof(MetalPirates0));
+    /// <summary>The door from the Metal Pirates room to the Plowerhouse room.</summary>
+    public static DoorDefinition MetalPiratesToPlowerhouse { get; } = DoorDefinitions.Find(nameof(MetalPiratesToPlowerhouse));
 
-    /// <summary>The Metal Pirates room's door 1.</summary>
-    public static DoorDefinition MetalPirates1 { get; } = DoorDefinitions.Find(nameof(MetalPirates1));
+    /// <summary>The door from the Metal Pirates room to the Wasteland room.</summary>
+    public static DoorDefinition MetalPiratesToWasteland { get; } = DoorDefinitions.Find(nameof(MetalPiratesToWasteland));
 
-    /// <summary>The Three Musketeers room's door 0.</summary>
-    public static DoorDefinition ThreeMusketeers0 { get; } = DoorDefinitions.Find(nameof(ThreeMusketeers0));
+    /// <summary>The door from the Three Musketeers room to the Single Chamber room.</summary>
+    public static DoorDefinition ThreeMusketeersToSingleChamber { get; } = DoorDefinitions.Find(nameof(ThreeMusketeersToSingleChamber));
 
-    /// <summary>The Three Musketeers room's door 1.</summary>
-    public static DoorDefinition ThreeMusketeers1 { get; } = DoorDefinitions.Find(nameof(ThreeMusketeers1));
+    /// <summary>The door from the Three Musketeers room to the LN Spring Ball Maze room.</summary>
+    public static DoorDefinition ThreeMusketeersToLNSpringBallMaze { get; } = DoorDefinitions.Find(nameof(ThreeMusketeersToLNSpringBallMaze));
 
-    /// <summary>The Ridley Energy Tank room's door 0.</summary>
-    public static DoorDefinition RidleyETank0 { get; } = DoorDefinitions.Find(nameof(RidleyETank0));
+    /// <summary>The door from the Ridley E Tank room to the Ridley room.</summary>
+    public static DoorDefinition RidleyETankToRidley { get; } = DoorDefinitions.Find(nameof(RidleyETankToRidley));
 
-    /// <summary>The Screw Attack room's door 0.</summary>
-    public static DoorDefinition ScrewAttack0 { get; } = DoorDefinitions.Find(nameof(ScrewAttack0));
+    /// <summary>The door from the Screw Attack room to the Fast Ripper room.</summary>
+    public static DoorDefinition ScrewAttackToFastRipper { get; } = DoorDefinitions.Find(nameof(ScrewAttackToFastRipper));
 
-    /// <summary>The Screw Attack room's door 1.</summary>
-    public static DoorDefinition ScrewAttack1 { get; } = DoorDefinitions.Find(nameof(ScrewAttack1));
+    /// <summary>The door from the Screw Attack room to the GT Energy Refill room.</summary>
+    public static DoorDefinition ScrewAttackToGTEnergyRefill { get; } = DoorDefinitions.Find(nameof(ScrewAttackToGTEnergyRefill));
 
-    /// <summary>The Screw Attack room's door 2.</summary>
-    public static DoorDefinition ScrewAttack2 { get; } = DoorDefinitions.Find(nameof(ScrewAttack2));
+    /// <summary>The door from the Screw Attack room to the Golden Torizo room.</summary>
+    public static DoorDefinition ScrewAttackToGoldenTorizo { get; } = DoorDefinitions.Find(nameof(ScrewAttackToGoldenTorizo));
 
-    /// <summary>The Lower Norfair Fireflea room's door 0.</summary>
-    public static DoorDefinition LNFireflea0 { get; } = DoorDefinitions.Find(nameof(LNFireflea0));
+    /// <summary>The door from the LN Fireflea room to the LN Spring Ball Maze room.</summary>
+    public static DoorDefinition LNFirefleaToLNSpringBallMaze { get; } = DoorDefinitions.Find(nameof(LNFirefleaToLNSpringBallMaze));
 
-    /// <summary>The Lower Norfair Fireflea room's door 1.</summary>
-    public static DoorDefinition LNFireflea1 { get; } = DoorDefinitions.Find(nameof(LNFireflea1));
+    /// <summary>The door from the LN Fireflea room to the LN Escape Power Bombs room.</summary>
+    public static DoorDefinition LNFirefleaToLNEscapePowerBombs { get; } = DoorDefinitions.Find(nameof(LNFirefleaToLNEscapePowerBombs));
 
-    /// <summary>The Lower Norfair Fireflea room's door 2.</summary>
-    public static DoorDefinition LNFireflea2 { get; } = DoorDefinitions.Find(nameof(LNFireflea2));
+    /// <summary>The door from the LN Fireflea room to the Red Kihunter Shaft room.</summary>
+    public static DoorDefinition LNFirefleaToRedKihunterShaft { get; } = DoorDefinitions.Find(nameof(LNFirefleaToRedKihunterShaft));
 
-    /// <summary>The Lower Norfair Save room's door 0.</summary>
-    public static DoorDefinition LNSave0 { get; } = DoorDefinitions.Find(nameof(LNSave0));
+    /// <summary>The door from the LN Save room to the Red Kihunter Shaft room.</summary>
+    public static DoorDefinition LNSaveToRedKihunterShaft { get; } = DoorDefinitions.Find(nameof(LNSaveToRedKihunterShaft));
 }

@@ -41,7 +41,7 @@ public static class GitHubErrorReporterSmokeTest
                 Phase: "Gameplay",
                 ControllerInput: ControllerButton.A,
                 Room: "Climb",
-                Door: "Flyway0",
+                Door: "FlywayToParlor",
                 InputRecordingPath: "fixture.smrec",
                 FrameDiagnostics: frameDiagnostics);
             Require(GitHubErrorReporter.CreateFingerprint(repeated, context) ==
@@ -86,7 +86,7 @@ public static class GitHubErrorReporterSmokeTest
                 StringComparison.Ordinal),
             "Created issue body omitted its machine-readable fingerprint marker.");
         Require(created.Body.Contains("- Room: Climb", StringComparison.Ordinal) &&
-                created.Body.Contains("- Door: Flyway0", StringComparison.Ordinal) &&
+                created.Body.Contains("- Door: FlywayToParlor", StringComparison.Ordinal) &&
                 created.Body.Contains(repeated.ToString(), StringComparison.Ordinal),
             "Created issue omitted frame context or the complete exception.");
         Require(created.Body.Contains(frameDiagnostics, StringComparison.Ordinal),

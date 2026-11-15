@@ -215,6 +215,28 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior LinkingDoor(int doorLink) =>
         new(DoorWrites.Carrying(Ensure.BetweenInclusive(0, LastDoorLink, doorLink)));
 
+    /// <summary>The behaviour of a door block of <paramref name="room"/> that leads through <paramref name="door"/>.</summary>
+    /// <param name="room">The room the door block stands in.</param>
+    /// <param name="door">One of the room's doors.</param>
+    /// <exception cref="ArgumentException">The room's door list does not hold the door exactly once.</exception>
+    public static RoomBlockBehavior LinkingDoor(RoomDefinition room, DoorDefinition door)
+    {
+        IReadOnlyList<DoorListEntry> list = RoomDoorListDefinitions.ByRoom[Ensure.NotNull(room)];
+        DoorListEntry entry = DoorListEntry.Physical(door);
+        int link = -1;
+        for (int place = 0; place < list.Count; place++)
+        {
+            if (list[place] != entry)
+                continue;
+            if (link >= 0)
+                throw new ArgumentException($"{room.Name}'s door list holds {door.Name} twice.", nameof(door));
+            link = place;
+        }
+        return link >= 0
+            ? LinkingDoor(link)
+            : throw new ArgumentException($"{room.Name}'s door list does not hold {door.Name}.", nameof(door));
+    }
+
     /// <summary>
     /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air
     /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and

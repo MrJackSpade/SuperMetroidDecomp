@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public static partial class LibraryBackgroundDefinitions
 {
     /// <summary>The ScrollingSkyLandingSite library background.</summary>
-    public static LibraryBackground ScrollingSkyLandingSite { get; } = new(nameof(ScrollingSkyLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntrance0, CrateriaDoorDefinitions.Parlor1, CrateriaDoorDefinitions.CrateriaPowerBombs0, CrateriaDoorDefinitions.CrateriaTube0, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.LandingSiteDemoEntry]);
+    public static LibraryBackground ScrollingSkyLandingSite { get; } = new(nameof(ScrollingSkyLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntranceToLandingSite, CrateriaDoorDefinitions.ParlorToLandingSite, CrateriaDoorDefinitions.CrateriaPowerBombsToLandingSite, CrateriaDoorDefinitions.CrateriaTubeToLandingSite, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.LandingSiteDemoEntry]);
 
     /// <summary>The ScrollingSkyWreckedShipEntrance library background.</summary>
-    public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new(nameof(ScrollingSkyWreckedShipEntrance), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPath0, CrateriaDoorDefinitions.Moat1, WreckedShipDoorDefinitions.BowlingAlley0, WreckedShipDoorDefinitions.WreckedShipEntrance0, WreckedShipDoorDefinitions.Attic2, WreckedShipDoorDefinitions.GravitySuit0]);
+    public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new(nameof(ScrollingSkyWreckedShipEntrance), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean, CrateriaDoorDefinitions.MoatToWestOcean, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean, WreckedShipDoorDefinitions.WreckedShipEntranceToWestOcean, WreckedShipDoorDefinitions.AtticToWestOcean, WreckedShipDoorDefinitions.GravitySuitToWestOcean]);
 
     /// <summary>The ScrollingSkyEastOcean library background.</summary>
-    public static LibraryBackground ScrollingSkyEastOcean { get; } = new(nameof(ScrollingSkyEastOcean), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagos0, WreckedShipDoorDefinitions.ElectricDeath0]);
+    public static LibraryBackground ScrollingSkyEastOcean { get; } = new(nameof(ScrollingSkyEastOcean), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagosToEastOcean, WreckedShipDoorDefinitions.ElectricDeathToEastOcean]);
 
     /// <summary>The ScrollingSkyBowlingAlley library background.</summary>
     public static LibraryBackground ScrollingSkyBowlingAlley { get; } = new(nameof(ScrollingSkyBowlingAlley), LibraryBackgroundView.SkyRows, []);

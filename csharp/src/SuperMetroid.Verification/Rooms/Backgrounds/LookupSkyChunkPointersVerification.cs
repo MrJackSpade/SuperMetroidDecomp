@@ -73,7 +73,7 @@ internal static class LookupSkyChunkPointersVerification
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(
                 () => ScrollingSkyChunks.PageOf((ScrollingSky)invalidTable, chunk), "Unknown sky table rejects first");
-            AssertEqual("table", exception.ParamName, "Table rejection precedes chunk handling");
+            AssertEqual("sky", exception.ParamName, "Sky rejection precedes chunk handling");
         }
 
         // Each 8-pixel row reads its chunk's page at the row's offset (#1347), every row from its own table's entry.

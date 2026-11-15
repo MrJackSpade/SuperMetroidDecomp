@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// </summary>
 /// <remarks>
 /// <c>Duration</c> is the number of demo frames the scene plays before the attract sequence moves on.
-/// <c>RoomSetup</c> is what the scene does to its room once it has loaded, or null when it leaves the room as loaded.
+/// <paramref name="RoomSetup"/> is what the scene does to its room once it has loaded, or null when it leaves the room as loaded.
 /// <paramref name="CameraPosition"/> is the initial camera top-left; <paramref name="SamusOffset"/> places Samus relative to
 /// the camera, X from the screen's horizontal centre and Y from its top.
 /// </remarks>

@@ -28,7 +28,7 @@ internal static class EncounterLooksVerification
 
         // A Torizo's artwork look names its encounter look; the look shown last is the look shown.
         EncounterLook eyes = TorizoArtworkLook.EyesLightingUp1.Of(EncounterArtwork.BombTorizo);
-        EncounterLook gut = TorizoArtworkLook.GutBlowingUp1.Of(EncounterArtwork.BombTorizo);
+        EncounterLook gut = TorizoArtworkLook.GutBlownUp.Of(EncounterArtwork.BombTorizo);
         looks.Show(eyes);
         looks.Show(gut);
         AssertTrue(looks.Shows(gut) && !looks.Shows(eyes), "a Torizo shows the look it named last");

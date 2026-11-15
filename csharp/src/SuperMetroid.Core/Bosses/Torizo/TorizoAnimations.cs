@@ -23,8 +23,8 @@ internal static class TorizoAnimations
     /// <summary>How each animation plays its own steps.</summary>
     internal static IReadOnlyDictionary<TorizoAnimation, Animation<TorizoAnimation>> StartingAt { get; } = new Dictionary<TorizoAnimation, Animation<TorizoAnimation>>
     {
-        [A.BombTorizoGutBlowingUp] = new([new(A.BombTorizoGutBlowingUp, 0, 12, 1)], AnimationEnd.Holds),
-        [A.BombTorizoFaceBlowingUp] = new([new(A.BombTorizoFaceBlowingUp, 0, 18, 1)], AnimationEnd.Holds),
+        [A.BombTorizoGutBlowingUp] = new([new(A.BombTorizoGutBlowingUp, 0, 9, 1)], AnimationEnd.Holds),
+        [A.BombTorizoFaceBlowingUp] = new([new(A.BombTorizoFaceBlowingUp, 0, 11, 1)], AnimationEnd.Holds),
         [A.Dying] = new([new(A.Dying, 0, 2, 1), new(A.Dying, 2, 3, 8), new(A.Dying, 5, 1, 1), new(A.Dying, 6, 21, 14), new(A.Dying, 27, 2, 1)], AnimationEnd.Stops),
         [A.BombTorizoDormant] = new([new(A.BombTorizoDormant, 0, 4, 1)], AnimationEnd.Holds),
         [A.BombTorizoAwakening] = new([new(A.BombTorizoAwakening, 0, 10, 1), new(A.BombTorizoAwakening, 10, 8, 2), new(A.BombTorizoAwakening, 18, 13, 1), new(A.BombTorizoAwakening, 31, 2, 16), new(A.BombTorizoAwakening, 33, 3, 1), new(A.BombTorizoAwakening, 36, 20, 1), new(A.BombTorizoAwakening, 56, 20, 1)], AnimationEnd.LoopsFrom(5)),
@@ -87,7 +87,7 @@ internal static class TorizoAnimations
         [A.GoldenFacingRightCatchingSuperMissileLeftLegForward] = new([new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 0, 23, 1), new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 23, 21, 1), new(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, 44, 20, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenFacingLeftSittingDownAttack] = new([new(A.GoldenFacingLeftSittingDownAttack, 0, 26, 1), new(A.GoldenFacingLeftSittingDownAttack, 26, 21, 1), new(A.GoldenFacingLeftSittingDownAttack, 47, 20, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenFacingRightSittingDownAttack] = new([new(A.GoldenFacingRightSittingDownAttack, 0, 26, 1), new(A.GoldenFacingRightSittingDownAttack, 26, 21, 1), new(A.GoldenFacingRightSittingDownAttack, 47, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenReleasingEggs] = new([new(A.GoldenReleasingEggs, 0, 10, 1), new(A.GoldenReleasingEggs, 10, 3, 6), new(A.GoldenReleasingEggs, 13, 15, 1)], AnimationEnd.Holds),
+        [A.GoldenReleasingEggs] = new([new(A.GoldenReleasingEggs, 0, 7, 1), new(A.GoldenReleasingEggs, 7, 3, 6), new(A.GoldenReleasingEggs, 10, 11, 1)], AnimationEnd.Holds),
         [A.GoldenEyeBeamAttack] = new([new(A.GoldenEyeBeamAttack, 0, 4, 1), new(A.GoldenEyeBeamAttack, 4, 1, 1), new(A.GoldenEyeBeamAttack, 5, 2, 4), new(A.GoldenEyeBeamAttack, 7, 1, 1), new(A.GoldenEyeBeamAttack, 8, 8, 2), new(A.GoldenEyeBeamAttack, 16, 6, 1)], AnimationEnd.Holds),
         [A.GoldenDodgeTurningLeft] = new([new(A.GoldenDodgeTurningLeft, 0, 5, 1), new(A.GoldenDodgeTurningLeft, 5, 20, 1), new(A.GoldenDodgeTurningLeft, 25, 21, 1)], AnimationEnd.LoopsFrom(1)),
         [A.GoldenTurningLeft] = new([new(A.GoldenTurningLeft, 0, 3, 1), new(A.GoldenTurningLeft, 3, 20, 1), new(A.GoldenTurningLeft, 23, 21, 1)], AnimationEnd.LoopsFrom(1)),

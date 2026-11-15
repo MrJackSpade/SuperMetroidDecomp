@@ -185,8 +185,8 @@ internal static class EncounterLookUploads
                     Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
                         "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                         $"Crocomire skeleton chunk {chunk}")))],
-            ComposedEncounter.BombTorizo => [Torizo(TorizoLookUploadDefinitions.BombSequence[look - 1], installed)],
-            ComposedEncounter.GoldenTorizo => [Torizo(TorizoLookUploadDefinitions.GoldenSequence[look - 1], installed)],
+            ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[look - 1], installed),
+            ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[look - 1], installed),
             ComposedEncounter.CeresEscape => [.. Enum.GetValues<EscapeTimerTilePage>().Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
             ComposedEncounter.CeresDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
@@ -197,13 +197,12 @@ internal static class EncounterLookUploads
         };
     }
 
-    /// <summary>What Torizo artwork look <paramref name="look"/> copies, where the cartridge copies it.</summary>
-    private static EncounterArtworkUpload Torizo(TorizoArtworkLook look, IInstalledArtworkContent installed)
+    /// <summary>What Torizo artwork look <paramref name="look"/> copies, in the order its copies land, each where the cartridge copies it.</summary>
+    private static EncounterArtworkUpload[] Torizo(TorizoArtworkLook look, IInstalledArtworkContent installed)
     {
         TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork looks require installed artwork.");
-        TorizoLookUpload upload = TorizoLookUploadDefinitions.Uploads[look];
-        return new EncounterArtworkUpload(upload.FirstCharacter,
-            Whole(artwork.Characters(upload.Page, upload.PageByte, upload.ByteCount), upload.ByteCount, $"Torizo artwork look {look}"));
+        return [.. TorizoLookUploadDefinitions.Uploads[look].Select(upload => new EncounterArtworkUpload(upload.FirstCharacter,
+            Whole(artwork.Characters(upload.Page, upload.PageByte, upload.ByteCount), upload.ByteCount, $"Torizo artwork look {look}")))];
     }
 
     /// <summary>Escape timer page <paramref name="page"/>, where the cartridge copies it.</summary>

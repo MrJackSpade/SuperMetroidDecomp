@@ -1703,7 +1703,8 @@ floor, walker, frameCounter: 0);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
-        AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection),
+        AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection
+                ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.")),
             turn.PendingTransitionShot, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbers.Number(source):X2} selects exact turn ${SamusPoseNumbers.Number(target):X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,

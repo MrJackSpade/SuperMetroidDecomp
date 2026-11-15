@@ -28,7 +28,7 @@ internal static class IntroSamusDemoMovement
         int frameCounter,
         SharedRandom random)
     {
-        SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
+        SamusPoseTransitionLookup lookup = SamusPoseInputTransitions.Lookup(
             samus.Pose,
             heldInput,
             newlyPressedInput);
@@ -43,12 +43,11 @@ internal static class IntroSamusDemoMovement
                 // the pose's no-input fallback only once both base-speed halves reach exact zero.
                 fallback = samus.HorizontalSpeed.HasBaseSpeed
                     ? samus.Pose
-                    : SamusPoseMetadata.ReadNoInputFallbackPose(samus);
+                    : SamusPoseMetadata.ReadNoInputFallback(samus).From(samus.Pose);
             }
             else if (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose))
             {
-                SamusPoseId noInputPose = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
-                if (noInputPose != SamusMovementDefinitions.Poses.RetainCurrentPoseFallback && noInputPose != samus.Pose)
+                if (SamusPoseMetadata.ReadNoInputFallback(samus).TryGetPose(out SamusPoseId noInputPose) && noInputPose != samus.Pose)
                     fallback = noInputPose;
             }
         }

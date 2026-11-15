@@ -621,7 +621,8 @@ public static class SamusBlockCollision
                     if (owner is { } chozoSamus)
                         terrain.RoomObjects?.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
                             block.At, chozoSamus,
-                            state.CollisionPose, movingDown: acceptedDisplacement.IsPositive &&
+                            state.CollisionPose ?? throw new InvalidOperationException(
+                                "The Chozo statue hand's touch needs Samus's sampled collision pose."), movingDown: acceptedDisplacement.IsPositive &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
                     // The vertical special-solid check shares the speed-block setup
                     // with horizontal collision. Accepted boost contact becomes air

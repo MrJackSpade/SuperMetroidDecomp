@@ -55,9 +55,8 @@ internal sealed class SamusFrameState
         throw new InvalidOperationException("Samus has not been introduced; this gameplay phase requires her actor.");
 
     /// <summary>
-    /// Winning pose-transition entry for the most recently latched controller
-    /// chord. The grounded scenario applies its verified standing, moving and turning
-    /// routes; every other winner remains diagnostic until its side effects exist.
+    /// The input transition the latched held and newly pressed actions selected, which the pose-transition phase applies
+    /// after movement and animation, or none when no transition matched.
     /// </summary>
     public SamusPoseTransition? ProspectiveSamusPose { get; internal set; }
 
@@ -76,8 +75,8 @@ internal sealed class SamusFrameState
     public SamusPoseId? ProspectiveSamusFallbackPose { get; internal set; }
 
     /// <summary>
-    /// True only for the explicit grounded gameplay-debug scenario. The cinematic render
-    /// stimulus remains stationary and continues treating pose matches as diagnostics.
+    /// Whether Samus's input selects poses and her pose movement and pose transitions run: closed while a room load brings
+    /// her in and while a scripted scene holds her still, opened when control returns to her.
     /// </summary>
     public bool GroundedSamusMovementEnabled { get; internal set; }
 

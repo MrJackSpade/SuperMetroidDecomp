@@ -29,46 +29,46 @@ internal static void VerifySamusPoseTransitionMatching()
     // matching: Jump+Up outranks plain Up, which outranks Right because the matcher stops
     // at the first record whose complete required masks are present.
 
-    SamusPoseTransition jumpUp = (SamusPoseTransitionTable.Find(
+    SamusPoseTransition jumpUp = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,
         heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Jump,
-        newlyPressedActions: GameplayAction.Jump) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: 0x098...."));
+        newlyPressedActions: GameplayAction.Jump) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: 0x098...."));
     AssertEqual(0x55, SamusPoseNumbers.Number(jumpUp.ProspectivePose), "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputs.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
-    SamusPoseTransition up = (SamusPoseTransitionTable.Find(
+    SamusPoseTransition up = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,
         heldActions: (GameplayAction.Up | GameplayAction.ItemCancel),
-        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: (usho...."));
+        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: (usho...."));
     AssertEqual(0x03, SamusPoseNumbers.Number(up.ProspectivePose), "Samus transition permits extra held action");
 
-    SamusPoseTransition right = (SamusPoseTransitionTable.Find(
+    SamusPoseTransition right = (SamusPoseInputTransitions.Find(
         currentPose: fixturePose,
         heldActions: GameplayAction.Right,
-        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, heldActions: 0x010...."));
+        newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, currentPose: fixturePose, heldActions: 0x010...."));
     AssertEqual(0x09, SamusPoseNumbers.Number(right.ProspectivePose), "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, heldActions: 0, newlyPressedActions: 0),
+        SamusPoseInputTransitions.Find(fixturePose, heldActions: 0, newlyPressedActions: 0),
         "Samus zero input bypasses transition table");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(
+        SamusPoseInputTransitions.Find(
             SamusPoseId.MovingRightGunExtendedPose,
             heldActions: (GameplayAction.Right | GameplayAction.Shoot),
             newlyPressedActions: 0),
         "Samus same-pose transition is suppressed");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0),
+        SamusPoseInputTransitions.Find(fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0),
         "Samus transition terminator returns no match");
 
-    SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup zeroInput = SamusPoseInputTransitions.Lookup(
         fixturePose, heldActions: 0, newlyPressedActions: 0);
-    SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup samePose = SamusPoseInputTransitions.Lookup(
         SamusPoseId.MovingRightGunExtendedPose,
         heldActions: (GameplayAction.Right | GameplayAction.Shoot),
         newlyPressedActions: 0);
-    SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup terminator = SamusPoseInputTransitions.Lookup(
         fixturePose, heldActions: GameplayAction.Down, newlyPressedActions: 0);
     AssertTrue(zeroInput.UsesPoseDefinitionFallback,
         "Samus zero input enters pose-definition fallback");
@@ -80,9 +80,9 @@ internal static void VerifySamusPoseTransitionMatching()
     // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
     // direct return for held input, unlike exhaustion after at least one unmatched record.
     const SamusPoseId emptyListPose = SamusPoseId.TurningRightToLeftJumpPose;
-    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, GameplayAction.Jump, 0).UsesPoseDefinitionFallback,
+    AssertTrue(!SamusPoseInputTransitions.Lookup(emptyListPose, GameplayAction.Jump, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
-    AssertTrue(SamusPoseTransitionTable.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
+    AssertTrue(SamusPoseInputTransitions.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
         "releasing all input still invokes fallback before reading an empty table");
 
     Console.WriteLine(

@@ -89,8 +89,8 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(anchorY, grapple.Anchor.Y, "Late draw retains endpoint Y");
                 short flareX = Word((running ? 0x9bc19a : 0x9bc14a) + offset);
                 short flareY = Word((running ? 0x9bc1ae : 0x9bc15e) + offset);
-                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + flareX)), grapple.BeamStart.X, "Flare X remains separate");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)graphicsY))), grapple.BeamStart.Y, "Flare Y remains separate");
+                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + flareX)), grapple.FlareOrigin.X, "Flare X remains separate");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)graphicsY))), grapple.FlareOrigin.Y, "Flare Y remains separate");
             }
             }
         }

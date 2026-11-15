@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// <summary>Installed tank and room-specific X-ray presentation, independent of room object state.</summary>
 public sealed class InstalledXrayOverlays
 {
-    /// <summary>The installed block the X-ray reveal shows for each tank kind, in tank order.</summary>
+    /// <summary>The installed block the X-ray reveal shows for each tank kind.</summary>
     /// <remarks>
     /// Issue #1038: the game's data reveals the four tanks as four particular blocks of the tileset. These are authored
-    /// visual choices and reveals.json may replace them, so no universal formula can replace this bounded installed
-    /// array. Every other uncollected item is revealed as its kind's own picture (#1538).
+    /// visual choices and reveals.json may replace them, so no universal formula can replace these installed
+    /// blocks. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>
-    internal readonly RoomBlockAppearance[] tankBlocks;
+    private readonly Dictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks;
     /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among the Japanese and North American v1.0 release's 323 pinned room states, only
@@ -47,9 +47,12 @@ public sealed class InstalledXrayOverlays
     {
         Ensure.NotNull(tankBlocks);
         Ensure.NotNull(rooms);
-        this.tankBlocks = tankBlocks.ToArray();
-        if (this.tankBlocks.Length != TankCount)
+        RoomBlockAppearance[] inTankOrder = tankBlocks.ToArray();
+        if (inTankOrder.Length != TankCount)
             throw new InvalidDataException($"X-ray tank visuals require {TankCount} appearances.");
+        this.tankBlocks = [];
+        for (int place = 0; place < TankCount; place++)
+            this.tankBlocks.Add(RoomObjectCollectibleDrawDefinitions.TankKinds[place], inTankOrder[place]);
         this.rooms = new Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]>();
         foreach ((XrayRoomOverlayDefinition overlay, IReadOnlyList<XrayRoomOverlayVisual> visuals) in rooms)
         {
@@ -70,8 +73,8 @@ public sealed class InstalledXrayOverlays
     /// <returns>The selected appearance.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The kind is not a tank.</exception>
     public RoomBlockAppearance TankBlock(InWorldCollectibleKind tank) =>
-        Array.IndexOf(RoomObjectCollectibleDrawDefinitions.TankKinds, tank) is var index and >= 0
-            ? tankBlocks[index]
+        tankBlocks.TryGetValue(tank, out RoomBlockAppearance block)
+            ? block
             : throw new ArgumentOutOfRangeException(nameof(tank), tank, "The X-ray reveals only a tank by an installed block.");
 
     /// <summary>Returns a room overlay's installed records in draw order.</summary>

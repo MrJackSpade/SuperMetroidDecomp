@@ -29,12 +29,12 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// How the posture-transition weapon admission treats <paramref name="pose"/>: the family the definitions list it in, or
-    /// <see cref="SamusPostureTransitionAdmission.BeyondTable"/> for every pose they do not list.
+    /// <see cref="SamusPostureTransitionAdmission.AnsweredBeyondTransitions"/> for every pose they do not list.
     /// </summary>
     public static SamusPostureTransitionAdmission PostureTransitionAdmission(SamusPoseId pose) =>
         PostureTransitionAdmissions.TryGetValue(pose, out SamusPostureTransitionAdmission admission)
             ? admission
-            : SamusPostureTransitionAdmission.BeyondTable;
+            : SamusPostureTransitionAdmission.AnsweredBeyondTransitions;
 
     /// <summary>
     /// Sets Samus's collision radius: every pose is five pixels wide each way and has its own vertical radius.
@@ -81,12 +81,12 @@ internal static class SamusPoseMetadata
         SamusPoseTraits.ReadMovement(pose);
 
     /// <summary>
-    /// Reads the current pose's no-input pose: the pose selected when no actions are held and the
+    /// Reads the current pose's no-input fallback: what is selected when no actions are held and the
     /// transition table therefore is not consulted.
     /// </summary>
-    public static SamusPoseId ReadNoInputFallbackPose(SamusState samus)
+    public static SamusNoInputFallback ReadNoInputFallback(SamusState samus)
     {
-        return SamusPoseTraits.ReadNoInputPose(samus.Pose);
+        return SamusPoseTraits.ReadNoInputFallback(samus.Pose);
     }
 
     /// <summary>What Samus's pose does with her arm cannon.</summary>

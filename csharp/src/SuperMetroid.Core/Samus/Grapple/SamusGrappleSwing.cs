@@ -49,10 +49,8 @@ public static class SamusGrappleSwing
             grapple.RopeLength);
         grapple.RopeStart = ropeStart.Pixel;
 
-        // The swing copies Start to Flare during swinging. BeamStart retains
-        // the older public name because the renderer consumes it, but
-        // it semantically represents the Flare/draw origin throughout.
-        grapple.BeamStart = ropeStart.Pixel;
+        // While swinging, the flare shows and the rope is drawn from the rope's start.
+        grapple.FlareOrigin = ropeStart.Pixel;
 
         // Body placement and displayed art both follow the swing direction nearest the mirrored angle.
         // Keep the authored physical mapping compiled so a visual-frame override cannot
@@ -373,7 +371,7 @@ public static class SamusGrappleSwing
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == GrappleBeamDefinitions.Swing.ShortestRope &&
-                    collision.DistanceFromFeet is 6 or 5;
+                    collision.StruckPointFromHand < GrappleBeamDefinitions.Swing.StoppingPointsNearHand;
                 if (closeCollision)
                 {
                     // This bit asks the swing to compare against the eight exact locked and
@@ -416,7 +414,10 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Checks six points spaced eight pixels along Samus's radial body line at a candidate swing angle.</summary>
+    /// <summary>
+    /// Checks the evenly spaced points along Samus's radial body line at a candidate swing angle, from the hand toward
+    /// the feet, and reports the first that strikes terrain.
+    /// </summary>
     private static GrappleSwingCollisionResult ProbeSwingingBody(
         RoomLevelData level,
         SamusState samus,
@@ -425,24 +426,18 @@ public static class SamusGrappleSwing
     {
         // The body sweep checks its points on an even cadence from just beyond the hand toward the feet. Together with
         // rope length this approximates Samus's body as a radial line while rotating around the anchor.
-        int distance = grapple.RopeLength + GrappleBeamDefinitions.Swing.BodyPointSpacing;
-        for (int distanceFromFeet = GrappleBeamDefinitions.Swing.BodyPointCount; distanceFromFeet >= 1; distanceFromFeet--)
+        for (int pointFromHand = 0; pointFromHand < GrappleBeamDefinitions.Swing.BodyPointCount; pointFromHand++)
         {
+            int distance = grapple.RopeLength + ((pointFromHand + 1) * GrappleBeamDefinitions.Swing.BodyPointSpacing);
             GrappleCollisionPoint point = CalculateCollisionPoint(
                 grapple,
                 candidateAngle,
                 distance);
             if (IsSwingCollision(level, samus, point.Block))
-            {
-                return new GrappleSwingCollisionResult(
-                    Collided: true,
-                    DistanceFromFeet: distanceFromFeet);
-            }
-
-            distance += GrappleBeamDefinitions.Swing.BodyPointSpacing;
+                return GrappleSwingCollisionResult.Struck(pointFromHand);
         }
 
-        return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
+        return GrappleSwingCollisionResult.Clear;
     }
 
 

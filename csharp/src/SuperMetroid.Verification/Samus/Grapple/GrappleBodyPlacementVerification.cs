@@ -41,8 +41,8 @@ internal static class GrappleBodyPlacementVerification
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Swing art cannot move Grapple collision-body Y");
             AssertEqual(nativeFrame, samus.AnimationFrame, "Native swing visual frame");
             AssertEqual(15, samus.AnimationFrameTimer.RawValue, "Native swing animation timer");
-            AssertEqual(g.RopeStart.X, g.BeamStart.X, "Swing Flare follows physical Start X");
-            AssertEqual(g.RopeStart.Y, g.BeamStart.Y, "Swing Flare follows physical Start Y");
+            AssertEqual(g.RopeStart.X, g.FlareOrigin.X, "Swing Flare follows physical Start X");
+            AssertEqual(g.RopeStart.Y, g.FlareOrigin.Y, "Swing Flare follows physical Start Y");
         }
         foreach (string invalid in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1,\"frames\":[]}" })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");

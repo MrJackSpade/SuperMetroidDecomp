@@ -29,13 +29,8 @@ internal static class GrappleConnections
         SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping
             or SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall
             or SamusMovementType.Grappling or SamusMovementType.DraygonHeld => false,
-        SamusMovementType.Standing or
-            SamusMovementType.Running or
-            SamusMovementType.NormalJumping or
-            SamusMovementType.SpinJumping or
+        SamusMovementType.SpinJumping or
             SamusMovementType.MorphBallGround or
-            SamusMovementType.Crouching or
-            SamusMovementType.Falling or
             SamusMovementType.GlitchBall or
             SamusMovementType.MorphBallFalling or
             SamusMovementType.GlitchBallKnockback or
@@ -43,17 +38,13 @@ internal static class GrappleConnections
             SamusMovementType.CompactAirborne or
             SamusMovementType.TurningOnGround or
             SamusMovementType.PostureTransition or
-            SamusMovementType.Moonwalking or
             SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling or
             SamusMovementType.WallJumping or
-            SamusMovementType.RanIntoWall or
-            SamusMovementType.Grappling or
             SamusMovementType.TurningWhileJumping or
             SamusMovementType.TurningWhileFalling or
             SamusMovementType.DamageBoost or
-            SamusMovementType.DraygonHeld or
             SamusMovementType.Special => true,
         _ => throw new ArgumentOutOfRangeException(nameof(movement)),
     };

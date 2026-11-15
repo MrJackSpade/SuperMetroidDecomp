@@ -230,7 +230,7 @@ level, right, unchecked((ushort)(frame + 1))),
         bool paletteWritten = left.Drained.HyperBeamColourEffect.FrameHold == 1;
         left.Drained.HyperBeamColourEffect.Step(drainedColours);
         int expectedFrame = (call / 2) % HyperBeamColourEffectState.FrameCount;
-        AssertEqual(expectedFrame, left.Drained.HyperBeamColourEffect.CurrentFrameIndex,
+        AssertEqual(expectedFrame, left.Drained.HyperBeamColourEffect.ShownCycleShade,
             $"Hyper Beam palette-FX call {call + 1} frame index");
         AssertEqual((call & 1) == 0, paletteWritten,
             $"Hyper Beam palette-FX call {call + 1} write cadence");
@@ -748,16 +748,16 @@ internal static void VerifySamusGrabbedByDraygon()
 
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
-    SamusPoseTransition rightUpShoot = (SamusPoseTransitionTable.Find(
-        samus.Pose, heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Shoot, newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, heldActions: 0x0940, canonicalNe...."));
+    SamusPoseTransition rightUpShoot = (SamusPoseInputTransitions.Find(
+        samus.Pose, heldActions: GameplayAction.Up | GameplayAction.Right | GameplayAction.Shoot, newlyPressedActions: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find( bus, samus.Pose, heldActions: 0x0940, canonicalNe...."));
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, rightUpShoot.ProspectivePose);
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
-    AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose,
-        SamusPoseMetadata.ReadNoInputFallbackPose(samus), "right grabbed aim fallback is $EC");
-    SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, SamusPoseMetadata.ReadNoInputFallbackPose(samus));
+    AssertEqual(SamusNoInputFallback.ToPose(SamusPoseId.DraygonGrabbedNeutralRightPose),
+        SamusPoseMetadata.ReadNoInputFallback(samus), "right grabbed aim fallback is $EC");
+    SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, SamusPoseMetadata.ReadNoInputFallback(samus).From(samus.Pose));
     AssertThrows<InvalidOperationException>(
         () => SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
             SamusPoseId.DraygonGrabbedNeutralLeftPose),

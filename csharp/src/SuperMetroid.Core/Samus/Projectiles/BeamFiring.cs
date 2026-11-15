@@ -255,13 +255,7 @@ internal sealed class BeamFiring
 
         if (direction is not { } aim)
         {
-            // A pose that cannot shoot fires nothing. A transition shot is never refused by the game, which would fire it
-            // with part of its value as the aim and its muzzle read past the origin tables, but no retail transition hands one
-            // over: only the normal-jump initializer and the moonwalk transition publish one, and every normal-jump and
-            // moonwalk pose's shot direction is one of the ten aims (#1506).
-            if (samus.PendingTransitionShot is not null)
-                throw new InvalidOperationException(
-                    "A transition shot names no aim; no retail transition hands one over.");
+            // A pose that cannot shoot fires nothing; a transition shot always names an aim (SamusTransitionShot.FromPose).
             _pool.ProjectileCounter--;
             return new BeamShot(null, null);
         }

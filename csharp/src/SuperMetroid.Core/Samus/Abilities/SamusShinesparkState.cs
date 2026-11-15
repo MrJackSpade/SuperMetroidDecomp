@@ -13,10 +13,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// State for stored Speed Booster shine and the shinespark that moves Samus (<see cref="SamusMovementOwner.Shinespark"/>).
 /// </summary>
 /// <remarks>
-/// This is the game's state machine, not a desktop “dash”
-/// controller. Timers wrap at 65536, movement retains split 1/65536-pixel values, and every
-/// shade is selected through the user's installed artwork. Block collision uses the shared step; solid
-/// enemies stop a sideways spark through it, and an upward spark tests them before its block move.
+/// Its timers count whole updates and its movement keeps 1/65536-pixel fractions; the stored shine and the spark show
+/// Samus's full-body cycle shades. Block collision uses the shared step; solid enemies stop a sideways spark through it,
+/// and an upward spark tests them before its block move.
 /// </remarks>
 public sealed class SamusShinesparkState
 {

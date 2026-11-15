@@ -32,7 +32,7 @@ internal static class GrappleRopeGeometryVerification
             var grapple = new SamusGrappleState
             {
                 Phase = GrapplePhase.Firing, RopeLength = length,
-                BeamStart = new((ushort)origin, 128),
+                FlareOrigin = new((ushort)origin, 128),
                 Anchor = new((ushort)(origin + direction * 100), 28),
                 PointAnimationTimer = WrappingCountdown.Start(5),
             };
@@ -80,7 +80,7 @@ internal static class GrappleRopeGeometryVerification
     {
         var grapple = new SamusGrappleState
         {
-            Phase = GrapplePhase.ConnectedLocked, BeamStart = new(128, 128), Anchor = new(128, 28),
+            Phase = GrapplePhase.ConnectedLocked, FlareOrigin = new(128, 128), Anchor = new(128, 28),
             PointAnimationTimer = WrappingCountdown.Start(5),
         };
         for (int draw = 1; draw <= 24; draw++)

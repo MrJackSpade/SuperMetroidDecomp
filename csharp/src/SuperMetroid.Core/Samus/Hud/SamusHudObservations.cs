@@ -39,9 +39,9 @@ internal static class SamusHudObservations
         SamusPostureTransitionAdmission admission = SamusPoseMetadata.PostureTransitionAdmission(pose);
         return admission switch
         {
-            SamusPostureTransitionAdmission.TableAdmits => true,
-            SamusPostureTransitionAdmission.TablePreservesCharge => false,
-            SamusPostureTransitionAdmission.BeyondTable => beyond.AdmitsWeapons(pose),
+            SamusPostureTransitionAdmission.CrouchOrStandAdmits => true,
+            SamusPostureTransitionAdmission.MorphKeepsCharge => false,
+            SamusPostureTransitionAdmission.AnsweredBeyondTransitions => beyond.AdmitsWeapons(pose),
             SamusPostureTransitionAdmission.AlwaysAdmits or SamusPostureTransitionAdmission.NeverAdmits =>
                 throw new ArgumentOutOfRangeException(nameof(pose), pose, "The posture-transition admission reads no flag for this pose."),
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusPostureTransitionAdmission)} {admission}."),

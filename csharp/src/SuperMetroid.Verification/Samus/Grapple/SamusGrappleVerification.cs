@@ -192,9 +192,9 @@ firingLevel, firingSamus, GameplayAction.Shoot);
         "accepted connection publishes native rope Start X");
     AssertEqual(56, firingSamus.Grapple.RopeStart.Y,
         "accepted connection publishes native rope Start Y");
-    AssertEqual(firingSamus.Grapple.RopeStart.X, firingSamus.Grapple.BeamStart.X,
+    AssertEqual(firingSamus.Grapple.RopeStart.X, firingSamus.Grapple.FlareOrigin.X,
         "swing command copies rope Start X into flare/draw X");
-    AssertEqual(firingSamus.Grapple.RopeStart.Y, firingSamus.Grapple.BeamStart.Y,
+    AssertEqual(firingSamus.Grapple.RopeStart.Y, firingSamus.Grapple.FlareOrigin.Y,
         "swing command copies rope Start Y into flare/draw Y");
     AssertEqual(0, firingSamus.Kinematics.YSpeed.Whole,
         "connection common tail clears whole Y speed");
@@ -571,18 +571,18 @@ firingLevel, cancelledSamus, controllerInput: 0);
                     "locked command positions Samus Y from physical rope Start");
                 AssertEqual(
                     unchecked((ushort)(connectionSamus.Position.X.Whole + rawFlareX)),
-                    connectionSamus.Grapple.BeamStart.X,
+                    connectionSamus.Grapple.FlareOrigin.X,
                     "locked command independently publishes flare/draw X");
                 AssertEqual(
                     unchecked((ushort)(connectionSamus.Position.Y.Whole + rawFlareY)),
-                    connectionSamus.Grapple.BeamStart.Y,
+                    connectionSamus.Grapple.FlareOrigin.Y,
                     "locked command independently publishes flare/draw Y");
             }
             else
             {
-                AssertEqual(connectionSamus.Grapple.RopeStart.X, connectionSamus.Grapple.BeamStart.X,
+                AssertEqual(connectionSamus.Grapple.RopeStart.X, connectionSamus.Grapple.FlareOrigin.X,
                     "swing command aliases physical Start and flare X");
-                AssertEqual(connectionSamus.Grapple.RopeStart.Y, connectionSamus.Grapple.BeamStart.Y,
+                AssertEqual(connectionSamus.Grapple.RopeStart.Y, connectionSamus.Grapple.FlareOrigin.Y,
                     "swing command aliases physical Start and flare Y");
             }
         }
@@ -622,8 +622,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
         SamusMovementType.Grappling,
         SamusPoseMetadata.ReadMovementType(samus),
         "grapple movement type from pose record");
-    AssertEqual(200, samus.Grapple.BeamStart.X, "initial grapple beam-start X");
-    AssertEqual(154, samus.Grapple.BeamStart.Y, "initial grapple beam-start Y");
+    AssertEqual(200, samus.Grapple.FlareOrigin.X, "initial grapple beam-start X");
+    AssertEqual(154, samus.Grapple.FlareOrigin.Y, "initial grapple beam-start Y");
     AssertEqual(200, samus.Position.X.Whole, "initial grapple native body X");
     AssertEqual(200, samus.Position.Y.Whole, "initial grapple native body Y");
     AssertEqual(3, samus.AnimationFrame, "initial grapple angle art frame");
@@ -634,8 +634,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
     AssertEqual(0x010c, samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
     AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
-    AssertEqual(198, samus.Grapple.BeamStart.X, "advanced grapple beam-start X");
-    AssertEqual(153, samus.Grapple.BeamStart.Y, "advanced grapple beam-start Y");
+    AssertEqual(198, samus.Grapple.FlareOrigin.X, "advanced grapple beam-start X");
+    AssertEqual(153, samus.Grapple.FlareOrigin.Y, "advanced grapple beam-start Y");
     AssertEqual(198, samus.Position.X.Whole, "advanced grapple native body X");
     AssertEqual(199, samus.Position.Y.Whole, "advanced grapple native body Y");
     AssertEqual(3, samus.AnimationFrame, "advanced grapple angle keeps its swing direction's art frame");

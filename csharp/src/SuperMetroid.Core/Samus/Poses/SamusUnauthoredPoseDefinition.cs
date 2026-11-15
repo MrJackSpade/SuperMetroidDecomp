@@ -14,11 +14,11 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The movement type the pose selects its movement by, or none where the pose has no movement type, which no
 /// movement runs and which fails loudly.
 /// </param>
-/// <param name="NoInputPose">The pose the pose falls back to with no input.</param>
+/// <param name="NoInputFallback">What the pose falls back to with no input.</param>
 internal sealed record SamusUnauthoredPoseDefinition(
     SamusFacingDirection Facing,
     SamusPoseAim Aim,
     int VerticalRadius,
     int ProjectileYOffset,
     SamusMovementType? Movement,
-    SamusPoseId NoInputPose);
+    SamusNoInputFallback NoInputFallback);

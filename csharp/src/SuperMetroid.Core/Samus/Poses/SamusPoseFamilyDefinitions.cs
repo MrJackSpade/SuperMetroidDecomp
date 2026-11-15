@@ -36,22 +36,22 @@ internal static class SamusPoseFamilyDefinitions
 
     /// <summary>
     /// The posture-transition weapon admission's answer for each pose it does not read beyond its table for; every pose not
-    /// listed is <see cref="SamusPostureTransitionAdmission.BeyondTable"/>.
+    /// listed is <see cref="SamusPostureTransitionAdmission.AnsweredBeyondTransitions"/>.
     /// </summary>
     internal static readonly Dictionary<SamusPoseId, SamusPostureTransitionAdmission> PostureTransitionAdmissions = new()
     {
-        [SamusPoseId.CrouchingTransitionRightPose] = SamusPostureTransitionAdmission.TableAdmits,
-        [SamusPoseId.CrouchingTransitionLeftPose] = SamusPostureTransitionAdmission.TableAdmits,
-        [SamusPoseId.MorphingTransitionRightPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.MorphingTransitionLeftPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.GlitchBallMorphingRightPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.GlitchBallMorphingLeftPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.StandingTransitionRightPose] = SamusPostureTransitionAdmission.TableAdmits,
-        [SamusPoseId.StandingTransitionLeftPose] = SamusPostureTransitionAdmission.TableAdmits,
-        [SamusPoseId.UnmorphingTransitionRightPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.UnmorphingTransitionLeftPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.InstantMorphingRightPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
-        [SamusPoseId.InstantMorphingLeftPose] = SamusPostureTransitionAdmission.TablePreservesCharge,
+        [SamusPoseId.CrouchingTransitionRightPose] = SamusPostureTransitionAdmission.CrouchOrStandAdmits,
+        [SamusPoseId.CrouchingTransitionLeftPose] = SamusPostureTransitionAdmission.CrouchOrStandAdmits,
+        [SamusPoseId.MorphingTransitionRightPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.MorphingTransitionLeftPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.GlitchBallMorphingRightPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.GlitchBallMorphingLeftPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.StandingTransitionRightPose] = SamusPostureTransitionAdmission.CrouchOrStandAdmits,
+        [SamusPoseId.StandingTransitionLeftPose] = SamusPostureTransitionAdmission.CrouchOrStandAdmits,
+        [SamusPoseId.UnmorphingTransitionRightPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.UnmorphingTransitionLeftPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.InstantMorphingRightPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
+        [SamusPoseId.InstantMorphingLeftPose] = SamusPostureTransitionAdmission.MorphKeepsCharge,
         [SamusPoseId.CompactMorphingRightPose] = SamusPostureTransitionAdmission.NeverAdmits,
         [SamusPoseId.DraygonHeldMorphingLeftPose] = SamusPostureTransitionAdmission.NeverAdmits,
         [SamusPoseId.CompactStandingUpRightPose] = SamusPostureTransitionAdmission.NeverAdmits,

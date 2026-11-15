@@ -1237,7 +1237,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         SamusPoseTransitionLookup poseLookup =
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
             ? default
-            : SamusPoseTransitionTable.Lookup(
+            : SamusPoseInputTransitions.Lookup(
                 samus.Pose,
                 _playerActions.Current,
                 _attractDemo.IsAttractDemo ? _playerActions.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_playerActions.NewlyPressed));
@@ -1260,7 +1260,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),
                 samus.Pose,
-                SamusPoseMetadata.ReadNoInputFallbackPose(samus),
+                SamusPoseMetadata.ReadNoInputFallback(samus),
                 frame.DeceleratingFallbackHasMomentum).ProspectivePose;
         }
     }

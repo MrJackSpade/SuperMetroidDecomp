@@ -31,8 +31,8 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>The cycle position of the last shade shown, or none before its first update.</summary>
-    public int? CurrentFrameIndex { get; private set; }
+    /// <summary>The shade of the beams' cycle last shown, by its place in the cycle, or none before the first update.</summary>
+    public int? ShownCycleShade { get; private set; }
 
     /// <summary>
     /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
@@ -45,7 +45,7 @@ public sealed class HyperBeamColourEffectState
         // reusable fields to clear, but preserves every observable field and delay.
         IsActive = true;
         FrameHold = 1;
-        CurrentFrameIndex = null;
+        ShownCycleShade = null;
         Place = AnimationPlace.StartOfAnimation;
     }
 
@@ -91,7 +91,7 @@ public sealed class HyperBeamColourEffectState
         colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
 
         FrameHold = shown.Duration;
-        CurrentFrameIndex = frameIndex;
+        ShownCycleShade = frameIndex;
     }
 
     /// <summary>The colour effect definition the Hyper Beam spawns.</summary>

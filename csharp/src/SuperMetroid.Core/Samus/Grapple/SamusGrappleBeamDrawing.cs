@@ -62,7 +62,7 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareAnimationTimer.IsNegative)
             ShowFlare(grapple, ChargeFlareAnimations.NextMainFlare(grapple.FlarePlace));
 
-        Offset16<ScreenPixels> place = grapple.BeamStart.RelativeToCamera(cameraPosition);
+        Offset16<ScreenPixels> place = grapple.FlareOrigin.RelativeToCamera(cameraPosition);
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
@@ -110,7 +110,7 @@ public static class SamusGrappleBeamDrawing
         // Start and presentation Flare remain separate coordinate pairs.
         grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
             origin.X, CoordinateAxis.Difference(origin.Y, physicalYOffset));
-        grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(
+        grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(
             flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
     }
 
@@ -161,7 +161,7 @@ public static class SamusGrappleBeamDrawing
         // The rope draw recalculates the draw vector from endpoint-minus-flare geometry. This
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
-        RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
+        RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.FlareOrigin);
         // Preserve the fraction across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
         var step = new FixedVector<ScreenPixels>(
@@ -173,7 +173,7 @@ public static class SamusGrappleBeamDrawing
 
         // Each rope picture is placed by its centre, the first at the muzzle and each after it one segment's spacing on
         // toward the anchor. A positive rope shorter than one spacing still shows its first picture.
-        FixedVector<ScreenPixels> centre = FixedVector<ScreenPixels>.FromWholePixels(grapple.BeamStart.RelativeToCamera(cameraPosition));
+        FixedVector<ScreenPixels> centre = FixedVector<ScreenPixels>.FromWholePixels(grapple.FlareOrigin.RelativeToCamera(cameraPosition));
         int segmentCount = Math.Max(1, grapple.RopeLength / GrappleBeamDefinitions.Rendering.SegmentSpacing);
         for (int segment = 0; segment < segmentCount; segment++)
         {

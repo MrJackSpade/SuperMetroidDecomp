@@ -13,14 +13,14 @@ internal enum SamusPostureTransitionAdmission
     NeverAdmits,
 
     /// <summary>A crouch or stand transition the transition table admits.</summary>
-    TableAdmits,
+    CrouchOrStandAdmits,
 
     /// <summary>A morph or unmorph transition the transition table answers by preserving the charge.</summary>
-    TablePreservesCharge,
+    MorphKeepsCharge,
 
     /// <summary>
     /// Any other pose: the admission reads beyond its table, and
     /// <see cref="Compatibility.PostureAdmissionBeyondTransitions{TPose}"/> holds the answer.
     /// </summary>
-    BeyondTable,
+    AnsweredBeyondTransitions,
 }

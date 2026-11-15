@@ -56,7 +56,8 @@ internal static class SamusHudDefinitionsVerification
         }
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         Action<SamusState, ushort> setTurn = (state, turn) =>
-            state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue));
+            state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue)
+                ?? throw new InvalidOperationException($"Turn word {turn} names no aim; a handed-over shot always names one."));
         foreach (int movement in SamusMovementTypeNumbers.Named)
         {
             SamusHudSelectionMode handler = HandlerOf(rom, movement);
@@ -64,7 +65,7 @@ internal static class SamusHudDefinitionsVerification
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
             foreach (ushort selected in new ushort[] { 3, 4 })
-            foreach (ushort turn in new ushort[] { 0, 1, ushort.MaxValue })
+            foreach (ushort turn in new ushort[] { 0, 1 })
             {
                 if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
                 if (!SamusPoseNumbering.NamesPose(pose)) continue;

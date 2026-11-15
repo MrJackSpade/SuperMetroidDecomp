@@ -90,7 +90,7 @@ level, samus, frameCounter: 0, controllerInput: 0);
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"right aim pose ${SamusPoseNumbers.Number(target):X2} clears base speed");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.StandingAimUpRightPose);
-    AssertEqual(0x01, SamusPoseNumbers.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "right aimed no-input fallback");
+    AssertEqual(0x01, SamusNoInputFallbackNumbers.Number(SamusPoseMetadata.ReadNoInputFallback(samus)), "right aimed no-input fallback");
 
     // The aimed running records execute the same movement-type-one dispatcher while their
     // own animation and shot-direction metadata remain selected. Cross the post-movement
@@ -133,7 +133,7 @@ level, leftSamus, frameCounter: 1, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"left aim pose ${SamusPoseNumbers.Number(target):X2} remains grounded");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
-    AssertEqual(0x02, SamusPoseNumbers.Number(SamusPoseMetadata.ReadNoInputFallbackPose(leftSamus)), "left aimed no-input fallback");
+    AssertEqual(0x02, SamusNoInputFallbackNumbers.Number(SamusPoseMetadata.ReadNoInputFallback(leftSamus)), "left aimed no-input fallback");
 
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimDiagonalUpLeftPose);
     ushort leftXBefore = leftSamus.Position.X.Whole;
@@ -490,7 +490,7 @@ boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0),
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
     SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingAimDiagonalDownRightPose);
-    AssertEqual(0x29, SamusPoseNumbers.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "aimed fall fallback target");
+    AssertEqual(0x29, SamusNoInputFallbackNumbers.Number(SamusPoseMetadata.ReadNoInputFallback(samus)), "aimed fall fallback target");
     SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingRightPose);
     AssertEqual(SamusPoseId.FallingRightPose, samus.Pose, "aimed fall applies unaimed fallback");
 
@@ -598,20 +598,20 @@ internal static void VerifySamusGunExtendedMovement()
     ]);
 
     AssertEqual(0x0b,
-        SamusPoseNumbers.Number((SamusPoseTransitionTable.Find(SamusPoseId.MovingRightNormalPose, GameplayAction.Right | GameplayAction.Shoot, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, GameplayAction.Right | GameplayAction.Shoot, 0).")).ProspectivePose),
+        SamusPoseNumbers.Number((SamusPoseInputTransitions.Find(SamusPoseId.MovingRightNormalPose, GameplayAction.Right | GameplayAction.Shoot, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find(bus, SamusPoseId.MovingRightNormalPose, GameplayAction.Right | GameplayAction.Shoot, 0).")).ProspectivePose),
         "Shot+Right selects running gun extension");
     AssertEqual(0x13,
-        SamusPoseNumbers.Number((SamusPoseTransitionTable.Find(SamusPoseId.NeutralJumpRightPose, GameplayAction.Shoot, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, GameplayAction.Shoot, 0).")).ProspectivePose),
+        SamusPoseNumbers.Number((SamusPoseInputTransitions.Find(SamusPoseId.NeutralJumpRightPose, GameplayAction.Shoot, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find(bus, SamusPoseId.NeutralJumpRightPose, GameplayAction.Shoot, 0).")).ProspectivePose),
         "Shot selects neutral-jump gun extension");
     AssertEqual(0x67,
-        SamusPoseNumbers.Number((SamusPoseTransitionTable.Find(SamusPoseId.FallingRightPose, GameplayAction.Shoot, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, GameplayAction.Shoot, 0).")).ProspectivePose),
+        SamusPoseNumbers.Number((SamusPoseInputTransitions.Find(SamusPoseId.FallingRightPose, GameplayAction.Shoot, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find(bus, SamusPoseId.FallingRightPose, GameplayAction.Shoot, 0).")).ProspectivePose),
         "Shot selects falling gun extension");
 
-    SamusPoseTransitionLookup heldRightAndShot = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup heldRightAndShot = SamusPoseInputTransitions.Lookup(
         SamusPoseId.MovingRightGunExtendedPose,
         (GameplayAction.Right | GameplayAction.Shoot),
         newlyPressedActions: 0);
-    SamusPoseTransitionLookup releasedRightHoldingShot = SamusPoseTransitionTable.Lookup(
+    SamusPoseTransitionLookup releasedRightHoldingShot = SamusPoseInputTransitions.Lookup(
         SamusPoseId.MovingRightGunExtendedPose,
         GameplayAction.Shoot,
         newlyPressedActions: 0);
@@ -621,9 +621,9 @@ internal static void VerifySamusGunExtendedMovement()
         "running-gun Shot-only terminator requests fallback");
 
     SamusPoseTransition forwardRightRelease =
-        (SamusPoseTransitionTable.Find(SamusPoseId.NormalJumpForwardRightPose, GameplayAction.Jump, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
+        (SamusPoseInputTransitions.Find(SamusPoseId.NormalJumpForwardRightPose, GameplayAction.Jump, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
     SamusPoseTransition forwardLeftRelease =
-        (SamusPoseTransitionTable.Find(SamusPoseId.NormalJumpForwardLeftPose, GameplayAction.Jump, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
+        (SamusPoseInputTransitions.Find(SamusPoseId.NormalJumpForwardLeftPose, GameplayAction.Jump, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseInputTransitions.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
     AssertEqual(0x4d, SamusPoseNumbers.Number(forwardRightRelease.ProspectivePose),
         "held Jump without Right selects neutral right jump");
     AssertEqual(0x4e, SamusPoseNumbers.Number(forwardLeftRelease.ProspectivePose),
@@ -673,7 +673,7 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
     AssertEqual(runningTimer, running.AnimationFrameTimer.RawValue, "running gun extension preserves timer");
     AssertTrue(ReferenceEquals(runningProgram, SamusAnimationDelays.AnimationForPose(running.AnimatedPose ?? throw new InvalidOperationException("The run has no animation."))), "running gun extension retains the shared animation program");
-    SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseMetadata.ReadNoInputFallbackPose(running));
+    SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseMetadata.ReadNoInputFallback(running).From(running.Pose));
     AssertEqual(SamusPoseId.FacingRightNormalPose, running.Pose,
         "releasing Right while holding Shot leaves running-gun pose");
 

@@ -23,18 +23,6 @@ public static class SamusMovementDefinitions
     public const int FastFallAnimationTimer = 8;
 
 
-    /// <summary>Pose definitions, animations, and controller transitions.</summary>
-    public static class Poses
-    {
-
-        /// <summary>
-        /// The no-input fallback that retains the current pose after input lookup failure. The game
-        /// spells it as <see cref="SamusPoseId.ForwardStillCrouchHeightPose"/>, so it is the same identity: a pose
-        /// whose fallback names <see cref="SamusPoseId.ForwardStillCrouchHeightPose"/> retains its pose.
-        /// </summary>
-        public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.ForwardStillCrouchHeightPose;
-    }
-
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {

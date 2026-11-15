@@ -17,8 +17,8 @@ internal static class SamusHudInput
         {
             SamusPostureTransitionAdmission.AlwaysAdmits => true,
             SamusPostureTransitionAdmission.NeverAdmits => false,
-            SamusPostureTransitionAdmission.TableAdmits or SamusPostureTransitionAdmission.TablePreservesCharge or
-                SamusPostureTransitionAdmission.BeyondTable => SamusHudObservations.PostureAdmitsWeapons(pose, beyond) || grappleActive,
+            SamusPostureTransitionAdmission.CrouchOrStandAdmits or SamusPostureTransitionAdmission.MorphKeepsCharge or
+                SamusPostureTransitionAdmission.AnsweredBeyondTransitions => SamusHudObservations.PostureAdmitsWeapons(pose, beyond) || grappleActive,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusPostureTransitionAdmission)} {admission}."),
         };
     }

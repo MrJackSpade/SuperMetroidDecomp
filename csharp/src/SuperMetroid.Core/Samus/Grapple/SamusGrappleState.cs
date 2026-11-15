@@ -23,11 +23,10 @@ public sealed class SamusGrappleState
     public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
-    /// The flare position, retained under the older
-    /// BeamStart name. <see cref="SamusGrappleBeamDrawing.DrawConnectedBeam"/> starts drawing
-    /// here; do not use this position to reconstruct the locked connection's body positioning.
+    /// Where the beam's flare shows and its rope is drawn from: <see cref="SamusGrappleBeamDrawing.DrawConnectedBeam"/>
+    /// starts drawing here. Do not use this position to reconstruct the locked connection's body positioning.
     /// </summary>
-    public Position16<RoomPixels> BeamStart { get; set; }
+    public Position16<RoomPixels> FlareOrigin { get; set; }
     /// <summary>
     /// Rope length in pixels. Connected motion clamps it below 64, while firing grows it by twelve per frame
     /// and cancels once it reaches 128, so it never leaves 0 through

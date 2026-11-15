@@ -166,7 +166,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                     ShowDeathShades(samus, samusColours, deathShade: 0);
                     coloursChanged = true;
                     ExplosionTimer =
-                        SamusDeathExplosionTiming.DurationForIndex(index: 0);
+                        SamusDeathExplosionTiming.StepDuration(step: 0);
                     ExplosionStep = 0;
                     WhiteoutShade = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -263,7 +263,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         }
 
         ExplosionTimer =
-            SamusDeathExplosionTiming.DurationForIndex(ExplosionStep);
+            SamusDeathExplosionTiming.StepDuration(ExplosionStep);
         int deathShade = (artwork ?? throw new InvalidOperationException(
             "Samus death requires its installed colours.")).ExplosionStep(ExplosionStep);
         ShowDeathShades(samus, samusColours, deathShade);

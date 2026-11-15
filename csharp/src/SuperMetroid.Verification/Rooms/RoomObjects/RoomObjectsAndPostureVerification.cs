@@ -316,8 +316,8 @@ level, aimedSamus, unchecked((ushort)index));
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
-            facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
-            SamusPoseMetadata.ReadNoInputFallbackPose(aimedSamus),
+            SamusNoInputFallback.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
+            SamusPoseMetadata.ReadNoInputFallback(aimedSamus),
             "aimed crouch definition fallback");
         GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
 level, aimedSamus, unchecked((ushort)index));

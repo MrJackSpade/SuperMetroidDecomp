@@ -71,8 +71,8 @@ public sealed class SamusKinematicsState
     /// mover preserve the test without guessing which higher-level movement caller
     /// happened to reach it.
     /// </summary>
-    /// <remarks>Unsampled state reads as <see cref="SamusPoseId.ForwardStillCrouchHeightPose"/>, outside every pose the elevator pseudo-doors admit.</remarks>
-    public SamusPoseId CollisionPose { get; internal set; } = SamusPoseId.ForwardStillCrouchHeightPose;
+    /// <remarks>Null until a pose is sampled, which no pose-gated reaction admits.</remarks>
+    public SamusPoseId? CollisionPose { get; internal set; }
 
     /// <summary>
     /// Current snapshot, in the game's order, of the interactive enemies and the collision

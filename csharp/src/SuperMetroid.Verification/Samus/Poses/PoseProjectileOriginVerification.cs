@@ -80,12 +80,12 @@ internal static class PoseProjectileOriginVerification
                 short originY = Word((running ? 0x9bc186 : 0x9bc136) + firingDirection * 2);
                 short flareY = Word((running ? 0x9bc1ae : 0x9bc15e) + firingDirection * 2);
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalCorrection)), g.Anchor.Y, "Grapple physical endpoint ignores art correction");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.BeamStart.Y, "Grapple flare retains visual correction");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.FlareOrigin.Y, "Grapple flare retains visual correction");
                 ushort endpoint = g.Anchor.Y;
                 samus.Position += new Offset16<RoomPixels>(0, 5);
                 refresh(samus, g);
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalY)), g.RopeStart.Y, "Late Grapple physical start ignores art correction");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.BeamStart.Y, "Late Grapple flare uses current artwork");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.FlareOrigin.Y, "Late Grapple flare uses current artwork");
                 AssertEqual(endpoint, g.Anchor.Y, "Late draw does not move collision endpoint");
             }
         }

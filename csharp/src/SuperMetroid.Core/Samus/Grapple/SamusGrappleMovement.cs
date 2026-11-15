@@ -102,7 +102,7 @@ public static class SamusGrappleMovement
         // origin used by connection positioning; Flare is the small-sprite draw origin used
         // by the rope draw. They coincide while swinging but can differ while firing or locked.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
-        grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
+        grapple.FlareOrigin = samus.Position.Whole + grapple.FlareOffset;
         grapple.Anchor = samus.Position.Whole + grapple.OriginOffset;
     }
 
@@ -672,7 +672,7 @@ public static class SamusGrappleMovement
         // The endpoint adds the offset to Samus's subpixel-inclusive position, so the
         // fraction's overflow reaches the endpoint before the whole origin offset is added.
         grapple.Anchor = samus.Position.Advance(grapple.EndpointOffset).Whole + grapple.OriginOffset;
-        grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
+        grapple.FlareOrigin = samus.Position.Whole + grapple.FlareOffset;
     }
 
     /// <summary>
@@ -1016,7 +1016,7 @@ public static class SamusGrappleMovement
             var origin = GrappleFiring.Origin(grapple.FireDirection, running: false);
             var flare = ReadFlareOrigin(grapple, grapple.FireDirection, running: false);
             samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
-            grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
+            grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
@@ -1047,29 +1047,20 @@ public static class SamusGrappleMovement
         if (absoluteX == 0 && absoluteY == 0)
             return RotationAngle.Zero;
 
-        // The quadrant counts negative X as two and negative Y as one, not the more tempting
-        // reverse order.
-        int quadrant = (xNegative ? 2 : 0) | (yNegative ? 1 : 0);
+        // A mostly horizontal offset turns from the quarter turn (rightward) or three-quarter turn (leftward), forward when
+        // both components lean the same way; a mostly vertical one turns from the half turn (downward) or zero (upward),
+        // forward when they lean opposite ways.
+        bool leanSameWay = xNegative == yNegative;
         if (absoluteY < absoluteX)
         {
             int steps = OctantSteps(EightEight.FromWhole(absoluteY) / absoluteX);
-            return quadrant switch
-            {
-                0 => RotationAngle.QuarterTurn.TurnedBySteps(steps),
-                1 => RotationAngle.QuarterTurn.TurnedBySteps(-steps),
-                2 => RotationAngle.ThreeQuarterTurn.TurnedBySteps(-steps),
-                _ => RotationAngle.ThreeQuarterTurn.TurnedBySteps(steps),
-            };
+            RotationAngle horizontalAxis = xNegative ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
+            return horizontalAxis.TurnedBySteps(leanSameWay ? steps : -steps);
         }
 
         int reciprocalSteps = OctantSteps(EightEight.FromWhole(absoluteX) / absoluteY);
-        return quadrant switch
-        {
-            0 => RotationAngle.HalfTurn.TurnedBySteps(-reciprocalSteps),
-            1 => RotationAngle.Zero.TurnedBySteps(reciprocalSteps),
-            2 => RotationAngle.HalfTurn.TurnedBySteps(reciprocalSteps),
-            _ => RotationAngle.Zero.TurnedBySteps(-reciprocalSteps),
-        };
+        RotationAngle verticalAxis = yNegative ? RotationAngle.Zero : RotationAngle.HalfTurn;
+        return verticalAxis.TurnedBySteps(leanSameWay ? -reciprocalSteps : reciprocalSteps);
     }
 
     /// <summary>The angle steps in an eighth of a turn.</summary>
@@ -1116,8 +1107,7 @@ public static class SamusGrappleMovement
             // The cancel runs the pose-definition fallback while the current movement type is grappling.
             // Its lookup-failure response kills all X/run momentum and the pose-definition
             // definition selects the exact standing/crouching body that existed before locking.
-            SamusPoseId fallback = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
-            if (fallback == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback)
+            if (!SamusPoseMetadata.ReadNoInputFallback(samus).TryGetPose(out SamusPoseId fallback))
             {
                 throw new InvalidDataException(
                     $"Connected grapple pose {samus.Pose} has no cancellation fallback.");

@@ -12,13 +12,12 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// (<see cref="SamusMovementOwner.Xray"/>), beam-angle state, visor shade, and teardown.
 /// </summary>
 /// <remarks>
-/// The retail feature crosses three parts of the game: X-ray setup admits and installs the four X-ray
+/// The scope crosses three parts of the game: X-ray setup admits and installs the four X-ray
 /// poses, X-ray's own pose input and movement own turning and angle-selected body art, and
-/// the cone effect widens/aims/deactivates the window beam. Keeping that state in one
+/// the cone effect widens, aims and ends the beam. Keeping that state in one
 /// explicit state prevents the standing and crouching X-ray poses from silently inheriting ordinary standing or
-/// crouching input. The desktop compositor now consumes these exact angle and width values to
-/// reproduce the moving tangent-table window; building the revealed blocks' picture remains
-/// separate presentation work and no fake hidden blocks are generated here.
+/// crouching input. The cone's angle and width reach the display through <see cref="SamusXrayDisplaySnapshot"/>, from
+/// which the display draws the cone and the blocks it reveals.
 /// </remarks>
 public sealed class SamusXrayState
 {

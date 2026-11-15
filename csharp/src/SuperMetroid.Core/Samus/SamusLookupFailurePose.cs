@@ -9,21 +9,17 @@ public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose
     /// <summary>
     /// Resolves the pose-definition fallback with its momentum response.
     /// Decelerate retains the current pose while base X speed remains and otherwise
-    /// becomes Stop; every other response consults the pose definition's fallback pose, where an
-    /// absent fallback retains the current pose.
+    /// becomes Stop; every other response consults the pose definition's fallback, which may keep the current pose.
     /// </summary>
     public static SamusLookupFailurePose Resolve(
         SamusMovementType movementType,
         SamusPoseId currentPose,
-        SamusPoseId definitionFallbackPose,
+        SamusNoInputFallback definitionFallback,
         bool hasBaseXSpeed)
     {
         if (hasBaseXSpeed &&
             SamusMomentumResponses.ForLookupFailure(movementType) == SamusMomentumResponse.Decelerate)
             return new SamusLookupFailurePose(currentPose);
-        SamusPoseId pose = definitionFallbackPose == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback
-            ? currentPose
-            : definitionFallbackPose;
-        return new SamusLookupFailurePose(pose);
+        return new SamusLookupFailurePose(definitionFallback.From(currentPose));
     }
 }

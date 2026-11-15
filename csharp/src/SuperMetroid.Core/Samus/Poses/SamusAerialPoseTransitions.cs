@@ -109,7 +109,7 @@ internal static class SamusAerialPoseTransitions
         // Publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
         if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
+            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -892,7 +892,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // Runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction and hands it to the weapon firing; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
+            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
         }
     }
 
@@ -929,7 +929,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
+            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
     }
 
     /// <summary>

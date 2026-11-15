@@ -160,20 +160,13 @@ public sealed class SamusLiquidPhysicsState
     public UnsignedSixteenSixteen PendingPeriodicDamage { get; internal set; }
 
     /// <summary>
-    /// The room Samus is in, consumed by area- and room-specific footstep and landing graphics; null until a room load
-    /// sets it. The intro's flashback, which runs in no room, names the Landing Site, as the game's cleared area and room
-    /// state do.
+    /// The room Samus is in, consumed by area- and room-specific footstep and landing graphics. Every room load sets it;
+    /// until the first does, it is Landing Site, the room the game's cleared area and room state name.
     /// </summary>
-    public RoomDefinition? Room { get; set; }
+    public RoomDefinition Room { get; set; } = RoomDefinitions.LandingSite;
 
     /// <summary>The area of <see cref="Room"/>, used by area-only consumers.</summary>
-    /// <exception cref="InvalidOperationException">No room has loaded.</exception>
-    public AreaId Area => CurrentRoom.Area;
-
-    /// <summary>The room Samus is in, which a footstep or a landing needs.</summary>
-    /// <exception cref="InvalidOperationException">No room has loaded.</exception>
-    private RoomDefinition CurrentRoom =>
-        Room ?? throw new InvalidOperationException("Samus is in no room until a room load places her in one.");
+    public AreaId Area => Room.Area;
 
     /// <summary>An active cinematic suppresses ordinary footstep audio.</summary>
     public bool CinematicActive { get; set; }
@@ -492,7 +485,7 @@ public sealed class SamusLiquidPhysicsState
 
             case AreaId.Brinstar:
             case AreaId.Tourian:
-                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(CurrentRoom))
+                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(Room))
                     SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 else
                     EndLandingEffectWait();
@@ -529,7 +522,7 @@ public sealed class SamusLiquidPhysicsState
 
         // The Green Pirates Shaft bypasses the room policy and always chooses the
         // dry-dust step, still subject to live liquid submersion.
-        if (CurrentRoom == RoomDefinitions.GreenPiratesShaft)
+        if (Room == RoomDefinitions.GreenPiratesShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
             return;
@@ -538,7 +531,7 @@ public sealed class SamusLiquidPhysicsState
         // The game duplicates this room policy for running footsteps and landing
         // effects. Preserve its flag priority even though retail rows contain one flag each.
         CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffects.ForCrateriaRoom(CurrentRoom);
+            SamusAtmosphericEffects.ForCrateriaRoom(Room);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
         {
             // Landing Site creates splashes only while it rains; its normal scrolling-sky
@@ -746,7 +739,7 @@ public sealed class SamusLiquidPhysicsState
             else
             {
                 CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffects.ForCrateriaRoom(CurrentRoom);
+                    SamusAtmosphericEffects.ForCrateriaRoom(Room);
                 // The three flag tests have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)

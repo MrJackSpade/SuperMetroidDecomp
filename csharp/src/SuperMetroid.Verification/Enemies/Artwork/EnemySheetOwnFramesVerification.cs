@@ -143,8 +143,8 @@ internal static class EnemySheetOwnFramesVerification
         FuneNamiheSpawnSettings[] placements = [.. Placements(definition).Select(placement => placement.SpawnSettingsOf<FuneNamiheSpawnSettings>())];
         AssertTrue(placements.Length > 0, $"a room places {definition}");
         bool[] both = [false, true];
-        return placements.SelectMany(settings => both.SelectMany(active => both.Select(right =>
-            FuneNamiheBehavior.SelectFuneNamiheAnimation(new FuneNamiheEnemyState { Variant = settings.Variant, ShowsActiveAnimation = active, FacingRight = right }))));
+        return both.SelectMany(active => both.Select(right =>
+            FuneNamiheBehavior.SelectFuneNamiheAnimation(new FuneNamiheEnemyState { IsNamihe = definition == EnemyDefinitionId.Namihe, ShowsActiveAnimation = active, FacingRight = right })));
     }
 
     /// <summary>

@@ -626,7 +626,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     AssertEqual(154, samus.Grapple.FlareOrigin.Y, "initial grapple beam-start Y");
     AssertEqual(200, samus.Position.X.Whole, "initial grapple native body X");
     AssertEqual(200, samus.Position.Y.Whole, "initial grapple native body Y");
-    AssertEqual(3, samus.AnimationFrame, "initial grapple angle art frame");
+    AssertEqual(3, samus.AnimationNumber, "initial grapple angle art frame");
 
     // Left held at exact $8000 first applies the native +$0100 kick, then +12 input.
     // Gravity is exactly zero on that axis, so angle advances by $010C to $810C.
@@ -638,7 +638,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     AssertEqual(153, samus.Grapple.FlareOrigin.Y, "advanced grapple beam-start Y");
     AssertEqual(198, samus.Position.X.Whole, "advanced grapple native body X");
     AssertEqual(199, samus.Position.Y.Whole, "advanced grapple native body Y");
-    AssertEqual(3, samus.AnimationFrame, "advanced grapple angle keeps its swing direction's art frame");
+    AssertEqual(3, samus.AnimationNumber, "advanced grapple angle keeps its swing direction's art frame");
 
     // `$90:EB86` remains installed for every noninactive host phase, but its signed native
     // function-pointer test selects beam-specific graphics only through `$9B:C832`. The

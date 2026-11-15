@@ -156,7 +156,7 @@ public sealed class SamusCrystalFlashState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special)
             throw new InvalidDataException("The Crystal Flash poses no longer have the special movement type.");
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         // Successful activation publishes history directly, before
         // taking Samus's movement. Rejected activation must not shift it.
         samus.CommitPoseHistory();
@@ -251,7 +251,7 @@ public sealed class SamusCrystalFlashState
 
         // The delay animation is already on its raise loop, but the raise forces
         // frame six and timer three so main art begins on this precise transition frame.
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 6, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: 3);
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleEffectRequested = true;
@@ -307,7 +307,7 @@ public sealed class SamusCrystalFlashState
         // The ammunition drain switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a cue.
         Phase = CrystalFlashPhase.Finishing;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 12, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashFinish, timer: 3);
     }
 
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests suit shade restoration.</summary>

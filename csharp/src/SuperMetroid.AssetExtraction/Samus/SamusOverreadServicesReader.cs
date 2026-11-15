@@ -93,23 +93,27 @@ internal static class SamusOverreadServicesReader
             if (!cueValueSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
                 throw new InvalidDataException($"Samus overread file has no cue-value steps for {pose}.");
             cueValues.Add(pose, Require(steps, $"cue-value steps for {pose}").ToDictionary(
-                pair => ParseCount(pair.Key, $"{pose} cue-value frame"), pair => CueValueStep(Require(pair.Value, $"{pose} cue-value step"))));
+                pair => ParseCount(pair.Key, $"{pose} cue-value frame"), pair => CueValueStep(pose, Require(pair.Value, $"{pose} cue-value step"))));
         }
         return new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>(successors, cueValues);
     }
 
-    /// <summary>The step a cue value's place reads, from its decoded kind and the values it names.</summary>
+    /// <summary>
+    /// The step a cue value's place of <paramref name="pose"/>'s animation reads, from its decoded kind and the values it names;
+    /// a frame it names is the frame at that place of the game's layout of the pose's animation.
+    /// </summary>
     /// <exception cref="InvalidDataException">The step lacks a value its kind needs, or carries one it does not.</exception>
-    private static SamusPoseAnimationStep CueValueStep(SamusOverreadDocument.CueValueStep step)
+    private static SamusPoseAnimationStep CueValueStep(SamusPoseId pose, SamusOverreadDocument.CueValueStep step)
     {
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
         SamusOverreadDocument.CueValueStepKind kind = Parse<SamusOverreadDocument.CueValueStepKind>(step.Kind, "cue-value step kind");
         SamusPoseId Pose(int index, int count) =>
             Require(step.Poses, $"{kind} poses") is { } poses && poses.Count == count
                 ? Parse<SamusPoseId>(poses[index], $"{kind} pose")
                 : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names {step.Poses?.Count} poses, not {count}.");
-        int Frame(int index, int count) =>
+        SamusAnimationTarget Frame(int index, int count) =>
             Require(step.Frames, $"{kind} frames") is { } frames && frames.Count == count && frames[index] >= 0
-                ? frames[index]
+                ? animation.TargetAt(frames[index])
                 : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names no valid frame {index} of {count}.");
         SamusEquipmentFlags Items() => Require(step.Items, $"{kind} items")
             .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse<SamusEquipmentFlags>(name, "cue-value step item"));

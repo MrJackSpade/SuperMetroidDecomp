@@ -39,7 +39,7 @@ internal static class GrappleBodyPlacementVerification
             position(samus, g);
             AssertEqual(unchecked((ushort)(g.RopeStart.X + x)), samus.Position.X.Whole, "Swing art cannot move Grapple collision-body X");
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Swing art cannot move Grapple collision-body Y");
-            AssertEqual(nativeFrame, samus.AnimationFrame, "Native swing visual frame");
+            AssertEqual(nativeFrame, samus.AnimationNumber, "Native swing visual frame");
             AssertEqual(15, samus.AnimationFrameTimer.RawValue, "Native swing animation timer");
             AssertEqual(g.RopeStart.X, g.FlareOrigin.X, "Swing Flare follows physical Start X");
             AssertEqual(g.RopeStart.Y, g.FlareOrigin.Y, "Swing Flare follows physical Start Y");

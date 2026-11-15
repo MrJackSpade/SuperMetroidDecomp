@@ -221,7 +221,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8);
         SamusPoseMetadata.RefreshCollisionRadii(lavaEndpoint);
         SamusPresentation.InitializeAnimation(lavaEndpoint);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(lavaEndpoint, 2, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(lavaEndpoint, lavaEndpoint.AnimationFrameNumbered(2), 1);
         SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), FrameCounter = 1 });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
@@ -251,14 +251,14 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 level, ineligibleHistory, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(!rejectedContact.WallJumpTriggered,
         "native history gate rejects before the wall probe");
-    AssertEqual(0, ineligibleHistory.AnimationFrame, "rejected history cannot rewind wall animation");
+    AssertEqual(0, ineligibleHistory.AnimationNumber, "rejected history cannot rewind wall animation");
     AssertEqual(0x4321, ineligibleHistory.Kinematics.Position.X.Fraction,
         "rejected rightward wall probe cannot set real X fraction to FFFF");
     earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
 level, earlyContact, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(!contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
-    AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
+    AssertEqual(0x0a, earlyContact.AnimationNumber, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
     // result; only a triggered launch publishes the wall-jump result.
     AssertTrue(earlyContact.SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump,
@@ -392,7 +392,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     // after ten ticks, not the old synthetic eight-tick delay.
     for (int tick = 0; tick < 10; tick++)
         SamusPresentation.AnimateNoFx(eligible, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
+    AssertEqual(3, eligible.AnimationNumber, "ordinary dry wall animation selects frame three");
 
     eligible.BeamCharge.FlareCounter = 0x003c;
     ushort wallStartY = eligible.Position.Y.Whole;
@@ -407,7 +407,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
         "charged wall-jump frames three through 22 publish damage index four");
 
     eligible.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
-    eligible.AnimationFrame = 0x17;
+    eligible.AnimationNumber = 0x17;
     SamusAerialMovement.StepWallJump(
 
         level,
@@ -423,8 +423,8 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
         // This fixture begins mid-spin after a spin-direction transition.
         samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, 0);
-        samus.AnimationFrame = animationFrame;
+        SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(0));
+        samus.AnimationNumber = animationFrame;
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x2800);
@@ -440,8 +440,8 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
         };
         samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, 0);
-        samus.AnimationFrame = animationFrame;
+        SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(0));
+        samus.AnimationNumber = animationFrame;
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x2800);
@@ -764,9 +764,9 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
             MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound,
         };
         SamusPoseMetadata.RefreshCollisionRadii(ball);
-        SamusPresentation.InitializeAnimation(ball, initialFrame: 3);
+        SamusPresentation.InitializeAnimation(ball, ball.PoseFrameNumbered(3));
         ball.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
-        int preservedFrame = ball.AnimationFrame;
+        int preservedFrame = ball.AnimationNumber;
         ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
 
         SamusKnockbackMovement.Start(ball, controllerInput: (GameplayAction.Left | GameplayAction.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right }, poseCollision: null);
@@ -776,7 +776,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
             $"morphed type ${SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(ball)):X2} retains pose");
         AssertEqual(expectedDirection, SamusMovementNativeWords.KnockbackDirections.Word(ball.KnockbackDirection),
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} chooses direction from facing only");
-        AssertEqual(preservedFrame, ball.AnimationFrame,
+        AssertEqual(preservedFrame, ball.AnimationNumber,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} retains rolling animation frame");
         AssertEqual(preservedTimer, ball.AnimationFrameTimer.RawValue,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} retains rolling animation timer");
@@ -804,10 +804,10 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
         MorphBallBounceState = SamusBallBounceState.SecondRebound,
     };
     SamusPoseMetadata.RefreshCollisionRadii(ballExpires);
-    SamusPresentation.InitializeAnimation(ballExpires, initialFrame: 3);
+    SamusPresentation.InitializeAnimation(ballExpires, ballExpires.PoseFrameNumbered(3));
     SamusKnockbackMovement.Start(ballExpires, controllerInput: GameplayAction.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left }, poseCollision: null);
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
-    int retainedBallFrame = ballExpires.AnimationFrame;
+    int retainedBallFrame = ballExpires.AnimationNumber;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;
     for (int frame = 0; frame < 5; frame++)
     {
@@ -823,7 +823,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
         "zero hurt timer ends morphed special handler at interruption");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, ballExpires.Pose,
         "expired morphed knockback retains current ball pose");
-    AssertEqual(retainedBallFrame, ballExpires.AnimationFrame,
+    AssertEqual(retainedBallFrame, ballExpires.AnimationNumber,
         "expired morphed knockback retains rolling frame");
     AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer.RawValue,
         "expired morphed knockback retains rolling timer");

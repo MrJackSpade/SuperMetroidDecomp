@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's pose animations: each frame's delay and the cue that ends each run (#1473).</summary>
 /// <remarks>
-/// Independently reviewed for #1165 against the game's pose animation data and its playback, and typed for #1473: a
-/// animation is the runs of frames a pose animates by, numbered as the pose's artwork numbers its frames, and closed by
-/// the cue each run ends in. An animation holds every run up to the next pose's animation, so the frames the breathing,
-/// drained, falling, spin and wall-jump animations reach by cue or by a frame their movement owner sets all lie in it.
-/// These are gameplay cadence and transition definitions, not editable sprite artwork.
+/// Independently reviewed for #1165 against the game's pose animation data and its playback, typed for #1473 and named for
+/// #2048: an animation is the named segments a pose animates by, each closed by the cue it ends in. An animation holds every
+/// segment up to the next pose's animation, so the frames the breathing, drained, falling, spin and wall-jump animations
+/// reach by cue or by a frame their movement owner sets all lie in it. These are gameplay cadence and transition
+/// definitions, not editable sprite artwork.
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions
 {
@@ -19,471 +19,471 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>The animation <see cref="SamusPoseId.MovingRightNormalPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation RunningAnimation { get; } = new(
     [
-        new(0, [2, 3, 2, 3, 2, 3, 2, 3, 2, 3], new SamusAnimationRestart()),
-        new(11, [.. Repeat(4, 6), 3, 4, 4, 3], new SamusAnimationRestart()),
-        new(22, [10], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Run, [2, 3, 2, 3, 2, 3, 2, 3, 2, 3], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Unreached, [.. Repeat(4, 6), 3, 4, 4, 3], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.SecondUnreached, [10], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation AimingUpAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation AimingUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkFacingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkAnimation { get; } = new([new(0, [.. Repeat(16, 6)], new SamusAnimationRestart())]);
+    internal static SamusPoseAnimation MoonwalkAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [.. Repeat(16, 6)], new SamusAnimationRestart())]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalLandingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalLandingRightAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingRightNormalPose))]);
+    internal static SamusPoseAnimation NormalLandingRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingRightNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalLandingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalLandingLeftAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingLeftNormalPose))]);
+    internal static SamusPoseAnimation NormalLandingLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingLeftNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.SpinLandingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation SpinLandingRightAnimation { get; } = new([new(0, [3, 5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingRightNormalPose))]);
+    internal static SamusPoseAnimation SpinLandingRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingRightNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.SpinLandingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation SpinLandingLeftAnimation { get; } = new([new(0, [3, 5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingLeftNormalPose))]);
+    internal static SamusPoseAnimation SpinLandingLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 5, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingLeftNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.LandingAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation LandingAimUpRightAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpRightPose))]);
+    internal static SamusPoseAnimation LandingAimUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.LandingAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation LandingAimUpLeftAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpLeftPose))]);
+    internal static SamusPoseAnimation LandingAimUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.LandingAimDiagonalUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation LandingAimDiagonalUpRightAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation LandingAimDiagonalUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.LandingAimDiagonalUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation LandingAimDiagonalUpLeftAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation LandingAimDiagonalUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.LandingAimDiagonalDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation LandingAimDiagonalDownRightAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownRightPose))]);
+    internal static SamusPoseAnimation LandingAimDiagonalDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.LandingAimDiagonalDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation LandingAimDiagonalDownLeftAnimation { get; } = new([new(0, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownLeftPose))]);
+    internal static SamusPoseAnimation LandingAimDiagonalDownLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [5, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.DrainedCrouchingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation DrainedCrouchingRightAnimation { get; } = new(
     [
-        new(0, [2, 2, 2, 16], new SamusAnimationInstallDrainedFall()),
-        new(5, [1], new SamusAnimationRepeat(5)),
-        new(8, [16, 16, 16, 16], new SamusAnimationRepeat(8)),
-        new(14, [3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose)),
+        new(SamusAnimationSegmentName.Collapse, [2, 2, 2, 16], new SamusAnimationInstallDrainedFall()),
+        new(SamusAnimationSegmentName.Fall, [1], new SamusAnimationRepeat(SamusAnimationSegmentName.Fall, 0)),
+        new(SamusAnimationSegmentName.Held, [16, 16, 16, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Held, 0)),
+        new(SamusAnimationSegmentName.StandUp, [3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.DrainedCrouchingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation DrainedCrouchingLeftAnimation { get; } = new(
     [
-        new(0, [2, 2, 16], new SamusAnimationInstallDrainedFall()),
-        new(4, [1], new SamusAnimationRepeat(4)),
-        new(7, [8, 16, 16, 16, 16], new SamusAnimationRepeat(8)),
-        new(14, [16, 16, 16], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose)),
-        new(19, [16, 16, 16, 16, 16], new SamusAnimationRepeat(10)),
-        new(26, [16], new SamusAnimationRepeat(10)),
-        new(29, [16], new SamusAnimationRepeat(29)),
+        new(SamusAnimationSegmentName.Collapse, [2, 2, 16], new SamusAnimationInstallDrainedFall()),
+        new(SamusAnimationSegmentName.Fall, [1], new SamusAnimationRepeat(SamusAnimationSegmentName.Fall, 0)),
+        new(SamusAnimationSegmentName.Held, [8, 16, 16, 16, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Held, 1)),
+        new(SamusAnimationSegmentName.StandUp, [16, 16, 16], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose)),
+        new(SamusAnimationSegmentName.FailedStand, [16, 16, 16, 16, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Held, 3)),
+        new(SamusAnimationSegmentName.FailedStandEnd, [16], new SamusAnimationRepeat(SamusAnimationSegmentName.Held, 3)),
+        new(SamusAnimationSegmentName.Frozen, [16], new SamusAnimationRepeat(SamusAnimationSegmentName.Frozen, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.DrainedStandingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation DrainedStandingRightAnimation { get; } = new(
     [
-        new(0, [16, 16, 16, 16], new SamusAnimationRestart()),
-        new(5, [3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose)),
+        new(SamusAnimationSegmentName.Breathe, [16, 16, 16, 16], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.StandUp, [3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.DrainedStandingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation DrainedStandingLeftAnimation { get; } = new(
     [
-        new(0, [16, 16, 16, 16], new SamusAnimationRestart()),
-        new(5, [3], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose)),
+        new(SamusAnimationSegmentName.Breathe, [16, 16, 16, 16], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.StandUp, [3], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.FacingRightNormalPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation StandingAnimation { get; } = new(
     [
-        new(0, [10, 10, 10, 10], new SamusAnimationLoopUnlessLowEnergy()),
-        new(5, [8, 8, 8, 8], new SamusAnimationRepeat(5)),
+        new(SamusAnimationSegmentName.Breathe, [10, 10, 10, 10], new SamusAnimationLoopUnlessLowEnergy()),
+        new(SamusAnimationSegmentName.LowEnergyBreathe, [8, 8, 8, 8], new SamusAnimationRepeat(SamusAnimationSegmentName.LowEnergyBreathe, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation CrouchingAnimation { get; } = new(
     [
-        new(0, [10, 10, 10, 10], new SamusAnimationLoopUnlessLowEnergy()),
-        new(5, [8, 8, 8, 8], new SamusAnimationRepeat(5)),
+        new(SamusAnimationSegmentName.Breathe, [10, 10, 10, 10], new SamusAnimationLoopUnlessLowEnergy()),
+        new(SamusAnimationSegmentName.LowEnergyBreathe, [8, 8, 8, 8], new SamusAnimationRepeat(SamusAnimationSegmentName.LowEnergyBreathe, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.XrayingStandingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation XrayingAnimation { get; } = new([new(0, [15, 15, 15, 15, 15], new SamusAnimationRestart())]);
+    internal static SamusPoseAnimation XrayingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [15, 15, 15, 15, 15], new SamusAnimationRestart())]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingAimDiagonalUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation HeldStillAnimation { get; } = new([new(0, [16], new SamusAnimationRestart())]);
+    internal static SamusPoseAnimation HeldStillAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [16], new SamusAnimationRestart())]);
 
     /// <summary>The animation <see cref="SamusPoseId.GrappleStandingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GrappleStandingAnimation { get; } = new([new(0, [16], new SamusAnimationRestart())]);
+    internal static SamusPoseAnimation GrappleStandingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [16], new SamusAnimationRestart())]);
 
     /// <summary>The animation <see cref="SamusPoseId.GrappleAirborneGunExtendedRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GrappleAirborneGunExtendedRightAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation GrappleAirborneGunExtendedRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.GrappleAirborneAimDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GrappleAirborneAimDownRightAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation GrappleAirborneAimDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.GrappleAirborneAimDiagonalDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GrappleAirborneAimDiagonalDownRightAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation GrappleAirborneAimDiagonalDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.GrappleSwingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GrappleSwingAnimation { get; } = new([new(0, [.. Repeat(8, 66)], new SamusAnimationRepeat(65))]);
+    internal static SamusPoseAnimation GrappleSwingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [.. Repeat(8, 66)], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 65))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NeutralJumpTransitionRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NeutralJumpTransitionRightAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NeutralJumpRightPose))]);
+    internal static SamusPoseAnimation NeutralJumpTransitionRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NeutralJumpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NeutralJumpTransitionLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NeutralJumpTransitionLeftAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NeutralJumpLeftPose))]);
+    internal static SamusPoseAnimation NeutralJumpTransitionLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NeutralJumpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpTransitionAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpTransitionAimUpRightAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimUpRightPose))]);
+    internal static SamusPoseAnimation NormalJumpTransitionAimUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpTransitionAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpTransitionAimUpLeftAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimUpLeftPose))]);
+    internal static SamusPoseAnimation NormalJumpTransitionAimUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalUpRightAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalUpLeftAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalDownRightAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalDownRightPose))]);
+    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalDownLeftAnimation { get; } = new([new(0, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalDownLeftPose))]);
+    internal static SamusPoseAnimation NormalJumpTransitionAimDiagonalDownLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [1], new SamusAnimationTransition(SamusPoseId.NormalJumpAimDiagonalDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NeutralJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NeutralJumpAndWindupAnimation { get; } = new([new(0, [3, 4, 4, 4, 4, 80], new SamusAnimationRepeat(5))]);
+    internal static SamusPoseAnimation NeutralJumpAndWindupAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 4, 4, 4, 4, 80], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 5))]);
 
     /// <summary>The animation <see cref="SamusPoseId.DamageBoostLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation DamageBoostAnimation { get; } = new([new(0, [8, .. Repeat(2, 9)], new SamusAnimationRepeat(9))]);
+    internal static SamusPoseAnimation DamageBoostAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [8, .. Repeat(2, 9)], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 9))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpAimUpAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation NormalJumpAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpAimDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpAimDownAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation NormalJumpAimDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpForwardRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpForwardAnimation { get; } = new([new(0, [2, 3], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation NormalJumpForwardAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 3], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.NormalJumpGunExtendedRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation NormalJumpAimingAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation NormalJumpAimingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.FallingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation FallingAnimation { get; } = new(
     [
-        new(0, [8, 6, 6], new SamusAnimationRepeat(2)),
-        new(5, [8, 16], new SamusAnimationRepeat(6)),
+        new(SamusAnimationSegmentName.FallStart, [8, 6, 6], new SamusAnimationRepeat(SamusAnimationSegmentName.FallStart, 2)),
+        new(SamusAnimationSegmentName.FastFall, [8, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.FastFall, 1)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.FallingGunExtendedRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation FallingGunExtendedAnimation { get; } = new(
     [
-        new(0, [8, 6, 6], new SamusAnimationRepeat(2)),
-        new(5, [8, 16], new SamusAnimationRepeat(6)),
+        new(SamusAnimationSegmentName.FallStart, [8, 6, 6], new SamusAnimationRepeat(SamusAnimationSegmentName.FallStart, 2)),
+        new(SamusAnimationSegmentName.FastFall, [8, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.FastFall, 1)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.FallingAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation FallingAimUpAnimation { get; } = new([new(0, [2, 16, 16], new SamusAnimationRepeat(2))]);
+    internal static SamusPoseAnimation FallingAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 2))]);
 
     /// <summary>The animation <see cref="SamusPoseId.FallingAimDiagonalUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation FallingAimDiagonalAnimation { get; } = new(
     [
-        new(0, [2], new SamusAnimationHold()),
-        new(2, [16], new SamusAnimationRepeat(2)),
+        new(SamusAnimationSegmentName.Aim, [2], new SamusAnimationHold()),
+        new(SamusAnimationSegmentName.AimHeld, [16], new SamusAnimationRepeat(SamusAnimationSegmentName.AimHeld, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.FallingAimDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation FallingAimDownAnimation { get; } = new([new(0, [2, 16], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation FallingAimDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.KnockbackRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation KnockbackAnimation { get; } = new(
     [
-        new(0, [2, 16], new SamusAnimationRepeat(1)),
-        new(4, [6, 6, 6, 8], new SamusAnimationRestart()),
-        new(9, [8, 8], new SamusAnimationRestart()),
-        new(12, [10], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Knockback, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Knockback, 1)),
+        new(SamusAnimationSegmentName.Unreached, [6, 6, 6, 8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.SecondUnreached, [8, 8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.ThirdUnreached, [10], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.MorphBallGroundRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation MorphBallAnimation { get; } = new(
     [
-        new(0, [.. Repeat(3, 8)], new SamusAnimationRestart()),
-        new(9, [3], new SamusAnimationRepeat(0)),
+        new(SamusAnimationSegmentName.Roll, [.. Repeat(3, 8)], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Unreached, [3], new SamusAnimationRepeat(SamusAnimationSegmentName.Roll, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.SpinJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation SpinJumpAnimation { get; } = new(
     [
-        new(0, [4, 3, 2, 3, 2, 3, 2, 3, 2], new SamusAnimationRepeat(1)),
-        new(11, [8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Spin, [4, 3, 2, 3, 2, 3, 2, 3, 2], new SamusAnimationRepeat(SamusAnimationSegmentName.Spin, 1)),
+        new(SamusAnimationSegmentName.WallJumpReady, [8], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.SpaceJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation SpaceJumpAnimation { get; } = new(
     [
-        new(0, [4, .. Repeat(1, 8)], new SamusAnimationRepeat(1)),
-        new(11, [8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Spin, [4, .. Repeat(1, 8)], new SamusAnimationRepeat(SamusAnimationSegmentName.Spin, 1)),
+        new(SamusAnimationSegmentName.WallJumpReady, [8], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.ScrewAttackRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation ScrewAttackAnimation { get; } = new(
     [
-        new(0, [4, .. Repeat(1, 24)], new SamusAnimationRepeat(1)),
-        new(27, [8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Spin, [4, .. Repeat(1, 24)], new SamusAnimationRepeat(SamusAnimationSegmentName.Spin, 1)),
+        new(SamusAnimationSegmentName.WallJumpReady, [8], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingLeftNormalPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingLeftNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingRightNormalPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FacingRightNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftJumpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftJumpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpForwardLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftJumpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpForwardLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightJumpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightJumpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpForwardRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightJumpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpForwardRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftCrouchingAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftCrouchingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightCrouchingAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightCrouchingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftFallingPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftFallingAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftFallingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightFallingPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightFallingAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightFallingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftAimDiagonalDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftAimDiagonalDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftAimDiagonalDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightAimDiagonalDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightAimDiagonalDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightAimDiagonalDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftJumpAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftJumpAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftJumpAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightJumpAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightJumpAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightJumpAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftJumpAimDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftJumpAimDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDownLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftJumpAimDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightJumpAimDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightJumpAimDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDownRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightJumpAimDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftFallingAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftFallingAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftFallingAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightFallingAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightFallingAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightFallingAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftFallingAimDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftFallingAimDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDownLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftFallingAimDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightFallingAimDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightFallingAimDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDownRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightFallingAimDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftCrouchingAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftCrouchingAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightCrouchingAimUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightCrouchingAimUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftCrouchingAimDiagonalDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalDownLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftCrouchingAimDiagonalDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightCrouchingAimDiagonalDownAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalDownRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightCrouchingAimDiagonalDownAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.StandingAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftJumpAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftJumpAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightJumpAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightJumpAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.NormalJumpAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftFallingAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftFallingAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightFallingAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightFallingAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.FallingAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningRightToLeftCrouchingAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation TurningRightToLeftCrouchingAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation TurningLeftToRightCrouchingAimDiagonalUpAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation TurningLeftToRightCrouchingAimDiagonalUpAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.CrouchingAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpLeftAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
+    internal static SamusPoseAnimation MoonwalkTurnJumpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpRightAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
+    internal static SamusPoseAnimation MoonwalkTurnJumpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimUpLeftAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
+    internal static SamusPoseAnimation MoonwalkTurnJumpAimUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimUpRightAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
+    internal static SamusPoseAnimation MoonwalkTurnJumpAimUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimDownLeftAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
+    internal static SamusPoseAnimation MoonwalkTurnJumpAimDownLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MoonwalkTurnJumpAimDownRightAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
+    internal static SamusPoseAnimation MoonwalkTurnJumpAimDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTurnTransition(SamusPoseId.SpinJumpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.DraygonGrabbingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation DraygonGrabbingLeftAnimation { get; } = new([new(0, [2, 2, 2], new SamusAnimationTransition(SamusPoseId.DraygonGrabbedNeutralLeftPose))]);
+    internal static SamusPoseAnimation DraygonGrabbingLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [2, 2, 2], new SamusAnimationTransition(SamusPoseId.DraygonGrabbedNeutralLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CompactAirborneRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CompactAirborneRightAnimation { get; } = new([new(0, [4, 3], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation CompactAirborneRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [4, 3], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CompactAirborneLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CompactAirborneLeftAnimation { get; } = new([new(0, [4, 3], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation CompactAirborneLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [4, 3], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CompactAirborneFallingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CompactAirborneFallingAnimation { get; } = new([new(0, [3, .. Repeat(2, 8)], new SamusAnimationRepeat(1))]);
+    internal static SamusPoseAnimation CompactAirborneFallingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, .. Repeat(2, 8)], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 1))]);
 
     /// <summary>The animation <see cref="SamusPoseId.WallJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation WallJumpAnimation { get; } = new(
     [
-        new(0, [5, 5], new SamusAnimationWallJumpSelect(3, 13, 23)),
-        new(3, [3, 2, 3, 2, 3, 2, 3, 2], new SamusAnimationRepeat(3)),
-        new(13, [2, 1, 2, 1, 2, 1, 2, 1], new SamusAnimationRepeat(13)),
-        new(23, [.. Repeat(1, 24)], new SamusAnimationRepeat(23)),
+        new(SamusAnimationSegmentName.Launch, [5, 5], new SamusAnimationWallJumpSelect(new(SamusAnimationSegmentName.OrdinarySpin, 0), new(SamusAnimationSegmentName.SpaceJumpSpin, 0), new(SamusAnimationSegmentName.ScrewAttackSpin, 0))),
+        new(SamusAnimationSegmentName.OrdinarySpin, [3, 2, 3, 2, 3, 2, 3, 2], new SamusAnimationRepeat(SamusAnimationSegmentName.OrdinarySpin, 0)),
+        new(SamusAnimationSegmentName.SpaceJumpSpin, [2, 1, 2, 1, 2, 1, 2, 1], new SamusAnimationRepeat(SamusAnimationSegmentName.SpaceJumpSpin, 0)),
+        new(SamusAnimationSegmentName.ScrewAttackSpin, [.. Repeat(1, 24)], new SamusAnimationRepeat(SamusAnimationSegmentName.ScrewAttackSpin, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingRightPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingLeftPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MorphingTransitionRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MorphingTransitionRightAnimation { get; } = new([new(0, [3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose))]);
+    internal static SamusPoseAnimation MorphingTransitionRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.MorphingTransitionLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation MorphingTransitionLeftAnimation { get; } = new([new(0, [3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallFallingLeftPose, SamusPoseId.SpringBallGroundLeftPose, SamusPoseId.SpringBallFallingLeftPose))]);
+    internal static SamusPoseAnimation MorphingTransitionLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallFallingLeftPose, SamusPoseId.SpringBallGroundLeftPose, SamusPoseId.SpringBallFallingLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.GlitchBallMorphingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GlitchBallMorphingRightAnimation { get; } = new([new(0, [0], new SamusAnimationTransition(SamusPoseId.GlitchBallRightPose))]);
+    internal static SamusPoseAnimation GlitchBallMorphingRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [0], new SamusAnimationTransition(SamusPoseId.GlitchBallRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.GlitchBallMorphingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation GlitchBallMorphingLeftAnimation { get; } = new([new(0, [0], new SamusAnimationTransition(SamusPoseId.GlitchBallLeftPose))]);
+    internal static SamusPoseAnimation GlitchBallMorphingLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [0], new SamusAnimationTransition(SamusPoseId.GlitchBallLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose))]);
+    internal static SamusPoseAnimation StandingTransitionRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose))]);
+    internal static SamusPoseAnimation StandingTransitionLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.UnmorphingTransitionRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation UnmorphingTransitionRightAnimation { get; } = new([new(0, [3, 3], new SamusAnimationTransition(SamusPoseId.CrouchingRightPose))]);
+    internal static SamusPoseAnimation UnmorphingTransitionRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3], new SamusAnimationTransition(SamusPoseId.CrouchingRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.UnmorphingTransitionLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation UnmorphingTransitionLeftAnimation { get; } = new([new(0, [3, 3], new SamusAnimationTransition(SamusPoseId.CrouchingLeftPose))]);
+    internal static SamusPoseAnimation UnmorphingTransitionLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3], new SamusAnimationTransition(SamusPoseId.CrouchingLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.InstantMorphingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation InstantMorphingRightAnimation { get; } = new([new(0, [0], new SamusAnimationItemTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.SpringBallGroundRightPose))]);
+    internal static SamusPoseAnimation InstantMorphingRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [0], new SamusAnimationItemTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.SpringBallGroundRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.InstantMorphingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation InstantMorphingLeftAnimation { get; } = new([new(0, [0], new SamusAnimationItemTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.SpringBallGroundLeftPose))]);
+    internal static SamusPoseAnimation InstantMorphingLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [0], new SamusAnimationItemTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.SpringBallGroundLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CompactMorphingRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CompactMorphingRightAnimation { get; } = new([new(0, [3, 3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose))]);
+    internal static SamusPoseAnimation CompactMorphingRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.DraygonHeldMorphingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation DraygonHeldMorphingLeftAnimation { get; } = new([new(0, [3, 3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose))]);
+    internal static SamusPoseAnimation DraygonHeldMorphingLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationItemAirborneTransition(SamusEquipmentFlags.SpringBall, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose, SamusPoseId.DraygonHeldBallLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CompactStandingUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CompactStandingUpRightAnimation { get; } = new([new(0, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose))]);
+    internal static SamusPoseAnimation CompactStandingUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.DraygonHeldStandingUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation DraygonHeldStandingUpLeftAnimation { get; } = new([new(0, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.DraygonGrabbedNeutralLeftPose))]);
+    internal static SamusPoseAnimation DraygonHeldStandingUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.DraygonGrabbedNeutralLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionAimUpRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimUpRightPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionAimUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionAimUpLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimUpLeftPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionAimUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalUpRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalUpLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalDownRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalDownRightPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalDownLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalDownLeftPose))]);
+    internal static SamusPoseAnimation CrouchingTransitionAimDiagonalDownLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.CrouchingAimDiagonalDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionAimUpRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.StandingAimUpRightPose))]);
+    internal static SamusPoseAnimation StandingTransitionAimUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.StandingAimUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionAimUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionAimUpLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.StandingAimUpLeftPose))]);
+    internal static SamusPoseAnimation StandingTransitionAimUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.StandingAimUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionAimDiagonalUpRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalUpRightPose))]);
+    internal static SamusPoseAnimation StandingTransitionAimDiagonalUpRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalUpRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalUpLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionAimDiagonalUpLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalUpLeftPose))]);
+    internal static SamusPoseAnimation StandingTransitionAimDiagonalUpLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalUpLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalDownRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionAimDiagonalDownRightAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalDownRightPose))]);
+    internal static SamusPoseAnimation StandingTransitionAimDiagonalDownRightAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalDownRightPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalDownLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation StandingTransitionAimDiagonalDownLeftAnimation { get; } = new([new(0, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalDownLeftPose))]);
+    internal static SamusPoseAnimation StandingTransitionAimDiagonalDownLeftAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [3], new SamusAnimationTransition(SamusPoseId.StandingAimDiagonalDownLeftPose))]);
 
     /// <summary>The animation <see cref="SamusPoseId.DraygonGrabbedMovingLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation DraygonGrabbedMovingAnimation { get; } = new([new(0, [.. Repeat(6, 6)], new SamusAnimationRestart())]);
+    internal static SamusPoseAnimation DraygonGrabbedMovingAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [.. Repeat(6, 6)], new SamusAnimationRestart())]);
 
     /// <summary>The animation <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation ShinesparkAnimation { get; } = new([new(0, [8], new SamusAnimationRestart())]);
+    internal static SamusPoseAnimation ShinesparkAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [8], new SamusAnimationRestart())]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrystalFlashRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation CrystalFlashRightAnimation { get; } = new(
     [
-        new(0, [3, 3, 1, 1], new SamusAnimationRepeat(2)),
-        new(6, [12, 12, 12, 12], new SamusAnimationRepeat(6)),
-        new(12, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose)),
+        new(SamusAnimationSegmentName.Rise, [3, 3, 1, 1], new SamusAnimationRepeat(SamusAnimationSegmentName.Rise, 2)),
+        new(SamusAnimationSegmentName.Glow, [12, 12, 12, 12], new SamusAnimationRepeat(SamusAnimationSegmentName.Glow, 0)),
+        new(SamusAnimationSegmentName.Finish, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingRightNormalPose)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.CrystalFlashLeftPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation CrystalFlashLeftAnimation { get; } = new(
     [
-        new(0, [3, 3, 1, 1], new SamusAnimationRepeat(2)),
-        new(6, [12, 12, 12, 12], new SamusAnimationRepeat(6)),
-        new(12, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose)),
+        new(SamusAnimationSegmentName.Rise, [3, 3, 1, 1], new SamusAnimationRepeat(SamusAnimationSegmentName.Rise, 2)),
+        new(SamusAnimationSegmentName.Glow, [12, 12, 12, 12], new SamusAnimationRepeat(SamusAnimationSegmentName.Glow, 0)),
+        new(SamusAnimationSegmentName.Finish, [3, 3, 3], new SamusAnimationTransition(SamusPoseId.FacingLeftNormalPose)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.DeathSequenceRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
-    internal static SamusPoseAnimation DeathSequenceAnimation { get; } = new([new(0, [.. Repeat(2, 6)], new SamusAnimationRepeat(5))]);
+    internal static SamusPoseAnimation DeathSequenceAnimation { get; } = new([new(SamusAnimationSegmentName.Main, [.. Repeat(2, 6)], new SamusAnimationRepeat(SamusAnimationSegmentName.Main, 5))]);
 
     /// <summary>The animation <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation ForwardFacingAnimation { get; } = new(
     [
-        new(0, [8], new SamusAnimationRestart()),
-        new(2, [.. Repeat(3, 89), 51, 2, 2, 2, 48], new SamusAnimationRepeat(95)),
+        new(SamusAnimationSegmentName.Still, [8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.Appearance, [.. Repeat(3, 89), 51, 2, 2, 2, 48], new SamusAnimationRepeat(SamusAnimationSegmentName.Appearance, 93)),
     ]);
 }

@@ -11,9 +11,9 @@ internal static class SamusSpinSound
     {
         var movement = SamusPoseMetadata.ReadMovementType(samus);
         if (movement == SamusMovementType.WallJumping)
-            return samus.AnimationFrame >= SamusSpinSoundFrames.ScrewAttack
+            return samus.AnimationHasReached(SamusAnimationFrames.WallJumpScrewAttackSpinStart)
                 ? SamusSound.ScrewAttack
-                : samus.AnimationFrame >= SamusSpinSoundFrames.SpaceJump
+                : samus.AnimationHasReached(SamusAnimationFrames.WallJumpSpaceJumpSpinStart)
                     ? SamusSound.SpaceJump : SamusSound.SpinJump;
         if (movement != SamusMovementType.SpinJumping)
             return null;

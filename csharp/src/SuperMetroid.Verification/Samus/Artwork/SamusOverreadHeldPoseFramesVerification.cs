@@ -46,11 +46,11 @@ internal static class SamusOverreadHeldPoseFramesVerification
         {
             AssertTrue(!SamusUnreachablePoseDefinitions.Poses.Contains(pose), $"{pose} is held, so it is not listed as never held");
             AssertTrue(SamusShownFrames.Poses.Contains(pose), $"{pose} is one of the poses the body can show");
-            AssertTrue(shown.pictured[pose].Count > 0, $"{pose} pictures at least one frame");
-            foreach (int frame in shown.pictured[pose])
+            AssertTrue(shown.Pictures(pose).Any(), $"{pose} pictures at least one frame");
+            foreach (int frame in shown.Pictures(pose).Select(picture => SamusAnimationNumbers.Number(pose, picture)))
             {
                 AssertTrue(body.TryPictures(pose, frame, out _), $"{pose} frame {frame} has installed pictures");
-                SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Pose == pose && drawn.Frame.PictureFrame == frame)];
+                SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Pose == pose && SamusAnimationNumbers.Number(pose, drawn.Frame.PictureFrame) == frame)];
                 AssertTrue(drawnAs.Length > 0, $"{pose} frame {frame} is drawn as a body");
                 foreach (SamusShownBody drawn in drawnAs)
                 {

@@ -25,22 +25,22 @@ internal static class SamusAnimationDelayDefinitionsVerification
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
             SamusPoseAnimation actual = SamusAnimationDelays.AnimationForPose(pose);
             int nextFrame = 0;
-            foreach (SamusAnimationSequence run in SamusAnimationProgramCodec.Decode(cartridge, pose))
+            foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, pose))
             {
                 // Frame numbers between two runs name no step: they held the previous instruction's operands.
                 for (; nextFrame < run.FirstFrame; nextFrame++)
                 {
                     int gap = nextFrame;
-                    AssertTrue(actual.TryStepAt(gap) is null, $"pose {pose} frame {gap} is no step");
+                    AssertTrue(actual.TryStepAtOffset(gap) is null, $"pose {pose} frame {gap} is no step");
                 }
                 for (int index = 0; index < run.Delays.Count; index++, nextFrame++)
-                    AssertEqual<SamusPoseAnimationStep?>(new SamusAnimationDelay(run.Delays[index]), actual.TryStepAt(nextFrame),
+                    AssertEqual<SamusPoseAnimationStep?>(new SamusAnimationDelay(run.Delays[index]), actual.TryStepAtOffset(nextFrame),
                         $"pose {pose} frame {nextFrame} delay");
-                AssertEqual<SamusPoseAnimationStep?>(run.End, actual.TryStepAt(nextFrame), $"pose {pose} frame {nextFrame} instruction");
+                AssertEqual<SamusPoseAnimationStep?>(run.End, actual.TryStepAtOffset(nextFrame), $"pose {pose} frame {nextFrame} instruction");
                 nextFrame++;
             }
             int past = nextFrame;
-            AssertTrue(actual.TryStepAt(past) is null, $"pose {pose} has no step past its program");
+            AssertTrue(actual.TryStepAtOffset(past) is null, $"pose {pose} has no step past its program");
         }
 
         // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.

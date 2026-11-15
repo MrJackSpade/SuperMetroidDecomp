@@ -40,7 +40,7 @@ internal static void VerifySamusRenderingSlice()
     var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        AnimationFrame = 0,
+        AnimationNumber = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
     var samusColours = new SamusColours();
@@ -77,14 +77,14 @@ internal static void VerifySamusRenderingSlice()
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
+    AssertEqual(0, samus.AnimationNumber, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
     SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(1, samus.AnimationFrame, "standing frame advances on tenth tick");
+    AssertEqual(1, samus.AnimationNumber, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
+    AssertEqual(0, samus.AnimationNumber, "healthy $F6 command loops standing animation");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
     // four byte positions and loops that faster eight-tick breathing sequence.
@@ -92,11 +92,11 @@ internal static void VerifySamusRenderingSlice()
     SamusPresentation.InitializeAnimation(samus);
     for (int tick = 0; tick < 40; tick++)
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
+    AssertEqual(5, samus.AnimationNumber, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
+    AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 
     // The item transition's two poses, chosen by equipment (#1473). Only the unused poses $3F/$40 hold one in retail;
     // pose $3F's run is one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
@@ -125,7 +125,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(128, samus.Presentation.DrawOrigin.X, "Samus default screen X calculation");
     AssertEqual(128, samus.Presentation.DrawOrigin.Y, "Samus signed graphics-Y offset calculation");
     // The body records the pose and picture frame it drew, not a table index (#1465), as one whole picture (#1513, #1585).
-    var poseOne = new SamusBodyFrame(SamusPoseId.FacingRightNormalPose, 0);
+    var poseOne = new SamusBodyFrame(SamusPoseId.FacingRightNormalPose, SamusAnimationFrame.Start);
     AssertEqual(poseOne, samus.Presentation.DrawnFrame, "Samus pose 1 draws its frame-zero picture");
     AssertEqual(2, Composition(samus, poseOne).Bottom is null ? 1 : 2, "Samus pose 1's frame-zero picture is composed of its top and bottom halves");
     // The published description: the whole body as one pre-coloured frame, the sheet frame of its pose and picture
@@ -155,7 +155,7 @@ internal static void VerifySamusRenderingSlice()
     SeedPoseNineSamusData(bus);
     SamusGroundedPoseTransitions.ApplyStandingRightToRunningRight(samus);
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
-    AssertEqual(0, samus.AnimationFrame, "running transition resets animation frame");
+    AssertEqual(0, samus.AnimationNumber, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
     AssertEqual(21, samus.Kinematics.Radius.Y, "running pose refreshes collision radius");
 
@@ -163,15 +163,15 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, 0), samus.Presentation.DrawnFrame,
+    AssertEqual(new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationFrame.Start), samus.Presentation.DrawnFrame,
         "running pose draws its frame-zero picture");
-    AssertEqual(2, Composition(samus, new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, 0)).Bottom is null ? 1 : 2,
+    AssertEqual(2, Composition(samus, new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationFrame.Start)).Bottom is null ? 1 : 2,
         "running pose's frame-zero picture is composed of its top and bottom halves");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
     SamusGroundedPoseTransitions.ApplyRunningRightToStandingRight(samus);
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "running no-button fallback applies standing-right pose");
-    AssertEqual(0, samus.AnimationFrame, "standing fallback resets animation frame");
+    AssertEqual(0, samus.AnimationNumber, "standing fallback resets animation frame");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "standing fallback reloads frame-zero delay");
 
     // `$90:868D` inserts one direct small-OBJ write between pose `$00`'s ordinary top and
@@ -209,7 +209,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     SamusBodyFrame forward = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException("Power-suit forward drew no body.");
-    AssertEqual(new SamusBodyFrame(SamusPoseId.ForwardFacingPowerSuitPose, 0), forward, "power-suit forward draws its frame-zero picture");
+    AssertEqual(new SamusBodyFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusAnimationFrame.Start), forward, "power-suit forward draws its frame-zero picture");
     SamusBodyComposition forwardComposition = Composition(samus, forward);
     AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Top, 0), forwardComposition.Top,
         "power-suit forward's picture is composed of its top half's frame-zero picture");
@@ -238,8 +238,8 @@ internal static void VerifySamusRenderingSlice()
     oam = oamFrame.FinalizeAsOam();
     // The suited forward frame selects bottom set $FF: no bottom transfer. Its whole picture is composed of its own
     // selection alone, with no bottom picture carried from an earlier frame (#1585).
-    var suited = new SamusBodyFrame(SamusPoseId.ForwardFacingSuitedPose, 0);
-    SamusBodyFramePictures suitedPictures = BoundArtwork(samus).Pictures(suited.Pose, suited.PictureFrame);
+    var suited = new SamusBodyFrame(SamusPoseId.ForwardFacingSuitedPose, SamusAnimationFrame.Start);
+    SamusBodyFramePictures suitedPictures = BoundArtwork(samus).Pictures(suited.Pose, SamusAnimationNumbers.Number(suited.Pose, suited.PictureFrame));
     AssertTrue(suitedPictures.Bottom is null, "the suited forward frame names no bottom record");
     AssertTrue(BoundArtwork(samus).Spritemaps.PictureKey(Composition(samus, suited), suitedPictures) is { BottomPicture: null },
         "a frame with no bottom transfer is composed with no bottom picture");
@@ -325,7 +325,7 @@ internal static void VerifySamusRenderingSlice()
     {
         AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         samus.Pose = pose;
-        samus.AnimationFrame = frame;
+        samus.AnimationNumber = frame;
         oamFrame.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
         samus.Presentation.Draw(samus, oamFrame, cameraPosition: samus.Position.Whole);
@@ -340,7 +340,7 @@ internal static void VerifySamusRenderingSlice()
     // exact adjacent-code observation is `$8B`, so it is malformed metadata rather than
     // an untranslated draw selector.
     samus.Pose = SamusPoseNumbering.FromNumber(0xfd);
-    samus.AnimationFrame = 0;
+    samus.AnimationNumber = 0;
     AssertThrows<InvalidDataException>(
         () => SamusPoseMetadata.ReadMovementType(samus),
         "movement-type API rejects a discriminator outside the complete retail domain");
@@ -354,14 +354,14 @@ internal static void VerifySamusRenderingSlice()
     // host switch. `$37` proves signed -4/-2 values.
     samus.Pose = SamusPoseId.MorphingTransitionRightPose;
     samus.Position = samus.Position.WithWholeY(0x0086);
-    samus.AnimationFrame = 0;
+    samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0082, samus.Presentation.DrawOrigin.Y,
         "morph transition frame zero reads signed minus-four table byte");
-    samus.AnimationFrame = 1;
+    samus.AnimationNumber = 1;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
@@ -374,7 +374,7 @@ internal static void VerifySamusRenderingSlice()
     // already carries a deliberately different graphics offset in the fixture above.
     samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
     WriteSamusTileAnimationPointer(bus, samus.Pose, 0xe100);
-    samus.AnimationFrame = 2;
+    samus.AnimationNumber = 2;
     samus.Position = samus.Position.WithWholeY(0x0086);
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -396,7 +396,7 @@ internal static void VerifySamusRenderingSlice()
     WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
     WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.NormalLandingRightPose;
-    samus.AnimationFrame = 0;
+    samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
@@ -406,7 +406,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x83, oam.GetEntry(0).Position.Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
 
-    samus.AnimationFrame = 1;
+    samus.AnimationNumber = 1;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
@@ -418,7 +418,7 @@ internal static void VerifySamusRenderingSlice()
     // ordinary pose offset. A quarter turn around (1152, 128) maps (+8,+6) to (-6,+8). The body must use that
     // temporary point while collision-visible Samus coordinates remain unchanged afterward.
     samus.Pose = SamusPoseId.FacingRightNormalPose;
-    samus.AnimationFrame = 0;
+    samus.AnimationNumber = 0;
     samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));
     var quarterTurn = new TurningFloorTransform(Math.PI / 2, new Position16<RoomPixels>(0x0480, 0x0080));
     oamFrame.BeginFrame();
@@ -454,7 +454,7 @@ private static SamusBodySources BoundArtwork(SamusState samus) => samus.BoundBod
 
 /// <summary>The halves and chest cover the import composed <paramref name="frame"/>'s whole picture of (#1585).</summary>
 private static SamusBodyComposition Composition(SamusState samus, SamusBodyFrame frame) =>
-    SamusBodyCompositions.Of(frame.Pose, frame.PictureFrame, BoundArtwork(samus));
+    SamusBodyCompositions.Of(frame.Pose, SamusAnimationNumbers.Number(frame.Pose, frame.PictureFrame), BoundArtwork(samus));
 
 /// <summary>
 /// Walks the complete `$90:C519-$C790` arm-cannon cover lifetime. The fixture keeps the
@@ -486,7 +486,7 @@ internal static void VerifySamusArmCannon()
     var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        AnimationFrame = 0,
+        AnimationNumber = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
         SelectedHudItem = HudItem.Beam,
     };

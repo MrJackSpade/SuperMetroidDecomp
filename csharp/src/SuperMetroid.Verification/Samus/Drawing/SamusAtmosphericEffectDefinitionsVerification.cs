@@ -119,7 +119,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Kinematics = { Radius = new(5, 12) },
             };
             samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(AreaId.Maridia);
-            SamusPresentation.InitializeAnimation(samus, frame);
+            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
 
@@ -148,7 +148,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.LiquidPhysics.Room = room;
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            SamusPresentation.InitializeAnimation(runner, initialFrame: 2);
+            SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),

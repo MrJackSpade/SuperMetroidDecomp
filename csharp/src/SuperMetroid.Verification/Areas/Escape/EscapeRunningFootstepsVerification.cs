@@ -36,7 +36,7 @@ internal static class EscapeRunningFootstepsVerification
             if (!able)
             {
                 AssertTrue(samus.Drained.RunGetUpCheck(samus, GameplayAction.Up), "cutscene still accepts failed stand-up");
-                AssertEqual(18, samus.AnimationFrame, "native failed stand-up still selects frame eighteen");
+                AssertEqual(18, samus.AnimationNumber, "native failed stand-up still selects frame eighteen");
             }
 
             // Begin at the identified native timer-handoff phase, not a boss playthrough.
@@ -61,8 +61,8 @@ internal static class EscapeRunningFootstepsVerification
             samus.Pose = pose;
             samus.Control.Unlock();
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 8);
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 8, 1);
+            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(8));
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
             samus.LiquidPhysics.FxType = RoomFxType.Acid;
             samus.LiquidPhysics.LavaAcidSurfaceY = 0;
             samus.Drained.RunGetUpCheck(samus, (GameplayAction.Up | GameplayAction.Jump));
@@ -71,7 +71,7 @@ internal static class EscapeRunningFootstepsVerification
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = (GameplayAction.Up | GameplayAction.Jump) });
             AssertEqual(DrainedGetUpCheck.Inactive, samus.Drained.GetUpCheck,
                 "escape timer replaces the drained hack handler");
-            AssertEqual(9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");
+            AssertEqual(9, samus.AnimationNumber, "Up edge in acid advances the running animation normally");
             AssertTrue(!samus.AnimationFrameTimer.IsZero, "running cadence receives its real next-frame delay");
         }
         Console.WriteLine("Escape running footsteps: native timer handoff displaces both drained handlers; Up/jump in acid preserves both running animations and the cutscene failed-stand branch.");

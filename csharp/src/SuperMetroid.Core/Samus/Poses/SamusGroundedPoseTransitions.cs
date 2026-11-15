@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
@@ -380,7 +380,7 @@ internal static class SamusGroundedPoseTransitions
 
         // The pose initializer resets animation frame zero and loads MovingRightNormalPose's first
         // delay after the pose refresh updates direction/movement metadata.
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
 
@@ -405,7 +405,7 @@ internal static class SamusGroundedPoseTransitions
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion value.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
 
@@ -644,6 +644,6 @@ level, targetPose, frameCounter, roomObjects, out int adjustment);
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.
         if (expectedPose != targetPose)
-            SamusPresentation.InitializeAnimation(samus, initialFrame: SamusPoseTransitions.StandingPoseInitialFrame(expectedPose, targetPose));
+            SamusPresentation.InitializeAnimation(samus, SamusPoseTransitions.StandingPoseInitialFrame(expectedPose, targetPose));
     }
 }

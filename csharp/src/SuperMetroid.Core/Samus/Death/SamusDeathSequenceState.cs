@@ -91,14 +91,14 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
-        int initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
+        SamusAnimationTarget initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
         // The game initializes DeathSequenceRightPose and DeathSequenceLeftPose normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose step is not running.
         samus.CommitPoseHistory();

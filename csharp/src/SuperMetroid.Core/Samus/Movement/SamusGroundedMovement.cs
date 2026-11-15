@@ -120,7 +120,7 @@ public static class SamusGroundedMovement
     {
         if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&
             (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 0, SamusMovementDefinitions.StandingShotAnimationTimer);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrame.Start, SamusMovementDefinitions.StandingShotAnimationTimer);
     }
 
     /// <summary>

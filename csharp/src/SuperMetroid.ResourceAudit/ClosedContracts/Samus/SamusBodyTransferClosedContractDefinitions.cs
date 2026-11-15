@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Installed body frame placement availability, independently reviewed from Samus placement tables (#1585).</summary>

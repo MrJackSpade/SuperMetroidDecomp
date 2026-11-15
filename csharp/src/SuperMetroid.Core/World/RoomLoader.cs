@@ -246,7 +246,7 @@ internal sealed class RoomLoader
         // appearance before restoring ordinary input.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, frame: 2, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -287,7 +287,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         _player.Samus = samus;
         _player.Samus.BindAudioRequests(_audioRequests);
         slot.ApplyTo(_player.Samus, _system);
@@ -322,7 +322,7 @@ internal sealed class RoomLoader
         // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
@@ -1156,7 +1156,7 @@ internal sealed class RoomLoader
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         _player.Samus.BindAudioRequests(_audioRequests);

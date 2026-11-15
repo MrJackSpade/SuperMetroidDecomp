@@ -207,7 +207,7 @@ internal static class SuperMetroidRuntimeAccess
             self.Player.Samus = new SamusState(self.SamusOverreads.FramesBeyondAnimation, self.UnauthoredBoostCadence, SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), self.BeamCharge, self.Artwork.SamusArtwork)
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
-                AnimationFrame = 0,
+                AnimationFrame = SamusAnimationFrame.Start,
                 Position = FixedPosition<RoomPixels>.FromWhole(position),
             };
 

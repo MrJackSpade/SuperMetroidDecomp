@@ -95,9 +95,10 @@ public sealed class SamusArmCannonState
             return;
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
-        SamusProjectileDirection direction = placement.Direction(samus.AnimationFrame);
+        SamusAnimationFrame frame = samus.AnimationFrameOf(samus.Pose);
+        SamusProjectileDirection direction = placement.Direction(frame);
 
-        Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
+        Offset16<RoomPixels> offset = placement.Offset(SamusAnimationDelays.AnimationForPose(samus.Pose), frame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
         // The cover is published wherever it lies, off the screen included; the display clips it (#1587).

@@ -41,6 +41,11 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// animation pass is advanced by it before the draw; any other written frame is drawn as it stands.
 /// </para>
 /// <para>
+/// The analysis follows the frames by the place each takes in the game's layout of the pose's animation
+/// (<see cref="SamusPoseAnimation.OffsetOf"/>): it reads past animations, onto values cues carry and frames written for
+/// another animation, which only that layout orders. What it publishes are the pose's frames (#2048).
+/// </para>
+/// <para>
 /// Every frame the body shows that is not one of the pose's picture frames, whether an authored path wrote it on an
 /// cue's place or past the animation or an unauthored path wrote it, draws the pose's nearest picture frame at or
 /// before it: the picture the pose's own animation last showed before that frame in its animation. This is a drawing
@@ -74,8 +79,8 @@ internal sealed class SamusShownFrames
     /// </summary>
     private readonly HashSet<SamusPoseId> fallingWithoutDrain = [];
 
-    /// <summary>Each pose's picture frames: the delays and holds of its animation that its own playback shows.</summary>
-    internal readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
+    /// <summary>Each pose's picture frames, by their place in its animation's layout: the delays and holds its own playback shows.</summary>
+    private readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
 
     /// <summary>The picture frame each shown frame draws.</summary>
     private readonly Dictionary<SamusPoseFrame, int> pictureFrames = [];
@@ -120,15 +125,54 @@ internal sealed class SamusShownFrames
     /// path of the game shows that frame: the frame itself when it is one of the pose's picture frames, otherwise the
     /// pose's nearest picture frame at or before it.
     /// </summary>
-    internal bool TryPictureFrame(SamusPoseId pose, int frame, out int picture) =>
-        pictureFrames.TryGetValue(new SamusPoseFrame(pose, frame), out picture);
+    internal bool TryPictureFrame(SamusPoseId pose, SamusAnimationFrame frame, out SamusAnimationFrame picture)
+    {
+        picture = default;
+        if (!shown.ContainsKey(pose))
+            return false;
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        bool shows = pictureFrames.TryGetValue(new SamusPoseFrame(pose, animation.OffsetOf(frame)), out int place);
+        picture = shows ? animation.FrameAt(place) : default;
+        return shows;
+    }
 
     /// <summary>The picture frame the body draws for <paramref name="pose"/> at animation frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidOperationException">No path of the game shows that frame.</exception>
-    internal int PictureFrame(SamusPoseId pose, int frame) =>
-        TryPictureFrame(pose, frame, out int picture)
+    internal SamusAnimationFrame PictureFrame(SamusPoseId pose, SamusAnimationFrame frame) =>
+        TryPictureFrame(pose, frame, out SamusAnimationFrame picture)
             ? picture
             : throw new InvalidOperationException($"Samus's body cannot show pose {pose} at animation frame {frame}: no path of the game reaches it.");
+
+    /// <summary>
+    /// The picture frame the body draws for <paramref name="samus"/>: her pose at her animation frame as the pose's animation
+    /// reads it (<see cref="SamusState.AnimationFrameOf"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No path of the game shows her pose, or that frame of it.</exception>
+    internal SamusAnimationFrame PictureFrame(SamusState samus) =>
+        shown.ContainsKey(Ensure.NotNull(samus).Pose)
+            ? PictureFrame(samus.Pose, samus.AnimationFrameOf(samus.Pose))
+            : throw new InvalidOperationException($"Samus's body cannot show pose {samus.Pose}: no path of the game gives it to her.");
+
+    /// <summary>The picture frames of <paramref name="pose"/>, in its animation's order: the delays and holds its own playback shows.</summary>
+    internal IEnumerable<SamusAnimationFrame> Pictures(SamusPoseId pose)
+    {
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        return pictured[pose].Select(animation.FrameAt);
+    }
+
+    /// <summary>The place <paramref name="place"/> takes in the game's layout of its own animation, which it lands at in any other.</summary>
+    private static int Number(SamusAnimationPlace place) => place.Animation.OffsetOf(place.Frame);
+
+    /// <summary>The step <paramref name="pose"/>'s animation reads at <paramref name="frame"/> places into its layout.</summary>
+    private SamusPoseAnimationStep? StepAt(SamusPoseId pose, int frame) =>
+        SamusAnimationDelays.TryStepFor(pose, SamusAnimationDelays.AnimationForPose(pose).FrameAt(frame), framesBeyondAnimation);
+
+    /// <summary>The place in <paramref name="pose"/>'s layout a cue read at <paramref name="frame"/> moves to when it names <paramref name="target"/>.</summary>
+    private int TargetOf(SamusPoseId pose, int frame, SamusAnimationTarget target)
+    {
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        return animation.OffsetOf(SamusAnimationDelays.Target(pose, animation.FrameAt(frame), target, framesBeyondAnimation));
+    }
 
     /// <summary>
     /// Follows every pending frame on through its animation, and applies <paramref name="publications"/> to every pose,
@@ -191,7 +235,7 @@ internal sealed class SamusShownFrames
 
     /// <summary>Whether <paramref name="frame"/> is a delay or a hold of <paramref name="pose"/>'s own animation.</summary>
     private static bool IsPicture(SamusPoseId pose, int frame) =>
-        SamusAnimationDelays.AnimationForPose(pose).TryStepAt(frame) is SamusAnimationDelay or SamusAnimationHold;
+        SamusAnimationDelays.AnimationForPose(pose).TryStepAtOffset(frame) is SamusAnimationDelay or SamusAnimationHold;
 
     /// <summary>The frames the animation can show after <paramref name="frame"/> of <paramref name="pose"/> when its delay runs out.</summary>
     private int[] Next(SamusPoseId pose, int frame) => Reach(pose, frame + 1, FrameReach.Advancing);
@@ -204,7 +248,7 @@ internal sealed class SamusShownFrames
     /// <exception cref="InvalidDataException">An animation holds a step its playback cannot play.</exception>
     private int[] Reach(SamusPoseId pose, int frame, FrameReach reach)
     {
-        SamusPoseAnimationStep? step = SamusAnimationDelays.TryStepFor(pose, frame, framesBeyondAnimation);
+        SamusPoseAnimationStep? step = StepAt(pose, frame);
         if (step is SamusAnimationDelay)
             return [frame];
         if (reach == FrameReach.Selection || step is null)
@@ -212,14 +256,14 @@ internal sealed class SamusShownFrames
         return step switch
         {
             SamusAnimationHold => [frame],
-            SamusAnimationRepeat repeat => Reach(pose, repeat.Frame, FrameReach.Selection),
+            SamusAnimationRepeat repeat => Reach(pose, TargetOf(pose, frame, repeat.Target), FrameReach.Selection),
             SamusAnimationRestart => Reach(pose, 0, FrameReach.Selection),
             SamusAnimationLoopUnlessLowEnergy => [.. Reach(pose, frame + 1, FrameReach.Selection), .. Reach(pose, 0, FrameReach.Selection)],
             SamusAnimationWallJumpSelect select =>
             [
-                .. Reach(pose, select.OrdinaryFrame, FrameReach.Selection),
-                .. Reach(pose, select.SpaceJumpFrame, FrameReach.Selection),
-                .. Reach(pose, select.ScrewAttackFrame, FrameReach.Selection),
+                .. Reach(pose, TargetOf(pose, frame, select.OrdinaryFrame), FrameReach.Selection),
+                .. Reach(pose, TargetOf(pose, frame, select.SpaceJumpFrame), FrameReach.Selection),
+                .. Reach(pose, TargetOf(pose, frame, select.ScrewAttackFrame), FrameReach.Selection),
             ],
             // The drained fall's handover installs the fall whatever the pose, then moves on to the next frame (#1535).
             SamusAnimationInstallDrainedFall => InstallDrainedFall(pose, frame),
@@ -250,12 +294,12 @@ internal sealed class SamusShownFrames
         SortedSet<int> frames = shown[pose];
         var publications = new List<SamusPublishedFrame>();
         // Once she can stand, the drained get-up moves the left-facing drained crouch to its stand-up on Up, just before the animation.
-        if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
-            publications.Add(new(SamusDrainedAnimationDefinitions.AbleToStandFrame, PublishedFrameDrawing.AfterAdvancing));
+        if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= Number(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.AbleToStandFrame), PublishedFrameDrawing.AfterAdvancing));
         // While she cannot stand, the drained get-up starts with the left-facing drained crouch and moves it, on Up, to its failed
         // attempt to stand, just before the animation.
         if (pose == SamusPoseId.DrainedCrouchingLeftPose && ShowsUnableToStandFrame(frames))
-            publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.UnableToStandFrame), PublishedFrameDrawing.AfterAdvancing));
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
             // The Baby Metroid's Hyper Beam freeze and rainbow stop write the frame during enemy AI, after the animation, so
@@ -263,14 +307,14 @@ internal sealed class SamusShownFrames
             // crouch's Hyper Beam frame, and both crouches' rainbow-stop frame, land on a cue's place, and the
             // right-facing crouch's Hyper Beam frame past its animation: the game's tables hold no composition there, so the
             // body vanishes; the model draws the crouch's picture before it.
-            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
-            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame), PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.RainbowStopFrame), PublishedFrameDrawing.AsWritten));
             // The drained fall lands on its landing frame for eight ticks; the release moves the crouch on during enemy AI.
             // The release follows the Tourian Metroid's drain, whose fall leaves Samus crouching, so it never meets a
             // drained standing pose. The right-facing crouch's landing frame is a cue's place, drawn as the
             // crouch's picture before it, the same picture the game's tables hold there.
-            publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
-            publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.LandingFrame), PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame), PublishedFrameDrawing.AsWritten));
         }
         // Wall contact rewinds a spin pose, during movement and with a timer of one, into the animation's frames.
         if (SamusPoseMetadata.ReadMovementType(pose) == SamusMovementType.SpinJumping)
@@ -290,18 +334,18 @@ internal sealed class SamusShownFrames
         // The drained get-up for when she cannot stand runs until Mother Brain dies and checks only the frame, so on Up it moves
         // whatever pose shows one of its frames, just before the animation: every pose Samus takes in the fight that follows.
         if (pose != SamusPoseId.DrainedCrouchingLeftPose && UnableToStandMeets(pose) && ShowsUnableToStandFrame(shown[pose]))
-            publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.UnableToStandFrame), PublishedFrameDrawing.AfterAdvancing));
         // The Baby's Hyper Beam freeze and rainbow stop write the frame without checking the pose, so a Samus the drain has
         // let go of takes them in whatever pose she holds, drawn as written.
         if (BabyFreezeAndStopMeetFree(pose))
         {
-            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
-            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame), PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.RainbowStopFrame), PublishedFrameDrawing.AsWritten));
         }
         // The drained fall a pose's animation installed by reading into a drained crouch's animation lands it on the
         // landing frame, during movement and with the landing's timer, so the draw shows it as written.
         if (fallingWithoutDrain.Contains(pose))
-            publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(Number(SamusDrainedAnimationDefinitions.LandingFrame), PublishedFrameDrawing.AsWritten));
         // Wall contact rewinds whatever pose holds the spin's movement: a drained pose written over a spin keeps it.
         if (SamusPoseMetadata.ReadMovementType(pose) != SamusMovementType.SpinJumping &&
             MovementTypesHeldIn(pose).Contains(SamusMovementType.SpinJumping))
@@ -311,14 +355,14 @@ internal sealed class SamusShownFrames
 
     /// <summary>Whether <paramref name="frames"/> holds a frame from which the drained crouch accepts Up while she cannot stand.</summary>
     private static bool ShowsUnableToStandFrame(SortedSet<int> frames) =>
-        frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
-            SamusDrainedAnimationDefinitions.UnableToStandLastFrame).Count > 0;
+        frames.GetViewBetween(Number(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame),
+            Number(SamusDrainedAnimationDefinitions.UnableToStandLastFrame)).Count > 0;
 
     /// <summary>The frame the wall contact rewinds <paramref name="pose"/> to: the Screw Attack's longer run, or the spin's.</summary>
     private static int WallContactRewindFrame(SamusPoseId pose) =>
-        SamusPoseMetadata.IsScrewAttackPose(pose)
+        Number(SamusPoseMetadata.IsScrewAttackPose(pose)
             ? SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame
-            : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame;
+            : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame);
 
     /// <summary>
     /// The movement types Samus's movement can be in while she holds <paramref name="pose"/>: the pose's own, except for the
@@ -378,17 +422,17 @@ internal sealed class SamusShownFrames
             yield return 1;
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
-            yield return SamusDrainedAnimationDefinitions.FallInitialFrame;
-            yield return SamusDrainedAnimationDefinitions.PutCrouchingFrame;
+            yield return Number(SamusDrainedAnimationDefinitions.FallInitialFrame);
+            yield return Number(SamusDrainedAnimationDefinitions.PutCrouchingFrame);
         }
         if (pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose)
-            yield return SamusMovementDefinitions.FastFallAnimationFrame;
+            yield return Number(SamusAnimationFrames.FastFallStart);
         // The death pose starts on the frame the movement Samus dies in selects.
         if (dying)
         {
             foreach (SamusMovementType movementType in InitializedMovementTypes)
-                yield return SamusDeathSequenceFrames.InitialFrame(movementType);
+                yield return SamusDeathSequenceFrames.InitialFrame(movementType).Frame;
         }
         // The angle, the Crystal Flash's stages and the Zebes start select these poses' frames directly.
         if (pose is SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or

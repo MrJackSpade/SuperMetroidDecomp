@@ -483,10 +483,10 @@ boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0, roo
     SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "aimed-fall initial delay counts down");
     SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(1, samus.AnimationFrame, "aimed-fall reaches F0 command index");
+    AssertEqual(1, samus.AnimationNumber, "aimed-fall reaches F0 command index");
     AssertEqual(0, samus.AnimationFrameTimer.RawValue, "F0 leaves expired timer at zero");
     SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(2, samus.AnimationFrame, "timer underflow advances beyond F0");
+    AssertEqual(2, samus.AnimationNumber, "timer underflow advances beyond F0");
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
     SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingAimDiagonalDownRightPose);
@@ -641,7 +641,7 @@ internal static void VerifySamusGunExtendedMovement()
     {
         var releasedForwardJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = source };
         SamusPoseMetadata.RefreshCollisionRadii(releasedForwardJump);
-        SamusPresentation.InitializeAnimation(releasedForwardJump, initialFrame: 1);
+        SamusPresentation.InitializeAnimation(releasedForwardJump, releasedForwardJump.PoseFrameNumbered(1));
         releasedForwardJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x4567);
         releasedForwardJump.Kinematics.YDirection = SamusVerticalDirection.Up;
         releasedForwardJump.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x89ab);
@@ -650,7 +650,7 @@ internal static void VerifySamusGunExtendedMovement()
 
         AssertEqual(target, releasedForwardJump.Pose,
             $"{facing} forward-jump release installs neutral pose");
-        AssertEqual(0, releasedForwardJump.AnimationFrame,
+        AssertEqual(0, releasedForwardJump.AnimationNumber,
             $"{facing} forward-jump release restarts target animation");
         AssertEqual(0x00034567u, releasedForwardJump.Kinematics.YSpeed.RawValue,
             $"{facing} forward-jump release preserves vertical velocity");
@@ -664,13 +664,13 @@ internal static void VerifySamusGunExtendedMovement()
     // on a nonzero index so resetting to frame zero cannot accidentally satisfy the check.
     var running = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
     SamusPoseMetadata.RefreshCollisionRadii(running);
-    SamusPresentation.InitializeAnimation(running, initialFrame: 4);
-    int runningFrame = running.AnimationFrame;
+    SamusPresentation.InitializeAnimation(running, running.PoseFrameNumbered(4));
+    int runningFrame = running.AnimationNumber;
     ushort runningTimer = running.AnimationFrameTimer.RawValue;
     SamusPoseAnimation runningProgram = SamusAnimationDelays.AnimationForPose(running.AnimatedPose ?? throw new InvalidOperationException("The run has no animation."));
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseId.MovingRightGunExtendedPose);
     AssertEqual(SamusPoseId.MovingRightGunExtendedPose, running.Pose, "running gun extension installs pose $0B");
-    AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
+    AssertEqual(runningFrame, running.AnimationNumber, "running gun extension preserves frame");
     AssertEqual(runningTimer, running.AnimationFrameTimer.RawValue, "running gun extension preserves timer");
     AssertTrue(ReferenceEquals(runningProgram, SamusAnimationDelays.AnimationForPose(running.AnimatedPose ?? throw new InvalidOperationException("The run has no animation."))), "running gun extension retains the shared animation program");
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseMetadata.ReadNoInputFallback(running).From(running.Pose));

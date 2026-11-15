@@ -545,12 +545,12 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, controllerInput: 0),
         "Spring Ball hard impact rebounds");
     AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
-    var springLandingAnimation = new AnimationResult(spring.AnimationFrame, spring.AnimationFrameTimer.RawValue);
+    var springLandingAnimation = new AnimationResult(spring.AnimationNumber, spring.AnimationFrameTimer.RawValue);
     AssertTrue(!SamusPosturePoseTransitions.ApplySpringBallLanding(spring, GameplayAction.Jump),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
-    AssertEqual(springLandingAnimation, new AnimationResult(spring.AnimationFrame, spring.AnimationFrameTimer.RawValue),
+    AssertEqual(springLandingAnimation, new AnimationResult(spring.AnimationNumber, spring.AnimationFrameTimer.RawValue),
         "held-Jump landing does not restart the rolling animation");
 
     // F1FC/F25E branch on the sign of the wrapping word subtraction speed-3.

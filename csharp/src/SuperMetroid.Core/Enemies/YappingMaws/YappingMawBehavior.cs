@@ -384,7 +384,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose;
                 SamusPoseMetadata.RefreshCollisionRadii(samus);
-                SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+                SamusPresentation.InitializeAnimation(samus);
                 samus.CommitPoseHistory();
             }
         }

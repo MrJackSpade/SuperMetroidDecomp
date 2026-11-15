@@ -111,7 +111,7 @@ internal static class SamusAerialPoseTransitions
         if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
             samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
 
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -211,7 +211,7 @@ internal static class SamusAerialPoseTransitions
         samus.Pose = selectedTurnPose;
         // The changed-pose step preserves the source radius until the next input phase.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -255,7 +255,7 @@ internal static class SamusAerialPoseTransitions
 
         // The spin jump's initialization writes frame one, skipping the static first spin frame. This
         // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 1);
+        SamusPresentation.InitializeAnimation(samus, SamusAnimationFrame.AfterStart);
     }
 
 
@@ -319,7 +319,7 @@ internal static class SamusAerialPoseTransitions
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
 
@@ -362,7 +362,7 @@ internal static class SamusAerialPoseTransitions
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
 
@@ -422,7 +422,7 @@ internal static class SamusAerialPoseTransitions
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             if (samus.Pose != samus.PoseHistory.PreviousPose)
-                SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+                SamusPresentation.InitializeAnimation(samus);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -458,9 +458,9 @@ internal static class SamusAerialPoseTransitions
         // Gives Screw Attack a longer pre-contact animation. Its first
         // eligible wall frame is 27, so contact rewinds to 26. Ordinary spin and Space Jump
         // both use the compact 10 -> 11 handoff.
-        samus.AnimationFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
+        samus.SetAnimationFrame(SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame
-            : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame;
+            : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame);
     }
 
 
@@ -781,7 +781,7 @@ internal static class SamusAerialPoseTransitions
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         }
 
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -876,7 +876,7 @@ internal static class SamusAerialPoseTransitions
             : targetPose;
         // The pose update happens after movement. The next input phase, including
         // the intro-demo input mode, owns publication of the new live radius.
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         SamusAerialMovement.InitializeJump(samus);
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
@@ -974,7 +974,7 @@ internal static class SamusAerialPoseTransitions
                 return;
             InitializeOrdinaryAerialAcceleration(samus);
         }
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
 
@@ -1044,7 +1044,7 @@ internal static class SamusAerialPoseTransitions
                 return true;
             InitializeOrdinaryAerialAcceleration(samus);
         }
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 

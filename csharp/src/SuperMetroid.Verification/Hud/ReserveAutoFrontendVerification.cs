@@ -70,10 +70,10 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(entry.Snapshot is not null,
             "entry preserves the completed gameplay presentation instead of a blank frame");
         runtime.BombProjectiles.SetSharedCooldown(10);
-        int lockedAnimationFrame = samus.AnimationFrame;
+        int lockedAnimationFrame = samus.AnimationNumber;
         ushort lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.StepCaptured(0);
-        AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
+        AssertEqual(lockedAnimationFrame, samus.AnimationNumber,
             "automatic refill command-zero beta preserves the current Samus animation frame");
         AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer.RawValue,
             "automatic refill command-zero beta does not advance Samus animation timer");
@@ -100,7 +100,7 @@ internal static class ReserveAutoFrontendVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, RgbaPixel[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
-        lockedAnimationFrame = samus.AnimationFrame;
+        lockedAnimationFrame = samus.AnimationNumber;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.GameState = SuperMetroidGameState.ReserveTanksAuto;
         for (int frame = 0; frame < 33; frame++)
@@ -113,7 +113,7 @@ internal static class ReserveAutoFrontendVerification
             IReadOnlyList<SoundEffectId> roomRequests = audio.SoundsQueuedSinceForVerification(roomMark);
             if (frame < 32)
             {
-                AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
+                AssertEqual(lockedAnimationFrame, samus.AnimationNumber,
                     "all nonfinal recovery frames retain Samus animation cursor");
                 AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer.RawValue,
                     "all nonfinal recovery frames retain Samus animation delay");

@@ -436,7 +436,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(screwLaunch, SamusPoseId.ScrewAttackRightPose);
     AssertEqual(SamusPoseId.ScrewAttackRightPose, screwLaunch.Pose,
         "direct Screw table target preserves equipped art");
-    AssertEqual(1, screwLaunch.AnimationFrame,
+    AssertEqual(1, screwLaunch.AnimationNumber,
         "direct Screw direction transition starts at frame one");
     AssertEqual(0, screwLaunch.LiquidPhysics.SoundRequests.Count,
         "Screw Attack reversal does not restart its sound");
@@ -655,7 +655,7 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     SamusState submergedSpin = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     submergedSpin.BeamCharge.FlareCounter = 0x003c;
-    SamusPresentation.InitializeAnimation(submergedSpin, initialFrame: 0);
+    SamusPresentation.InitializeAnimation(submergedSpin, submergedSpin.PoseFrameNumbered(0));
     for (int tick = 0; tick < 3; tick++)
         SamusPresentation.AnimateNoFx(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
     submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100);
@@ -668,13 +668,13 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     AssertEqual(new SoundRequest(SamusSound.UnderwaterSpaceJump, SoundRequestPriority.Normal), submergedSpin.LiquidPhysics.SoundRequests[0],
         "underwater Space Jump uses library-one sound $2F max six");
 
-    screwRepeat.AnimationFrame = 4;
+    screwRepeat.AnimationNumber = 4;
     SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(screwRepeat);
-    AssertEqual(0x1a, screwRepeat.AnimationFrame,
+    AssertEqual(0x1a, screwRepeat.AnimationNumber,
         "early Screw wall contact rewinds to frame 26");
-    minimum.AnimationFrame = 4;
+    minimum.AnimationNumber = 4;
     SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(minimum);
-    AssertEqual(0x0a, minimum.AnimationFrame,
+    AssertEqual(0x0a, minimum.AnimationNumber,
         "Space Jump wall contact uses ordinary frame 10 rewind");
 
     // The compiled Power Suit Screw list visits four distinct shades in the
@@ -696,12 +696,12 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
-    AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+    AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
         "ending Screw frame copies normal suit palette");
     AssertEqual(0x0111, samusColours.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+        AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), samusColours.ShownSuit(aerialSources)[0],
             $"Screw palette frame {frame} ROM color");
@@ -1190,11 +1190,11 @@ internal static void VerifySamusAtmosphericEffects()
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
     };
     SamusPoseMetadata.RefreshCollisionRadii(runner);
-    SamusPresentation.InitializeAnimation(runner, initialFrame: 2);
+    SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
     // The native foot-contact gate checks the final tick of this frame. The
     // compiled running stream initializes frame two at two ticks, so stage its
     // final tick explicitly instead of relying on the old synthetic ROM delay.
-    SamusPresentation.SetAnimationFrameFromMovementOwner(runner, frame: 2, timer: 1);
+    SamusPresentation.SetAnimationFrameFromMovementOwner(runner, runner.AnimationFrameNumbered(2), timer: 1);
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     IReadOnlyList<SamusParticle> runnerParticles = runner.Presentation.Particles.All;

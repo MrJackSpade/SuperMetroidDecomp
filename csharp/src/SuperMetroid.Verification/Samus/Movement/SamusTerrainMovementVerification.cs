@@ -762,7 +762,7 @@ internal static void VerifySamusGroundedReversal()
     AssertEqual(SamusPoseId.FacingLeftNormalPose, (animatedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animatedTurn.PendingTransitionalPose.")), "turn $F8 publishes left-standing pose");
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(animatedTurn), "turn animation transition applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "turn animation ends facing left");
-    AssertEqual(0, animatedTurn.AnimationFrame, "turn completion resets animation frame");
+    AssertEqual(0, animatedTurn.AnimationNumber, "turn completion resets animation frame");
     AssertEqual(10, animatedTurn.AnimationFrameTimer.RawValue, "left-standing delay initializes from ROM stream");
 
     SamusGroundedPoseTransitions.ApplyStandingLeftToRunningLeft(animatedTurn);
@@ -878,7 +878,7 @@ internal static void VerifySamusGroundedReversal()
         AssertEqual(testCase.Destination, (aimedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires aimedTurn.PendingTransitionalPose.")), $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedTurn), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
-        AssertEqual(0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
+        AssertEqual(0, aimedTurn.AnimationNumber, $"aimed turn target frame zero case {caseIndex}");
         AssertEqual(testCase.DestinationDelay, aimedTurn.AnimationFrameTimer.RawValue,
             $"aimed turn uses the native standing-aim delay case {caseIndex}");
     }
@@ -1912,7 +1912,7 @@ internal static void VerifySamusRanIntoWall()
         AssertEqual(SamusAccelerationMode.Accelerating, stopped.HorizontalSpeed.AccelerationMode,
             $"wall pose ${(int)SamusPoseNumbers.Number(pose):X2} clears acceleration mode");
         SamusPresentation.InitializeAnimation(stopped);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(stopped, 0, 9);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(stopped, stopped.AnimationFrameNumbered(0), 9);
         SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(stopped, pose);
         AssertEqual(9, stopped.AnimationFrameTimer.RawValue,
             $"same wall pose ${(int)SamusPoseNumbers.Number(pose):X2} preserves the running animation timer");

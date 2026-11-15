@@ -61,7 +61,7 @@ internal static class SamusCueValuePlaceReadsVerification
 
         // The tick that runs out the written frame's one-tick timer moves to the next frame; each delay byte read after it
         // holds the frame for its ticks, a zero delay for one, before the next tick moves on.
-        int place = SamusAnimationProgramCodec.ProgramStart(cartridge, SamusPoseNumbers.Number(pose)) + samus.AnimationFrame + 1;
+        int place = SamusAnimationProgramCodec.ProgramStart(cartridge, SamusPoseNumbers.Number(pose)) + samus.AnimationNumber + 1;
         int ticks = 1;
         int value;
         while ((value = cartridge.ReadCartridgeByte(ProgramBank | place)) < FirstInstruction)
@@ -90,7 +90,7 @@ internal static class SamusCueValuePlaceReadsVerification
             if (!SamusPoseNumbering.NamesPose(number))
                 continue;
             int start = SamusAnimationProgramCodec.ProgramStart(cartridge, number);
-            foreach (SamusAnimationSequence run in SamusAnimationProgramCodec.Decode(cartridge, SamusPoseNumbering.FromNumber(number)))
+            foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, SamusPoseNumbering.FromNumber(number)))
             {
                 if (start + run.FirstFrame + run.Delays.Count == place)
                     return run.End;

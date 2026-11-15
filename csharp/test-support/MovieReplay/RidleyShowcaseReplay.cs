@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
@@ -127,7 +128,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusBody
             : throw new InvalidOperationException("Verification requires the installation's Samus body artwork.");
         SamusBodyComposition? Drawn() => samus.Presentation.DrawnFrame is { } picture
-            ? SamusBodyCompositions.Of(picture.Pose, picture.PictureFrame, BodyArtwork()) : null;
+            ? SamusBodyCompositions.Of(picture.Pose, SamusAnimationNumbers.Number(picture.Pose, picture.PictureFrame), BodyArtwork()) : null;
         int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Spritemaps, drawn);
         BodyRecordResult BodyRecord() =>
             new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
@@ -367,7 +368,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection))));
                 CheckValue("Samus last different movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.LastDifferentMovement),
                 SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection))));
-            Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);
+            Check("Samus animation", samus.AnimationNumber, NativeSnapshotMemory.Animation);
             Check("Samus animation timer", samus.AnimationFrameTimer.RawValue, NativeSnapshotMemory.AnimationTimer);
             Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed.Whole, NativeSnapshotMemory.BaseSpeed);
             Check("Samus base fraction", samus.HorizontalSpeed.BaseSpeed.Fraction, NativeSnapshotMemory.BaseFraction);

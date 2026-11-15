@@ -613,7 +613,7 @@ public static class SamusGrappleMovement
             samus.Pose = special.Pose;
             samus.Position = samus.Position.WithWhole(grapple.Anchor + special.SamusOffset);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
             grapple.Phase = phase;
             grapple.WallJumpTimer = 0;
             grapple.SlowScrolling = false; // Connecting clears the slow-scroll flag.
@@ -981,7 +981,7 @@ public static class SamusGrappleMovement
 
         samus.Pose = pending.Pose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
 
         if (pending.Swinging)
         {
@@ -1096,7 +1096,7 @@ public static class SamusGrappleMovement
 
             samus.Pose = fallback;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             samus.HorizontalSpeed.BaseSpeed = default;
             samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -1205,7 +1205,7 @@ public static class SamusGrappleMovement
     {
         samus.Pose = releasePose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>

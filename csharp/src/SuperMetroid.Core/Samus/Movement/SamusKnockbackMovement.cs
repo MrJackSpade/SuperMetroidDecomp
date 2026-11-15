@@ -204,7 +204,7 @@ public static class SamusKnockbackMovement
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         if (humanoid)
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -291,7 +291,7 @@ public static class SamusKnockbackMovement
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.KnockbackActive = false;
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Installs a same-family target selected by the two damage-boost tables.</summary>
@@ -322,7 +322,7 @@ public static class SamusKnockbackMovement
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (!SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, SamusMovementType.DamageBoost, controllerNewInput))
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>

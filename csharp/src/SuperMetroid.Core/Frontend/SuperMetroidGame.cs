@@ -475,7 +475,7 @@ public sealed class SuperMetroidGame
             ? new SamusSnapshot
             {
                 Pose = samus.Pose,
-                AnimationFrame = samus.AnimationFrame,
+                AnimationFrame = samus.AnimationFrameName,
                 AnimationFramesRemaining = samus.AnimationFrameTimer.RemainingFrames,
                 AnimatedPose = samus.AnimatedPose,
                 Position = samus.Position.Whole,

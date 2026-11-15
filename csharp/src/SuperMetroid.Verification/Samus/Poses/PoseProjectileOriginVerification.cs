@@ -30,7 +30,7 @@ internal static class PoseProjectileOriginVerification
                 _ => "Compiled pose aim read artwork metadata.")
             .Forbid(address => address == 0x91b629 + SamusPoseNumbers.Number(guardedPose) * 8 + 4,
                 _ => "Installed graphics offset read ROM.");
-        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
         var slot = new SamusProjectile(0);
         SamusBodySources template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
@@ -48,7 +48,7 @@ internal static class PoseProjectileOriginVerification
         for (int artIndex = 0; artIndex < artwork.Length; artIndex++)
         {
             int art = SignedByteClasses[artIndex];
-            samus.Presentation.BindArtwork(artwork[artIndex].Gameplay);
+            samus.Artwork.Body = artwork[artIndex].Gameplay;
             foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
             for (byte direction = 0; direction < 10; direction++)
             {

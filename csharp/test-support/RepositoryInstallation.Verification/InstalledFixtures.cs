@@ -398,16 +398,16 @@ internal static class InstalledFixtures
     /// <summary>Binds the installation's body and grapple presentation to a standalone Samus.</summary>
     internal static SamusState BindSamus(SamusState samus)
     {
-        samus.Presentation.BindArtwork(SamusBody.Gameplay);
-        samus.Presentation.BindSheets(SpriteSheets);
-        samus.ArmCannon.Artwork = SamusBody.ArmCannon.Gameplay;
-        samus.Grapple.FlarePlacement = Projectiles.Grapple.FlarePlacement;
-        samus.Grapple.SwingFrames = Projectiles.Grapple.SwingFrames;
+        samus.Artwork.Body = SamusBody.Gameplay;
+        samus.Artwork.Sheets = SpriteSheets;
+        samus.Artwork.ArmCannon = SamusBody.ArmCannon.Gameplay;
+        samus.Artwork.GrappleFlarePlacement = Projectiles.Grapple.FlarePlacement;
+        samus.Artwork.GrappleSwingFrames = Projectiles.Grapple.SwingFrames;
         return samus;
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => BindSamus(new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
+    internal static SamusState CreateSamus() => BindSamus(new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
 
     /// <summary>
     /// Creates Ceres destruction with installed cinematic art and fixed colors, waiting on <paramref name="audio"/>'s music:

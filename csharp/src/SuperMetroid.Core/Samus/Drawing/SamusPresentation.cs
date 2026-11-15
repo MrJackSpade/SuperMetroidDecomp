@@ -23,17 +23,20 @@ internal sealed class SamusPresentation
     /// </summary>
     public Offset16<ScreenPixels> DrawOrigin { get; internal set; }
 
-    /// <summary>Currently bound body placements and presentation catalogs; never part of save state.</summary>
-    public InstalledSamusBodyArtwork? Artwork { get; private set; }
+    /// <summary>The installed artwork she draws from, bound by whoever built her; never part of save state.</summary>
+    private readonly SamusArtworkBinding _artwork;
 
-    /// <summary>Rebinds the installed body artwork.</summary>
-    public void BindArtwork(InstalledSamusBodyArtwork? value) => Artwork = value;
+    /// <summary>Starts her presentation drawing from <paramref name="artwork"/>.</summary>
+    internal SamusPresentation(SamusArtworkBinding artwork)
+    {
+        _artwork = Ensure.NotNull(artwork);
+    }
 
-    /// <summary>The installed pre-coloured sheets Samus draws from; never part of save state.</summary>
-    public InstalledSpriteSheets? Sheets { get; private set; }
+    /// <summary>The installed body placements and presentation catalogs, or none before they are installed.</summary>
+    public InstalledSamusBodyArtwork? Artwork => _artwork.Body;
 
-    /// <summary>Rebinds the installed sheets.</summary>
-    public void BindSheets(InstalledSpriteSheets? value) => Sheets = value;
+    /// <summary>The installed pre-coloured sheets Samus draws from, or none before they are installed.</summary>
+    public InstalledSpriteSheets? Sheets => _artwork.Sheets;
 
     /// <summary>Her splashes, bubbles, lava spray and dust.</summary>
     public SamusParticles Particles { get; } = new();
@@ -383,8 +386,7 @@ internal sealed class SamusPresentation
             ? transform.Transform(position)
             : position;
 
-        InstalledSamusBodyArtwork artwork = Artwork ?? throw new InvalidOperationException(
-            "Samus pose presentation requires installed body artwork.");
+        InstalledSamusBodyArtwork artwork = _artwork.InstalledBody;
         DrawOrigin = (renderPoint - Offset16<RoomPixels>.Of(0, artwork.OriginRise(samus.Pose, pictureFrame)))
             .RelativeToCamera(cameraPosition);
 
@@ -503,8 +505,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
-    private InstalledSpriteSheets BodySheets => Sheets ?? throw new InvalidOperationException(
-        "Samus rendering requires the installed sprite sheets.");
+    private InstalledSpriteSheets BodySheets => _artwork.InstalledSheets;
 
     /// <summary>
     /// Draws an echo, when it stands somewhere, with the picture the body last drew, published wherever it lies; the

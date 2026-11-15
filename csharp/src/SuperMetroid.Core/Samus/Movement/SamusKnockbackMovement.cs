@@ -34,9 +34,7 @@ public static class SamusKnockbackMovement
         SamusState samus,
         GameplayAction controllerInput,
         bool timeIsFrozen,
-        RoomLevelData? level = null,
-        int frameCounter = 0,
-        ISamusRoomObjects? roomObjects = null)
+        KnockbackPoseCollision? poseCollision)
     {
 
         Ensure.NotNull(samus);
@@ -52,7 +50,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), level, frameCounter, roomObjects);
+        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), poseCollision);
     }
 
     /// <summary>
@@ -62,14 +60,15 @@ public static class SamusKnockbackMovement
     /// <param name="samus">Mutable player owner receiving the hurt pose, timer, the knockback's hold on her movement, and cancellation of incompatible movement state.</param>
     /// <param name="controllerInput">Held actions used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
-    /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
-    /// <param name="frameCounter">The frame counter passed to pose-expansion block reactions when room geometry is supplied.</param>
-    /// <param name="roomObjects">Optional live room-object owner receiving those collision reactions.</param>
+    /// <param name="poseCollision">
+    /// The room the hurt pose grows into, or null where the caller places Samus itself and no expansion collision runs:
+    /// the opening cinematic's flashback and a grapple-beam hurt.
+    /// </param>
     /// <returns>
     /// True when the movement-type table gives the knockback her movement. False for
     /// interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    internal static bool Start(SamusState samus, GameplayAction controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int frameCounter = 0, ISamusRoomObjects? roomObjects = null)
+    internal static bool Start(SamusState samus, GameplayAction controllerInput, KnockbackLaunch launch, KnockbackPoseCollision? poseCollision)
     {
 
         Ensure.NotNull(samus);
@@ -139,8 +138,8 @@ public static class SamusKnockbackMovement
             // Interrupted poses pass through the same expansion check as ordinary
             // input poses before the knockback start initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
-            if (level is not null && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
-level, targetPose, frameCounter, roomObjects))
+            if (poseCollision is { } collision && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus,
+                    collision.Terrain.Level, targetPose, collision.FrameCounter, collision.Terrain.RoomObjects))
                 return false;
             samus.Pose = targetPose;
             // The interrupted pose commits after movement. The input phase publishes its radius
@@ -215,7 +214,7 @@ level, targetPose, frameCounter, roomObjects))
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -411,7 +410,7 @@ level, targetPose, frameCounter, roomObjects))
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         // Calls the exact same vertical step as ordinary aerial
         // movement, so reuse that owner instead of maintaining a subtly narrower
@@ -428,7 +427,7 @@ level, targetPose, frameCounter, roomObjects))
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         // Gives nonzero external Y priority over its normal total-X-plus-one
         // slope-following probe. This down-knockback path consumes the exact same helper.

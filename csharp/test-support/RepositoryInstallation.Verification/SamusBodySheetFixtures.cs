@@ -161,40 +161,36 @@ internal static class SamusBodySheetFixtures
         })).Value;
     }
 
-    /// <summary>Binds a fixture's body artwork and the sheets it draws from.</summary>
-    extension(SamusPresentation presentation)
+    /// <summary>Binds a fixture's body artwork, arm cannon and the sheets they draw from.</summary>
+    extension(SamusState samus)
     {
         /// <summary>Binds what the game reads of <paramref name="body"/> and the sheets composed from it.</summary>
         internal void BindBodyFixture(SamusBodySources body)
         {
             ArgumentNullException.ThrowIfNull(body);
-            presentation.BindArtwork(body.Gameplay);
-            presentation.BindSheets(For(body));
-            boundBodies.AddOrUpdate(presentation, body);
+            samus.Artwork.Body = body.Gameplay;
+            samus.Artwork.Sheets = For(body);
+            boundBodies.AddOrUpdate(samus.Presentation, body);
         }
 
-        /// <summary>The body a fixture bound to this presentation, as the import reads it.</summary>
-        /// <exception cref="InvalidOperationException">The presentation shows no body a fixture bound.</exception>
-        internal SamusBodySources BoundBodyFixture => boundBodies.TryGetValue(presentation, out SamusBodySources? body) &&
-            ReferenceEquals(presentation.Artwork, body.Gameplay)
+        /// <summary>The body a fixture bound to Samus, as the import reads it.</summary>
+        /// <exception cref="InvalidOperationException">Samus shows no body a fixture bound.</exception>
+        internal SamusBodySources BoundBodyFixture => boundBodies.TryGetValue(samus.Presentation, out SamusBodySources? body) &&
+            ReferenceEquals(samus.Presentation.Artwork, body.Gameplay)
                 ? body
                 : throw new InvalidOperationException("Samus shows no body a fixture bound.");
 
         /// <summary>Binds the body of <paramref name="artwork"/> and the sheets composed from its characters.</summary>
-        internal void BindBodyFixture(SamusBodyCharacterArtwork artwork) => presentation.BindBodyFixture(Register(artwork));
-    }
+        internal void BindBodyFixture(SamusBodyCharacterArtwork artwork) => samus.BindBodyFixture(Register(artwork));
 
-    /// <summary>Binds a fixture's arm cannon and the overlay sheet composed from it.</summary>
-    extension(SamusState samus)
-    {
         /// <summary>Binds <paramref name="cannon"/> over the body fixture bound to Samus, and the sheets they draw from.</summary>
         /// <exception cref="InvalidOperationException">Samus shows no body a fixture bound.</exception>
         internal void BindArmCannonFixture(SamusArmCannonSourceArtwork cannon)
         {
             ArgumentNullException.ThrowIfNull(cannon);
-            SamusBodySources body = samus.Presentation.BoundBodyFixture;
-            samus.ArmCannon.Artwork = cannon.Gameplay;
-            samus.Presentation.BindSheets(For(body, cannon));
+            SamusBodySources body = samus.BoundBodyFixture;
+            samus.Artwork.ArmCannon = cannon.Gameplay;
+            samus.Artwork.Sheets = For(body, cannon);
         }
     }
 

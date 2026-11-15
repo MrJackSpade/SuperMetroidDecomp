@@ -281,9 +281,9 @@ public sealed class SamusDrainedState
     /// Runs one call of drained Samus's fall, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
-    public DrainedSamusMovementResult StepFalling(
-
+    internal DrainedSamusMovementResult StepFalling(
         RoomLevelData level,
+        ISamusRoomObjects roomObjects,
         SamusState samus,
         int frameCounter)
     {
@@ -293,7 +293,7 @@ public sealed class SamusDrainedState
         if (Phase != DrainedSamusPhase.Falling)
             throw new InvalidOperationException("Drained Samus is not falling.");
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, frameCounter, out _, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before the landing erases it for on-floor art.

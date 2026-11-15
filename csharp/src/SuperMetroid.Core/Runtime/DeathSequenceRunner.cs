@@ -88,7 +88,7 @@ internal sealed class DeathSequenceRunner
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _player.Samus,
             _player.Colours,
-            _artwork.SamusBodyArt?.DeathSteps);
+            _player.Samus.Artwork.InstalledBody.DeathSteps);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
             _player.Samus.Presentation.Draw(_player.Samus, 
@@ -98,7 +98,7 @@ internal sealed class DeathSequenceRunner
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.Sheets);
+            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.InstalledSheets);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

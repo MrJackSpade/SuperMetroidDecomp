@@ -78,7 +78,7 @@ internal sealed class BeamFiring
         GameplayAction controllerInput,
         GameplayAction controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         const GameplayAction shoot = GameplayAction.Shoot;
         _charge.PreviousCharge = _charge.Level;
@@ -221,7 +221,7 @@ internal sealed class BeamFiring
         SamusState samus,
         GameplayAction controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         bool charged)
     {
         const GameplayAction shoot = GameplayAction.Shoot;
@@ -333,7 +333,7 @@ internal sealed class BeamFiring
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.

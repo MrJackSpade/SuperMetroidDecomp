@@ -20,7 +20,7 @@ internal static class DebuggerStateLayoutVerification
     /// </summary>
     internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
-        var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
+        var state = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { PoseChangeAutoFireTimer = 7 };
         byte[] current = SerializeDebuggerGraph(state);
         AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer,
             "a current-layout graph round-trips");

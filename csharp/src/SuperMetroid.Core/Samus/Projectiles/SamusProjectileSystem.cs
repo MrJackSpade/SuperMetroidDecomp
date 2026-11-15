@@ -319,7 +319,7 @@ public sealed class SamusProjectileSystem
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as the game does.
     /// </param>
-    public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
+    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
     {
         FireFromHud(terrain, samus, buttons, sharedProjectiles, projectileProducerEnabled: true);
         HandleShots(terrain, samus, cameraPosition, sharedProjectiles);
@@ -336,7 +336,7 @@ public sealed class SamusProjectileSystem
     /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="sharedProjectiles">Samus's bombs, carrying the shared projectile cooldown, which a successful shot replaces.</param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; the shots are handled whether or not it runs.</param>
-    public void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled)
+    internal void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
@@ -418,7 +418,7 @@ public sealed class SamusProjectileSystem
     /// <param name="samus">Mutable player owner supplying pose, equipment and the X-ray freeze.</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">Samus's bombs, carrying the shared cooldown and the power bomb the shots read.</param>
-    public void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
+    internal void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);

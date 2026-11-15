@@ -58,14 +58,15 @@ public sealed class SamusParticles
     /// The water surface's room Y as a diving splash follows it on each update, which for a room without a water surface is
     /// the line <see cref="SuperMetroid.Core.Compatibility.AbsentWaterSurfaceLine"/> gives.
     /// </param>
-    /// <param name="sheets">The installed sheets every shown particle draws from; required when one is shown.</param>
+    /// <param name="sheets">The installed sheets every shown particle draws from.</param>
     public void UpdateAndDraw(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         int waterSurfaceLine,
-        InstalledSpriteSheets? sheets = null)
+        InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sprites);
+        Ensure.NotNull(sheets);
         for (int index = _particles.Count - 1; index >= 0; index--)
         {
             SamusParticle particle = _particles[index];
@@ -87,7 +88,7 @@ public sealed class SamusParticles
     /// The draw of a shown particle wherever it lies; the display clips it (#1541). Splashes, spray and dust are eight-pixel
     /// pictures centred on the particle; the diving splash and bubbles are placed from it.
     /// </summary>
-    private static ImageSpriteDraw Draw(SamusParticle particle, int index, Position16<RoomPixels> camera, InstalledSpriteSheets? sheets)
+    private static ImageSpriteDraw Draw(SamusParticle particle, int index, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
     {
         int step = particle.AnimationStep;
         string frame = particle.Kind switch
@@ -101,8 +102,7 @@ public sealed class SamusParticles
         Offset16<ScreenPixels> place = particle.Position.RelativeToCamera(camera);
         if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);
-        SpriteSheetFrame picture = (sheets ?? throw new InvalidOperationException(
-            "Samus's particles require the installed sprite sheets.")).Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
+        SpriteSheetFrame picture = sheets.Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
         return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, index), picture,
             place, SpriteMirror.None);
     }

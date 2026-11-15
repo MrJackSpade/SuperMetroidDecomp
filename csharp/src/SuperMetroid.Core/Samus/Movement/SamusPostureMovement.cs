@@ -23,7 +23,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
@@ -57,7 +57,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
@@ -78,7 +78,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 

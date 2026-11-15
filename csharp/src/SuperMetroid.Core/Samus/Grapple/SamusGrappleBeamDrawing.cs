@@ -132,7 +132,7 @@ public static class SamusGrappleBeamDrawing
         SamusGrappleState grapple,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        SpriteSheet? sheet = null)
+        SpriteSheet sheet)
     {
         Ensure.NotNull(grapple);
         Ensure.NotNull(sprites);
@@ -142,7 +142,7 @@ public static class SamusGrappleBeamDrawing
         // The pair is a begin/end range, not two animation frames. Each
         // six-call interval advances the endpoint to the next of its four pictures.
         GrapplePointAnimation.Advance(grapple);
-        SpriteSheet installed = sheet ?? throw new InvalidOperationException("The grapple beam requires the installed grapple sheet.");
+        SpriteSheet installed = Ensure.NotNull(sheet);
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
             SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientations.For(grapple.Angle);
 

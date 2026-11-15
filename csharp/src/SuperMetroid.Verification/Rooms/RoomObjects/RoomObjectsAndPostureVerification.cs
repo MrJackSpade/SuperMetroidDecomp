@@ -228,7 +228,7 @@ internal static void VerifySamusPostureMovement()
         floor[4 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData level = CreateRoom(new(width, height), floor, new RoomBlockBehavior[floor.Length]);
 
-    var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)), // standing bottom is pixel 63, immediately above row-four floor
@@ -237,7 +237,7 @@ internal static void VerifySamusPostureMovement()
     SamusPresentation.InitializeAnimation(samus);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyPostureTransition(samus, 
-level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0),
+level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "standing begins crouch transition");
     AssertEqual(16, samus.Kinematics.Radius.Y, "crouch transition radius");
     AssertEqual(48, samus.Position.Y.Whole, "command seven moves crouch center down five");
@@ -247,7 +247,7 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0),
     // crouch moves center down only to the floor. Model that overlap with a body sunk into
     // the row-four floor: the radius-16 probe from bottom pixel 60 stops at 63, so center
     // moves three pixels rather than the unconditional five.
-    var sunkSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var sunkSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 45)), // standing bottom pixel 65 overlaps the floor starting at 64
@@ -256,7 +256,7 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0),
     SamusPresentation.InitializeAnimation(sunkSamus);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyPostureTransition(sunkSamus, 
-level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0),
+level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "overlapping stand begins crouch transition");
     AssertEqual(48, sunkSamus.Position.Y.Whole, "command seven clips its crouch descent at the floor");
 
@@ -268,7 +268,7 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0),
     samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(1);
     GroundedMovementResult crouchFrame = SamusPostureMovement.StepCrouching(
-level, samus, frameCounter: 0);
+level, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertTrue(crouchFrame.Vertical.Collided, "crouch performs grounded probe");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "crouch clears numeric horizontal velocity");
     AssertEqual(new SamusSpeedBoostCounter(4, 1), samus.HorizontalSpeed.SpeedBoostCounter, "crouch movement preserves boost stage");
@@ -279,7 +279,7 @@ level, samus, frameCounter: 0);
 
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyPostureTransition(samus, 
-level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1),
+level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "crouch begins standing transition");
     AssertEqual(16, samus.Kinematics.Radius.Y, "standing commit retains crouch radius");
     AssertEqual(43, samus.Position.Y.Whole, "floor-constrained expansion moves center up five");
@@ -296,7 +296,7 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1),
     for (int index = 0; index < 6; index++)
     {
         bool facesLeft = (index & 1) != 0;
-        var aimedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+        var aimedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Pose = facesLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
@@ -305,12 +305,12 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1),
         SamusPresentation.InitializeAnimation(aimedSamus);
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
-level, aimedCrouchTransitions[index], unchecked((ushort)index)),
+level, aimedCrouchTransitions[index], unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled),
             $"aimed crouch transition ${SamusPoseNumbers.Number(aimedCrouchTransitions[index]):X2} begins");
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed crouch transition radius");
         AssertEqual(48, aimedSamus.Position.Y.Whole, "aimed crouch keeps feet aligned");
         SamusPostureMovement.StepCrouchStandTransition(
-level, aimedSamus, unchecked((ushort)index));
+level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         for (int tick = 0; tick < 3; tick++)
             SamusPresentation.AnimateNoFx(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedSamus), "aimed crouch FD applies");
@@ -320,12 +320,12 @@ level, aimedSamus, unchecked((ushort)index));
             SamusPoseMetadata.ReadNoInputFallback(aimedSamus),
             "aimed crouch definition fallback");
         GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
-level, aimedSamus, unchecked((ushort)index));
+level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertTrue(aimedCrouchFrame.Vertical.Collided, "aimed crouch remains grounded");
 
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
-level, aimedStandTransitions[index], unchecked((ushort)index)),
+level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled),
             $"aimed stand transition ${SamusPoseNumbers.Number(aimedStandTransitions[index]):X2} begins");
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed standing commit retains crouch radius");
         AssertEqual(43, aimedSamus.Position.Y.Whole, "aimed stand keeps feet aligned");
@@ -339,7 +339,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index)),
 
     // Equal-radius live shoulder changes never route through pose-change collision. Verify
     // both facing families and the definition-byte-two return to ordinary crouch.
-    var crouchAim = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var crouchAim = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -364,7 +364,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index)),
     // `$27 -> $01` record. This is not the `$3B` standing animation: expansion collision
     // and floor alignment happen at the post-input seam, but `$91:FDAE` leaves the old
     // live radius published until ordinary alpha begins the following frame.
-    var directStand = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var directStand = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -373,7 +373,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index)),
     SamusPresentation.InitializeAnimation(directStand);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(directStand, 
-level, SamusPoseId.FacingRightNormalPose, frameCounter: 0),
+level, SamusPoseId.FacingRightNormalPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "direct crouch-to-standing record applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, directStand.Pose, "direct crouch exit target");
     AssertEqual(16, directStand.Kinematics.Radius.Y, "direct crouch exit commit retains live crouch radius");
@@ -382,7 +382,7 @@ level, SamusPoseId.FacingRightNormalPose, frameCounter: 0),
     AssertEqual(21, directStand.Kinematics.Radius.Y, "next alpha publishes direct crouch exit radius");
     AssertEqual(43, directStand.Position.Y.Whole, "alpha does not repeat direct crouch exit center correction");
 
-    var directStandLeft = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var directStandLeft = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -391,7 +391,7 @@ level, SamusPoseId.FacingRightNormalPose, frameCounter: 0),
     SamusPresentation.InitializeAnimation(directStandLeft);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(directStandLeft, 
-level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1),
+level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "mirrored direct crouch-to-standing record applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, directStandLeft.Pose, "mirrored direct crouch exit target");
     AssertEqual(16, directStandLeft.Kinematics.Radius.Y, "mirrored direct crouch exit retains live radius");
@@ -400,7 +400,7 @@ level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1),
     // `$91:FC66` first accepts the 16 -> 19 radius expansion, moving the center up three
     // against the floor, then subtracts ten more pixels only when PreviousPose is exactly
     // ordinary crouch `$27/$28`. Make_Samus_Jump follows with the ROM's 4.E000 velocity.
-    var crouchJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var crouchJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -409,7 +409,7 @@ level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1),
     SamusPresentation.InitializeAnimation(crouchJump);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(crouchJump, 
-level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0),
+level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "ordinary crouch jump applies");
     AssertEqual(SamusPoseId.NeutralJumpTransitionRightPose, crouchJump.Pose, "ordinary crouch jump transition pose");
     AssertEqual(16, crouchJump.Kinematics.Radius.Y, "crouch jump commit retains live crouch radius");
@@ -421,7 +421,7 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0),
     AssertEqual(0xe000, crouchJump.Kinematics.YSpeed.Fraction, "ordinary crouch jump Y subspeed");
     AssertEqual(SamusVerticalDirection.Up, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");
 
-    var crouchJumpLeft = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var crouchJumpLeft = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -430,7 +430,7 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0),
     SamusPresentation.InitializeAnimation(crouchJumpLeft);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(crouchJumpLeft, 
-level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1),
+level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "mirrored ordinary crouch jump applies");
     AssertEqual(SamusPoseId.NeutralJumpTransitionLeftPose, crouchJumpLeft.Pose, "mirrored crouch jump transition pose");
     AssertEqual(35, crouchJumpLeft.Position.Y.Whole, "mirrored crouch jump Y adjustment");
@@ -438,7 +438,7 @@ level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1),
     // The native literal-pose comparison intentionally excludes aimed crouches. They use
     // the same `$4B` art and jump velocity but receive only the three-pixel floor-alignment
     // adjustment from pose-change collision.
-    var aimedCrouchJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var aimedCrouchJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingAimDiagonalUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -447,7 +447,7 @@ level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1),
     SamusPresentation.InitializeAnimation(aimedCrouchJump);
     AssertTrue(
         SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(aimedCrouchJump, 
-level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1),
+level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "aimed crouch jump applies");
     AssertEqual(45, aimedCrouchJump.Position.Y.Whole, "aimed crouch jump omits FC8A offset");
 
@@ -458,7 +458,7 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1),
     for (int x = 0; x < width; x++)
         tunnelBlocks[1 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData tunnel = CreateRoom(new(width, height), tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length]);
-    var tunnelSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var tunnelSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -467,12 +467,12 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1),
     SamusPresentation.InitializeAnimation(tunnelSamus);
     AssertTrue(
         !SamusPosturePoseTransitions.TryApplyPostureTransition(tunnelSamus, 
-tunnel, SamusPoseId.StandingTransitionRightPose, frameCounter: 0),
+tunnel, SamusPoseId.StandingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "low tunnel rejects standing radius expansion");
     AssertEqual(SamusPoseId.CrouchingRightPose, tunnelSamus.Pose, "rejected stand retains crouch pose");
     AssertEqual(48, tunnelSamus.Position.Y.Whole, "rejected stand preserves center Y");
 
-    var tunnelJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
+    var tunnelJump = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
     {
         Pose = SamusPoseId.CrouchingAimUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -481,7 +481,7 @@ tunnel, SamusPoseId.StandingTransitionRightPose, frameCounter: 0),
     SamusPresentation.InitializeAnimation(tunnelJump);
     AssertTrue(
         !SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(tunnelJump, 
-tunnel, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1),
+tunnel, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "low tunnel rejects crouch-jump radius expansion");
     AssertEqual(SamusPoseId.CrouchingRightPose, tunnelJump.Pose, "boxed aimed jump falls back to ordinary crouch");
     AssertEqual(16, tunnelJump.Kinematics.Radius.Y, "boxed aimed jump retains crouch radius");

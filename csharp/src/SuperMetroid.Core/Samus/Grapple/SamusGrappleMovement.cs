@@ -118,8 +118,8 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
-        ISamusRoomObjects? roomObjects = null,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
+        ISamusRoomObjects roomObjects,
+        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision,
         GrapplePoseChange connectionPoseChange = GrapplePoseChange.Immediate)
     {
 
@@ -150,39 +150,36 @@ public static class SamusGrappleMovement
         // enemy's common grapple-response flag; this consumer reads only the definition's
         // seven common reaction indexes. Kill/no-interaction deliberately fall through to
         // terrain, exactly like the zero result of their reactions.
-        if (enemyCollision is not null)
+        GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
+        switch (enemy.Reaction)
         {
-            GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
-            switch (enemy.Reaction)
-            {
-                case GrappleEnemyReaction.Attach:
-                case GrappleEnemyReaction.AttachWithoutInvincibility:
-                case GrappleEnemyReaction.AttachAndParalyze:
-                    grapple.Anchor = enemy.Anchor;
-                    return ConnectAcceptedFiringCore(
-                        samus,
-                        grapple,
-                        previousPosition,
-                        GrappleAnchorKind.Enemy,
-                        connectionPoseChange);
+            case GrappleEnemyReaction.Attach:
+            case GrappleEnemyReaction.AttachWithoutInvincibility:
+            case GrappleEnemyReaction.AttachAndParalyze:
+                grapple.Anchor = enemy.Anchor;
+                return ConnectAcceptedFiringCore(
+                    samus,
+                    grapple,
+                    previousPosition,
+                    GrappleAnchorKind.Enemy,
+                    connectionPoseChange);
 
-                case GrappleEnemyReaction.Cancel:
-                    return QueueFiringCancellation(grapple);
+            case GrappleEnemyReaction.Cancel:
+                return QueueFiringCancellation(grapple);
 
-                case GrappleEnemyReaction.HurtSamus:
-                    ApplyGrappleEnemyDamage(
+            case GrappleEnemyReaction.HurtSamus:
+                ApplyGrappleEnemyDamage(
 
-                        samus,
-                        controllerInput,
-                        enemy.EnemyDamage);
-                    return QueueFiringCancellation(grapple);
-                // Kill and no interaction fall through to terrain, like the zero return.
-                case GrappleEnemyReaction.None:
-                case GrappleEnemyReaction.Kill:
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
-            }
+                    samus,
+                    controllerInput,
+                    enemy.EnemyDamage);
+                return QueueFiringCancellation(grapple);
+            // Kill and no interaction fall through to terrain, like the zero return.
+            case GrappleEnemyReaction.None:
+            case GrappleEnemyReaction.Kill:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined GrappleEnemyReaction {enemy.Reaction}.");
         }
 
         // The rope moves its end in four equal substeps, probing after each; each keeps parts of the
@@ -256,7 +253,7 @@ public static class SamusGrappleMovement
     /// Executes one connected grapple-phase call. X is the default shoot binding used by
     /// this runtime; left/right pump the swing, newly pressed up/down adjust rope length.
     /// </summary>
-    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, int frameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
+    internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, int frameCounter, Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -274,9 +271,9 @@ public static class SamusGrappleMovement
         // These are the game's own grapple phases. Each phase owns the whole
         // grapple movement phase, so run it before entering ordinary pendulum integration.
         if (grapple.Phase == GrapplePhase.ConnectedLocked)
-            return StepLocked(terrain.Level, samus, controllerInput, enemyCollision);
+            return StepLocked(terrain, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrab)
-            return StepWallGrab(terrain.Level, samus, controllerInput, enemyCollision);
+            return StepWallGrab(terrain, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrabRelease)
             return StepWallGrabRelease(terrain, samus, newlyPressedInput);
         if (grapple.Phase == GrapplePhase.WallJumping)
@@ -338,7 +335,7 @@ public static class SamusGrappleMovement
         bool anchorDisconnected = !enemyAnchorHeld &&
             (grapple.ValidateAnchorEnemy ||
              grapple.ValidateAnchorBlock &&
-                !SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain.Level, samus, grapple));
+                !SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple));
         if (anchorDisconnected)
         {
             // A block that still stops the beam keeps the rope; one replaced with air (a breakable grapple block that
@@ -363,10 +360,10 @@ public static class SamusGrappleMovement
 
     /// <summary>Holds the connected pose while Shoot and the stored block or enemy support the endpoint; otherwise queues cancellation.</summary>
     private static GrappleMovementResult StepLocked(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
 
@@ -377,7 +374,7 @@ public static class SamusGrappleMovement
         bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
             ? false
             : !grapple.ValidateAnchorBlock ||
-                SamusGrappleSwing.IsStillConnectedToSupportedBlock(level, samus, grapple));
+                SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple));
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -397,16 +394,12 @@ public static class SamusGrappleMovement
     /// <summary>
     /// Replays the connected-beam enemy test. Any nonzero common
     /// reaction keeps the connection alive for this frame; attach reactions additionally
-    /// follow a moving actor's center. Without an enemy test the anchor is never an enemy
-    /// and is not retained by this test.
+    /// follow a moving actor's center.
     /// </summary>
     private static bool TryRetainEnemyAnchor(
         SamusGrappleState grapple,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
     {
-        if (enemyCollision is null)
-            return false;
-
         GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
         if (enemy.Reaction == GrappleEnemyReaction.None)
             return false;
@@ -440,15 +433,16 @@ public static class SamusGrappleMovement
         KnockbackHorizontalDirection knockbackXDirection = SamusPoseMetadata.IsFacingLeft(samus.Pose)
             ? KnockbackHorizontalDirection.Right
             : KnockbackHorizontalDirection.Left;
-        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = GrappleBeamDefinitions.Contact.HurtKnockbackFrames });
+        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = GrappleBeamDefinitions.Contact.HurtKnockbackFrames },
+            poseCollision: null);
     }
 
     /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens the wall-jump window.</summary>
     private static GrappleMovementResult StepWallGrab(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision)
+        Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
     {
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
@@ -456,7 +450,7 @@ public static class SamusGrappleMovement
         bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
             ? false
             : !grapple.ValidateAnchorBlock ||
-                SamusGrappleSwing.IsStillConnectedToSupportedBlock(level, samus, grapple));
+                SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple));
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -546,7 +540,7 @@ public static class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple,
         int frameCounter,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         bool deferPoseChange)
     {
         SamusPoseId targetPose = SelectDroppedPose(samus);
@@ -683,7 +677,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> endpoint,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
         if (block.Position is null)
@@ -753,15 +747,8 @@ public static class SamusGrappleMovement
                     // Respawning and permanent breakable anchors spawn the breakable grapple room objects. Their setup synchronously saves the
                     // complete terrain block and clears its grapple reaction before connecting the beam; the new room object
                     // runs its first timed step later in this same gameplay frame.
-                    // A caller which omitted the independent room owner cannot honestly
-                    // preserve that lifecycle, so keep the missing integration seam explicit.
                     if (block.Behavior.Grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor)
                     {
-                        if (roomObjects is null)
-                        {
-                            throw new InvalidOperationException(
-                                "Breakable grapple acquisition requires a ISamusRoomObjects.");
-                        }
                         if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.At, block.Behavior))
                         {
                             throw new InvalidOperationException(
@@ -783,11 +770,6 @@ public static class SamusGrappleMovement
                     // entries reject it while behaviour 0..7 retain their unconditional block
                     // animation. The block's collision kind, not the room-object setup, decides whether
                     // the beam stops: shootable air lets it pass and a shootable block stops it.
-                    if (roomObjects is null)
-                    {
-                        throw new InvalidOperationException(
-                            "Shootable grapple reaction requires a ISamusRoomObjects.");
-                    }
                     // Blue caps occupy the same table as breakable blocks but
                     // select door room objects. Grapple's negative projectile index bypasses the
                     // blue door setup's power-bomb rejection; the ordinary opening owner
@@ -1076,8 +1058,7 @@ public static class SamusGrappleMovement
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
     internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, SamusProjectileDirection direction, bool running)
     {
-        var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
-            "Grapple flare requires installed placement definitions."))
+        var offset = grapple.Artwork.InstalledGrappleFlarePlacement
             .Resolve(running, SamusFlareAim.AtMuzzle(direction));
         return new Offset16<RoomPixels>(offset.X, offset.Y);
     }

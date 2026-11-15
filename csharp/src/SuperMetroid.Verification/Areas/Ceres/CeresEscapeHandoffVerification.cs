@@ -57,8 +57,8 @@ internal static class CeresEscapeHandoffVerification
         FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
         FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
-
             emptyRoom,
+            SamusRoomObjectFixtures.Uninstalled,
             samus,
             cameraX: 0,
             frameCounter: 0);
@@ -82,8 +82,8 @@ internal static class CeresEscapeHandoffVerification
         // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(samus.HorizontalSpeed.ExtraRunSpeed.Whole, 0x4000);
         samus.CeresRidleyEjection.Step(
-
             emptyRoom,
+            SamusRoomObjectFixtures.Uninstalled,
             samus,
             cameraX: 0,
             frameCounter: 1);
@@ -111,7 +111,7 @@ internal static class CeresEscapeHandoffVerification
         SamusPresentation.InitializeAnimation(airborne);
         airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
         airborne.CeresRidleyEjection.Request(airborne);
-        airborne.CeresRidleyEjection.Step(emptyRoom, airborne, cameraX: 0, frameCounter: 0);
+        airborne.CeresRidleyEjection.Step(emptyRoom, SamusRoomObjectFixtures.Uninstalled, airborne, cameraX: 0, frameCounter: 0);
         AssertEqual(98, airborne.Kinematics.Position.Y.Whole, "ejection alignment uses the interrupted pose's live radius");
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }

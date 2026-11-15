@@ -137,7 +137,7 @@ internal static class ResumeChargingSoundCancelVerification
         /// <summary>Places Samus in <paramref name="pose"/> at <paramref name="position"/> with <paramref name="beams"/> equipped.</summary>
         internal Fixture(SamusPoseId pose, FixedPosition<RoomPixels> position, SamusBeamFlags beams)
         {
-            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge)
+            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge, new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Pose = pose,
                 Position = position,
@@ -169,7 +169,7 @@ internal static class ResumeChargingSoundCancelVerification
 
         /// <summary>Runs the projectile producer's firing pass with <paramref name="buttons"/>.</summary>
         internal void Fire(ProjectileButtonInput buttons) =>
-            Projectiles.FireFromHud(new SamusTerrain { Level = room }, Samus, buttons, Bombs, projectileProducerEnabled: true);
+            Projectiles.FireFromHud(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, Samus, buttons, Bombs, projectileProducerEnabled: true);
 
         /// <summary>Runs the post-draw sound pass with <paramref name="held"/> held, Samus's movement unchanged.</summary>
         internal void PostDraw(GameplayAction held) =>

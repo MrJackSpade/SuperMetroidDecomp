@@ -27,7 +27,7 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         SamusState? owner,
         SignedSixteenSixteen signedDistance,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
@@ -67,7 +67,7 @@ public static class SamusBlockCollision
     /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
-    public static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, HorizontalBlockMove move)
+    internal static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, HorizontalBlockMove move)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -216,11 +216,11 @@ public static class SamusBlockCollision
                             ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         if (collided) collisionBlock = block;
                         if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                            (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
+                            !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                         {
                             throw new InvalidOperationException(
                                 $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                                $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.Block) ?? [])}].");
+                                $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.Snapshots.Select(scroll => scroll.Block))}].");
                         }
                         break;
 
@@ -245,7 +245,7 @@ public static class SamusBlockCollision
                         // shared item detector, whose setup triggers the item at this
                         // origin and reports no collision; Samus therefore passes through
                         // rather than clipping against the item's visual block.
-                        if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
+                        if (!terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
                         {
                             throw new InvalidOperationException(
                                 $"Collectible block {block.Position} has no active item room-object owner.");
@@ -256,15 +256,14 @@ public static class SamusBlockCollision
                         // Both special-block reactions spawn the room object and let Samus pass unless its setup stops her.
                         // A full pool returns without running setup, so even a block whose
                         // setup would normally reject contact falls through as air.
-                        if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
+                        if (terrain.RoomObjects.Quicksand.IsAllocationFull)
                             break;
                         // Runs the speed-block entries through the speed-block
                         // setup. A stage-four boost or directional shinespark clears
                         // collision synchronously, so this same horizontal scan continues
                         // through the newly non-solid cell.
                         if (owner is { } speedBoostingSamus &&
-                            terrain.RoomObjects is not null &&
-                            terrain.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
+                                terrain.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                                 terrain.Level,
                                 block.At,
                                 block.Behavior,
@@ -277,14 +276,13 @@ public static class SamusBlockCollision
                         // block, but must not activate the station or demand an owner.
                         if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
                             block.Behavior.TryGetStationAccess(out _) &&
-                            (terrain.RoomObjects is null ||
-                             !terrain.RoomObjects.Stations.TryNotifyStationCollision(
+                            !terrain.RoomObjects.Stations.TryNotifyStationCollision(
                                  terrain.Level,
                                  block.At,
                                  block.Behavior,
                                  state.CollisionPose.ForRoomCollision(),
                                  Axis.Horizontal,
-                                 movingPositive: acceptedDisplacement.IsPositive)))
+                                 movingPositive: acceptedDisplacement.IsPositive))
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Position} behaviour ({block.Behavior}) " +
@@ -304,7 +302,7 @@ public static class SamusBlockCollision
                         // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // reports no collision, so this scan continues through the new air.
-                        if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
+                        if (terrain.RoomObjects.Quicksand.IsAllocationFull)
                             break;
                         if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
                         {
@@ -323,7 +321,7 @@ public static class SamusBlockCollision
                         }
                         // Every contact that breaks a bomb block starts its block reaction, which runs the breakup
                         // and grows the block back (#1582).
-                        bool spawned = RoomObjectsBreaking(terrain, block.At).BlockReactions
+                        bool spawned = terrain.RoomObjects.BlockReactions
                             .TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
                         if (spawned)
                             brokenBombBlock ??= block;
@@ -378,7 +376,7 @@ public static class SamusBlockCollision
     /// Moves Samus vertically against the blocks, scanning them left to right or right to left, then adds the final
     /// fixed-point step to her position when nothing solid stops her.
     /// </summary>
-    public static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalBlockMove move)
+    internal static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalBlockMove move)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -570,11 +568,11 @@ public static class SamusBlockCollision
                     }
                     if (block.CollisionType == RoomCollisionType.SpecialAir &&
                         block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                        (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
+                        !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                     {
                         throw new InvalidOperationException(
                             $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                            $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.Block) ?? [])}].");
+                            $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.Snapshots.Select(scroll => scroll.Block))}].");
                     }
                     // Scroll wake-up itself lets Samus pass; sand has a separate
                     // collision and contact contract handled above.
@@ -603,7 +601,7 @@ public static class SamusBlockCollision
 
                 case RoomCollisionType.SpecialBlock when
                     block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger:
-                    if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
+                    if (!terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
                     {
                         throw new InvalidOperationException(
                             $"Collectible block {block.Position} has no active item room-object owner.");
@@ -614,12 +612,12 @@ public static class SamusBlockCollision
                     // Spawning a room object lets Samus pass when all forty slots
                     // are occupied. No setup runs, so the unchanged special block is
                     // treated as air for this collision probe.
-                    if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
+                    if (terrain.RoomObjects.Quicksand.IsAllocationFull)
                         break;
                     // Hand reactions change state but return unconditional collision:
                     // even an admitted morph contact is clipped by this same scan.
                     if (owner is { } chozoSamus)
-                        terrain.RoomObjects?.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
+                        terrain.RoomObjects.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
                             block.At, chozoSamus,
                             state.CollisionPose ?? throw new InvalidOperationException(
                                 "The Chozo statue hand's touch needs Samus's sampled collision pose."), movingDown: acceptedDisplacement.IsPositive &&
@@ -628,7 +626,6 @@ public static class SamusBlockCollision
                     // with horizontal collision. Accepted boost contact becomes air
                     // before clipping; rejected/non-speed special blocks remain solid.
                     if (owner is { } speedBoostingSamus &&
-                        terrain.RoomObjects is not null &&
                         terrain.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                             terrain.Level,
                             block.At,
@@ -643,13 +640,6 @@ public static class SamusBlockCollision
                         // the tested clearance. Pose probes use the both-ways direction and delete the room object.
                         (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
                     {
-                        if (terrain.RoomObjects is null)
-                        {
-                            throw new InvalidOperationException(
-                                $"Contact crumble block {block.Position} behaviour " +
-                                $"({block.Behavior}) requires an active room-object owner.");
-                        }
-
                         // The contact crumble always reports the block solid. Setup removes
                         // the special collision kind immediately (leaving the block
                         // solid), and this downward scan remains clipped.
@@ -663,14 +653,13 @@ public static class SamusBlockCollision
                     // landing. Keep solidity without waking the save-station owner.
                     if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
                         block.Behavior.TryGetStationAccess(out _) &&
-                        (terrain.RoomObjects is null ||
-                         !terrain.RoomObjects.Stations.TryNotifyStationCollision(
+                        !terrain.RoomObjects.Stations.TryNotifyStationCollision(
                              terrain.Level,
                              block.At,
                              block.Behavior,
                              state.CollisionPose.ForRoomCollision(),
                              Axis.Vertical,
-                             movingPositive: acceptedDisplacement.IsPositive)))
+                             movingPositive: acceptedDisplacement.IsPositive))
                     {
                         throw new InvalidOperationException(
                             $"Station access block {block.Position} behaviour ({block.Behavior}) " +
@@ -686,7 +675,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.BombableBlock:
                     // The vertical reaction shares the exact room-object
                     // setup and collision contract documented in the horizontal branch above.
-                    if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
+                    if (terrain.RoomObjects.Quicksand.IsAllocationFull)
                     {
                         // The full room-object pool prevents rejection setup from stopping
                         // Samus. Block collision therefore lets her pass and
@@ -707,7 +696,7 @@ public static class SamusBlockCollision
                         throw new InvalidDataException(
                             $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
                     }
-                    RoomObjectsBreaking(terrain, block.At).BlockReactions
+                    terrain.RoomObjects.BlockReactions
                         .TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
                     break;
 
@@ -744,7 +733,7 @@ public static class SamusBlockCollision
         SamusState? owner,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -753,14 +742,6 @@ public static class SamusBlockCollision
         state.Position = state.Position.AdvanceY(scan.AcceptedDisplacement);
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }
-
-    /// <summary>The room objects that run the reaction of the bomb block at <paramref name="block"/> a scan breaks.</summary>
-    /// <exception cref="InvalidOperationException">
-    /// The scan runs without the room's objects, as the scans of rooms with no bomb blocks do, so it cannot start one.
-    /// </exception>
-    private static ISamusRoomObjects RoomObjectsBreaking(SamusTerrain terrain, Position16<RoomBlocks> block) =>
-        terrain.RoomObjects ?? throw new InvalidOperationException(
-            $"A scan without the room's objects broke bomb block {block}, whose reaction only the room's objects can run.");
 
     /// <summary>
     /// Runs the shared bomb-block setup for non-solid cells without consuming its collision result.
@@ -773,7 +754,7 @@ public static class SamusBlockCollision
         // must never turn this non-solid cell into a movement obstruction.
         if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
-        RoomObjectsBreaking(terrain, block.At).BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
+        terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
     }
 
     /// <summary>

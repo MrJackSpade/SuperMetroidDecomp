@@ -56,9 +56,7 @@ public static class SamusGrappleSwing
         // Keep the authored physical mapping compiled so a visual-frame override cannot
         // move the collision body. Stock art still selects the same frame.
         var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
-        GrappleSwingPicture picture = (grapple.SwingFrames ?? throw new InvalidOperationException(
-            "Grapple swing requires installed frame definitions."))
-            .Resolve(direction);
+        GrappleSwingPicture picture = grapple.Artwork.InstalledGrappleSwingFrames.Resolve(direction);
         var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.ShowGrappleSwingPicture(samus, picture);
@@ -550,7 +548,7 @@ public static class SamusGrappleSwing
 
     /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
     internal static bool IsStillConnectedToSupportedBlock(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         SamusGrappleState grapple)
     {
@@ -558,9 +556,10 @@ public static class SamusGrappleSwing
         // only whether the block stops the beam. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
         // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
-            level,
+            terrain.Level,
             samus,
-            grapple.Anchor);
+            grapple.Anchor,
+            terrain.RoomObjects);
         return reaction.Collides();
     }
 

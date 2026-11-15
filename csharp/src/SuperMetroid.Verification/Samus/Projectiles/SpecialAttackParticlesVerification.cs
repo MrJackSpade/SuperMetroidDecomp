@@ -465,7 +465,7 @@ internal static class SpecialAttackParticlesVerification
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         var shared = new SamusBombProjectileSystem();
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState())
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(samusAt),

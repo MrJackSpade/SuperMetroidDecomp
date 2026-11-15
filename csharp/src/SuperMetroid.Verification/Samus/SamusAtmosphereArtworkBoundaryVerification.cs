@@ -21,7 +21,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
         return particles;
     }
 
-    /// <summary>Compares authored atmospheric frame attributes with cartridge words and checks missing-art rejection.</summary>
+    /// <summary>Compares authored atmospheric frame attributes with cartridge words.</summary>
     internal static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         var importBus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
@@ -49,15 +49,6 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 $"atmospheric type {type} frame {frame} high attribute uses imported art");
         }
 
-        SamusParticles missing = OneParticle(SamusParticleKind.SurfaceSplash, 0);
-        AssertThrows<InvalidOperationException>(() =>
-        {
-            var oamFrame = new SpriteFrameBuffer();
-            oamFrame.BeginFrame();
-            OamBuffer oam;
-            missing.UpdateAndDraw(oamFrame, new(0, 0), 128);
-            oam = oamFrame.FinalizeAsOam();
-        }, "authored atmospheric art cannot fall back to ROM");
 
         Console.WriteLine("Samus atmospheric artwork: all 16 authored frames use installed assets.");
     }

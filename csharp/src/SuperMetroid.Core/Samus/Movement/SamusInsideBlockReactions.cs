@@ -13,7 +13,7 @@ public static class SamusInsideBlockReactions
 
     /// <summary>Samples bottom, center, and top in order.</summary>
     internal static void PrepareFrame(RoomLevelData level, SamusState samus,
-        AreaId area, bool areaBossDefeated = false, ISamusRoomObjects? roomObjects = null)
+        AreaId area, bool areaBossDefeated, ISamusRoomObjects roomObjects)
     {
         var body = samus.Kinematics;
         SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
@@ -30,7 +30,7 @@ public static class SamusInsideBlockReactions
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
             if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
+                !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                 throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
@@ -41,7 +41,7 @@ public static class SamusInsideBlockReactions
             }
             SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
-            if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
+            if (QuicksandReactions.PlacesObject(reaction) &&
                 !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
             {
                 return;
@@ -53,10 +53,10 @@ public static class SamusInsideBlockReactions
                     // Neither inside reaction changes Samus's motion here.
                     break;
                 case SpecialAirInsideReaction.BrinstarFloorPlant:
-                    RequireRoomObjects().SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Floor, samus.RoomView);
+                    roomObjects.SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Floor, samus.RoomView);
                     break;
                 case SpecialAirInsideReaction.BrinstarCeilingPlant:
-                    RequireRoomObjects().SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Ceiling, samus.RoomView);
+                    roomObjects.SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Ceiling, samus.RoomView);
                     break;
                 case SpecialAirInsideReaction.QuicksandSurface:
                     // The game's setup cancels running momentum even for center/top samples,
@@ -109,8 +109,6 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Undefined {nameof(SpecialAirInsideReaction)} {reaction}.");
             }
         }
-        ISamusRoomObjects RequireRoomObjects() =>
-            roomObjects ?? throw new InvalidOperationException("Samus Eater reaction requires the room-object owner.");
         void ApplyConveyor(SpecialAirReaction reaction)
         {
             // The common special-air reactions include the conveyors; only they react here.
@@ -150,12 +148,12 @@ public static class SamusInsideBlockReactions
         SamusCollisionDirection? blockReactionDirection = null)
     {
         RoomLevelData level = terrain.Level;
-        ISamusRoomObjects? roomObjects = terrain.RoomObjects;
+        ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
         SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
-        if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
+        if (QuicksandReactions.PlacesObject(reaction) &&
             !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
         {
             return SpecialAirCollisionOutcome.PassesThrough;

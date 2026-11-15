@@ -193,9 +193,7 @@ internal sealed class SamusPoseTransitionPhase
                 samus,
                 _playerActions.Current,
                 _freeze.TimeIsFrozen,
-                _room.LevelData,
-                _clock.Counter,
-                roomObjects))
+                new KnockbackPoseCollision(new SamusTerrain { Level = _room.LoadedLevelData, RoomObjects = roomObjects }, _clock.Counter)))
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -387,7 +385,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied &&
             _player.LastAerialSamusMovement is { WallJumpTriggered: true })
         {
-            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, _room.LevelData, _clock.Counter, roomObjects);
+            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, _room.LoadedLevelData, _clock.Counter, roomObjects);
             animationTransitionApplied = true;
         }
 

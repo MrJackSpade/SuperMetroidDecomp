@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -22,7 +23,7 @@ internal static class PowerBombBoundaryVerification
         {
             var cornerVisits = new List<BombBlockReaction>();
             SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(65530, 65530), PowerBombRadius.FromWholePixels(16),
-                cornerVisits, null, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+                cornerVisits, SamusRoomObjectFixtures.Uninstalled, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
             AssertEqual(0, cornerVisits.Count, "a blast left of and above the room reaches no block");
         }
 
@@ -34,7 +35,7 @@ internal static class PowerBombBoundaryVerification
             {
                 var visited = new List<BombBlockReaction>();
                 SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(x, y), PowerBombRadius.FromWholePixels(radiusPixels),
-                    visited, null, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+                    visited, SamusRoomObjectFixtures.Uninstalled, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
                 // A visit into this inert air room leaves no state besides its reaction entry,
                 // so only the inclusive visit count (corner revisits included) is observable.
                 AssertEqual(expected.Length, visited.Count, "inclusive Power Bomb edge visit count");

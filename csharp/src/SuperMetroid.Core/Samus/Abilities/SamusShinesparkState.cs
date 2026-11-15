@@ -526,7 +526,7 @@ public sealed class SamusShinesparkState
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
-    public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
+    internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -909,7 +909,7 @@ false,             CrashSequenceFinished: true);
 
         RoomLevelData level,
         SamusState samus,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
@@ -928,7 +928,7 @@ false,             CrashSequenceFinished: true);
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());

@@ -19,8 +19,14 @@ public sealed class SamusArmCannonState
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
     internal HudItem PreviousSelectedHudItem { get; set; }
 
-    /// <summary>Installed arm-cannon artwork: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledSamusArmCannonArtwork? Artwork { get; set; }
+    /// <summary>The installed artwork the cover is placed by: installed content, not game state.</summary>
+    private readonly SamusArtworkBinding _artwork;
+
+    /// <summary>Starts a closed cover placed by <paramref name="artwork"/>'s arm-cannon placements.</summary>
+    internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
+
+    /// <summary>The installed arm-cannon placements, or none before they are installed.</summary>
+    public InstalledSamusArmCannonArtwork? Artwork => _artwork.ArmCannon;
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
     public bool IsOpen { get; internal set; }
@@ -125,8 +131,7 @@ public sealed class SamusArmCannonState
 
     /// <summary>Where the installed artwork places the cover for <paramref name="pose"/>.</summary>
     private SamusArmCannonPlacement Placement(SamusPoseId pose) =>
-        (Artwork ?? throw new InvalidOperationException(
-            "Arm cannon requires installed drawing definitions.")).Placement(pose);
+        _artwork.InstalledArmCannon.Placement(pose);
 
     /// <summary>
     /// Moves the cover one picture toward fully open or closed; reaching either ends the transition while keeping the

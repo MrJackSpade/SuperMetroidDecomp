@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -431,13 +432,16 @@ public sealed class SamusState
     /// The grapple-beam state. Keeping this as a named child object makes the grapple
     /// values individually watchable without polluting ordinary Samus kinematics.
     /// </summary>
-    public SamusGrappleState Grapple { get; } = new();
+    public SamusGrappleState Grapple { get; }
 
     /// <summary>
     /// The arm cannon's independent opening cover and its one-picture draw, used by aimed weapon
     /// poses. Its state is driven by HUD selection rather than by the body animation timer.
     /// </summary>
-    public SamusArmCannonState ArmCannon { get; } = new();
+    public SamusArmCannonState ArmCannon { get; }
+
+    /// <summary>The installed artwork her body, cannon cover, particles, death explosion and grapple beam draw from.</summary>
+    public SamusArtworkBinding Artwork { get; }
 
     /// <summary>
     /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
@@ -514,15 +518,19 @@ public sealed class SamusState
     internal bool HeavySpikeDamageEnabled { get; set; } = true;
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
-    /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
+    /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii or animation data; gameplay setup supplies those separately.</remarks>
     /// <param name="framesBeyondAnimation">What an animation frame past her pose's animation reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
+    /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
     internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation, UnauthoredBoostCadence unauthoredBoostCadence,
-        SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge)
+        SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge, SamusArtworkBinding artwork)
     {
         BeamCharge = Ensure.NotNull(beamCharge);
+        Artwork = Ensure.NotNull(artwork);
+        Grapple = new SamusGrappleState(artwork);
+        ArmCannon = new SamusArmCannonState(artwork);
         FramesBeyondAnimation = Ensure.NotNull(framesBeyondAnimation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
@@ -536,7 +544,7 @@ public sealed class SamusState
         Xray = new SamusXrayState(SpecialColouring);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         InputSnapshot = new SamusInputSnapshot();
-        Presentation = new SamusPresentation();
+        Presentation = new SamusPresentation(artwork);
         LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles);
         Kinematics = new SamusKinematicsState();
         BindAudioRequests(AudioRequests);
@@ -574,7 +582,7 @@ public sealed class SamusState
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects? roomObjects,
+        ISamusRoomObjects roomObjects,
         out int centerAdjustment)
     {
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
@@ -723,7 +731,7 @@ level,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight,
         SamusPoseId targetPose,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects roomObjects)
     {
         int wholePixels = displacement.WholePixels;
         if (Math.Abs(wholePixels) >= 8)

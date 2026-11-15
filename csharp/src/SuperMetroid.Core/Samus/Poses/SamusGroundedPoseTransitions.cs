@@ -164,7 +164,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
         out BlockMoveResult? onePixelProbe,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -603,7 +603,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     internal static bool TryResolveKnockbackPoseCollision(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int frameCounter, ISamusRoomObjects? roomObjects)
+        int frameCounter, ISamusRoomObjects roomObjects)
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome outcome = samus.ResolveLargerPoseCollision(

@@ -631,7 +631,7 @@ internal static class SamusPoseMetadata
         bool timeIsFrozen,
         int frameCounter,
         GameplayAction controllerNewInput,
-        ISamusRoomObjects? roomObjects = null)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);

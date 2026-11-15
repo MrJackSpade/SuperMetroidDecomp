@@ -44,8 +44,8 @@ internal static class ElevatorBehaviorVerification
         RoomEnemySlot elevator = enemies.SlotTable.Slots[3];
         elevator.Bind(EnemyDefinitionId.Elevator, elevator.Definition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState());
-        samus.Presentation.BindBodyFixture(InstalledFixtures.SamusBody);
+        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        samus.BindBodyFixture(InstalledFixtures.SamusBody);
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();
         enemies.ElevatorBehavior.InitializeElevator(elevator, samus);

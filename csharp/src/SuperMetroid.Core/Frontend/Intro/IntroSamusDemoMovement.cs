@@ -61,14 +61,15 @@ internal static class IntroSamusDemoMovement
                 level,
                 samus,
                 frameCounter,
-                heldInput);
+                heldInput,
+                IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
         {
             // The demo's input phase has written its held buttons into the controller input that
             // the standing animation tests, so a held shot holds the standing animation here too.
             movement = SamusGroundedMovement.StepStanding(level, samus, frameCounter,
-                heldInput);
+                heldInput, IntroCollisionRoomObjects.Instance);
         }
         else
         {
@@ -87,7 +88,7 @@ internal static class IntroSamusDemoMovement
             ? proposed.ProspectivePose
             : fallback;
         SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, level, candidate,
-            movement.Horizontal.Collided, out _);
+            movement.Horizontal.Collided, out _, IntroCollisionRoomObjects.Instance);
         if (wallPose is { } stoppedPose)
         {
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);

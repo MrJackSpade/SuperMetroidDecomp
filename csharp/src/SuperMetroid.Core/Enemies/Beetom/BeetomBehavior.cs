@@ -521,8 +521,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    /// <remarks>Common damage can kill the Beetom before this private tail runs, so the identity is matched before
-    /// dispatch.</remarks>
+    /// <remarks>Common damage can kill the Beetom before this tail runs, so the tail first checks the Beetom is still
+    /// alive.</remarks>
     internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),

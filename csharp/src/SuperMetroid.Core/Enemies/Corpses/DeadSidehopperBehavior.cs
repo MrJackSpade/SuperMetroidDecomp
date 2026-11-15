@@ -115,7 +115,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Allocates slot state with the corpse's own rot schedule and its own rows.</summary>
     private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemySlot slot)
     {
-        var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
         slot.SetSpeciesState(state);
         return state;
     }
@@ -126,7 +126,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         SamusState samus,
         RoomLevelData level,
         Position16<RoomPixels> camera) =>
-        RunDeadSidehopperState(slot, RequireDeadSidehopperState(slot), samus, level, camera);
+        RunDeadSidehopperState(slot, slot.RequireSpeciesState<DeadSidehopperEnemyState>(), samus, level, camera);
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
     internal void RunDeadSidehopperState(
@@ -307,7 +307,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// </summary>
     private static void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         state.Action = state.HasBegunDraining
             ? DeadSidehopperAction.Draining
             : DeadSidehopperAction.BeginPostLandingDelay;
@@ -315,12 +315,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Begins Shitroid's drain of its victim, when the Shitroid latches on to feed.</summary>
     internal static void ActivateDeadSidehopperVictim(RoomEnemySlot victim) =>
-        RequireDeadSidehopperState(victim).DrainStage = 1;
+        victim.RequireSpeciesState<DeadSidehopperEnemyState>().DrainStage = 1;
 
     /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
     private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         if (slot.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.IsDrained)
         {
@@ -347,7 +347,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context)
     {
         RoomEnemySlot slot = context.Enemy;
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         if (state.IsDrained)
         {
             ResolveDeadSidehopperShot(slot);
@@ -382,7 +382,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) => RequireDeadSidehopperState(slot).Rows.Shown;
+    internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) => slot.RequireSpeciesState<DeadSidehopperEnemyState>().Rows.Shown;
 
     /// <summary>Spawns a completed row's dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(RoomEnemySlot slot) =>
@@ -401,17 +401,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
-    internal static DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
-    {
-        DeadSidehopperEnemyState state = slot.SpeciesState<DeadSidehopperEnemyState>() ??
-            throw new InvalidDataException(
-                $"Enemy slot {slot.SlotIndex} has no initialized dead-sidehopper state.");
-        if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("Dead-sidehopper state belongs to a different slot.");
-        return state;
-    }
-
     /// <summary>Routes a bomb that selects the corpse's shot reaction to its decay check, in place of common bomb damage.</summary>
     internal static void ReplaceDeadSidehopperBombDamage(EnemyBombContext c) =>
         ResolveDeadSidehopperShot(c.Enemy);
@@ -427,7 +416,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!slot.AnimationClock.Expire())
             return;
-        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        DeadSidehopperEnemyState state = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => ApplyDeadSidehopperCue(slot, cue) is { } target
@@ -459,5 +448,5 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
         // Before Shitroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        ResolveDeadSidehopperTouch(context.Slot, RequireDeadSidehopperState(context.Slot), context.Samus);
+        ResolveDeadSidehopperTouch(context.Slot, context.Slot.RequireSpeciesState<DeadSidehopperEnemyState>(), context.Samus);
 }

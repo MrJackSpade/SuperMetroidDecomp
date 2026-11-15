@@ -336,7 +336,7 @@ internal sealed class BlockReactionObjects
         }
     }
 
-    /// <summary>Dispatches normal-bomb special blocks by their reaction.</summary>
+    /// <summary>Reacts to a normal bomb at a special block, as the block's reaction says.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,

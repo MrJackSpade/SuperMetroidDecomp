@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The behaviours a dead sidehopper's main AI dispatches.
+/// What a dead sidehopper is doing, from the Shitroid's living victim to the rotting corpse.
 /// Its values are arbitrary.
 /// </summary>
 public enum DeadSidehopperAction

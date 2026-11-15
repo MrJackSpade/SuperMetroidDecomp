@@ -447,7 +447,7 @@ internal sealed class EnemySheetShades
             inks.Add(SheetShade.Run(ChozoAndTubeShades.LowerNorfairStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
                 Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.LowerNorfair, colour))));
         }
-        if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianPartDefinitions.Parts.ContainsKey(enemy))
+        if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
         {
             ShitroidColorCatalog shitroid = inputs.Bosses.ShitroidColors ?? throw Missing("drained corpse colours");
             rows.Add(new(TourianCorpseShades.Drained, EnemySheetRowDefinitions.DrainedCorpses, colours.With(EnemySheetRowDefinitions.DrainedCorpses, 0,

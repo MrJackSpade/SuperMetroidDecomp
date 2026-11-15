@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Named station/side dispatch for the six station-access behaviours.
-/// Each case selects its retracted/extended arm draws.
+/// The six station-access behaviours, one for each station and the side Samus reaches it from.
+/// Each names the arm it shows retracted and extended.
 /// Energy and missile stations share access artwork on each side. Other behaviour
 /// values, including the save-floor trigger, are outside this extending domain.
 /// </summary>

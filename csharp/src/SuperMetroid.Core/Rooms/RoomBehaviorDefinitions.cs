@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Typed dispatch identities for every room-main and room-setup behaviour retail room states use.</summary>
+/// <summary>The room-main and room-setup behaviours the retail room states use, each by name.</summary>
 public static class RoomBehaviorDefinitions
 {
     /// <summary>The setup behaviours that initialize the Ceres haze effect when their room loads.</summary>

@@ -303,8 +303,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (inflation.Sequence == PowampBalloonSequence.Sinking)
         {
             // A balloon sunk halfway restarts inflating from halfway, and one sunk deflated restarts inflating from
-            // deflated; one still full keeps sinking. A sinking balloon that has not shown its first pose is refused, as
-            // the game would read past its restart table.
+            // deflated; one still full keeps sinking. A sinking balloon that has not shown its first pose is refused:
+            // it has no pose to restart from.
             if (inflation.PosesShown == 0)
                 throw new InvalidDataException("Powamp death saw a sinking balloon that had shown none of its poses.");
             if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampSegment restart))

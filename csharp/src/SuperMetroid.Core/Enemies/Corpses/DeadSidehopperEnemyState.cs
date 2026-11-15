@@ -12,15 +12,12 @@ public sealed class DeadSidehopperEnemyState
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
     /// <summary>Captures one corpse's silhouette and its own rot schedule, and starts its own rows.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, CorpseRotSchedule rot)
+    internal DeadSidehopperEnemyState(CorpseRotSchedule rot)
     {
-        Slot = slot;
         Rot = Ensure.NotNull(rot);
         Rows = new RottingCorpseRows(rot.Rows.Count);
     }
 
-    /// <summary>The enemy slot owning this corpse's position, collision properties and animation timing.</summary>
-    public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
     /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>

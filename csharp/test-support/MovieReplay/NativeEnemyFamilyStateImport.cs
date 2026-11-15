@@ -691,7 +691,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
-            corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Profile.Species, words.A);
+            corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
             corpse.PreRotDelayCounter = words.B;
         }
         if (enemies.RioStates[index] is { } rio)

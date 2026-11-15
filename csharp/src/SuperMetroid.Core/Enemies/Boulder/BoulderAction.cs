@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
-/// The six behaviours Boulder's main AI dispatches.
+/// What a Boulder is doing, one of six actions its main AI runs.
 /// </summary>
 public enum BoulderAction
 {

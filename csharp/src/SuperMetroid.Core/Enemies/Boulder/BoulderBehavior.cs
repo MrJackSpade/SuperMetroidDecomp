@@ -128,7 +128,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticalCompensation = new Offset16<RoomPixels>(0, RollingGroundReach);
     }
 
-    /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>
+    /// <summary>Runs the Boulder's current action: waiting for Samus, falling, rebounding, rolling or resting.</summary>
     private void RunBoulderMain(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
         switch (state.Action)
@@ -306,8 +306,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances an acceleration clock and caps it. The game compares the sum with the cap by whether their
-    /// difference is negative; both stay within 0 through 24576 here, so that is the ordinary comparison.
+    /// Advances a place on the speed curve by <paramref name="increment"/>, holding it at <paramref name="maximum"/>.
     /// </summary>
     private static QuadraticSpeedCurvePlace AddAndCap(
         QuadraticSpeedCurvePlace value, QuadraticSpeedCurvePlace increment, QuadraticSpeedCurvePlace maximum) =>

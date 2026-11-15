@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The behaviours the dead Torizo corpse's main AI dispatches.
+/// The phases a dead Torizo's corpse passes through, from lying intact to having rotted away.
 /// Its values are arbitrary.
 /// </summary>
 internal enum DeadTorizoPhase

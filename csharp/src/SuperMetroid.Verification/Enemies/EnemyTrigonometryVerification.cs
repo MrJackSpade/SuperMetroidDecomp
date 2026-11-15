@@ -42,6 +42,8 @@ using SuperMetroid.Verification.Enemies.Sbug;
 using SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Enemies.Nuclear;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Enemies.KiHunters.KiHunterSwoopTurnVerification;
+using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleSweepAngleVerification;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
@@ -294,6 +296,8 @@ internal static class EnemyTrigonometryVerification
     internal static RegisteredSuite[] CompiledEnemyTrigonometrySuites() =>
     [
         new(nameof(VerifyRidleyPowerBombNeutralTail), () => VerifyRidleyPowerBombNeutralTail()),
+        new(nameof(VerifyKiHunterSwoopTurn), () => VerifyKiHunterSwoopTurn()),
+        new(nameof(VerifyNuclearWaffleSweepAngle), () => VerifyNuclearWaffleSweepAngle()),
         new(nameof(VerifyCoarseHalfWaveAlgorithm), () => VerifyCoarseHalfWaveAlgorithm(LoadRepositoryRom())),
         new(nameof(VerifyUnsignedHalfWaveAlgorithm), () => VerifyUnsignedHalfWaveAlgorithm(LoadRepositoryRom())),
         new(nameof(VerifyCompiledSignedTrigonometry), () => VerifyCompiledSignedTrigonometry(LoadRepositoryRom())),

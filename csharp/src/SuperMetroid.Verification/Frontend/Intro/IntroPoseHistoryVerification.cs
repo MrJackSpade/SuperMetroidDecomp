@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRenderCaptureTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -56,7 +57,9 @@ internal static class IntroPoseHistoryVerification
     /// <summary>Tracks flashback transitions, collision-radius handoff, and preservation of the persistent Samus owner.</summary>
     private static void VerifyIntroScenePoseHistory()
     {
-        var intro = CreateRetailIntroFixture();
+        // The intro waits on its music queue, which the game runs after every dispatch.
+        var audio = AudioQueues.Standalone();
+        var intro = CreateRetailIntroFixture(audio);
         var failures = new List<string>();
         int transitions = 0;
         bool setup = false, terminal = false, handoff = false;
@@ -74,6 +77,7 @@ internal static class IntroPoseHistoryVerification
             // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
             _ = intro.CaptureTranslatedRenderSnapshot();
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
+            audio.AdvanceFrame(default);
             SamusState? after = intro.CurrentFlashbackSamus;
             IntroBabyDiscoveryState? discovery = intro.CurrentBabyDiscovery;
             bool ended = demoEnabled && intro.CurrentFlashbackDemoInput?.Enabled == false;
@@ -119,7 +123,7 @@ internal static class IntroPoseHistoryVerification
                 history.PreviousPose != after.Pose || history.PreviousMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native history shift");
         }
-        AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; transitions={transitions}");
+        AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; setup={setup}, terminal={terminal}, handoff={handoff}, transitions={transitions}, final phase {intro.Phase}");
         AssertTrue(jumpRadiusRetained && jumpRadiusPublished, "intro fixture covers jump radius publication across alpha/beta");
         AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
     }

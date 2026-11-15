@@ -27,7 +27,7 @@ internal static class PublishedPartDraws
             if (frames.Length > 1)
                 violations.Add($"{source.Key.Kind}#{source.Key.Instance} publishes {frames.Length} frames in one update: {string.Join("; ", frames.Select(draw => draw.ToString()))}");
         }
-        foreach (IGrouping<(SpriteSourceKind Kind, Position16<ScreenPixels> Origin), SpriteDraw> placed in published.GroupBy(draw => (draw.Source.Kind, draw.Origin)))
+        foreach (IGrouping<(SpriteSourceKind Kind, Offset16<ScreenPixels> Origin), SpriteDraw> placed in published.GroupBy(draw => (draw.Source.Kind, draw.Origin)))
         {
             SpriteSource[] sources = [.. placed.Select(draw => draw.Source).Distinct()];
             if (sources.Length > 1)

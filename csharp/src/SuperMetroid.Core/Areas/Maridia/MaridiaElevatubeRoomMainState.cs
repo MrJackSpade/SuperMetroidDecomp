@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Maridia;
 
 /// <summary>
 /// The Maridia elevatube's room main behaviour and the four door
-/// behaviours that initialize or release it. The fraction of the tracked position starts from what the previous
+/// behaviours that initialize or release it. The fraction of the tracked height starts from what the previous
 /// room's main left (<see cref="RoomMainCarryover"/>), because the door behaviours do not set it, and is left for the
 /// following room's main.
 /// </summary>
@@ -19,12 +19,10 @@ public sealed class MaridiaElevatubeRoomMainState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// The tube's tracked room position at X zero: its whole Y pixels, wrapping as the game's coordinate does.
+    /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction,
+    /// wrapping as the game's coordinate does.
     /// </summary>
-    public Position16<RoomPixels> TrackedPosition { get; private set; }
-
-    /// <summary>The fraction of the tracked position's Y, 0 through 65535.</summary>
-    public int TrackedFraction { get; private set; }
+    public FixedCoordinate TrackedY { get; private set; }
 
     /// <summary>The tube's signed 1/256-pixel vertical velocity in room pixels per update.</summary>
     public SignedEightEight Velocity { get; private set; }
@@ -41,7 +39,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public MaridiaElevatubeRoomMainState(bool active, RoomMainCarryover carryover)
     {
         IsActive = active;
-        TrackedFraction = Ensure.NotNull(carryover).Fraction;
+        TrackedY = FixedCoordinate.Of(0, Ensure.NotNull(carryover).Fraction);
     }
 
     /// <summary>Applies the door behaviour for entry from Oasis to the south.</summary>
@@ -50,7 +48,7 @@ public sealed class MaridiaElevatubeRoomMainState
         EnsureActive(DoorRoomEvent.StartsElevatubeRideFromSouth);
         Ensure.NotNull(samus);
         // Entry from the south leaves the tracked fraction as it was.
-        TrackedPosition = new(0, MaridiaElevatubeDefinitions.SouthStartingY);
+        TrackedY = TrackedY.WithWhole(MaridiaElevatubeDefinitions.SouthStartingY);
         Velocity = MaridiaElevatubeDefinitions.SouthStartingVelocity;
         Acceleration = MaridiaElevatubeDefinitions.SouthAcceleration;
         samus.Control.LockStationary();
@@ -62,7 +60,7 @@ public sealed class MaridiaElevatubeRoomMainState
         EnsureActive(DoorRoomEvent.StartsElevatubeRideFromNorth);
         Ensure.NotNull(samus);
         // Entry from the north leaves the tracked fraction as it was.
-        TrackedPosition = new(0, MaridiaElevatubeDefinitions.NorthStartingY);
+        TrackedY = TrackedY.WithWhole(MaridiaElevatubeDefinitions.NorthStartingY);
         Velocity = MaridiaElevatubeDefinitions.NorthStartingVelocity;
         Acceleration = MaridiaElevatubeDefinitions.NorthAcceleration;
         samus.Control.LockStationary();
@@ -81,7 +79,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
     /// <summary>
     /// Runs the elevatube once: pin X to 128, integrate signed 1/256-pixel velocity into both
-    /// the tracked position and Samus's 1/65536-pixel position through Samus's ordinary
+    /// the tracked height and Samus's 1/65536-pixel position through Samus's ordinary
     /// vertical collision check, then apply the game's bounded acceleration.
     /// </summary>
     internal BlockMoveResult? Step(
@@ -105,11 +103,8 @@ public sealed class MaridiaElevatubeRoomMainState
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();
-        FixedCoordinate tracked = new FixedCoordinate(TrackedPosition.Y, TrackedFraction)
-            .MovedBy(displacement);
-        TrackedPosition = new(0, tracked.Whole);
-        TrackedFraction = tracked.Fraction;
-        carryover.LeaveFraction(TrackedFraction);
+        TrackedY = TrackedY.MovedBy(displacement);
+        carryover.LeaveFraction(TrackedY.Fraction);
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 

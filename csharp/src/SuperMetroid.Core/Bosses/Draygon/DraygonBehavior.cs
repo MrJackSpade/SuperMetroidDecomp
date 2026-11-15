@@ -65,17 +65,17 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Parts = new DraygonParts(new DraygonPartsDependencies
         {
             Room = dependencies.Room, Projectiles = dependencies.Projectiles,
-            Earthquake = dependencies.Earthquake, SpriteObjects = dependencies.SpriteObjects,
+            Earthquake = dependencies.Earthquake, EffectActors = dependencies.EffectActors,
             Presentation = dependencies.Presentation, FrameContext = dependencies.FrameContext, Audio = dependencies.Audio,
             Shots = Shots,
         });
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles, Shots);
-        Intro = new DraygonIntro(dependencies.SpriteObjects, Turrets);
-        Movement = new DraygonMovement(dependencies.SpriteObjects);
+        Intro = new DraygonIntro(dependencies.EffectActors, Turrets);
+        Movement = new DraygonMovement(dependencies.EffectActors);
         Swoops = new DraygonSwoops(_room, Parts, Turrets, Movement);
         Goop = new DraygonGoop(_room, Parts, Turrets, Movement);
-        Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.SpriteObjects, dependencies.ScrollCap, Parts, Turrets);
-        Death = new DraygonDeath(_room, dependencies.SpriteObjects, dependencies.DeathsAndDrops, Parts);
+        Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.EffectActors, dependencies.ScrollCap, Parts, Turrets);
+        Death = new DraygonDeath(_room, dependencies.EffectActors, dependencies.DeathsAndDrops, Parts);
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Parts, Grab);
     }
 

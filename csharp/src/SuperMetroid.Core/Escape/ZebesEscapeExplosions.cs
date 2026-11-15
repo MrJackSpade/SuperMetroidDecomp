@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Escape;
 
@@ -15,7 +15,7 @@ internal static class ZebesEscapeExplosions
             : null;
 
     /// <summary>The kind an outdoor explosion over <paramref name="block"/> shows when its draw leaves the kind open.</summary>
-    internal static RoomSpriteObjectKind OutdoorKindLeftOpen(Position16<RoomBlocks> block) =>
+    internal static RoomEffectActorKind OutdoorKindLeftOpen(Position16<RoomBlocks> block) =>
         ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase[
             block.X % ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase.Length];
 }

@@ -1,10 +1,10 @@
-namespace SuperMetroid.Core.Enemies.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
-/// The room sprite object an owner spawns. Its values are arbitrary; verification's catalog names each kind's
+/// The room effect actor an owner spawns. Its values are arbitrary; verification's catalog names each kind's
 /// object number.
 /// </summary>
-public enum RoomSpriteObjectKind
+public enum RoomEffectActorKind
 {
     /// <summary>Finite small explosion used by Spore Spawn, Draygon, and escape effects.</summary>
     SporeSpawnDyingExplosion,
@@ -40,7 +40,7 @@ public enum RoomSpriteObjectKind
     FallingSparkTrail,
     /// <summary>Looping electrical outer-body art, allocated and repositioned by the Metroid owner.</summary>
     MetroidElectricity,
-    /// <summary>Looping shell layer paired with the Metroid's electrical sprite object.</summary>
+    /// <summary>Looping shell layer paired with the Metroid's electrical effect actor.</summary>
     MetroidShell,
     /// <summary>Held root art placed eight pixels above a Yapping Maw that reaches down.</summary>
     YappingMawRootFacingDown,

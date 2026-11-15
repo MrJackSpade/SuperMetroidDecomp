@@ -1,16 +1,16 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
-/// The projectile frames and room sprite-object kinds each enemy definition can spawn, and those each common spawner (code
+/// The projectile frames and room effect-actor kinds each enemy definition can spawn, and those each common spawner (code
 /// outside the enemy behaviours) spawns (#1392), which the pre-coloured spawned-object sheets hold, each on the sheet its spawn's graphics name (#1513).
 /// Generated from the source by tools/frame-definitions-generator; regenerate rather than edit.
 /// </summary>
-[ArchitectureReview("large", "Generated data: the projectile frames and sprite-object kinds each enemy definition spawns; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
+[ArchitectureReview("large", "Generated data: the projectile frames and effect-actor kinds each enemy definition spawns; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
 internal static class SpawnedObjectFrameDefinitions
 {
     /// <summary>The projectile frames <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns.</summary>
@@ -63,8 +63,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.BotwoonSpitUpFifth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] BotwoonSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] BotwoonEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] CrocomireProjectiles =
@@ -72,8 +72,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CrocomireSpikeWallPiece,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] CrocomireSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] CrocomireEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] FakeKraidProjectiles =
@@ -83,8 +83,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.FakeKraidSpikeRight,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] FakeKraidSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] FakeKraidEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] PhantoonProjectiles =
@@ -119,8 +119,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.PhantoonDestroyableShotFourth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] PhantoonSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] PhantoonEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] SporeSpawnProjectiles =
@@ -134,8 +134,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SporeSpawnStalk,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] SporeSpawnSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] SporeSpawnEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] TorizoProjectiles =
@@ -242,8 +242,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.GoldenTorizoEyeBeamNormalFifth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] TorizoSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] TorizoEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Alcoon/AlcoonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] AlcoonProjectiles =
@@ -254,8 +254,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.AlcoonFireballInitialFourth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Alcoon/AlcoonBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] AlcoonSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Alcoon/AlcoonBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] AlcoonEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Cacatac/CacatacBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] CacatacProjectiles =
@@ -272,8 +272,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CacatacSpikeRightFacingDown,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Cacatac/CacatacBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] CacatacSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Cacatac/CacatacBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] CacatacEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Dragon/DragonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] DragonProjectiles =
@@ -288,8 +288,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.DragonFireballFallingRightSecond,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Dragon/DragonBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] DragonSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Dragon/DragonBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] DragonEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/FuneNamihe/FuneNamiheBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] FuneNamiheProjectiles =
@@ -302,8 +302,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.FuneNamiheFireballRightThird,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/FuneNamihe/FuneNamiheBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] FuneNamiheSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/FuneNamihe/FuneNamiheBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] FuneNamiheEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Kago/KagoBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] KagoProjectiles =
@@ -317,8 +317,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.KagoBugJumpLoop,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Kago/KagoBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] KagoSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Kago/KagoBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] KagoEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/KiHunters/KiHunterBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] KiHunterProjectiles =
@@ -344,8 +344,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.KiHunterAcidSpitRightSeventh,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/KiHunters/KiHunterBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] KiHunterSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/KiHunters/KiHunterBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] KiHunterEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Magdollite/MagdolliteBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] MagdolliteProjectiles =
@@ -354,8 +354,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MagdolliteLavaRight,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Magdollite/MagdolliteBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] MagdolliteSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Magdollite/MagdolliteBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] MagdolliteEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Metaree/MetareeBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] MetareeProjectiles =
@@ -363,17 +363,17 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MetareeDebris,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Metaree/MetareeBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] MetareeSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Metaree/MetareeBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] MetareeEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] MetroidProjectiles = [];
 
-    /// <summary>The room sprite objects <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] MetroidSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] MetroidEffectActors =
     [
-        RoomSpriteObjectKind.MetroidElectricity,
-        RoomSpriteObjectKind.MetroidShell,
+        RoomEffectActorKind.MetroidElectricity,
+        RoomEffectActorKind.MetroidShell,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Nuclear/NuclearWaffleBehavior.cs</c> spawns.</summary>
@@ -393,13 +393,13 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.NuclearWaffleInitialTwelfth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Nuclear/NuclearWaffleBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] NuclearWaffleSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Nuclear/NuclearWaffleBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] NuclearWaffleEffectActors =
     [
-        RoomSpriteObjectKind.NuclearWaffleBody,
-        RoomSpriteObjectKind.NuclearWaffleTurnClockwise,
-        RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise,
-        RoomSpriteObjectKind.NuclearWaffleTurnOverlay,
+        RoomEffectActorKind.NuclearWaffleBody,
+        RoomEffectActorKind.NuclearWaffleTurnClockwise,
+        RoomEffectActorKind.NuclearWaffleTurnCounterClockwise,
+        RoomEffectActorKind.NuclearWaffleTurnOverlay,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Polyp/PolypBehavior.cs</c> spawns.</summary>
@@ -408,8 +408,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.PolypRockInitial,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Polyp/PolypBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] PolypSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Polyp/PolypBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] PolypEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Powamp/PowampBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] PowampProjectiles =
@@ -419,8 +419,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.PowampSpikeInitialThird,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Powamp/PowampBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] PowampSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Powamp/PowampBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] PowampEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Skree/SkreeBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] SkreeProjectiles =
@@ -428,8 +428,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SkreeDebris,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Skree/SkreeBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] SkreeSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Skree/SkreeBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] SkreeEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] NinjaSpacePirateProjectiles =
@@ -452,8 +452,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SpacePirateClawRightLoopEighth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] NinjaSpacePirateSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] NinjaSpacePirateEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Sparks/SparkBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] SparkProjectiles =
@@ -469,10 +469,10 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.FallingSparkHitFloorEleventh,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Sparks/SparkBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] SparkSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Sparks/SparkBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] SparkEffectActors =
     [
-        RoomSpriteObjectKind.FallingSparkTrail,
+        RoomEffectActorKind.FallingSparkTrail,
     ];
 
     /// <summary>The projectile frames <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
@@ -482,11 +482,11 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.YappingMawFacingUp,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] YappingMawSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
+    private static readonly RoomEffectActorKind[] YappingMawEffectActors =
     [
-        RoomSpriteObjectKind.YappingMawRootFacingDown,
-        RoomSpriteObjectKind.YappingMawRootFacingUp,
+        RoomEffectActorKind.YappingMawRootFacingDown,
+        RoomEffectActorKind.YappingMawRootFacingUp,
     ];
 
     /// <summary>The projectile frames <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -584,8 +584,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
-    /// <summary>The room sprite objects <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] CeresDoorSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Areas/Ceres/CeresDoorBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] CeresDoorSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Areas/Ceres/CeresSteamBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] CeresSteamSharedProjectiles =
@@ -636,12 +636,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Areas/Ceres/CeresSteamBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] CeresSteamSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Areas/Ceres/CeresSteamBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] CeresSteamSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -680,8 +680,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatuePhantoon,
     ];
 
-    /// <summary>The room sprite objects <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] TourianEntranceStatueSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] TourianEntranceStatueSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] BotwoonSharedProjectiles =
@@ -822,14 +822,14 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] BotwoonSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] BotwoonSharedEffectActors =
     [
-        RoomSpriteObjectKind.BotwoonLargeExplosion,
-        RoomSpriteObjectKind.BotwoonSmallExplosion,
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.BotwoonLargeExplosion,
+        RoomEffectActorKind.BotwoonSmallExplosion,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -983,13 +983,13 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] CrocomireSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] CrocomireSharedEffectActors =
     [
-        RoomSpriteObjectKind.CrocomireAcidSmoke,
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.CrocomireAcidSmoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Draygon/DraygonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -1158,19 +1158,19 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Draygon/DraygonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DraygonSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Draygon/DraygonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] DraygonSharedEffectActors =
     [
-        RoomSpriteObjectKind.BotwoonLargeExplosion,
-        RoomSpriteObjectKind.DraygonBreathBubble,
-        RoomSpriteObjectKind.DraygonDeathEvirFacingRight,
-        RoomSpriteObjectKind.DraygonIntroEvir,
-        RoomSpriteObjectKind.DraygonSpiralFoam,
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.EnemyProjectileDud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
-        RoomSpriteObjectKind.SporeSpawnDyingExplosion,
+        RoomEffectActorKind.BotwoonLargeExplosion,
+        RoomEffectActorKind.DraygonBreathBubble,
+        RoomEffectActorKind.DraygonDeathEvirFacingRight,
+        RoomEffectActorKind.DraygonIntroEvir,
+        RoomEffectActorKind.DraygonSpiralFoam,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.EnemyProjectileDud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
+        RoomEffectActorKind.SporeSpawnDyingExplosion,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -1222,12 +1222,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] FakeKraidSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] FakeKraidSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Kraid/KraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -1376,13 +1376,13 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Kraid/KraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] KraidSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Kraid/KraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] KraidSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.EnemyProjectileDud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.EnemyProjectileDud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -1480,8 +1480,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] BabyMetroidCutsceneSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] BabyMetroidCutsceneSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainSharedProjectiles =
@@ -1844,13 +1844,13 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] MotherBrainSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MotherBrainSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.EnemyProjectileDud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.EnemyProjectileDud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/MotherBrain/RinkaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -1992,12 +1992,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/MotherBrain/RinkaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] RinkaSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/RinkaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] RinkaSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2049,12 +2049,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] ShitroidSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] ShitroidSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/MotherBrain/ZebetiteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2106,12 +2106,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/MotherBrain/ZebetiteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] ZebetiteSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/ZebetiteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] ZebetiteSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2253,12 +2253,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] PhantoonSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] PhantoonSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2426,12 +2426,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Ridley/RidleyEntityFactory.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] RidleyEntitySharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Ridley/RidleyEntityFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] RidleyEntitySharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2583,14 +2583,14 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] SporeSpawnSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/SporeSpawn/SporeSpawnBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] SporeSpawnSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.EnemyProjectileDud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
-        RoomSpriteObjectKind.SporeSpawnDyingExplosion,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.EnemyProjectileDud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
+        RoomEffectActorKind.SporeSpawnDyingExplosion,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2686,13 +2686,13 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] TorizoSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Bosses/Torizo/TorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] TorizoSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.EnemyProjectileDud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.EnemyProjectileDud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Beetom/BeetomBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2744,12 +2744,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Beetom/BeetomBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] BeetomSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Beetom/BeetomBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] BeetomSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Boulder/BoulderBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -2847,8 +2847,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Boulder/BoulderBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] BoulderSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Boulder/BoulderBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] BoulderSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] ChozoStatueSharedProjectiles =
@@ -2859,8 +2859,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.ChozoTourianDustFootstepsFourth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] ChozoStatueSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] ChozoStatueSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] DeadSidehopperSharedProjectiles =
@@ -3001,12 +3001,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DeadSidehopperSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] DeadSidehopperSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Corpses/DeadTorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3148,12 +3148,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Corpses/DeadTorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DeadTorizoSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Corpses/DeadTorizoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] DeadTorizoSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3295,12 +3295,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Corpses/DeadTourianBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DeadTourianSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Corpses/DeadTourianBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] DeadTourianSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Dragon/DragonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3352,12 +3352,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Dragon/DragonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] DragonSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Dragon/DragonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] DragonSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Evir/EvirBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3409,12 +3409,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Evir/EvirBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] EvirSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Evir/EvirBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] EvirSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Fireflea/FirefleaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3466,12 +3466,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Fireflea/FirefleaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] FirefleaSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Fireflea/FirefleaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] FirefleaSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Gunship/GunshipBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3525,8 +3525,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.GunshipDustLeftOuterSeventh,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Gunship/GunshipBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] GunshipSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/Gunship/GunshipBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] GunshipSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Kago/KagoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] KagoSharedProjectiles =
@@ -3582,12 +3582,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Kago/KagoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] KagoSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Kago/KagoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] KagoSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Magdollite/MagdolliteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3639,12 +3639,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Magdollite/MagdolliteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] MagdolliteSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Magdollite/MagdolliteBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MagdolliteSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3696,12 +3696,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] MamaTurtleSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/MamaTurtles/MamaTurtleBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MamaTurtleSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/MaridiaSnails/MaridiaLargeSnailBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3753,12 +3753,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/MaridiaSnails/MaridiaLargeSnailBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] MaridiaLargeSnailSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/MaridiaSnails/MaridiaLargeSnailBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MaridiaLargeSnailSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3810,12 +3810,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] MetroidSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Metroids/MetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MetroidSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Metroids/MochtroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3867,12 +3867,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Metroids/MochtroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] MochtroidSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Metroids/MochtroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MochtroidSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/NoobTube/NoobTubeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -3970,8 +3970,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.NoobTubeBubbleFallingEleventh,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/NoobTube/NoobTubeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] NoobTubeSharedSpriteObjects = [];
+    /// <summary>The room effect actors <c>Enemies/NoobTube/NoobTubeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] NoobTubeSharedEffectActors = [];
 
     /// <summary>The projectile frames <c>Enemies/Powamp/PowampBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] PowampSharedProjectiles =
@@ -4022,12 +4022,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Powamp/PowampBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] PowampSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Powamp/PowampBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] PowampSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Shaktool/ShaktoolBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4079,12 +4079,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Shaktool/ShaktoolBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] ShaktoolSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Shaktool/ShaktoolBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] ShaktoolSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4136,12 +4136,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Shutters/ShuttersBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] ShuttersSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Shutters/ShuttersBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] ShuttersSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Skree/SkreeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4193,12 +4193,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Skree/SkreeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] SkreeSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Skree/SkreeBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] SkreeSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4250,13 +4250,13 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] NinjaSpacePirateSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] NinjaSpacePirateSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.NinjaPirateLandingDust,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.NinjaPirateLandingDust,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/WalkingSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4334,12 +4334,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/SpacePirates/WalkingSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] WalkingSpacePirateSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/SpacePirates/WalkingSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] WalkingSpacePirateSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/SpacePirates/WallSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4417,12 +4417,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/SpacePirates/WallSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] WallSpacePirateSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/SpacePirates/WallSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] WallSpacePirateSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4481,12 +4481,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] WorkRobotSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] WorkRobotSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4538,12 +4538,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] YappingMawSharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] YappingMawSharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Yard/YardEnemyBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -4595,12 +4595,12 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>Enemies/Yard/YardEnemyBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomSpriteObjectKind[] YardEnemySharedSpriteObjects =
+    /// <summary>The room effect actors <c>Enemies/Yard/YardEnemyBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] YardEnemySharedEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/>'s sheet holds.</summary>
@@ -4676,8 +4676,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MotherBrainGlassSparkleFourth,
     ];
 
-    /// <summary>The room sprite objects <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/>'s sheet holds.</summary>
-    private static readonly RoomSpriteObjectKind[] MotherBrainTankGlassSheetSpriteObjects = [];
+    /// <summary>The room effect actors <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/>'s sheet holds.</summary>
+    private static readonly RoomEffectActorKind[] MotherBrainTankGlassSheetEffectActors = [];
 
     /// <summary>The projectile frames <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonCeresElevatorArrivalStateProjectiles =
@@ -4687,8 +4687,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresElevatorPlatform,
     ];
 
-    /// <summary>The room sprite objects <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonCeresElevatorArrivalStateSpriteObjects = [];
+    /// <summary>The room effect actors <c>CeresElevatorArrivalState</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonCeresElevatorArrivalStateEffectActors = [];
 
     /// <summary>The projectile frames <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonDownwardGateBehaviorProjectiles =
@@ -4704,8 +4704,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.DownwardGateRisenThreeBlocks,
     ];
 
-    /// <summary>The room sprite objects <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonDownwardGateBehaviorSpriteObjects = [];
+    /// <summary>The room effect actors <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonDownwardGateBehaviorEffectActors = [];
 
     /// <summary>The projectile frames <c>EnemyDeathsAndDrops</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEnemyDeathsAndDropsProjectiles =
@@ -4756,30 +4756,30 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth,
     ];
 
-    /// <summary>The room sprite objects <c>EnemyDeathsAndDrops</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEnemyDeathsAndDropsSpriteObjects =
+    /// <summary>The room effect actors <c>EnemyDeathsAndDrops</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonEnemyDeathsAndDropsEffectActors =
     [
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.SmallExplosion,
-        RoomSpriteObjectKind.Smoke,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
     ];
 
     /// <summary>The projectile frames <c>EnemyProjectileEngine.CreateBombDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEnemyProjectileEngineCreateBombDudShotProjectiles = [];
 
-    /// <summary>The room sprite objects <c>EnemyProjectileEngine.CreateBombDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineCreateBombDudShotSpriteObjects =
+    /// <summary>The room effect actors <c>EnemyProjectileEngine.CreateBombDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonEnemyProjectileEngineCreateBombDudShotEffectActors =
     [
-        RoomSpriteObjectKind.EnemyProjectileDud,
+        RoomEffectActorKind.EnemyProjectileDud,
     ];
 
     /// <summary>The projectile frames <c>EnemyProjectileEngine.CreateEnemyProjectileDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles = [];
 
-    /// <summary>The room sprite objects <c>EnemyProjectileEngine.CreateEnemyProjectileDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineCreateEnemyProjectileDudShotSpriteObjects =
+    /// <summary>The room effect actors <c>EnemyProjectileEngine.CreateEnemyProjectileDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonEnemyProjectileEngineCreateEnemyProjectileDudShotEffectActors =
     [
-        RoomSpriteObjectKind.EnemyProjectileDud,
+        RoomEffectActorKind.EnemyProjectileDud,
     ];
 
     /// <summary>The projectile frames <c>EnemyProjectileEngine.SpawnDustOrExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
@@ -4877,20 +4877,20 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
-    /// <summary>The room sprite objects <c>EnemyProjectileEngine.SpawnDustOrExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineSpawnDustOrExplosionSpriteObjects = [];
+    /// <summary>The room effect actors <c>EnemyProjectileEngine.SpawnDustOrExplosion</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonEnemyProjectileEngineSpawnDustOrExplosionEffectActors = [];
 
     /// <summary>The projectile frames <c>EscapeExplosionsBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEscapeExplosionsBehaviorProjectiles = [];
 
-    /// <summary>The room sprite objects <c>EscapeExplosionsBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEscapeExplosionsBehaviorSpriteObjects =
+    /// <summary>The room effect actors <c>EscapeExplosionsBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonEscapeExplosionsBehaviorEffectActors =
     [
-        RoomSpriteObjectKind.BotwoonSmallExplosion,
-        RoomSpriteObjectKind.DustCloud,
-        RoomSpriteObjectKind.ShortBigDustCloud,
-        RoomSpriteObjectKind.Smoke,
-        RoomSpriteObjectKind.SporeSpawnDyingExplosion,
+        RoomEffectActorKind.BotwoonSmallExplosion,
+        RoomEffectActorKind.DustCloud,
+        RoomEffectActorKind.ShortBigDustCloud,
+        RoomEffectActorKind.Smoke,
+        RoomEffectActorKind.SporeSpawnDyingExplosion,
     ];
 
     /// <summary>The projectile frames <c>EyeDoorBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
@@ -5003,8 +5003,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth,
     ];
 
-    /// <summary>The room sprite objects <c>EyeDoorBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonEyeDoorBehaviorSpriteObjects = [];
+    /// <summary>The room effect actors <c>EyeDoorBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonEyeDoorBehaviorEffectActors = [];
 
     /// <summary>The projectile frames <c>OldTourianEscapeShaftWallBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonOldTourianEscapeShaftWallBehaviorProjectiles =
@@ -5017,8 +5017,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth,
     ];
 
-    /// <summary>The room sprite objects <c>OldTourianEscapeShaftWallBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonOldTourianEscapeShaftWallBehaviorSpriteObjects = [];
+    /// <summary>The room effect actors <c>OldTourianEscapeShaftWallBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonOldTourianEscapeShaftWallBehaviorEffectActors = [];
 
     /// <summary>The projectile frames <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonRidleyProjectilesProjectiles =
@@ -5045,8 +5045,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresRidleyDirectionalFifth,
     ];
 
-    /// <summary>The room sprite objects <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonRidleyProjectilesSpriteObjects = [];
+    /// <summary>The room effect actors <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonRidleyProjectilesEffectActors = [];
 
     /// <summary>The projectile frames <c>RoomMainRoutines</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonRoomMainRoutinesProjectiles =
@@ -5055,8 +5055,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresFallingDebrisDark,
     ];
 
-    /// <summary>The room sprite objects <c>RoomMainRoutines</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonRoomMainRoutinesSpriteObjects = [];
+    /// <summary>The room effect actors <c>RoomMainRoutines</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonRoomMainRoutinesEffectActors = [];
 
     /// <summary>The projectile frames <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonSaveStationElectricityProjectiles =
@@ -5071,8 +5071,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SaveStationElectricityStartEighth,
     ];
 
-    /// <summary>The room sprite objects <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonSaveStationElectricitySpriteObjects = [];
+    /// <summary>The room effect actors <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonSaveStationElectricityEffectActors = [];
 
     /// <summary>The projectile frames <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonTourianUnlockBehaviorProjectiles =
@@ -5091,47 +5091,47 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueTailFourth,
     ];
 
-    /// <summary>The room sprite objects <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomSpriteObjectKind[] CommonTourianUnlockBehaviorSpriteObjects = [];
+    /// <summary>The room effect actors <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonTourianUnlockBehaviorEffectActors = [];
 
     /// <summary>What each enemy definition can spawn onto its own spawned-object sheet.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, SpawnedObjects> ByEnemy { get; } =
         new Dictionary<EnemyDefinitionId, SpawnedObjects>
         {
-            [EnemyDefinitionId.Botwoon] = new(BotwoonProjectiles, BotwoonSpriteObjects),
-            [EnemyDefinitionId.Crocomire] = new(CrocomireProjectiles, CrocomireSpriteObjects),
-            [EnemyDefinitionId.CrocomireTongue] = new(CrocomireProjectiles, CrocomireSpriteObjects),
-            [EnemyDefinitionId.MiniKraid] = new(FakeKraidProjectiles, FakeKraidSpriteObjects),
-            [EnemyDefinitionId.PhantoonBody] = new(PhantoonProjectiles, PhantoonSpriteObjects),
-            [EnemyDefinitionId.PhantoonEye] = new(PhantoonProjectiles, PhantoonSpriteObjects),
-            [EnemyDefinitionId.PhantoonMouth] = new(PhantoonProjectiles, PhantoonSpriteObjects),
-            [EnemyDefinitionId.PhantoonTentacles] = new(PhantoonProjectiles, PhantoonSpriteObjects),
-            [EnemyDefinitionId.SporeSpawn] = new(SporeSpawnProjectiles, SporeSpawnSpriteObjects),
-            [EnemyDefinitionId.BombTorizo] = new(TorizoProjectiles, TorizoSpriteObjects),
-            [EnemyDefinitionId.GoldenTorizo] = new(TorizoProjectiles, TorizoSpriteObjects),
-            [EnemyDefinitionId.Alcoon] = new(AlcoonProjectiles, AlcoonSpriteObjects),
-            [EnemyDefinitionId.Cacatac] = new(CacatacProjectiles, CacatacSpriteObjects),
-            [EnemyDefinitionId.Dragon] = new(DragonProjectiles, DragonSpriteObjects),
-            [EnemyDefinitionId.Fune] = new(FuneNamiheProjectiles, FuneNamiheSpriteObjects),
-            [EnemyDefinitionId.Namihe] = new(FuneNamiheProjectiles, FuneNamiheSpriteObjects),
-            [EnemyDefinitionId.Kago] = new(KagoProjectiles, KagoSpriteObjects),
-            [EnemyDefinitionId.KihunterGreen] = new(KiHunterProjectiles, KiHunterSpriteObjects),
-            [EnemyDefinitionId.KihunterGreenWings] = new(KiHunterProjectiles, KiHunterSpriteObjects),
-            [EnemyDefinitionId.KihunterRed] = new(KiHunterProjectiles, KiHunterSpriteObjects),
-            [EnemyDefinitionId.KihunterRedWings] = new(KiHunterProjectiles, KiHunterSpriteObjects),
-            [EnemyDefinitionId.KihunterYellow] = new(KiHunterProjectiles, KiHunterSpriteObjects),
-            [EnemyDefinitionId.KihunterYellowWings] = new(KiHunterProjectiles, KiHunterSpriteObjects),
-            [EnemyDefinitionId.Magdollite] = new(MagdolliteProjectiles, MagdolliteSpriteObjects),
-            [EnemyDefinitionId.Metaree] = new(MetareeProjectiles, MetareeSpriteObjects),
-            [EnemyDefinitionId.Metroid] = new(MetroidProjectiles, MetroidSpriteObjects),
-            [EnemyDefinitionId.Puromi] = new(NuclearWaffleProjectiles, NuclearWaffleSpriteObjects),
-            [EnemyDefinitionId.LavaRocks] = new(PolypProjectiles, PolypSpriteObjects),
-            [EnemyDefinitionId.Powamp] = new(PowampProjectiles, PowampSpriteObjects),
-            [EnemyDefinitionId.Skree] = new(SkreeProjectiles, SkreeSpriteObjects),
-            [EnemyDefinitionId.PirateGoldNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateSpriteObjects),
-            [EnemyDefinitionId.PirateSilverNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateSpriteObjects),
-            [EnemyDefinitionId.Spark] = new(SparkProjectiles, SparkSpriteObjects),
-            [EnemyDefinitionId.YappingMaw] = new(YappingMawProjectiles, YappingMawSpriteObjects),
+            [EnemyDefinitionId.Botwoon] = new(BotwoonProjectiles, BotwoonEffectActors),
+            [EnemyDefinitionId.Crocomire] = new(CrocomireProjectiles, CrocomireEffectActors),
+            [EnemyDefinitionId.CrocomireTongue] = new(CrocomireProjectiles, CrocomireEffectActors),
+            [EnemyDefinitionId.MiniKraid] = new(FakeKraidProjectiles, FakeKraidEffectActors),
+            [EnemyDefinitionId.PhantoonBody] = new(PhantoonProjectiles, PhantoonEffectActors),
+            [EnemyDefinitionId.PhantoonEye] = new(PhantoonProjectiles, PhantoonEffectActors),
+            [EnemyDefinitionId.PhantoonMouth] = new(PhantoonProjectiles, PhantoonEffectActors),
+            [EnemyDefinitionId.PhantoonTentacles] = new(PhantoonProjectiles, PhantoonEffectActors),
+            [EnemyDefinitionId.SporeSpawn] = new(SporeSpawnProjectiles, SporeSpawnEffectActors),
+            [EnemyDefinitionId.BombTorizo] = new(TorizoProjectiles, TorizoEffectActors),
+            [EnemyDefinitionId.GoldenTorizo] = new(TorizoProjectiles, TorizoEffectActors),
+            [EnemyDefinitionId.Alcoon] = new(AlcoonProjectiles, AlcoonEffectActors),
+            [EnemyDefinitionId.Cacatac] = new(CacatacProjectiles, CacatacEffectActors),
+            [EnemyDefinitionId.Dragon] = new(DragonProjectiles, DragonEffectActors),
+            [EnemyDefinitionId.Fune] = new(FuneNamiheProjectiles, FuneNamiheEffectActors),
+            [EnemyDefinitionId.Namihe] = new(FuneNamiheProjectiles, FuneNamiheEffectActors),
+            [EnemyDefinitionId.Kago] = new(KagoProjectiles, KagoEffectActors),
+            [EnemyDefinitionId.KihunterGreen] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterGreenWings] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterRed] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterRedWings] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterYellow] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterYellowWings] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.Magdollite] = new(MagdolliteProjectiles, MagdolliteEffectActors),
+            [EnemyDefinitionId.Metaree] = new(MetareeProjectiles, MetareeEffectActors),
+            [EnemyDefinitionId.Metroid] = new(MetroidProjectiles, MetroidEffectActors),
+            [EnemyDefinitionId.Puromi] = new(NuclearWaffleProjectiles, NuclearWaffleEffectActors),
+            [EnemyDefinitionId.LavaRocks] = new(PolypProjectiles, PolypEffectActors),
+            [EnemyDefinitionId.Powamp] = new(PowampProjectiles, PowampEffectActors),
+            [EnemyDefinitionId.Skree] = new(SkreeProjectiles, SkreeEffectActors),
+            [EnemyDefinitionId.PirateGoldNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateEffectActors),
+            [EnemyDefinitionId.PirateSilverNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateEffectActors),
+            [EnemyDefinitionId.Spark] = new(SparkProjectiles, SparkEffectActors),
+            [EnemyDefinitionId.YappingMaw] = new(YappingMawProjectiles, YappingMawEffectActors),
         };
 
     /// <summary>What each enemy definition can spawn onto the shared sheet of the graphics sets holding it.</summary>
@@ -5229,7 +5229,7 @@ internal static class SpawnedObjectFrameDefinitions
     internal static IReadOnlyDictionary<SpawnedObjectOwner, SpawnedObjects> BySheet { get; } =
         new Dictionary<SpawnedObjectOwner, SpawnedObjects>
         {
-            [SpawnedObjectOwner.MotherBrainTankGlass] = new(MotherBrainTankGlassSheetProjectiles, MotherBrainTankGlassSheetSpriteObjects),
+            [SpawnedObjectOwner.MotherBrainTankGlass] = new(MotherBrainTankGlassSheetProjectiles, MotherBrainTankGlassSheetEffectActors),
         };
 
     /// <summary>
@@ -5238,18 +5238,18 @@ internal static class SpawnedObjectFrameDefinitions
     /// </summary>
     internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =
     [
-        new("CeresElevatorArrivalState", new(CommonCeresElevatorArrivalStateProjectiles, CommonCeresElevatorArrivalStateSpriteObjects)),
-        new("DownwardGateBehavior", new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorSpriteObjects)),
-        new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsSpriteObjects)),
-        new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotSpriteObjects)),
-        new("EnemyProjectileEngine.CreateEnemyProjectileDudShot", new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotSpriteObjects)),
-        new("EnemyProjectileEngine.SpawnDustOrExplosion", new(CommonEnemyProjectileEngineSpawnDustOrExplosionProjectiles, CommonEnemyProjectileEngineSpawnDustOrExplosionSpriteObjects)),
-        new("EscapeExplosionsBehavior", new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorSpriteObjects)),
-        new("EyeDoorBehavior", new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorSpriteObjects)),
-        new("OldTourianEscapeShaftWallBehavior", new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorSpriteObjects)),
-        new("RidleyProjectiles", new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesSpriteObjects)),
-        new("RoomMainRoutines", new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesSpriteObjects)),
-        new("SaveStationElectricity", new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricitySpriteObjects)),
-        new("TourianUnlockBehavior", new(CommonTourianUnlockBehaviorProjectiles, CommonTourianUnlockBehaviorSpriteObjects)),
+        new("CeresElevatorArrivalState", new(CommonCeresElevatorArrivalStateProjectiles, CommonCeresElevatorArrivalStateEffectActors)),
+        new("DownwardGateBehavior", new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorEffectActors)),
+        new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsEffectActors)),
+        new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotEffectActors)),
+        new("EnemyProjectileEngine.CreateEnemyProjectileDudShot", new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotEffectActors)),
+        new("EnemyProjectileEngine.SpawnDustOrExplosion", new(CommonEnemyProjectileEngineSpawnDustOrExplosionProjectiles, CommonEnemyProjectileEngineSpawnDustOrExplosionEffectActors)),
+        new("EscapeExplosionsBehavior", new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorEffectActors)),
+        new("EyeDoorBehavior", new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorEffectActors)),
+        new("OldTourianEscapeShaftWallBehavior", new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorEffectActors)),
+        new("RidleyProjectiles", new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesEffectActors)),
+        new("RoomMainRoutines", new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesEffectActors)),
+        new("SaveStationElectricity", new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricityEffectActors)),
+        new("TourianUnlockBehavior", new(CommonTourianUnlockBehaviorProjectiles, CommonTourianUnlockBehaviorEffectActors)),
     ];
 }

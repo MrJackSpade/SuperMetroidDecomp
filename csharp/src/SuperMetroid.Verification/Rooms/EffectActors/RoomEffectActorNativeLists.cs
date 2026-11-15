@@ -1,10 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
-namespace SuperMetroid.Verification.Rooms.SpriteObjects;
+namespace SuperMetroid.Verification.Rooms.EffectActors;
 
 /// <summary>An independent reader of the cartridge's bank-$B4 sprite-object selector table and instruction lists.</summary>
-internal static class RoomSpriteObjectNativeLists
+internal static class RoomEffectActorNativeLists
 {
     /// <summary>The native selector table <c>$B4:BDA8</c>.</summary>
     internal const int SelectorTable = 0xb4bda8;
@@ -27,14 +27,14 @@ internal static class RoomSpriteObjectNativeLists
         CartridgeImportSource.Require(rom).ReadCartridgeWord(SelectorTable + selector * sizeof(ushort));
 
     /// <summary>
-    /// Every spritemap the lists of the objects the game spawns show (each <see cref="RoomSpriteObjectKind"/>'s
+    /// Every spritemap the lists of the objects the game spawns show (each <see cref="RoomEffectActorKind"/>'s
     /// selector), following gotos; the lists of selectors nothing spawns are not the game's.
     /// </summary>
     internal static IEnumerable<ushort> SpritemapPointers(ISnesAddressSpace rom)
     {
         var seen = new HashSet<ushort>();
-        var work = new Stack<ushort>(Enum.GetValues<RoomSpriteObjectKind>().Distinct()
-            .Select(kind => Entry(rom, RoomSpriteObjectNativeWords.Kinds.Word(kind))));
+        var work = new Stack<ushort>(Enum.GetValues<RoomEffectActorKind>().Distinct()
+            .Select(kind => Entry(rom, RoomEffectActorNativeWords.Kinds.Word(kind))));
         while (work.Count != 0)
         {
             ushort pointer = work.Pop();

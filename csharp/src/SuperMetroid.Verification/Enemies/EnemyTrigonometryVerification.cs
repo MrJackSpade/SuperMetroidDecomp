@@ -225,7 +225,7 @@ using static SuperMetroid.Verification.Enemies.Ripper.RipperBehaviorVerification
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Fx.RoomShakeDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusArmCannonDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
@@ -536,7 +536,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEnemyDeathExplosionDefinitions), () => VerifyEnemyDeathExplosionDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyProjectileDefinitions), () => VerifyEnemyProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyRoomPaletteFxDefinitions), () => VerifyRoomPaletteFxDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyRoomSpriteObjectDefinitions), () => VerifyRoomSpriteObjectDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyRoomEffectActorDefinitions), () => VerifyRoomEffectActorDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamDefinitions), () => VerifyCeresSteamDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamAnimations), () => VerifyCeresSteamAnimations(LoadRepositoryRom())),
         new(nameof(SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability), () => SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability()),

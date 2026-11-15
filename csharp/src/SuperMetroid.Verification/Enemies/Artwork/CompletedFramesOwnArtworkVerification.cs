@@ -28,7 +28,7 @@ internal static class CompletedFramesOwnArtworkVerification
         {
             AssertEqual(1, drawing.Looks.Count, $"a frame whose artwork is its look's own is drawn in one look of {drawing.Encounter}");
             string[] frames = [.. drawing.Frames.SelectMany(frame => new[] { EnemySheetDefinitions.FrameName(frame), EnemySheetDefinitions.EncounterFrameName(frame),
-                    EnemySheetDefinitions.SpriteObjectFrameName(frame) })
+                    EnemySheetDefinitions.EffectActorFrameName(frame) })
                 .Concat(drawing.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName))];
             foreach ((RoomEnemyGraphicsSetDefinition set, PopulationArtwork artwork) in sheets.BySet.Where(entry => Plays(entry.Key.Name, drawing.Encounter)))
             {

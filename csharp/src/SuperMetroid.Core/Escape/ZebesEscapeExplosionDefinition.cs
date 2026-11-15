@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Escape;
 
@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Escape;
 /// <param name="SpriteKind">The explosion sprite spawned.</param>
 /// <param name="SoundEffect">The enemy-library sound queued with it, or none.</param>
 internal readonly record struct ZebesEscapeExplosionDefinition(
-    RoomSpriteObjectKind SpriteKind,
+    RoomEffectActorKind SpriteKind,
     SoundEffectId? SoundEffect);

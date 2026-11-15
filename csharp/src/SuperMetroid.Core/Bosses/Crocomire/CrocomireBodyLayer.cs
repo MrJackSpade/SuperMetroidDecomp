@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireBodyLayer
 {
-    /// <summary>Allocates arena debris and cinematic sprite objects.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Allocates arena debris and cinematic effect actors.</summary>
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
@@ -21,9 +21,9 @@ internal sealed class CrocomireBodyLayer
     private readonly EnemyRoomFx _roomFx;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBodyLayer(RoomSpriteObjects spriteObjects, EnemyPresentation presentation, CrocomireEncounterAccess access, EnemyRoomFx roomFx)
+    internal CrocomireBodyLayer(RoomEffectActors effectActors, EnemyPresentation presentation, CrocomireEncounterAccess access, EnemyRoomFx roomFx)
     {
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _presentation = presentation;
         _access = access;
         _roomFx = roomFx;
@@ -94,9 +94,9 @@ internal sealed class CrocomireBodyLayer
         int acidY = roomFx.Type is RoomFxType.Lava or RoomFxType.Acid && roomFx.Surface is int surface and >= 0
             ? surface
             : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
-            RoomSpriteObjectKind.CrocomireAcidSmoke,
+            RoomEffectActorKind.CrocomireAcidSmoke,
             graphics: default);
     }
 }

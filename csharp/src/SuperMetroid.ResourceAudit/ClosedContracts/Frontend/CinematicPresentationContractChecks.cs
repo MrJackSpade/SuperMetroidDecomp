@@ -45,8 +45,8 @@ internal static class CinematicPresentationContractChecks
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
-                    caret.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.CaretVisible, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
-                    caret.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)999, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+                    caret.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.CaretVisible, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
+                    caret.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)999, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
                     motherBrain.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.MotherBrainPulseLow, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
                     motherBrain.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)998, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
                     explosions.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.BigExplosionSpark, oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));

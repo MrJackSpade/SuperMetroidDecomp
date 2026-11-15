@@ -139,7 +139,7 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
-            var objects = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone());
+            var objects = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone());
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {
@@ -477,7 +477,7 @@ internal static class LookupStream3Verification
             AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
         var additionalPointers = new SortedSet<ushort>();
         var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
-        foreach (ushort pointer in SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom))
+        foreach (ushort pointer in SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.SpritemapPointers(rom))
         {
             if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
         }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Video;
@@ -63,7 +63,7 @@ internal static class EnemyBombShotReactionVerification
                 _ => [new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Low)],
             };
             AssertSequenceEqual(expected, enemies.Audio.SoundRequests, $"{kind}: the sounds the bomb's hit queues");
-            RoomSpriteObject[] duds = [.. enemies.SpriteObjects.Live.Where(spawned => spawned.Kind == RoomSpriteObjectKind.EnemyProjectileDud)];
+            RoomEffectActor[] duds = [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.EnemyProjectileDud)];
             AssertEqual(immune ? 1 : 0, duds.Length, $"{kind}: the dud flashes the bomb's hit shows");
             if (immune)
                 AssertEqual(Place, duds[0].Position.Whole, "the dud flash shows where the bomb lies");
@@ -128,7 +128,7 @@ internal static class EnemyBombShotReactionVerification
         slot.Radius = definition.Radius;
         slot.Health = 1000;
         slot.FrozenTimer = frozenTimer;
-        slot.Frame = EnemyFrameId.SpriteObjectDudShotFirst;
+        slot.Frame = EnemyFrameId.EffectActorDudShotFirst;
         return (enemies, slot);
     }
 

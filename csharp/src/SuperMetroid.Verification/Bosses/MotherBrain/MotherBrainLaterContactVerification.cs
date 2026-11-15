@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -71,7 +71,7 @@ internal static class MotherBrainLaterContactVerification
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");
             AssertEqual((SoundEffectId?)SamusSound.DudShot, enemies.Audio.LatestSound, "Body emits native dud sound");
         }
-        AssertEqual(2, enemies.RoomSpriteObjects.Count(slot => slot.Kind == RoomSpriteObjectKind.EnemyProjectileDud),
+        AssertEqual(2, enemies.RoomEffectActors.Count(slot => slot.Kind == RoomEffectActorKind.EnemyProjectileDud),
             "Both beam and missile callbacks create their dud sprite");
         Console.WriteLine("Mother Brain later contact: body/neck damage, side condition, post-dispatch position and projectile duds passed.");
         return 0;

@@ -48,7 +48,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
@@ -176,9 +176,9 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount,
             "Draygon intro adds its four native Evir sprite-object frames");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount + 9,
-            EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount,
+            EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount,
             "Draygon breath bubble adds its nine native sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount + 110,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomEffectActorFrameCount + 110,
             EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount,
             "remaining room sprite-object programs add 110 distinct visual frames");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount + 24,
@@ -311,20 +311,20 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
         // The hit burst's four frames are Samus's weapon effect, installed with her projectile pictures (#1713).
         AssertEqual(123, EnemySpritemapDefinitions.Frames.Count(
-                frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
+                frame => frame.Bank == EnemySpritemapDefinitions.RoomEffectActorBank),
             "the bank-B4 sprite-object programs the game starts select 123 distinct enemy-sheet visual frames");
         HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
             
-            .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
+            .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomEffectActorBank)
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(RoomSpriteObjectVisualDefinitionsConstants.Pictures.Select(RoomSpriteObjectVisualDefinitionsConstants.Spritemap).ToHashSet()
-                .SetEquals(SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom)),
+        AssertTrue(RoomEffectActorVisualDefinitionsConstants.Pictures.Select(RoomEffectActorVisualDefinitionsConstants.Spritemap).ToHashSet()
+                .SetEquals(SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.SpritemapPointers(rom)),
             "the room sprite-object pictures are exactly the spritemaps the native lists show");
-        foreach (RoomSpriteObjectPicture picture in RoomSpriteObjectVisualDefinitionsConstants.Pictures)
+        foreach (RoomEffectActorPicture picture in RoomEffectActorVisualDefinitionsConstants.Pictures)
         {
             bool samusHitBurst = picture.HitBurst is not null;
-            AssertEqual(!samusHitBurst, installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(picture)),
+            AssertEqual(!samusHitBurst, installedSpritePointers.Contains(RoomEffectActorVisualDefinitionsConstants.Spritemap(picture)),
                 $"room sprite-object picture {picture} has installed enemy art unless it is Samus's hit burst");
         }
         AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheSegment>()).ToHashSet().SetEquals(
@@ -439,7 +439,7 @@ internal static class EnemySpritemapArtworkVerification
             }
             // Bank-$B4 frames belong to the room sprite-object renderer, not an
             // enemy slot whose definition selects an $A0-$B3 spritemap bank.
-            if (frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
+            if (frame.Bank == EnemySpritemapDefinitions.RoomEffectActorBank)
                 continue;
             // The head/neck use a private world-space hook, and the falling tubes
             // use Mother Brain's encounter route. Test that route separately below.

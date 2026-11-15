@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
@@ -50,19 +50,19 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes projectiles from the room's enemy artwork.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns dust and explosion sprites separate from the projectile places.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Publishes room quake effects requested by projectile cues.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the physical pool to room sprites, earthquakes and audio.</summary>
-    internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomSpriteObjects spriteObjects,
+    internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomEffectActors effectActors,
         RoomEarthquake earthquake, EnemyAudioQueue audio)
     {
         _room = room;
         _presentation = presentation;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _earthquake = earthquake;
         _audio = audio;
     }
@@ -246,12 +246,12 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws the room's sprite objects and then the projectiles in front of Samus. The game draws them before Samus,
+    /// Draws the room's effect actors and then the projectiles in front of Samus. The game draws them before Samus,
     /// so they are drawn over her.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
-    /// <param name="hitBursts">What the hit bursts among the sprite objects draw: Samus's projectile sheets and her equipped beams.</param>
+    /// <param name="hitBursts">What the hit bursts among the effect actors draw: Samus's projectile sheets and her equipped beams.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawEnemyProjectilesInFrontOfSamus(
         SpriteFrameBuffer sprites,
@@ -261,9 +261,9 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(sprites);
 
-        // Sprite objects are drawn once, with the projectiles in front of Samus. Drawing them again with the
+        // Effect actors are drawn once, with the projectiles in front of Samus. Drawing them again with the
         // projectiles behind her would duplicate explosions, dust, and Spark's trail in the same frame.
-        _spriteObjects.DrawRoomSpriteObjects(sprites, camera, hitBursts);
+        _effectActors.DrawRoomEffectActors(sprites, camera, hitBursts);
         DrawEnemyProjectilesAt(
             sprites,
             camera,
@@ -664,18 +664,18 @@ internal sealed class EnemyProjectileEngine
     /// Runs the death actor's two explosion cues. Both consume one object number the cue carries and one
     /// random sample; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by <paramref name="center"/>.
-    /// Sprite objects are separate from enemy projectiles, so these decorations never
+    /// Effect actors are separate from enemy projectiles, so these decorations never
     /// consume one of the eighteen enemy-projectile places.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(
         EnemyProjectile projectile,
-        RoomSpriteObjectKind kind,
+        RoomEffectActorKind kind,
         RandomSampleField xScatter,
         RandomSampleField yScatter,
         int center)
     {
         int random = _room.Random.Generate();
-        _ = _spriteObjects.SpawnRoomSpriteObject(new(
+        _ = _effectActors.SpawnRoomEffectActor(new(
             CoordinateAxis.Wrap(projectile.Position.X.Whole + xScatter.Of(random) - center),
             CoordinateAxis.Wrap(projectile.Position.Y.Whole + yScatter.Of(random) - center)),
             kind, graphics: default);
@@ -758,9 +758,9 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Creates the common dud shot for a protected head hitbox.</summary>
     internal void CreateEnemyProjectileDudShot(SamusProjectile projectile)
     {
-        _ = _spriteObjects.SpawnRoomSpriteObject(
+        _ = _effectActors.SpawnRoomEffectActor(
             projectile.Position.Whole,
-            RoomSpriteObjectKind.EnemyProjectileDud,
+            RoomEffectActorKind.EnemyProjectileDud,
             graphics: default);
         QueueDudSound(SoundRequestPriority.Low);
         projectile.IsSpent = true;
@@ -772,9 +772,9 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void CreateBombDudShot(SamusBomb bomb)
     {
-        _ = _spriteObjects.SpawnRoomSpriteObject(
+        _ = _effectActors.SpawnRoomEffectActor(
             Ensure.NotNull(bomb).Position.Whole,
-            RoomSpriteObjectKind.EnemyProjectileDud,
+            RoomEffectActorKind.EnemyProjectileDud,
             graphics: default);
         QueueDudSound(SoundRequestPriority.Low);
     }

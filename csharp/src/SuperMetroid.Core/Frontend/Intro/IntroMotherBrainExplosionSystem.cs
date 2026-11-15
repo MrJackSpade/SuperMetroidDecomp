@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The eight cinematic sprite objects spawned by Mother Brain's fourth intro missile hit.
+/// The eight cinematic actors spawned by Mother Brain's fourth intro missile hit.
 /// </summary>
 /// <remarks>
 /// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame, and each runs its own
@@ -39,9 +39,9 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>Adds each visible frame in actor order to the cinematic sprites.</summary>
-    internal void Draw(ScreenSprites objects, CinematicSpriteSheet installedArt)
+    internal void Draw(ScreenSprites screenSprites, CinematicSpriteSheet installedArt)
     {
-        Ensure.NotNull(objects);
+        Ensure.NotNull(screenSprites);
         Ensure.NotNull(installedArt);
         foreach (ExplosionActor actor in actors)
         {
@@ -49,14 +49,14 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
                 continue;
 
-            installedArt.Draw(pose, objects, actor.Position, IntroShades.Drawn(IntroSpriteColouring.Explosions));
+            installedArt.Draw(pose, screenSprites, actor.Position, IntroShades.Drawn(IntroSpriteColouring.Explosions));
         }
     }
 
-    /// <summary>One cinematic object's delayed animation and visible frame.</summary>
+    /// <summary>One cinematic actor's delayed animation and visible frame.</summary>
     internal sealed class ExplosionActor
     {
-        /// <summary>The cinematic sprite object running the explosion's animation.</summary>
+        /// <summary>The cinematic actor running the explosion's animation.</summary>
         private readonly IntroDiscoverySprite sprite;
 
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>

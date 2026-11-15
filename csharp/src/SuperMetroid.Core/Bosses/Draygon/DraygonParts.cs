@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -25,7 +25,7 @@ internal sealed class DraygonParts
     /// <summary>Publishes the room shaking caused by Draygon's attacks and death.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Updates the body and eye shade bands used by Draygon's presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI behaviours.</summary>
@@ -41,7 +41,7 @@ internal sealed class DraygonParts
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
-        _spriteObjects = dependencies.SpriteObjects;
+        _effectActors = dependencies.EffectActors;
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _audio = dependencies.Audio;
@@ -220,8 +220,8 @@ internal sealed class DraygonParts
             case DraygonCue.QueueSound sound:
                 RequestDraygonSound(sound.Sound);
                 return;
-            case DraygonCue.SpawnDyingObject dying:
-                SpawnRandomDyingDraygonObject(state, dying.Kind);
+            case DraygonCue.SpawnDyingEffect dying:
+                SpawnRandomDyingDraygonEffect(state, dying.Kind);
                 return;
             case DraygonCue.ParalyseTailAndArms:
                 StartDraygonAnimation(RequirePart(state.Tail), DraygonSegment.Rest);
@@ -298,13 +298,13 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>
-    private void SpawnRandomDyingDraygonObject(
+    private void SpawnRandomDyingDraygonEffect(
         DraygonEnemyState state,
-        RoomSpriteObjectKind kind)
+        RoomEffectActorKind kind)
     {
         int random = _room.Random.Generate();
         Offset16<RoomPixels> scatter = new(DraygonRandomDefinitions.DyingScatterX.Of(random) - 64, DraygonRandomDefinitions.DyingScatterY.Of(random) - 64);
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
             graphics: default);
@@ -320,9 +320,9 @@ internal sealed class DraygonParts
         // energy it costs.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
 
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + 16)),
-            RoomSpriteObjectKind.DustCloud,
+            RoomEffectActorKind.DustCloud,
             graphics: default);
     }
 

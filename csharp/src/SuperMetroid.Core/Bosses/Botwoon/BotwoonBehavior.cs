@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
@@ -32,7 +32,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Allocates Botwoon's thirteen body actors and spit projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns the wall-phase explosion sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Runs common touch behavior before Botwoon's special death tail.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the chance table.</summary>
@@ -48,7 +48,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
-        _spriteObjects = dependencies.SpriteObjects;
+        _effectActors = dependencies.EffectActors;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _audio = dependencies.Audio;
@@ -724,9 +724,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             if (--state.LargeExplosionTimer < 0)
             {
                 state.LargeExplosionTimer = 12;
-                _spriteObjects.SpawnRoomSpriteObject(
+                _effectActors.SpawnRoomEffectActor(
                     new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + 232, state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - 8),
-                    RoomSpriteObjectKind.BotwoonLargeExplosion,
+                    RoomEffectActorKind.BotwoonLargeExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
@@ -736,9 +736,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 state.SmallExplosionTimer = 4;
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
-                    _spriteObjects.SpawnRoomSpriteObject(
+                    _effectActors.SpawnRoomEffectActor(
                         new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + 224, state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - 8),
-                        RoomSpriteObjectKind.BotwoonSmallExplosion,
+                        RoomEffectActorKind.BotwoonSmallExplosion,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }

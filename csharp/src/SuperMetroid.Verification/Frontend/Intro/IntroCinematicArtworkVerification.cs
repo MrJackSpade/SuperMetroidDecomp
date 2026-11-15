@@ -221,8 +221,8 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var native = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
-        var installed = new IntroCinematicObjectSystem(new IntroNarrationText(),
+        var native = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var installed = new IntroNarrationActors(new IntroNarrationText(),
             new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         native.Step(0);
         installed.Step(0);
@@ -258,7 +258,7 @@ internal static class IntroCinematicArtworkVerification
         const ushort originX = 8;
         const ushort originY = 24;
         // The caret draws in the opening's cross-fade colours; the cartridge oracle takes their sprite set as its palette bits.
-        PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects);
+        PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors);
         ushort paletteBits = SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
@@ -290,8 +290,8 @@ internal static class IntroCinematicArtworkVerification
         var installedState = CreateRetailIntroFixture(characterArtwork: stock);
         nativeState.SetupFirstIllustratedPage();
         installedState.SetupFirstIllustratedPage();
-        ((nativeState.CurrentObjects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
-        ((installedState.CurrentObjects ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
+        ((nativeState.CurrentNarration ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
+        ((installedState.CurrentNarration ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
         var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
         var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
@@ -299,8 +299,8 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
-        var installedBlink = new IntroCinematicObjectSystem(new IntroNarrationText(),
+        var nativeBlink = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var installedBlink = new IntroNarrationActors(new IntroNarrationText(),
             new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();

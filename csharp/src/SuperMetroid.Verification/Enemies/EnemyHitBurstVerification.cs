@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
@@ -29,7 +29,7 @@ internal static class EnemyHitBurstVerification
     private static readonly Position16<RoomPixels> Place = new(256, 256);
 
     /// <summary>The frames the burst shows on each update from its spawn until it ends, two updates each.</summary>
-    private static readonly RoomSpriteObjectPicture[] BurstFrames =
+    private static readonly RoomEffectActorPicture[] BurstFrames =
     [
         Burst(HitBurstSpriteDefinitions.Tight), Burst(HitBurstSpriteDefinitions.Tight),
         Burst(HitBurstSpriteDefinitions.Opening), Burst(HitBurstSpriteDefinitions.Opening),
@@ -38,7 +38,7 @@ internal static class EnemyHitBurstVerification
     ];
 
     /// <summary>The picture of Samus's hit-burst sprite <paramref name="sprite"/>.</summary>
-    private static RoomSpriteObjectPicture Burst(ProjectileSpriteId sprite) => RoomSpriteObjectPicture.OfHitBurst(sprite);
+    private static RoomEffectActorPicture Burst(ProjectileSpriteId sprite) => RoomEffectActorPicture.OfHitBurst(sprite);
 
     /// <summary>
     /// A beam on a Mellow through the ordinary shot reaction: a hit that hurts it shows one burst, spawned at the Mellow's
@@ -68,7 +68,7 @@ internal static class EnemyHitBurstVerification
                 AssertEqual(400, slot.FrozenTimer, "the lethal Ice hit freezes the Mellow instead of killing it");
             if (kind == "killed")
                 AssertEqual(0, slot.Health, "the lethal hit kills the Mellow");
-            RoomSpriteObject[] bursts = Bursts(enemies);
+            RoomEffectActor[] bursts = Bursts(enemies);
             AssertEqual(shows ? 1 : 0, bursts.Length, $"{kind}: the bursts the hit shows");
             if (shows)
                 AssertBurst(enemies, bursts[0], kind);
@@ -102,7 +102,7 @@ internal static class EnemyHitBurstVerification
             shots.Shots[0].Type = SamusProjectileType.None;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot), $"{kind} bomb: the bomb hits the enemy");
             AssertEqual(kind == "immune" ? 1000 : 1000 - 30, slot.Health, $"{kind} bomb: the enemy's health after the bomb");
-            RoomSpriteObject[] bursts = Bursts(enemies);
+            RoomEffectActor[] bursts = Bursts(enemies);
             AssertEqual(shows ? 1 : 0, bursts.Length, $"{kind} bomb: the bursts the bomb shows");
             if (shows)
                 AssertBurst(enemies, bursts[0], $"{kind} bomb");
@@ -149,15 +149,15 @@ internal static class EnemyHitBurstVerification
         (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot), "the beam hurts the Mellow");
-        RoomSpriteObject burst = Bursts(enemies).Single();
-        AssertEqual<int?>(SpriteObjectPlaces.PlaceCount - 1, enemies.SpriteObjects.PlaceOf(burst), "the burst takes the highest place");
+        RoomEffectActor burst = Bursts(enemies).Single();
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst), "the burst takes the highest place");
 
-        RoomSpriteObject dud = SpawnDud(enemies);
-        int? dudPlace = enemies.SpriteObjects.PlaceOf(dud);
-        AssertEqual<int?>(SpriteObjectPlaces.PlaceCount - 2, dudPlace, "a dud flash after the burst takes the next place down");
+        RoomEffectActor dud = SpawnDud(enemies);
+        int? dudPlace = enemies.EffectActors.PlaceOf(dud);
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 2, dudPlace, "a dud flash after the burst takes the next place down");
         KraidPassBounds bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
         bounds.LeaveAfterDud(dudPlace, Place);
-        AssertEqual((SpriteObjectPlaces.PlaceCount - 2) * 2, bounds.Bottom, "Kraid's mouth pass reads twice the place the burst left its dud");
+        AssertEqual((EffectActorPlaces.PlaceCount - 2) * 2, bounds.Bottom, "Kraid's mouth pass reads twice the place the burst left its dud");
 
         // Drawn inside the view, the burst writes the value a Puyo's ceiling strike reads, which the HUD's redraw had left
         // naming its table, so a strike no longer turns the Puyo back.
@@ -167,7 +167,7 @@ internal static class EnemyHitBurstVerification
         var drawn = new SpriteFrameBuffer();
         drawn.BeginFrame();
         dud.End();
-        enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, camera, HitBurstArtwork(SamusBeamCombination.Power));
+        enemies.EffectActors.DrawRoomEffectActors(drawn, camera, HitBurstArtwork(SamusBeamCombination.Power));
         drawn.FinalizeFrame();
         AssertTrue(!enemies.PuyoCeilingTurn.TurnsBack, "the burst's draw inside the view leaves a strike not turning back");
         ImageSpriteDraw draw = drawn.Draws.OfType<ImageSpriteDraw>().Single(candidate => candidate.Source.Kind == SpriteSourceKind.SamusHitBurst);
@@ -178,10 +178,10 @@ internal static class EnemyHitBurstVerification
         AssertTrue(!draw.Image.IsEmpty, "the burst's first picture shows its pieces");
 
         for (int update = 1; update <= BurstFrames.Length; update++)
-            enemies.SpriteObjects.StepRoomSpriteObjects();
+            enemies.EffectActors.StepRoomEffectActors();
         AssertTrue(!burst.IsActive, "the burst has ended after its eight updates");
-        RoomSpriteObject next = SpawnDud(enemies);
-        AssertEqual<int?>(SpriteObjectPlaces.PlaceCount - 1, enemies.SpriteObjects.PlaceOf(next), "the ended burst's place is the next one taken");
+        RoomEffectActor next = SpawnDud(enemies);
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(next), "the ended burst's place is the next one taken");
         Console.WriteLine("  Hit burst places: the burst takes a place before a later dud, frees it as it ends, and its draw is a Puyo-visible sprite-object draw.");
     }
 
@@ -220,7 +220,7 @@ internal static class EnemyHitBurstVerification
             lay(colours);
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();
-            enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, camera, HitBurstArtwork(equipped));
+            enemies.EffectActors.DrawRoomEffectActors(drawn, camera, HitBurstArtwork(equipped));
             drawn.FinalizeFrame();
             ImageSpriteDraw draw = colours.ShadeOwnDraws(drawn.Draws).OfType<ImageSpriteDraw>()
                 .Single(candidate => candidate.Source.Kind == SpriteSourceKind.SamusHitBurst);
@@ -281,30 +281,30 @@ internal static class EnemyHitBurstVerification
     /// <paramref name="burst"/> lies at <see cref="Place"/>, draws with the room's graphics, took the highest place, shows
     /// <see cref="BurstFrames"/> for two updates each and ends on its eighth update.
     /// </summary>
-    private static void AssertBurst(RoomEnemySystem enemies, RoomSpriteObject burst, string kind)
+    private static void AssertBurst(RoomEnemySystem enemies, RoomEffectActor burst, string kind)
     {
         AssertEqual(Place, burst.Position.Whole, $"{kind}: the burst lies at the enemy's position");
         AssertEqual(default(SpriteGraphics), burst.Graphics, $"{kind}: the burst draws with the room's graphics");
-        AssertEqual<int?>(SpriteObjectPlaces.PlaceCount - 1, enemies.SpriteObjects.PlaceOf(burst), $"{kind}: the burst takes the highest free place");
+        AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst), $"{kind}: the burst takes the highest free place");
         for (int update = 0; update < BurstFrames.Length; update++)
         {
             AssertTrue(burst.IsActive, $"{kind}: the burst shows on update {update}");
             AssertEqual(BurstFrames[update], burst.Frame, $"{kind}: the burst's frame on update {update}");
-            enemies.SpriteObjects.StepRoomSpriteObjects();
+            enemies.EffectActors.StepRoomEffectActors();
         }
         AssertTrue(!burst.IsActive, $"{kind}: the burst ends on its eighth update");
     }
 
     /// <summary>The live bursts of <paramref name="enemies"/>' room.</summary>
-    private static RoomSpriteObject[] Bursts(RoomEnemySystem enemies) =>
-        [.. enemies.SpriteObjects.Live.Where(spawned => spawned.Kind == RoomSpriteObjectKind.EnemyHit)];
+    private static RoomEffectActor[] Bursts(RoomEnemySystem enemies) =>
+        [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.EnemyHit)];
 
     /// <summary>A dud flash at <see cref="Place"/>, as a shot an enemy part shrugs off leaves.</summary>
-    private static RoomSpriteObject SpawnDud(RoomEnemySystem enemies)
+    private static RoomEffectActor SpawnDud(RoomEnemySystem enemies)
     {
         (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
         enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Shots[0]);
-        return enemies.SpriteObjects.Live.Last();
+        return enemies.EffectActors.Live.Last();
     }
 
     /// <summary>A room with an enemy of <paramref name="definition"/> placed at <see cref="Place"/> among its interactive enemies.</summary>
@@ -319,7 +319,7 @@ internal static class EnemyHitBurstVerification
         slot.Health = health;
         slot.FrozenTimer = frozenTimer;
         // Shots reach only an enemy showing a frame.
-        slot.Frame = EnemyFrameId.SpriteObjectDudShotFirst;
+        slot.Frame = EnemyFrameId.EffectActorDudShotFirst;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(slot);
         return (enemies, slot);
     }

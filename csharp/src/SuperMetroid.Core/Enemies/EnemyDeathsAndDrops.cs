@@ -603,7 +603,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin32:
                 _projectiles.SpawnRandomEnemyDeathSprite(
                     projectile,
-                    cue.SpriteObject,
+                    cue.EffectActor,
                     EnemyDeathExplosionDefinitions.WideSpriteHorizontalScatter,
                     EnemyDeathExplosionDefinitions.WideSpriteVerticalScatter,
                     center: 32);
@@ -611,7 +611,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin16:
                 _projectiles.SpawnRandomEnemyDeathSprite(
                     projectile,
-                    cue.SpriteObject,
+                    cue.EffectActor,
                     EnemyDeathExplosionDefinitions.NarrowSpriteHorizontalScatter,
                     EnemyDeathExplosionDefinitions.NarrowSpriteVerticalScatter,
                     center: 16);

@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
-/// alternate between enemy projectiles and sprite objects.
+/// The state of the Nuclear Waffle, with its projectile and effect-actor links. The seven articulated body links
+/// alternate between enemy projectiles and effect actors.
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
@@ -62,15 +62,15 @@ public sealed class NuclearWaffleEnemyState
     public Position16<RoomPixels> InitialHead { get; internal set; }
     /// <summary>Signed same-pool link pitch in steps, -24 backward or +24 forward, subtracted successively from each link angle.</summary>
     public int SegmentSpacing { get; internal set; }
-    /// <summary>Signed half-pitch in steps, -12 or +12, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
+    /// <summary>Signed half-pitch in steps, -12 or +12, added before the projectile-link loop to stagger it against the effect-actor links.</summary>
     public int InterleavedSegmentOffset { get; internal set; }
     /// <summary>The falling explosion angle: 256 steps backward or 384 forward; crossing it is the silent second joint turn.</summary>
     public NuclearWaffleSweepAngle FallingTurnThreshold { get; internal set; }
     /// <summary>The rising explosion angle: 384 steps backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>
     public NuclearWaffleSweepAngle RisingTurnThreshold { get; internal set; }
-    /// <summary>Which turn threshold the head last crossed; a change spawns two turn sprite objects at the head's previous position.</summary>
+    /// <summary>Which turn threshold the head last crossed; a change spawns two turn effect actors at the head's previous position.</summary>
     public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
-    /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>
+    /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn effect actors.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>Four persistent, damaging links.</summary>
@@ -78,8 +78,8 @@ public sealed class NuclearWaffleEnemyState
         new EnemyProjectile?[4];
 
     /// <summary>Three persistent, cosmetic links interleaved with the projectiles.</summary>
-    public RoomSpriteObject?[] SpriteSegments { get; } =
-        new RoomSpriteObject?[3];
+    public RoomEffectActor?[] SpriteSegments { get; } =
+        new RoomEffectActor?[3];
 
     /// <summary>Last threshold state for each damaging link; a state change spawns its joint-turn effect.</summary>
     internal NuclearWaffleTurnState[] ProjectileOrientationStates { get; } = new NuclearWaffleTurnState[4];

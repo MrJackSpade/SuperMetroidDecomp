@@ -516,7 +516,7 @@ splash and bubbles (`samus-atmosphere`), and her suit explosion as she dies (`sa
 it). Ordinary enemies are drawn from `enemy-sheets`: one sheet for each enemy as a room's graphics set loads it, in the
 colours its palette row holds there, so an enemy shown in another palette has a sheet of its own; `enemy-sheets.json`
 names each graphics set's sheet for each of its enemies. The `Spawned-` sheets beside them hold what enemies spawn
-(their projectiles and the room's dust, explosions and other sprite objects, and the Ceres elevator's platforms), one
+(their projectiles and the room's dust, explosions and other effect actors, and the Ceres elevator's platforms), one
 for each graphics set and tile base the objects draw at; `enemy-sheets.json` names those too. A room with no enemies
 loads no set and draws under the one the previous room left, or, as a session's first room, under `SessionStart`: the
 standard characters alone, with only the objects any room spawns. A boss that uploads characters over its room's

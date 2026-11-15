@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Metroids;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -102,8 +102,8 @@ internal static class EnemySoundOrderVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
         slot.SetSpeciesState(new MetroidEnemyState(
-            new RoomSpriteObject(RoomSpriteObjectKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
-            new RoomSpriteObject(RoomSpriteObjectKind.MetroidShell, default, SpriteGraphics.SharedStandard))
+            new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
+            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SpriteGraphics.SharedStandard))
         {
             Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                 AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),

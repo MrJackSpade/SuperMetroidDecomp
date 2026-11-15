@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -26,7 +26,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Allocates thrown claw projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns paired landing dust sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
 
     /// <summary>Receives sound requests from shared Space Pirate animation steps.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
@@ -35,13 +35,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal WalkingSpacePirateBehavior Walking => _walkingSpacePirateBehavior;
 
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
-    internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
+    internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomEffectActors effectActors, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
     }
 
     /// <summary>Speed assigned at the start of a divekick jump and descent, six pixels per update.</summary>
@@ -495,13 +495,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private void SpawnNinjaPirateLandingDust(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = SpriteGraphics.SharedStandard;
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(slot.Position.X.Whole - 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
-            RoomSpriteObjectKind.NinjaPirateLandingDust,
+            RoomEffectActorKind.NinjaPirateLandingDust,
             graphics);
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(slot.Position.X.Whole + 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
-            RoomSpriteObjectKind.NinjaPirateLandingDust,
+            RoomEffectActorKind.NinjaPirateLandingDust,
             graphics);
     }
 

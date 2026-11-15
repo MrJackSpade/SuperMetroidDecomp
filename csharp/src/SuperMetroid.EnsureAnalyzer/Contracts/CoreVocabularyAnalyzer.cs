@@ -13,7 +13,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// The v0.9.0 remnant detector (#1400, SME6438): in <c>SuperMetroid.Core</c>, no declared identifier (type, type parameter,
 /// member, parameter, local, local function, namespace segment or file name) names the machine the game was ported from.
 /// An identifier is split into camel-case words; a word that is one of <see cref="HardwareWords"/>, or one of them with a
-/// plural or verb ending, is reported, as is a run of words that is one of <see cref="HardwarePhrases"/>. Whole words only: <c>Object</c> is not <c>Obj</c>, <c>Roman</c> is not <c>Rom</c>.
+/// plural or verb ending, is reported, as is a run of words that is one of <see cref="HardwarePhrases"/>. Whole words only:
+/// <c>Roman</c> is not <c>Rom</c>, and <c>Object</c> is not <c>Obj</c>, though the hardware's object is reported where a
+/// name says it (#2004, <see cref="HardwareObjectPhrases"/>): <c>SpriteObject</c>, <c>ObjectSprite</c>,
+/// <c>CinematicObject</c>, <c>AnimatedObject</c>.
 /// Compatibility services may describe the hardware behaviour they reproduce in their documentation; identifiers never
 /// may, so there is no identifier allowance. An identifier that spells a cartridge value in hexadecimal is the machine's
 /// numbering too (#1554, <see cref="HexCode"/>): a capital code after a word (<c>Unused0B</c>, <c>PoseFD</c>,
@@ -204,6 +207,22 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
+    /// The hardware's object (#2004, #1977), two-word names matched like <see cref="HardwarePhrases"/>: the machine called
+    /// its sprites objects (its own abbreviation is <c>Obj</c> in <see cref="HardwareWords"/>), and the cartridge named its
+    /// sprite-object subsystem, its cinematic sprite objects and its animated tile objects by that word, so a Core name that
+    /// says <c>SpriteObject</c> (a <c>RoomSpriteObjectKind</c>, a <c>_spriteObjects</c> field), <c>ObjectSprite</c> (an
+    /// <c>objectSprites</c> list), <c>CinematicObject</c> (an <c>IntroCinematicObjectSystem</c>) or <c>AnimatedObject</c>
+    /// (a <c>SpawnAnimatedObjects</c> step) names the machine's sprite instead of the room's effect actor, the opening's
+    /// actor, the screen's sprites or the block animation. <c>Object</c> alone stays the game's own: the room's objects,
+    /// which its object system places, sets up and runs (<c>RoomObject</c>, <c>BlueDoorCapObject</c>,
+    /// <c>DeleteObject</c>), and an object in plain English (<c>SpaceObjects</c>, <c>SpawnedObjectOwner</c>).
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> HardwareObjectPhrases =
+    [
+        ["Sprite", "Object"], ["Object", "Sprite"], ["Cinematic", "Object"], ["Animated", "Object"],
+    ];
+
+    /// <summary>
     /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
     /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
     /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
@@ -269,9 +288,10 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             "and never name the hardware's tile where they mean a block, a picture, a block animation or a cell, or the CPU's " +
             "arithmetic or the video standard where it means a release, the animation interpreter's sleep where it means " +
             "an animation that holds or a wake, or the per-frame routine an animation installed where it means an action, " +
-            "motion or phase; hardware behaviour the game needs lives in " +
+            "motion or phase, or the hardware's sprite object where it means an effect actor, a cinematic actor, the " +
+            "screen's sprites or a block animation; hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, #1726, " +
-            "#1848, #2021, #2022, docs/core-vocabulary.md).");
+            "#1848, #2004, #2021, #2022, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -523,6 +543,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the animation interpreter's sleep ('{sleep}')";
         if (ContainedPhrase(identifier, FrameBehaviourPhrases) is { } frameBehaviour)
             return $"names the original's per-frame routine ('{frameBehaviour}')";
+        if (ContainedPhrase(identifier, HardwareObjectPhrases) is { } hardwareObject)
+            return $"names the hardware's object ('{hardwareObject}')";
         if (HexCode(identifier) is { } code)
             return $"spells the cartridge value '{code}' in hexadecimal";
         return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;

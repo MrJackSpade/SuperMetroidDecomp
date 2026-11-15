@@ -5,11 +5,11 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The narration pages' persistent objects: the portrait eye running its typed <see cref="IntroEyeAnimations"/>
+/// The narration pages' persistent actors: the portrait eye running its typed <see cref="IntroEyeAnimations"/>
 /// animation, the typewriter narration written from installed glyph records, the text caret, and the Japanese text's
 /// next-page arrow at each page's input wait.
 /// </summary>
-internal sealed class IntroCinematicObjectSystem
+internal sealed class IntroNarrationActors
 {
     /// <summary>Queues the alternating non-space typewriter sounds.</summary>
     private readonly AudioQueues audio;
@@ -39,8 +39,8 @@ internal sealed class IntroCinematicObjectSystem
     private bool narrationInitialMarkerPending;
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
-    /// <summary>The persistent text-caret sprite object, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
-    private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteSegment.IntroTextCaret);
+    /// <summary>The persistent text-caret actor, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
+    private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroTextCaret);
     /// <summary>
     /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
     /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
@@ -54,7 +54,7 @@ internal sealed class IntroCinematicObjectSystem
     private readonly IntroJapaneseSubtitles subtitles;
 
     /// <summary>Binds caret, narration, narration text, subtitle, and audio owners.</summary>
-    public IntroCinematicObjectSystem(
+    public IntroNarrationActors(
         IntroNarrationText text,
         IntroJapaneseSubtitles subtitles,
         AudioQueues audio,
@@ -108,7 +108,7 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>The persistent text caret's place, in signed screen pixels from the screen's top-left corner.</summary>
     public Offset16<ScreenPixels> Caret { get; private set; } =
-        new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
+        new(IntroCinematicDefinitions.NarrationLayout.CaretLeftX, IntroCinematicDefinitions.NarrationLayout.CaretFirstTextY);
 
     /// <summary>
     /// Hides the intro text caret while a gameplay or scientist illustration owns the screen: the caret is not
@@ -127,7 +127,7 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     /// <summary>
-    /// Spawns page two's narration and restores the existing caret object.
+    /// Spawns page two's narration and restores the existing caret.
     /// </summary>
     public void StartEnglishPageTwo()
     {
@@ -176,12 +176,12 @@ internal sealed class IntroCinematicObjectSystem
         ResetCaret();
 
         // The eye observes the page-six cinematic phase and permanently changes the eye
-        // object to its closed/half-open/deadpan animation.
+        // to its closed/half-open/deadpan animation.
         EyePlayback = new AnimationPlayback<IntroEyeSegment>(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing), AnimationPlace.StartOfAnimation);
         EyeFrameHold = 1;
     }
 
-    /// <summary>Runs the same post-phase object order as the cinematic game state.</summary>
+    /// <summary>Runs the narration's actors in the cinematic game state's order.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges, read by the Japanese subtitles.</param>
     public void Step(ControllerButton newlyPressed)
     {
@@ -255,23 +255,23 @@ internal sealed class IntroCinematicObjectSystem
             {
                 // The caret stands a baseline above the next character's cell.
                 Caret = new(
-                    following.Column * IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize,
-                    following.Row * IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize -
-                        IntroCinematicDefinitions.ObjectSystem.CharacterBaselineOffset);
+                    following.Column * IntroCinematicDefinitions.NarrationLayout.CharacterPixelSize,
+                    following.Row * IntroCinematicDefinitions.NarrationLayout.CharacterPixelSize -
+                        IntroCinematicDefinitions.NarrationLayout.CharacterBaselineOffset);
             }
             else
             {
                 Caret = new(
-                    IntroCinematicDefinitions.ObjectSystem.CaretLeftX,
-                    (character.Row + 1) * IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize);
+                    IntroCinematicDefinitions.NarrationLayout.CaretLeftX,
+                    (character.Row + 1) * IntroCinematicDefinitions.NarrationLayout.CharacterPixelSize);
             }
 
             typewriterSoundToggle = !typewriterSoundToggle;
             if (!character.IsSpace && typewriterSoundToggle)
             {
                 audio.QueueSound(
-                    IntroCinematicDefinitions.Objects.Typewriter,
-                    priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                    IntroCinematicDefinitions.Sounds.Typewriter,
+                    priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
             }
             text.Type(character);
             narrationCharacterIndex++;
@@ -303,7 +303,7 @@ internal sealed class IntroCinematicObjectSystem
         }
         // The page's blinking-markers-and-wait cue first
         // sets the caret blinking, and with Japanese text spawns the next-page arrow. Japanese pages two to five then
-        // wait for the press that shows their second subtitle, whose object selects the page's input wait.
+        // wait for the press that shows their second subtitle, which selects the page's input wait.
         SetCaretBlinking();
         if (subtitles.Enabled)
             SpawnNextPageArrow();
@@ -353,7 +353,7 @@ internal sealed class IntroCinematicObjectSystem
     private void ResetCaret()
     {
         caretHidden = false;
-        Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
+        Caret = new(IntroCinematicDefinitions.NarrationLayout.CaretLeftX, IntroCinematicDefinitions.NarrationLayout.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteSegment.IntroTextCaret);
     }
 
@@ -367,8 +367,8 @@ internal sealed class IntroCinematicObjectSystem
         if (NextPageArrow is not null)
             throw new InvalidOperationException("The narration spawned a next-page arrow while one was still showing.");
         NextPageArrow = new IntroDiscoverySprite(
-            new(IntroCinematicDefinitions.ObjectSystem.NextPageArrowX, IntroCinematicDefinitions.ObjectSystem.NextPageArrowY),
-            IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteSegment.IntroNextPageArrow);
+            new(IntroCinematicDefinitions.NarrationLayout.NextPageArrowX, IntroCinematicDefinitions.NarrationLayout.NextPageArrowY),
+            IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroNextPageArrow);
     }
 
     /// <summary>

@@ -7,18 +7,18 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="Behaviour">The behaviour.</param>
 /// <param name="EnemyFrames">The enemy frames each of its definitions shows, by definition name.</param>
 /// <param name="ProjectileFrames">The projectile frames it spawns that draw from its own spawned-object sheet.</param>
-/// <param name="SpriteObjects">The room sprite-object kinds it spawns that draw from its own spawned-object sheet.</param>
+/// <param name="EffectActors">The room effect-actor kinds it spawns that draw from its own spawned-object sheet.</param>
 /// <param name="SharedProjectileFrames">The projectile frames it spawns that draw from the shared sheet of the sets it is in.</param>
-/// <param name="SharedSpriteObjects">The room sprite-object kinds it spawns that draw from the shared sheet of the sets it is in.</param>
+/// <param name="SharedEffectActors">The room effect-actor kinds it spawns that draw from the shared sheet of the sets it is in.</param>
 /// <param name="ForeignEntries">The other behaviours' members its code calls directly.</param>
 /// <param name="FrameNotes">For a behaviour serving several definitions, each unit whose frames every definition shows.</param>
 internal sealed record BehaviourSpawns(
     Behaviour Behaviour,
     IReadOnlyDictionary<string, IReadOnlySet<string>> EnemyFrames,
     IReadOnlySet<string> ProjectileFrames,
-    IReadOnlySet<string> SpriteObjects,
+    IReadOnlySet<string> EffectActors,
     IReadOnlySet<string> SharedProjectileFrames,
-    IReadOnlySet<string> SharedSpriteObjects,
+    IReadOnlySet<string> SharedEffectActors,
     IReadOnlyList<(Unit From, Unit To)> ForeignEntries,
     IReadOnlyList<string> FrameNotes);
 
@@ -50,7 +50,7 @@ internal sealed class SpawnAnalysis
         new Dictionary<string, (IReadOnlyList<Unit>, IReadOnlyList<Unit>)>();
 
     /// <summary>
-    /// The projectile frames and sprite-object kinds each sheet-specific owner's sheet holds (as Mother Brain's tank glass),
+    /// The projectile frames and effect-actor kinds each sheet-specific owner's sheet holds (as Mother Brain's tank glass),
     /// by the SpawnedObjectOwner property naming it: what is spawned with graphics naming that owner.
     /// </summary>
     public IReadOnlyDictionary<string, Collected> BySheet { get; private set; } = new Dictionary<string, Collected>();
@@ -63,7 +63,7 @@ internal sealed class SpawnAnalysis
     {
         RequireMembers(model.EnemyFrameId, Walk.ExcludedEnemyFrames);
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
-        RequireMembers(model.RoomSpriteObjectKind, Walk.ExcludedSpriteObjects);
+        RequireMembers(model.RoomEffectActorKind, Walk.ExcludedEffectActors);
         RequireEmptyFrames(model);
         RequireSamusHitBursts(model);
         var analysis = new SpawnAnalysis(model);
@@ -194,7 +194,7 @@ internal sealed class SpawnAnalysis
                 foreach (Destination destination in resolver.Resolve(key))
                 {
                     Collected held = sheets.Of(destination);
-                    if (!spawns.ProjectileFrames.IsSubsetOf(held.ProjectileFrames) || !spawns.SpriteObjects.IsSubsetOf(held.SpriteObjects)
+                    if (!spawns.ProjectileFrames.IsSubsetOf(held.ProjectileFrames) || !spawns.EffectActors.IsSubsetOf(held.EffectActors)
                         || !spawns.AllFamilies.All(family => held.AllFamilies.Contains<INamedTypeSymbol>(family, SymbolEqualityComparer.Default)))
                     {
                         unreadable.Add($"{walk.PendingSites[key]}: spawns with graphics {Describe(key)} are missing from {destination}");
@@ -218,8 +218,8 @@ internal sealed class SpawnAnalysis
             Merge(sharedSource, sheets.Of(new Destination(DestinationKind.Shared, behaviour.Type)));
             sharedSource.ProjectileFrames.UnionWith(switched.ProjectileFrames);
             Collected sharedSpawns = analysis.WithFamilies(sharedSource, switchedToRoom: null);
-            behaviours.Add(new BehaviourSpawns(behaviour, frames.Frames, own.ProjectileFrames, own.SpriteObjects,
-                sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries, frames.Notes));
+            behaviours.Add(new BehaviourSpawns(behaviour, frames.Frames, own.ProjectileFrames, own.EffectActors,
+                sharedSpawns.ProjectileFrames, sharedSpawns.EffectActors, walk.ForeignEntries, frames.Notes));
         }
         RequireOwnAndSharedApart(behaviours);
         analysis.Behaviours = behaviours;
@@ -227,7 +227,7 @@ internal sealed class SpawnAnalysis
         foreach ((string spawner, Collected spawns) in sheets.Common)
         {
             Collected held = analysis.WithFamilies(spawns, switchedToRoom: null);
-            if (held.ProjectileFrames.Count > 0 || held.SpriteObjects.Count > 0)
+            if (held.ProjectileFrames.Count > 0 || held.EffectActors.Count > 0)
                 common.Add(spawner, held);
         }
         analysis.Common = common;
@@ -264,7 +264,7 @@ internal sealed class SpawnAnalysis
         foreach ((string spawner, (IReadOnlyList<Unit> units, IReadOnlyList<Unit> from)) in CommonSites.OrderBy(pair => pair.Key, StringComparer.Ordinal))
         {
             Collected held = Common[spawner];
-            output.WriteLine($"common spawner {spawner}: {held.ProjectileFrames.Count} projectile frames, {held.SpriteObjects.Count} sprite objects; "
+            output.WriteLine($"common spawner {spawner}: {held.ProjectileFrames.Count} projectile frames, {held.EffectActors.Count} effect actors; "
                 + $"spawns in {string.Join(", ", units.Select(_model.Describe))}; reached from {string.Join(", ", from.Select(_model.Describe))}");
         }
     }
@@ -313,16 +313,16 @@ internal sealed class SpawnAnalysis
     }
 
     /// <summary>
-    /// Requires the sprite-object kinds the generator excludes to be exactly those Core's
-    /// <c>RoomSpriteObjectVisualDefinitions.SamusHitBursts</c> lists as Samus's weapon effects (#1713), so a kind her
+    /// Requires the effect-actor kinds the generator excludes to be exactly those Core's
+    /// <c>RoomEffectActorVisualDefinitions.SamusHitBursts</c> lists as Samus's weapon effects (#1713), so a kind her
     /// projectile sheets picture is on no enemy sheet and every other kind is on its sheet.
     /// </summary>
     /// <exception cref="InvalidDataException">The catalog is missing or lists other kinds.</exception>
     private static void RequireSamusHitBursts(CoreModel model)
     {
-        INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == "RoomSpriteObjectVisualDefinitions")];
+        INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == "RoomEffectActorVisualDefinitions")];
         if (catalogs is not [var catalog] || catalog.GetMembers("SamusHitBursts") is not [IPropertySymbol property])
-            throw new InvalidDataException("Core declares no single RoomSpriteObjectVisualDefinitions.SamusHitBursts.");
+            throw new InvalidDataException("Core declares no single RoomEffectActorVisualDefinitions.SamusHitBursts.");
         var listed = new SortedSet<string>(StringComparer.Ordinal);
         foreach (SyntaxReference reference in property.DeclaringSyntaxReferences)
         {
@@ -332,29 +332,29 @@ internal sealed class SpawnAnalysis
             foreach (ExpressionSyntax expression in value.DescendantNodes().OfType<ExpressionSyntax>())
             {
                 if (semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member
-                    && SymbolEqualityComparer.Default.Equals(member.ContainingType, model.RoomSpriteObjectKind))
+                    && SymbolEqualityComparer.Default.Equals(member.ContainingType, model.RoomEffectActorKind))
                     listed.Add(member.Name);
             }
         }
-        var excluded = new SortedSet<string>(Walk.ExcludedSpriteObjects, StringComparer.Ordinal);
+        var excluded = new SortedSet<string>(Walk.ExcludedEffectActors, StringComparer.Ordinal);
         if (!listed.SetEquals(excluded))
         {
-            throw new InvalidDataException("The generator's excluded sprite objects (" + string.Join(", ", excluded)
-                + ") are not the kinds RoomSpriteObjectVisualDefinitions.SamusHitBursts lists (" + string.Join(", ", listed) + ").");
+            throw new InvalidDataException("The generator's excluded effect actors (" + string.Join(", ", excluded)
+                + ") are not the kinds RoomEffectActorVisualDefinitions.SamusHitBursts lists (" + string.Join(", ", listed) + ").");
         }
     }
 
     /// <summary>
-    /// Requires each behaviour's own sheet and its sets' shared sheet to hold no spawned frame or sprite object in common
+    /// Requires each behaviour's own sheet and its sets' shared sheet to hold no spawned frame or effect actor in common
     /// (#1881): a spawn draws from the one sheet its graphics name, so a frame on both is pictured twice and drawn from one
     /// (#1635, one picture per appearance). An over-reaching walk, as one sending a whole behaviour's spawns to the sheet a
     /// handler switches one landed segment to, fails here instead of installing every picture twice.
     /// </summary>
-    /// <exception cref="InvalidDataException">A behaviour's own and shared spawns share a frame or sprite object.</exception>
+    /// <exception cref="InvalidDataException">A behaviour's own and shared spawns share a frame or effect actor.</exception>
     private static void RequireOwnAndSharedApart(IEnumerable<BehaviourSpawns> behaviours)
     {
         string[] twice = [.. behaviours.SelectMany(spawns => spawns.ProjectileFrames.Intersect(spawns.SharedProjectileFrames)
-                .Concat(spawns.SpriteObjects.Intersect(spawns.SharedSpriteObjects))
+                .Concat(spawns.EffectActors.Intersect(spawns.SharedEffectActors))
                 .Select(frame => $"{spawns.Behaviour.Family}: {frame}"))
             .Order(StringComparer.Ordinal)];
         if (twice.Length > 0)
@@ -416,7 +416,7 @@ internal sealed class SpawnAnalysis
         var incomplete = new List<string>();
         foreach ((INamedTypeSymbol family, FamilyClosure closure) in expected)
         {
-            if (!closure.Shown.ProjectileFrames.IsSubsetOf(result.ProjectileFrames) || !closure.Shown.SpriteObjects.IsSubsetOf(result.SpriteObjects))
+            if (!closure.Shown.ProjectileFrames.IsSubsetOf(result.ProjectileFrames) || !closure.Shown.EffectActors.IsSubsetOf(result.EffectActors))
                 incomplete.Add($"{family.ToDisplayString()} is routed to a sheet missing some of its frames");
         }
         if (incomplete.Count > 0)
@@ -473,7 +473,7 @@ internal sealed class SpawnAnalysis
     {
         target.EnemyFrames.UnionWith(source.EnemyFrames);
         target.ProjectileFrames.UnionWith(source.ProjectileFrames);
-        target.SpriteObjects.UnionWith(source.SpriteObjects);
+        target.EffectActors.UnionWith(source.EffectActors);
         target.AddFamiliesOf(source);
     }
 }

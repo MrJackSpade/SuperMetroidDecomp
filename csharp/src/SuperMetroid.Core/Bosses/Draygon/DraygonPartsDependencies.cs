@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -19,8 +19,8 @@ internal sealed record DraygonPartsDependencies
     /// <summary>Starts the room's earthquakes.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Spawns the parts' sprite objects.</summary>
-    public required RoomSpriteObjects SpriteObjects { get; init; }
+    /// <summary>Spawns the parts' effect actors.</summary>
+    public required RoomEffectActors EffectActors { get; init; }
 
     /// <summary>The enemy presentation the parts write their colours and layers to.</summary>
     public required EnemyPresentation Presentation { get; init; }

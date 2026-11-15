@@ -103,7 +103,7 @@ word is the game's own (`Metroids2Default`). An area followed by a lone capital 
 letter, since `MaridiaBBrownWall` and `BrinstarETank`, an energy tank, have one shape; such a name is found by review.
 
 Matching is by whole camel-case word, ignoring case, with plural and verb endings (`Banks`, `Addresses`, `Banked`,
-`Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
+`Addressing`). `Object` is not `Obj` (the hardware's object is read as a phrase, below), `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).
 
 A name that says `Tile` or `Metatile` names the hardware's tile and is reported too (#1726,
@@ -155,6 +155,16 @@ they ran each frame as a pointer their animations installed and cleared. Core na
 `FlyKraidRock`, `DropMotherBrainDrool`, `UnauthoredBeamShotBehaviors`; an animation's cue names the event that begins
 it (`YardCueKind.BeginTurn`, `YardCue.BeginCrawling`). A delegate keeps no allowance. Each word alone stays the game's
 own: a frame, a behaviour.
+
+A name that says the hardware's object is reported too (#2004, #1977, `CoreVocabularyAnalyzer.HardwareObjectPhrases`):
+`SpriteObject`, `ObjectSprite`, `CinematicObject` or `AnimatedObject`, with the plural ending (`RoomSpriteObjectKind`,
+`_spriteObjects`, `objectSprites`, `IntroCinematicObjectSystem`, `SpawnAnimatedObjects`). The machine called its sprites
+objects, and the cartridge named its sprite-object subsystem, its cinematic sprite objects and its animated tile objects
+by that word. Core names what they are: the room's effect actors (`RoomEffectActor`, `RoomEffectActorKind`,
+`EffectActorPlaces`), the opening's actors (`IntroNarrationActors`), the screen's sprites (`screenSprites`) and the block
+animations (`SpawnStatueAnimations`). `Object` alone stays the game's own: the room's objects, which its object system
+places, sets up and runs (`RoomObject`, `BlueDoorCapObject`, `DeleteObject`), and an object in plain English
+(`SpaceObjects`, `SpawnedObjectOwner`).
 
 SME6454 also reads the original's numbering of the game (#1769). In every type it reports a numbered routine or variable
 label (`Func126`, `Func139–142`, `var4`). Outside hardware owners it reports a game state, load station or area by

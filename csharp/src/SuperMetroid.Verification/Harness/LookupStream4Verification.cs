@@ -47,7 +47,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -1116,15 +1116,15 @@ internal static class LookupStream4Verification
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
     internal static void VerifyRoomSpriteDispatch(CartridgeImportAddressSpace rom)
     {
-        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObject> spriteSpawn =
-            (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomEffectActorKind, SpriteGraphics, RoomEffectActor> spriteSpawn =
+            (owner, position, kind, graphics) => owner.EffectActors.SpawnRoomEffectActor(position, kind, graphics);
         int kinds = 0;
-        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Distinct())
+        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>().Distinct())
         {
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
-            AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomEffectActorNativeWords.Kinds.Word(kind)));
+            AssertEqual(entry, RoomEffectActorDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObject spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+            RoomEffectActor spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
@@ -1135,7 +1135,7 @@ internal static class LookupStream4Verification
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
+            AssertEqual(false, RoomEffectActorNativeWords.Kinds.TryDecode(invalid, out _),
                 "room sprite native kind domain rejects invalid selector");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }

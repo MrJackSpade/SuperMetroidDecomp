@@ -128,8 +128,9 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         var room = _roomLoader.LoadSelectedRoom(scene.Room);
         _roomLoader.LoadRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
-        // The scene's room setup acts on the demo room the load just built.
-        ApplyAttractRoomSetup(scene.RoomSetup, _room.LoadedScope.Enemies);
+        // The scene's room setup acts on the demo room the load just built; a scene without one leaves the room as loaded.
+        if (scene.RoomSetup is { } roomSetup)
+            ApplyAttractRoomSetup(roomSetup, _room.LoadedScope.Enemies);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.Samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
@@ -178,8 +179,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         switch (roomSetup)
         {
-            case AttractDemoRoomSetup.NoOp:
-                break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
                 _room.LoadedCamera.Scrolls.SetLogicalState(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;

@@ -1,12 +1,10 @@
 namespace SuperMetroid.Core.Runtime.Attract;
 
-/// <summary>What a demo scene does to its room once the room has loaded.</summary>
+/// <summary>What a demo scene does to its room once the room has loaded; a scene that leaves its room as loaded has none.</summary>
 public enum AttractDemoRoomSetup
 {
     /// <summary>The Charge Beam demo closes one screen to the camera.</summary>
     ChargeBeamScroll,
-    /// <summary>The room is left as loaded.</summary>
-    NoOp,
     /// <summary>The Landing Site shows its scrolling sky's tall background map.</summary>
     LandingSiteSky,
     /// <summary>Kraid's body waits before its next action.</summary>

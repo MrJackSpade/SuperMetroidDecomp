@@ -488,8 +488,8 @@ public static class StockAttractDemoScenes
         return CoordinateAxis.AsSigned(floorRow * 16 - SamusPoseCollisionRadii.ReadVerticalRadius(pose));
     }
 
-    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the empty setup.</summary>
-    private static AttractDemoRoomSetup RoomSetupFor(Demonstration demonstration) => demonstration switch
+    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. Every other staged room is left as loaded, with no setup.</summary>
+    private static AttractDemoRoomSetup? RoomSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or
         Demonstration.InfiniteBombJump or Demonstration.CrystalFlash => AttractDemoRoomSetup.LandingSiteSky,
@@ -501,7 +501,7 @@ public static class StockAttractDemoScenes
         Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.ScrewAttack or
         Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.EyeDoor or
         Demonstration.RedBrinstarElevator or Demonstration.AdvancedGrappleBeam or
-        Demonstration.SpecialBeamAttack => AttractDemoRoomSetup.NoOp,
+        Demonstration.SpecialBeamAttack => null,
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 

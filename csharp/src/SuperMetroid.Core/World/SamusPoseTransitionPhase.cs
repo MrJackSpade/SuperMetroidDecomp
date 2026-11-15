@@ -489,7 +489,7 @@ internal sealed class SamusPoseTransitionPhase
     /// </summary>
     private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, ISamusRoomObjects roomObjects)
     {
-        SamusPoseId targetPose = unchecked(inputTransition.ProspectivePose);
+        SamusPoseId targetPose = inputTransition.ProspectivePose;
 
         // Reinitializing frame zero would prevent the turn transition from ever being reached.
         if (targetPose == frame.PoseAtFrameStart)
@@ -953,7 +953,7 @@ internal sealed class SamusPoseTransitionPhase
             // the same initializer as the table's held-Jump exit.
             SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                 samus,
-                unchecked(boostFallback),
+                boostFallback,
                 _controller1.NewlyPressed);
         }
         else if (SamusPoseMetadata.IsDraygonGrabbedPose(frame.PoseAtFrameStart) &&
@@ -962,7 +962,7 @@ internal sealed class SamusPoseTransitionPhase
             // Zero input uses the pose's fallback pose, returning aimed/firing/
             // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
             SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
-                unchecked(draygonFallback));
+                draygonFallback);
         }
         else if (SamusPoseMetadata.IsWallJumpPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose is
@@ -974,7 +974,7 @@ internal sealed class SamusPoseTransitionPhase
             // installed pose; then the pose update skips the kill. So
             // a spin jump keeps its launch speed only when initialization promotes it
             // to Space Jump or Screw Attack; otherwise the kill clears base/extra speed.
-            SamusPoseId spinFallback = unchecked(_player.ProspectiveSamusFallbackPose.Value);
+            SamusPoseId spinFallback = _player.ProspectiveSamusFallbackPose.Value;
             SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);
             if (samus.Pose == spinFallback)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -1026,7 +1026,7 @@ internal sealed class SamusPoseTransitionPhase
             // current movement frame for both grounded ball movement types.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
             SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, 
-                unchecked(_player.ProspectiveSamusFallbackPose.Value));
+                _player.ProspectiveSamusFallbackPose.Value);
         }
         else if ((SamusPoseMetadata.IsRightFacingRunningPose(frame.PoseAtFrameStart) ||
                   SamusPoseMetadata.IsLeftFacingRunningPose(frame.PoseAtFrameStart)) &&
@@ -1063,7 +1063,7 @@ internal sealed class SamusPoseTransitionPhase
             // The stop selected the literal standing/aim fallback during the input phase.
             // Applying it after movement preserves the one-last-step timing.
             SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, 
-                unchecked(moonwalkFallback),
+                moonwalkFallback,
                 _options.MoonwalkEnabled);
         }
         else if (SamusPoseMetadata.IsAimedRanIntoWallPose(frame.PoseAtFrameStart) &&
@@ -1072,7 +1072,7 @@ internal sealed class SamusPoseTransitionPhase
             // The aimed ran-into-wall poses name the plain ran-into-wall poses as their fallback poses. The stable
             // target shares radius, animation, and ran-into-wall cleanup physics.
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, 
-                unchecked(wallFallback));
+                wallFallback);
         }
         else if ((frame.PoseAtFrameStart is
                       SamusPoseId.StandingAimUpRightPose or
@@ -1088,7 +1088,7 @@ internal sealed class SamusPoseTransitionPhase
             // Validate and apply it through the same radius/animation seam as
             // held-input aim changes; never assign the authored value directly to Pose.
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, 
-                unchecked(aimFallback));
+                aimFallback);
         }
         else if (frame.UsePoseDefinitionFallback && _player.ProspectiveSamusPose is null &&
                  samus.Pose == frame.PoseAtFrameStart &&
@@ -1096,7 +1096,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } crouchingTurnFallback)
         {
             SamusGroundedPoseTransitions.ApplyAimedCrouchingTurnInputFallback(samus, 
-                unchecked(crouchingTurnFallback));
+                crouchingTurnFallback);
         }
         else if (frame.UsePoseDefinitionFallback && _player.ProspectiveSamusPose is null &&
                  samus.Pose == frame.PoseAtFrameStart &&
@@ -1115,7 +1115,7 @@ internal sealed class SamusPoseTransitionPhase
             // compact-radius expansion. Decelerating still folds momentum after
             // movement and rechecks the remaining base speed there.
             if (jumpFallback != samus.Pose)
-                SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, unchecked(jumpFallback));
+                SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, jumpFallback);
             samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
                 frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
         }
@@ -1129,7 +1129,7 @@ internal sealed class SamusPoseTransitionPhase
             // pose initialization and animation restart require a change.
             if (aerialFallback != samus.Pose)
                 SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, 
-                    unchecked(aerialFallback));
+                    aerialFallback);
         }
     }
 }

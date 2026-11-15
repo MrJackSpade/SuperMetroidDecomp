@@ -162,19 +162,25 @@ internal static class NativeEnemyFamilyStateImport
                 kraidPartRecord.PhaseTimer = words.F;
             }
         }
-        if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
+        if (slot.SpeciesState<GunshipState>() is { } gunshipRecord)
         {
+            // The cartridge keeps the ship's phase timer, engine readying, bob phase, bob timer, and base Y and
+            // landing-brake step in the top hull's variables A through E.
             gunshipRecord.PhaseTimer = unchecked((short)words.A);
             gunshipRecord.EngineReadyingElapsed = words.B;
             gunshipRecord.BobPhase = words.C;
-            // The cartridge keeps the top hull's bob timer and the bottom hull's engine-sound timer in variable D, and
-            // the base Y, the landing-brake step and the rumble frame in variable E; each part reads only its own.
             gunshipRecord.BobTimer = unchecked((short)words.D);
-            gunshipRecord.EngineSoundTimer = unchecked((short)words.D);
             gunshipRecord.BaseY = words.E;
             gunshipRecord.LandingBrakeStep = words.E;
-            gunshipRecord.RumbleFrame = words.E;
-            gunshipRecord.EscapeVelocity = new SignedEightEight(words.F);
+        }
+        if (slot.DefinitionId == EnemyDefinitionId.ShipBottomEntrance && index > 0 &&
+            enemies.SlotTable.Slots[index - 1].SpeciesState<GunshipState>() is { } bottomOfShip)
+        {
+            // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
+            // rumble frame in E and its escape speed in F.
+            bottomOfShip.EngineSoundTimer = unchecked((short)words.D);
+            bottomOfShip.RumbleFrame = words.E;
+            bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
@@ -309,12 +315,18 @@ internal static class NativeEnemyFamilyStateImport
             norfairPipeBug.Action = words.A == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
         if (slot.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
             yellowPipeBug.Action = words.A == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
-        if (slot.SpeciesState<MagdolliteEnemyState>() is { } magdolliteRecord)
+        if (slot.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
+            magdolliteHead.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
+        if (slot.SpeciesState<MagdollitePartState>() is MagdolliteBodyState magdolliteBody)
         {
-            magdolliteRecord.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteActions.Decode(words.F, "recorded MagdolliteAction");
-            magdolliteRecord.BodyPhase = words.B / 2;
-            magdolliteRecord.ThrowsRight = words.B != 0;
-            magdolliteRecord.RiseDisplacement = new(0, unchecked((short)words.E));
+            magdolliteBody.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteBodyActions.Decode(words.F, "recorded MagdolliteBodyAction");
+            magdolliteBody.BodyPhase = words.B / 2;
+            magdolliteBody.RiseDisplacement = new(0, unchecked((short)words.E));
+        }
+        if (slot.SpeciesState<MagdollitePartState>() is MagdolliteOverlayState magdolliteOverlay)
+        {
+            magdolliteOverlay.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
+            magdolliteOverlay.ThrowsRight = words.B != 0;
         }
         if (slot.SpeciesState<SbugEnemyState>() is { } sbugRecord)
         {
@@ -333,7 +345,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<KiHunterWingState>() is { } kiHunterWingRecord)
         {
-            kiHunterWingRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
+            kiHunterWingRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterWingActions.Decode(words.A, "recorded KiHunterWingAction");
             kiHunterWingRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
             kiHunterWingRecord.DetachedSpeedAccumulator = words.D;
             kiHunterWingRecord.WingArcAngle = RotationAngle.FromRaw(words.F);

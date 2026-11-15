@@ -30,14 +30,14 @@ internal static class NorfairLavaJumperOwnedStateVerification
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0] ?? throw new InvalidOperationException("The parent has no state.");
-        NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1] ?? throw new InvalidOperationException("The follower has no state.");
-        AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
+        AssertTrue(enemies.NorfairLavaJumperFollowerStates[0] is null && enemies.NorfairLavaJumperFollowerStates[1] is not null,
+            "parameter one's sign bit selects the follower");
 
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512);
-        enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(follower, followerState);
+        enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumperFollowerMain(follower);
         AssertTrue(!follower.Presence.HasAny(EnemyPresence.Hidden), "the follower shows while its parent rises");
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
-        enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(follower, followerState);
+        enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumperFollowerMain(follower);
         AssertTrue(follower.Presence.HasAny(EnemyPresence.Hidden), "the follower hides while its parent falls");
         Console.WriteLine("Norfair lava jumper owned state: the gravity wrap and the follower's parent velocity read match.");
     }

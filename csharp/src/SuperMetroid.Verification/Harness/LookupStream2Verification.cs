@@ -1177,7 +1177,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var slot = enemies.SlotTable.Slots[0];
-        var part = new GunshipPartState();
+        var part = new GunshipState(GunshipPhase.ReadyTakeoffEngines);
         slot.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)

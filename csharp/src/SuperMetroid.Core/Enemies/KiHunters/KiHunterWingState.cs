@@ -8,7 +8,7 @@ public sealed class KiHunterWingState
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
     /// <summary>Main-AI step: following the body, or detached.</summary>
-    public KiHunterAction? Action { get; internal set; }
+    public KiHunterWingAction? Action { get; internal set; }
 
     /// <summary>
     /// The detached wings' place along the shared quadratic speed curve: reset to <see cref="DetachedSpeedReset"/> at each

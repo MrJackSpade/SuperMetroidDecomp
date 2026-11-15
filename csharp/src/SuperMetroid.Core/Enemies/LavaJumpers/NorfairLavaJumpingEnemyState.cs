@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
-/// <summary>The state of one Squeept part, the jumping parent or its cosmetic follower.</summary>
+/// <summary>The state of a jumping Squeept, the parent its cosmetic follower (<see cref="NorfairLavaJumperFollowerState"/>) follows.</summary>
 public sealed class NorfairLavaJumpingEnemyState
 {
     /// <summary>
@@ -25,14 +25,11 @@ public sealed class NorfairLavaJumpingEnemyState
     /// </summary>
     public SignedEightEight YVelocity { get; internal set; }
 
-    /// <summary>Parent variant's immutable population position (Y at the lava surface).</summary>
+    /// <summary>The jumper's population position (Y at the lava surface), where it returns after every jump.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>Parent parts traverse the four jump phases, while followers keep the follow action.</summary>
+    /// <summary>The jump's phase.</summary>
     public NorfairLavaJumpingEnemyAction? Action { get; internal set; }
-
-    /// <summary>Whether this is the visual follower half rather than the jumping parent.</summary>
-    public bool IsFollower { get; internal set; }
 
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>
     /// <param name="gravity">The 1/256-pixel gravity step.</param>

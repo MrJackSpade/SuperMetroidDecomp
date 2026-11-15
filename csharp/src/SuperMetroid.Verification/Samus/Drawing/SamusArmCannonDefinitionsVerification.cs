@@ -64,7 +64,7 @@ internal static class SamusArmCannonDefinitionsVerification
         holding.ArmCannon.StableSelectionUpdates = 2;
         holding.ArmCannon.Update(holding);
         AssertEqual(2, holding.ArmCannon.StableSelectionUpdates, "a stable selection holds the count at two");
-        AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, 0), new VerifySamusArmCannonDefinitionsCase(holding.ArmCannon.IsOpen ? 1 : 0, holding.ArmCannon.IsTransitioning ? 1 : 0, holding.ArmCannon.Frame),
+        AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, null), new VerifySamusArmCannonDefinitionsCase(holding.ArmCannon.IsOpen ? 1 : 0, holding.ArmCannon.IsTransitioning ? 1 : 0, holding.ArmCannon.Frame),
             "the closed Beam selection starts no transition");
         AssertThrows<ArgumentOutOfRangeException>(() => holding.ArmCannon.StableSelectionUpdates = 3,
             "the stable-selection count rejects a value the cartridge never stores");

@@ -920,7 +920,7 @@ internal static class LookupStream3Verification
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
-            AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.Nearest(new TrigonometryAngle((byte)angle))), "stream 3 native calculated swing art frame");
+            AssertEqual(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.FromNumber(rom.ReadCartridgeByte(0x9bc1c2 + angle)), swingFrames.Resolve(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.Nearest(new TrigonometryAngle((byte)angle))).DrawnFor, "stream 3 native calculated swing picture");
         var fileSelect = FileSelectSourcePresentation.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom));
         var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)

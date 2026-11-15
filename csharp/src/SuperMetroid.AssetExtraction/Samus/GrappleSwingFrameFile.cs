@@ -19,7 +19,7 @@ public static class GrappleSwingFrameFile
         WriteIndented = true,
     };
 
-    /// <summary>Loads the supported JSON schema, rejecting duplicate or unknown top-level properties and requiring exactly one displayed frame index, in 0..31, for each of the 32 swing directions; copies the supplied indices without exposing mutable document storage.</summary>
+    /// <summary>Loads the supported JSON schema, rejecting duplicate or unknown top-level properties and requiring exactly one displayed picture, the number 0..31 of the swing direction it was drawn for, for each of the 32 swing directions in direction order.</summary>
     /// <param name="json">UTF-8 JSON stream containing the complete swing-direction-to-displayed-frame mapping.</param>
     /// <returns>The immutable visual swing-frame catalog.</returns>
     public static InstalledGrappleSwingFrames Load(Stream json)
@@ -37,10 +37,12 @@ public static class GrappleSwingFrameFile
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple swing-frame JSON.", error); }
         if (document.Version != GrappleSwingFrameFile.Version || document.Frames is null || document.Frames.Length != GrappleSwingDirection.Count ||
-            document.Frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
+            document.Frames.Any(frame => frame is < 0 or >= GrappleSwingDirection.Count))
             throw new InvalidDataException(
-                $"Grapple swing frames require version {GrappleSwingFrameFile.Version} and {GrappleSwingDirection.Count} frame indices in 0..{GrappleSwingFrameDefinitions.FrameCount - 1}.");
-        return new(document.Frames.ToArray());
+                $"Grapple swing frames require version {GrappleSwingFrameFile.Version} and {GrappleSwingDirection.Count} frame indices in 0..{GrappleSwingDirection.Count - 1}.");
+        // The document lists each direction's picture in direction order, naming the picture by the direction it was drawn for.
+        return new(GrappleSwingDirection.All.ToDictionary(direction => direction,
+            direction => new GrappleSwingPicture(GrappleSwingDirection.FromNumber(document.Frames[direction.Number]))));
     }
 
     /// <summary>Serializes a swing-frame document as indented camel-case UTF-8 JSON.</summary>

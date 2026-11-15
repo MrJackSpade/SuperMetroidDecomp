@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -57,12 +58,12 @@ public static class SamusGrappleSwing
         // Keep the authored physical mapping compiled so a visual-frame override cannot
         // move the collision body. Stock art still selects the same frame.
         var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
-        int artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
+        GrappleSwingPicture picture = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
             .Resolve(direction);
         var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
-        SamusPresentation.SetGrappleSwingAnimationFrame(samus, artFrame);
+        SamusPresentation.ShowGrappleSwingPicture(samus, picture);
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(ropeStart.Pixel.X + offset.X), CoordinateAxis.Wrap(ropeStart.Pixel.Y + offset.Y)));
     }
 

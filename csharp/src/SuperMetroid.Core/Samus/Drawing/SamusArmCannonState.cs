@@ -28,18 +28,8 @@ public sealed class SamusArmCannonState
     /// <summary>Whether an opening or closing is still under way.</summary>
     public bool IsTransitioning { get; internal set; }
 
-    /// <summary>
-    /// The cover frame, 0 through 4; zero is invisible, one and two transition, three fully open, and a closing starts
-    /// from four, which the same update steps to three. The setter rejects any other value.
-    /// </summary>
-    public int Frame
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ClosingStartFrame, value);
-    }
-
-    /// <summary>The frame a closing starts from, past the fully open frame: the cover's largest frame.</summary>
-    private const int ClosingStartFrame = 4;
+    /// <summary>The cover picture shown, or null while the cover is closed.</summary>
+    public SamusArmCannonCoverFrame? Frame { get; internal set; }
 
     /// <summary>
     /// The updates the HUD selection has held still, 0 through 2: a change restarts it at one and it saturates at two,
@@ -72,8 +62,10 @@ public sealed class SamusArmCannonState
             StableSelectionUpdates = Math.Min(StableSelectionUpdates + 1, 2);
         }
 
-        if (IsTransitioning || TryStartTransition(samus.SelectedHudItem))
+        if (IsTransitioning)
             AdvanceFrame();
+        else
+            TryStartTransition(samus.SelectedHudItem);
 
         DrawOrder = Placement(samus.Pose).DrawOrder;
     }
@@ -93,7 +85,7 @@ public sealed class SamusArmCannonState
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither sprite nor artwork work. The game returns before even consulting pose data.
-        if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
+        if (Frame is not { } cover || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
             return;
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
@@ -106,31 +98,30 @@ public sealed class SamusArmCannonState
         int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole + offset.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(
             samus.Position.Y.Whole + offset.Y - graphicsYOffset - cameraPosition.Y);
-        // Selector -> one of four orientation lists -> current cover frame, whose sheet frame is that cover as
-        // the sprite shows it. Frame zero, the null entry, returned above.
+        // The cover's direction and picture name its sheet frame; a closed cover returned above.
         InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
             "Arm cannon requires the installed sprite sheets.");
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
-            sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, Frame)),
+            sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, cover)),
             new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
     }
 
-    /// <summary>Starts opening or closing only after the HUD item has been stable for two updates.</summary>
-    private bool TryStartTransition(HudItem selectedHudItem)
+    /// <summary>
+    /// Starts opening or closing only after the HUD item has been stable for two updates. The starting update already
+    /// shows the transition's first picture: slightly open for an opening, fully open for a closing.
+    /// </summary>
+    private void TryStartTransition(HudItem selectedHudItem)
     {
         if (StableSelectionUpdates < 2)
-            return false;
+            return;
 
         bool opens = SamusArmCannonOpening.Opens(selectedHudItem);
         if (IsOpen == opens)
-            return false;
+            return;
 
-        // Closing begins from synthetic frame four; the same call then advances it to
-        // visible frame three.
-        Frame = opens ? 0 : ClosingStartFrame;
+        Frame = opens ? SamusArmCannonCoverFrame.SlightlyOpen : SamusArmCannonCoverFrame.FullyOpen;
         IsOpen = opens;
         IsTransitioning = true;
-        return true;
     }
 
     /// <summary>Where the installed artwork places the cover for <paramref name="pose"/>.</summary>
@@ -138,32 +129,34 @@ public sealed class SamusArmCannonState
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).Placement(pose);
 
-    /// <summary>Moves the cover one frame toward open three or closed zero, then clears the transition flag.</summary>
+    /// <summary>
+    /// Moves the cover one picture toward fully open or closed; reaching either ends the transition while keeping the
+    /// open state.
+    /// </summary>
     private void AdvanceFrame()
     {
         if (IsOpen)
         {
-            if (Frame + 1 < 3)
+            Frame = Frame switch
             {
-                Frame++;
-                return;
-            }
-
-            Frame = 3;
+                null => SamusArmCannonCoverFrame.SlightlyOpen,
+                SamusArmCannonCoverFrame.SlightlyOpen => SamusArmCannonCoverFrame.HalfOpen,
+                SamusArmCannonCoverFrame.HalfOpen or SamusArmCannonCoverFrame.FullyOpen => SamusArmCannonCoverFrame.FullyOpen,
+                _ => throw new InvalidOperationException($"Undefined arm cannon cover frame {Frame}."),
+            };
+            IsTransitioning = Frame != SamusArmCannonCoverFrame.FullyOpen;
         }
         else
         {
-            if (Frame > 1)
+            Frame = Frame switch
             {
-                Frame--;
-                return;
-            }
-
-            Frame = 0;
+                SamusArmCannonCoverFrame.FullyOpen => SamusArmCannonCoverFrame.HalfOpen,
+                SamusArmCannonCoverFrame.HalfOpen => SamusArmCannonCoverFrame.SlightlyOpen,
+                SamusArmCannonCoverFrame.SlightlyOpen or null => null,
+                _ => throw new InvalidOperationException($"Undefined arm cannon cover frame {Frame}."),
+            };
+            IsTransitioning = Frame is not null;
         }
-
-        // The cover ends the transition while retaining the open state.
-        IsTransitioning = false;
     }
 
 }

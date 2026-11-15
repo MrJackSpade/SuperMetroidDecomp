@@ -4,4 +4,4 @@ namespace SuperMetroid.Verification.Samus.Drawing;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
-internal readonly record struct VerifySamusArmCannonDefinitionsCase(int First, int Second, int Third);
+internal readonly record struct VerifySamusArmCannonDefinitionsCase(int First, int Second, SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame? Third);

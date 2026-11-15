@@ -255,7 +255,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (samus.ArmCannon.IsOpen != (LittleEndianBytes.LowByte(recordedCannonFlags) != 0) ||
                     samus.ArmCannon.IsTransitioning != (LittleEndianBytes.HighByte(recordedCannonFlags) != 0))
                     mismatches.Add($"Cannon flags: native={recordedCannonFlags:X4} port open={samus.ArmCannon.IsOpen} transitioning={samus.ArmCannon.IsTransitioning}");
-                Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
+                SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame? recordedCover =
+                    SuperMetroid.TestSupport.SamusNativeCodecs.SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame));
+                if (samus.ArmCannon.Frame != recordedCover)
+                    mismatches.Add($"Cannon frame: native={recordedCover?.ToString() ?? "closed"} port={samus.ArmCannon.Frame?.ToString() ?? "closed"}");
                 Check("Cannon toggle", samus.ArmCannon.StableSelectionUpdates, NativeSnapshotMemory.CannonToggle);
                 SamusArmCannonDrawOrder recordedDrawOrder = SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode));
                 if (samus.ArmCannon.DrawOrder != recordedDrawOrder)

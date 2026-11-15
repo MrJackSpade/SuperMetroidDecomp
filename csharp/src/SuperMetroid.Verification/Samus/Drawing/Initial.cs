@@ -4,4 +4,4 @@ namespace SuperMetroid.Verification.Samus.Drawing;
 /// <param name="Open">The open.</param>
 /// <param name="Close">The close.</param>
 /// <param name="Frame">The frame.</param>
-internal readonly record struct Initial(int Open, int Close, int Frame);
+internal readonly record struct Initial(int Open, int Close, SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame? Frame);

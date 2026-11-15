@@ -12,13 +12,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusOverlaySheetComposer
 {
-    /// <summary>The cover frames an open or opening cannon shows; the closed frame 0 draws nothing.</summary>
-    internal const int FirstCoverFrame = 1, LastCoverFrame = 3;
-
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
         SamusProjectileDirectionCodec.InAimOrder
-            .SelectMany(direction => Enumerable.Range(FirstCoverFrame, LastCoverFrame - FirstCoverFrame + 1)
+            .SelectMany(direction => SamusArmCannonCoverFrameCodec.InOpeningOrder
                 .Select(frame => SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame)));
 
     /// <summary>What the overlay sheet composes with the body's arm cannon.</summary>
@@ -36,10 +33,11 @@ internal static class SamusOverlaySheetComposer
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
             int row = direction.ToAimIndex();
             SpritePart appearance = cannon.CoverAppearance(row);
-            for (int frame = FirstCoverFrame; frame <= LastCoverFrame; frame++)
+            foreach (SamusArmCannonCoverFrame frame in SamusArmCannonCoverFrameCodec.InOpeningOrder)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
-                    SpritePartFrames.SmallObject(appearance, appearance.Character), cover.CoverTile(row, frame)));
+                    SpritePartFrames.SmallObject(appearance, appearance.Character),
+                    cover.CoverTile(row, SamusArmCannonCoverFrameCodec.CartridgeFrame(frame))));
             }
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);

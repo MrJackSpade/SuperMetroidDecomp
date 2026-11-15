@@ -262,7 +262,7 @@ internal sealed class TorizoAttacks
 
         /// <summary>
         /// Drops the statue fragment: a rising or still-airborne piece accelerates by
-        /// <see cref="FirstSlotFallAcceleration"/>.
+        /// <see cref="FirstPlaceFallAcceleration"/>.
         /// </summary>
         private void DropStatueFragment(
             EnemyProjectile projectile,
@@ -272,7 +272,7 @@ internal sealed class TorizoAttacks
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
                 EnemyProjectile firstSlot = projectiles.EnemyProjectiles[0];
-                SignedEightEight acceleration = FirstSlotFallAcceleration.Of(
+                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
                     firstSlot.IsActive,
                     firstSlot.IsActive && firstSlot.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
                 // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.

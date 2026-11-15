@@ -3,19 +3,19 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot's frame behaviour starts inside a
 /// long store and falls back into the beam palette's copy loop with the position its update loop left behind: the copy
-/// starts one colour past the shot's slot in the beam palette and reads from the place its animation has reached. Its
+/// starts as many colours into the beam palette as the shot's place, plus one, and reads from the place its animation has reached. Its
 /// bound is a signed test of that read position, so a shot animating from an animation laid out late in its animation data copies on through the
 /// rest of that data, past the palette and on through saved progress, before the read position wraps and the loop ends.
 /// Which story events, area bosses, item locations, doors, used stations and area maps it turns on or off,
-/// and the loading state it leaves, therefore depend only on the shot's slot and where its animation stands; the import
-/// pipeline decodes them once into an overwrite for each animation position a SpaceTime shot can hold and each slot. Only
+/// and the loading state it leaves, therefore depend only on the shot's place and where its animation stands; the import
+/// pipeline decodes them once into an overwrite for each animation position a SpaceTime shot can hold and each shot place. Only
 /// the progress part is kept (owner decision on #1318).
 /// </summary>
 /// <remarks>
 /// Consulted by the SpaceTime shot's frame behaviour during the projectile update, after its animation has installed a
 /// frame. Before that, or with no animation, the copy starts low and ends long before progress. Evidence: the SpaceTime check
 /// replays the native Pit Room probe's two input phases, whose corrupted loading state it matches, and runs the original
-/// copy over the cartridge for every position and slot, requiring this service's overwrite to leave every flag of
+/// copy over the cartridge for every position and shot place, requiring this service's overwrite to leave every flag of
 /// progress as the copy does.
 /// </remarks>
 /// <typeparam name="TCursor">Where a shot stands in its animation.</typeparam>
@@ -25,25 +25,25 @@ public sealed class SpaceTimeProgressionOverwrite<TCursor, TOverwrite>
     where TCursor : notnull
     where TOverwrite : class
 {
-    /// <summary>What the copy overwrites, by animation position, then by slot; null where it stops before progress.</summary>
+    /// <summary>What the copy overwrites, by animation position, then by shot place; null where it stops before progress.</summary>
     private readonly IReadOnlyDictionary<TCursor, IReadOnlyList<TOverwrite?>> _overwrites;
 
-    /// <summary>Keeps the decoded overwrite of every animation position a SpaceTime shot can hold, by slot.</summary>
-    /// <param name="overwrites">What the copy overwrites, by animation position, then by slot ordinal.</param>
+    /// <summary>Keeps the decoded overwrite of every animation position a SpaceTime shot can hold, by shot place.</summary>
+    /// <param name="overwrites">What the copy overwrites, by animation position, then by zero-based shot place.</param>
     public SpaceTimeProgressionOverwrite(IReadOnlyDictionary<TCursor, IReadOnlyList<TOverwrite?>> overwrites) =>
         _overwrites = Ensure.NotNull(overwrites);
 
     /// <summary>
-    /// What a SpaceTime shot in slot <paramref name="slot"/> whose animation stands at <paramref name="cursor"/> overwrites;
+    /// What a SpaceTime shot in shot place <paramref name="place"/> whose animation stands at <paramref name="cursor"/> overwrites;
     /// null when its copy stops before progress.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">No SpaceTime shot can stand at the position, or the slot is not a shot slot.</exception>
-    public TOverwrite? For(TCursor cursor, int slot)
+    /// <exception cref="ArgumentOutOfRangeException">No SpaceTime shot can stand at the position, or the place is not a shot place.</exception>
+    public TOverwrite? For(TCursor cursor, int place)
     {
-        if (!_overwrites.TryGetValue(cursor, out IReadOnlyList<TOverwrite?>? bySlot))
+        if (!_overwrites.TryGetValue(cursor, out IReadOnlyList<TOverwrite?>? byPlace))
             throw new ArgumentOutOfRangeException(nameof(cursor), cursor, "No SpaceTime shot animates from this position.");
-        return (uint)slot < (uint)bySlot.Count
-            ? bySlot[slot]
-            : throw new ArgumentOutOfRangeException(nameof(slot), slot, $"A SpaceTime shot occupies one of {bySlot.Count} slots.");
+        return (uint)place < (uint)byPlace.Count
+            ? byPlace[place]
+            : throw new ArgumentOutOfRangeException(nameof(place), place, $"A SpaceTime shot occupies one of {byPlace.Count} places.");
     }
 }

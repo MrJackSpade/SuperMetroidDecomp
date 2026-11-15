@@ -176,11 +176,6 @@ internal sealed class MotherBrainAttacks
 
         int random = _room.Random.Read();
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-        if (!Enum.IsDefined(movementType))
-        {
-            throw new InvalidDataException(
-                $"Mother Brain attack strategy cannot index Samus movement type {movementType}.");
-        }
 
         if (IsMotherBrainAirAttackMovement(movementType))
         {

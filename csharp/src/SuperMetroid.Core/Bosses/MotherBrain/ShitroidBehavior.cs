@@ -84,7 +84,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.AnimationClock.Restart();
 
-        var state = new ShitroidEnemyState(slot)
+        var state = new ShitroidEnemyState
         {
             Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
             Action = ShitroidAction.WaitForCamera,
@@ -129,7 +129,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        ShitroidEnemyState state = RequireShitroidState(slot);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
 
         // Shitroid's own shot response applies recoil but no health loss. The main AI
         // redundantly restores its health every processed frame, exactly as the game does.
@@ -138,7 +138,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
         if (!_fadeStepCount.IsPastStart)
-            StepShitroidMembranePulse(state);
+            StepShitroidMembranePulse(slot, state);
     }
 
     /// <summary>Advances entrance, feeding, Samus chase and drain, remorse, or exit cutscene states.</summary>
@@ -405,7 +405,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
         Position16<RoomPixels> latch = victim.Position.Whole + new Offset16<RoomPixels>(0, -32);
-        if (!AccelerateShitroidExactly(state, LatchAcceleration, latch))
+        if (!AccelerateShitroidExactly(slot, state, LatchAcceleration, latch))
             return;
 
         state.Velocity = default;
@@ -589,18 +589,19 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Accelerates both axes toward a latch target and reports arrival only when both cross it.</summary>
     private static bool AccelerateShitroidExactly(
+        RoomEnemySlot slot,
         ShitroidEnemyState state,
         SignedEightEight acceleration,
         Position16<RoomPixels> target)
     {
         (bool xArrived, SignedEightEight xVelocity) = AccelerateShitroidAxis(
-            state.Slot.Position.X.Whole,
+            slot.Position.X.Whole,
             target.X,
             state.Velocity.X,
             acceleration);
         state.Velocity = state.Velocity.WithX(xVelocity);
         (bool yArrived, SignedEightEight yVelocity) = AccelerateShitroidAxis(
-            state.Slot.Position.Y.Whole,
+            slot.Position.Y.Whole,
             target.Y,
             state.Velocity.Y,
             acceleration);
@@ -645,9 +646,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Distance(center.Y, slot.Position.Y.Whole) < slot.Radius.Y + radius.Y + 1;
 
     /// <summary>Resolves the Baby's private touch reaction.</summary>
-    private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
+    private static void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
     {
-        ShitroidEnemyState state = RequireShitroidState(slot);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
         if (!state.ReactsToSamus)
             return;
 
@@ -672,6 +673,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Action == ShitroidAction.ChaseSamus)
         {
             if (AccelerateShitroidExactly(
+                slot,
                 state,
                 LatchAcceleration,
                 samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
@@ -690,12 +692,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Resolves the recoil-only shot reaction: the Baby recoils away from <paramref name="recoilOrigin"/>.</summary>
-    private void ResolveShitroidShot(
+    private static void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
         SamusProjectile recoilOrigin)
     {
-        ShitroidEnemyState state = RequireShitroidState(slot);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
         if (!state.ReactsToSamus)
             return;
 
@@ -718,7 +720,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveShitroidPowerBomb(EnemyPowerBombContext context)
     {
         RoomEnemySlot slot = context.Enemy;
-        ShitroidEnemyState state = RequireShitroidState(slot);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
         if (state.ReactsToSamus)
             BreakReleasedShitroidFollow(state);
 
@@ -735,8 +737,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = ShitroidAction.BeginExit;
     }
 
-    /// <summary>Advances the eight-phase membrane colors and paces cries when the Zebetites' pulse allows it.</summary>
-    internal void StepShitroidMembranePulse(ShitroidEnemyState state)
+    /// <summary>
+    /// Advances the eight-phase membrane colors of the Shitroid in <paramref name="slot"/> and paces cries when the
+    /// Zebetites' pulse allows it.
+    /// </summary>
+    internal void StepShitroidMembranePulse(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         if (state.ColourTimer != 0)
         {
@@ -760,13 +765,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.MembraneShown = phase;
-        state.Slot.Shading = state.Shading;
+        slot.Shading = state.Shading;
     }
 
     /// <summary>Starts <paramref name="segment"/> with both animation timers reset.</summary>
-    private void SetShitroidAnimation(RoomEnemySlot slot, ShitroidSegment segment)
+    private static void SetShitroidAnimation(RoomEnemySlot slot, ShitroidSegment segment)
     {
-        RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(segment);
+        slot.RequireSpeciesState<ShitroidEnemyState>().Playback = ShitroidAnimations.Starting(segment);
         slot.AnimationClock.Restart();
     }
 
@@ -779,16 +784,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return victim;
     }
 
-    /// <summary>Rejects missing state or dispatch from an enemy slot other than the initialized Baby Metroid.</summary>
-    private ShitroidEnemyState RequireShitroidState(RoomEnemySlot slot)
-    {
-        ShitroidEnemyState state = Shitroid ??
-            throw new InvalidDataException("Shitroid has no initialized extended state.");
-        if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("A non-Shitroid slot entered the Shitroid behaviour.");
-        return state;
-    }
-
     /// <summary>Requires the live Samus actor for pursuit or draining states.</summary>
     private static SamusState RequireShitroidSamus(SamusState? samus) => samus ??
         throw new InvalidOperationException("The active Shitroid state requires Samus.");
@@ -797,7 +792,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state) => --state.StateTimer < 0;
 
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
-    internal void ReactToShitroidBomb(EnemyBombContext c) =>
+    internal static void ReactToShitroidBomb(EnemyBombContext c) =>
         // The Baby's shot response reads damage from the projectile that hit it, but recoils from Samus's first shot
         // (MetroidRecoilOrigin). For a bomb collision that means the bomb's damage controls recoil strength while
         // whatever live or left-over shot is first controls direction. It never enters vulnerability damage.
@@ -821,7 +816,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
-        ShitroidEnemyState state = RequireShitroidState(slot);
+        ShitroidEnemyState state = slot.RequireSpeciesState<ShitroidEnemyState>();
         if (!slot.AnimationClock.Expire())
             return;
         AnimationPlayback<ShitroidSegment> playback = state.Playback;
@@ -866,7 +861,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
-    internal void ReactToShitroidTouch(EnemyTouchContext context) =>
+    internal static void ReactToShitroidTouch(EnemyTouchContext context) =>
         // The Shitroid's touch replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
         ResolveShitroidTouch(context.Slot, context.Samus);

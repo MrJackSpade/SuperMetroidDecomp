@@ -26,7 +26,7 @@ internal sealed class ShitroidEntity(ShitroidBehavior species, RoomEnemySlot slo
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToShitroidTouch(context);
+            ShitroidBehavior.ReactToShitroidTouch(context);
         else
             base.ReactToTouch(context);
     }
@@ -40,7 +40,7 @@ internal sealed class ShitroidEntity(ShitroidBehavior species, RoomEnemySlot slo
     {
         if (!(context.SelectedShot is null))
             return base.TryReactToBomb(context);
-        species.ReactToShitroidBomb(context);
+        ShitroidBehavior.ReactToShitroidBomb(context);
         return true;
     }
 

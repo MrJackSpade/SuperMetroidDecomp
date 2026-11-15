@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Animation;
@@ -17,13 +17,16 @@ internal sealed class CrocomireBodyLayer
     private readonly EnemyPresentation _presentation;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
+    /// <summary>The room's effect, whose acid surface his acid smoke rises from.</summary>
+    private readonly EnemyRoomFx _roomFx;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBodyLayer(RoomSpriteObjects spriteObjects, EnemyPresentation presentation, CrocomireEncounterAccess access)
+    internal CrocomireBodyLayer(RoomSpriteObjects spriteObjects, EnemyPresentation presentation, CrocomireEncounterAccess access, EnemyRoomFx roomFx)
     {
         _spriteObjects = spriteObjects;
         _presentation = presentation;
         _access = access;
+        _roomFx = roomFx;
     }
 
     /// <summary>
@@ -117,7 +120,7 @@ internal sealed class CrocomireBodyLayer
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
-    internal void SpawnCrocomireAcidSmoke(CrocomireEnemyState state, SamusState? samus)
+    internal void SpawnCrocomireAcidSmoke(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (--death.AcidSmokeTimer != 0)
@@ -130,10 +133,12 @@ internal sealed class CrocomireBodyLayer
         int xOffset = CrocomireRandomDefinitions.AcidSmokeXOffset.Of(random);
         if (!CrocomireRandomDefinitions.AcidSmokeOnRight.IsSetIn(random))
             xOffset = -(xOffset + CrocomireRandomDefinitions.AcidSmokeLeftExtraPixels);
-        // Crocomire's room always has its acid surface, which its tide only moves.
-        int acidY = samus is null
-            ? 224
-            : samus.LiquidPhysics.LavaAcidSurfaceY ?? throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
+        // Crocomire's room always has its acid surface, which its tide only moves; a surface above the room's top is none.
+        RoomFxOverlayState roomFx = _roomFx.FxOverlay ??
+            throw new InvalidOperationException("Crocomire's acid smoke rises from his room's effect, which is not bound.");
+        int acidY = roomFx.Type is RoomFxType.Lava or RoomFxType.Acid && roomFx.Surface is int surface and >= 0
+            ? surface
+            : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
         _spriteObjects.SpawnRoomSpriteObject(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,

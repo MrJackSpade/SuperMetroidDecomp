@@ -144,9 +144,9 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>Updates the acid dissolve, background distortion, tongue placement, and scheduled melting graphics.</summary>
-    internal void RunCrocomireMelting(CrocomireEnemyState state, SamusState? samus, Position16<RoomPixels> camera)
+    internal void RunCrocomireMelting(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
-        _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
+        _bodyLayer.SpawnCrocomireAcidSmoke(state);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
         state.Body.Position = state.Body.Position.WithWholeX(

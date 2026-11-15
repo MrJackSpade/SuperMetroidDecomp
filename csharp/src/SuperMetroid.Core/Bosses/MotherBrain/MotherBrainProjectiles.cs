@@ -744,11 +744,6 @@ internal sealed class MotherBrainProjectiles
                 nameof(request),
                 $"Mother Brain glass requested unsupported projectile {request.Kind}.");
         }
-        if (!Enum.IsDefined(request.Shard))
-        {
-            throw new InvalidDataException(
-                $"Mother Brain glass shard {request.Shard} is not one of the three emitters.");
-        }
 
         EnemyProjectile? shard = _projectiles.AllocateEnemyProjectile();
         if (shard is null)

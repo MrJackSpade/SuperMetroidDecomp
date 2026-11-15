@@ -24,8 +24,6 @@ internal abstract record KraidBackdropShown
     internal static KraidBackdropShown Fade(KraidBackdropShown from, KraidBackdropSettledColours goal, KraidBackdropFadeSteps steps)
     {
         Ensure.NotNull(from);
-        if (!Enum.IsDefined(goal))
-            throw new ArgumentOutOfRangeException(nameof(goal), goal, "Undefined Kraid backdrop colours.");
         if (from == new Settled(goal) || steps.Took(KraidBackgroundDefinitions.BackdropFadeLastStep))
             return new Settled(goal);
         if (steps.OnlyAtZero)

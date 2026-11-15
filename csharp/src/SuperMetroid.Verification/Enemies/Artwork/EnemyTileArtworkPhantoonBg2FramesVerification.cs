@@ -130,6 +130,25 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
             System.Collections.Immutable.ImmutableArray<EnemyCollisionComponent> components =
                 PhantoonCollision.ComponentsAt(frame.Pointer);
+            if (components.IsEmpty)
+            {
+                // The eye's, tentacles' and mouth's looks drop the inert point the original gave them (#1937); the
+                // invulnerable body's point is its compatibility rule. Each dropped native component is that point.
+                for (int index = 0; index < rom.ReadCartridgeByte(root); index++)
+                {
+                    ushort pointPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(root + 2 + index * 8 + 6);
+                    checkedLists.Add(pointPointer);
+                    int point = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, pointPointer));
+                    AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(point), $"Phantoon {frame.Name} dropped component holds one point");
+                    for (int bound = 0; bound < 4; bound++)
+                        AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(point + 2 + bound * 2), $"Phantoon {frame.Name} dropped point is zero-sized");
+                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord(point + 10), shot: false),
+                        $"Phantoon {frame.Name} dropped point's touch");
+                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord(point + 12), shot: true),
+                        $"Phantoon {frame.Name} dropped point's shot");
+                }
+                continue;
+            }
             AssertEqual(rom.ReadCartridgeByte(root), (byte)components.Length,
                 $"Phantoon {frame.Name} compiled hitbox component count");
             for (int index = 0; index < components.Length; index++)

@@ -13,8 +13,14 @@ public sealed class PhantoonWaveState
     /// </summary>
     public PhantoonWaveLength? Length { get; internal set; }
 
-    /// <summary>The wave's peak displacement in 256ths of a pixel.</summary>
-    public int Amplitude { get; internal set => field = Ensure.AtLeastZero(value); }
+    /// <summary>The wave's peak displacement, never negative (#1936).</summary>
+    public SignedSixteenSixteen Amplitude
+    {
+        get;
+        internal set => field = value.IsNegative
+            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A wave's amplitude is never negative.")
+            : value;
+    }
 
     /// <summary>Whether the amplitude is shrinking rather than growing.</summary>
     public bool AmplitudeShrinking { get; internal set; }

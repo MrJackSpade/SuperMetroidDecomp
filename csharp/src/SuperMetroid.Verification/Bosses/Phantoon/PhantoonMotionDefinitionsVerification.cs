@@ -11,12 +11,14 @@ internal static class PhantoonMotionDefinitionsVerification
     internal static void VerifyCompiledPhantoonMotion(CartridgeImportAddressSpace rom)
     {
         // Each definition is the signed value the cartridge's word holds; every unsigned one is below $8000.
-        int[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,
-            PhantoonMotionDefinitions.FastFraction, PhantoonMotionDefinitions.FastWhole,
+        // The cartridge keeps each speed change as its fraction's word and its whole word, once for each direction (#1936).
+        SignedSixteenSixteen slow = PhantoonMotionDefinitions.SlowSpeedChange, fast = PhantoonMotionDefinitions.FastSpeedChange;
+        int[] definitions = [slow.Fraction, slow.WholePixels,
+            fast.Fraction, fast.WholePixels,
             PhantoonMotionDefinitions.ForwardSlowCap, PhantoonMotionDefinitions.ForwardFastCap,
-            PhantoonMotionDefinitions.ForwardMinimum, PhantoonMotionDefinitions.SlowFraction,
-            PhantoonMotionDefinitions.SlowWhole, PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole, PhantoonMotionDefinitions.ReverseSlowCap,
+            PhantoonMotionDefinitions.ForwardMinimum, slow.Fraction,
+            slow.WholePixels, fast.Fraction,
+            fast.WholePixels, PhantoonMotionDefinitions.ReverseSlowCap,
             PhantoonMotionDefinitions.ReverseFastCap, PhantoonMotionDefinitions.ReverseMaximum];
         var native = new ushort[14];
         for (int i = 0; i < native.Length; i++)

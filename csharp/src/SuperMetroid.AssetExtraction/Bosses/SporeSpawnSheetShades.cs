@@ -32,7 +32,7 @@ internal static class SporeSpawnSheetShades
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
         var shades = new List<SheetShade> { SheetShade.Run(SporeSpawnShades.Spores, SporesRow * LoadedSetColours.RowColours, Frame(colours.ResolveSpore)) };
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthStageCount; frame++)
         {
             int shown = frame;
             shades.Add(SheetShade.Run(SporeSpawnShades.Health(shown), BodyRow * LoadedSetColours.RowColours, Frame(colour => colours.ResolveHealth(shown, colour))));

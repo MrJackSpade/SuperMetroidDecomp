@@ -663,7 +663,26 @@ internal static class LookupStream5Verification
         {
             int root = 0xa70000 | frame.Pointer;
             var components = PhantoonCollision.ComponentsAt(frame.Pointer);
-            AssertEqual(ReadVerificationWord(rom, root), components.Length, "Native component extent");
+            int nativeComponents = ReadVerificationWord(rom, root);
+            if (components.IsEmpty)
+            {
+                // The eye's, tentacles' and mouth's looks drop the inert point the original gave them (#1937): those parts
+                // always ignore Samus, so each native component, the zero-sized point whose routines return at once, is
+                // never read.
+                for (int index = 0; index < nativeComponents; index++)
+                {
+                    int pointList = 0xa70000 | ReadVerificationWord(rom, root + 2 + index * 8 + 6);
+                    lists.Add(ReadVerificationWord(rom, root + 2 + index * 8 + 6));
+                    AssertEqual(1, (int)ReadVerificationWord(rom, pointList), "Dropped native component holds one point");
+                    for (int bound = 0; bound < 4; bound++)
+                        AssertEqual(0, (int)ReadVerificationWord(rom, pointList + 2 + bound * 2), "Dropped native point is zero-sized");
+                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, ReadVerificationWord(rom, pointList + 10), shot: false), "Dropped native point's touch");
+                    AssertEqual((EnemyReaction?)EnemyReaction.Ignore, EnemyReactionAccess.Of(0xa7, ReadVerificationWord(rom, pointList + 12), shot: true), "Dropped native point's shot");
+                    componentCount++;
+                }
+                continue;
+            }
+            AssertEqual(nativeComponents, components.Length, "Native component extent");
             for (int index = 0; index < components.Length; index++)
             {
                 int record = root + 2 + index * 8;

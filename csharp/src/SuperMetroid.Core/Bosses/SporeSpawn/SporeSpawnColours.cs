@@ -23,12 +23,12 @@ internal sealed class SporeSpawnColours : IGameplayShadingSource
             PictureShading shading = PictureShading.Shaded(SporeSpawnShades.Spores);
             if (death is { } step)
                 return shading.With(SporeSpawnShades.DeathSprite(step));
-            return health is { } frame ? shading.With(SporeSpawnShades.Health(frame)) : shading;
+            return health is { } stage ? shading.With(SporeSpawnShades.Health(stage)) : shading;
         }
     }
 
-    /// <summary>Shows health stage <paramref name="frame"/> on his body.</summary>
-    internal void ShowHealth(int frame) => health = frame;
+    /// <summary>Shows health stage <paramref name="stage"/> on his body.</summary>
+    internal void ShowHealth(int stage) => health = stage;
 
     /// <summary>Shows step <paramref name="step"/> of his death fade over his body and his room.</summary>
     internal void ShowDeath(int step) => death = step;

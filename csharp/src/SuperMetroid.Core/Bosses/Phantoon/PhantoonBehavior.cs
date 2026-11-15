@@ -59,13 +59,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, FrameResults = dependencies.FrameResults });
     }
 
-    /// <summary>Per-update increase in introductory wave amplitude.</summary>
-    internal const int PhantoonIntroAmplitudeDelta = 64;
-    /// <summary>Wave amplitude at which the intro advances to the next phase.</summary>
-    internal const int PhantoonIntroMaximumAmplitude = 3072;
-    /// <summary>Per-update phase increment for the wavy background distortion.</summary>
-    internal const int PhantoonWavyPhaseDelta = 8;
-
     /// <summary>Sets Phantoon's body up when the room spawns it.</summary>
     internal void InitializePhantoonBody(RoomEnemySlot body)
     {
@@ -278,7 +271,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires a live Samus state for Phantoon movement and eye targeting.</summary>
     private static SamusState RequirePhantoonSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
-            "Phantoon's eye and swoop programs require the active Samus actor.");
+            "Phantoon's eye and swoop require the active Samus.");
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;
@@ -307,10 +300,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ShowPhantoonHealthColours(RoomEnemySlot body) =>
         (Combat.Phantoon ?? throw new InvalidOperationException("Phantoon's health colours show once Phantoon is loaded."))
             .Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(body)));
-    /// <summary>Per-update wave increment during the wavy pixelation death animation.</summary>
-    internal const int PhantoonDeathWaveDelta = 256;
-    /// <summary>Wave ceiling reached before the death animation advances.</summary>
-    internal const int PhantoonDeathWaveMaximum = 61440;
 
     /// <summary>
     /// Runs a Phantoon part's animation where the shared enemy animation runs: the frame expires on the update

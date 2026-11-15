@@ -565,7 +565,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.CloseAndMove), AnimationPlace.StartOfAnimation);
                 body.AnimationClock.StepOnNextUpdate();
 
-                int healthFrame = body.Health >= 770
+                int healthStage = body.Health >= 770
                     ? 0
                     : body.Health >= 410
                         ? 1
@@ -575,7 +575,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (body.Health != state.PreviousHealth)
                 {
                     state.PreviousHealth = body.Health;
-                    ShowSporeSpawnHealthShade(healthFrame);
+                    ShowSporeSpawnHealthShade(healthStage);
                 }
             }
         }
@@ -674,12 +674,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Shows health-stage body image <paramref name="frame"/>.</summary>
-    internal void ShowSporeSpawnHealthShade(int frame)
+    /// <summary>Shows health stage <paramref name="stage"/> on his body.</summary>
+    internal void ShowSporeSpawnHealthShade(int stage)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn's health colours show once Spore Spawn is loaded.");
-        state.Colours.ShowHealth(Ensure.BetweenInclusive(0, SporeSpawnColorDefinitions.HealthFrameCount - 1, frame));
+        state.Colours.ShowHealth(Ensure.BetweenInclusive(0, SporeSpawnColorDefinitions.HealthStageCount - 1, stage));
         state.Body.Shading = state.Colours.Sprites;
     }
 

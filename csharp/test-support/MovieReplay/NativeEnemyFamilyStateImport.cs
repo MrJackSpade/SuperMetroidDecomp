@@ -107,7 +107,7 @@ internal static class NativeEnemyFamilyStateImport
                 // The record's count reads below zero while no burst is under way, which the burst holds as no count.
                 short casualFlames = unchecked((short)words.C);
                 phantoon.CasualFlames.Remaining = casualFlames < 0 ? null : casualFlames;
-                phantoon.Wave.Amplitude = words.D;
+                phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
                 phantoon.Wave.PhaseStep = words.F;
             }
@@ -239,7 +239,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
-            crocomireRecord.Phase = CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
+            // The fight table's first entry, which no live fight selects, stands for no fight under way (#1939).
+            crocomireRecord.Phase = words.C == 0 ? null : CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }

@@ -56,7 +56,7 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Combat.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyOrigin = boss.BodyOrigin.WithX(9);
-        boss.Wave.Amplitude = 3072;
+        boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
@@ -77,7 +77,7 @@ internal static class PhantoonReport1196Verification
         PhantoonWave displayed = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
         AssertEqual(13, displayed.BodyLeft, "every first-frame death scroll starts at his body's column");
         AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
-        boss.Wave.Amplitude = 3072;
+        boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.CurrentWave is { BodyLeft: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),

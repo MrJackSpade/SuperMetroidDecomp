@@ -77,7 +77,6 @@ internal static class CrocomireNativeWords
     /// </summary>
     internal static readonly NativeWordIdentities<CrocomirePhase> Phases = new(new Dictionary<CrocomirePhase, ushort>
     {
-        [CrocomirePhase.ResetAnimation] = 0,
         [CrocomirePhase.Sleeping] = 4,
         [CrocomirePhase.SteppingForward] = 6,
         [CrocomirePhase.ProjectileAttack] = 8,

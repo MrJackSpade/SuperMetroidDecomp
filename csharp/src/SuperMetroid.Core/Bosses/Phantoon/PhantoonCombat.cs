@@ -37,17 +37,12 @@ internal sealed class PhantoonCombat
     /// <summary>The bomb hit response for vulnerable Phantoon phases.</summary>
     internal EnemyBombReaction PhantoonBombReaction => field ??= new()
     {
-        // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
-        // AI; their private reactions own the enemy's removal or a staged death. Gameplay-enemy reactions reuse the same
-        // post-common steps as beams. Normal bombs cannot freeze, but their damage, staged-death,
-        // child synchronization, recoil, release, and attack side effects are otherwise the same reaction tails.
+        // Phantoon's death is his own staged sequence, never the common one.
         RunsGenericDeath = false,
         // Phantoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        // Phantoon's hitbox reaction enters the same no-death common damage for bombs as it
-        // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
-        // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the
-        // eye-close/rage counter instead of deleting a slot.
+        // A bomb meets the same common damage as a beam or a missile, and the damage it does feeds the round's
+        // damage; a lethal hit begins his death.
         AfterCommon = c =>
         {
             PhantoonEnemyState phantoon = Phantoon ??
@@ -272,9 +267,8 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>
-    /// Runs 's five-slot beam/missile walk for Phantoon, then dispatches the
-    /// selected hitbox reaction. One projectile resolves per pass, matching the
-    /// early exit after the first overlapping enemy/component pair.
+    /// Tests Samus's beams and missiles against Phantoon's body and runs the reaction of the hitbox the first one meets.
+    /// One projectile resolves per pass.
     /// </summary>
     public int ResolvePhantoonProjectileHits(
         SamusProjectileSystem projectiles,
@@ -433,9 +427,8 @@ internal sealed class PhantoonCombat
                 return;
             }
 
-            // The round's damage wraps when a sum passes its counter's range, as the game's does.
-            state.Round.Damage = WrappingCounter.AddCount(
-                state.Round.Damage, damage);
+            // The round ends within an update or two of its damage reaching the threshold, so its sum never nears a wrap.
+            state.Round.Damage += damage;
             if (state.Round.Damage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
@@ -656,10 +649,8 @@ internal sealed class PhantoonCombat
         if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
             return null;
 
-        // Phantoon's frames include hitbox lists,
-        // but its editable background changes must never become collision
-        // data. Preserve the component and rectangle order from
-        // the compiled definitions, including point no-ops.
+        // Phantoon's frames' hitboxes are the compiled definitions', never his editable background frames'; the
+        // invulnerable body's centre point is a compatibility rule (PhantoonSolidifyingCentre).
         foreach (EnemyCollisionComponent component in
                  PhantoonCollision.ComponentsAt(enemy.Frame))
         {

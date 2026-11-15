@@ -30,29 +30,46 @@ internal static class BossDisplayBindingsOracleVerification
         var bg2 = new List<EnemyBg2TilemapWrite>();
         var physical = BossPhysicalComponents(frame);
         bool emptyPhysics = frame.Bank == DraygonBg2FrameToolingDefinitions.Bank && DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer);
+        // Phantoon's eye, tentacle and mouth looks drop the inert point the original gave them, and Crocomire's frames
+        // keep each component with hitboxes once at its place (#1937).
+        bool droppedPoints = frame.Bank == PhantoonBg2FrameDefinitionsConstants.Bank && physical.Length == 0;
+        int?[]? crocomireKept = frame.Bank == CrocomireBg2FrameDefinitionsConstants.Bank
+            ? Crocomire.CrocomireKeptComponents.Of(address => source.ReadCartridgeWord(address), root)
+            : null;
+        if (crocomireKept is not null)
+            AssertEqual(physical.Length, crocomireKept.Count(index => index is not null), frame.Name + " kept physical component count");
         // Compiled Draygon OAM collision deliberately omits components whose
         // native lists are empty. Confirm each omitted native list below.
-        if (!emptyPhysics) AssertEqual(physical.Length, count, frame.Name + " native physical component count");
+        if (!emptyPhysics && !droppedPoints && crocomireKept is null) AssertEqual(physical.Length, count, frame.Name + " native physical component count");
         for (int component = 0; component < count; component++)
         {
             int record = root + 2 + component * 8;
             short x = unchecked((short)source.ReadCartridgeWord(record)), y = unchecked((short)source.ReadCartridgeWord((record + 2)));
             ushort visual = source.ReadCartridgeWord((record + 4)), hitbox = source.ReadCartridgeWord((record + 6));
-            if (!emptyPhysics) AssertEqual(new OctantVector(physical[component].X, physical[component].Y), new OctantVector(x, y), frame.Name + " immutable physical component");
-            else AssertEqual(0, (int)source.ReadCartridgeWord(Address(hitbox)), "omitted Draygon component has no native collision records");
+            // A Crocomire component left out holds no hitbox, or names again a list the frame already placed there.
+            bool dropped = droppedPoints || crocomireKept is not null && crocomireKept[component] is null;
+            int physicalIndex = crocomireKept?[component] ?? component;
+            if (droppedPoints)
+            {
+                AssertEqual(1, (int)source.ReadCartridgeWord(Address(hitbox)), "dropped Phantoon component holds one point");
+                for (int bound = 0; bound < 4; bound++)
+                    AssertEqual(0, (int)source.ReadCartridgeWord(Address(unchecked((ushort)(hitbox + 2 + bound * 2)))), "dropped Phantoon point is zero-sized");
+            }
+            else if (!emptyPhysics && !dropped) AssertEqual(new OctantVector(physical[physicalIndex].X, physical[physicalIndex].Y), new OctantVector(x, y), frame.Name + " immutable physical component");
+            else if (emptyPhysics) AssertEqual(0, (int)source.ReadCartridgeWord(Address(hitbox)), "omitted Draygon component has no native collision records");
             // The ROM names the component's hitbox list by address; the compiled component must hold that list's
             // rectangles and callbacks. Each component is compared, so a component holding another list fails.
             checkedLists.Add(Address(hitbox));
-            if (!emptyPhysics)
+            if (!emptyPhysics && !dropped)
             {
-                ushort[][] boxes = physical[component].Boxes;
+                ushort[][] boxes = physical[physicalIndex].Boxes;
                 AssertEqual(boxes.Length, (int)source.ReadCartridgeWord(Address(hitbox)), frame.Name + " native hitbox list count");
                 for (int index = 0; index < boxes.Length; index++)
                 {
                     for (int field = 0; field < boxes[index].Length; field++)
                         AssertEqual(source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + field * 2)), boxes[index][field],
                             frame.Name + " native rectangle record");
-                    EnemyReaction[] reactions = physical[component].Reactions[index];
+                    EnemyReaction[] reactions = physical[physicalIndex].Reactions[index];
                     AssertEqual(EnemyReactionAccess.Of(frame.Bank, source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + 8)), shot: false),
                         (EnemyReaction?)reactions[0], frame.Name + " native touch reaction");
                     AssertEqual(EnemyReactionAccess.Of(frame.Bank, source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + 10)), shot: true),

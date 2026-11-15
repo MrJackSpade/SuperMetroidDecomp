@@ -32,8 +32,7 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
-    /// Spawn body position in room pixels, the sway centre, retained before the live spawn
-    /// is raised 128 pixels; its <c>XOrigin</c>/<c>YOrigin</c>.
+    /// Where his body spawned in room pixels, the centre of his sway, kept before the live fight raises him 128 pixels.
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }
     /// <summary>

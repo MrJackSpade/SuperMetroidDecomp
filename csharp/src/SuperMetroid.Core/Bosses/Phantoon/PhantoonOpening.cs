@@ -41,7 +41,7 @@ internal sealed class PhantoonOpening
         _ = SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.StartingFlames.NextFlame));
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.PhaseTimer = 30;
-        state.StartingFlames.NextFlame = WrappingCounter.IncrementCount(state.StartingFlames.NextFlame);
+        state.StartingFlames.NextFlame++;
         if (state.StartingFlames.NextFlame < 8)
             return;
 
@@ -74,11 +74,11 @@ internal sealed class PhantoonOpening
         state.Phase = PhantoonPhase.WavyFadeIn;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
         state.PhaseTimer = 120;
-        state.Wave.Amplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
+        state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         state.Wave.AmplitudeShrinking = false;
         state.BodyFade.Complete = false;
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
-        state.Wave.PhaseStep = PhantoonBehavior.PhantoonWavyPhaseDelta;
+        state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
     }
 
@@ -90,8 +90,8 @@ internal sealed class PhantoonOpening
         _presentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         if (PhantoonPresentation.AdvancePhantoonWaveAmplitude(
                 state.Wave,
-                PhantoonBehavior.PhantoonIntroAmplitudeDelta,
-                PhantoonBehavior.PhantoonIntroMaximumAmplitude))
+                PhantoonWaveDefinitions.IntroAmplitudeChange,
+                PhantoonWaveDefinitions.IntroAmplitude))
         {
             state.Phase = PhantoonPhase.PickFirstRoundPattern;
             state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;

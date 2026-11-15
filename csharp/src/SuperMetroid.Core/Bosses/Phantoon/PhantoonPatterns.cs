@@ -49,7 +49,7 @@ internal sealed class PhantoonPatterns
         {
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
             state.FigureEight.Reversed = true;
-            state.FigureEight.PathCursor = 533;
+            state.FigureEight.PathCursor = PhantoonPathDefinitions.LastPlace;
         }
         else
         {
@@ -110,10 +110,7 @@ internal sealed class PhantoonPatterns
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
-            ChangePhantoonSpeed(
-                figureEight,
-                low: PhantoonMotionDefinitions.SlowFraction,
-                high: PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Accelerate);
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Accelerate);
             if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardSlowCap)
             {
                 figureEight.Speed = SignedSixteenSixteen.FromParts(PhantoonMotionDefinitions.ForwardSlowCap - 1, 0);
@@ -124,10 +121,7 @@ internal sealed class PhantoonPatterns
 
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
-            ChangePhantoonSpeed(
-                figureEight,
-                PhantoonMotionDefinitions.FastFraction,
-                PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
             if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardFastCap)
             {
                 figureEight.Speed = SignedSixteenSixteen.FromParts(PhantoonMotionDefinitions.ForwardFastCap, 0);
@@ -136,10 +130,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        ChangePhantoonSpeed(
-            figureEight,
-            PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
+        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
         int minimum = PhantoonMotionDefinitions.ForwardMinimum;
         if (figureEight.Speed.WholePixels <= minimum)
         {
@@ -153,10 +144,7 @@ internal sealed class PhantoonPatterns
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
-            ChangePhantoonSpeed(
-                figureEight,
-                PhantoonMotionDefinitions.SlowFraction,
-                PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Decelerate);
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Decelerate);
             int cap = PhantoonMotionDefinitions.ReverseSlowCap;
             if (figureEight.Speed.WholePixels <= cap)
             {
@@ -168,10 +156,7 @@ internal sealed class PhantoonPatterns
 
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
-            ChangePhantoonSpeed(
-                figureEight,
-                PhantoonMotionDefinitions.FastFraction,
-                PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
             int cap = PhantoonMotionDefinitions.ReverseFastCap;
             if (figureEight.Speed.WholePixels <= cap)
             {
@@ -181,10 +166,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        ChangePhantoonSpeed(
-            figureEight,
-            PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
+        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
         int maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (figureEight.Speed.WholePixels >= maximum)
         {
@@ -194,9 +176,8 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Adds a 1/65536-pixel speed change to the figure-eight's speed, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, int low, int high, PhantoonSpeedChange direction)
+    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, SignedSixteenSixteen change, PhantoonSpeedChange direction)
     {
-        SignedSixteenSixteen change = SignedSixteenSixteen.FromParts(high, low);
         figureEight.Speed = direction == PhantoonSpeedChange.Decelerate
             ? figureEight.Speed - change
             : figureEight.Speed + change;
@@ -330,12 +311,12 @@ internal sealed class PhantoonPatterns
     {
         if (PhantoonRandomDefinitions.FigureEightStartsRight.IsSetIn(_room.Random.Generate()))
         {
-            state.FigureEight.PathCursor = 136;
+            state.FigureEight.PathCursor = PhantoonPathDefinitions.RightAppearance;
             body.Position = body.Position.WithWholeX(208);
         }
         else
         {
-            state.FigureEight.PathCursor = 399;
+            state.FigureEight.PathCursor = PhantoonPathDefinitions.LeftAppearance;
             body.Position = body.Position.WithWholeX(48);
         }
         body.Position = body.Position.WithWholeY(96);
@@ -508,7 +489,7 @@ internal sealed class PhantoonPatterns
             SpawnPhantoonRageFlame(body, start);
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
-        state.RageWaveCount = WrappingCounter.IncrementCount(state.RageWaveCount);
+        state.RageWaveCount++;
         if (state.RageWaveCount < PhantoonRageDefinitions.WaveCount)
         {
             state.PhaseTimer = PhantoonRageDefinitions.WaveInterval;
@@ -676,7 +657,7 @@ internal sealed class PhantoonPatterns
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
         {
             if (!state.FigureEight.Reversed)
-                state.FigureEight.PathCursor = state.FigureEight.PathCursor == 0 ? 533 : state.FigureEight.PathCursor - 1;
+                state.FigureEight.PathCursor = state.FigureEight.PathCursor == 0 ? PhantoonPathDefinitions.LastPlace : state.FigureEight.PathCursor - 1;
             state.FigureEight.Speed = SignedSixteenSixteen.Zero;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Reversed = true;
@@ -684,7 +665,7 @@ internal sealed class PhantoonPatterns
         else
         {
             if (state.FigureEight.Reversed)
-                state.FigureEight.PathCursor = state.FigureEight.PathCursor >= 533 ? 0 : state.FigureEight.PathCursor + 1;
+                state.FigureEight.PathCursor = state.FigureEight.PathCursor >= PhantoonPathDefinitions.LastPlace ? 0 : state.FigureEight.PathCursor + 1;
             state.FigureEight.Speed = SignedSixteenSixteen.FromParts(1, 0);
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Reversed = false;

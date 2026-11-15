@@ -44,22 +44,22 @@ internal sealed class PhantoonPresentation
     /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
         PhantoonWaveState wave,
-        int delta,
-        int maximum)
+        SignedSixteenSixteen change,
+        SignedSixteenSixteen maximum)
     {
         if (wave.AmplitudeShrinking)
         {
-            if (wave.Amplitude < delta)
+            if ((wave.Amplitude - change).IsNegative)
             {
-                wave.Amplitude = 0;
+                wave.Amplitude = SignedSixteenSixteen.Zero;
                 return true;
             }
-            wave.Amplitude -= delta;
+            wave.Amplitude -= change;
             return false;
         }
 
-        wave.Amplitude += delta;
-        if (wave.Amplitude >= maximum)
+        wave.Amplitude += change;
+        if (!(wave.Amplitude - maximum).IsNegative)
             wave.Amplitude = maximum;
         return false;
     }
@@ -68,7 +68,8 @@ internal sealed class PhantoonPresentation
     internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state) => --state.PhaseTimer <= 0;
 
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
-    internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
+    internal static int HealthBand(RoomEnemySlot body) =>
+        Math.Min(PhantoonColorDefinitions.HealthBandCount - 1, Math.Max(0, (body.Health - 1) / PhantoonColorDefinitions.HealthPerBand));
 
     /// <summary>Restarts a part's animation from its start with a one-tick timer.</summary>
     internal static void StartPhantoonAnimation(

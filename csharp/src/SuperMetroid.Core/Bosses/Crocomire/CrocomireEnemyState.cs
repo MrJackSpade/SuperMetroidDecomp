@@ -72,23 +72,19 @@ public sealed class CrocomireEnemyState
     /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
     public bool DamageReactionPending { get; internal set; }
 
-    /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame.</summary>
-    public CrocomirePhase Phase { get; internal set; }
+    /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame; none in a defeated room (#1939).</summary>
+    public CrocomirePhase? Phase { get; internal set; }
 
     /// <summary>
     /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
-    /// mouth hit while stepping back consumes them, so the count stays far
-    /// inside <see cref="MaximumStepCount"/>. A store outside that range is rejected rather than wrapped, because the
-    /// power-bomb charge's signed comparison is exact only inside it.
+    /// mouth hit while stepping back consumes them, so the count stays a few steps from none and never nears a wrap
+    /// (#1940).
     /// </summary>
     public int StepCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, MaximumStepCount, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
-
-    /// <summary>The largest queued step count the fight AI's signed comparisons read as the game does.</summary>
-    private const int MaximumStepCount = short.MaxValue;
 
     /// <summary>
     /// In the submerged pause and while the skeleton is bared behind the wall: the frames left in that death phase, counted down only while

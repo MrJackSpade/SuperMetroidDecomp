@@ -57,7 +57,7 @@ internal static class PhantoonBodyPublicationVerification
 
         // Wavy fade-in: the intro wave set up and built once.
         state.BodyOrigin = new Position16<RoomPixels>(40, 0);
-        state.Wave.Amplitude = 3072;
+        state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         state.Wave.PhaseStep = 8;
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
         state.BodyWave.Step(state);

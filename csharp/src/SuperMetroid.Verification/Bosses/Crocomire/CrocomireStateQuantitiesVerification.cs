@@ -35,19 +35,16 @@ internal static class CrocomireStateQuantitiesVerification
     }
 
     /// <summary>
-    /// The queued step count stores the whole range its signed comparisons read correctly and rejects anything
-    /// outside it without changing the count, instead of wrapping as a native word would.
+    /// The queued step count rejects a count below zero without changing the count, instead of wrapping as a native word
+    /// would; it never nears its word's top, so it has no upper limit (#1940).
     /// </summary>
     private static void VerifyStepCounterRange()
     {
         (_, CrocomireEnemyState state) = NewCrocomire();
-        state.StepCounter = short.MaxValue;
-        AssertEqual(short.MaxValue, state.StepCounter, "the largest step count reads back");
-        AssertThrows<ArgumentOutOfRangeException>(() => state.StepCounter = short.MaxValue + 1,
-            "a step count the signed comparisons would read as negative is rejected");
+        state.StepCounter = 3;
         AssertThrows<ArgumentOutOfRangeException>(() => state.StepCounter = -1,
             "a step count below zero is rejected instead of wrapping");
-        AssertEqual(short.MaxValue, state.StepCounter, "a rejected step count leaves the count unchanged");
+        AssertEqual(3, state.StepCounter, "a rejected step count leaves the count unchanged");
     }
 
     /// <summary>

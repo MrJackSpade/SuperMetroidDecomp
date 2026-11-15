@@ -143,8 +143,7 @@ internal static class EnemySpeciesCapabilitiesVerification
         {
             expected.Add(part,
             [
-                CrocomireReactions.HitCountShot, CrocomireReactions.DustHitboxShot,
-                CrocomireReactions.MouthShot, CrocomireReactions.AlternateDustHitboxShot,
+                CrocomireReactions.AbsorbedShot, CrocomireReactions.DustShot, CrocomireReactions.MouthShot,
             ]);
         }
         return expected;
@@ -155,8 +154,8 @@ internal static class EnemySpeciesCapabilitiesVerification
     [
         null, .. EnemyReaction.Shared,
         CeresSteamReactions.Touch,
-        CrocomireReactions.ClawTouch, CrocomireReactions.HitCountShot, CrocomireReactions.DustHitboxShot,
-        CrocomireReactions.MouthShot, CrocomireReactions.AlternateDustHitboxShot,
+        CrocomireReactions.ClawTouch, CrocomireReactions.AbsorbedShot, CrocomireReactions.DustShot,
+        CrocomireReactions.MouthShot,
         DraygonReactions.Touch, DraygonReactions.Shot,
         KraidReactions.BackgroundTouch, KraidReactions.ArmTouch, KraidReactions.ArmShot,
         MotherBrainReactions.BodyShot, MotherBrainReactions.HeadShot, MotherBrainReactions.HeadTouch,

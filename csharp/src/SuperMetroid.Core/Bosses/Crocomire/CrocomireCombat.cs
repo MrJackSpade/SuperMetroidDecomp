@@ -235,12 +235,11 @@ internal sealed class CrocomireCombat
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 
-        // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust. The
-        // game counted these and his mouth hits in a count nothing in the fight reads (#1620), so the count is gone.
-        if (reaction == CrocomireReactions.HitCountShot)
+        // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust.
+        if (reaction == CrocomireReactions.AbsorbedShot)
             return;
 
-        if ((reaction == CrocomireReactions.DustHitboxShot || reaction == CrocomireReactions.AlternateDustHitboxShot))
+        if (reaction == CrocomireReactions.DustShot)
         {
             SpawnCrocomireShotDust(projectileType, projectile);
             return;

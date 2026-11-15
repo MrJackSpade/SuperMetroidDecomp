@@ -19,7 +19,7 @@ internal static class PhantoonWaveVerification
         {
             Eye = new RoomEnemySlot(1, EnemySlotFixtures.Registry), Mouth = new RoomEnemySlot(3, EnemySlotFixtures.Registry),
         };
-        boss.Wave.Amplitude = 3072;
+        boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);

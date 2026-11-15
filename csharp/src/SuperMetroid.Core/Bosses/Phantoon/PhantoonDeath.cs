@@ -71,7 +71,7 @@ internal sealed class PhantoonDeath
         if (!state.BodyFade.Complete)
             return;
         state.BodyFade.Complete = false;
-        state.Death.FadeCycles = WrappingCounter.IncrementCount(state.Death.FadeCycles);
+        state.Death.FadeCycles++;
         if (state.Death.FadeCycles < 10)
             return;
 
@@ -98,12 +98,12 @@ internal sealed class PhantoonDeath
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
-        state.Death.NextExplosion = WrappingCounter.IncrementCount(state.Death.NextExplosion);
+        state.Death.NextExplosion++;
         if (state.Death.NextExplosion < PhantoonDeathExplosionDefinitions.Count)
             return;
 
         state.Death.NextExplosion = PhantoonDeathExplosionDefinitions.RepeatStart;
-        state.Death.ExplosionPasses = WrappingCounter.IncrementCount(state.Death.ExplosionPasses);
+        state.Death.ExplosionPasses++;
         if (state.Death.ExplosionPasses >= PhantoonDeathExplosionDefinitions.PassCount)
             state.Phase = PhantoonPhase.BeginFinalWavyDeath;
     }
@@ -114,17 +114,17 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         RoomEnemySlot mouth = state.Mouth;
-        state.Wave.Amplitude = 0;
+        state.Wave.Amplitude = SignedSixteenSixteen.Zero;
         state.Wave.AmplitudeShrinking = false;
-        state.Wave.PhaseStep = PhantoonBehavior.PhantoonWavyPhaseDelta;
+        state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);
         state.Phase = PhantoonPhase.DyingFadeOut;
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
         state.Death.PixelationFinished = false;
         state.PixelationBlockSize = PhantoonDeathDefinitions.InitialPixelationSize;
 
-        // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
-        // Samus while preserving every unrelated raw property bit exactly as the death step does.
+        // His body stays to show the death. His eye, tentacles and mouth take his body's contact, processing and presence,
+        // hidden, not animating and ignoring Samus.
         EnemyContact hiddenPartContact = body.Contact.With(EnemyContact.IgnoresSamus);
         EnemyProcessing hiddenPartProcessing = body.Processing.Without(EnemyProcessing.Animates);
         EnemyPresence hiddenPartPresence = body.Presence.With(EnemyPresence.Hidden);
@@ -146,8 +146,8 @@ internal sealed class PhantoonDeath
     {
         PhantoonPresentation.AdvancePhantoonWaveAmplitude(
             state.Wave,
-            PhantoonBehavior.PhantoonDeathWaveDelta,
-            PhantoonBehavior.PhantoonDeathWaveMaximum);
+            PhantoonWaveDefinitions.DeathAmplitudeChange,
+            PhantoonWaveDefinitions.DeathAmplitude);
 
         PhantoonDeathState death = state.Death;
         if (!death.PixelationFinished)

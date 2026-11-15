@@ -149,6 +149,6 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     /// <summary>Crocomire's own hitbox shot reactions.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        reaction == CrocomireReactions.HitCountShot || reaction == CrocomireReactions.DustHitboxShot ||
-        reaction == CrocomireReactions.MouthShot || reaction == CrocomireReactions.AlternateDustHitboxShot;
+        reaction == CrocomireReactions.AbsorbedShot || reaction == CrocomireReactions.DustShot ||
+        reaction == CrocomireReactions.MouthShot;
 }

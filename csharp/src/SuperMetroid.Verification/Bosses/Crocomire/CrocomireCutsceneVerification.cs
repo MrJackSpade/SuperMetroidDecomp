@@ -35,14 +35,18 @@ internal static class CrocomireCutsceneVerification
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
             var components = CrocomireBodyCollision.ComponentsAt(frame.Pointer);
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | frame.Pointer), components.Length, "corpse native component count");
+            // The compiled frame keeps each native component with hitboxes, once at its place (#1937).
+            int?[] kept = CrocomireKeptComponents.Of(rom.ReadCartridgeWordFixedBank, 0xa40000 | frame.Pointer);
+            AssertEqual(kept.Count(index => index is not null), components.Length, "corpse native component count");
             slot.SpritemapPointer = frame.Pointer;
             slot.Position = slot.Position.WithWhole(new(4096, 4096));
             bool anyHitbox = false;
-            for (int index = 0; index < components.Length; index++)
+            for (int native = 0; native < kept.Length; native++)
             {
+                if (kept[native] is not int index)
+                    continue;
                 var component = components[index];
-                int address = frame.Pointer + 2 + 8 * index;
+                int address = frame.Pointer + 2 + 8 * native;
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | address)), component.Offset.X, "corpse native component X");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 2))), component.Offset.Y, "corpse native component Y");
                 // The ROM names the component's hitbox list by address; the compiled component holds that list.

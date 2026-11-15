@@ -11,6 +11,5 @@ internal sealed class CritterWallBreakthroughObject() : TerrainChangeObject(Scri
 {
     /// <inheritdoc/>
     private protected override void End(RoomObjectStepContext context) =>
-        (context.RoomObjects.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))
-            .Set(StoryEvent.CrittersEscaped);
+        context.RoomObjects.Events.Set(StoryEvent.CrittersEscaped);
 }

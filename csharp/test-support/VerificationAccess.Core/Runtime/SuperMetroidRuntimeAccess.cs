@@ -42,7 +42,7 @@ internal static class SuperMetroidRuntimeAccess
         {
             var enemies = new RoomEnemySystem(
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.ContinuingWithFixturePopulations(self.EnemySession),
-                RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance), definitions, services,
+                RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance), definitions, services, self.Room.LoadedRoom.Area,
                 new SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding(), self.Room.LoadedScope.RoomObjects.BreakableTerrain);
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
@@ -59,7 +59,7 @@ internal static class SuperMetroidRuntimeAccess
         {
             RoomScope scope = self.Room.LoadedScope;
             RoomEnemySystem loaded = scope.Enemies;
-            var enemies = new RoomEnemySystem(self.EnemySession, RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance), loaded.Room.Definitions, layer(loaded.Room.Services),
+            var enemies = new RoomEnemySystem(self.EnemySession, RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance), loaded.Room.Definitions, layer(loaded.Room.Services), loaded.Room.Area,
                 loaded.BossArtworkBinding, scope.RoomObjects.BreakableTerrain);
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies });

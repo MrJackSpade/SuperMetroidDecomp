@@ -24,7 +24,7 @@ internal static class AutoCancelledItemVerification
     {
         var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
             new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]),
-            RoomLevelData.NothingBeyondGrid());
+            RoomLevelData.NothingBeyondGrid(), []);
         foreach ((string ending, GrapplePhase phase, SamusPoseId pose) in new[]
         {
             ("firing cancellation", GrapplePhase.CancelPending, SamusPoseId.FacingRightNormalPose),

@@ -220,7 +220,7 @@ internal static class VerificationHelpersVerification
         var beyond = new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>([],
             Math.Max(0, RoomLevelSpaceDefinitions.PrefilledWordCount - blockCount), RoomTerrainBlocks.EdgeSolid,
             RoomBlockBehavior.None);
-        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), beyond, doors);
+        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), beyond, doors ?? []);
     }
 
     /// <summary>

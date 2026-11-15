@@ -613,17 +613,18 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </param>
     /// <param name="definitions">The room's enemy definition source.</param>
     /// <param name="services">The game-state services the room's AI calls.</param>
+    /// <param name="area">The area the room is in.</param>
     /// <param name="bossArtwork">The session's installed boss artwork.</param>
     /// <param name="breakableTerrain">
     /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.
     /// </param>
     internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
-        IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services,
+        IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services, AreaId area,
         BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain)
     {
         Ensure.NotNull(compatibility);
         BossArtworkBinding = Ensure.NotNull(bossArtwork);
-        Room = new EnemyRoomBinding(session, definitions, services);
+        Room = new EnemyRoomBinding(session, definitions, services, area);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();
@@ -649,7 +650,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
-        RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
+        RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
         ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
@@ -932,7 +933,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (slot.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
-                Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, frame.RoomArea,
+                Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
                     frame.Samus, slot, frame.Camera);
                 // The input phase already updated the bomb slots. The enemy pass checks
                 // them before this actor's touch and AI, so escape starts now.

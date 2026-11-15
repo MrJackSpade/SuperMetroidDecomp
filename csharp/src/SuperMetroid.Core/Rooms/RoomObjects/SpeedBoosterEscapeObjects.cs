@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class SpeedBoosterEscapeObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags? _events;
+    private readonly IGlobalEventFlags _events;
     /// <summary>The room's effect overlay FX.</summary>
-    private readonly IRoomFxMotion? _roomFx;
+    private readonly IRoomFxMotion _roomFx;
     /// <summary>The room's earthquake.</summary>
-    private readonly IRoomEarthquakeWriter? _earthquake;
+    private readonly IRoomEarthquakeWriter _earthquake;
 
     /// <summary>Binds the escape to its room-level state owners.</summary>
-    internal SpeedBoosterEscapeObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomFxMotion? roomFx, IRoomEarthquakeWriter? earthquake)
+    internal SpeedBoosterEscapeObjects(IRoomSamusAccess samus, IGlobalEventFlags events, IRoomFxMotion roomFx, IRoomEarthquakeWriter earthquake)
     {
         _samus = samus;
         _events = events;
@@ -31,12 +31,6 @@ internal sealed class SpeedBoosterEscapeObjects
     internal void SetupSpeedBoosterEscape(RoomObjectPlace place)
     {
         Ensure.NotNull(place);
-        if (_events is null || _roomFx is null || _earthquake is null)
-        {
-            throw new InvalidOperationException(
-                "Speed Booster escape room object requires event, room-FX, and earthquake owners.");
-        }
-
         if (_events.Has(StoryEvent.OutranSpeedBoosterLavaquake))
             place.Delete();
         else
@@ -49,12 +43,11 @@ internal sealed class SpeedBoosterEscapeObjects
     /// </summary>
     internal bool TryStartLavaquake()
     {
-        IRoomFxMotion fx = RoomFx();
+        IRoomFxMotion fx = _roomFx;
         if (!LiveSamus().CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
             fx.HaltLiquid();
-            (_earthquake ?? throw new InvalidOperationException(
-                "Speed Booster escape room object lost its earthquake owner.")).Stop();
+            _earthquake.Stop();
             return false;
         }
 
@@ -69,7 +62,7 @@ internal sealed class SpeedBoosterEscapeObjects
     /// <summary>Starts the lava moving once Samus has run far enough left, and returns whether she has.</summary>
     internal bool TryStartLavaMoving()
     {
-        IRoomFxMotion fx = RoomFx();
+        IRoomFxMotion fx = _roomFx;
         if (LiveSamus().Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
             return false;
         fx.EndLiquidWaitNextUpdate();
@@ -79,7 +72,7 @@ internal sealed class SpeedBoosterEscapeObjects
     /// <summary>Raises the lava to <paramref name="rise"/> once Samus reaches its line, and returns whether she has.</summary>
     internal bool TryRaiseLava(SpeedBoosterEscapeStageDefinition rise)
     {
-        IRoomFxMotion fx = RoomFx();
+        IRoomFxMotion fx = _roomFx;
         // The rise waits while Samus remains right of its threshold.
         if (rise.TargetSamusX < LiveSamus().Position.X.Whole)
             return false;
@@ -92,15 +85,9 @@ internal sealed class SpeedBoosterEscapeObjects
     }
 
     /// <summary>Marks the lavaquake outrun.</summary>
-    internal void MarkEscaped() =>
-        (_events ?? throw new InvalidOperationException(
-            "Speed Booster escape room object lost its event writer.")).Set(StoryEvent.OutranSpeedBoosterLavaquake);
-
-    /// <summary>The room's lava.</summary>
-    private IRoomFxMotion RoomFx() => _roomFx
-        ?? throw new InvalidOperationException("Resident Speed Booster escape room object lost its room-FX owner.");
+    internal void MarkEscaped() => _events.Set(StoryEvent.OutranSpeedBoosterLavaquake);
 
     /// <summary>The live Samus.</summary>
-    private IRoomSamus LiveSamus() => _samus?.Current
+    private IRoomSamus LiveSamus() => _samus.Current
         ?? throw new InvalidOperationException("Resident Speed Booster escape room object has no live Samus owner.");
 }

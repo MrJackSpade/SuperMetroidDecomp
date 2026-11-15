@@ -127,7 +127,7 @@ internal static class KraidSuperMissileDamageVerification
             backdrop[index] = RoomBlockAppearance.Of(background[shown].Picture.Block, background[shown].Flips);
         }
         return new RoomLevelData(new Extent16<RoomBlocks>(ArenaWidth, ArenaHeight),
-            new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], backdrop), RoomLevelData.NothingBeyondGrid());
+            new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], backdrop), RoomLevelData.NothingBeyondGrid(), []);
     }
 
     /// <summary>The roar's fully open head pose, with its two open-mouth collision shapes.</summary>

@@ -27,9 +27,13 @@ internal static class ParameterContractsTests
         VerifyContract("a PLM family cannot reach another family's effect", "noobTube.DisableDraygonCannon(0);", "CS1061");
         VerifyContract("PLM boss reads are read-only", "bossReader.SetDefeated(DefeatedBosses.AreaTorizo);", "CS1061");
         VerifyContract("area boss flags satisfy the PLM reader", "IAreaBossFlagReader reader = bosses;");
-        VerifyContract("PLM services require Samus", "_ = new RoomObjectServices { Bosses = bossReader };", "CS9035");
+        VerifyContract("PLM services require Samus", "_ = new RoomObjectServices { Bosses = bossReader, Events = events, " +
+            "TourianStatue = statue, RoomFx = fx, Earthquake = earthquake, Enemies = effects };", "CS9035");
+        VerifyContract("PLM services require the room's FX (#2015)", "_ = new RoomObjectServices { Samus = samus, " +
+            "Bosses = bossReader, Events = events, TourianStatue = statue, Earthquake = earthquake, Enemies = effects };", "CS9035");
         VerifyContract("PLM services accept their required capabilities",
-            "_ = new RoomObjectServices { Samus = samus, Bosses = bossReader };");
+            "_ = new RoomObjectServices { Samus = samus, Bosses = bossReader, Events = events, TourianStatue = statue, " +
+            "RoomFx = fx, Earthquake = earthquake, Enemies = effects };");
 
         // Runtime frames: the request composes its policy; audio scenarios are named, not delegates.
         VerifyContract("a runtime frame request composes its policy",
@@ -61,7 +65,8 @@ internal static class ParameterContractsTests
             {
                 void Run(IRoomEnemyServices enemies, IChozoStatueRoomServices chozo, IMotherBrainRoomServices motherBrain,
                     IRoomObjectEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IAreaBossFlags bosses,
-                    IAreaBossFlagReader bossReader, IRoomSamusAccess samus,
+                    IAreaBossFlagReader bossReader, IRoomSamusAccess samus, IGlobalEventFlags events,
+                    ITourianStatueProgress statue, IRoomObjectFx fx, IRoomEarthquakeWriter earthquake,
                     DemoInputState demo)
                 {
                     {{statement}}

@@ -46,9 +46,6 @@ internal sealed record RoomEnemyFrame
     /// <summary>Shared bomb and power-bomb state used by collision order and actor effects.</summary>
     public required SamusBombProjectileSystem SharedProjectiles { get; init; }
 
-    /// <summary>The area of the room the enemies are in, which decides how long a shot's freeze lasts.</summary>
-    public required AreaId RoomArea { get; init; }
-
     /// <summary>The game's frame counter.</summary>
     public required int FrameCounter { get; init; }
 

@@ -37,7 +37,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(
                 [RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
                 [RoomBlockBehaviorCodec.Decode(behavior)],
-                [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid());
+                [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
             var terrain = new EnemyTerrain(roomObjects.BreakableTerrain);
             RoomCollisionBlock block = level.GetCollisionBlock(Position16<RoomBlocks>.Zero);

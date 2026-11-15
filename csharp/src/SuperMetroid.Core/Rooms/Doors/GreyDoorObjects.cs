@@ -17,12 +17,12 @@ internal sealed class GreyDoorObjects
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>The Tourian statue sequence's progress.</summary>
-    private readonly ITourianStatueProgress? _tourianStatue;
+    private readonly ITourianStatueProgress _tourianStatue;
     /// <summary>Queues the dud sound for shots rejected while the door is locked.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the grey caps' conditions to the room's progression and its sound requests.</summary>
-    internal GreyDoorObjects(SharedGameState? system, AreaId area, ITourianStatueProgress? tourianStatue, RoomObjectSoundQueue sounds)
+    internal GreyDoorObjects(SharedGameState? system, AreaId area, ITourianStatueProgress tourianStatue, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _area = area;
@@ -47,7 +47,7 @@ internal sealed class GreyDoorObjects
             GreyDoorCondition.AreaTorizoDefeated => system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaTorizo),
             GreyDoorCondition.EnemyDeathQuota => frame.EnemyDeaths >= frame.EnemyDeathQuota,
             GreyDoorCondition.Never => false,
-            GreyDoorCondition.TourianStatueFinished => _tourianStatue?.IsFinished == true,
+            GreyDoorCondition.TourianStatueFinished => _tourianStatue.IsFinished,
             GreyDoorCondition.CrittersEscaped => system.HasEvent(StoryEvent.CrittersEscaped),
             _ => throw new InvalidOperationException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
         };

@@ -21,7 +21,6 @@ internal sealed class MetroidRoomClearanceObject(StoryEvent? cleared) : RoomObje
         if (Cleared is not { } cleared || context.Frame.EnemyDeaths < context.Frame.EnemyDeathQuota)
             return;
         // The event is marked again on every update the quota stays met, which changes nothing once it is set.
-        (context.RoomObjects.Events ?? throw new InvalidOperationException(
-            "A Metroid room's clearance watch met its quota without a room event writer.")).Set(cleared);
+        context.RoomObjects.Events.Set(cleared);
     }
 }

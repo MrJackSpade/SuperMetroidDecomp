@@ -71,7 +71,7 @@ internal static class EnemyTerrainBlockScanVerification
             behaviors[index] = block.Behavior;
         }
         return new RoomLevelData(size, new RoomLevelPlanes(foreground, behaviors,
-            [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid());
+            [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid(), []);
     }
 
     /// <summary>Runs the focused enemy terrain block scan check.</summary>

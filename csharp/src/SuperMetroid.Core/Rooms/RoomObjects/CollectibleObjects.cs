@@ -15,9 +15,9 @@ internal sealed class CollectibleObjects
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The room's effect overlay FX.</summary>
-    private readonly IRoomFxMotion? _roomFx;
+    private readonly IRoomFxMotion _roomFx;
     /// <summary>Updates level blocks and queues their draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>The room's places, searched for the item room objects they hold.</summary>
@@ -26,7 +26,7 @@ internal sealed class CollectibleObjects
     /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
     /// show their own picture take in turn.
     /// </summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
+    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess samus, IRoomFxMotion roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
         CollectibleBlockPairs blockPairs, RoomObjectSoundQueue sounds)
     {
         _sounds = Ensure.NotNull(sounds);
@@ -80,9 +80,7 @@ internal sealed class CollectibleObjects
     {
         if (!_pendingSpeedBoosterPickupContinuation)
             return;
-        IRoomFxMotion fx = _roomFx
-            ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
-        fx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
+        _roomFx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
         _pendingSpeedBoosterPickupContinuation = false;
     }
 
@@ -222,7 +220,7 @@ internal sealed class CollectibleObjects
     {
         Ensure.NotNull(item);
         Ensure.NotNull(place);
-        IRoomSamus samus = _samus?.Current
+        IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
         SharedGameState system = _system

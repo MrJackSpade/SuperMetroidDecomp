@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class NoobTubeObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags? _events;
+    private readonly IGlobalEventFlags _events;
     /// <summary>The room's effect overlay FX.</summary>
-    private readonly IRoomWaterPhysics? _waterPhysics;
+    private readonly IRoomWaterPhysics _waterPhysics;
     /// <summary>The room's earthquake.</summary>
-    private readonly IRoomEarthquakeWriter? _earthquake;
+    private readonly IRoomEarthquakeWriter _earthquake;
     /// <summary>The enemy effects room objects trigger.</summary>
-    private readonly IRoomObjectEnemyEffects? _enemies;
+    private readonly IRoomObjectEnemyEffects _enemies;
 
     /// <summary>Shares the room services the tube's break reaches.</summary>
-    internal NoobTubeObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomWaterPhysics? waterPhysics, IRoomEarthquakeWriter? earthquake, IRoomObjectEnemyEffects? enemies)
+    internal NoobTubeObjects(IRoomSamusAccess samus, IGlobalEventFlags events, IRoomWaterPhysics waterPhysics, IRoomEarthquakeWriter earthquake, IRoomObjectEnemyEffects enemies)
     {
         _samus = samus;
         _events = events;
@@ -47,7 +47,7 @@ internal sealed class NoobTubeObjects
     }
 
     /// <summary>Whether the tube was broken on an earlier visit (its event is set).</summary>
-    internal bool IsBroken() => RequireNoobTubeEvents().Has(NoobTubeObjectDefinitions.BrokenEvent);
+    internal bool IsBroken() => _events.Has(NoobTubeObjectDefinitions.BrokenEvent);
 
     /// <summary>Locks Samus in place for the break sequence.</summary>
     internal void LockSamus() => RequireNoobTubeSamus().Control.LockStationary();
@@ -68,34 +68,21 @@ internal sealed class NoobTubeObjects
     }
 
     /// <summary>Starts the break earthquake.</summary>
-    internal void TriggerEarthquake()
-    {
-        (_earthquake ?? throw new InvalidOperationException(
-            "N00b tube has no earthquake writer.")).Start(NoobTubeObjectDefinitions.Earthquake, NoobTubeObjectDefinitions.EarthquakeFrames);
-    }
+    internal void TriggerEarthquake() =>
+        _earthquake.Start(NoobTubeObjectDefinitions.Earthquake, NoobTubeObjectDefinitions.EarthquakeFrames);
 
     /// <summary>Sets the tube's broken event.</summary>
-    internal void SetBrokenEvent() =>
-        (_events ?? throw new InvalidOperationException(
-            "N00b tube has no event writer.")).Set(NoobTubeObjectDefinitions.BrokenEvent);
+    internal void SetBrokenEvent() => _events.Set(NoobTubeObjectDefinitions.BrokenEvent);
 
     /// <summary>Enables the room's water physics, Samus's included.</summary>
-    internal void EnableWaterPhysics() =>
-        (_waterPhysics ?? throw new InvalidOperationException(
-            "N00b tube has no room water physics for its water-physics write.")).EnableWaterPhysics();
-
-    /// <summary>Requires the room event owner before testing the broken-tube event.</summary>
-    private IGlobalEventFlags RequireNoobTubeEvents() =>
-        _events ?? throw new InvalidOperationException("N00b tube has no event reader.");
+    internal void EnableWaterPhysics() => _waterPhysics.EnableWaterPhysics();
 
     /// <summary>Requires a live Samus actor for tube script locks or water-physics publication.</summary>
     private IRoomSamus RequireNoobTubeSamus() =>
-        _samus?.Current ?? throw new InvalidOperationException(
+        _samus.Current ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 
     /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
     private void SpawnNoobTubeProjectile(RoomObjectPlace place, NoobTubePiece piece) =>
-        (_enemies ?? throw new InvalidOperationException(
-            "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
-            new NoobTubeProjectileRequest(piece, place.Block));
+        _enemies.SpawnNoobTubeProjectile(new NoobTubeProjectileRequest(piece, place.Block));
 }

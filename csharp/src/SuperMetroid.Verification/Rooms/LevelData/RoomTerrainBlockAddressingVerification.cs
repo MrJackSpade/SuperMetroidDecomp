@@ -238,7 +238,7 @@ internal static class RoomTerrainBlockAddressingVerification
             var size = new Extent16<RoomBlocks>(width, height);
             Level = new RoomLevelData(size,
                 new RoomLevelPlanes(terrain, behaviors, [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]),
-                new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(beyond, beyond.Length, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None));
+                new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(beyond, beyond.Length, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None), []);
         }
 
         /// <summary>The production level the lookups read.</summary>

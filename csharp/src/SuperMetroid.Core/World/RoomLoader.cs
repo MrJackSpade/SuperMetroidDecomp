@@ -962,7 +962,7 @@ internal sealed class RoomLoader
             Bosses = progress,
             Events = progress,
             TourianStatue = roomObjectServices,
-            RoomFx = roomFxOverlay is { } fx ? new RoomObjectFx(fx, () => _player.Samus) : null,
+            RoomFx = new RoomObjectFx(roomFxOverlay, () => _player.Samus),
             Earthquake = roomObjectServices,
             Enemies = roomObjectServices,
         };
@@ -1020,7 +1020,7 @@ internal sealed class RoomLoader
             YardKickDistance = _yardKickDistance,
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
-            _bossArtwork, roomObjects.BreakableTerrain);
+            room.Area, _bossArtwork, roomObjects.BreakableTerrain);
         enemies.TakeOverFrom(_room.HandOver);
         enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;

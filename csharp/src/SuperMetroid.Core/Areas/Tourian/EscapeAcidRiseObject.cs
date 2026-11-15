@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="roomFx">The room's liquid motion, which the trigger starts.</param>
-internal sealed class EscapeAcidRiseObject(IRoomSamusAccess? samus, IRoomFxMotion? roomFx) : RoomObjectBehaviour
+internal sealed class EscapeAcidRiseObject(IRoomSamusAccess samus, IRoomFxMotion roomFx) : RoomObjectBehaviour
 {
     /// <summary>Samus as the room reads her.</summary>
-    private readonly IRoomSamusAccess? _samus = samus;
+    private readonly IRoomSamusAccess _samus = samus;
 
     /// <summary>The room's liquid motion, which the trigger starts.</summary>
-    private readonly IRoomFxMotion? _roomFx = roomFx;
+    private readonly IRoomFxMotion _roomFx = roomFx;
 
     /// <summary>Whether the trigger watches for Samus yet: its first update only starts the watch.</summary>
     private bool _watching;
@@ -31,11 +31,11 @@ internal sealed class EscapeAcidRiseObject(IRoomSamusAccess? samus, IRoomFxMotio
             return;
         }
 
-        IRoomSamus current = _samus?.Current
+        IRoomSamus current = _samus.Current
             ?? throw new InvalidOperationException("Escape acid trigger has no live Samus owner.");
         if (!EscapeAcidRiseObjectDefinitions.TriggerPoint.IsPassedBy(current))
             return;
-        (_roomFx ?? throw new InvalidOperationException("Escape acid trigger has no room-FX owner.")).MoveLiquidAfter(
+        _roomFx.MoveLiquidAfter(
             EscapeAcidRiseObjectDefinitions.RiseDelay, EscapeAcidRiseObjectDefinitions.RiseSpeed);
         context.RoomObjects.DeleteObject(place);
     }

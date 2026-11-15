@@ -16,7 +16,7 @@ internal interface IRoomObjects
     BlockReactionObjects BlockReactions { get; }
 
     /// <summary>The game's event flags, which scripted room objects set.</summary>
-    IGlobalEventFlags? Events { get; }
+    IGlobalEventFlags Events { get; }
 
     /// <summary>Queues sound requests emitted by room object cues.</summary>
     RoomObjectSoundQueue Sounds { get; }

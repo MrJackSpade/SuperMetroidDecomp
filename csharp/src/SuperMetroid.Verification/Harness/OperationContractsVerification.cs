@@ -68,7 +68,7 @@ internal static class OperationContractsVerification
             "PLM setup reads boss flags without being able to set them");
 
         // Concrete contexts validate required values at construction.
-        var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]), RoomLevelData.NothingBeyondGrid());
+        var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]), RoomLevelData.NothingBeyondGrid(), []);
 
         // Explicit optional scenarios: the ordinary frame and retail overrides are named values.
         var ordinary = new RuntimeFrameRequest();

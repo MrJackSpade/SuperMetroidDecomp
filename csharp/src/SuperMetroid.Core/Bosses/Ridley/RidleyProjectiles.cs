@@ -17,18 +17,18 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
-    /// <summary>Provides Samus's current area when selecting Ridley projectile damage.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>The loaded room, whose area selects Ridley's projectile damage.</summary>
+    private readonly EnemyRoomBinding _room;
     /// <summary>Owns slots used by fireballs and successive afterburn projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies Ridley's current facing and calculated muzzle velocity.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
     /// <summary>Binds the shared Ceres and Lower Norfair fireball chain to encounter state and projectile slots.</summary>
-    internal RidleyProjectiles(EnemyDeathsAndDrops deathsAndDrops, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
+    internal RidleyProjectiles(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
         : base(StartingMotions)
     {
-        _deathsAndDrops = deathsAndDrops;
+        _room = room;
         _projectiles = projectiles;
         _ridleyEncounter = ridleyEncounter;
     }
@@ -111,14 +111,9 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         projectile.RemainingAfterburns = afterburns;
     }
 
-    /// <summary>Selects the damage row from Samus's current area, or Crateria for an unbound fixture.</summary>
-    private void ApplyRidleyProjectileAreaDamage(EnemyProjectile projectile)
-    {
-        // The enemy update binds live Samus before dispatch, including her current room
-        // identity. Standalone fixtures without a room owner retain the default row.
-        AreaId area = _deathsAndDrops.SamusForEnemyDrops?.LiquidPhysics.Area ?? AreaId.Crateria;
-        projectile.Damage = RidleyProjectileDamage.ForArea(area);
-    }
+    /// <summary>Selects the damage row from the loaded room's area.</summary>
+    private void ApplyRidleyProjectileAreaDamage(EnemyProjectile projectile) =>
+        projectile.Damage = RidleyProjectileDamage.ForArea(_room.Area);
 
     /// <summary>Allocates the dust enemy projectile with one authored dust variant.</summary>
     internal void SpawnRidleyDust(Position16<RoomPixels> position, MiscDustAnimation animation)

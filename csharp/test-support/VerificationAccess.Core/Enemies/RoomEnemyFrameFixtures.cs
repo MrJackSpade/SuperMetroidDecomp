@@ -20,8 +20,8 @@ internal static class RoomEnemyFrameFixtures
 
     /// <summary>
     /// A frame over <paramref name="level"/> with the camera at the room's origin, time running and no Samus: both of the
-    /// game's clocks at <paramref name="frameCounter"/>, idle new Samus projectile and bomb systems, Samus's starting
-    /// colours and a Crateria room. A check sets what it needs with a <c>with</c> expression.
+    /// game's clocks at <paramref name="frameCounter"/>, idle new Samus projectile and bomb systems and Samus's starting
+    /// colours. A check sets what it needs with a <c>with</c> expression.
     /// </summary>
     internal static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter) =>
         Standalone(level, frameCounter, new StandaloneInputs());
@@ -35,7 +35,7 @@ internal static class RoomEnemyFrameFixtures
         int blockCount = checked(size.X * size.Y);
         return new RoomLevelData(size,
             new RoomLevelPlanes(new RoomTerrainBlock[blockCount], new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]),
-            RoomLevelData.NothingBeyondGrid());
+            RoomLevelData.NothingBeyondGrid(), []);
     }
 
     /// <summary>Builds the frame from one set of inputs.</summary>
@@ -48,7 +48,6 @@ internal static class RoomEnemyFrameFixtures
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
         SharedProjectiles = inputs.Bombs,
-        RoomArea = AreaId.Crateria,
         FrameCounter = frameCounter,
         ShortCounter = frameCounter % FrameClock.ShortCounterPeriod,
     };

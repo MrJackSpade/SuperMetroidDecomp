@@ -13,30 +13,31 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal sealed class ChozoStatueObjects : IChozoStatueHand
 {
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
     /// <summary>The room's room objects, which the hand checks and the statues' objects join.</summary>
     private readonly RoomObjectPlaceList _places;
 
+    /// <summary>Starts the statue's hand sequence, which the room's enemies run.</summary>
+    private readonly IChozoStatueHandActivation _hands;
+    /// <summary>The room's liquid, which the Lower Norfair statue lowers.</summary>
+    private readonly IRoomFxMotion _roomFx;
+
     /// <summary>Binds Chozo hand behavior to its room services and room objects.</summary>
-    internal ChozoStatueObjects(SharedGameState? system, AreaId area, RoomObjectPlaceList places)
+    /// <param name="system">The room's system and event state.</param>
+    /// <param name="area">The room's area.</param>
+    /// <param name="hands">Starts the statue's hand sequence, which the room's enemies run.</param>
+    /// <param name="roomFx">The room's liquid.</param>
+    /// <param name="places">The room's room objects.</param>
+    internal ChozoStatueObjects(SharedGameState system, AreaId area, IChozoStatueHandActivation hands, IRoomFxMotion roomFx,
+        RoomObjectPlaceList places)
     {
         _system = system;
         _area = area;
+        _hands = hands;
+        _roomFx = roomFx;
         _places = places;
-    }
-    /// <summary>The room's enemy room-object requests for hand activation, bound when the room loads.</summary>
-    private IEnemyObjectRequests? _chozoHands;
-    /// <summary>The room's FX owner for Lower Norfair acid height writes, bound when the room loads.</summary>
-    private RoomFxOverlayState? _chozoRoomFx;
-
-    /// <summary>Connects the hand setup to the existing actor owner.</summary>
-    internal void BindChozoStatueContext(IEnemyObjectRequests hands, EnemyRoomFx enemyRoomFx, RoomFxOverlayState roomFx)
-    {
-        _chozoHands = hands;
-        _chozoRoomFx = roomFx;
-        enemyRoomFx.BindRoomFx(roomFx);
     }
 
     /// <summary>Runs the one-shot special-block setup; the caller still clips to solid.</summary>
@@ -56,20 +57,14 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             (SamusPoseId.MorphBallGroundRightPose or
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
         eligible &= wreckedShip
-            ? (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
-                .HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
+            ? _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
             : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.
         if (_places.Spawn() is not { } check)
             return;
 
         if (eligible)
-        {
-            IEnemyObjectRequests hands = _chozoHands ??
-                throw new InvalidOperationException("Chozo hand has no bound enemy room-object requests.");
-            hands.ActivateChozoStatueHandTrigger(level, block);
-            hands.ApplyPendingChozoStatueObjects(level, this);
-        }
+            _hands.ActivateChozoStatueHand(level, block);
         check.Delete();
     }
 
@@ -145,9 +140,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     }
 
     /// <summary>Whether the Lower Norfair acid has been lowered, which the Lower Norfair hand checks as it starts.</summary>
-    internal bool HasLoweredLowerNorfairAcid =>
-        (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
-            .HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid);
+    internal bool HasLoweredLowerNorfairAcid => _system.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid);
 
     /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>
     internal static void TransformSpikesToSlopes(RoomLevelData level)
@@ -172,7 +165,5 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         ChozoStatueRoomDefinitions.FirstSlopeBlock + new Offset16<RoomBlocks>(1, 0);
 
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
-    internal void SetLoweredAcidHeight() =>
-        (_chozoRoomFx ?? throw new InvalidOperationException("The Chozo statue's room objects have no FX owner."))
-            .SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
+    internal void SetLoweredAcidHeight() => _roomFx.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
 }

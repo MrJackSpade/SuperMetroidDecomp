@@ -465,6 +465,6 @@ internal sealed class IntroBabyDiscoveryState
         var behavior = new RoomBlockBehavior[width * height];
         behavior.AsSpan().Fill(RoomBlockBehavior.None);
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
+            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
     }
 }

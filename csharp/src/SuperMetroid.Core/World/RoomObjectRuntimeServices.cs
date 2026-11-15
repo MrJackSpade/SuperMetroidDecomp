@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Earthquakes;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.World;
 
@@ -50,4 +51,13 @@ internal sealed class RoomObjectRuntimeServices(
 
     /// <summary>Lets a room object disable the Draygon wall cannon it controls.</summary>
     public void DisableDraygonCannon(DraygonWallCannon cannon) => Enemies.RoomObjectSpawns.DisableDraygonCannon(cannon);
+
+    /// <summary>Starts the room's Chozo statue hand sequence, then applies the room-object work it requests at once.</summary>
+    public void ActivateChozoStatueHand(RoomLevelData level, Position16<RoomBlocks> handBlock)
+    {
+        RoomEnemySystem enemies = Enemies;
+        enemies.RoomObjectRequests.ActivateChozoStatueHandTrigger(level, handBlock);
+        enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(level, (destination.RoomObjects
+            ?? throw new InvalidOperationException("A Chozo hand activated before the room's room objects were built.")).ChozoStatue);
+    }
 }

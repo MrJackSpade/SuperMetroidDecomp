@@ -331,7 +331,7 @@ internal static class EnemyTerrainBlockAddressingVerification
             var size = new Extent16<RoomBlocks>(width, height);
             Level = new RoomLevelData(size,
                 new RoomLevelPlanes(terrain, behaviors, [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]),
-                RoomLevelData.NothingBeyondGrid());
+                RoomLevelData.NothingBeyondGrid(), []);
         }
 
         /// <summary>The production level the scans read.</summary>
@@ -430,7 +430,7 @@ internal static class EnemyTerrainBlockAddressingVerification
         terrain[size.RowMajorIndex(broken)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
         behaviors[size.RowMajorIndex(broken)] = RoomBlockBehavior.Reacting(SpikeReaction.EnemyBreakable);
         var level = new RoomLevelData(size, new RoomLevelPlanes(terrain, behaviors,
-            [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid());
+            [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         var mover = new EnemyTerrain(roomObjects.BreakableTerrain);
         var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)

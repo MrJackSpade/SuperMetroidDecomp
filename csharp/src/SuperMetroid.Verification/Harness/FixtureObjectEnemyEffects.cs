@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Harness;
@@ -17,6 +18,13 @@ internal sealed class FixtureObjectEnemyEffects : IRoomObjectEnemyEffects
 
     /// <summary>Observes Draygon cannon disables.</summary>
     public Action<DraygonWallCannon>? DraygonCannonDisabled { get; init; }
+
+    /// <summary>Observes Chozo statue hand activations.</summary>
+    public Action<RoomLevelData, Position16<RoomBlocks>>? ChozoStatueHandActivated { get; init; }
+
+    /// <summary>Invokes the installed Chozo hand observer or fails at the missing dependency.</summary>
+    public void ActivateChozoStatueHand(RoomLevelData level, Position16<RoomBlocks> handBlock) =>
+        (ChozoStatueHandActivated ?? throw Missing("Chozo statue hand"))(level, handBlock);
 
     /// <summary>Invokes the installed N00b tube projectile observer or fails at the missing dependency.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

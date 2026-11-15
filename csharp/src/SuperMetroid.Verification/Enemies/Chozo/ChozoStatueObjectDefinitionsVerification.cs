@@ -157,7 +157,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         level.SetTerrain(trigger, RoomTerrainBlock.Of(0x1f4, BlockMirroring.None, RoomCollisionType.ShootableBlock));
         RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
             new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Norfair),
-            new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } },
+            RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } },
             RoomObjectFixtures.Unbound());
         AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
                 new RoomObjectSpawnRequest<ChozoStatueRoomObject>(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.LowerNorfairHand)),

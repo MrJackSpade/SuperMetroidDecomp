@@ -217,7 +217,7 @@ internal static class ContactCrumbleProgramsVerification
             const int blockIndex = 27;
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
                     CrumbleOf(0)),
@@ -245,7 +245,7 @@ internal static class ContactCrumbleProgramsVerification
             const int blockIndex = 27;
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
                     CrumbleOf(1)),
@@ -294,7 +294,7 @@ internal static class ContactCrumbleProgramsVerification
         words[blockIndex] = RoomTerrainBlock.Of(0x321, mirroring, RoomCollisionType.SpecialBlock);
         var behaviors = new RoomBlockBehavior[words.Length];
         behaviors[blockIndex] = RoomBlockBehaviorCodec.Decode(bts);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
                 CrumbleOf(bts)),

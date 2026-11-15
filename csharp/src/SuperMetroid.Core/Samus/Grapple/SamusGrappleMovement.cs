@@ -149,7 +149,7 @@ public static class SamusGrappleMovement
         // beam through its four block-collision substeps. The collision producer sets the
         // enemy's common grapple-response flag; this reads only the definition's
         // seven common reactions. Kill/no-interaction deliberately fall through to
-        // terrain, exactly like the zero result of their reactions.
+        // terrain, exactly like an enemy with no grapple reaction.
         GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
         switch (enemy.Reaction)
         {
@@ -174,7 +174,7 @@ public static class SamusGrappleMovement
                     controllerInput,
                     enemy.EnemyDamage);
                 return QueueFiringCancellation(grapple);
-            // Kill and no interaction fall through to terrain, like the zero return.
+            // Kill and no interaction fall through to terrain, as if the enemy were not there.
             case GrappleEnemyReaction.None:
             case GrappleEnemyReaction.Kill:
                 break;
@@ -414,7 +414,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Applies common grapple reaction six. Unlike ordinary body contact, the grapple selects
+    /// Applies the common grapple reaction that hurts Samus. Unlike ordinary body contact, the grapple selects
     /// horizontal knockback from Samus's facing direction; suit division is shared, and the invincibility and knockback
     /// last <see cref="GrappleBeamDefinitions.Contact"/>'s updates.
     /// </summary>
@@ -752,7 +752,7 @@ public static class SamusGrappleMovement
                         if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.At, block.Behavior))
                         {
                             throw new InvalidOperationException(
-                                "All 40 room-object slots are occupied during grapple acquisition.");
+                                "Every room object is in use during grapple acquisition.");
                         }
 
                         return GrappleBlockReaction.Connects;
@@ -767,7 +767,7 @@ public static class SamusGrappleMovement
                 case RoomCollisionType.ShootableBlock:
                     // The shootable block reactions are the same as ordinary
                     // projectiles'. Grapple owns no projectile family, so weapon-gated
-                    // reactions reject it while behaviour 0..7 retain their unconditional block
+                    // reactions reject it while the eight any-weapon breaks retain their unconditional block
                     // animation. The block's collision kind, not the room-object setup, decides whether
                     // the beam stops: shootable air lets it pass and a shootable block stops it.
                     // Blue caps react like breakable blocks but
@@ -805,7 +805,7 @@ public static class SamusGrappleMovement
                             throw new UnmodeledBehaviorException(
                                 $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
                                 $"Grapple shootable reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                                $"at block {block.Position} has no translated table entry.",
+                                $"at block {block.Position} has no modeled reaction.",
                                 error);
                         }
                     }
@@ -815,7 +815,7 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.BombableAir:
                     // The bombable-air setup immediately deletes its provisional
-                    // room object for grapple's zero projectile family. The beam passes.
+                    // room object, because the grapple is no projectile. The beam passes.
                     return GrappleBlockReaction.Passes;
 
                 case RoomCollisionType.BombableBlock:

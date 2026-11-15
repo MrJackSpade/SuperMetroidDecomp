@@ -195,7 +195,7 @@ internal static class RetailKraidCaptureTests
         var (left, top, bottom) = KraidMouthHitboxes.ResolveCollision(
             boss.DisplayedHeadFrame?.InvulnerableShape ?? throw new InvalidOperationException("Kraid shows no inner mouth shape to strike."));
         var shots = InstalledFixtures.CreateProjectileSystem();
-        var shot = shots.Slots[0];
+        var shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
@@ -204,7 +204,7 @@ internal static class RetailKraidCaptureTests
         shot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
         shot.FrameHold = WrappingCountdown.Start(1);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
-        shots.SlotTable.ProjectileCounter = 1;
+        shots.Pool.ProjectileCounter = 1;
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
         if (runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");

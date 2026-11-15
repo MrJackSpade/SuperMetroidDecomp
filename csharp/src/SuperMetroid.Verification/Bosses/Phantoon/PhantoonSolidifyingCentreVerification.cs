@@ -44,11 +44,11 @@ internal static class PhantoonSolidifyingCentreVerification
         var state = new PhantoonEnemyState(body) { Phase = PhantoonPhase.EyeTracksSamus, PhaseTimer = 60 };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
 
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount))
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
         {
             Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
         };
-        SamusProjectile shot = shots.Slots[0];
+        SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
         shot.Damage = 20;
         shot.Direction = SamusProjectileDirection.Right;
@@ -56,7 +56,7 @@ internal static class PhantoonSolidifyingCentreVerification
         shot.Radius = new(4, 4);
         shot.Playback = ProjectileFixturePlaybacks.Active;
         shot.FrameHold = WrappingCountdown.Start(1);
-        shot.FrameBehavior = SamusProjectileFrameBehavior.NoWaveBeam;
+        shot.Behavior = SamusShotBehaviors.Beam;
 
         int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(shots, new SamusBombProjectileSystem());
         AssertEqual(2500, body.Health, "the centre point hurts no one");

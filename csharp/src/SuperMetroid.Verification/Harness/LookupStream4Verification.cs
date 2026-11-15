@@ -496,7 +496,11 @@ internal static class LookupStream4Verification
         Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
     }
 
-    /// <summary>Checks ending shake displacement and timing data against its native program.</summary>
+    /// <summary>
+    /// Checks the ending ship shake's authored sequences (#1902) against the original's displacement lists, and the
+    /// flyaway's play of them: each leg moves the ship by its sequence in order, starts it again after its last
+    /// displacement, and the next leg starts its own sequence from the beginning.
+    /// </summary>
     internal static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
     {
         int Native(int address)
@@ -505,21 +509,23 @@ internal static class LookupStream4Verification
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
             return unchecked((int)(SixteenSixteenWords.FromWhole(whole) | fraction));
         }
-        for (int index = 0; index < 16; index++)
-            AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index).RawValue, "native fast shake signed fixed-point value");
-        for (int index = 0; index < 8; index++)
-            AssertEqual(Native(0x8BDDAD + index * 4), EndingShipShake.PlanetSlowDelta(index).RawValue, "native slow shake signed fixed-point value");
-        AssertEqual(SignedSixteenSixteen.FromParts(0, 32768), EndingShipShake.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
-        AssertEqual(-SignedSixteenSixteen.FromParts(0, 32768), EndingShipShake.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
-        AssertEqual(SignedSixteenSixteen.FromParts(2, 0), Enumerable.Range(0, 16).Select(EndingShipShake.PlanetFastDelta).Aggregate(SignedSixteenSixteen.Zero, (sum, delta) => sum + delta), "fast cycle shares exact two-pixel translation");
-        AssertEqual(SignedSixteenSixteen.FromParts(2, 0), Enumerable.Range(0, 8).Select(EndingShipShake.PlanetSlowDelta).Aggregate(SignedSixteenSixteen.Zero, (sum, delta) => sum + delta), "slow cycle shares exact two-pixel translation");
+        AssertEqual(16, EndingShipShake.Fast.Count, "fast shake sequence length");
+        AssertEqual(8, EndingShipShake.Slow.Count, "slow shake sequence length");
+        for (int place = 0; place < EndingShipShake.Fast.Count; place++)
+            AssertEqual(Native(0x8BDD02 + place * 4), EndingShipShake.Fast[place].RawValue, "native fast shake signed fixed-point value");
+        for (int place = 0; place < EndingShipShake.Slow.Count; place++)
+            AssertEqual(Native(0x8BDDAD + place * 4), EndingShipShake.Slow[place].RawValue, "native slow shake signed fixed-point value");
+        AssertEqual(SignedSixteenSixteen.FromParts(2, 0), EndingShipShake.Fast.Aggregate(SignedSixteenSixteen.Zero, (sum, delta) => sum + delta), "fast cycle moves the ship two pixels");
+        AssertEqual(SignedSixteenSixteen.FromParts(2, 0), EndingShipShake.Slow.Aggregate(SignedSixteenSixteen.Zero, (sum, delta) => sum + delta), "slow cycle moves the ship two pixels");
         foreach (bool fast in new[] { true, false })
         {
-            int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
+            IReadOnlyList<SignedSixteenSixteen> sequence = fast ? EndingShipShake.Fast : EndingShipShake.Slow;
+            int count = sequence.Count, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
             state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
+            state.Flyaway.ShipShake = EndingShipShakeCursor.StartOf(sequence);
             Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
             int expectedAngle = 0, expectedZoom = 0xC00;
@@ -531,30 +537,35 @@ internal static class LookupStream4Verification
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), state.Stage.FloorPosition.X.Whole, "production shake whole position follows the authored sequence");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
-                AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
+                AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
             }
+            EndingShipShakeCursor last = EndingShipShakeCursor.StartOf(sequence);
+            for (int place = 0; place < count - 1; place++)
+                last = last.Advanced();
             state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom;
-            state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
+            state.Flyaway.ShipShake = last;
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), state.Stage.FloorPosition.X.Whole, "terminal negative displacement wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
-            AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
-            if (!fast)
+            if (fast)
+            {
+                AssertTrue(ReferenceEquals(EndingShipShake.Slow, state.Flyaway.ShipShake.Sequence), "fast handoff starts the slow shake");
+                AssertEqual(0, state.Flyaway.ShipShake.Place, "fast handoff starts the slow shake from its first displacement");
+            }
+            else
             {
                 AssertEqual(0, state.Flyaway.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
                 AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }
-        foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetFastDelta(index), "fast shake bounds");
-        foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetSlowDelta(index), "slow shake bounds");
-        Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
+        AssertThrows<ArgumentException>(() => EndingShipShakeCursor.StartOf([]), "an empty shake sequence is refused");
+        AssertThrows<InvalidOperationException>(() => _ = default(EndingShipShakeCursor).Displacement, "an unstarted shake has no displacement");
+        Console.WriteLine("Ending shake: 24 native signed values, two-pixel cycles, both production cycles and restarts, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
 
     /// <summary>Checks Spore Spawn health-dependent palette stages against native colors.</summary>

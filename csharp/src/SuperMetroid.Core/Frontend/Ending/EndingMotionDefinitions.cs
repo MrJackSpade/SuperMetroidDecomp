@@ -70,10 +70,4 @@ public static class EndingMotionDefinitions
 
     /// <summary>The angle the final fly-to-camera turn approaches, separate from the slow-spin target.</summary>
     public static RotationAngle PlanetExitTargetAngle => RotationAngle.FromSteps(16);
-
-    /// <summary>The steps of the fast ship-shake pattern.</summary>
-    public const int PlanetFastPatternLength = 16;
-
-    /// <summary>The steps of the slow ship-shake pattern.</summary>
-    public const int PlanetSlowPatternLength = 8;
 }

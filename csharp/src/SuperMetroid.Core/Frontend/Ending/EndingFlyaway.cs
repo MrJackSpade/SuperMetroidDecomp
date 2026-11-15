@@ -31,8 +31,8 @@ internal sealed class EndingFlyaway
     /// </summary>
     internal int CinematicFrame { get; set; }
 
-    /// <summary>Position in the current planet-escape shake pattern, cycling through its entries.</summary>
-    internal int PlanetMotionIndex { get; set; }
+    /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
+    internal EndingShipShakeCursor ShipShake { get; set; }
 
     /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
@@ -50,7 +50,7 @@ internal sealed class EndingFlyaway
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
-        PlanetMotionIndex = 0;
+        ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Fast);
         _stage.Phase = EndingCreditsPhase.PlanetEscapeFast;
     }
 
@@ -61,12 +61,11 @@ internal sealed class EndingFlyaway
             _stage.PhaseTimer--;
         else StepFlyawayFade();
         _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-4);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
-        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetFastPatternLength;
+        ShakeShip();
         _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetFastZoomStep);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetFastEndZoom)
         {
-            PlanetMotionIndex = 0;
+            ShipShake = EndingShipShakeCursor.StartOf(EndingShipShake.Slow);
             _stage.Phase = EndingCreditsPhase.PlanetEscapeSlow;
         }
     }
@@ -77,8 +76,7 @@ internal sealed class EndingFlyaway
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
             _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-1);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
-        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetSlowPatternLength;
+        ShakeShip();
         _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetSlowZoomStep);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndZoom)
         {
@@ -95,6 +93,13 @@ internal sealed class EndingFlyaway
                 podActor.Sprite.Step();
             }
         }
+    }
+
+    /// <summary>Moves the gunship by its shake's next displacement and moves the shake on.</summary>
+    private void ShakeShip()
+    {
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(ShipShake.Displacement));
+        ShipShake = ShipShake.Advanced();
     }
 
     /// <summary>Accumulates split planet velocity and turns toward the final gunship text at the exit scale.</summary>

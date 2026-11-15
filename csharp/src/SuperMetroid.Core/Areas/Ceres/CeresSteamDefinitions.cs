@@ -9,19 +9,9 @@ public static class CeresSteamDefinitions
 
 
     /// <summary>
-    /// Each vent's animation and action, keyed
-    /// by the six authored <see cref="CeresSteamVariant"/> values.
-    /// The six animations are one per direction.
-    /// Variants 0..3 use directions 0..3 (up, left, down, right); rotating
-    /// variants 4 and 5 reuse directions 1 and 3. The initializer
-    /// indexes them by variant; production accepts only the six variants and
-    /// rejects a seventh. The constant stride describes four distinct
-    /// animations, while the last two entries are deliberate aliases.
-    /// The actions follow
-    /// the rule <c>variant &lt; 4</c> exactly: ordinary
-    /// directions take no action, while both rotating-room variants
-    /// apply the graphical transform. The same bounded index selects both
-    /// fields; the adjacent tables have independent value rules.
+    /// Each vent's animation and action, by its <see cref="CeresSteamVariant"/>: the up, left, down and right vents puff
+    /// their own way and take no action; the two vents in the rotating elevator room puff left and right, as the left and
+    /// right vents do, and are drawn turned with the room.
     /// </summary>
     internal static readonly IReadOnlyDictionary<CeresSteamVariant, CeresSteamInitialization> Initializations =
         new Dictionary<CeresSteamVariant, CeresSteamInitialization>

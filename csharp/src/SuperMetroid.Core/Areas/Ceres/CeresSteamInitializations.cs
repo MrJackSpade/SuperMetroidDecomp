@@ -8,5 +8,5 @@ internal static class CeresSteamInitializations
     internal static CeresSteamInitialization Initialization(CeresSteamVariant variant) =>
         CeresSteamDefinitions.Initializations.TryGetValue(variant, out CeresSteamInitialization initialization)
             ? initialization
-            : throw new InvalidDataException($"Ceres steam variant {variant} exceeds its six-entry tables.");
+            : throw new InvalidDataException($"Ceres steam variant {variant} is not one of the six vents.");
 }

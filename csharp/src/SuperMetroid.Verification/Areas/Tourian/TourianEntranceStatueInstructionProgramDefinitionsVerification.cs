@@ -1,50 +1,58 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Animation;
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Tourian entrance statue delete programs and their initializer selections.</summary>
+/// <summary>Checks the Tourian entrance statue scene's three placements against their native lists (#2014).</summary>
 internal static class TourianEntranceStatueInstructionProgramDefinitionsVerification
 {
-    /// <summary>Loads the retail cartridge for entrance statue instruction checks.</summary>
+    /// <summary>The bank of the statues' native lists.</summary>
+    private const byte ListBank = 0xaa;
+
+    /// <summary>Loads the retail cartridge for the entrance statue checks.</summary>
     internal static void VerifyTourianEntranceStatueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyTourianEntranceStatueInstructionProgramDefinitions), () => VerifyTourianEntranceStatueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Compares three native words and executes each statue variant with mechanics reads blocked.</summary>
+    /// <summary>
+    /// For each placement's native parameter: the list it selects deletes the statue at its first step, and the production
+    /// placement spawns the decorations only from the first placement and leaves the room at its first animation step.
+    /// </summary>
     internal static void VerifyTourianEntranceStatueInstructionProgramDefinitions(
         CartridgeImportAddressSpace rom)
     {
+        var cartridge = CartridgeImportSource.Require(rom);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
+            ushort entry = cartridge.ReadCartridgeWord(EnemyRomTablePointers.TourianStatue.AnimationScriptWords + parameter);
+            AssertEqual(NativeEnemyListDefinitions.WordKind.Stop,
+                NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord((int)new SnesAddress(ListBank, entry))),
+                $"Tourian entrance-statue parameter {parameter} selects a native list that deletes the statue at once");
+
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
-            // The statues' animations stop at once and so compare equal; the one started is told apart by identity.
-            AnimationPlayback<TourianEntranceStatueSegment> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
-            AssertTrue(ReferenceEquals(TourianEntranceStatueAnimations.StartingWith(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)), started.Animation)
-                && started.Place == AnimationPlace.StartOfAnimation,
-                $"Tourian entrance-statue initializer parameter {parameter}");
+            AssertEqual(parameter == 0 ? 3 : 0, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
+                $"Tourian entrance-statue parameter {parameter} spawns the decorations only from the first placement");
+            AssertTrue(!slot.Presence.HasAny(EnemyPresence.Deleted),
+                $"Tourian entrance-statue parameter {parameter} stays in the room until its first animation step");
 
             EnemyAnimationPlayer.AdvanceAnimation(slot, null, null, Position16<RoomPixels>.Zero, 0);
             AssertTrue(slot.Presence.HasAny(EnemyPresence.Deleted),
-                $"Tourian entrance-statue parameter {parameter} executes native delete");
+                $"Tourian entrance-statue parameter {parameter} leaves the room at its first animation step");
         }
-        Suite(nameof(TourianEntranceStatueAnimationsVerification.VerifyTourianEntranceStatueAnimations),
-            () => TourianEntranceStatueAnimationsVerification.VerifyTourianEntranceStatueAnimations(rom));
 
         Console.WriteLine(
-            "Tourian entrance statue: all three typed delete programs and the production initializer selections pass.");
+            "Tourian entrance statue: all three placements' native lists delete at once, and the production placements spawn and leave as they do.");
     }
 
     /// <summary>Runs the entrance statue instruction-definition command.</summary>

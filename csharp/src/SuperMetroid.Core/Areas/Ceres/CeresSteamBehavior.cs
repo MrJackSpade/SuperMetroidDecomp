@@ -7,6 +7,11 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres steam species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <remarks>
+/// The steam cannot be destroyed (#2019): its definition takes no damage from any weapon or contact
+/// (<see cref="EnemyVulnerabilityDefinitions.Invulnerable"/>) and withholds its plume from shots, so its health never
+/// leaves the definition's.
+/// </remarks>
 [RoomLifetime]
 internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
@@ -71,8 +76,6 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
         }
     }
-    /// <summary>Health restored by steam's main and touch behaviours so the vent cannot be destroyed.</summary>
-    private const int CeresSteamIndestructibleHealth = 32767;
 
     /// <summary>Initializes the Ceres steam.</summary>
     internal void InitializeCeresSteam(RoomEnemySlot slot)
@@ -80,15 +83,15 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
             slot.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
 
-        // Both property changes are literal ORs performed by the initializer: normal animation steps animate visibility,
-        // while extended frames supply per-frame art and collision boxes whose geometry cannot be represented by definition radii.
+        // The vent animates, which shows and hides its plume, and collides by its frames' plume rectangles, which no
+        // radius can describe.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.CollidesByFrameHitboxes = true;
         slot.AnimationClock.Restart();
         // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
 
-        // The initializer masks the live RNG to 0..31 and adds one. The delay is then
-        // consumed by the vent's wait cue, giving each vent an authored stagger.
+        // Each vent waits a random 1 to 32 updates before its first plume, counted down by its animation's wait, so the
+        // vents puff out of step.
         var state = new CeresSteamEnemyState
         {
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
@@ -104,10 +107,6 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         RoomEnemySlot slot,
         TurningFloorTransform? floorTransform)
     {
-        // Both main AI and touch AI restore this value. Steam is scenery/hazard state and
-        // cannot be destroyed by a projectile that happened to overlap an active plume.
-        slot.Health = CeresSteamIndestructibleHealth;
-
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         switch (state.Action)
         {
@@ -158,10 +157,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 $"frame={context.Slot.Frame}.");
         }
 
-        // The steam's touch reaction restores health immediately before entering common touch AI.
-        // Definition damage is deliberately zero: contact still installs the common
-        // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
-        context.Slot.Health = CeresSteamIndestructibleHealth;
+        // Definition damage is zero: contact still installs the common invincibility and knockback, while the steam's
+        // definition takes no damage from any weapon or contact, so the Screw Attack or the Speed Booster cannot destroy it.
         _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
     }
 

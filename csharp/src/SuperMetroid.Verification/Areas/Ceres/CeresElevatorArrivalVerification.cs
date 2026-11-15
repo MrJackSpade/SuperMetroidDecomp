@@ -156,15 +156,15 @@ internal static class CeresElevatorArrivalVerification
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        foreach ((CeresElevatorProjectileDefinition definition, ushort definitionPointer) in new[]
+        foreach ((CeresElevatorArrivalSegment animation, ushort definitionPointer) in new[]
         {
-            new VerifyCompiledDefinitionsCase(CeresElevatorArrivalDefinitions.MovingPad, 0xa387),
-            new VerifyCompiledDefinitionsCase(CeresElevatorArrivalDefinitions.StationaryPlatform, 0xa395),
+            new VerifyCompiledDefinitionsCase(CeresElevatorArrivalSegment.Pad, 0xa387),
+            new VerifyCompiledDefinitionsCase(CeresElevatorArrivalSegment.Platform, 0xa395),
         })
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definitionPointer;
             VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
-                NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Animation),
+                NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, animation),
                 "Ceres elevator definition names its program's native list");
         }
 

@@ -92,7 +92,7 @@ internal static class EnemyRomTablePointersVerification
         new RepresentativeEnemyRomRangesResult(EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords, 4),
     ];
 
-    /// <summary>Compares Golden Torizo, Work Robot, and Tourian statue selectors with cartridge words and production initializers.</summary>
+    /// <summary>Compares Golden Torizo and Work Robot selectors with cartridge words, and checks production initializers read no selector.</summary>
     private static void VerifyCompiledEnemyInstructionSelectors(
         CartridgeImportAddressSpace rom)
     {
@@ -104,12 +104,9 @@ internal static class EnemyRomTablePointersVerification
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileRight),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
-        foreach (ushort parameter in new ushort[] { 0, 2, 4 })
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.AnimationScriptWords + parameter)),
-                NativeEnemyAnimationOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
-                $"Tourian entrance statue initial selector {parameter}");
-        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(1),
+        // Every Tourian entrance statue selector picks a list that deletes the statue at once (#2014); the statue's own
+        // check compares them, so only the decoding of its placements is checked here.
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(1),
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
@@ -121,10 +118,8 @@ internal static class EnemyRomTablePointersVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
-            // The statues' animations stop at once and so compare equal; the one started is told apart by identity.
-            AnimationPlayback<TourianEntranceStatueSegment> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
-            AssertTrue(ReferenceEquals(TourianEntranceStatueAnimations.StartingWith(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)), started.Animation)
-                && started.Place == AnimationPlace.StartOfAnimation,
+            AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
+                system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 
@@ -146,7 +141,7 @@ internal static class EnemyRomTablePointersVerification
         }
 
         Console.WriteLine(
-            "  Enemy instruction selectors: nine native words and all three production initializers avoid their source tables.");
+            "  Enemy instruction selectors: six native words and all three production initializers avoid their source tables.");
     }
 
     /// <summary>Rejects runtime reads of the three instruction-selection tables replaced by compiled definitions.</summary>

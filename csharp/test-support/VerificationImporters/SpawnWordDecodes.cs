@@ -14,9 +14,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class SpawnWordDecodes
 {
-    /// <summary>The Tourian entrance statue part a first parameter word names.</summary>
-    public static TourianEntranceStatueSegment TourianStatue(int parameter1) =>
-        Settings<TourianEntranceStatueSpawnSettings>(EnemyDefinitionId.TourianStatue, parameter1).Statue;
+    /// <summary>Whether the Tourian entrance statue placement a first parameter word places spawns the scene's decorations.</summary>
+    public static bool TourianStatueSpawnsDecorations(int parameter1) =>
+        Settings<TourianEntranceStatueSpawnSettings>(EnemyDefinitionId.TourianStatue, parameter1).Role == TourianEntranceStatueRole.SpawnsDecorations;
 
     /// <summary>The Ceres door or wall, with its settings, a first parameter word of the Ceres door header places (#1989).</summary>
     /// <exception cref="InvalidDataException">The word selects past the seven doors and walls.</exception>

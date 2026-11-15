@@ -125,7 +125,7 @@ internal static class NativeEnemyAnimationOracle
     /// </summary>
     internal static void CompareAnimations<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
-        IReadOnlySet<TSegment>? startsWithClearedCounter = null)
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null, IReadOnlySet<TSegment>? onlyRunOnInto = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
@@ -135,6 +135,13 @@ internal static class NativeEnemyAnimationOracle
         HashSet<TSegment> tails = CountDownTails(lists);
         foreach (TSegment start in Enum.GetValues<TSegment>())
         {
+            // A segment an animation only runs on into starts no animation of its own (#1948); the animations that run on
+            // into it are compared through it.
+            if (onlyRunOnInto?.Contains(start) == true)
+            {
+                VerificationAssertions.AssertTrue(!startingAt.ContainsKey(start), $"no animation starts at {start}, which animations only run on into");
+                continue;
+            }
             if (tails.Contains(start))
             {
                 VerificationAssertions.AssertTrue(!startingAt.ContainsKey(start), $"no animation starts in count-down {start}");

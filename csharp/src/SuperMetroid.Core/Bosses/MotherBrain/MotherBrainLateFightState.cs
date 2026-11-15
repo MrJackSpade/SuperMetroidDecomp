@@ -24,8 +24,8 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Current brain animation installed through the brain-animation request, or null before the first request.</summary>
     public MotherBrainHeadSegment? HeadAnimation { get; private set; }
 
-    /// <summary>Neck angular speed in 256ths of an angle unit; every producer writes a positive speed of at most 2304.</summary>
-    public int NeckAngleDelta { get; internal set; }
+    /// <summary>How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>).</summary>
+    public RotationAngle NeckTurnPerUpdate { get; internal set; }
 
     /// <summary>Whether articulated neck angle dispatch runs on the brain's turn.</summary>
     public bool NeckMovementEnabled { get; internal set; }
@@ -111,7 +111,7 @@ internal sealed class MotherBrainLateFightState
     internal void RetractHead()
     {
         // The Japanese and North American release takes 80; the European release takes 99.
-        NeckAngleDelta = 80;
+        NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
         NeckMovementEnabled = true;
         LowerNeckMovement = MotherBrainNeckMovement.Raise;
         UpperNeckMovement = MotherBrainNeckMovement.Lower;

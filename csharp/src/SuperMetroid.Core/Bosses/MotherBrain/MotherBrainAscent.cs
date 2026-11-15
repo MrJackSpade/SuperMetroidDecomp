@@ -134,9 +134,6 @@ internal sealed class MotherBrainAscent
         return false;
     }
 
-    /// <summary>Where her crouched body's area lies in the room as her ascent begins, with her at (59, 279) (#1802).</summary>
-    private static readonly Position16<RoomPixels> CrouchedBodyOrigin = new(27, 217);
-
     /// <summary>Consumes the pre-rise wait and advances to body ascent.</summary>
     internal static void ContinueMotherBrainAscentPause(MotherBrainEnemyState state)
     {
@@ -144,7 +141,8 @@ internal sealed class MotherBrainAscent
             return;
 
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
-        MotherBrainBody.PlaceMotherBrainBody(state, CrouchedBodyOrigin);
+        // From here her body's area follows her (#1949).
+        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
         state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake;
     }
@@ -156,10 +154,10 @@ internal sealed class MotherBrainAscent
         state.Head.AnimationClock.StepOnNextUpdate();
         state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
-        MotherBrainBody.PlaceMotherBrainBody(state, CrouchedBodyOrigin);
+        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.MotherBrainBattle), MusicQueueDelay.Shortest);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 256);
-        state.NeckAngleDelta = 80;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
         state.NeckMovementEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
@@ -175,9 +173,8 @@ internal sealed class MotherBrainAscent
             return;
 
         SpawnMotherBrainAscentDust(state);
-        state.BodyOrigin += new Offset16<RoomPixels>(0, -2);
         state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole - 2);
-        MotherBrainBody.PlaceMotherBrainBody(state, state.BodyOrigin);
+        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
         if (state.Body.Position.Y.Whole >= 189)
             return;
 
@@ -219,7 +216,7 @@ internal sealed class MotherBrainAscent
 
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
         state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp;
-        state.NeckAngleDelta = 64;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         state.PhaseTimer = 256;
         BringMotherBrainHeadBackUp(state);
     }

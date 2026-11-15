@@ -24,8 +24,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal bool BodyFrameShowsNothing => Inner.FrameShowsNothing(Body);
         /// <summary>Third-form body state bound to the fixture's encounter.</summary>
         internal MotherBrainEnemyState State { get; }
-        /// <summary>Where her body lies in the room after each production step that has placed it (#1356, #1802).</summary>
-        internal List<Position16<RoomPixels>> BodyOrigins { get; } = [];
+        /// <summary>Where she lies in the room after each production step; her body's pictures follow her (#1949).</summary>
+        internal List<Position16<RoomPixels>> BodyPositions { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
 
@@ -62,12 +62,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>
         internal void SetProgram(MotherBrainBodySegment program) => MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(State, program);
 
-        /// <summary>Advances the body's actual production instruction processor once and samples the scroll placing her body.</summary>
+        /// <summary>Advances the body's actual production instruction processor once and samples where she lies.</summary>
         internal void Step()
         {
             instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);
-            if (State.PlacesBodyLayer)
-                BodyOrigins.Add(State.BodyOrigin);
+            BodyPositions.Add(State.Body.Position.Whole);
         }
 
         /// <summary>The tilemap entry each cell of the body layer her body draws on shows, from the frames her artwork installs (#1466).</summary>
@@ -82,6 +81,9 @@ internal static class MotherBrainBodyPresentationFixtureVerification
 
         /// <summary>The body sheets composed from the fixture's boss frames.</summary>
         private BossBodySheets Sheets => bodies.Sheets;
+
+        /// <summary>Her body sheet composed from the fixture's frames.</summary>
+        internal BossBodySheet MotherBrainSheet => Sheets.Of(BossBodyOwner.MotherBrain);
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
         /// <summary>Runs the fixture's production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>

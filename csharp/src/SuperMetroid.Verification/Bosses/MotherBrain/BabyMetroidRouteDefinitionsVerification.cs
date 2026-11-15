@@ -13,47 +13,46 @@ internal static class BabyMetroidRouteDefinitionsVerification
     internal static void VerifyBabyMetroidRouteDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int index = 0; index < BabyMetroidRouteDefinitions.LegCount; index++)
+        IReadOnlyList<BabyMetroidRouteLeg> legs = BabyMetroidRouteDefinitions.Legs;
+        AssertEqual(BabyMetroidRoute.FirstLeg, legs[0], "the route starts on its first leg");
+        for (int index = 0; index < legs.Count; index++)
         {
             int address = BabyMetroidRouteDefinitionsConstants.SourceAddress +
                 index * BabyMetroidRouteDefinitionsConstants.RecordByteLength;
-            BabyMetroidRouteLeg record = BabyMetroidRoute.GetLeg(index);
+            BabyMetroidRouteLeg record = legs[index];
+            BabyMetroidRouteLeg? next = BabyMetroidRoute.LegAfter(record);
+            bool endsWithLatchOntoSamus = next is null;
 
             AssertEqual(ReadRomWord(rom, address), record.Target.X,
                 $"Baby route {index} target X");
             AssertEqual(ReadRomWord(rom, address + 2), record.Target.Y,
                 $"Baby route {index} target Y");
             // The cartridge stores the divisor as its index into a table counting sixteen down to one.
-            AssertEqual(16 - ReadRomWord(rom, address + 4), record.AccelerationDivisor,
+            AssertEqual(16 - ReadRomWord(rom, address + 4), BabyMetroidRouteDefinitions.AccelerationDivisor,
                 $"Baby route {index} acceleration divisor");
-            AssertEqual(ReadRomWord(rom, address + 6), MotherBrainNativeWords.BabyMetroidRouteMovements.Word(record.Movement),
-                $"Baby route {index}: the cartridge's routine word names the record's movement callback");
+            AssertEqual(MotherBrainNativeWords.BabyMetroidRouteWrongWaySpeeds[ReadRomWord(rom, address + 6)],
+                record.WrongWayOffScreenXSpeed.InTwoHundredFiftySixthsOfPixel,
+                $"Baby route {index}: the cartridge's movement routine reverses with the leg's wrong-way speed");
             // The cartridge reads one word past each record and ends the route when that word's
             // sign bit is set: it is the next waypoint's X after an ordinary leg, and the
             // latch-onto-Samus function's address after the final one.
             ushort following = ReadRomWord(rom, address + 8);
-            AssertEqual(record.EndsWithLatchOntoSamus, unchecked((short)following) < 0,
+            AssertEqual(endsWithLatchOntoSamus, unchecked((short)following) < 0,
                 $"Baby route {index} ends exactly where the following word's sign bit is set");
-            if (record.EndsWithLatchOntoSamus)
+            if (next is { } nextLeg)
+                AssertEqual(nextLeg.Target.X, following,
+                    $"Baby route {index} is followed by the next waypoint's X");
+            else
                 AssertEqual(BabyMetroidRouteDefinitionsConstants.LatchOntoSamusFunction, following,
                     $"Baby route {index} is followed by the latch-onto-Samus function");
-            else
-                AssertEqual(BabyMetroidRoute.GetLeg(index + 1).Target.X, following,
-                    $"Baby route {index} is followed by the next waypoint's X");
         }
 
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRoute.GetLeg(-1),
-            "Baby route rejects a leg before the first");
-        AssertThrows<InvalidDataException>(
-            () => BabyMetroidRoute.GetLeg(BabyMetroidRouteDefinitions.LegCount),
-            "Baby route rejects a leg past the final one");
-        AssertThrows<InvalidDataException>(
-            () => BabyMetroidRoute.GetWrongWayOffScreenXSpeed(0),
-            "Baby route rejects an unknown movement callback");
+            () => BabyMetroidRoute.LegAfter(new BabyMetroidRouteLeg(new(0, 0), SignedEightEight.Zero)),
+            "Baby route rejects a leg it does not hold");
 
         Console.WriteLine(
-            "  Baby route definitions: 33 overlapping native words and callback identities agree.");
+            "  Baby route definitions: 33 overlapping native words, the legs' wrong-way speeds and the route's end agree.");
     }
 
     /// <summary>Reads one native route word solely as the verification oracle.</summary>

@@ -105,12 +105,14 @@ internal static class MotherBrainNativeListAddresses
     private static readonly Dictionary<ushort, BodyOp> BodyOps = new()
     {
         [0x95fc] = new BodyOp(0, _ => new B.Move(new(1, -2))),
-        [0x95b6] = new BodyOp(0, _ => new B.MoveWithScrollBias(-10, 4)),
-        [0x95c0] = new BodyOp(0, _ => new B.MoveWithScrollBias(-16, 4)),
-        [0x95ca] = new BodyOp(0, _ => new B.MoveWithScrollBias(-12, -2)),
-        [0x95de] = new BodyOp(0, _ => new B.MoveWithScrollBias(12, 4)),
-        [0x95e8] = new BodyOp(0, _ => new B.MoveWithScrollBias(16, -2)),
-        [0x95f2] = new BodyOp(0, _ => new B.MoveWithScrollBias(10, -2)),
+        // The six posture changes move her vertically; the shift each also gave her body's area is placed on the pose it
+        // shows at import (#1949, MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight).
+        [0x95b6] = new BodyOp(0, _ => new B.Move(new(0, -10))),
+        [0x95c0] = new BodyOp(0, _ => new B.Move(new(0, -16))),
+        [0x95ca] = new BodyOp(0, _ => new B.Move(new(0, -12))),
+        [0x95de] = new BodyOp(0, _ => new B.Move(new(0, 12))),
+        [0x95e8] = new BodyOp(0, _ => new B.Move(new(0, 16))),
+        [0x95f2] = new BodyOp(0, _ => new B.Move(new(0, 10))),
         [0x960c] = new BodyOp(0, _ => new B.Move(new(2, 0))),
         [0x961c] = new BodyOp(0, _ => new B.Move(new(0, 1))),
         [0x9622] = new BodyOp(0, _ => new B.StepAndMove(new(3, 1))),
@@ -227,7 +229,7 @@ internal static class MotherBrainNativeListAddresses
         IImportCartridgeSource cartridge, int bank, AnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         NativeProgramEntry<TSegment>[] entries, Func<TFrame, ushort> spritemap,
-        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops)
+        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops, IReadOnlySet<TSegment>? onlyRunOnInto = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -298,7 +300,7 @@ internal static class MotherBrainNativeListAddresses
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"{segment}: its native list holds each of its beats");
             lists[segment] = new NativeEnemyList<TSegment>([.. addresses], [.. controls]);
         }
-        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt);
+        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto);
         return lists;
     }
 
@@ -356,7 +358,20 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
     internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.HeadSegments, MotherBrainAnimations.HeadStartingAt, HeadEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps);
+            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps, HeadSegmentsOnlyRunOnInto);
+
+    /// <summary>The brain segments only the animations before them run on into, which start no animation (#1948).</summary>
+    private static readonly HashSet<MotherBrainHeadSegment> HeadSegmentsOnlyRunOnInto =
+    [
+        MotherBrainHeadSegment.StretchingPhase2Loop,
+        MotherBrainHeadSegment.StretchingPhase3Loop,
+        MotherBrainHeadSegment.HyperBeamRecoilLoop,
+        MotherBrainHeadSegment.DecapitatedLoop,
+        MotherBrainHeadSegment.DyingDroolLoop,
+        MotherBrainHeadSegment.CorpseLoop,
+        MotherBrainHeadSegment.FourOnionRingsPhase3,
+        MotherBrainHeadSegment.ChargingRainbowBeamLoop,
+    ];
 
     /// <summary>Compares the cutscene Baby's typed segments and animations with their native lists.</summary>
     internal static void CompareBaby(IImportCartridgeSource cartridge) =>

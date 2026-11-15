@@ -100,7 +100,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-            _state.NeckAngleDelta = 1280;
+            _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             _state.NeckMovementEnabled = true;
             _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch;
             _state.PhaseTimer = 16;
@@ -160,7 +160,7 @@ internal sealed class MotherBrainRevivalPhases
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-        _state.NeckAngleDelta = 64;
+        _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath;
         return true;
     }

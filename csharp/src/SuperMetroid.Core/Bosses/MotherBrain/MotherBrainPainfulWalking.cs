@@ -6,8 +6,8 @@ internal static class MotherBrainPainfulWalking
     /// <summary>The animation delay of <paramref name="stage"/>.</summary>
     internal static int AnimationDelay(int stage) => MotherBrainPainfulWalkingDefinitions.AnimationDelays[Pair(stage)];
 
-    /// <summary>The neck angle step of <paramref name="stage"/>.</summary>
-    internal static int NeckAngleDelta(int stage) => MotherBrainPainfulWalkingDefinitions.NeckAngleDeltas[Pair(stage)];
+    /// <summary>How far the neck turns each update in <paramref name="stage"/>.</summary>
+    internal static RotationAngle NeckTurn(int stage) => MotherBrainPainfulWalkingDefinitions.NeckTurns[Pair(stage)];
 
     /// <summary>The pause of <paramref name="stage"/>.</summary>
     internal static int PauseTimer(int stage) => MotherBrainPainfulWalkingDefinitions.PauseTimers[Pair(stage)];

@@ -178,12 +178,15 @@ internal static class MotherBrainNativeWords
         [RinkaSpawnPoint.Leftmost] = 22,
     });
 
-    /// <summary>The bank-$A9 routine word naming each <see cref="BabyMetroidRouteMovement"/>.</summary>
-    internal static readonly NativeWordIdentities<BabyMetroidRouteMovement> BabyMetroidRouteMovements = new(new Dictionary<BabyMetroidRouteMovement, ushort>
+    /// <summary>
+    /// The wrong-way speed, in 256ths of a pixel an update, each bank-$A9 movement routine word a Baby Metroid route record
+    /// names reverses with: the gradual accelerations with the extra eight and the extra sixteen.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<ushort, int> BabyMetroidRouteWrongWaySpeeds = new Dictionary<ushort, int>
     {
-        [BabyMetroidRouteMovement.GradualAccelerationExtraEight] = 0xf45f,
-        [BabyMetroidRouteMovement.GradualAccelerationExtraSixteen] = 0xf466,
-    });
+        [0xf45f] = 8,
+        [0xf466] = 16,
+    };
 
     /// <summary>The bank-$A9 routine word naming each <see cref="ShitroidAction"/>.</summary>
     internal static readonly NativeWordIdentities<ShitroidAction> ShitroidActions = new(new Dictionary<ShitroidAction, ushort>

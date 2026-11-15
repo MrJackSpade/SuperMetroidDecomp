@@ -64,7 +64,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state.Body.Form = MotherBrainForm.DrainedByBabyMetroid;
         _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
-        _state.NeckAngleDelta = 1792;
+        _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
         _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance;
         _state.PhaseTimer = 48;
         return true;
@@ -114,7 +114,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             PainfulWalkingAnimationDelay =
                 MotherBrainPainfulWalking.AnimationDelay(PainfulWalkingStage);
-            _state.NeckAngleDelta = MotherBrainPainfulWalking.NeckAngleDelta(PainfulWalkingStage);
+            _state.NeckTurnPerUpdate = MotherBrainPainfulWalking.NeckTurn(PainfulWalkingStage);
         }
         if (PainfulWalkingStage == 6)
         {
@@ -134,7 +134,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         requests.BodyWalkRequested = StepPainfulWalking();
         if (PainfulWalkingStage >= 8)
         {
-            _state.NeckAngleDelta = 64;
+            _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
             _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);

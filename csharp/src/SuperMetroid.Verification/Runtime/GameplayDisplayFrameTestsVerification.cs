@@ -106,7 +106,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { PlacesBodyLayer = true, DeathHidesBodyLayer = true };
+        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { BodyArea = MotherBrainBodyAreaPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),

@@ -122,7 +122,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 : new(EscapeTypewriterMessageId.Zebes);
             // The warning shows over the background from the room's top-left corner, where her locked arena's camera stays
             // (#1802).
-            state.BodyOrigin = Position16<RoomPixels>.Zero;
+            state.BodyArea = MotherBrainBodyAreaPlacement.AtRoomCorner;
         }
         if (step.EscapeDoorExplosion is { } doorDust)
         {
@@ -253,7 +253,7 @@ internal sealed class MotherBrainRainbowAndDeath
 
         state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body phase yet.");
         state.PhaseTimer = sequence.State.PhaseTimer;
-        state.NeckAngleDelta = sequence.State.NeckAngleDelta;
+        state.NeckTurnPerUpdate = sequence.State.NeckTurnPerUpdate;
         state.NeckMovementEnabled = sequence.State.NeckMovementEnabled;
         state.LowerNeckMovement = sequence.State.LowerNeckMovement;
         state.UpperNeckMovement = sequence.State.UpperNeckMovement;

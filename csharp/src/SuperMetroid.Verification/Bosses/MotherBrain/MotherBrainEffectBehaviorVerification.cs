@@ -207,7 +207,7 @@ internal static class MotherBrainEffectBehaviorVerification
             {
                 Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) },
                 DroolGenerationEnabled = true,
-                NeckAngleDelta = neckAngleDelta,
+                NeckTurnPerUpdate = RotationAngle.FromRaw(neckAngleDelta),
             };
             droolEnemies.MotherBrainEncounter.MotherBrain = state;
             droolEnemies.MotherBrainBehavior.Head.SpawnMotherBrainDrool(state);

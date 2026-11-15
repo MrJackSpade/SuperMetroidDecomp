@@ -14,18 +14,13 @@ internal abstract record MotherBrainBodyCue
     /// <param name="Pose">The pose published.</param>
     internal sealed record SetPose(MotherBrainBodyPose Pose) : MotherBrainBodyCue;
 
-    /// <summary>Moves the body, keeping the background aligned with it.</summary>
+    /// <summary>Moves her body; her body's pictures follow it (#1949).</summary>
     /// <param name="Offset">The body displacement.</param>
     internal sealed record Move(Offset16<RoomPixels> Offset) : MotherBrainBodyCue;
 
     /// <summary>Plants a foot (shaking the room), then moves the body.</summary>
     /// <param name="Offset">The body displacement.</param>
     internal sealed record StepAndMove(Offset16<RoomPixels> Offset) : MotherBrainBodyCue;
-
-    /// <summary>Moves the body vertically, counter-scrolling the background with a horizontal bias.</summary>
-    /// <param name="Y">The vertical move.</param>
-    /// <param name="ScrollBias">The horizontal bias the background scrolls with.</param>
-    internal sealed record MoveWithScrollBias(int Y, int ScrollBias) : MotherBrainBodyCue;
 
     /// <summary>Spawns a charge particle at the hand.</summary>
     /// <param name="Offset">Where the particle spawns, from the body.</param>

@@ -543,7 +543,7 @@ internal sealed class MotherBrainProjectiles
                 if (MotherBrainOnionRingOverlapsBaby(ring, baby))
                 {
                     state.PendingBabyCryCount++;
-                    _ = baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
+                    baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
                     // The ring writes the Baby slot's Enemy.health from this projectile
                     // pass; it must not wait for the Baby's next AI turn to publish it.
                     RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
@@ -625,9 +625,7 @@ internal sealed class MotherBrainProjectiles
             {
                 ResetMotherBrainTurretRotationTimer(turret);
                 SelectNextMotherBrainTurretDirection(turret);
-                MotherBrainTurretDirection direction =
-                    MotherBrainTurretDefinitions.Ring.At(turretState.RingPosition);
-                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
+                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, turretState.Direction));
             }
 
             if (--turretState.FiringWait == 0)
@@ -663,8 +661,7 @@ internal sealed class MotherBrainProjectiles
                 RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
                 turretBullet,
                 MotherBrainTurretDefinitions.Graphics);
-            MotherBrainTurretDirection direction =
-                MotherBrainTurretDefinitions.Ring.At(turret.StateOf<MotherBrainTurretState>().RingPosition);
+            MotherBrainTurretDirection direction = turret.StateOf<MotherBrainTurretState>().Direction;
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurrets.ForDirection(direction);
             bullet.Velocity = definition.BulletVelocity;
@@ -839,28 +836,21 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Distance(ring.Position.Y.Whole, baby.Position.Y.Whole) <
             ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
 
-    /// <summary>Runs the signed direction-delta and allowed-rotation test.</summary>
+    /// <summary>Turns the turret one direction the way it turns, or back the other way when that leaves its arc.</summary>
     internal static void SelectNextMotherBrainTurretDirection(EnemyProjectile turret)
     {
         MotherBrainTurretState state = turret.StateOf<MotherBrainTurretState>();
-        int currentDirection = state.RingPosition;
-        int rotationDelta = state.RotationStep;
-        int candidate = (currentDirection + rotationDelta) & 7;
-        bool allowed = MotherBrainTurrets.IsRotationAllowed(
-            state.Turret,
-            MotherBrainTurretDefinitions.Ring.At(candidate));
-
-        if (allowed)
+        MotherBrainTurretDirection candidate = MotherBrainTurrets.Turned(state.Direction, state.Turning);
+        if (MotherBrainTurrets.IsRotationAllowed(state.Turret, candidate))
         {
-            state.RingPosition = candidate;
+            state.Direction = candidate;
             return;
         }
 
-        // A disallowed next step reverses the signed rotation delta and immediately takes
-        // one step in the new direction, with no second sector test.
-        // Every turret's sector spans at least three ring positions, so the step back stays inside it.
-        state.RotationStep = -rotationDelta;
-        state.RingPosition = currentDirection + state.RotationStep;
+        // A turn out of the arc reverses the way round and immediately turns one direction the other way, with no
+        // second arc test. Every turret's arc spans at least three directions, so the turn back stays inside it.
+        state.Turning = MotherBrainTurrets.Reversed(state.Turning);
+        state.Direction = MotherBrainTurrets.Turned(state.Direction, state.Turning);
     }
 
     /// <summary>Runs the asymmetric viewport bounds.</summary>

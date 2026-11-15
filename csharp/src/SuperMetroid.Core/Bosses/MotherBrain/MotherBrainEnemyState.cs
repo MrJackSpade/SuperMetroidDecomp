@@ -132,8 +132,11 @@ public sealed class MotherBrainEnemyState
     public RotationAngle LowerNeckAngle { get; internal set; }
     /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places joints 3 and 4.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
-    /// <summary>Neck angular speed in 256ths of an angle unit, added or subtracted by both neck motion steps each enabled update; every producer writes a positive speed of at most 2304.</summary>
-    public int NeckAngleDelta { get; internal set; }
+    /// <summary>
+    /// How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>), forward or
+    /// back as each angle's movement says.
+    /// </summary>
+    public RotationAngle NeckTurnPerUpdate { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
     /// <summary>How the lower neck moves: not at all, bobbing down and up, or a one-way lower or raise; reaching a limit changes it.</summary>
@@ -157,15 +160,25 @@ public sealed class MotherBrainEnemyState
     /// <summary>True while the floor clips Mother Brain's body as she rises from the fake death.</summary>
     public bool RisingFloorClipActive { get; internal set; }
 
+    /// <summary>Where her body's area lies in the room (#1949): not yet, with her, or at the room's corner once she is gone.</summary>
+    public MotherBrainBodyAreaPlacement BodyArea { get; internal set; }
+
     /// <summary>
-    /// Where her phase-two body lies in the room (#1617, #1802): the room pixel her body's parts' area's top-left corner lies
-    /// on. It moves with her body's vertical movement, keeping the large body attached, and follows her body's position
-    /// across. Her fake death's arena lock keeps the camera on the room's first screen, at its top-left corner, before her
-    /// body is first placed, so her body lies in the room where the screen shows it.
+    /// The room pixel her body's area's top-left corner lies on (#1617, #1802, #1949), or null before it is placed: while
+    /// it follows her, <see cref="MotherBrainBodyAreaDefinitions.OffsetFromBody"/> from her body, so it moves with her.
+    /// Her fake death's arena lock keeps the camera on the room's first screen, at its top-left corner, so the area lies in
+    /// the room where the screen shows it.
     /// </summary>
-    public Position16<RoomPixels> BodyOrigin { get; internal set; }
-    /// <summary>Whether body AI has placed her body, which then shows in place of the room's background.</summary>
-    public bool PlacesBodyLayer { get; internal set; }
+    public Position16<RoomPixels>? BodyOrigin => BodyArea switch
+    {
+        MotherBrainBodyAreaPlacement.FollowsBody => Body.Position.Whole + MotherBrainBodyAreaDefinitions.OffsetFromBody,
+        MotherBrainBodyAreaPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
+        MotherBrainBodyAreaPlacement.Unplaced => null,
+        _ => throw new InvalidOperationException($"Undefined body area placement {BodyArea}."),
+    };
+
+    /// <summary>Whether her body's area is placed, which then shows in place of the room's background.</summary>
+    public bool PlacesBodyLayer => BodyArea != MotherBrainBodyAreaPlacement.Unplaced;
     /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
     /// <summary>One-shot latch for her death clearing her body.</summary>

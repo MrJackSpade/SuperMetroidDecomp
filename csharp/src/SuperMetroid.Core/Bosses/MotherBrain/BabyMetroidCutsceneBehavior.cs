@@ -51,7 +51,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <summary>Allocates the Baby in the first free slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
-        if (state.BabyMetroidSlot is { DefinitionId: not 0 })
+        if (state.BabyMetroidSlot is not null)
         {
             throw new InvalidOperationException(
                 "Mother Brain attempted to allocate the cutscene Baby more than once.");
@@ -95,6 +95,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         }
 
         var baby = new BabyMetroidCutsceneState();
+        // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
         baby.Initialize(slot.Position, slot.Contact, slot.Processing, slot.Presence);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;

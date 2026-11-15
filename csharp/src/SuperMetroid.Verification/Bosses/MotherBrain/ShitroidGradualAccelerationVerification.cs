@@ -83,7 +83,7 @@ internal static class ShitroidGradualAccelerationVerification
     private static readonly int[] OriginalDivisorTable = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
     /// <summary>The extra speed the original passes every Shitroid flight for an off-screen reversal (<c>$A9:F451</c>).</summary>
-    private const int OriginalOffScreenReversalKick = 0x0400;
+    private static readonly SignedEightEight OriginalOffScreenReversalKick = new(0x0400);
 
     /// <summary>
     /// Each Shitroid flight steers with the divisor the original's call selects from its table and the off-screen kick the

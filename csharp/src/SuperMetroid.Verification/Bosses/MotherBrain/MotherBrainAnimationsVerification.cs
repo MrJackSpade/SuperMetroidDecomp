@@ -119,7 +119,9 @@ internal static class MotherBrainAnimationsVerification
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             enemies.VerificationServices().ReadRandom = () => random;
-            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.DyingDroolLoop);
+            // The dying drool's loop rests on its first frame, entered, as the burst's last drool leaves it.
+            state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), AnimationPlace.StartOf(2));
+            state.BrainFrameTimer = 1;
             for (int draw = 0; draw <= 2; draw++)
                 enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: null);
             AnimationPlayback<MotherBrainHeadSegment> drooling = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");
@@ -135,7 +137,7 @@ internal static class MotherBrainAnimationsVerification
     private static void VerifyBodyMoves()
     {
         (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-        var bodyOrigins = new List<Position16<RoomPixels>>();
+        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;
         void Run(MotherBrainBodySegment program)
@@ -144,8 +146,9 @@ internal static class MotherBrainAnimationsVerification
             for (int update = 0; update < 256; update++)
             {
                 enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
-                if (state.PlacesBodyLayer)
-                    bodyOrigins.Add(state.BodyOrigin);
+                // Every move carries her body's area with her (#1949): her posture changes no longer move it across.
+                AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole + new Offset16<RoomPixels>(-38, -63), state.BodyOrigin,
+                    $"{program}: her body's area stays 38 pixels left of and 63 above her");
             }
         }
         Run(MotherBrainBodySegment.WalkForwardReallyFast);
@@ -159,7 +162,6 @@ internal static class MotherBrainAnimationsVerification
         Run(MotherBrainBodySegment.StandAfterCrouchSlow);
         AssertEqual(origin, state.Body.Position.Whole, "the slow stand-up raises the body again");
         AssertEqual(MotherBrainBodyPose.Standing, state.Pose, "the slow stand-up ends standing");
-        AssertTrue(bodyOrigins.Count > 0, "every body move places her body where it keeps the body art aligned");
     }
 
     /// <summary>

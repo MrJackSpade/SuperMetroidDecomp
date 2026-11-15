@@ -1,68 +1,69 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's brain (head) animations order, played by her dedicated brain animation rather than an enemy
-/// slot. The unreachable frames after the initial dummy and the unused flash and
-/// unused head animation are not authored.
+/// The runs of frames Mother Brain's brain (head) animations are made of, played by her dedicated brain animation rather
+/// than an enemy slot (#1948). An animation plays its own runs in order; a run another one continues into is named for
+/// what it holds. The unreachable frames after the initial dummy and the unused flash and unused head animation are not
+/// authored.
 /// </summary>
 public enum MotherBrainHeadSegment
 {
-    /// <summary>Mother Brain head animation: stretching, phase 2, part 0.</summary>
+    /// <summary>Her whole head stretches: it shakes, opens wide with a roar and a big purple breath, and drools.</summary>
     StretchingPhase2,
-    /// <summary>Mother Brain head animation: stretching, phase 2, part 1.</summary>
+    /// <summary>Her whole head holds its stretched, open mouth.</summary>
     StretchingPhase2Loop,
-    /// <summary>Mother Brain head animation: stretching, phase 3, part 0.</summary>
+    /// <summary>Her damaged head stretches: it shakes, opens wide with a roar and a big purple breath, and drools.</summary>
     StretchingPhase3,
-    /// <summary>Mother Brain head animation: stretching, phase 3, part 1.</summary>
+    /// <summary>Her damaged head holds its stretched, open mouth.</summary>
     StretchingPhase3Loop,
-    /// <summary>Mother Brain head animation: hyper beam recoil, part 0.</summary>
+    /// <summary>Her damaged head is thrown back by a Hyper Beam hit: it shakes and opens wide with a roar, without drool.</summary>
     HyperBeamRecoil,
-    /// <summary>Mother Brain head animation: hyper beam recoil, part 1.</summary>
+    /// <summary>Her damaged head holds its open mouth after the recoil.</summary>
     HyperBeamRecoilLoop,
-    /// <summary>Mother Brain head animation: initial.</summary>
+    /// <summary>Her whole head, mouth closed.</summary>
     Initial,
-    /// <summary>Mother Brain head animation: decapitated, part 0.</summary>
+    /// <summary>Her damaged head closes its open mouth as her body falls away.</summary>
     Decapitated,
-    /// <summary>Mother Brain head animation: decapitated, part 1.</summary>
+    /// <summary>Her decapitated head holds its closed mouth.</summary>
     DecapitatedLoop,
-    /// <summary>Mother Brain head animation: dying drool, part 0.</summary>
+    /// <summary>Her dying head shakes and opens its mouth with a roar.</summary>
     DyingDrool,
-    /// <summary>Mother Brain head animation: dying drool, part 1.</summary>
+    /// <summary>Her dying head drools four times from its widest mouth.</summary>
     DyingDroolBurst,
-    /// <summary>Mother Brain head animation: dying drool, part 2.</summary>
+    /// <summary>Her dying head holds its widest mouth, and on a chance bursts into more drool.</summary>
     DyingDroolLoop,
-    /// <summary>Mother Brain head animation: firing rainbow beam.</summary>
+    /// <summary>Her whole head holds its open mouth while the rainbow beam fires.</summary>
     FiringRainbowBeam,
-    /// <summary>Mother Brain head animation: neutral, phase 2, part 0.</summary>
+    /// <summary>Her whole head idles, its mouth opening and closing.</summary>
     NeutralPhase2,
-    /// <summary>Mother Brain head animation: neutral, phase 2, part 1.</summary>
+    /// <summary>Her whole head holds its idling mouth open, and on a chance holds it again.</summary>
     NeutralPhase2Hold,
-    /// <summary>Mother Brain head animation: neutral, phase 3, part 0.</summary>
+    /// <summary>Her damaged head idles, its mouth opening and closing.</summary>
     NeutralPhase3,
-    /// <summary>Mother Brain head animation: neutral, phase 3, part 1.</summary>
+    /// <summary>Her damaged head holds its idling mouth open, and on a chance holds it again.</summary>
     NeutralPhase3Hold,
-    /// <summary>Mother Brain head animation: corpse, part 0.</summary>
+    /// <summary>Her damaged head goes still as her corpse.</summary>
     Corpse,
-    /// <summary>Mother Brain head animation: corpse, part 1.</summary>
+    /// <summary>Her corpse's head, held.</summary>
     CorpseLoop,
-    /// <summary>Mother Brain head animation: attacking, 4 onion rings, phase 2.</summary>
+    /// <summary>Her whole head opens wide with an attack cry and fires four onion rings at Samus.</summary>
     FourOnionRingsPhase2,
-    /// <summary>Mother Brain head animation: attacking, 2 onion rings, phase 2.</summary>
+    /// <summary>Her whole head opens wide with an attack cry and fires two onion rings at Samus.</summary>
     TwoOnionRingsPhase2,
-    /// <summary>Mother Brain head animation: attacking, Baby Metroid.</summary>
+    /// <summary>Her damaged head counts an attack on the Baby Metroid and aims its onion rings at it.</summary>
     AttackingBabyMetroid,
-    /// <summary>Mother Brain head animation: attacking Samus, 4 onion rings, phase 3.</summary>
+    /// <summary>Her damaged head clears its count of attacks on the Baby Metroid and aims its onion rings at Samus.</summary>
     AttackingSamusFourOnionRingsPhase3,
-    /// <summary>Mother Brain head animation: attacking, 4 onion rings, phase 3.</summary>
+    /// <summary>Her damaged head opens wide, cries unless it has attacked the Baby eleven times, and fires four onion rings.</summary>
     FourOnionRingsPhase3,
-    /// <summary>Mother Brain head animation: attacking, Bomb, phase 2.</summary>
+    /// <summary>Her whole head opens wide with an attack cry and lobs a bomb that leaves seven afterburns.</summary>
     BombPhase2,
-    /// <summary>Mother Brain head animation: attacking, Bomb, phase 3.</summary>
+    /// <summary>Her damaged head opens wide with an attack cry and lobs a bomb that leaves one afterburn.</summary>
     BombPhase3,
-    /// <summary>Mother Brain head animation: attacking, laser.</summary>
+    /// <summary>Her whole head opens its mouth and fires its laser.</summary>
     Laser,
-    /// <summary>Mother Brain head animation: charging rainbow beam, part 0.</summary>
+    /// <summary>Her whole head closes its mouth as the rainbow beam starts charging.</summary>
     ChargingRainbowBeam,
-    /// <summary>Mother Brain head animation: charging rainbow beam, part 1.</summary>
+    /// <summary>Her whole head holds its closed mouth while the rainbow beam's charge gathers.</summary>
     ChargingRainbowBeamLoop,
 }

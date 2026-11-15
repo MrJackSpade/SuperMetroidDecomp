@@ -162,7 +162,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-            _state.NeckAngleDelta = 1280;
+            _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             requests.FinalBeamSoundQueued = true; // The final beam's sound.
             _state.Phase = MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding;
         }

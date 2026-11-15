@@ -75,7 +75,7 @@ internal static class SeekingVelocityRunVerification
                 const int wrongWaySpeed = 0x0010;
                 ushort expected = ExpectedShitroidHorizontal(velocity, position, target, divisor, wrongWaySpeed, offScreen);
                 SignedEightEight actual = BabyMetroidGradualAcceleration.AccelerateHorizontally(
-                    position, target, new SignedEightEight(velocity), divisor, wrongWaySpeed, () => offScreen);
+                    position, target, new SignedEightEight(velocity), divisor, new SignedEightEight(wrongWaySpeed), () => offScreen);
                 if (actual.RawValue != expected)
                     throw new InvalidOperationException(
                         $"Horizontal seek from {position:X4} to {target:X4} at {velocity:X4} by {divisor}, off screen {offScreen}: {actual.RawValue:X4}, not {expected:X4}.");

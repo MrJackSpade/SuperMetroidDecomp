@@ -173,19 +173,14 @@ internal sealed class MotherBrainBody
                 state.Pose = setPose.Pose;
                 return;
             // The walking steps' visible motion is occasionally opposite their signed Y
-            // addition. The animations keep the additions the walking steps perform.
+            // addition. The animations keep the additions the walking steps perform; the posture
+            // changes move her vertically only.
             case MotherBrainBodyCue.Move move:
                 MoveMotherBrainBody(move.Offset);
                 return;
             case MotherBrainBodyCue.StepAndMove stepAndMove:
                 RunMotherBrainFootstep();
                 MoveMotherBrainBody(stepAndMove.Offset);
-                return;
-            // The six posture-transition steps each move the body
-            // vertically, counter-scrolls the background by the opposite amount, and derives the background's X from
-            // the body's new origin plus its authored horizontal bias.
-            case MotherBrainBodyCue.MoveWithScrollBias moveWithScrollBias:
-                MoveMotherBrainBodyWithScrollBias(moveWithScrollBias.Y, moveWithScrollBias.ScrollBias);
                 return;
             case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
                 _projectiles.SpawnRoomGraphicsDustExplosion(
@@ -343,34 +338,14 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Body movement. The signed Y displacement moves the actor and her body alike, keeping the large body art rigidly
-    /// attached to its small sprite hitbox record (#1802). X movement happens before this call, so her body's area,
-    /// which lies 34 pixels left of her, follows the already-updated body X.
+    /// Body movement: moves her, and her body's area and pictures with her (#1949), keeping the large body art rigidly
+    /// attached to its small hitbox record.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain's body animation ran without its multipart encounter state.");
         state.Body.Position += displacement;
-        PlaceMotherBrainBody(state, new(
-            CoordinateAxis.Wrap(state.Body.Position.X.Whole - 34),
-            CoordinateAxis.Wrap(state.BodyOrigin.Y + displacement.Y)));
-    }
-
-    /// <summary>
-    /// Posture-transition variant. Its horizontal argument moves her body's area right against her, not the actor;
-    /// only Y changes the physical body coordinate (#1802).
-    /// </summary>
-    private void MoveMotherBrainBodyWithScrollBias(
-        int yDisplacement,
-        int horizontalScrollBias)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain's posture animation ran without its multipart encounter state.");
-        state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole + yDisplacement);
-        PlaceMotherBrainBody(state, new(
-            CoordinateAxis.Wrap(state.Body.Position.X.Whole - 34 - horizontalScrollBias),
-            CoordinateAxis.Wrap(state.BodyOrigin.Y + yDisplacement)));
     }
 
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
@@ -382,18 +357,6 @@ internal sealed class MotherBrainBody
         // reaches that branch, but retaining it here makes the shared gait cue complete.
         if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
-    }
-
-    /// <summary>
-    /// Places her body's area's top-left corner on room pixel <paramref name="origin"/> for the current motion; the displayed
-    /// frame publishes it with her body (#1356, #1802).
-    /// </summary>
-    internal static void PlaceMotherBrainBody(
-        MotherBrainEnemyState state,
-        Position16<RoomPixels> origin)
-    {
-        state.BodyOrigin = origin;
-        state.PlacesBodyLayer = true;
     }
 
     /// <summary>
@@ -420,10 +383,9 @@ internal sealed class MotherBrainBody
             _projectileAttacks.Projectile,
             MotherBrainTurretDefinitions.Graphics);
 
-        MotherBrainTurretDirection direction = definition.InitialDirection;
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(definition, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
+        turret.State = new MotherBrainTurretState(definition);
+        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, definition.InitialDirection));
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
         // 256 upward.

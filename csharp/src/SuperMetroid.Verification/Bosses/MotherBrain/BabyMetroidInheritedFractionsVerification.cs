@@ -16,10 +16,18 @@ internal static class BabyMetroidInheritedFractionsVerification
     /// Verifies that spawning and initializing the cutscene Baby overwrite only whole X/Y words,
     /// retaining both fractions from the first free enemy slot for subsequent movement.
     /// This matches SpawnEnemy ($A0:9275) and Baby initialization ($A9:C710); issue #1269
-    /// exposed the lost Y fraction in the 100% movie.
+    /// exposed the lost Y fraction in the 100% movie. The start is the compatibility rule
+    /// <see cref="BabyMetroidArrivalFractions"/> (#1946): the arrival point's whole pixels with only the place's fractions.
     /// </summary>
     internal static void VerifyBabyMetroidInheritedFractions()
     {
+        AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(320, 0x1400, 96, 0x2800),
+            BabyMetroidArrivalFractions.StartingPosition(new(320, 96), FixedPosition<RoomPixels>.FromStoredParts(0x0123, 0x1400, 0x0456, 0x2800)),
+            "the Baby starts on its arrival point's whole pixels with only the fractions its place kept");
+        AssertEqual(FixedPosition<RoomPixels>.FromWhole(new(320, 96)),
+            BabyMetroidArrivalFractions.StartingPosition(new(320, 96), FixedPosition<RoomPixels>.FromWhole(new(7, 9))),
+            "a place a kill emptied keeps no fractions, so the Baby starts on whole pixels");
+
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

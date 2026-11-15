@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -24,10 +25,11 @@ internal sealed record BossBodyFrameSource(string Name, SortedDictionary<int, Ba
     internal IReadOnlyList<DissolvingCell> Dissolving { get; init; } = [];
 
     /// <summary>
-    /// The pixels the frame's picture lies lower on the body's area than its cells (#1802): the rows Crocomire's charging and
-    /// clawing poses sit lower against him. Zero for every other frame.
+    /// How far the frame's picture lies from its cells on the body's area (#1802, #1949): the rows Crocomire's charging and
+    /// clawing poses sit lower against him, and the pixels Mother Brain's posture poses sit across against her. Zero for
+    /// every other frame.
     /// </summary>
-    internal int LoweredPixels { get; init; }
+    internal Offset16<BackgroundPixels> PictureShift { get; init; }
 
     /// <summary>The frame writing <paramref name="tiles"/> from layer cell <paramref name="firstCell"/> onward.</summary>
     internal static BossBodyFrameSource Written(string name, int firstCell, ReadOnlySpan<BackgroundTile> tiles)

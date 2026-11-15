@@ -54,8 +54,8 @@ public enum BabyMetroidCutscenePhase
     /// <summary>Turns the Baby toward Mother Brain for the pause before its return attack.</summary>
     StareDownMotherBrain,
 
-    /// <summary>Moves the Baby beyond the visible playfield to set up the final charge.</summary>
-    FlyOffScreen,
+    /// <summary>Flies the Baby up to the point just past the screen's right edge, to set up the final charge.</summary>
+    FlyToRightEdge,
 
     /// <summary>Moves to the off-screen waypoint from which the final charge is launched.</summary>
     MoveToFinalChargeStart,

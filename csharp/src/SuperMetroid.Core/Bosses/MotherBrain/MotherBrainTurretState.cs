@@ -3,21 +3,23 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// What one of the twelve wall turrets in Mother Brain's room keeps: which turret it is, where on the eight-direction
-/// ring it points, which way it turns, and its two waits.
+/// What one of the twelve wall turrets in Mother Brain's room keeps: which turret it is, which way it points, which way
+/// round it turns next, and its two waits.
 /// </summary>
-/// <param name="turret">The turret this is: its placement and the arc of directions it may face.</param>
-/// <param name="ringPosition">The ring position the turret starts facing.</param>
-internal sealed class MotherBrainTurretState(MotherBrainTurretDefinition turret, int ringPosition) : EnemyProjectileState
+/// <param name="turret">The turret this is: its placement, the direction it starts facing and the arc it may turn through.</param>
+internal sealed class MotherBrainTurretState(MotherBrainTurretDefinition turret) : EnemyProjectileState
 {
     /// <summary>The turret this is: its placement and the arc of directions it may face.</summary>
     internal MotherBrainTurretDefinition Turret { get; } = turret;
 
-    /// <summary>The ring position the turret faces, 0 through 7; its turns keep it inside its allowed sector.</summary>
-    internal int RingPosition { get; set; } = ringPosition;
+    /// <summary>The direction the turret points and fires in; its turns keep it inside its arc (#1950).</summary>
+    internal MotherBrainTurretDirection Direction { get; set; } = turret.InitialDirection;
 
-    /// <summary>The ring steps the turret turns by when it next turns, one either way; it starts turning forward.</summary>
-    internal int RotationStep { get; set; } = 1;
+    /// <summary>
+    /// Which way round the turret turns when it next turns, one direction at a time: it starts turning counterclockwise,
+    /// from left toward down, and turns back the other way when the next direction lies outside its arc.
+    /// </summary>
+    internal RotationDirection Turning { get; set; } = RotationDirection.Counterclockwise;
 
     /// <summary>Updates until the turret next turns; it turns on the update this reaches zero.</summary>
     internal int RotationWait { get; set; }

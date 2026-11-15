@@ -150,7 +150,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 // The neck setup briefly writes lower index one and immediately overwrites it with
                 // two before anything can observe it. Preserve the observable
                 // result; the first write has no effect.
-                _state.NeckAngleDelta = 128;
+                _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
                 _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
                 _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Inactive;
@@ -158,7 +158,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
             case MotherBrainPhase3NeckPhase.SetupRecoilRecovery:
                 _state.NeckMovementEnabled = true;
-                _state.NeckAngleDelta = 1280;
+                _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
                 _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
                 _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
@@ -186,7 +186,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3DisableAttacks = true;
                 _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
                 _state.BrainMainShakeTimer = 50;
-                _state.NeckAngleDelta = 2304;
+                _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.HyperBeamRecoil;
                 _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
                 _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
@@ -202,7 +202,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
                 }
 
-                _state.NeckAngleDelta = 128;
+                _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
                 Phase3DisableAttacks = false;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupRecoilRecovery;
                 return;

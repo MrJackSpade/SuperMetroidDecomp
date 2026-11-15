@@ -22,9 +22,44 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class BabyMetroidCutsceneState
 {
-    /// <summary>Authored X/Y shake offsets shared by Mother Brain and the latched Baby; the frame counter selects one pair.</summary>
-    private static readonly Offset16<RoomPixels>[] ShakingOffsets =
-        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
+    /// <summary>The whole room pixel the Baby arrives at and waits on before its dash: X 320, Y 96.</summary>
+    private static readonly Position16<RoomPixels> ArrivalPoint = new(320, 96);
+
+    /// <summary>The heading the Baby's curve toward Mother Brain's head starts on.</summary>
+    private static readonly RotationAngle CurveStartHeading = RotationAngle.FromSteps(216);
+
+    /// <summary>The heading the Baby's curve toward Mother Brain's head turns to.</summary>
+    private static readonly RotationAngle CurveTargetHeading = RotationAngle.FromSteps(176);
+
+    /// <summary>How far the curve's heading turns clockwise each update: a step and a half.</summary>
+    private static readonly RotationAngle CurveTurn = RotationAngle.FromSteps(1, 128);
+
+    /// <summary>The heading the Baby's last rush into Mother Brain's face turns to.</summary>
+    private static readonly RotationAngle FaceTargetHeading = RotationAngle.FromSteps(130);
+
+    /// <summary>How far the rush into Mother Brain's face turns clockwise each update: six steps.</summary>
+    private static readonly RotationAngle FaceTurn = RotationAngle.FromSteps(6);
+
+    /// <summary>The speed the Baby's curve starts and holds: ten pixels an update.</summary>
+    private static readonly SignedEightEight CurveSpeed = SignedEightEight.FromPixels(10);
+
+    /// <summary>The speed the rush into Mother Brain's face builds to: fourteen pixels an update.</summary>
+    private static readonly SignedEightEight FaceSpeed = SignedEightEight.FromPixels(14);
+
+    /// <summary>How much the curve's speed changes each update toward its target: an eighth of a pixel an update.</summary>
+    private static readonly SignedEightEight CurveSpeedStep = SignedEightEight.FromParts(0, 32);
+
+    /// <summary>
+    /// The extra speed a reversal adds while the Baby is off screen on its approaches to Mother Brain, the ceiling, Samus
+    /// and the final charge: four pixels an update.
+    /// </summary>
+    private static readonly SignedEightEight ApproachWrongWaySpeed = SignedEightEight.FromPixels(4);
+
+    /// <summary>
+    /// The extra speed a reversal adds while the Baby is off screen as it stares Mother Brain down and flies to the final
+    /// charge's start: a sixteenth of a pixel an update.
+    /// </summary>
+    private static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromParts(0, 16);
 
     /// <summary>Places the latched Baby 24 pixels above Mother Brain's brain anchor.</summary>
     private static readonly Offset16<RoomPixels> BrainLatchOffset = new(0, -24);
@@ -72,8 +107,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Signed 1/256-pixel velocity.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Speed magnitude in 256ths of a pixel an update used by the curved entrance, 0 through 3584.</summary>
-    public int Speed { get; private set; }
+    /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
+    public SignedEightEight Speed { get; private set; }
 
     /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
     public RotationAngle Angle { get; private set; }
@@ -82,10 +117,10 @@ public sealed class BabyMetroidCutsceneState
     public int PhaseTimer { get; private set; }
 
     /// <summary>
-    /// Zero-based leg of the ceiling-to-Samus route the Baby is steering along, started at the
-    /// first leg after the ceiling collision.
+    /// The leg of the ceiling-to-Samus route the Baby is steering along, the route's first once it reaches the ceiling;
+    /// null before then.
     /// </summary>
-    public int RouteLeg { get; private set; }
+    internal BabyMetroidRouteLeg? RouteLeg { get; private set; }
 
     /// <summary>
     /// Enemy health. The Baby's enemy definition supplies 3,200; Mother Brain later drains
@@ -128,29 +163,10 @@ public sealed class BabyMetroidCutsceneState
     public int RoomLightsTransitionCounter { get; private set; }
 
     /// <summary>
-    /// Fraction of a rainbow frame accumulated toward slowing Samus's rainbow, in 256ths of a frame: each call adds
-    /// three, and every completed whole frame advances her rainbow.
+    /// The part of a rainbow colour frame accumulated toward slowing Samus's rainbow: each call adds to it, and every
+    /// completed whole frame holds her rainbow's glow longer.
     /// </summary>
-    public int SamusRainbowFraction { get; private set; }
-
-    /// <summary>The accumulated 256ths that complete one rainbow frame.</summary>
-    private const int SamusRainbowFractionsPerFrame = 256;
-
-    /// <summary>The 256ths of a rainbow frame one call adds.</summary>
-    private const int SamusRainbowFractionPerCall = 3;
-
-    /// <summary>
-    /// Adds one call's three 256ths of a rainbow colour frame to <paramref name="fraction"/>, returning the fraction
-    /// left over and whether the addition completed a whole frame: the slowing rainbow advances one colour frame each
-    /// time the fraction completes a frame, and keeps the remainder.
-    /// </summary>
-    internal static SamusRainbowFractionStep AdvanceSamusRainbowFraction(int fraction)
-    {
-        int sum = Ensure.BetweenInclusive(0, SamusRainbowFractionsPerFrame - 1, fraction) + SamusRainbowFractionPerCall;
-        return sum >= SamusRainbowFractionsPerFrame
-            ? new SamusRainbowFractionStep(sum - SamusRainbowFractionsPerFrame, true)
-            : new SamusRainbowFractionStep(sum, false);
-    }
+    public RainbowFramePart SamusRainbowFraction { get; private set; }
 
     /// <summary>Which of the two rainbow colour cycles Samus currently shows.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
@@ -160,13 +176,16 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Initializes the Baby. The population entry supplies its properties; initialization
-    /// adds two more, overwrites the population coordinates, and waits at X/Y
-    /// 320/96 before beginning the dash. Neither enemy loading nor this
-    /// initializer writes the fractions, so the Baby keeps those of its slot's previous
-    /// occupant and moves from them.
+    /// adds two more, overwrites the population coordinates, and waits at its arrival point
+    /// before beginning the dash, from the fractions of a pixel its place keeps
+    /// (<see cref="BabyMetroidArrivalFractions"/>).
     /// </summary>
+    /// <param name="leftInPlace">The position the Baby's place still holds from its previous occupant.</param>
+    /// <param name="populationContact">The population entry's contact.</param>
+    /// <param name="populationProcessing">The population entry's processing.</param>
+    /// <param name="populationPresence">The population entry's presence.</param>
     public void Initialize(
-        FixedPosition<RoomPixels> previousOccupant,
+        FixedPosition<RoomPixels> leftInPlace,
         EnemyContact populationContact = EnemyContact.None,
         EnemyProcessing populationProcessing = EnemyProcessing.Animates | EnemyProcessing.OffScreen,
         EnemyPresence populationPresence = EnemyPresence.None)
@@ -176,7 +195,7 @@ public sealed class BabyMetroidCutsceneState
         Presence = populationPresence;
         HurtFlashShown = false;
         SetAnimation(MotherBrainBabySegment.Initial);
-        RouteLeg = 0;
+        RouteLeg = null;
         Health = 3200;
         OnionRingHitFlashTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
@@ -186,11 +205,11 @@ public sealed class BabyMetroidCutsceneState
         DeathExplosionPatternIndex = 0;
         AttacksAgainReadyingElapsed = 0;
         RoomLightsTransitionCounter = 0;
-        SamusRainbowFraction = 0;
+        SamusRainbowFraction = RainbowFramePart.None;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
-        Position = FixedPosition<RoomPixels>.FromWhole(new(320, 96)).WithFractionsOf(previousOccupant);
+        Position = BabyMetroidArrivalFractions.StartingPosition(ArrivalPoint, leftInPlace);
         Velocity = default;
-        Speed = 0;
+        Speed = SignedEightEight.Zero;
         Angle = RotationAngle.Zero;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
         PhaseTimer = 248;
@@ -255,8 +274,8 @@ public sealed class BabyMetroidCutsceneState
                 // first curve update before the common mover consumes its new velocity.
                 if (--PhaseTimer < 0)
                 {
-                    Angle = RotationAngle.FromSteps(216);
-                    Speed = 2560;
+                    Angle = CurveStartHeading;
+                    Speed = CurveSpeed;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                     PhaseTimer = 10;
                     goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
@@ -264,7 +283,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromSteps(176), targetSpeed: 2560);
+                UpdateSpeedAndHeading(CurveTurn, CurveTargetHeading, CurveSpeed);
                 if (--PhaseTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
@@ -273,7 +292,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: -1536, targetAngle: RotationAngle.FromSteps(130), targetSpeed: 3584);
+                UpdateSpeedAndHeading(FaceTurn, FaceTargetHeading, FaceSpeed);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);
@@ -298,7 +317,7 @@ public sealed class BabyMetroidCutsceneState
                 GraduallyAccelerateTowardsPoint(
                     target,
                     accelerationDivisor: 16,
-                    wrongWayOffScreenXSpeed: 1024,
+                    ApproachWrongWaySpeed,
                     cameraPosition);
                 brainCollision = CollidesWithRectangle(target, new Extent16<RoomPixels>(8, 8));
                 if (brainCollision)
@@ -334,7 +353,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
             {
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(head + ShakingOffsets[shakingIndex] + BrainLatchOffset);
+                Position = Position.WithWhole(head + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BrainLatchOffset);
                 if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
@@ -385,14 +404,14 @@ public sealed class BabyMetroidCutsceneState
                 GraduallyAccelerateTowardsPoint(
                     target,
                     accelerationDivisor: 16,
-                    wrongWayOffScreenXSpeed: 1024,
+                    ApproachWrongWaySpeed,
                     cameraPosition);
                 bool ceilingCollision = CollidesWithRectangle(target, TargetRadius);
                 if (ceilingCollision)
                 {
                     samus.Drained.PutCrouchingOrFalling(samus);
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
-                    RouteLeg = 0;
+                    RouteLeg = BabyMetroidRoute.FirstLeg;
                 }
                 break;
             }
@@ -403,29 +422,26 @@ public sealed class BabyMetroidCutsceneState
                 // own chance.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
-                // The route is eight overlapping legs. The fixed targets, divisors, and movement-step identities are
-                // compiled mechanics definitions; sprite and animation presentation remains separately backed.
-                BabyMetroidRouteLeg leg = BabyMetroidRoute.GetLeg(RouteLeg);
+                // The route is its authored legs, each steered to its waypoint with its own wrong-way speed.
+                BabyMetroidRouteLeg leg = RouteLeg ?? throw new InvalidOperationException(
+                    "The Baby is moving to Samus without a route leg.");
                 Position16<RoomPixels> target = leg.Target;
-                int accelerationDivisor = leg.AccelerationDivisor;
-                int wrongWayExtra = BabyMetroidRoute.GetWrongWayOffScreenXSpeed(
-                    leg.Movement);
 
                 GraduallyAccelerateTowardsPoint(
                     target,
-                    accelerationDivisor,
-                    wrongWayExtra,
+                    BabyMetroidRouteDefinitions.AccelerationDivisor,
+                    leg.WrongWayOffScreenXSpeed,
                     cameraPosition);
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
-                // Reaching an ordinary leg's target moves on to the next leg; reaching the
-                // final leg's target starts the latch-onto-Samus phase instead.
+                // Reaching a leg's target moves on to the next leg; reaching the
+                // last leg's target starts the latch-onto-Samus phase instead.
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
-                    if (leg.EndsWithLatchOntoSamus)
-                        Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
+                    if (BabyMetroidRoute.LegAfter(leg) is { } next)
+                        RouteLeg = next;
                     else
-                        RouteLeg++;
+                        Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
                 }
                 break;
             }
@@ -437,7 +453,7 @@ public sealed class BabyMetroidCutsceneState
                 GraduallyAccelerateTowardsPoint(
                     samus.Position.Whole + SamusLatchOffset,
                     accelerationDivisor: 16,
-                    wrongWayOffScreenXSpeed: 1024,
+                    ApproachWrongWaySpeed,
                     cameraPosition);
                 break;
 
@@ -447,7 +463,7 @@ public sealed class BabyMetroidCutsceneState
                 // subsequent common mover is harmless because the touch response zeroed
                 // both velocities when it started this phase.
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
+                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakingIndex] + SamusLatchOffset);
 
                 // Healing adds exactly one energy per enemy-processing call. The compare is a
                 // signed comparison in -32768..32767; normal game maxima stay in its positive range.
@@ -472,7 +488,7 @@ public sealed class BabyMetroidCutsceneState
                 if (OnionRingHitFlashTimer != 0)
                 {
                     int shakingIndex = MotherBrainCadenceDefinitions.BabyHitShakeStep.Of(OnionRingHitFlashTimer);
-                    Offset16<RoomPixels> shake = ShakingOffsets[shakingIndex];
+                    Offset16<RoomPixels> shake = MotherBrainShakeDefinitions.Offsets[shakingIndex];
                     Position = Position.WithWhole(samus.Position.Whole + shake + shake + SamusLatchOffset);
                 }
 
@@ -497,31 +513,28 @@ public sealed class BabyMetroidCutsceneState
                 goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
 
             case BabyMetroidCutscenePhase.StareDownMotherBrain:
-                // Literal target: four pixels left of Samus and Y 96.
-                // The helper's Y index zero means divisor 16. This leg and the next two
-                // enter, which stores a 16 wrong-way off-screen X extra,
-                // not the 1024 of the entrance helpers.
+                // Literal target: four pixels left of Samus and Y 96. This leg and the next two
+                // reverse off screen with the staging wrong-way speed, not the approaches' one.
             {
                 var target = new Position16<RoomPixels>(CoordinateAxis.Wrap(samus.Position.X.Whole - 4), 96);
                 GraduallyAccelerateTowardsPoint(
                     target,
                     accelerationDivisor: 16,
-                    wrongWayOffScreenXSpeed: 16,
+                    StagingWrongWaySpeed,
                     cameraPosition);
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
-                    Phase = BabyMetroidCutscenePhase.FlyOffScreen;
+                    Phase = BabyMetroidCutscenePhase.FlyToRightEdge;
                 }
                 break;
             }
 
-            case BabyMetroidCutscenePhase.FlyOffScreen:
-                // Despite the phase's historical name, this leg targets the fixed point
-                // `(272,64)` just beyond the right edge of the 256-pixel camera.
+            case BabyMetroidCutscenePhase.FlyToRightEdge:
+                // The leg targets the fixed point (272, 64), just past the right edge of the screen.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(272, 64),
                     accelerationDivisor: 16,
-                    wrongWayOffScreenXSpeed: 16,
+                    StagingWrongWaySpeed,
                     cameraPosition);
                 if (CollidesWithRectangle(new Position16<RoomPixels>(272, 64), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
@@ -534,7 +547,7 @@ public sealed class BabyMetroidCutsceneState
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(305, 160),
                     accelerationDivisor: 16,
-                    wrongWayOffScreenXSpeed: 16,
+                    StagingWrongWaySpeed,
                     cameraPosition);
                 if (CollidesWithRectangle(new Position16<RoomPixels>(305, 160), TargetRadius))
                 {
@@ -545,12 +558,12 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.InitiateFinalCharge:
-                // The game's inertia choice 10 gives a divisor of 16 - 10 == 6. This helper family adds
-                // 1024 only when an off-screen actor is moving the wrong horizontal way.
+                // The charge's start divides the distance by six, a much firmer pull than the staging legs' sixteen,
+                // and reverses off screen with the approaches' wrong-way speed.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(290, 128),
                     accelerationDivisor: 6,
-                    wrongWayOffScreenXSpeed: 1024,
+                    ApproachWrongWaySpeed,
                     cameraPosition);
                 if (CollidesWithRectangle(new Position16<RoomPixels>(290, 128), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.FinalCharge;
@@ -558,12 +571,11 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.FinalCharge:
                 // The final target follows the brain enemy slot, 32 pixels above its
-                // centre. Index 12 maps to divisor four and therefore accelerates much
-                // more aggressively than the staging leg.
+                // centre. Its divisor of four accelerates much more aggressively than the staging leg.
                 GraduallyAccelerateTowardsPoint(
                     head + new Offset16<RoomPixels>(0, -32),
                     accelerationDivisor: 4,
-                    wrongWayOffScreenXSpeed: 1024,
+                    ApproachWrongWaySpeed,
                     cameraPosition);
                 if (Health == 0)
                 {
@@ -586,7 +598,7 @@ public sealed class BabyMetroidCutsceneState
                 // plus the undoubled shaking offsets.
                 Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
+                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
                 if (--PhaseTimer < 0)
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);
@@ -726,17 +738,15 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
     /// <param name="damage">The ring's damage (<see cref="MotherBrainAttackDamage.OnionRing"/>), zero or more; even zero damage refreshes the flash timer when health is nonzero.</param>
-    /// <returns>An empty compatibility result; the effects are written directly to <see cref="Health"/> and <see cref="OnionRingHitFlashTimer"/>.</returns>
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, the copy of the Baby's health to its enemy, and ring explosion/deletion.</remarks>
-    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(int damage)
+    public void ApplyMotherBrainOnionRingHit(int damage)
     {
         int healthBefore = Health;
         if (healthBefore == 0)
-            return new BabyMetroidOnionRingHitResult();
+            return;
 
         OnionRingHitFlashTimer = 16;
         Health = Math.Max(0, healthBefore - damage);
-        return new BabyMetroidOnionRingHitResult();
     }
 
     /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
@@ -760,7 +770,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
             {
-                (int fraction, bool frameCompleted) = AdvanceSamusRainbowFraction(SamusRainbowFraction);
+                (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneCall();
                 SamusRainbowFraction = fraction;
                 if (frameCompleted)
                     samus.Drained.HoldRainbowGlowLonger(longestHold: 10);
@@ -835,41 +845,36 @@ public sealed class BabyMetroidCutsceneState
         FrameHold = 1;
     }
 
-    /// <summary>Clamps speed and angle toward their targets before deriving 1/256-pixel X/Y velocity from sine values.</summary>
-    private void UpdateSpeedAndAngle(
-        int angleDelta,
-        RotationAngle targetAngle,
-        int targetSpeed)
+    /// <summary>
+    /// Moves the speed toward <paramref name="targetSpeed"/> and turns the heading clockwise by
+    /// <paramref name="clockwiseTurn"/> toward <paramref name="targetHeading"/>, each stopping at its target, before
+    /// deriving the X/Y velocity from the heading's sine values. The heading grows counterclockwise on screen, from
+    /// straight down toward the right, so both curves turn it back.
+    /// </summary>
+    private void UpdateSpeedAndHeading(
+        RotationAngle clockwiseTurn,
+        RotationAngle targetHeading,
+        SignedEightEight targetSpeed)
     {
-        // The approach step changes speed by exactly 32 and clamps rather than crossing the target.
+        // The speed changes by its step and clamps rather than crossing the target.
         if (Speed != targetSpeed)
         {
-            if (targetSpeed < Speed)
-                Speed = Math.Max(Speed - 32, targetSpeed);
-            else
-                Speed = Math.Min(Speed + 32, targetSpeed);
+            Speed = targetSpeed < Speed
+                ? SignedEightEight.Max(Speed - CurveSpeedStep, targetSpeed)
+                : SignedEightEight.Min(Speed + CurveSpeedStep, targetSpeed);
         }
 
-        // The turn stops at the target angle: the signed difference from the target says
+        // The turn stops at the target heading: the signed difference from the target says
         // whether this step would carry the heading past it.
-        RotationAngle candidateAngle = Angle.TurnedByFractionsOfStep(angleDelta);
-        if (angleDelta < 0)
-        {
-            Angle = candidateAngle.TurnFrom(targetAngle) >= 0
-                ? candidateAngle
-                : targetAngle;
-        }
-        else
-        {
-            Angle = candidateAngle.TurnFrom(targetAngle) < 0
-                ? candidateAngle
-                : targetAngle;
-        }
+        RotationAngle candidate = Angle - clockwiseTurn;
+        Angle = candidate.TurnFrom(targetHeading) >= 0
+            ? candidate
+            : targetHeading;
 
         TrigonometryAngle angle = Angle.ToTrigonometryAngle();
         Velocity = new(
-            CalculateVelocityComponent(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Speed), angle),
-            CalculateVelocityComponent(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Speed), angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            CalculateVelocityComponent(Speed, angle),
+            CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Multiplies speed by the angle's signed sine with the game's bit-8-to-23 result.</summary>
@@ -934,7 +939,7 @@ public sealed class BabyMetroidCutsceneState
     private void GraduallyAccelerateTowardsPoint(
         Position16<RoomPixels> target,
         int accelerationDivisor,
-        int wrongWayOffScreenXSpeed,
+        SignedEightEight wrongWayOffScreenXSpeed,
         Position16<RoomPixels> cameraPosition)
     {
         Velocity = Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(

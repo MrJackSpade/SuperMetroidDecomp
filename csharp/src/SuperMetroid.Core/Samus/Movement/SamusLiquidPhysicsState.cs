@@ -528,11 +528,9 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        // The game duplicates this room policy for running footsteps and landing
-        // effects. Preserve its flag priority even though retail rows contain one flag each.
-        CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffects.ForCrateriaRoom(Room);
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
+        // The game duplicates this room policy for running footsteps and landing effects.
+        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(Room);
+        if (roomEffect == CrateriaAtmosphericEffect.LandingSite)
         {
             // Landing Site creates splashes only while it rains; its normal scrolling-sky
             // effect deletes the pair. This exact comparison is not a generic water test.
@@ -543,7 +541,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
+        if (roomEffect == CrateriaAtmosphericEffect.WreckedShipEntrance)
         {
             // Above the waterline the entrance is dry and deletes; at and below it, use wet splashes.
             if (samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY)
@@ -553,7 +551,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
+        if (roomEffect == CrateriaAtmosphericEffect.WetFootsteps)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             return;
@@ -738,16 +736,15 @@ public sealed class SamusLiquidPhysicsState
             }
             else
             {
-                CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffects.ForCrateriaRoom(Room);
-                // The three flag tests have strict priority. Retail records contain one
-                // flag apiece, but retaining priority also reproduces corrupted/debug data.
-                if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = FxType == RoomFxType.Rain;
-                else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY;
-                else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = true;
+                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(Room) switch
+                {
+                    CrateriaAtmosphericEffect.LandingSite => FxType == RoomFxType.Rain,
+                    CrateriaAtmosphericEffect.WreckedShipEntrance =>
+                        samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+                    CrateriaAtmosphericEffect.WetFootsteps => true,
+                    null => false,
+                    _ => throw new InvalidOperationException("Undefined Crateria atmospheric effect."),
+                };
             }
         }
 

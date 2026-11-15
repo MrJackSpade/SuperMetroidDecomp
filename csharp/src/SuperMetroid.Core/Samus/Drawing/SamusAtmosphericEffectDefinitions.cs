@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Drawing;
@@ -11,19 +10,19 @@ namespace SuperMetroid.Core.Samus.Drawing;
 internal static class SamusAtmosphericEffectDefinitions
 {
     /// <summary>
-    /// The Crateria rooms whose atmospheric policy is nonzero, and that policy; every other Crateria room has none.
+    /// The Crateria rooms with an atmospheric effect, and that effect; every other Crateria room has none.
     /// </summary>
-    internal static readonly FrozenDictionary<RoomDefinition, CrateriaAtmosphericEffectFlags> CrateriaRoomEffects =
-        new Dictionary<RoomDefinition, CrateriaAtmosphericEffectFlags>
+    internal static readonly FrozenDictionary<RoomDefinition, CrateriaAtmosphericEffect> CrateriaRoomEffects =
+        new Dictionary<RoomDefinition, CrateriaAtmosphericEffect>
         {
-            [RoomDefinitions.LandingSite] = CrateriaAtmosphericEffectFlags.LandingSite,
-            [RoomDefinitions.WestOcean] = CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
-            [RoomDefinitions.CrateriaKihunter] = CrateriaAtmosphericEffectFlags.WetFootsteps,
-            [RoomDefinitions.EastOcean] = CrateriaAtmosphericEffectFlags.WetFootsteps,
-            [RoomDefinitions.ForgottenHighwayKagos] = CrateriaAtmosphericEffectFlags.WetFootsteps,
-            [RoomDefinitions.CrabMaze] = CrateriaAtmosphericEffectFlags.WetFootsteps,
-            [RoomDefinitions.ForgottenHighwayElbow] = CrateriaAtmosphericEffectFlags.WetFootsteps,
-            [RoomDefinitions.Moat] = CrateriaAtmosphericEffectFlags.WetFootsteps,
+            [RoomDefinitions.LandingSite] = CrateriaAtmosphericEffect.LandingSite,
+            [RoomDefinitions.WestOcean] = CrateriaAtmosphericEffect.WreckedShipEntrance,
+            [RoomDefinitions.CrateriaKihunter] = CrateriaAtmosphericEffect.WetFootsteps,
+            [RoomDefinitions.EastOcean] = CrateriaAtmosphericEffect.WetFootsteps,
+            [RoomDefinitions.ForgottenHighwayKagos] = CrateriaAtmosphericEffect.WetFootsteps,
+            [RoomDefinitions.CrabMaze] = CrateriaAtmosphericEffect.WetFootsteps,
+            [RoomDefinitions.ForgottenHighwayElbow] = CrateriaAtmosphericEffect.WetFootsteps,
+            [RoomDefinitions.Moat] = CrateriaAtmosphericEffect.WetFootsteps,
         }.ToFrozenDictionary();
 
     /// <summary>

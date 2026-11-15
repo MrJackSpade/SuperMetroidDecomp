@@ -73,9 +73,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
     /// </summary>
-    internal RotationAngle TidePhase { get; set; }
+    internal RotationAngle TidePhase { get; private set; }
     /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
-    internal SignedSixteenSixteen TideOffset { get; set; }
+    internal SignedSixteenSixteen TideOffset { get; private set; }
     /// <summary>
     /// Water's effect overlay surface drift: a signed 1/256-pixel horizontal running sum, its fraction kept between updates,
     /// whose whole pixels offset the surface texture. Only X moves.
@@ -104,12 +104,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// second motion pass after the room loads, and each pass from then moves the lava, acid or water before the main
     /// loop's random number, until the next room load.
     /// </summary>
-    internal LiquidMotionStart MotionStart { get; set; }
+    internal LiquidMotionStart MotionStart { get; private set; }
     /// <summary>
     /// Records an enemy ending the liquid's scrolling motion directly, which stops
     /// its per-frame updates until the next room load.
     /// </summary>
-    internal bool LiquidMotionStopped { get; set; }
+    internal bool LiquidMotionStopped { get; private set; }
 
     /// <summary>The lava/acid effect overlay's ambient sound timer.</summary>
     private int lavaSoundTimer;
@@ -128,7 +128,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Countdown to the next quake sound while rising lava or acid or the Tourian statues rumble: the sound plays on the
     /// update the countdown runs past zero.
     /// </summary>
-    internal WrappingCountdown EarthquakeSoundTimer { get; set; }
+    internal WrappingCountdown EarthquakeSoundTimer { get; private set; }
 
     /// <summary>
     /// Where the quake sounds stand in their rhythm (<see cref="RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays"/>):
@@ -138,7 +138,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal int EarthquakeSoundRhythmPosition
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays.Count - 1, value);
+        private set => field = Ensure.BetweenInclusive(0, RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays.Count - 1, value);
     }
 
     /// <summary>
@@ -148,14 +148,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal bool QuakeSoundsSilenced { get; private set; }
 
     /// <summary>The kind of effect the room shows.</summary>
-    public RoomFxType Type { get; internal set; }
+    public RoomFxType Type { get; private set; }
 
     /// <summary>
     /// The liquid surface before tide displacement, a room line at or below the room's top with its fraction: the room
     /// effect's starting level (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
     /// <see cref="LiquidLevelSpeed"/>; null when the effect names no surface or the room has no effect (#1546).
     /// </summary>
-    public FixedCoordinate? BaseY { get; internal set; }
+    public FixedCoordinate? BaseY { get; private set; }
 
     /// <summary>
     /// The room line, at or below the room's top, a rising or falling liquid stops at, or null when nothing names one and
@@ -195,13 +195,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// (#1546). A tide can carry the surface above the room's top, to a negative line, which every reader treats as no
     /// surface, as the game's below-zero check does.
     /// </summary>
-    public int? Surface { get; internal set; }
+    public int? Surface { get; private set; }
 
     /// <summary>
     /// The liquid the room effect fills the room with, as room objects have since changed it, or null for an effect with no
     /// liquid (#1695).
     /// </summary>
-    public RoomLiquid? Liquid { get; internal set; }
+    public RoomLiquid? Liquid { get; private set; }
 
     /// <summary>Points the effect's sounds at <paramref name="requests"/>, the update's audio requests of the runtime running it.</summary>
     internal void BindAudioRequests(GameplayAudioRequests requests) => audioRequests = Ensure.NotNull(requests);
@@ -450,10 +450,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// The surface's screen line below <paramref name="camera"/>'s top, negative for a surface above the screen, or null
-    /// without a surface.
+    /// without a surface: the surface's room line less the camera's, a camera above the room's top lying on a negative line.
     /// </summary>
     private int? SurfaceScreenLine(Position16<RoomPixels> camera) =>
-        Surface is int line ? (Position16<RoomPixels>.Zero + new Offset16<RoomPixels>(0, line)).RelativeToCamera(camera).Y : null;
+        Surface is int line ? line - (camera - Position16<RoomPixels>.Zero).Y : null;
 
     /// <summary>
     /// Places the liquid on the screen below <paramref name="camera"/> (#1706): its surface's screen line, which the effect
@@ -764,7 +764,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Moves the tide. The scaled sine is a 1/256-pixel displacement, which becomes the 1/65536-pixel offset. The asymmetric phase
     /// deltas deliberately spend different durations in each half-wave.
     /// </summary>
-    internal void StepLiquidTide()
+    private void StepLiquidTide()
     {
         int scale;
         RotationAngle positiveDelta;

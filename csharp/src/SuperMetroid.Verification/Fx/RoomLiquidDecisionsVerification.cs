@@ -77,8 +77,8 @@ internal static class RoomLiquidDecisionsVerification
         int scale = Bit(RoomFxNativeSources.SmallTideOption) ? LiquidTideDefinitions.SmallTideScale
             : Bit(RoomFxNativeSources.LargeTideOption) ? LiquidTideDefinitions.LargeTideScale
             : 0;
-        fx.TidePhase = RotationAngle.Zero;
-        fx.StepLiquidTide();
+        // A new effect's tide stands at its phase zero.
+        fx.StepTideForCheck();
         int sample = Trigonometry.SignedSine((RotationAngle.Zero - RotationAngle.QuarterTurn).ToTrigonometryAngle());
         AssertEqual(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * scale), fx.TideOffset, $"{context} tide reach");
     }

@@ -26,8 +26,7 @@ internal static class MainGameLoopCarryVerification
         {
             var state = new RoomFxOverlayState();
             state.BindAudioRequests(new GameplayAudioRequests());
-            state.EarthquakeSoundTimer = WrappingCountdown.Start(0);
-            state.EarthquakeSoundRhythmPosition = 0;
+            // A new effect's quake sound is due on its next count and starts its rhythm from the first delay.
             // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2 when the carry is set.
             state.PublishStatueEarthquakeSound(0xac0c, delay);
             AssertEqual((ushort)(1 + delay.ExtraFrames), state.EarthquakeSoundTimer.RawValue,

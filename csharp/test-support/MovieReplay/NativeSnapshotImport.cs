@@ -317,14 +317,14 @@ internal static class NativeSnapshotImport
             W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         VerificationAssertions.AssertTrue(runtime.RoomFxOverlay.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomFxOverlay.MotionStart = SuperMetroid.Core.Compatibility.LiquidMotionStart.Begun;
-        runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
-        runtime.RoomFxOverlay.TidePhase = RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase));
-        runtime.RoomFxOverlay.TideOffset = SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction));
-        runtime.RoomFxOverlay.BaseY = (runtime.RoomFxOverlay.BaseY
-            ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
-        // The surface word is a signed line: one a tide carries above the room's top is negative.
-        runtime.RoomFxOverlay.Surface = CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface));
+        runtime.RoomFxOverlay.ImportLiquidMotion(
+            stopped: !lavaAcidObjectLive,
+            tidePhase: RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase)),
+            tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
+            baseY: (runtime.RoomFxOverlay.BaseY
+                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction)),
+            // The surface word is a signed line: one a tide carries above the room's top is negative.
+            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));

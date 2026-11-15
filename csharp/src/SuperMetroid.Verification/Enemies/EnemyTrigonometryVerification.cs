@@ -749,15 +749,14 @@ internal static class EnemyTrigonometryVerification
         if (definitionsOnly) return;
         var tide = new RoomFxOverlayState();
         tide.BindAudioRequests(new GameplayAudioRequests());
-        var step = new Action(tide.StepLiquidTide);
+        Action step = tide.StepTideForCheck;
         // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide.
         foreach (LiquidTide option in Enum.GetValues<LiquidTide>())
         {
-            tide.Liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
+            var liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                tide.TidePhase = RotationAngle.FromRaw(phase);
-                tide.TideOffset = SignedSixteenSixteen.FromParts(0, 12345);
+                tide.SetTideForCheck(liquid, RotationAngle.FromRaw(phase), SignedSixteenSixteen.FromParts(0, 12345));
                 step();
                 short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = option == LiquidTide.Small;

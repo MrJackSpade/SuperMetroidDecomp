@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -36,7 +37,7 @@ internal static class BabyMetroidWallClearTimingVerification
             level.SetTerrain(row * level.Size.X + WallColumn,
                 RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock));
 
-        var shitroid = runtime.Enemies.ShitroidBehavior.Shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid.");
+        ShitroidEnemyState shitroid = runtime.Enemies.Shitroid;
         shitroid.Action = ShitroidAction.RiseAfterFeeding;
         shitroid.StateTimer = 0;
 

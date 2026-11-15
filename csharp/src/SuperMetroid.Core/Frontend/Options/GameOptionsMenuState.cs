@@ -232,7 +232,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
     private void PrepareRenderSprites()
     {
-        ScreenSprites sprites = screen.Objects;
+        ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets.");

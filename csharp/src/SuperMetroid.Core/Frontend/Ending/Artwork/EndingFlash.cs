@@ -12,10 +12,10 @@ public enum EndingFlash
     /// <summary>The backdrop whitened as the explosion's silhouette appears.</summary>
     SilhouetteBackdrop,
 
-    /// <summary>The whiteout as the planet's explosion ends: the backdrop, the floor's first sprite colour and a background group.</summary>
+    /// <summary>The whiteout as the planet's explosion ends, which whitens the sky and part of the scene.</summary>
     ExplosionWhiteout,
 
-    /// <summary>The whiteout's backdrop and transparent colours cleared to black as the flyaway begins.</summary>
+    /// <summary>The whiteout's sky cleared to black as the flyaway begins.</summary>
     WhiteoutCleared,
 
     /// <summary>The logo's background colours blacked out before its crossfade.</summary>

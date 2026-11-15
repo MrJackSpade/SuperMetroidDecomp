@@ -45,10 +45,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private readonly bool japaneseText;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     internal readonly EndingScreen screen = new();
-    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
+    /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     internal readonly List<EndingSprite> sprites = [];
-    /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
-    internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
+    /// <summary>The credits scroll, which exists while that phase runs.</summary>
+    internal CreditsScroll Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
     /// <summary>The post-credits typed text the ending advances, which exists while its phases run.</summary>
     private EndingTypewriter PostCreditsTyping => InstalledArtwork.PostCreditsText.Typing ??
@@ -76,7 +76,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
     internal EndingFlyaway Flyaway { get; }
 
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and colour assets.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, sprite and colour assets.</summary>
     internal EndingArtwork InstalledArtwork { get; }
 
     /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
@@ -113,8 +113,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         switch (Stage.Phase)
         {
             case EndingCreditsPhase.SetupEscapeFromZebes:
-                // Each wait ends the call inside the setup phase, before the phase's
-                // manual-return tail; the call after the last wait runs the scene setup.
+                // Each wait ends the update inside the setup phase, before the phase's own work; the update after the last
+                // wait runs the scene setup.
                 if (setupFrameWaits < EndingSequenceDefinitions.SetupFrameWaits)
                 {
                     setupFrameWaits++;
@@ -346,7 +346,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (RewardJump.ShotRequested)
                 {
                     CreditsRoll.CurrentPostShot = new EndingPostShot();
-                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundLimit);
+                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
                     Stage.Phase = EndingCreditsPhase.PostCreditsShot;
                 }
                 break;
@@ -371,8 +371,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsCopyright:
-                // The sprites keep animating while only the first background layer shows; hiding the actors
-                // must not reset their animations or their reveal colour state.
+                // The sprites keep animating while only the copyright panel shows; hiding the actors must not reset their
+                // animations or their reveal colour state.
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
@@ -402,8 +402,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.SeeYouNextMission:
-                // The game parks on this final screen. There is no hidden
-                // automatic reset: the console remains on this frame until reset/power-off.
+                // The ending stays on this final screen: nothing leaves it until the player resets the game.
                 EscapeScenes.StepSprites();
                 PostCreditsTyping.Step();
                 break;
@@ -476,7 +475,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ];
         return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
 
-        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Offset16<PlanePixels>.Zero);
+        PicturedPlaneLayer Plane(EndingExplosionPicture picture) => new(ExplosionPlane(picture), Offset16<PlanePixels>.Zero);
     }
 
 
@@ -492,11 +491,11 @@ internal sealed class EndingCreditsState : IFrontendScreen
         new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
 
     /// <summary>
-    /// The explosion's one-screen picture <paramref name="map"/> (#1467, #1515), placed whole at the screen's top-left: the
-    /// import pictures it as the screen shows it (#1626).
+    /// The explosion's one-screen picture <paramref name="picture"/> (#1467, #1515), placed whole at the screen's top-left:
+    /// the import pictures it as the screen shows it (#1626).
     /// </summary>
-    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map) =>
-        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(map)),
+    private PicturedPlane ExplosionPlane(EndingExplosionPicture picture) =>
+        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(picture)),
             Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
 
     /// <summary>
@@ -520,8 +519,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         return new PicturedPlane(placed.ToImmutable());
     }
 
-    /// <summary>The credits roll's plane: its held rows' line pictures (#1467) in the ending's colours (#1512).</summary>
-    internal PicturedPlane CreditsPlane() => CreditsObjectState.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
+    /// <summary>The credits roll's plane: its staff lines' pictures (#1467) in the ending's colours (#1512).</summary>
+    internal PicturedPlane CreditsPlane() => CreditsScroll.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
         screen.Colours.SceneryShading(EndingScenery.CreditsRows));
 
     /// <summary>The waiting scene's backdrop (#1467, #1515), in the ending's colours (#1512).</summary>

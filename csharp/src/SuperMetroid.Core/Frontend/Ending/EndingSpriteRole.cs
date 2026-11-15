@@ -29,11 +29,11 @@ internal enum EndingSpriteRole
     ExplosionStars,
     /// <summary>Silhouette spawned by the explosion's cues.</summary>
     ExplosionSilhouette,
-    /// <summary>Right starfield in its fixed slot during flyaway.</summary>
+    /// <summary>The right starfield during the flyaway, the last sole actor to run and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     ExplosionStarsRight,
-    /// <summary>Left starfield in its fixed slot during flyaway.</summary>
+    /// <summary>The left starfield during the flyaway, a sole actor that runs and draws just before the right one.</summary>
     ExplosionStarsLeft,
-    /// <summary>Final afterglow in its fixed slot.</summary>
+    /// <summary>The exploded planet's final afterglow, the first sole actor to run and draw.</summary>
     ExplosionAfterglow,
     /// <summary>First gunship completion-text actor.</summary>
     OperationWasText,

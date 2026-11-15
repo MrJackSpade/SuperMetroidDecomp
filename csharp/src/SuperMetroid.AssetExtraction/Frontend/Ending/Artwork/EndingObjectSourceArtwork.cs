@@ -32,7 +32,7 @@ public class EndingObjectSourceArtwork
             parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         fragments = [.. parts.Fragments];
-        fragmentsById = Enum.GetValues<EndingObjectFragmentId>().Zip(fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
+        fragmentsById = Enum.GetValues<EndingExplosionPicture>().Zip(fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
         CloudSprites = Ensure.NotNull(parts.CloudSprites);
         ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
         CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
@@ -40,11 +40,11 @@ public class EndingObjectSourceArtwork
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
     }
 
-    /// <summary>The four explosion maps in <see cref="EndingObjectFragmentId"/> order.</summary>
+    /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
     private readonly RoomBackgroundTilemapAtlas[] fragments;
 
     /// <summary>The same maps keyed by the explosion map each one holds.</summary>
-    private readonly Dictionary<EndingObjectFragmentId, RoomBackgroundTilemapAtlas> fragmentsById;
+    private readonly Dictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> fragmentsById;
 
     /// <summary>Whether <paramref name="map"/> holds exactly one 32-by-32 page of tiles.</summary>
     private static bool IsWholeMap(RoomBackgroundTilemapAtlas map) => map.Tiles.Length == EndingObjectArtworkFormat.MapCellCount;
@@ -56,12 +56,12 @@ public class EndingObjectSourceArtwork
     /// <summary>The post-shot logo's 32x32 map.</summary>
     public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
 
-    /// <summary>The four explosion maps in <see cref="EndingObjectFragmentId"/> order.</summary>
+    /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
     public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => fragments;
 
     /// <summary>One 32-by-32-cell explosion map.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four maps.</exception>
-    public RoomBackgroundTilemapAtlas Fragment(EndingObjectFragmentId id) => Ensure.Listed(fragmentsById, id);
+    public RoomBackgroundTilemapAtlas Fragment(EndingExplosionPicture id) => Ensure.Listed(fragmentsById, id);
 
     /// <summary>Six editable atmospheric-cloud compositions.</summary>
     public EndingCloudSpritePresentation CloudSprites { get; }

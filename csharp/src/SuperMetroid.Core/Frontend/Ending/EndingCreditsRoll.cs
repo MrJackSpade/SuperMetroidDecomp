@@ -13,11 +13,11 @@ internal sealed class EndingCreditsRoll
     private readonly bool japaneseText;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
+    /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and colour assets.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, sprite and colour assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -47,7 +47,7 @@ internal sealed class EndingCreditsRoll
         // The credits' setup stops every colour effect before loading the credits' and rewards' colours.
         _stage.ResetColourEffects();
         _artwork.LoadCreditsAndPostCreditsAssets();
-        _artwork.CurrentCredits = new CreditsObjectState();
+        _artwork.CurrentCredits = new CreditsScroll();
         _artwork.PostCreditsText.Clear();
         sprites.Clear();
         _stage.Brightness = 15;
@@ -57,7 +57,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>Shows the post-credits scenes' own colours (#1544) and holds a blank screen for sixty calls.</summary>
     internal void SetupPostCreditsBlank()
     {
-        // The credits' end starts the post-credits scenes in their own colours, forces blank and holds for sixty calls.
+        // The credits' end starts the post-credits scenes in their own colours, blanks the screen and holds for sixty calls.
         _stage.LoadColours(EndingColourLoad.PostCredits);
         _stage.Brightness = 0;
         _stage.PhaseTimer = 60;

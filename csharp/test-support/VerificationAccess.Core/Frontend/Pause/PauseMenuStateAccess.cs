@@ -26,7 +26,7 @@ internal static class PauseMenuStateAccess
         internal SelectorAnimation ItemSelectorAnimationState => new SelectorAnimation(self.ItemSelectorAnimationFrame, self.ItemSelectorAnimationTimer);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
-        internal int LastRenderedSpriteCount => self.screen.Objects.LastFinalizedSpriteCount;
+        internal int LastRenderedSpriteCount => self.screen.Sprites.LastFinalizedSpriteCount;
 
         /// <summary>
         /// The BG1 tiles the cartridge would show (#1467): the shown area map laid out on the layer's two pages, with the

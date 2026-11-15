@@ -211,7 +211,7 @@ internal static class EndingSpriteSheetComposer
             SpriteSheetId.EndingExplosionSprites => new(EndingReward.Armored,
                 [
                     new EndingTransfer(EndingTransferKind.ExplosionObjects),
-                    .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
+                    .. Enum.GetValues<EndingExplosionPicture>().Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
                     new EndingTransfer(EndingTransferKind.EndingFont),
                 ],
                 [CinematicSpriteFamily.EndingExplosion, CinematicSpriteFamily.EndingCompletionText, CinematicSpriteFamily.EndingAnimalEscape], Logo: false,

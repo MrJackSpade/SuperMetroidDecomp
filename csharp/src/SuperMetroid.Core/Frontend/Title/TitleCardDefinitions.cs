@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>
-/// The four title cards (#1979): each types its text one letter per eight updates, holds its whole text, then triggers
-/// its turning-floor scene and removes itself. <see cref="TitleCards"/> builds each card's steps.
+/// The four title cards (#1979): each types its text one letter per eight updates, holds its whole text, then starts
+/// its turning-floor scene and ends. <see cref="TitleCards"/> builds each card's steps.
 /// </summary>
 internal static class TitleCardDefinitions
 {

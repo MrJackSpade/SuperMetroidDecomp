@@ -28,6 +28,8 @@ internal static class DemoInputProgramsVerification
         ushort Word(int address) => cartridge.ReadCartridgeWord(DemoInputListWords.ListBank | address);
 
         AssertEqual(Enum.GetValues<DemoInputRecordingId>().Length, DemoInputNativeListAddresses.Entries.Length, "every demo recording has a native entry");
+        AssertEqual((ushort)DemoInputInstruction.Delete, Word(DemoInputNativeListAddresses.TitleLeavingDeleteList),
+            "the title demonstrations' leave list is the delete alone, which DemoInputState.End stands for");
         foreach ((ushort header, ushort frameBehavior, DemoInputRecordingId program) in DemoInputNativeListAddresses.Objects)
         {
             AssertEqual(DemoInputRomData.Routines.NoOp, Word(header), $"demo object $91:{header:X4} initializer");

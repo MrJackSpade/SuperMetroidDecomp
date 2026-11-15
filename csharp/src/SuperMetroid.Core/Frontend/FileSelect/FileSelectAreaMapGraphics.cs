@@ -101,7 +101,7 @@ public sealed class FileSelectAreaMapGraphics
     private void PrepareLabels(PersistentProgress progress)
     {
         Ensure.NotNull(progress);
-        ScreenSprites entries = screen.Objects;
+        ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
         if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
@@ -130,7 +130,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         PrepareLabels(progress);
         LayeredScene backgrounds = CaptureBackgrounds(glow);
-        return new(backgrounds.Paint, [.. backgrounds.Layers, screen.Sprites()], DisplayBrightness.Full);
+        return new(backgrounds.Paint, [.. backgrounds.Layers, screen.SpriteLayer()], DisplayBrightness.Full);
     }
 
     /// <summary>The area map's foreground with its background glowing over it, without the labels (#1514).</summary>

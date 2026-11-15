@@ -37,10 +37,10 @@ internal sealed class EndingFlyaway
     /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
 
-    /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored colour effects.</summary>
+    /// <summary>Clears the whiteout from the sky and starts the accelerating planet flyaway with its authored colour effects.</summary>
     internal void SetupPlanetEscape()
     {
-        // The flyaway's setup clears the explosion flash from the backdrop and the transparent colours.
+        // The flyaway's setup clears the explosion's whiteout from the sky.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, 0);
         _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);

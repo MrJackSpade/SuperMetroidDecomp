@@ -56,7 +56,7 @@ internal static class PauseMapPositionVerification
                 var expected = new OamBuffer(); expected.BeginFrame();
                 DrawImportedSpritemap(bus, expected, 0x820000 | Read(0x82c569 + id * 2), new(x, y), 0x0e00);
                 int bytes = expected.NextByteOffset; expected.FinalizeFrame();
-                var actual = pause.screen.Objects;
+                var actual = pause.screen.Sprites;
                 AssertTrue(expected.LowTable[..bytes].SequenceEqual(actual.LowTable[..bytes]), "current-position marker native OAM and animation timing");
                 AssertEqual(expected.HighTable[0], actual.HighTable[0], "current-position marker size/X bits");
                 // The frame's shown colours are composed once and every marker ink is compared with them (#1757): composing

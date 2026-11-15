@@ -50,13 +50,13 @@ internal static class EndingObjectArtworkVerification
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load), "native fragment bank LDA");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
             int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
-            AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), "native fragment compressed source");
+            AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName(invalid), "fragment filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)invalid), "fragment source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingExplosionPicture)invalid), "fragment source bounds");
         }
     }
 
@@ -104,8 +104,8 @@ internal static class EndingObjectArtworkVerification
         AssertSheet(stock.Explosion, EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount, "explosion");
         for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
-            AssertMap(stock.Fragment((EndingObjectFragmentId)index),
-                EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount,
+            AssertMap(stock.Fragment((EndingExplosionPicture)index),
+                EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), EndingObjectArtworkFormat.FragmentByteCount,
                 $"explosion fragment {index}");
         AssertSheet(stock.WaitingSamus,
             EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,

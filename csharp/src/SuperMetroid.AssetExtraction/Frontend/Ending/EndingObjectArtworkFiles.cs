@@ -44,7 +44,7 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.ExplosionByteCount);
         for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
             ExportMap(EndingObjectArtworkFormat.FragmentFileName(index),
-                EndingArtworkSources.ObjectFragment((EndingObjectFragmentId)index), EndingObjectArtworkFormat.FragmentByteCount);
+                EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), EndingObjectArtworkFormat.FragmentByteCount);
         Export(EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,
             EndingObjectArtworkFormat.RewardByteCount);

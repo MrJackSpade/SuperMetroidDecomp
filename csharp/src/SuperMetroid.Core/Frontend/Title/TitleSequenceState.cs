@@ -51,8 +51,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// copyright's fades from the updates they first show.
     /// </summary>
     private ColourEffectSystem colourEffects = new(new ColourEffectSessionState());
-    /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
-    internal readonly ScreenSprites objects;
+    /// <summary>The title's sprites this frame, the active composition and the copyright, in drawing order (#1358).</summary>
+    internal readonly ScreenSprites screenSprites;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Installed row gradient, bound when the game is bound to its installed content.</summary>
@@ -77,9 +77,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Screen origin used when drawing the active title frame.</summary>
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
-    internal TitleSpriteColouring ActiveObjectColouring { get; set; }
+    internal TitleSpriteColouring ActiveColouring { get; set; }
     /// <summary>
-    /// Whether the title objects' rebuild after a skip, or on the return from the demo, has restored the copyright's
+    /// Whether the title screen's rebuild after a skip, or on the return from the demo, has restored the copyright's
     /// glyph colours (#1512), which the copyright then shows over its drawn colours.
     /// </summary>
     internal bool CopyrightRestored { get; private set; }
@@ -93,7 +93,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal int BabyFrame { get; private set; }
     /// <summary>Updates left before the Baby Metroid's animation shows its next frame.</summary>
     private int babyFrameTimer;
-    /// <summary>Whether the title shows its perspective floor behind the title objects.</summary>
+    /// <summary>Whether the title shows its perspective floor behind its sprites.</summary>
     private bool floorBackgroundEnabled;
     /// <summary>Enables the installed gradient during the final title stages.</summary>
     private bool gradientEnabled;
@@ -139,10 +139,10 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         // Title setup expands the four artwork sets; the title binds that
         // artwork and its capture places the turning floor, the sprites and the Baby's pose.
-        objects = new ScreenSprites();
+        screenSprites = new ScreenSprites();
         RestartColourEffects();
 
-        // The Year object forces full brightness on the first
+        // The year card forces full brightness on the first
         // processing frame; its position and colouring come from its definition.
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
@@ -172,7 +172,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             titleGradientPresentation,
             titleBackdrop,
             spriteSheets);
-        title.EnterImmediateTitleObjects();
+        title.EnterImmediateTitleScreen();
         title.Brightness = 0;
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
@@ -192,19 +192,19 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>
     /// Runs one accepted title-sequence frame: the running step, then the skip's check and fade-out alongside it (#1719),
-    /// or, on the update after the skip's fade-out reaches black, the rebuild of the title objects in place of the step.
+    /// or, on the update after the skip's fade-out reaches black, the rebuild of the title screen in place of the step.
     /// </summary>
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
-        bool rebuiltTitleObjects = SkipStage == TitleSkipStage.Rebuilding;
-        if (rebuiltTitleObjects)
+        bool rebuiltTitleScreen = SkipStage == TitleSkipStage.Rebuilding;
+        if (rebuiltTitleScreen)
         {
             // The fade-out's black stopped the running step on the previous update; this update rebuilds the title
-            // objects in its place, and the fade-in starts on the next update.
-            EnterImmediateTitleObjects();
+            // screen in its place, and the fade-in starts on the next update.
+            EnterImmediateTitleScreen();
             Phase = TitleSequencePhase.TitleScreenFadeIn;
             SkipStage = TitleSkipStage.NotSkipping;
         }
@@ -227,7 +227,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The skip's rebuild follows the colour effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
-        if (rebuiltTitleObjects)
+        if (rebuiltTitleScreen)
             RestartColourEffects();
     }
 
@@ -274,7 +274,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-                    ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
+                    ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                     // The logo starts its fade as it first shows; the effect shows its first shade when the colour
@@ -365,7 +365,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>
     /// Runs one update of the skip's fast fade-out, after the running step; at black it stops the running step and queues
-    /// the immediate title song, and the title objects rebuild on the next update.
+    /// the immediate title song, and the title screen rebuilds on the next update.
     /// </summary>
     private void StepSkipFadeOut()
     {
@@ -374,7 +374,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
         if (Brightness != 0)
             return;
-        // The transition queues the immediate title song an update before rebuilding the immediate title objects.
+        // The transition queues the immediate title song an update before rebuilding the immediate title screen.
         audio?.QueueMusic(
             MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
         SkipStage = TitleSkipStage.Rebuilding;
@@ -399,7 +399,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     public FloorScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        return new(new FramePaint(Backdrop, objects.Draws),
+        return new(new FramePaint(Backdrop, screenSprites.Draws),
             floorBackgroundEnabled
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
                     panPosition.Whole)
@@ -410,12 +410,12 @@ public sealed class TitleSequenceState : IFrontendScreen
                 : null);
     }
 
-    /// <summary>The colour the title shows behind its floor and objects: the installed title colours' backdrop (#1512).</summary>
+    /// <summary>The colour the title shows behind its floor and sprites: the installed title colours' backdrop (#1512).</summary>
     private RgbColor Backdrop => titleBackdrop ?? throw new InvalidOperationException(
         "Title rendering requires the installed title backdrop.");
 
     /// <summary>
-    /// The floor's shading (#1512, #1597): the shade of the record each running console light shows, the tube light's then
+    /// The floor's shading (#1512, #1597): the shade each running console light shows, the tube light's then
     /// the displays', which recolour different colours of the floor. Lights the skip has just restarted show the floor's
     /// own colours until they show their first shade.
     /// </summary>
@@ -434,19 +434,19 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>
     /// The copyright's shading: its drawn colours, with its glyph colours restored once the skip has rebuilt the title
-    /// objects (#1512), and the record its fade last showed laid over them (#1714).
+    /// screen (#1512), and the shade its fade last showed laid over them (#1714).
     /// </summary>
     internal PictureShading CopyrightShading => Faded(TitleSequenceDefinitions.Sprites.CopyrightColouring, CopyrightRestored
         ? PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring)).With(TitleShades.RestoredCopyright)
         : PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring)));
 
-    /// <summary>The active composition's shading: its colouring's drawn colours, with the record a fade of them last showed (#1714).</summary>
+    /// <summary>The active composition's shading: its colouring's drawn colours, with the shade a fade of them last showed (#1714).</summary>
     internal PictureShading ActiveShading =>
-        Faded(ActiveObjectColouring, PictureShading.Shaded(TitleShades.Drawn(ActiveObjectColouring)));
+        Faded(ActiveColouring, PictureShading.Shaded(TitleShades.Drawn(ActiveColouring)));
 
     /// <summary>
-    /// <paramref name="drawn"/> with the record the fade of <paramref name="colouring"/>'s colours last showed laid over
-    /// it (#1714): a fade that has ended keeps showing its last record, and a colouring no fade animates, or one whose
+    /// <paramref name="drawn"/> with the shade the fade of <paramref name="colouring"/>'s colours last showed laid over
+    /// it (#1714): a fade that has ended keeps showing its last shade, and a colouring no fade animates, or one whose
     /// fade has not started, shows <paramref name="drawn"/>.
     /// </summary>
     private PictureShading Faded(TitleSpriteColouring colouring, PictureShading drawn) =>
@@ -468,25 +468,25 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal void PrepareRenderSprites()
     {
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);
-        objects.BeginFrame();
+        screenSprites.BeginFrame();
         // Every part of the composition draws in the active colouring's shading, whatever colouring the part was stored
         // with; the parts' pictures draw as the title sheet holds them.
         if (ActiveSprite is { } sprite)
-            TitleSpriteDrawing.DrawSprite(sheet, sprite, objects, ActiveOrigin.ToSpritePosition(), ActiveShading);
+            TitleSpriteDrawing.DrawSprite(sheet, sprite, screenSprites, ActiveOrigin.ToSpritePosition(), ActiveShading);
         if (ActiveCard is { } typed)
-            TitleSpriteDrawing.DrawCard(sheet, typed, objects, ActiveOrigin.ToSpritePosition(), ActiveShading);
+            TitleSpriteDrawing.DrawCard(sheet, typed, screenSprites, ActiveOrigin.ToSpritePosition(), ActiveShading);
 
         // The skip's fade-out draws what its running step draws, which never includes the copyright: the copyright first
         // shows in the copyright's hold, which refuses the skip (#1719).
         if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
-            TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
+            TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.NintendoCopyright, screenSprites,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
                 CopyrightShading);
         }
 
-        objects.FinishFrame();
+        screenSprites.FinishFrame();
     }
 
     /// <summary>Advances the running title card's timed frames and runs its scene or delete cues.</summary>
@@ -509,26 +509,26 @@ public sealed class TitleSequenceState : IFrontendScreen
             {
                 case TitleCardCue.StartLowerPan:
                     Phase = TitleSequencePhase.LowerPan;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                     ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
                     return;
 
                 case TitleCardCue.StartUpperPan:
                     Phase = TitleSequencePhase.UpperPan;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                     ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
                     return;
 
                 case TitleCardCue.StartDownwardPan:
                     Phase = TitleSequencePhase.DownwardPan;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                     ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
                     return;
 
                 case TitleCardCue.StartFinalZoom:
                     Phase = TitleSequencePhase.FinalZoom;
                     gradientEnabled = true;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
                     PhaseTimer = 0;
                     ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
                     return;
@@ -553,17 +553,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveSprite = null;
         ActiveCard = null;
         ActiveOrigin = definition.Origin;
-        ActiveObjectColouring = definition.Colouring;
+        ActiveColouring = definition.Colouring;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
         // Initial setup and each of the first three completed pan phases hide the floor,
-        // showing objects alone, before the next text actor becomes visible, also while the
+        // showing the sprites alone, before the next text actor becomes visible, also while the
         // skip's fade-out runs alongside the step (#1719).
         floorBackgroundEnabled = false;
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity turning-floor scene used after a skip.</summary>
-    private void EnterImmediateTitleObjects()
+    private void EnterImmediateTitleScreen()
     {
         gradientEnabled = true;
         // The skip transition explicitly overwrites the two glyph colours the Nintendo copyright draws in after
@@ -572,7 +572,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveCard = null;
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-        ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
+        ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
         floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWholePixels(0), panPosition.Y.WithWholePixels(0));
         Zoom = FloorZoom.OwnSize;
@@ -581,7 +581,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Opens the idle title screen at full brightness with its demo countdown.</summary>
     private void EnterTitleScreen()
     {
-        EnterImmediateTitleObjects();
+        EnterImmediateTitleScreen();
         Phase = TitleSequencePhase.TitleScreen;
         PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames;
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;

@@ -28,7 +28,7 @@ public sealed class AttractDemoInput
 
     /// <summary>
     /// Checks what the playback watches for while it plays, then plays one step. The check runs first, in the same step,
-    /// so leaving the title ends the input before its next record and the shinespark's release continues it at once.
+    /// so leaving the title ends the input in place of this step's input and the shinespark's release continues it at once.
     /// </summary>
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType)
     {
@@ -44,7 +44,7 @@ public sealed class AttractDemoInput
         {
             case AttractDemoInputWatch.TitleLeaving:
                 if (gameState == SuperMetroidGameState.RoutingAfterDemo)
-                    Script.SwitchTo(DemoInputRecordingId.AttractDelete);
+                    Script.End();
                 break;
             case AttractDemoInputWatch.ShinesparkRelease:
                 // The release's condition does not match the shinespark the recording shows: it tests the Draygon grab.

@@ -28,7 +28,7 @@ public enum TitleSequencePhase
     /// <summary>Displays the logo and Nintendo copyright for the 32-update copyright stage before starting the idle-title demo countdown; refuses the skip.</summary>
     CopyrightFade,
     /// <summary>
-    /// The immediate-title fade-in after the skip's rebuild of the title objects or the return from a demo; raises brightness
+    /// The immediate-title fade-in after the skip's rebuild of the title screen or the return from a demo; raises brightness
     /// by two levels per update before starting the idle countdown. The skip's fade-out is not a step: it runs alongside the
     /// opening's running step (#1719).
     /// </summary>

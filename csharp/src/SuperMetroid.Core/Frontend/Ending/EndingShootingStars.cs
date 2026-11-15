@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Bounded post-credits star records, independent of explosion stars.</summary>
+/// <summary>The post-credits shooting stars, independent of the explosion's stars.</summary>
 internal sealed class EndingShootingStars
 {
-    /// <summary>One state record per authored post-credits star, retained across scene updates.</summary>
+    /// <summary>Each authored star's flight, retained across scene updates.</summary>
     internal readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
 
     /// <summary>Seeds each star at the common origin and arms any authored start delay.</summary>
@@ -50,22 +50,26 @@ internal sealed class EndingShootingStars
                 Reset(ref star);
                 continue;
             }
+            // A still star keeps its first visible frame for the rest of its flight (#1983).
+            if (star.AnimationFrame > 0 && definition.Period is null)
+                continue;
             if (--star.Timer <= 0)
             {
-                star.Timer = definition.Period;
+                if (definition.Period is { } period)
+                    star.Timer = period;
                 star.AnimationFrame++;
             }
         }
     }
 
-    /// <summary>Draws only active stars with a nonzero animation frame as the supplied sprite entries, in <paramref name="shading"/> (#1512).</summary>
-    internal void Draw(ScreenSprites objects, SpriteSheet sheet, PictureShading shading)
+    /// <summary>Draws the stars past their delay and lead-in among <paramref name="sprites"/>, in <paramref name="shading"/> (#1512).</summary>
+    internal void Draw(ScreenSprites sprites, SpriteSheet sheet, PictureShading shading)
     {
         foreach (var star in stars)
         {
             if (star.Delayed || star.AnimationFrame == 0) continue;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            objects.AddImage(sheet.Frame(EndingShootingStarFrames.SheetFrameName(star.AnimationFrame)), origin.ToSpritePosition() - Position16<SpritePixels>.Zero, shading);
+            sprites.AddImage(sheet.Frame(EndingShootingStarFrames.SheetFrameName(star.AnimationFrame)), origin.ToSpritePosition() - Position16<SpritePixels>.Zero, shading);
         }
     }
 

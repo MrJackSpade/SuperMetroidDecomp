@@ -18,8 +18,8 @@ internal sealed class EndingArtwork
         _stage = stage;
     }
 
-    /// <summary>Scrolling staff-list owner active during the credits phase.</summary>
-    internal CreditsObjectState? CurrentCredits { get; set; }
+    /// <summary>The credits scroll, which exists during the credits phase.</summary>
+    internal CreditsScroll? CurrentCredits { get; set; }
 
     /// <summary>Whether the staff handoff has shown the credits' colours, which it does once.</summary>
     private bool creditsColoursShown;
@@ -63,7 +63,7 @@ internal sealed class EndingArtwork
     /// <summary>
     /// Binds the installed scene backdrops when the game is bound to its installed content (#1544). The running scene keeps
     /// the backdrop it started with; the next scene starts with its backdrop from the newly bound ones. The backdrops of the
-    /// space behind the exploding planet (#1583, #1637) take effect from the next record shown, without resetting a live fade.
+    /// space behind the exploding planet (#1583, #1637) take effect from the next step of its colour effect shown, without resetting a live fade.
     /// </summary>
     internal void BindBackdrops(EndingBackdrops? value)
     {

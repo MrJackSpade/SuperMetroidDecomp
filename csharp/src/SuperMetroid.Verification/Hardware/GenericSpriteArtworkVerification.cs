@@ -81,7 +81,7 @@ internal static class GenericSpriteArtworkVerification
                 int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
                 show();
                 title.ActiveOrigin = new(x, y);
-                title.ActiveObjectColouring = colouring;
+                title.ActiveColouring = colouring;
                 title.PrepareRenderSprites();
                 expected = new OamBuffer(); expected.BeginFrame();
                 DrawImportedSpritemap(reference, expected,
@@ -90,9 +90,9 @@ internal static class GenericSpriteArtworkVerification
                 expected.FinalizeFrame();
                 string titleCase = $"title composition/coordinate/palette parity of {composition} at ({x}, {y}) in {colouring}";
                 if (typed)
-                    EqualTypedReveal(expected, title.objects, titleCase);
+                    EqualTypedReveal(expected, title.screenSprites, titleCase);
                 else
-                    EqualSprites(expected, title.objects, titleCase);
+                    EqualSprites(expected, title.screenSprites, titleCase);
                 titleCases++;
             }
         }
@@ -107,7 +107,7 @@ internal static class GenericSpriteArtworkVerification
             new(TitleSequenceDefinitions.Sprites.CopyrightOrigin.X, TitleSequenceDefinitions.Sprites.CopyrightOrigin.Y),
             SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Copyright), 0).PaletteBits);
         expected.FinalizeFrame();
-        EqualSprites(expected, title.objects, "title copyright owner parity");
+        EqualSprites(expected, title.screenSprites, "title copyright owner parity");
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             AudioQueues.Standalone(), characterArtwork: introArtwork.BoundCatalog,

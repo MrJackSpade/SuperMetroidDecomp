@@ -69,7 +69,7 @@ public static class EndingObjectArtworkFormat
     /// <summary>Number of required explosion fragments, ordered by the four map pages they fill.</summary>
     public const int FragmentCount = 4;
     /// <summary>Published fragment keys use the page sequence70,74,78,7c.</summary>
-    /// <param name="index">Zero-based fragment index, zero through three, matching <see cref="EndingObjectFragmentId"/> order.</param>
+    /// <param name="index">Zero-based fragment index, zero through three, matching <see cref="EndingExplosionPicture"/> order.</param>
     /// <returns>The lowercase page-keyed JSON filename of the fragment's tile references.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside zero through three.</exception>
     public static string FragmentFileName(int index)

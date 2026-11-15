@@ -79,7 +79,7 @@ public sealed class FileSelectRoomMapGraphics
     private void PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {
-        ScreenSprites entries = screen.Objects;
+        ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
         icons.DrawBeforeMarker(entries, scroll);
         marker.Draw(entries, scroll, mapSheet);
@@ -109,12 +109,12 @@ public sealed class FileSelectRoomMapGraphics
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);
-            layers.Add(screen.Sprites());
+            layers.Add(screen.SpriteLayer());
         }
         else
         {
-            screen.Objects.BeginFrame();
-            screen.Objects.FinishFrame();
+            screen.Sprites.BeginFrame();
+            screen.Sprites.FinishFrame();
         }
         return new(screen.Paint(), layers.ToArray(),
             DisplayBrightness.Full);

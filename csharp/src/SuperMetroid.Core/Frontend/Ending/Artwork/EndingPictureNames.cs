@@ -28,7 +28,7 @@ public static class EndingPictureNames
     public const string PercentSign = "PercentSign";
 
     /// <summary>The explosion's map <paramref name="map"/>, a whole screen.</summary>
-    public static string ExplosionMap(EndingObjectFragmentId map) => "ExplosionMap" + map;
+    public static string ExplosionMap(EndingExplosionPicture map) => "ExplosionMap" + map;
 
     /// <summary>The credits roll's line of <paramref name="role"/>, the whole line however high.</summary>
     public static string CreditsLine(string role) => "CreditsLine." + role;

@@ -39,7 +39,7 @@ internal static class FileCopyArrowVerification
             ScreenSprites Capture()
             {
                 menu.CaptureRenderSnapshot();
-                return menu.screen.Objects;
+                return menu.screen.Sprites;
             }
             Until(FileSelectPhase.Main);
             for (int i = 0; i < 3; i++) Press(ControllerButton.Down);
@@ -84,7 +84,7 @@ internal static class FileCopyArrowVerification
                 AssertEqual(step, menu.CopyArrowRotation, "arrow colours rotate after eight ticks then every four");
                 PictureShading shading = PictureShading.Shaded(FileCopyArrowShades.Rotation(step));
                 Capture();
-                AssertTrue(menu.screen.Objects.Draws.OfType<ImageSpriteDraw>().Any(draw => draw.Shading == shading),
+                AssertTrue(menu.screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => draw.Shading == shading),
                     "the copy arrow draws in its rotation step's shade");
                 // The sheet's colours laid out by the palette index each was composed as (#1544); a colour none of its
                 // pixels shows is not one of its colours.

@@ -424,7 +424,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
     };
     contactSafeSamus.Kinematics.Radius = contactSafeSamus.Kinematics.Radius.WithY(5);
-    contactSafeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
+    contactSafeSamus.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
     SamusTerrainHazardCollision.PrepareFrame(
         contactSafeSpikeAir,
         contactSafeSamus,

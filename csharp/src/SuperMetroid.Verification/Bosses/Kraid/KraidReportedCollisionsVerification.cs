@@ -65,7 +65,7 @@ internal static class KraidReportedCollisionsVerification
             samus.Health = 999; samus.EquippedItems = 0;
             samus.KnockbackTimer = 0;
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
-            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+            samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
             samus.Kinematics.Radius = new(8, 16);
         }

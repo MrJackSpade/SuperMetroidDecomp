@@ -231,7 +231,7 @@ internal static void VerifySamusHorizontalSpeed()
     }
     AssertEqual(new SamusSpeedBoostCounter(4, 2), booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
     AssertEqual(1, echoRequests, "reaching stage four requests the speed-echo sound once, as the stage advances");
-    AssertEqual(SamusContactDamageIndex.None, booster.ContactDamageIndex, "stage four animation waits for movement to publish contact damage");
+    AssertEqual(SamusBodyAttack.None, booster.BodyAttack, "stage four animation waits for movement to publish contact damage");
 
     // $90:9813 is a common epilogue, including the released/airborne/liquid
     // branches. Beta clears contact damage each frame; retained blue speed
@@ -245,10 +245,10 @@ internal static void VerifySamusHorizontalSpeed()
             HasRunningMomentum = true,
             ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0),
             SpeedBoostCounter = activeStage ? new SamusSpeedBoostCounter(4, 1) : new SamusSpeedBoostCounter(3, 1),
-            ContactDamageIndex = SamusContactDamageIndex.None,
+            BodyAttack = SamusBodyAttack.None,
         };
         retainedBoost.HandleExtraRunSpeed(movement, 0, true, liquidImpeded: liquid);
-        AssertEqual(activeStage ? SamusContactDamageIndex.SpeedBooster : SamusContactDamageIndex.None, retainedBoost.ContactDamageIndex,
+        AssertEqual(activeStage ? SamusBodyAttack.SpeedBooster : SamusBodyAttack.None, retainedBoost.BodyAttack,
             "retained boost publishes contact protection only in active stage");
         AssertEqual(7, retainedBoost.ExtraRunSpeed.Whole, "released boost retains numeric speed");
     }

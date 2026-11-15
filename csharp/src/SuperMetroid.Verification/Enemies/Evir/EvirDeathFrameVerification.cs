@@ -15,7 +15,7 @@ internal static class EvirDeathFrameVerification
     {
         var samus = CreateDropTestSamus();
         samus.Position = samus.Position.WithWhole(new(128, 128));
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
         Action<RoomEnemySlot, SamusState?> initialize = enemies.EvirBehavior.InitializeEvir;

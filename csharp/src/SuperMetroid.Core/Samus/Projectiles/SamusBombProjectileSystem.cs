@@ -277,7 +277,7 @@ public sealed class SamusBombProjectileSystem
     public void ResolveSamusOverlap(SamusState samus, int projectileInvincibilityTimer)
     {
         Ensure.NotNull(samus);
-        if (projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
+        if (projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
             _ = PublishBombJumpOverlap(samus);
     }
 

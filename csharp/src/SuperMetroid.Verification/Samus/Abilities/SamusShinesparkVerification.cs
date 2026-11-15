@@ -308,7 +308,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(0x2800, horizontal.Kinematics.Position.X.Fraction,
         "first horizontal spark preserves 16.16 fraction");
     AssertEqual(29, horizontal.Health, "active spark drains one energy at threshold 30");
-    AssertEqual(SamusContactDamageIndex.Shinespark, horizontal.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusBodyAttack.Shinespark, horizontal.HorizontalSpeed.BodyAttack,
         "active spark publishes contact damage two");
 
     FixedCoordinate lowEnergyXBefore = horizontal.Kinematics.Position.X;

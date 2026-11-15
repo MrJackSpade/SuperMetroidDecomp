@@ -608,8 +608,8 @@ empty, maximum, ControllerButton.A, 0, ControllerButton.A);
 empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     AssertEqual(SamusVerticalDirection.Up, screwRepeat.Kinematics.YDirection,
         "Screw Attack with Space Jump repeats upward");
-    AssertEqual(SamusContactDamageIndex.ScrewAttack, screwRepeat.HorizontalSpeed.ContactDamageIndex,
-        "Screw Attack republishes contact damage index three");
+    AssertEqual(SamusBodyAttack.ScrewAttack, screwRepeat.HorizontalSpeed.BodyAttack,
+        "Screw Attack republishes its body attack");
 
     // `$84:CE91-$CEA3` explicitly admits poses `$81/$82`, independently of the boost-stage
     // branch above them. Place a BTS-4 permanent 1x1 block under a falling Screw body so the
@@ -649,8 +649,8 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     chargedSpin.BeamCharge.FlareCounter = 0x003c;
     SamusAerialMovement.StepSpinJump(empty, chargedSpin, 0, 0, 0);
-    AssertEqual(SamusContactDamageIndex.PseudoScrew, chargedSpin.HorizontalSpeed.ContactDamageIndex,
-        "fully charged dry spin publishes contact damage index four");
+    AssertEqual(SamusBodyAttack.PseudoScrew, chargedSpin.HorizontalSpeed.BodyAttack,
+        "fully charged dry spin publishes the pseudo Screw Attack");
 
     SamusState submergedSpin = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
@@ -661,7 +661,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100);
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialMovement.StepSpinJump(empty, submergedSpin, 0, 0, 0);
-    AssertEqual(SamusContactDamageIndex.None, submergedSpin.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusBodyAttack.None, submergedSpin.HorizontalSpeed.BodyAttack,
         "full liquid physics suppresses charged-spin contact damage");
     AssertEqual(1, submergedSpin.LiquidPhysics.SoundRequests.Count,
         "underwater Space Jump sound frame publishes once");
@@ -1030,7 +1030,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
         controllerNewInput: ControllerButton.A);
     AssertEqual(SamusVerticalDirection.Down, fullySubmergedScrew.Kinematics.YDirection,
         "fully submerged non-Gravity Space Jump cannot restart");
-    AssertEqual(SamusContactDamageIndex.None, fullySubmergedScrew.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusBodyAttack.None, fullySubmergedScrew.HorizontalSpeed.BodyAttack,
         "fully submerged Screw Attack does not publish contact damage");
 
     Console.WriteLine(

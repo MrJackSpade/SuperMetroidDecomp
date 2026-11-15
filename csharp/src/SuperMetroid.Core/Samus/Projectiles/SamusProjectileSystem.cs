@@ -219,7 +219,7 @@ public sealed class SamusProjectileSystem
                 Charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
             if (chargePaletteActive)
             {
-                bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
+                bool pseudoScrew = samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.PseudoScrew;
                 // Each suit's list holds a shade for each of the bounded charge steps.
                 if (!SamusChargePalettes.IsCompiledChargeStep(Charge.ChargePaletteStep))
                     throw new InvalidDataException(

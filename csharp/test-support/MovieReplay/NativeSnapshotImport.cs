@@ -243,8 +243,8 @@ internal static class NativeSnapshotImport
             throw new InvalidDataException(
                 $"Native slope-alignment word ${W(NativeSnapshotMemory.SlopeCollisionEnable):X4} disables the alignment, which no retail state does.");
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
-        samus.HorizontalSpeed.ContactDamageIndex = SamusMovementNativeWords.ContactDamage.Decode(
-            W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
+        samus.HorizontalSpeed.BodyAttack = SamusMovementNativeWords.ContactDamage.Decode(
+            W(NativeSnapshotMemory.ContactDamageIndex), "Samus body attack");
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
         samus.BombJumpRequest = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpRequestImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 

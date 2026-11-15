@@ -108,7 +108,7 @@ internal static class GreenHillGateGlitchVerification
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(4, 0);
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
 

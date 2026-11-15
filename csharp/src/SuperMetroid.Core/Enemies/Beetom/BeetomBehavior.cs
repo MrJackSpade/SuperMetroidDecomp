@@ -491,7 +491,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ButtonCounter = BeetomMashCount;
         }
 
-        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
+        if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             _collision.ResolveNormalEnemyTouch(slot, samus);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);

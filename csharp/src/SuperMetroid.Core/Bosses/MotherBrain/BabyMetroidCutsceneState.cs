@@ -895,14 +895,14 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// The ordinary enemy-versus-Samus contact check, for the Baby's radius hitbox.
-    /// A non-zero contact-damage index clears Samus's invincibility and proceeds; otherwise an
+    /// A Samus whose body is an attack has her invincibility cleared and proceeds; otherwise an
     /// invincible Samus is not touched. Each axis then requires
     /// <c>|delta| - Samus's radius &lt; enemy radius</c> (a delta inside Samus's own radius
     /// always passes), which is strict, unlike the rectangle check other actors use.
     /// </summary>
     private bool TouchesSamus(SamusState samus)
     {
-        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
+        if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
         else if (!samus.InvincibilityTimer.IsZero)
             return false;

@@ -227,7 +227,7 @@ internal sealed class EnemyProjectileEngine
         // not abort the remaining descending scan of the places. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
         if (samus is null || !samus.InvincibilityTimer.IsZero ||
-            samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
+            samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             return;
 
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;

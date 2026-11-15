@@ -68,7 +68,7 @@ internal static class SamusChargeColorsVerification
         for (int suit = 0; suit < suits.Length; suit++)
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suits[suit]);
-            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
+            samus.HorizontalSpeed.BodyAttack = family == 0 ? SamusBodyAttack.None : SamusBodyAttack.PseudoScrew;
             for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
             {
                 // The live charge-palette step is the phase this call applies.
@@ -256,7 +256,7 @@ internal static class SamusChargeColorsVerification
         for (int suit = 0; suit < 3; suit++)
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suits[suit]);
-            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
+            samus.HorizontalSpeed.BodyAttack = family == 0 ? SamusBodyAttack.None : SamusBodyAttack.PseudoScrew;
             for (int phase = 0; phase < 6; phase++)
             {
                 int appliedPhase = projectiles.Charge.ChargePaletteStep;

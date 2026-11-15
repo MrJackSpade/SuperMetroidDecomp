@@ -32,11 +32,11 @@ public sealed class SamusKinematicsState
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
     /// collision input even when a probe deliberately cannot mutate the full owner.
     /// </summary>
-    internal SamusContactDamageIndex? ProbeContactDamageIndex { get; init; }
+    internal SamusBodyAttack? ProbeBodyAttack { get; init; }
 
     /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
-    internal SamusContactDamageIndex CollisionContactDamageIndex(SamusState? owner) =>
-        ProbeContactDamageIndex ?? owner?.HorizontalSpeed.ContactDamageIndex ?? SamusContactDamageIndex.None;
+    internal SamusBodyAttack CollisionBodyAttack(SamusState? owner) =>
+        ProbeBodyAttack ?? owner?.HorizontalSpeed.BodyAttack ?? SamusBodyAttack.None;
 
     /// <summary>Constructs an ownerless kinematics fixture for block-only probes.</summary>
     public SamusKinematicsState()
@@ -50,7 +50,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal SamusKinematicsState CreateCollisionProbe()
     {
-        var probe = new SamusKinematicsState { ProbeContactDamageIndex = ProbeContactDamageIndex };
+        var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
         probe.CollisionPose = CollisionPose;
         probe.Position = Position;
         probe.Radius = Radius;

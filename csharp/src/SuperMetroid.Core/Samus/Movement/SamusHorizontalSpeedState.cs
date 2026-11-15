@@ -72,7 +72,7 @@ public sealed class SamusHorizontalSpeedState
     public bool EchoSoundPlaying { get; set; }
 
     /// <summary>Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's.</summary>
-    public SamusContactDamageIndex ContactDamageIndex { get; set; }
+    public SamusBodyAttack BodyAttack { get; set; }
 
     /// <summary>
     /// Publication of the immediate suit-palette copy performed by
@@ -497,7 +497,7 @@ public sealed class SamusHorizontalSpeedState
     private void PublishBoostContactDamage()
     {
         if (IsActivelySpeedBoosting)
-            ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
+            BodyAttack = SamusBodyAttack.SpeedBooster;
     }
 
     /// <summary>

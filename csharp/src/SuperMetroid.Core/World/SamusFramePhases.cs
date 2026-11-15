@@ -392,7 +392,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
     /// <summary>
     /// Re-samples what the enemy pass can change before the movement phase runs: a cancelled prospective pose, the
-    /// stationary-script lock, updated beam hits and the contact-damage index the movement phase clears.
+    /// stationary-script lock, updated beam hits and the body attack the movement phase clears.
     /// </summary>
     internal void RunPostEnemyMainResample(SamusControlFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
     {
@@ -411,10 +411,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
             room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(projectiles, bombProjectiles);
 
-        // The enemy pass consumes the preceding frame's contact-damage index.
+        // The enemy pass consumes the preceding frame's body attack.
         // Only the movement phase clears it, before movement republishes the current value.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
-            samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+            samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
     }
 
     /// <summary>

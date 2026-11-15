@@ -88,7 +88,7 @@ internal static class RunningCadenceVerification
                 next = (ushort)(LittleEndianBytes.HighByteInPlace(next) | SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, low);
-            speed.ContactDamageIndex = SamusContactDamageIndex.None;
+            speed.BodyAttack = SamusBodyAttack.None;
             int frame = 7;
             if (admitted && raw == 0)
             {
@@ -108,7 +108,7 @@ internal static class RunningCadenceVerification
             AssertEqual(intercept ? 0 : 7, frame, "Only intercepted command resets frame");
             AssertEqual(expectedTimer, timer, "Selected first-frame delay and wrapping frame buffer");
             AssertEqual(sound ? 1 : 0, calls, "Echo call only on bit-two stage entry");
-            AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
+            AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "Animation cannot publish movement-owned boost contact damage");
         }
 
         // The queue's report, not the already-published stage, selects both the restart countdown and the first delay.

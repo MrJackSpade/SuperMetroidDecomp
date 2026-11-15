@@ -88,7 +88,7 @@ internal static class EnemyDropsVerification
     internal static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);

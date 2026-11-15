@@ -86,8 +86,8 @@ internal sealed class EnemyCollision
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
-        SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
-        if (contactDamageIndex == SamusContactDamageIndex.None && !samus.InvincibilityTimer.IsZero)
+        SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
+        if (bodyAttack == SamusBodyAttack.None && !samus.InvincibilityTimer.IsZero)
             return false;
 
         foreach (RoomEnemySlot slot in _lifecycle.InteractiveEnemies)
@@ -105,7 +105,7 @@ internal sealed class EnemyCollision
             // resetting invulnerability. Ordinary radius entry resets first instead.
             if (usesFrameHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
                 continue;
-            if (contactDamageIndex != SamusContactDamageIndex.None)
+            if (bodyAttack != SamusBodyAttack.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
             // Touch collision does not read the invisible property as a collision flag;
@@ -160,7 +160,7 @@ internal sealed class EnemyCollision
                 level,
                 usesFrameHitboxes,
                 hitboxTouch,
-                contactDamageIndex,
+                bodyAttack,
                 camera));
             return true;
         }
@@ -941,31 +941,31 @@ internal sealed class EnemyCollision
         SamusState samus,
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play)
     {
-        SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
+        SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
         int baseDamage;
         EnemyContactVulnerability contact = EnemyVulnerabilities.Of(enemy.Definition).Contact;
         EnemyWeaponVulnerability vulnerability;
-        switch (contactDamageIndex)
+        switch (bodyAttack)
         {
-            case SamusContactDamageIndex.None:
+            case SamusBodyAttack.None:
                 ApplyNormalEnemyTouchDamage(
                     samus,
                     enemy.Definition.Damage,
                     enemy.Position.X.Whole);
                 return;
-            case SamusContactDamageIndex.SpeedBooster:
+            case SamusBodyAttack.SpeedBooster:
                 baseDamage = EnemyCollisionDefinitions.SpeedBoosterContactDamage;
                 vulnerability = contact.SpeedBooster;
                 break;
-            case SamusContactDamageIndex.Shinespark:
+            case SamusBodyAttack.Shinespark:
                 baseDamage = EnemyCollisionDefinitions.ShinesparkContactDamage;
                 vulnerability = contact.Shinespark;
                 break;
-            case SamusContactDamageIndex.ScrewAttack:
+            case SamusBodyAttack.ScrewAttack:
                 baseDamage = EnemyCollisionDefinitions.ScrewAttackContactDamage;
                 vulnerability = contact.ScrewAttack;
                 break;
-            case SamusContactDamageIndex.PseudoScrew:
+            case SamusBodyAttack.PseudoScrew:
                 // The game consumes charge before checking vulnerability. Even immune
                 // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
                 SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
@@ -976,7 +976,7 @@ internal sealed class EnemyCollision
                 vulnerability = contact.PseudoScrew;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {contactDamageIndex}.");
+                throw new InvalidOperationException($"Undefined {nameof(SamusBodyAttack)} {bodyAttack}.");
         }
         int damage = vulnerability.DamageFrom(baseDamage);
         if (damage == 0)

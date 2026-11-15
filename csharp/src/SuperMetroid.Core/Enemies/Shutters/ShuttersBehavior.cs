@@ -300,11 +300,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The shared idle-shutter contact test: Samus's solid-enemy contacts this update name this shutter, as
     /// <see cref="SolidContactSlotCombination"/> combines the room's places of the enemies she met, and her
-    /// contact-damage index is nonzero.
+    /// body is an attack.
     /// </summary>
     private bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus) =>
         ReferenceEquals(SolidContactSlotCombination.NamedPlace<ISolidEnemy>(samus.Kinematics.SolidEnemyContacts, _places.Slots), slot) &&
-        samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
+        samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
 
     /// <summary>Tests the strict, wrapped absolute-X proximity threshold.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(

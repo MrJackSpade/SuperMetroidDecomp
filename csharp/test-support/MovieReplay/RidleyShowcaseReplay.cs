@@ -383,7 +383,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (!SamusSnapshotWords.AlignsToSlopes(W(NativeSnapshotMemory.SlopeCollisionEnable)))
                 mismatches.Add($"Samus slope alignment: native={W(NativeSnapshotMemory.SlopeCollisionEnable):X4} disables it, which the port never does");
             Check("Samus SpeedDivisor", checked((ushort)samus.HorizontalSpeed.SpeedDivisor), NativeSnapshotMemory.SpeedDivisor);
-            Check("Samus ContactDamageIndex", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.ContactDamage.Word(samus.HorizontalSpeed.ContactDamageIndex), NativeSnapshotMemory.ContactDamageIndex);
+            Check("Samus BodyAttack", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.ContactDamage.Word(samus.HorizontalSpeed.BodyAttack), NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", SamusSnapshotWords.EncodeBallBounce(samus.MorphBallBounceState), NativeSnapshotMemory.MorphBallBounceState);
             Check("Samus bomb jump", SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest), NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);

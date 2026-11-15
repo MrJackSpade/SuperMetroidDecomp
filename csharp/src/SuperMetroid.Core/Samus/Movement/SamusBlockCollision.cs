@@ -212,7 +212,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging reaction clears vertical speed/gravity even
                         // when reached through the horizontal step.
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Horizontal,
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionBodyAttack(owner)), terrain, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         if (collided) collisionBlock = block;
                         if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
@@ -564,7 +564,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.SpecialAir:
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Vertical,
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionBodyAttack(owner)), terrain, block, Axis.Vertical,
                             ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         sandContact |= touchedSand;
                     }

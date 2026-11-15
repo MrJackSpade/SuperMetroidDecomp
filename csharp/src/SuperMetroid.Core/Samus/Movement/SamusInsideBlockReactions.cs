@@ -191,7 +191,7 @@ public static class SamusInsideBlockReactions
                 throw new InvalidOperationException(
                     $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
         }
-        if (contact.ContactDamage == SamusContactDamageIndex.SpeedBooster)
+        if (contact.ContactDamage == SamusBodyAttack.SpeedBooster)
         {
             displacement = SignedSixteenSixteen.Zero;
             return SpecialAirCollisionOutcome.Blocks;

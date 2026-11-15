@@ -248,7 +248,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
-        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
+        if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
             {

@@ -193,7 +193,7 @@ level, targetPose, frameCounter, roomObjects))
         // does not yet release its independent lock on her pose input.
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // Starts the hurt flash after cancelling bomb-jump/contact damage. This is an independent
         // 60-call palette/audio lifetime, not the five-frame knockback timer established above.

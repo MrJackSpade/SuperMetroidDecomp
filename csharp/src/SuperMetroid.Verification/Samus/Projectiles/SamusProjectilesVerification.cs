@@ -438,7 +438,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int family = 0; family < 2; family++)
     {
         bool pseudoScrew = family == 1;
-        chargeSamus.HorizontalSpeed.ContactDamageIndex = pseudoScrew ? SamusContactDamageIndex.PseudoScrew : SamusContactDamageIndex.None;
+        chargeSamus.HorizontalSpeed.BodyAttack = pseudoScrew ? SamusBodyAttack.PseudoScrew : SamusBodyAttack.None;
         for (int suit = 0; suit < suitEquipment.Length; suit++)
         {
             chargeSamus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(suitEquipment[suit]);
@@ -475,7 +475,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // Any grapple function other than inactive takes `$D7B0` immediately. Seed index two
     // with one eligible call, then prove a firing grapple resets it instead of merely
     // pausing and resuming on the second palette.
-    chargeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+    chargeSamus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
     chargeSamus.EquippedItems = 0;
     chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
     AssertEqual(1, chargeProjectiles.Charge.ChargePaletteStep,

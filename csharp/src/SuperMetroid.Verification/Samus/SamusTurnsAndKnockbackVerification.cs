@@ -403,10 +403,10 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
         (ControllerButton.Right | ControllerButton.A),
         1);
     AssertEqual((wallStartY - 5), eligible.Position.Y.Whole, "wall launch moves by old 4.A000 speed");
-    AssertEqual(SamusContactDamageIndex.PseudoScrew, eligible.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusBodyAttack.PseudoScrew, eligible.HorizontalSpeed.BodyAttack,
         "charged wall-jump frames three through 22 publish damage index four");
 
-    eligible.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+    eligible.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
     eligible.AnimationFrame = 0x17;
     SamusAerialMovement.StepWallJump(
 
@@ -414,7 +414,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
         eligible,
         (ControllerButton.Right | ControllerButton.A),
         2);
-    AssertEqual(SamusContactDamageIndex.ScrewAttack, eligible.HorizontalSpeed.ContactDamageIndex,
+    AssertEqual(SamusBodyAttack.ScrewAttack, eligible.HorizontalSpeed.BodyAttack,
         "wall-jump frame 23 publishes Screw-style damage index three");
 
     SamusState CreateSpinSamus(ushort animationFrame)
@@ -765,7 +765,7 @@ floorLevel, downKnockback, frameCounter: 0);
         };
         SamusPoseMetadata.RefreshCollisionRadii(ball);
         SamusPresentation.InitializeAnimation(ball, initialFrame: 3);
-        ball.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
+        ball.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         int preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
 
@@ -782,7 +782,7 @@ floorLevel, downKnockback, frameCounter: 0);
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} retains rolling animation timer");
         AssertEqual(SamusBombJumpRequest.None, ball.BombJumpRequest,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start clears pending bomb jump");
-        AssertEqual(SamusContactDamageIndex.None, ball.HorizontalSpeed.ContactDamageIndex,
+        AssertEqual(SamusBodyAttack.None, ball.HorizontalSpeed.BodyAttack,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start clears contact damage");
         AssertEqual(SamusBallBounceState.SpringBallSecondRebound, ball.MorphBallBounceState,
             $"morphed pose ${(int)SamusPoseNumbers.Number(pose):X2} start leaves bounce state until completion");

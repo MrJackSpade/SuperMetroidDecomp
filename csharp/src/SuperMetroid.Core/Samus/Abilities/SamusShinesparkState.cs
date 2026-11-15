@@ -569,7 +569,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
 false);
         }
 
-        samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.Shinespark;
+        samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.Shinespark;
         samus.HurtFlash.HoldAt(MovingSparkHurtFlashCount);
 
         // Each moving phase samples echoes before motion. Runtime suppresses its ordinary

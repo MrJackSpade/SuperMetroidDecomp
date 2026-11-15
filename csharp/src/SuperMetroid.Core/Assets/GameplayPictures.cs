@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public enum GameplayPictures
 {
     /// <summary>
-    /// The room the frame shows: its tileset's block pictures on layers 1 and 2, its library background or sky, its X-ray
+    /// The room the frame shows: its tileset's block pictures in its foreground and background, its library background or sky, its X-ray
     /// reveal and its turning floor.
     /// </summary>
     Room,

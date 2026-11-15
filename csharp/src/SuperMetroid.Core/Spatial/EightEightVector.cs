@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A two-dimensional signed 1/256-pixel velocity or acceleration: each axis is one
+/// A two-dimensional signed 1/256-pixel velocity, acceleration or running displacement: each axis is one
 /// <see cref="SignedEightEight"/> value, added to a <see cref="FixedPosition{TSpace}"/> after
-/// promotion to 1/65536 pixels (<see cref="ToSixteenSixteen"/>).
+/// promotion to 1/65536 pixels (<see cref="ToSixteenSixteen"/>), or summed update by update with its fractions kept.
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the velocity is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y 1/256-pixel axes.")]
@@ -39,6 +39,9 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
     public static EightEightVector<TSpace> operator *(EightEightVector<TSpace> vector, int factor) =>
         new(SignedEightEight.Wrapped(vector.X.InTwoHundredFiftySixthsOfPixel * factor),
             SignedEightEight.Wrapped(vector.Y.InTwoHundredFiftySixthsOfPixel * factor));
+
+    /// <summary>Both axes' whole pixels, -128 through 127, each axis's fraction dropped toward negative infinity.</summary>
+    public Offset16<TSpace> Whole => new(X.WholePixels, Y.WholePixels);
 
     /// <summary>The same velocity as the 1/65536-pixel displacement used by position adders.</summary>
     public FixedVector<TSpace> ToSixteenSixteen() => new(X.ToSixteenSixteenDelta(), Y.ToSixteenSixteenDelta());

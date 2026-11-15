@@ -21,7 +21,7 @@ public abstract record MusicRequest
     /// </summary>
     public sealed record PlayAreaTheme : MusicRequest;
 
-    /// <summary>Stops the music. An empty queue position holds this request.</summary>
+    /// <summary>Stops the music.</summary>
     public sealed record StopMusic : MusicRequest;
 
     /// <summary>Changes the music data set to <paramref name="DataSet"/>, which stops the music.</summary>

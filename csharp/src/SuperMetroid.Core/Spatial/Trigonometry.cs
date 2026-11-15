@@ -17,7 +17,7 @@ public static class Trigonometry
     /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
     /// The #1165 research evaluator used bounded decimal arithmetic, not Math.Sin.
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
-    /// input angle before sampling. Individual investigation: #625 / #909.
+    /// input angle before sampling.
     /// </remarks>
     public static int FineSignedSine(TrigonometryAngle angle)
     {
@@ -52,8 +52,7 @@ public static class Trigonometry
     /// quarter-turn magnitude as exactly 256; the coarse half-wave saturates it to 255.
     /// The #1165 research also checked the entire 320-entry negative-cosine prefix/full
     /// sine view. The backend's scroll-wave shader (#1468) draws ripples from
-    /// these same samples.
-    /// Individual investigation: #625 / #910.</remarks>
+    /// these same samples.</remarks>
     public static int SignedSine(TrigonometryAngle angle)
     {
         int steps = angle.StepsIntoHalfTurn;

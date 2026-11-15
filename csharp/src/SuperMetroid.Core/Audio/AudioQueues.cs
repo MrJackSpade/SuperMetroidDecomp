@@ -100,8 +100,8 @@ public sealed class AudioQueues
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
 
-        // Starting the game installs the shared sounds, then stops the music and withdraws library
-        // two's request before the first ordinary update.
+        // Starting the game installs the shared sounds, then stops the music and withdraws the enemy
+        // sound library's request before the first ordinary update.
         _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
         _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies));
@@ -193,8 +193,8 @@ public sealed class AudioQueues
     /// Runs the shared permanent-item music sequence.
     /// </summary>
     /// <remarks>
-    /// Every exposed, Chozo, and shot-block item reaches the item fanfare with track
-    /// two before its pickup step schedules the room track's return.
+    /// Every exposed, Chozo, and shot-block item reaches the item fanfare
+    /// (<see cref="MusicTrack.ItemFanfare"/>) before its pickup step schedules the room track's return.
     /// That step snapshots the currently playing room track, queues silence after 360
     /// frames, then restores that snapshot eight frames later. Queue clearing is part of
     /// the first step: retaining an older delayed room-track request can pre-empt the fanfare.

@@ -38,6 +38,13 @@ internal static class ControllerInputRecordingVerification
         expected.Write(bytes);
         AssertEqual(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.WrittenBytes()[8..]),
             "legacy input recording retains version-one bytes");
+        // The recording numbers the map reveal none, public, secret from zero (#2008), whatever values the game's mode has.
+        AssertEqual(2, (bytes.WrittenBytes()[20] & ControllerInputRecordingFormat.MapRevealMask) >> ControllerInputRecordingFormat.MapRevealShift,
+            "a recording keeps the secret map reveal as number two");
+        byte[] unnumberedReveal = bytes.ToArray();
+        unnumberedReveal[20] |= ControllerInputRecordingFormat.MapRevealMask;
+        AssertThrows<InvalidDataException>(() => ControllerInputRecording.Read(new MemoryStream(unnumberedReveal)),
+            "a recording whose map reveal is number three is rejected");
         bytes.Position = 0;
         ControllerInputRecording actual = ControllerInputRecording.Read(bytes);
 

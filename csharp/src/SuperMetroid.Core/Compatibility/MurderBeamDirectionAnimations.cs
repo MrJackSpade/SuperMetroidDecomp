@@ -18,22 +18,22 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TDirection">A shot direction.</typeparam>
 /// <typeparam name="TAnimation">An animation.</typeparam>
-[CompatibilityService("the Murder Beam's shot runs the animation each direction reads from the Power Bomb's program list and the lists stored after it")]
+[CompatibilityService("the Murder Beam's shot runs the animation each direction reads from the Power Bomb's animation list and the lists stored after it")]
 public sealed class MurderBeamDirectionAnimations<TDirection, TAnimation>
     where TDirection : notnull
     where TAnimation : struct
 {
     /// <summary>The animation each readable direction runs, or null for the direction that runs none.</summary>
-    private readonly IReadOnlyDictionary<TDirection, TAnimation?> _programs;
+    private readonly IReadOnlyDictionary<TDirection, TAnimation?> _animations;
 
     /// <summary>Keeps the animation each readable direction runs.</summary>
     /// <param name="animations">The animation each direction whose read names one runs, or null for the direction whose read is empty.</param>
-    public MurderBeamDirectionAnimations(IReadOnlyDictionary<TDirection, TAnimation?> animations) => _programs = Ensure.NotNull(animations);
+    public MurderBeamDirectionAnimations(IReadOnlyDictionary<TDirection, TAnimation?> animations) => _animations = Ensure.NotNull(animations);
 
     /// <summary>The animation the shot fired in <paramref name="direction"/> runs, or null for none.</summary>
     /// <exception cref="InvalidDataException">The direction reads a damage value as an animation.</exception>
     public TAnimation? Animation(TDirection direction) =>
-        _programs.TryGetValue(direction, out TAnimation? animation)
+        _animations.TryGetValue(direction, out TAnimation? animation)
             ? animation
             : throw new InvalidDataException($"The Murder Beam fired {direction} reads a damage word as its animation.");
 }

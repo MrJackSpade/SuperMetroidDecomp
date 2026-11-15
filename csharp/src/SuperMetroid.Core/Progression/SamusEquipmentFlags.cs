@@ -25,23 +25,23 @@ public enum SamusEquipmentFlags
     ScrewAttack = 1 << 3,
 
     /// <summary>Enables Gravity Suit movement protection and the game's strongest damage reduction.</summary>
-    GravitySuit = 1 << 5,
+    GravitySuit = 1 << 4,
 
     /// <summary>Applies the Hi-Jump Boots' increased jump acceleration.</summary>
-    HiJumpBoots = 1 << 6,
+    HiJumpBoots = 1 << 5,
 
     /// <summary>Allows repeated aerial jumps while Samus remains in a spin-jump state.</summary>
-    SpaceJump = 1 << 7,
+    SpaceJump = 1 << 6,
 
     /// <summary>Allows morph-ball bomb placement.</summary>
-    Bombs = 1 << 8,
+    Bombs = 1 << 7,
 
     /// <summary>Enables speed-boost charge accumulation while running.</summary>
-    SpeedBooster = 1 << 9,
+    SpeedBooster = 1 << 8,
 
     /// <summary>Makes the Grapple Beam selectable in the HUD.</summary>
-    GrappleBeam = 1 << 10,
+    GrappleBeam = 1 << 9,
 
     /// <summary>Makes the X-ray Scope selectable in the HUD.</summary>
-    XrayScope = 1 << 11,
+    XrayScope = 1 << 10,
 }

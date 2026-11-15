@@ -36,9 +36,9 @@ internal static class EscapeTimerDefinitions
     /// <summary>The pixel row the timer settles at.</summary>
     internal const int SettledY = 48;
 
-    /// <summary>How far right the timer moves each update while moving into place, in 1/256 pixels.</summary>
-    internal const int RightwardSubpixelsPerFrame = 224;
+    /// <summary>How far right the timer moves each update while moving into place.</summary>
+    internal static readonly SignedEightEight RightwardSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224);
 
-    /// <summary>How far up the timer moves each update while moving into place, in 1/256 pixels.</summary>
-    internal const int UpwardSubpixelsPerFrame = 193;
+    /// <summary>How far up the timer moves each update while moving into place.</summary>
+    internal static readonly SignedEightEight UpwardSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(193);
 }

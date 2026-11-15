@@ -18,15 +18,16 @@ internal static class RoomEnemySlotSpawnWords
 
     /// <summary>
     /// Rewrites the words of the slot's entry as <paramref name="species"/> reads them: the current settings' words when
-    /// they are that species' kind, otherwise empty words, changed by <paramref name="change"/>.
+    /// they are that species' kind, otherwise the species' blank words, changed by <paramref name="change"/>.
     /// </summary>
     internal static void SetSpawnWords(this RoomEnemySlot slot, EnemyDefinitionId species, Func<PopulationWords, PopulationWords> change)
     {
         RoomEnemyPlacement current = slot.Spawn.Population;
-        Type kind = EnemySpawnSettingsCodec.Decode(species, default).GetType();
+        PopulationWords blank = EnemySpawnSettingsCodec.Blank(species);
+        Type kind = EnemySpawnSettingsCodec.Decode(species, blank).GetType();
         PopulationWords words = !current.Equals(default(RoomEnemyPlacement)) && current.SpawnSettings.GetType() == kind
-            ? EnemySpawnSettingsCodec.Encode(current.SpawnSettings)
-            : default;
+            ? EnemySpawnSettingsCodec.Encode(species, current.SpawnSettings)
+            : blank;
         slot.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words)));
     }
 }

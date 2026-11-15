@@ -96,7 +96,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             Action = program.Active
                 ? FuneNamiheAction.Spitting
                 : program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
-            Variant = program.Namihe ? FuneNamiheVariant.Namihe : FuneNamiheVariant.Fune,
+            IsNamihe = program.Namihe,
             Playback = new(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation),
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);

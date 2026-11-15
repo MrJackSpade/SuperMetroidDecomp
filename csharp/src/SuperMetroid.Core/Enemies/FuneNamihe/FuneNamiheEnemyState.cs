@@ -19,9 +19,6 @@ public sealed class FuneNamiheEnemyState
     /// <summary>Strict vertical wake distance in pixels used only by Namihe, from the spawn settings.</summary>
     public int YProximity { get; internal set; }
 
-    /// <summary>Whether it behaves as a Fune or a Namihe, from the spawn settings.</summary>
-    public FuneNamiheVariant Variant { get; internal set; }
-
     /// <summary>
     /// Fune's incrementing cooldown count of waiting updates, 0 through 65535, compared with <see cref="CooldownTime"/>
     /// as a signed difference and reset to zero when the wait ends; the waiting step's increment wraps it past
@@ -32,6 +29,6 @@ public sealed class FuneNamiheEnemyState
     /// <summary>The number of updates Fune waits, from the spawn settings.</summary>
     public int CooldownTime { get; internal set; }
 
-    /// <summary>Whether it behaves as a Namihe.</summary>
-    public bool IsNamihe => Variant == FuneNamiheVariant.Namihe;
+    /// <summary>Whether it is a Namihe, which waits for Samus, rather than a Fune, which spits on its cooldown.</summary>
+    public bool IsNamihe { get; internal set; }
 }

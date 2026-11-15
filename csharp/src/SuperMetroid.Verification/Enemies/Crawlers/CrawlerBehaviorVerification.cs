@@ -23,13 +23,13 @@ internal static class CrawlerBehaviorVerification
     {
         CrawlerBehaviorFamily[] families =
         [
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Shared, EnemyDefinitionId.Zoomer, null),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola, CrawlerAnimationFamily.Viola),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser, CrawlerAnimationFamily.Sciser),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero, CrawlerAnimationFamily.Zero),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer, null),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Shared, EnemyDefinitionId.Zoomer),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer),
         ];
-        foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, CrawlerAnimationFamily? speciesSurfaceFamily) in families)
+        foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork?.Bosses);
@@ -38,13 +38,13 @@ internal static class CrawlerBehaviorVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // The population entry names the surface; InitAI_Viola reads its block side instead.
             if (family == CrawlerAnimationFamily.Viola)
-                slot.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             else
-                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared));
+                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (family == CrawlerAnimationFamily.HZoomer)
                 CrawlersBehavior.InitializeHZoomer(slot);
             else
-                CrawlersBehavior.InitializeCrawler(slot, family, speciesSurfaceFamily);
+                CrawlersBehavior.InitializeCrawler(slot, family);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerSegment program = CrawlerSurfaceAnimations.AnimationFor(family, orientation);
             string context = $"{family} {orientation}";

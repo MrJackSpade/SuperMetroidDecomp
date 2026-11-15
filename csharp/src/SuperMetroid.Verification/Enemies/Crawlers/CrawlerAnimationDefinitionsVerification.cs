@@ -17,11 +17,11 @@ internal static class CrawlerAnimationDefinitionsVerification
     {
         InitialTable[] initialTables =
         [
-            new InitialTable(CrawlerAnimationFamily.Shared, 0xa3e2cc, null),
-            new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667, CrawlerAnimationFamily.Viola),
-            new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db, CrawlerAnimationFamily.Sciser),
-            new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b, CrawlerAnimationFamily.Zero),
-            new InitialTable(CrawlerAnimationFamily.HZoomer, 0xa3e03b, null),
+            new InitialTable(CrawlerAnimationFamily.Shared, 0xa3e2cc),
+            new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667),
+            new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db),
+            new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b),
+            new InitialTable(CrawlerAnimationFamily.HZoomer, 0xa3e03b),
         ];
         CrawlerSurfaceOrientation[] orientations =
         [
@@ -31,7 +31,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             CrawlerSurfaceOrientation.UpsideUp,
         ];
 
-        foreach ((CrawlerAnimationFamily family, int address, _) in initialTables)
+        foreach ((CrawlerAnimationFamily family, int address) in initialTables)
         for (int orientation = 0; orientation < 4; orientation++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
@@ -52,7 +52,7 @@ internal static class CrawlerAnimationDefinitionsVerification
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }
 
-        foreach ((CrawlerAnimationFamily family, _, CrawlerAnimationFamily? speciesSurfaceFamily) in initialTables)
+        foreach ((CrawlerAnimationFamily family, _) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -60,15 +60,15 @@ internal static class CrawlerAnimationDefinitionsVerification
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
-            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared),
+            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))),
                 SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
                     new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
                 $"crawler population words {orientation} decode to its surface and block side");
-            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared));
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
-                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0)), SurfaceFamily: CrawlerAnimationFamily.Shared));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             }
             slot.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (family == CrawlerAnimationFamily.HZoomer)
@@ -77,8 +77,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             }
             else
             {
-                new Action<RoomEnemySlot, CrawlerAnimationFamily, CrawlerAnimationFamily?>(CrawlersBehavior.InitializeCrawler)(
-                        slot, family, speciesSurfaceFamily);
+                new Action<RoomEnemySlot, CrawlerAnimationFamily>(CrawlersBehavior.InitializeCrawler)(slot, family);
             }
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(

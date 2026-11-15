@@ -416,7 +416,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
         {
-            firefleaRecord.AngularSpeed = FirefleaBehavior.TurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
+            firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
             firefleaRecord.Angle = RotationAngle.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);
@@ -741,7 +741,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             funeNamihe.Action = words.B == 0 ? null : FuneNamiheNativeWords.FuneNamiheActions.Decode(words.B, "recorded FuneNamiheAction");
             funeNamihe.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
-            funeNamihe.Variant = Index(words.D, 15, "Fune/Namihe variant") == 0 ? FuneNamiheVariant.Fune : FuneNamiheVariant.Namihe;
+            if ((Index(words.D, 15, "Fune/Namihe behaviour") != 0) != funeNamihe.IsNamihe)
+                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names the other species.");
             funeNamihe.CooldownTimer = words.E;
             funeNamihe.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);

@@ -22,7 +22,7 @@ internal static class CrawlerOwnedStateVerification
         slot.Contact = EnemyContact.None;
         slot.Processing = EnemyProcessing.None;
         slot.Presence = EnemyPresence.None;
-        CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared, null);
+        CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
         CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
         int speed = CrawlerSpeeds.ForParameter(2);
         AssertEqual(new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),

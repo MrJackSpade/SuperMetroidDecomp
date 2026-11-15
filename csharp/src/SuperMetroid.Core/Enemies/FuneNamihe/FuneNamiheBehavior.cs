@@ -60,7 +60,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Takes the variant, facing, cooldown and Y proximity from the spawn settings, then starts the corresponding idle animation.</summary>
+    /// <summary>Takes the facing, cooldown and Y proximity from the spawn settings, then starts the species' idle animation.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
@@ -68,15 +68,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ShowsActiveAnimation = false,
             Action = FuneNamiheAction.FuneWaitForCooldown,
-            Variant = settings.Variant,
+            IsNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
             FacingRight = settings.Facing == HorizontalDirection.Right,
         };
 
-        // The behaviour follows the placement's variant rather than the enemy's species. This sounds redundant, but
-        // preserving it lets custom populations give one species the other's behaviour, as the game does.
         if (state.IsNamihe)
             state.Action = FuneNamiheAction.NamiheWaitForSamus;
 
@@ -207,10 +205,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Position = source.Position;
 
-        // The initializer tests the placement's variant, not the projectile definition. Namihe's mouth is four
-        // pixels lower than Fune's in the shared art.
+        // Namihe's mouth is four pixels lower than Fune's in the shared art.
         FuneNamiheSpawnSettings sourceSettings = source.SpawnSettings<FuneNamiheSpawnSettings>();
-        if (sourceSettings.Variant == FuneNamiheVariant.Namihe)
+        if (source.DefinitionId == EnemyDefinitionId.Namihe)
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 4);
 
         projectile.Velocity = new(

@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>Which part of a Magdollite a placement is, and how its head rises (#1472, #1519).</summary>
+/// <summary>Which part of a Magdollite a placement is, and, for its head, how it rises (#1472, #1519, #2023).</summary>
 /// <param name="Part">The part.</param>
-/// <param name="Speed">The speed, in pixels per update, at which the head rises and sinks.</param>
-/// <param name="Range">The horizontal distance in pixels Samus must come within.</param>
-internal sealed record MagdolliteSpawnSettings(MagdollitePart Part, SignedSixteenSixteen Speed, int Range) : EnemySpawnSettings;
+/// <param name="Rise">How the head rises; only a head placement has one, which its arm also reads.</param>
+internal sealed record MagdolliteSpawnSettings(MagdollitePart Part, MagdolliteHeadRise? Rise) : EnemySpawnSettings;

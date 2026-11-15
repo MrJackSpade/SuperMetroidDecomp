@@ -45,28 +45,22 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Initializes a crawler of any species through the shared initializer. Each species differs only by its initial
-    /// animation family and the surface family whose animations it switches between at corners: the species' own, or
-    /// the one its population entry names when the species gives none.
+    /// Initializes a crawler of any species through the shared initializer. Each species differs only by the family whose
+    /// animations it shows on each surface and switches between at corners.
     /// </summary>
-    internal static void InitializeCrawler(
-        RoomEnemySlot slot,
-        CrawlerAnimationFamily animationFamily,
-        CrawlerAnimationFamily? speciesSurfaceFamily = null)
+    internal static void InitializeCrawler(RoomEnemySlot slot, CrawlerAnimationFamily animationFamily)
     {
         // The population entry names the starting surface. The Viola's setup alone takes its block side
         // instead, and a Viola's entry names no surface.
         CrawlerSurfaceOrientation orientation;
         CrawlerSurfaceOrientation blockSide;
         SignedEightEight? crawlSpeed;
-        CrawlerAnimationFamily surfaceFamily;
         if (animationFamily == CrawlerAnimationFamily.Viola)
         {
             ViolaSpawnSettings viola = slot.SpawnSettings<ViolaSpawnSettings>();
             orientation = viola.BlockSide;
             blockSide = viola.BlockSide;
             crawlSpeed = viola.CrawlSpeed;
-            surfaceFamily = viola.SurfaceFamily;
         }
         else
         {
@@ -74,13 +68,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             orientation = settings.Orientation;
             blockSide = settings.BlockSide;
             crawlSpeed = settings.CrawlSpeed;
-            surfaceFamily = settings.SurfaceFamily;
         }
 
         var state = new CrawlerEnemyState
         {
             TakesDefaultSpeedOnLanding = crawlSpeed is null,
-            SurfaceFamily = speciesSurfaceFamily ?? surfaceFamily,
+            SurfaceFamily = animationFamily,
         };
         Bind(slot, state);
 
@@ -127,7 +120,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new CrawlerEnemyState
         {
             Action = CrawlerAction.HZoomerAwaitingAnimationCue,
-            SurfaceFamily = settings.SurfaceFamily,
+            SurfaceFamily = CrawlerAnimationFamily.HZoomer,
         };
         Bind(slot, state);
         CrawlerSurfaceOrientation orientation = settings.Orientation;
@@ -496,15 +489,15 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Sciser's initializer wrapper.</summary>
     internal static void InitializeSciserAi(RoomEnemySlot slot) =>
-        InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesSurfaceFamily: CrawlerAnimationFamily.Sciser);
+        InitializeCrawler(slot, CrawlerAnimationFamily.Sciser);
 
     /// <summary>Runs Zero's initializer wrapper.</summary>
     internal static void InitializeZeroAi(RoomEnemySlot slot) =>
-        InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesSurfaceFamily: CrawlerAnimationFamily.Zero);
+        InitializeCrawler(slot, CrawlerAnimationFamily.Zero);
 
     /// <summary>Runs Viola's initializer wrapper.</summary>
     internal static void InitializeViolaAi(RoomEnemySlot slot) =>
-        InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesSurfaceFamily: CrawlerAnimationFamily.Viola);
+        InitializeCrawler(slot, CrawlerAnimationFamily.Viola);
 
     /// <summary>Runs the shared initializer wrapper Zeela, Sova, Zoomer and MZoomer use.</summary>
     internal static void InitializeSharedCrawlerAi(RoomEnemySlot slot) =>

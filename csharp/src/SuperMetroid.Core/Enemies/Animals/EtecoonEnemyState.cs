@@ -32,7 +32,7 @@ public sealed class EtecoonEnemyState
 
     /// <summary>
     /// The updates an earthquake still suspends the Etecoon for: an earthquake starts
-    /// <see cref="EtecoonQuakeDefinitions.QuakePauseFrames"/>, and every retail Etecoon's spawn settings start none.
+    /// <see cref="EtecoonQuakeDefinitions.QuakePauseFrames"/>, and an Etecoon is placed with none.
     /// </summary>
     public int QuakePauseFrames
     {
@@ -41,7 +41,7 @@ public sealed class EtecoonEnemyState
     }
 
     /// <summary>
-    /// Whether the Etecoon is heading right, from its spawn settings until it first takes a heading of its own.
+    /// Whether the Etecoon is heading right: it is placed heading left, until it first takes a heading of its own.
     /// </summary>
     /// <remarks>
     /// The game keeps the heading and <see cref="TeachingHops"/> together and tests them together, so a hop count
@@ -52,8 +52,8 @@ public sealed class EtecoonEnemyState
     public bool HeadingRight { get; internal set; }
 
     /// <summary>
-    /// Teaching hops taken since the count was last emptied, starting from the spawn settings (none in every retail
-    /// Etecoon): the count empties on reaching <see cref="TeachingHopsPerLesson"/>.
+    /// Teaching hops taken since the count was last emptied, none when the Etecoon is placed: the count empties on reaching
+    /// <see cref="TeachingHopsPerLesson"/>.
     /// </summary>
     public int TeachingHops
     {
@@ -68,12 +68,6 @@ public sealed class EtecoonEnemyState
         TeachingHops = 0;
     }
 
-    /// <summary>Installs the authored route and heading from the spawn settings.</summary>
-    internal void InstallSpawnSettings(EtecoonSpawnSettings settings)
-    {
-        HeadingRight = Ensure.NotNull(settings).Heading == HorizontalDirection.Right;
-        TeachingHops = settings.TeachingHops;
-        Route = settings.Route;
-        QuakePauseFrames = settings.QuakePauseFrames;
-    }
+    /// <summary>Installs the authored route from the spawn settings.</summary>
+    internal void InstallSpawnSettings(EtecoonSpawnSettings settings) => Route = Ensure.NotNull(settings).Route;
 }

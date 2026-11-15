@@ -27,8 +27,8 @@ public sealed class CrawlerEnemyState
     public bool TakesDefaultSpeedOnLanding { get; internal set; }
 
     /// <summary>
-    /// The family whose animations the crawler switches between when it turns a corner: the species' own, or the one
-    /// its population entry names when the species gives none.
+    /// The family whose animations the crawler shows on each surface and switches between when it turns a corner: its
+    /// species' own.
     /// </summary>
     public CrawlerAnimationFamily SurfaceFamily { get; internal set; }
 

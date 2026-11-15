@@ -44,7 +44,7 @@ internal static class FirefleaMovementDefinitionsVerification
         {
             var speed = SignedSixteenSixteen.FromParts(whole, fraction);
             ushort expected = unchecked((ushort)((whole << 8) | (fraction >> 8)));
-            AssertEqual(expected, FirefleaBehavior.TurnPerUpdate(speed).RawValue, $"Fireflea turn at speed {whole}+{fraction}/65536");
+            AssertEqual(expected, SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(speed).RawValue, $"Fireflea turn at speed {whole}+{fraction}/65536");
         }
 
         Console.WriteLine(

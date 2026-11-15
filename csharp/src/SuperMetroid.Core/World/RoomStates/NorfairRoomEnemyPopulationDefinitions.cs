@@ -325,8 +325,8 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 6),
         new(nameof(RoomEnemyPopulationDefinitions.Pillar),
         [
-            new(EnemyDefinitionId.Puromi, new(400, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: SignedSixteenSixteen.FromParts(1, 0), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
-            new(EnemyDefinitionId.Puromi, new(720, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: SignedSixteenSixteen.FromParts(1, 0), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
+            new(EnemyDefinitionId.Puromi, new(400, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
+            new(EnemyDefinitionId.Puromi, new(720, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrocomireEscape),
         [

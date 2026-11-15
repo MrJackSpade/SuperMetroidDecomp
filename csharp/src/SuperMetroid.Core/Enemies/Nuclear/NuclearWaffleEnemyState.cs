@@ -34,37 +34,37 @@ public sealed class NuclearWaffleEnemyState
     public int WaitingTimerReset { get; internal set; }
 
     /// <summary>
-    /// The sweep angle: the whole part is the head's angle in units of 1/256 turn and
-    /// the fraction carries between updates. It restarts at <see cref="SweepStartAngle"/> with a zero fraction and
-    /// moves monotonically toward <see cref="SweepEndAngle"/> until the last damaging link reaches it, so its whole
-    /// part stays between 140 and 500 and never wraps; the orbit lookup uses only its position within the turn.
+    /// The sweep angle: its whole step is the head's angle and its fraction carries between updates. It restarts at
+    /// <see cref="SweepStartAngle"/> with no fraction and moves monotonically toward <see cref="SweepEndAngle"/> until the
+    /// last damaging link reaches it, so it stays between 140 and 500 steps, counted on past the full turn rather than
+    /// wrapping; the orbit reads only its direction within the turn.
     /// </summary>
-    public SignedSixteenSixteen SweepAngle { get; internal set; }
+    public NuclearWaffleSweepAngle SweepAngle { get; internal set; }
 
-    /// <summary>The head's current angle in units of 1/256 turn: the whole part of <see cref="SweepAngle"/>.</summary>
-    public int CurrentAngle => SweepAngle.WholePixels;
+    /// <summary>The head's current angle: the whole step of <see cref="SweepAngle"/>.</summary>
+    public NuclearWaffleSweepAngle CurrentAngle => SweepAngle.WholeStep;
 
-    /// <summary>The start angle: 400 for the backward sweep or 240 for the forward one.</summary>
-    public int SweepStartAngle { get; internal set; }
-    /// <summary>The finish angle: 240 for the backward sweep or 400 for the forward one; the last damaging link's clamp result determines sweep completion.</summary>
-    public int SweepEndAngle { get; internal set; }
+    /// <summary>The start angle: 400 steps for the backward sweep or 240 for the forward one.</summary>
+    public NuclearWaffleSweepAngle SweepStartAngle { get; internal set; }
+    /// <summary>The finish angle: 240 steps for the backward sweep or 400 for the forward one; the last damaging link's clamp result determines sweep completion.</summary>
+    public NuclearWaffleSweepAngle SweepEndAngle { get; internal set; }
     /// <summary>
-    /// Signed 1/65536-step angular speed in 1/256-turn units per AI update: the spawn settings' angular speed for a forward
-    /// sweep and its negation for a backward one.
+    /// How fast the sweep angle turns each AI update: the spawn settings' angular speed for a forward sweep and its
+    /// reversal for a backward one.
     /// </summary>
-    public SignedSixteenSixteen AngularSpeed { get; internal set; }
+    public AngularSpeed AngularSpeed { get; internal set; }
     /// <summary>The arc origin: initial population position in whole room pixels, retained as the fixed orbit center.</summary>
     public Position16<RoomPixels> Origin { get; internal set; }
     /// <summary>The link spawn position: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
     public Position16<RoomPixels> InitialHead { get; internal set; }
-    /// <summary>Signed same-pool link pitch, -24 backward or +24 forward, subtracted successively from each link angle.</summary>
+    /// <summary>Signed same-pool link pitch in steps, -24 backward or +24 forward, subtracted successively from each link angle.</summary>
     public int SegmentSpacing { get; internal set; }
-    /// <summary>Signed half-pitch, -12 or +12 angle units, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
+    /// <summary>Signed half-pitch in steps, -12 or +12, added before the projectile-link loop to stagger it against the sprite-object links.</summary>
     public int InterleavedSegmentOffset { get; internal set; }
-    /// <summary>The falling explosion angle: 256 backward or 384 forward; crossing it is the silent second joint turn.</summary>
-    public int FallingTurnThreshold { get; internal set; }
-    /// <summary>The rising explosion angle: 384 backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>
-    public int RisingTurnThreshold { get; internal set; }
+    /// <summary>The falling explosion angle: 256 steps backward or 384 forward; crossing it is the silent second joint turn.</summary>
+    public NuclearWaffleSweepAngle FallingTurnThreshold { get; internal set; }
+    /// <summary>The rising explosion angle: 384 steps backward or 256 forward; crossing it is the joint turn that queues the turn sound.</summary>
+    public NuclearWaffleSweepAngle RisingTurnThreshold { get; internal set; }
     /// <summary>Which turn threshold the head last crossed; a change spawns two turn sprite objects at the head's previous position.</summary>
     public NuclearWaffleTurnState HeadOrientationState { get; internal set; }
     /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>

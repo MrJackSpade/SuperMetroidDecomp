@@ -223,8 +223,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
                 if (TickGunshipPhaseTimer(top))
                 {
                     State(top).Phase = GunshipPhase.Idle;
-                    if (samus is not null)
-                        samus.Control.Unlock();
+                    samus.Control.Unlock();
                     _frameResults.Gunship = GunshipFrameEvent.LandingCompleted;
                 }
                 return;
@@ -260,8 +259,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
                 if (TickGunshipPhaseTimer(top))
                 {
                     State(top).Phase = GunshipPhase.Idle;
-                    if (samus is not null)
-                        samus.Control.Unlock();
+                    samus.Control.Unlock();
                     _frameResults.Gunship = GunshipFrameEvent.ExitCompleted;
                 }
                 return;

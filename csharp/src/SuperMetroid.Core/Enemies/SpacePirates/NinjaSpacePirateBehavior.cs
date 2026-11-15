@@ -141,10 +141,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateAction.FollowingAnimation:
                 return;
             case NinjaSpacePirateAction.Initial:
-                RunNinjaPirateInitial(slot, state, RequireSamus(), samusProjectiles);
+                RunNinjaPirateInitial(slot, state, samus, samusProjectiles);
                 return;
             case NinjaSpacePirateAction.Active:
-                RunNinjaPirateActive(slot, state, RequireSamus(), samusProjectiles);
+                RunNinjaPirateActive(slot, state, samus, samusProjectiles);
                 return;
             case NinjaSpacePirateAction.SpinJumpLeftRising:
                 StepNinjaPirateSpinJump(slot, state, direction: HorizontalDirection.Left, vertical: VerticalDirection.Up);
@@ -162,7 +162,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 RunNinjaPirateReadyToDivekick(
                     slot,
                     state,
-                    RequireSamus(),
+                    samus,
                     samusProjectiles);
                 return;
             case NinjaSpacePirateAction.DivekickLeftJump:
@@ -187,9 +187,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 throw new InvalidDataException(
                     $"Ninja Space Pirate has no behaviour for action {state.Action}.");
         }
-
-        SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
-            "Ninja Space Pirate decision AI requires the active Samus actor.");
     }
 
     /// <summary>Waits for Samus to approach, then selects the active animation facing her.</summary>

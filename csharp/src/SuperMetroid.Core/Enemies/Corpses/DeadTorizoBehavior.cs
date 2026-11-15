@@ -68,7 +68,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The custom detector remains enabled while the intact corpse is solid. Rotting
         // disables interaction separately, after publishing Samus's external displacement.
         if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus) &&
-            samus is not null &&
             DeadTorizoCustomHitboxOverlaps(slot, samus))
         {
             TriggerDeadTorizoRotting(slot);
@@ -77,7 +76,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Phase)
         {
             case DeadTorizoPhase.Wait:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
+                if (samus.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Phase = DeadTorizoPhase.PreRot;
                 break;
 

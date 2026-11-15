@@ -88,7 +88,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         switch (state.Action)
         {
             case WallSpacePirateAction.ClimbingLeftWall:
-                if (WallSpacePirateCanAttack(slot, RequireSamus()))
+                if (WallSpacePirateCanAttack(slot, samus))
                 {
                     StartWallSpacePirateAnimation(
                         slot,
@@ -98,7 +98,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case WallSpacePirateAction.ClimbingRightWall:
-                if (WallSpacePirateCanAttack(slot, RequireSamus()))
+                if (WallSpacePirateCanAttack(slot, samus))
                 {
                     StartWallSpacePirateAnimation(
                         slot,
@@ -123,9 +123,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 throw new InvalidDataException(
                     $"Wall Space Pirate has no behaviour for action {state.Action}.");
         }
-
-        SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
-            "Wall Space Pirate detection requires the active Samus position.");
     }
 
     /// <summary>

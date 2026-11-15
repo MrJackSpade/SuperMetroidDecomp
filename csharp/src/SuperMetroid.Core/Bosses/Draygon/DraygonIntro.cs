@@ -24,7 +24,7 @@ internal sealed class DraygonIntro
     /// <summary>Runs the opening 256-frame delay.</summary>
     internal void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
@@ -58,7 +58,7 @@ internal sealed class DraygonIntro
     /// <summary>Runs the 1,232-frame Evir dance.</summary>
     internal void RunDraygonIntroDance(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);

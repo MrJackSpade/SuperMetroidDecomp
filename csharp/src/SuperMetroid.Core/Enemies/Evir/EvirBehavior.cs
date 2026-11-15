@@ -264,8 +264,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Evir facing AI requires the active Samus actor.");
+        SamusState activeSamus = samus;
         state.Facing = CoordinateAxis.Difference(activeSamus.Position.X.Whole, body.Position.X.Whole) < 0
             ? EvirFacing.Left
             : EvirFacing.Right;
@@ -307,8 +306,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Evir projectile aiming requires the active Samus actor.");
+        SamusState activeSamus = samus;
         RoomEnemySlot body = RequireSpitBody(projectile);
         if (!EnemyMath.IsWithinStrictModularDistance(
                 activeSamus.Position.X.Whole,

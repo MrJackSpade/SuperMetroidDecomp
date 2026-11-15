@@ -135,11 +135,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
-    private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState? samus)
+    private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Botwoon main AI requires the active Samus actor.");
-
         // A fatal hit does not delete Botwoon. He keeps following his current path until
         // the tail has crossed the next hole, then the synchronized head/body death begins.
         if (state.PendingDeath && state.ExitTransitionComplete)

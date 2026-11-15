@@ -54,8 +54,8 @@ internal static class RidleyFlightTailVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState> tail = enemies.RidleyTail.TickRidleyTail;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
@@ -67,10 +67,10 @@ internal static class RidleyFlightTailVerification
                 Angle = RidleyTailAngle.StraightDown.TurnedClockwise(16), Distance = RidleyTailReach.RestDistance(index),
             }).ToArray(),
         };
-        run(slot, state, null, 0, null);
+        run(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyTailAction.PointDown, state.TailAction, "pogo wait runs pointed-tail setup");
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.TailSegments[0].Angle, "setup immediately advances tail by eight");
-        tail(slot, state, null);
+        tail(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.Pogo, state.TailAction, "all pointed segments finish into normal pogo");
         AssertTrue(state.TailSegments.All(segment => segment.Angle == RidleyTailAngle.StraightDown && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
@@ -78,16 +78,16 @@ internal static class RidleyFlightTailVerification
         AssertEqual((ushort)159, state.TailSegments[0].Position.X, "pointed root retains pre-stop native hip X");
         AssertEqual((ushort)145, state.TailSegments[0].Position.Y, "pointed root retains pre-stop native hip Y");
         state.Velocity = state.Velocity.WithY(new SignedEightEight(0));
-        tail(slot, state, null);
+        tail(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.StabSetup, state.TailAction, "descending normal pogo starts stab setup");
-        tail(slot, state, null);
+        tail(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.Stab, state.TailAction, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
         state.Phase = RidleyPhase.NorfairPogoRise;
-        run(slot, state, null, 0, null);
+        run(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyTailAction.Neutral, state.TailAction, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
-        Action<RidleyEnemyState, SamusState?, int> aim = (state, samus, turnsBeyond) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, turnsBeyond);
+        Action<RidleyEnemyState, SamusState, int> aim = (state, samus, turnsBeyond) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, turnsBeyond);
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
@@ -111,7 +111,7 @@ internal static class RidleyFlightTailVerification
         int advances = 0;
         enemies.VerificationServices().ReadRandom = () => seed;
         enemies.VerificationServices().NextRandom = () => { advances++; return 0; };
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
         state.IdleTailWhipEnabled = true;
         state.TailSegments[0].Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
         foreach (var segment in state.TailSegments) segment.Active = true;
@@ -119,7 +119,7 @@ internal static class RidleyFlightTailVerification
         neutral(slot, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState> direction = enemies.RidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
         state.MovementMinimum = state.MovementMinimum.WithX(64);
         state.MovementMaximum = state.MovementMaximum.WithX(192);
         slot.Position = slot.Position.WithWholeX(128);

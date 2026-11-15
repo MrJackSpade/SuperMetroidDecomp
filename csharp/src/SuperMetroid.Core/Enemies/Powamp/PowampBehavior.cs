@@ -99,16 +99,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunPowampInflating(slot, state, balloon);
                 return;
             case PowampAction.InflatedRiseToTargetHeight:
-                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
+                RunPowampRise(slot, state, balloon, level, hold: PowampHold.Free);
                 return;
             case PowampAction.InflatedFinishWiggle:
-                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
+                RunPowampFinishWiggle(slot, state, balloon, level, hold: PowampHold.Free);
                 return;
             case PowampAction.GrappledRiseToTargetHeight:
-                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
+                RunPowampRise(slot, state, balloon, level, hold: PowampHold.Grappled);
                 return;
             case PowampAction.GrappledFinishWiggle:
-                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
+                RunPowampFinishWiggle(slot, state, balloon, level, hold: PowampHold.Grappled);
                 return;
             case PowampAction.GrappledResting:
                 RunPowampGrappledResting(slot, state, balloon);
@@ -117,7 +117,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunPowampDeflating(slot, state, balloon);
                 return;
             case PowampAction.DeflatedSinking:
-                RunPowampSinking(slot, state, balloon, RequirePowampLevel(level));
+                RunPowampSinking(slot, state, balloon, level);
                 return;
             case PowampAction.FatalDamage:
                 BeginPowampDeathSequence(slot, state, balloon);
@@ -464,9 +464,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException($"Powamp balloon started body animation {segment}.");
     }
 
-    /// <summary>Rejects a rise or sink dispatch without room collision data.</summary>
-    private static RoomLevelData RequirePowampLevel(RoomLevelData level) =>
-        level ?? throw new InvalidOperationException("Powamp movement requires room level data.");
 
     /// <summary>Requires the balloon the body found when it was placed to be its initialized balloon half.</summary>
     private PowampBalloon RequirePowampBalloon(RoomEnemySlot body)

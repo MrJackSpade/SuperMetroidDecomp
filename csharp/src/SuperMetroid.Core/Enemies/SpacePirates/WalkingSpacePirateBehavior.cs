@@ -142,11 +142,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 break;
 
             case WalkingSpacePirateAction.WalkingLeft:
-                RunWalkingSpacePirateLeft(slot, state, RequireSamus(), RequireLevel());
+                RunWalkingSpacePirateLeft(slot, state, samus, level);
                 break;
 
             case WalkingSpacePirateAction.WalkingRight:
-                RunWalkingSpacePirateRight(slot, state, RequireSamus(), RequireLevel());
+                RunWalkingSpacePirateRight(slot, state, samus, level);
                 break;
 
             default:
@@ -157,14 +157,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The slow-laser option enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace an animation selected just above.
         if (((slot.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
-                WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None) &&
-            samus is not null)
+                WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None))
             TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
-
-        SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
-            "Walking Space Pirate movement requires the active Samus position.");
-        RoomLevelData RequireLevel() => level ?? throw new InvalidOperationException(
-            "Walking Space Pirate movement requires room collision data.");
     }
 
     /// <summary>Runs the asymmetric left walk.</summary>
@@ -554,7 +548,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             };
             c.Projectile.Direction = reflected;
             c.Projectile.IsSpent = false;
-            c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
+            c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
                 c.Projectile);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;

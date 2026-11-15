@@ -210,7 +210,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSound, priority: SoundRequestPriority.Normal);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);
-        samusProjectiles?.Reset();
+        samusProjectiles.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);
         ElevatorStatus = ElevatorActorStatus.Departing;

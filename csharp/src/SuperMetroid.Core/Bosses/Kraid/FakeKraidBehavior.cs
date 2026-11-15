@@ -46,7 +46,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of Mini-Kraid's animations. The action choice continues at the step or spit animation it
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState? samus, RoomLevelData? level, Position16<RoomPixels> camera)
+    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
     {
         switch (cue.Kind)
         {
@@ -88,14 +88,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Sets Mini-Kraid up when the room spawns it.</summary>
-    internal void InitializeFakeKraid(RoomEnemySlot slot, SamusState? samus)
+    internal void InitializeFakeKraid(RoomEnemySlot slot, SamusState samus)
     {
-        if (samus is null)
-        {
-            throw new InvalidOperationException(
-                "Fake Kraid initialization requires the active Samus position.");
-        }
-
         var state = new FakeKraidEnemyState();
         slot.SetSpeciesState(state);
 
@@ -159,15 +153,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ProcessFakeKraidWalkAnimation(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is null || level is null)
-        {
-            throw new InvalidOperationException(
-                "Fake Kraid's walk requires Samus and room collision data.");
-        }
-
         state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
 
         // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the four-pixel
@@ -392,7 +380,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Mini-Kraid's initialization AI.</summary>
     internal void RunFakeKraidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeFakeKraid(slot, surroundings.Samus);
+        InitializeFakeKraid(slot, surroundings.IntroducedSamus);
     }
 
     /// <summary>Runs Mini-Kraid's main AI.</summary>

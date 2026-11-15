@@ -119,10 +119,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Etecoon AI requires the active Samus actor.");
-        RoomLevelData activeLevel = level ?? throw new InvalidOperationException(
-            "Etecoon AI requires active room collision data.");
+        SamusState activeSamus = samus;
+        RoomLevelData activeLevel = level;
 
         switch (state.Action)
         {

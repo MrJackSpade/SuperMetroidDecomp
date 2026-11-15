@@ -212,15 +212,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueCue.Footstep footstep:
                 ProcessChozoStatueFootstep(
                     statue,
-                    RequireChozoLevel(level),
+                    level,
                     footstep.OffsetX);
                 return null;
 
             case ChozoStatueCue.Move move:
                 ProcessChozoStatueMovement(
                     statue,
-                    RequireChozoSamus(samus),
-                    RequireChozoLevel(level),
+                    samus,
+                    level,
                     move.Step);
                 return null;
 
@@ -317,16 +317,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Asks the room to spawn <paramref name="roomObject"/> at <paramref name="block"/>.</summary>
     private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>
         ChozoStatueObjectRequests.Add(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject));
-
-    /// <summary>Requires the live Samus actor for cutscene carry movement.</summary>
-    private static SamusState RequireChozoSamus(SamusState samus) =>
-        samus ?? throw new InvalidOperationException(
-            "Chozo statue movement requires the active Samus actor.");
-
-    /// <summary>Requires loaded terrain before statue movement or footstep collision probes.</summary>
-    private static RoomLevelData RequireChozoLevel(RoomLevelData level) =>
-        level ?? throw new InvalidOperationException(
-            "Chozo statue movement requires the active room level.");
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
     internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)

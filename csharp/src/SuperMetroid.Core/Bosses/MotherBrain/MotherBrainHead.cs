@@ -69,7 +69,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
-    internal void RunMotherBrainHeadMain(RoomEnemySlot head, SamusState? samus)
+    internal void RunMotherBrainHeadMain(RoomEnemySlot head, SamusState samus)
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(head);
 
@@ -88,8 +88,7 @@ internal sealed class MotherBrainHead
             case MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn:
                 StepMotherBrainNeck(
                     state,
-                    samus ?? throw new InvalidOperationException(
-                        "Mother Brain's articulated neck requires the live Samus actor."));
+                    samus);
                 Position16<RoomPixels> brainAnchor = state.NeckJoints[MotherBrainNeckJointDefinitions.BrainAnchor];
                 head.Position = head.Position.WithWhole(new(brainAnchor.X, CoordinateAxis.Wrap(brainAnchor.Y - 21)));
                 state.DrawBrain = true;
@@ -118,7 +117,8 @@ internal sealed class MotherBrainHead
             SpawnMotherBrainPurpleBreathSmall(state);
         // The brain draw advances the brain animation here, after every enemy's AI, and returns out
         // of the whole draw when the animation is not live.
-        if (AdvanceMotherBrainBrain(state, _deathsAndDrops.SamusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
+        if (AdvanceMotherBrainBrain(state, _deathsAndDrops.SamusForEnemyDrops ?? throw new InvalidOperationException(
+                "Mother Brain's brain draws in a room loaded before Samus exists.")) is not MotherBrainHeadFrame brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
@@ -228,7 +228,7 @@ internal sealed class MotherBrainHead
     /// (the timer counting up); past it, cues run until the next frame, which
     /// resets the timer to one.
     /// </summary>
-    internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
+    internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
         if (state.BrainPlayback is not { } playback)
             return null;
@@ -276,7 +276,7 @@ internal sealed class MotherBrainHead
     /// The brain animation advances in her brain's draw, after the enemy update has collected the frame's legacy
     /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
-    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
+    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue)
     {
         switch (cue)
         {
@@ -300,8 +300,7 @@ internal sealed class MotherBrainHead
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
             {
-                SamusState target = samus ?? throw new InvalidOperationException(
-                    "Mother Brain onion-ring aiming requires the active Samus actor.");
+                SamusState target = samus;
                 AimMotherBrainOnionRingsAt(state, target.Position.Whole);
                 return null;
             }

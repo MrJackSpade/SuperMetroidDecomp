@@ -178,7 +178,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAction.WaitForSamusCollision:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
+                if (samus.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Action = DeadSidehopperAction.PreRotDelay;
                 return;
 
@@ -222,7 +222,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         else
         {
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                RequireDeadSidehopperLevel(level),
+                level,
                 slot,
                 horizontalDisplacement);
         }
@@ -242,7 +242,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y.ToSixteenSixteenDelta();
         return _terrain.MoveEnemyVertically(
-            RequireDeadSidehopperLevel(level),
+            level,
             slot,
             verticalDisplacement);
     }
@@ -264,11 +264,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             slot.Position = slot.Position.WithY(moved);
         }
     }
-
-    /// <summary>Rejects terrain-driven movement when no room level was supplied.</summary>
-    private static RoomLevelData RequireDeadSidehopperLevel(RoomLevelData level) =>
-        level ?? throw new InvalidDataException(
-            "Dead sidehopper crossed into terrain-driven movement without room level data.");
 
     /// <summary>Counts one draining call and, on every eighth, steps the drain, which only the victim shows (#1512).</summary>
     private static void StepDeadSidehopperDrain(

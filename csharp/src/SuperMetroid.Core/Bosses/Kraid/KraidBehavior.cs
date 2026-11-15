@@ -83,22 +83,17 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void RunKraidBodyMain(
         RoomEnemySlot body,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
-        SamusProjectileSystem? samusProjectiles,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusProjectileSystem samusProjectiles,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         KraidEnemyState state = Access.RequireKraidState(body);
-        IReadOnlyList<KraidPassProjectile>? tested = samusProjectiles is not null && sharedProjectiles is not null
-            ? TestedByShotPasses(samusProjectiles, sharedProjectiles)
-            : null;
-        if (tested is not null)
-            Combat.ResolveKraidMouthProjectileHits(body, state, tested);
+        IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, sharedProjectiles);
+        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
-        if (tested is not null)
-            Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        if (samus is not null)
-            Combat.ResolveKraidBodyContact(body, state, samus);
+        Combat.ResolveKraidBodyProjectileHits(body, state, tested);
+        Combat.ResolveKraidBodyContact(body, state, samus);
         // His body follows Kraid (#1617): its area lies his X radius, the authored body's right-edge origin adjustment, left
         // of him, and 152 pixels, the authored vertical anchor, above him.
         state.BodyOrigin = new Position16<RoomPixels>(

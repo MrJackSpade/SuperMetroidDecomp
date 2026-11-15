@@ -120,7 +120,7 @@ internal sealed class EyeDoorBehavior
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, EyeDoorProjectileCue cue) =>
-            ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue);
+            ApplyEyeDoorProjectileCue(context.Projectile, context.Samus.RoomView, cue);
     }
 
     /// <summary>
@@ -242,12 +242,12 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Carries out one cue of the eye-door shot's animations.</summary>
-    private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, IRoomSamus? samus, EyeDoorProjectileCue cue)
+    private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, IRoomSamus samus, EyeDoorProjectileCue cue)
     {
         switch (cue.Kind)
         {
             case EyeDoorProjectileCueKind.AimAtSamus:
-                AimEyeDoorProjectileAtSamus(projectile, samus ?? throw new InvalidOperationException("The eye-door shot's aim requires Samus."));
+                AimEyeDoorProjectileAtSamus(projectile, samus);
                 break;
             case EyeDoorProjectileCueKind.StartFlight:
                 projectile.StartMotion(EyeDoorProjectileMotion.ShotFlying);

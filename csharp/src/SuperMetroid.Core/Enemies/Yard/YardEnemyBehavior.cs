@@ -653,8 +653,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
                 return false;
-            if (c.Samus is null)
-                throw new InvalidOperationException("Yard beam launch requires the active Samus actor.");
             ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
             return true;
         },

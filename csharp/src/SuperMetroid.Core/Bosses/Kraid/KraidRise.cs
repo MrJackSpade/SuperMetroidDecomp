@@ -305,7 +305,7 @@ internal sealed class KraidRise
     internal void RunKraidRisePhase(
         RoomEnemySlot body,
         KraidEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         KraidPhase? phase = state.BodyState.Phase;
         switch (phase)
@@ -436,9 +436,9 @@ internal sealed class KraidRise
     /// and previous X, so the camera's horizontal follow sees Samus's subsequent
     /// movement away from 256 as a scroll.
     /// </summary>
-    private static void RestrictSamusToKraidFirstScreen(SamusState? samus)
+    private static void RestrictSamusToKraidFirstScreen(SamusState samus)
     {
-        if (samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
         {
             samus.Position = samus.Position.WithWholeX(256);
             samus.WritePreviousXPosition(256);

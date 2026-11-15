@@ -28,7 +28,7 @@ internal sealed class DraygonTurrets
     /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
     internal void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         if (!DraygonCadenceDefinitions.TurretTurnEverySixtyFourthUpdate.IsDue(frameCounter))
@@ -37,8 +37,7 @@ internal sealed class DraygonTurrets
         // The turret cadence tests the frame counter, then advances the room RNG even when the
         // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
         int random = _room.Random.Generate();
-        if (samus is not null)
-            SpawnDraygonWallTurret(state, samus, random);
+        SpawnDraygonWallTurret(state, samus, random);
     }
 
     /// <summary>Fires a wall turret and runs the wall turret projectile's initializer.</summary>

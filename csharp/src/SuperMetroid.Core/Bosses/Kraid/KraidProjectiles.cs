@@ -194,7 +194,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Runs a nail's active flight or rebound phase.</summary>
-    internal void RunKraidNailMain(RoomEnemySlot nail, RoomLevelData? level)
+    internal void RunKraidNailMain(RoomEnemySlot nail, RoomLevelData level)
     {
         KraidEnemyState state = _access.RequireKraidState(nail);
         if (_parts.Body.Health == 0)
@@ -224,11 +224,6 @@ internal sealed class KraidProjectiles
                 return;
 
             case KraidPhase.FingernailFire:
-                if (level is null)
-                {
-                    throw new InvalidOperationException(
-                        "Active Kraid fingernail movement requires room collision data.");
-                }
                 TickKraidNailFlight(nail, level);
                 return;
 
@@ -354,11 +349,10 @@ internal sealed class KraidProjectiles
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
-    internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
+    internal void RunKraidLintMain(RoomEnemySlot lint, SamusState samus)
     {
         KraidEnemyState state = _access.RequireKraidState(lint);
-        if (samus is not null)
-            ResolveKraidLintContact(lint, samus);
+        ResolveKraidLintContact(lint, samus);
         lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         KraidLintState part = _parts.LintStateOf(state, lint);
         switch (_parts.LintStateOf(state, lint).Phase)
@@ -466,7 +460,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Launches a lint projectile toward Samus from the part's position.</summary>
-    private static void FireKraidLint(RoomEnemySlot lint, KraidLintState part, SamusState? samus)
+    private static void FireKraidLint(RoomEnemySlot lint, KraidLintState part, SamusState samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
         if (CoordinateAxis.Difference(lint.Position.X.Whole, 56) < 0)
@@ -483,7 +477,7 @@ internal sealed class KraidProjectiles
         // Checks support after moving and even on the frame that hides the lint.
         // Publish carry for Samus's later movement step, rather than teleporting
         // her here. The clamp changes only the whole pixels; the subpixels keep what the subtraction left.
-        if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
+        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
         {
             SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X + KraidPlatformMovement.FiringDisplacement;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(

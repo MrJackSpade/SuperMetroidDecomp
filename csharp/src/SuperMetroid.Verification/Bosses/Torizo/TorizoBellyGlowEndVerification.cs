@@ -72,7 +72,7 @@ internal static class TorizoBellyGlowEndVerification
         torizo.SetSpeciesState(state);
         enemies.BossFrameResults.Begin();
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(
-                torizo, state, new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
+                torizo, state, new TorizoCueInputs { Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.Signal(fightStart), TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
             $"{definition}'s fight start plays on");
         TorizoBellyGlowRequest request = enemies.BossFrameResults.RoomEffects().TorizoBellyGlow

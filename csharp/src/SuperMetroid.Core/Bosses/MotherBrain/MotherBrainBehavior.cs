@@ -81,8 +81,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemySlot body,
-        SamusState? samus,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusState samus,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         MotherBrainEnemyState state = Access.RequireCompleteMotherBrainState(body);
 
@@ -93,15 +93,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RunMotherBrainBodyPhase(state, samus, sharedProjectiles);
         // Every body phase returns through the common contact tail. The first-phase
         // phase also has its own authored contact call; retain both sites.
-        if (samus is not null)
-            MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
+        MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
 
     /// <summary>Runs Mother Brain's current body phase, keeping that phase's own timer and attack order.</summary>
     private void RunMotherBrainBodyPhase(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusState samus,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         switch (state.Phase)
         {
@@ -260,7 +259,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
     /// <summary>Runs the body phase after the first phase changes to fake death.</summary>
-    internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState? samus)
+    internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
         switch (state.Phase)
         {
@@ -290,7 +289,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
                 // Restoring Samus's control reinstalls the normal input and movement modes.
-                samus?.Control.Unlock();
+                samus.Control.Unlock();
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash;
                 state.PhaseTimer = 8;
                 RunMotherBrainFakeDeath(state, samus);
@@ -467,15 +466,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Waits through the fake-death pause before control is locked for the next phase.</summary>
-    private void RunMotherBrainPauseBeforeLock(MotherBrainEnemyState state, SamusState? samus)
+    private void RunMotherBrainPauseBeforeLock(MotherBrainEnemyState state, SamusState samus)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
         // The arena lock keeps the first screen of the room's row of four and closes the second,
         // locking the arena to the first screen.
-        SamusState requiredSamus = samus ?? throw new InvalidOperationException(
-            "Mother Brain's fake-death input lock requires the active Samus state.");
+        SamusState requiredSamus = samus;
         // The arena lock is the stationary lock: its input phase places
         // no bombs and fires nothing new while the arena drains.
         requiredSamus.Control.LockStationary();
@@ -511,8 +509,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RunMotherBrainRiseAndLaterPhases(
         MotherBrainEnemyState state,
-        SamusState? samus,
-        SamusBombProjectileSystem? sharedProjectiles = null)
+        SamusState samus,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         switch (state.Phase)
         {
@@ -576,7 +574,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly:
                 MotherBrainAttacks.PositionMotherBrainHeadQuicklyForLaser(
                     state,
-                    MotherBrainAttacks.RequireMotherBrainCombatSamus(samus));
+                    samus);
                 return;
             case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire:
                 MotherBrainAttacks.PositionMotherBrainHeadSlowlyAndFireLaser(state);
@@ -658,7 +656,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
                 RainbowAndDeath.RunLiveMotherBrainRainbowBeam(
                     state,
-                    MotherBrainAttacks.RequireMotherBrainCombatSamus(samus),
+                    samus,
                     state.Body.FrameCounter,
                     sharedProjectiles);
                 return;

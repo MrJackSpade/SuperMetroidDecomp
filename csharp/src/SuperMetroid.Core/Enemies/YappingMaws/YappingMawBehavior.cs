@@ -435,7 +435,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        if (samus is not null && !samus.DeathSequence.IsActive)
+        if (!samus.DeathSequence.IsActive)
             samus.Control.Unlock();
         state.HasGrabbedSamus = false;
     }

@@ -36,14 +36,14 @@ internal static class ShitroidPowerBombVerification
         // The main step waits with the camera right of the column; the Power Bomb's camera is left of it.
         state.Action = ShitroidAction.WaitForCamera;
         state.ReactsToSamus = false;
-        behavior.RunShitroidMain(shitroid, runtime.Player.Samus, new Position16<RoomPixels>(600, 0), null);
+        behavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(600, 0), null);
         AssertEqual(ShitroidAction.WaitForCamera, state.Action, "a main step with the camera at column 600 leaves the Shitroid waiting");
         reaction(new EnemyPowerBombContext(shitroid, runtime.Player.IntroducedSamus, runtime.Room.LoadedLevelData, new(512, 0)));
         AssertEqual(ShitroidAction.BeginEntranceDelay, state.Action, "a Power Bomb with the camera at column 512 starts the entrance");
 
         // The main step runs dormant with the camera at the room's corner; the Power Bomb's camera is right of the column.
         state.Action = ShitroidAction.Dormant;
-        behavior.RunShitroidMain(shitroid, runtime.Player.Samus, new Position16<RoomPixels>(0, 0), null);
+        behavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0, 0), null);
         state.Action = ShitroidAction.WaitForCamera;
         reaction(new EnemyPowerBombContext(shitroid, runtime.Player.IntroducedSamus, runtime.Room.LoadedLevelData, new(600, 0)));
         AssertEqual(ShitroidAction.WaitForCamera, state.Action, "a Power Bomb with the camera at column 600 leaves the Shitroid waiting");

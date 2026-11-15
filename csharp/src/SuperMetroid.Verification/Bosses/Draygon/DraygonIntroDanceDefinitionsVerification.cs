@@ -99,7 +99,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        Action<DraygonEnemyState, SamusState?, byte> run = (danceState, danceSamus, frameCounter) =>
+        Action<DraygonEnemyState, SamusState, byte> run = (danceState, danceSamus, frameCounter) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
@@ -143,7 +143,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
                 expectedY[actor] = unchecked((ushort)(expectedY[actor] + unchecked((sbyte)record.Y)));
             }
 
-            run(state, null, 1);
+            run(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1);
             expectedStreamOffset += DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes;
 
             AssertEqual(frame + 1, state.IntroDanceStep, $"Draygon intro frame {frame} dance step");
@@ -165,7 +165,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
 
         AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.IntroFrames,
             "Draygon intro exact native duration");
-        run(state, null, 1);
+        run(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1);
         AssertEqual(DraygonPhase.SwoopRightSetup, state.Phase,
             "Draygon intro transitions to right-swoop setup after the native duration");
         AssertEqual(0, state.IntroFrames,
@@ -174,7 +174,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
         // production dispatcher so this cannot regress into reading past the traced path.
         var malformedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<DraygonEnemyState, SamusState?, byte> malformedRun = (danceState, danceSamus, frameCounter) =>
+        Action<DraygonEnemyState, SamusState, byte> malformedRun = (danceState, danceSamus, frameCounter) =>
             malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
@@ -185,7 +185,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             RoomSpriteObjectKind.DraygonIntroEvir, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
         malformedState.IntroDancers.Add(new DraygonIntroDancer(malformedSprite, DraygonIntroDance.StartDelay(0)));
         AssertThrows<InvalidDataException>(
-            () => malformedRun(malformedState, null, 1),
+            () => malformedRun(malformedState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1),
             "Production Draygon intro rejects a restored step past the traced path");
     }
 

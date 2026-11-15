@@ -29,7 +29,7 @@ internal static class MotherBrainLaterContactVerification
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
         enemies.MotherBrainEncounter.MotherBrain = state;
-        Action<RoomEnemySlot, SamusState?, SamusBombProjectileSystem?> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
+        Action<RoomEnemySlot, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
@@ -41,7 +41,7 @@ internal static class MotherBrainLaterContactVerification
             if (contact == "neck") { samus.Position = samus.Position.WithWhole(new(250, 80)); expectedX = 16; }
             if (contact == "no-damage side") { samus.Position = samus.Position.WithWholeX(152); expectedX = 26; }
             if (contact == "post-dispatch position") { samus.Position = samus.Position.WithWhole(new(89, 279)); }
-            main(body, samus, null);
+            main(body, samus, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             AssertEqual((ushort)(contact == "no-damage side" ? 500 : 500 - body.Definition.Damage),
                 samus.Health, $"Later-phase {contact} applies native contact damage");
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");

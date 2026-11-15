@@ -122,7 +122,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeadWaitsForBodyLanding = false;
         state.OriginY = slot.Position.Y.Whole;
 
-        bool samusIsLeft = samus is not null && (samus.Position.Whole - slot.Position.Whole).X < 0;
+        bool samusIsLeft = (samus.Position.Whole - slot.Position.Whole).X < 0;
         state.DesiredAnimation = samusIsLeft
             ? MagdolliteSegment.LeftIdle
             : MagdolliteSegment.RightIdle;
@@ -305,8 +305,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HeadWaitsForBodyLanding)
             return;
 
-        bool samusIsRight = samus is not null &&
-            !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
+        bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
         state.DesiredAnimation = samusIsRight
             ? MagdolliteSegment.RightEmerge
             : MagdolliteSegment.LeftEmerge;
@@ -323,8 +322,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.AnimationBusy)
             return;
 
-        bool samusIsRight = samus is not null &&
-            !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
+        bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
         state.DesiredAnimation = samusIsRight
             ? MagdolliteSegment.RightIdle
             : MagdolliteSegment.LeftIdle;
@@ -361,8 +359,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         int upwardDistance = -state.RiseDisplacementY;
         MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
         bool roseMaximum = !CoordinateAxis.Precedes(upwardDistance, MagdollitePhaseDefinitions.MaximumRise);
-        bool rosePastSamus = samus is not null &&
-            CoordinateAxis.Precedes(body.Position.Y.Whole - phase.OverlayYOffset, samus.Position.Y.Whole);
+        bool rosePastSamus = CoordinateAxis.Precedes(body.Position.Y.Whole - phase.OverlayYOffset, samus.Position.Y.Whole);
         // At full height whether the arm grows its last segment depends on the slot it occupies
         // (MagdolliteApexGrowth); the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
@@ -458,8 +455,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteBodyState bodyState = PartState<MagdolliteBodyState>(body);
         if (bodyState.BodyReachedApex)
         {
-            bool samusIsRight = samus is not null &&
-                !CoordinateAxis.Precedes(samus.Position.X.Whole, overlay.Position.X.Whole);
+            bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, overlay.Position.X.Whole);
             state.DesiredAnimation = samusIsRight
                 ? MagdolliteSegment.RightThrow
                 : MagdolliteSegment.LeftThrow;

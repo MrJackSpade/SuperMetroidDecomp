@@ -133,10 +133,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Dachora body AI requires the active Samus actor.");
-        RoomLevelData activeLevel = level ?? throw new InvalidOperationException(
-            "Dachora body AI requires active room collision data.");
+        SamusState activeSamus = samus;
+        RoomLevelData activeLevel = level;
         switch (state.Action)
         {
             case DachoraAction.WaitingForSamus:

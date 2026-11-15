@@ -44,7 +44,7 @@ internal sealed class RidleyTail
     internal void TickRidleyTail(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (state.TailSegments.Length != 7)
             throw new InvalidDataException("Ceres Ridley requires seven tail segments.");
@@ -88,8 +88,7 @@ internal sealed class RidleyTail
         }
 
         UpdateRidleyTailDistances(state);
-        if (samus is not null)
-            ResolveRidleyTailSamusContact(samus);
+        ResolveRidleyTailSamusContact(samus);
     }
 
     /// <summary>
@@ -100,7 +99,7 @@ internal sealed class RidleyTail
     internal void HandleCeresRidleyNeutralTailControl(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         bool allActive = state.TailSegments.All(segment => segment.Active);
         if (allActive)
@@ -116,7 +115,7 @@ internal sealed class RidleyTail
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
                     AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequested ? 0 : -1);
-                else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
+                else if (CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
                     AimCeresRidleyTailWhip(state, samus, turnsBeyond: 0);
             }
 
@@ -132,7 +131,7 @@ internal sealed class RidleyTail
         state.TailSegments[0].Active = true;
         state.ClockwiseWhipTarget = null;
         state.CounterClockwiseWhipTarget = null;
-        state.TailAngleDelta = samus is not null && samus.Position.X.Whole < 112 ? 1 : 2;
+        state.TailAngleDelta = samus.Position.X.Whole < 112 ? 1 : 2;
     }
 
     /// <summary>
@@ -144,12 +143,12 @@ internal sealed class RidleyTail
     /// </summary>
     internal void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int turnsBeyond)
     {
         // Ridley turning to face the screen aims no whip, and the fight's opening mode likewise blocks the whip before
         // liftoff.
-        if (samus is null || state.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
+        if (state.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
             return;
 
         RidleyTailSegment root = state.TailSegments[0];
@@ -401,9 +400,9 @@ internal sealed class RidleyTail
     /// <summary>Probes the tip and four inner joints at their downward offsets for solid room blocks.</summary>
     internal static bool RidleyTailTouchesTerrain(
         RidleyEnemyState state,
-        RoomLevelData? level)
+        RoomLevelData level)
     {
-        if (level is null || state.TailSegments.Length != 7)
+        if (state.TailSegments.Length != 7)
             return false;
 
         // The tail's floor check samples the tip and the next four joints with the exact +16/+18 Y probes.
@@ -508,7 +507,7 @@ internal sealed class RidleyTail
     }
 
     /// <summary>Live pogo tail controllers.</summary>
-    internal void TickRidleyPogoTail(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
+    internal void TickRidleyPogoTail(RoomEnemySlot slot, RidleyEnemyState state, SamusState samus)
     {
         RidleyTailAction action = state.TailAction;
         bool pointed = action is RidleyTailAction.PogoSetup or RidleyTailAction.PointDown or RidleyTailAction.Stab;
@@ -536,11 +535,11 @@ internal sealed class RidleyTail
     }
 
     /// <summary>Triggers pogo whips from random/proximity gates and extends the tail downward as Ridley descends.</summary>
-    private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
+    private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&
             (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()) ||
-             samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128) &&
+             CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128) &&
             state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null)
         {
             state.ClockwiseWhipTarget = RidleyTailDefinitions.PogoWhipAngle;

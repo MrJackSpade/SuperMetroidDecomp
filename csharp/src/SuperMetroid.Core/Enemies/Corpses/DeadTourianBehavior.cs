@@ -70,7 +70,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Phase)
         {
             case DeadTourianCorpsePhase.Waiting:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
+                if (samus.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Phase = DeadTourianCorpsePhase.PreRotDelay;
                 return;
             case DeadTourianCorpsePhase.PreRotDelay:

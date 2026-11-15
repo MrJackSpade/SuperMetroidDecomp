@@ -1,24 +1,26 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Samus's Speed Booster progress (#1470): the boost stage, zero through <see cref="FullStage"/>, and the running
-/// cadence counted down, one per run the running animation completes, to the next stage. Counting the cadence down at zero borrows from the
-/// stage, dropping one stage with a full cadence ahead of it; that is reachable when the echo's queue selection resets
-/// a newly full boost's cadence to zero.
+/// Samus's Speed Booster progress (#1470): the boost stage, zero through <see cref="FullStage"/>, and the countdown of
+/// runs, one per run the running animation completes, to the next stage. How a run counted off an empty countdown takes
+/// the boost down a stage is <see cref="BoostRestartAfterEcho"/>'s.
 /// </summary>
 public readonly record struct SamusSpeedBoostCounter
 {
     /// <summary>The full boost stage: active boosting for blocks, contact and the echo, and enough to store a shinespark.</summary>
     public const int FullStage = 4;
 
-    /// <summary>The cadence a borrow leaves ahead of the dropped stage, and the largest cadence.</summary>
-    private const int CadenceAfterBorrow = 255;
+    /// <summary>The authored boost stages, zero through <see cref="FullStage"/>.</summary>
+    public const int AuthoredStages = FullStage + 1;
 
-    /// <summary>Holds <paramref name="stage"/>, zero through <see cref="FullStage"/>, and <paramref name="cadence"/>, 0 through 255.</summary>
-    public SamusSpeedBoostCounter(int stage, int cadence)
+    /// <summary>
+    /// Holds <paramref name="stage"/>, zero through <see cref="FullStage"/>, and <paramref name="countdown"/>, zero through
+    /// <see cref="BoostRestartAfterEcho.CountdownAfterBorrow"/>.
+    /// </summary>
+    public SamusSpeedBoostCounter(int stage, int countdown)
     {
         Stage = Ensure.BetweenInclusive(0, FullStage, stage);
-        Cadence = Ensure.BetweenInclusive(0, CadenceAfterBorrow, cadence);
+        Countdown = Ensure.BetweenInclusive(0, BoostRestartAfterEcho.CountdownAfterBorrow, countdown);
     }
 
     /// <summary>The full boost stage with no cadence left, as a shinespark windup publishes it.</summary>
@@ -28,30 +30,26 @@ public readonly record struct SamusSpeedBoostCounter
     [IntegerQuantity("how many stages the boost has reached: it rises by one, borrows down by one and is compared with its range, not one of a set of categories")]
     public int Stage { get; }
 
-    /// <summary>Runs the running animation completes before the next stage, 0 through 255.</summary>
-    public int Cadence { get; }
+    /// <summary>Runs the running animation completes before the next stage.</summary>
+    public int Countdown { get; }
 
     /// <summary>Whether the boost is at its full stage.</summary>
     public bool IsAtFullStage => Stage == FullStage;
 
-    /// <summary>
-    /// One completed run's countdown, which borrows a stage when the cadence is already zero.
-    /// </summary>
-    /// <returns>The counted-down counter and whether its cadence is now zero.</returns>
-    /// <exception cref="InvalidOperationException">Stage zero with no cadence left has no stage to borrow from.</exception>
-    public SpeedBoostCountdown CountDownOneRun()
+    /// <summary>One completed run's countdown, as <paramref name="restart"/> counts it.</summary>
+    /// <param name="restart">Samus's rule for how the boost restarts and is taken down a stage.</param>
+    /// <returns>The counted-down counter and whether its countdown is now zero.</returns>
+    /// <exception cref="InvalidOperationException">Stage zero with no runs left has no stage to go down from.</exception>
+    public SpeedBoostCountdown CountDownOneRun(BoostRestartAfterEcho restart)
     {
-        SamusSpeedBoostCounter next = Cadence > 0
-            ? new(Stage, Cadence - 1)
-            : Stage > 0
-                ? new(Stage - 1, CadenceAfterBorrow)
-                : throw new InvalidOperationException("A stage-zero Speed Booster counter with no cadence left has no stage to borrow from.");
-        return new SpeedBoostCountdown(next, next.Cadence == 0);
+        BoostRunCountdown next = Ensure.NotNull(restart).CountDownOneRun(Stage, Countdown);
+        var counter = new SamusSpeedBoostCounter(next.Stage, next.Countdown);
+        return new SpeedBoostCountdown(counter, counter.Countdown == 0);
     }
 
     /// <summary>The counter one stage higher; the caller checks that the boost is not yet full.</summary>
-    public SamusSpeedBoostCounter AdvanceStage() => new(Stage + 1, Cadence);
+    public SamusSpeedBoostCounter AdvanceStage() => new(Stage + 1, Countdown);
 
-    /// <summary>The same stage with its cadence reset to <paramref name="cadence"/>, 0 through 255.</summary>
-    public SamusSpeedBoostCounter WithCadence(int cadence) => new(Stage, cadence);
+    /// <summary>The same stage with its countdown restarted at <paramref name="countdown"/>.</summary>
+    public SamusSpeedBoostCounter WithCountdown(int countdown) => new(Stage, countdown);
 }

@@ -526,7 +526,7 @@ public sealed class SamusState
         FramesBeyondAnimation = Ensure.NotNull(framesBeyondAnimation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
-        HorizontalSpeed = new SamusHorizontalSpeedState(compatibility.WaterSpeedsInAir);
+        HorizontalSpeed = new SamusHorizontalSpeedState(compatibility);
         ProjectileInheritance = compatibility.LaunchInheritance;
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;

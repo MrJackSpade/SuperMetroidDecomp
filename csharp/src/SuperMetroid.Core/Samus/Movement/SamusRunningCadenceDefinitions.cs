@@ -5,9 +5,10 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Independently reviewed for #1165 against the complete Japanese and North American v1.0 catalog. Each cadence times the ten running
 /// frames; the running pose's own animation closes the loop after the tenth. Ordinary frames take two ticks, and the
 /// boost stages take three; two and three alternating; two; one and two alternating; and one. A stage advance restarts
-/// the boost's cadence countdown at one for stages zero through three and at two for stage four. The cadence a full
-/// sound queue selects is not authored; <see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/> reproduces
-/// it (#1473). This is the Japanese and North American release's timing, not an interpolation of the European release's.
+/// the boost's countdown at one for stages zero through three and at two for stage four. Which cadence the boost
+/// restarts on after its echo is <see cref="SuperMetroid.Core.Compatibility.BoostRestartAfterEcho"/>'s; the cadence a
+/// full sound queue selects is not authored, and <see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>
+/// reproduces it (#1473). This is the Japanese and North American release's timing, not an interpolation of the European release's.
 /// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {
@@ -31,16 +32,4 @@ internal static class SamusRunningCadenceDefinitions
     /// three restart at one, stage four at two.
     /// </summary>
     internal static IReadOnlyList<int> CountdownAfterAdvance { get; } = [1, 1, 1, 1, 2];
-
-    /// <summary>
-    /// The largest selection the Speed Booster echo's queue request reports: an admitted request reports the
-    /// occupancy it saw, zero through five, and five selects the unauthored cadence.
-    /// </summary>
-    internal const int MaximumSoundQueueSelection = 5;
-
-    /// <summary>
-    /// The selection a rejected echo leaves: the queue request reports the rejected request itself where an admitted
-    /// request reports the occupancy, and the Speed Booster echo's request selects cadence three.
-    /// </summary>
-    internal const int RejectedEchoSelection = 3;
 }

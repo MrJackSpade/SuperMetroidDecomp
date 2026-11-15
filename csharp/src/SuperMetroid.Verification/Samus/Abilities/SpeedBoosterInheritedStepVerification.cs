@@ -30,7 +30,7 @@ internal static class SpeedBoosterInheritedStepVerification
             foreach (int inherited in new[] { 4, 5 })
             {
                 string context = $"{suit} step {inherited}";
-                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = 1 };
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = 1 };
                 var colours = new SamusColours();
                 for (int call = 0; call < inherited; call++)
                     speed.UpdateSpeedBoosterPalette(colours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = equipped });

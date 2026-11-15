@@ -43,7 +43,7 @@ internal static class MultipliedDecelerationVerification
 
         // At its site: a turning base speed of two pixels with the running deceleration of half a pixel at a multiplier
         // of 64 loses an eighth of a pixel.
-        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
+        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             BaseSpeed = new UnsignedSixteenSixteen(2, 0),
             AccelerationMode = SamusAccelerationMode.Turning,

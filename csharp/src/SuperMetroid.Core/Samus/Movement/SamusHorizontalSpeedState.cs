@@ -19,10 +19,19 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>The water speeds Draygon's hold and special movement take in air, which have no speeds of their own there.</summary>
     private readonly WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> _waterSpeedsInAir;
 
+    /// <summary>How the boost restarts after its echo and how a run counted off an empty countdown takes it down a stage.</summary>
+    private readonly BoostRestartAfterEcho _boostRestart;
+
     /// <summary>Creates Samus's horizontal speeds, at rest and moving by air's speeds.</summary>
-    /// <param name="waterSpeedsInAir">Her compatibility service for the movements that take water's speeds in air.</param>
-    public SamusHorizontalSpeedState(WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> waterSpeedsInAir) =>
-        _waterSpeedsInAir = Ensure.NotNull(waterSpeedsInAir);
+    /// <param name="compatibility">
+    /// Her compatibility services: the movements that take water's speeds in air, and how her boost restarts.
+    /// </param>
+    internal SamusHorizontalSpeedState(SamusCompatibility compatibility)
+    {
+        Ensure.NotNull(compatibility);
+        _waterSpeedsInAir = compatibility.WaterSpeedsInAir;
+        _boostRestart = compatibility.BoostRestart;
+    }
 
     /// <summary>Samus's base horizontal speed, whole and fraction.</summary>
     public UnsignedSixteenSixteen BaseSpeed { get; set; }
@@ -38,9 +47,9 @@ public sealed class SamusHorizontalSpeedState
     public bool HasRunningMomentum { get; set; }
 
     /// <summary>
-    /// Speed Booster progress: the boost stage and the running cadence that advances it. Stages zero through four are
-    /// reached by running; No-Speed-Booster Dash keeps it zero. The cadence borrows from the stage when it is counted
-    /// down at zero (<see cref="TryAdvanceSpeedBoosterAnimationStage"/>).
+    /// Speed Booster progress: the boost stage and the countdown of runs that advances it. Stages zero through four are
+    /// reached by running; No-Speed-Booster Dash keeps it zero. A run counted off an empty countdown takes the boost down
+    /// a stage (<see cref="TryAdvanceSpeedBoosterAnimationStage"/>, <see cref="BoostRestartAfterEcho"/>).
     /// </summary>
     public SamusSpeedBoostCounter SpeedBoostCounter { get; set; }
 
@@ -206,7 +215,7 @@ public sealed class SamusHorizontalSpeedState
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = 1;
                 CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
 
             if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, BoostedExtraRunSpeedCap))
@@ -259,9 +268,9 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call takes the cue.</param>
     /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="requestEchoSound">
-    /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, which selects the
-    /// restart countdown and the first frame's cadence; or none when no queue answered (a Samus outside a session), when
-    /// the stage just stored selects them.
+    /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
+    /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown; or none when no
+    /// queue answered (a Samus outside a session), when the stage just stored picks them.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
@@ -279,32 +288,30 @@ public sealed class SamusHorizontalSpeedState
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 
-        // A cadence countdown already at zero borrows from the stage. A stage advances only
-        // when the decremented cadence countdown is zero; that test leaves the stage unchanged.
-        (SamusSpeedBoostCounter decremented, bool cadenceExpired) = SpeedBoostCounter.CountDownOneRun();
+        // A countdown already empty takes the boost down a stage. A stage advances only
+        // when the counted-down countdown is zero; that test leaves the stage unchanged.
+        (SamusSpeedBoostCounter decremented, bool countdownExpired) = SpeedBoostCounter.CountDownOneRun(_boostRestart);
         SpeedBoostCounter = decremented;
-        if (!cadenceExpired)
+        if (!countdownExpired)
             return false;
 
-        int? echoSelection = null;
+        SamusRunningCadence? cadenceAfterEcho = null;
         if (!SpeedBoostCounter.IsAtFullStage)
         {
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
             if (SpeedBoostCounter.IsAtFullStage)
             {
                 EchoSoundPlaying = true;
-                // What the echo's queue request reports, not the stage just stored, picks
-                // both the restart countdown and the first frame's cadence. Do not clamp
-                // it: a full queue picks the unauthored cadence.
+                // What the echo's queue request found, not the stage just stored, picks
+                // both the restart countdown and the first frame's cadence.
                 if (requestEchoSound() is { } admission)
-                    echoSelection = SamusRunningCadences.EchoQueueSelection(admission);
+                    cadenceAfterEcho = SamusRunningCadences.CadenceAfterEcho(_boostRestart, admission);
             }
         }
 
-        int stage = echoSelection ?? SpeedBoostCounter.Stage;
-        SpeedBoostCounter = SpeedBoostCounter.WithCadence(SamusRunningCadences.CountdownAfterAdvance(stage));
+        SamusRunningCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
+        SpeedBoostCounter = SpeedBoostCounter.WithCountdown(SamusRunningCadences.CountdownAfterAdvance(cadence));
 
-        SamusRunningCadence cadence = SamusRunningCadences.SpeedBoostCadence(stage);
         animationFrame = 0;
         animationFrameTimer = WrappingCountdown.Start(animationFrameBuffer)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
@@ -545,7 +552,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 SpecialPaletteTimer = 0;
                 CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
             return;
         }

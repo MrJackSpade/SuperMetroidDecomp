@@ -18,7 +18,7 @@ internal static class SamusIndexedSpeedsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }
-        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         int compared = 0;
         int readFromWater = 0;
         int waterList = SamusSourceDefinitions.MovementBank.Value | SamusMovementDefinitions.HorizontalMotion.WaterSpeedTable;

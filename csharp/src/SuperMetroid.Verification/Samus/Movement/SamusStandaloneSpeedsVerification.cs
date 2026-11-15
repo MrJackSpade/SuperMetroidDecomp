@@ -14,8 +14,8 @@ internal static class SamusStandaloneSpeedsVerification
             SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }
-        var actual = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
-        var reference = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+        var actual = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var reference = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         var calculate = new Func<SamusHorizontalSpeeds, uint>(entry => reference.CalculateBaseSpeed(entry).RawValue);
         var guard = NewSlopeHeightNoReadBus();
         int cases = 0;

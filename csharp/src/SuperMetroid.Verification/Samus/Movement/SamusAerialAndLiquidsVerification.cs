@@ -113,7 +113,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
 
     // Aerial mode two accelerates because $90:9B22 tests only bit zero. This guards the
     // counterintuitive distinction from the grounded deceleration-allowed routine.
-    var aerialSpeed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { AccelerationMode = SamusAccelerationMode.Decelerating };
+    var aerialSpeed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { AccelerationMode = SamusAccelerationMode.Decelerating };
     aerialSpeed.SelectAirSpeeds();
     AerialBaseSpeedResult accelerated =
         aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.NormalJumping);
@@ -692,7 +692,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var cycleColors = SamusFullBodyCycleColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
-    var palettes = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+    var palettes = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
@@ -828,7 +828,7 @@ internal static void VerifySamusLiquidPhysics()
 
     // Submersion reaches `$90:9808` before the running/Dash test. It cannot establish new
     // momentum, but a pre-existing momentum flag preserves the accumulated pair exactly.
-    var submergedDash = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+    var submergedDash = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     submergedDash.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: ControllerButton.B,

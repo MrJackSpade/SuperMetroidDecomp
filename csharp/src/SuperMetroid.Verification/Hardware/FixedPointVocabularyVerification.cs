@@ -57,29 +57,31 @@ internal static class FixedPointVocabularyVerification
     }
 
     /// <summary>
-    /// The counter's full-stage test, countdown, borrow and stage advance (#1470): every stage the boost reaches is
-    /// full only at four, a zero cadence borrows a stage, and stage zero cannot borrow.
+    /// The counter's full-stage test, countdown, borrow and stage advance (#1470, #1911): every stage the boost reaches
+    /// is full only at four, an empty countdown takes the boost down a stage with the borrow's runs ahead, and stage zero
+    /// cannot go down.
     /// </summary>
     private static void VerifySpeedBoostCounter()
     {
+        var restart = new BoostRestartAfterEcho(SamusSpeedBoostCounter.AuthoredStages);
         for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
             AssertEqual(stage == 4, new SamusSpeedBoostCounter(stage, 2).IsAtFullStage, $"stage {stage} full boost");
-        AssertEqual(new SamusSpeedBoostCounter(4, 0), SamusSpeedBoostCounter.AtFullStage, "a windup's counter is full with no cadence");
+        AssertEqual(new SamusSpeedBoostCounter(4, 0), SamusSpeedBoostCounter.AtFullStage, "a windup's counter is full with no countdown");
 
-        (SamusSpeedBoostCounter borrowed, bool borrowedExpired) = SamusSpeedBoostCounter.AtFullStage.CountDownOneRun();
-        AssertEqual(new SamusSpeedBoostCounter(3, 255), borrowed, "a zero cadence borrows from stage four");
-        AssertTrue(!borrowedExpired, "the borrowed cadence is not expired");
-        AssertThrows<InvalidOperationException>(() => new SamusSpeedBoostCounter(0, 0).CountDownOneRun(),
-            "stage zero with no cadence has no stage to borrow");
+        (SamusSpeedBoostCounter borrowed, bool borrowedExpired) = SamusSpeedBoostCounter.AtFullStage.CountDownOneRun(restart);
+        AssertEqual(new SamusSpeedBoostCounter(3, 255), borrowed, "an empty countdown takes stage four down with 255 runs to climb back");
+        AssertTrue(!borrowedExpired, "the borrowed countdown is not expired");
+        AssertThrows<InvalidOperationException>(() => new SamusSpeedBoostCounter(0, 0).CountDownOneRun(restart),
+            "stage zero with no runs left has no stage to go down from");
 
         for (int stage = 0; stage <= 3; stage++)
         {
-            (SamusSpeedBoostCounter expired, bool cadenceExpired) = new SamusSpeedBoostCounter(stage, 1).CountDownOneRun();
-            AssertEqual(new SamusSpeedBoostCounter(stage, 0), expired, $"stage {stage} cadence reaches zero");
-            AssertTrue(cadenceExpired, $"stage {stage} cadence expires");
+            (SamusSpeedBoostCounter expired, bool countdownExpired) = new SamusSpeedBoostCounter(stage, 1).CountDownOneRun(restart);
+            AssertEqual(new SamusSpeedBoostCounter(stage, 0), expired, $"stage {stage} countdown reaches zero");
+            AssertTrue(countdownExpired, $"stage {stage} countdown expires");
             AssertTrue(!expired.IsAtFullStage, $"stage {stage} advance guard");
             AssertEqual(new SamusSpeedBoostCounter(stage + 1, 0), expired.AdvanceStage(), $"stage {stage} advances");
-            AssertEqual(new SamusSpeedBoostCounter(stage + 1, 18), expired.AdvanceStage().WithCadence(18), $"stage {stage + 1} cadence reset");
+            AssertEqual(new SamusSpeedBoostCounter(stage + 1, 18), expired.AdvanceStage().WithCountdown(18), $"stage {stage + 1} countdown restart");
         }
     }
 

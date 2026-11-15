@@ -30,7 +30,7 @@ internal static class FallingSpeedRecurrenceVerification
         }
         foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air, SamusLiquidMedium.Water })
         {
-            var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
+            var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
             {
                 AccelerationMode = SamusAccelerationMode.Decelerating,
                 BaseSpeed = new UnsignedSixteenSixteen(2, 0x9800),

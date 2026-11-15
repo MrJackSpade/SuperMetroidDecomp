@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Every sound request the game makes, gameplay's and the menus' alike, passes this one test at the point in the update
 /// where it is made, so no requester tests the suppression itself. The outcome reaches gameplay: the Speed Booster's
-/// stage selection reads the occupancy, or the rejection, of its echo request (see <see cref="UnauthoredBoostCadence"/>),
+/// restart reads the occupancy, or the rejection, of its echo request (see <see cref="BoostRestartAfterEcho"/>),
 /// and the door transition waits for the queues the joined requests fill to empty. Evidence: the original's three
 /// sound-queue routines (<c>$80:9051</c>, <c>$80:90D3</c> and <c>$80:9155</c>, one per library, which all fifteen
 /// limit entries <c>$80:9021</c>-<c>$80:914D</c> call): each tests the occupancy against the entry's limit first, then

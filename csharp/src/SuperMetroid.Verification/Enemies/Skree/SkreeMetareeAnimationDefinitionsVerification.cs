@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
 
@@ -128,7 +129,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static RoomEnemySystem NewSkreeMetareeGuardedSystem(
 )
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 

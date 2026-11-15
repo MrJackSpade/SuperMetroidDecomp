@@ -43,7 +43,7 @@ internal static class RidleyMovementTargetsVerification
             stage => RidleyInertiaDefinitions.LargestDivisor - bands[stage].HoverDivisor, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords,
             stage => RidleyInertiaDefinitions.LargestDivisor - bands[stage].GrabDivisor, 4);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = NorfairRidleyCombat.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, RidleyWallSweepTarget> sweep = enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep;

@@ -11,7 +11,7 @@ internal static class GrowingShutterSectionOriginsVerification
     /// <summary>Confirms an upward-growing shutter places its fourth section 24 pixels above its spawn in its column.</summary>
     internal static void VerifyGrowingShutterSectionOrigins()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
         var state = new GrowingShutterEnemyState(slot);

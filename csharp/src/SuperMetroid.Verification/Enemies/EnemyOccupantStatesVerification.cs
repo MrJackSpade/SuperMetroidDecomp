@@ -15,7 +15,7 @@ internal static class EnemyOccupantStatesVerification
     /// </summary>
     internal static void VerifyEnemyOccupantStates()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);

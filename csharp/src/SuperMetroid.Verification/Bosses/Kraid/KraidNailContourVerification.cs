@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -19,7 +20,7 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         Suite(nameof(VerifyKraidNailPastLedges), () => VerifyKraidNailPastLedges(rom));
         var session = EnemySessionFixtures.WithInstalledServices();
-        var enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 
@@ -25,7 +26,7 @@ internal static class KiHunterMotionDefinitionsVerification
         var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleCosinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
-        var slot = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
+        var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new KiHunterWingState();
         // Any reset distinguishes an arc change, which restores it, from a slowing step, which lands on 256.
         const int speedReset = 10752;

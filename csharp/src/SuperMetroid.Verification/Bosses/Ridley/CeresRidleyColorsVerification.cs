@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -71,11 +72,7 @@ internal static class CeresRidleyColorsVerification
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork);
         runtime.Artwork.MapPresentation = original;
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
-        {
-            BossArtwork = fixtureAssets.EnemyTiles.Bosses,
-            
-        };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(slot);
@@ -185,8 +182,8 @@ internal static class CeresRidleyColorsVerification
             // Drive the real Norfair palette callback at both sides of every
             // health threshold. The extracted stock catalog supplies full-CGRAM
             // parity; the guarded installed path proves no copied ROM colors are read.
-            var nativeEnemy = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var stockEnemy = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var nativeEnemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var stockEnemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
             var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
             RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];

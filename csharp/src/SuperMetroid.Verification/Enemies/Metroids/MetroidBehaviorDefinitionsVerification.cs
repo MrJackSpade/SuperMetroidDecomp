@@ -94,7 +94,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (ushort random = 0; random < 8; random++)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = () => selectedRandom;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

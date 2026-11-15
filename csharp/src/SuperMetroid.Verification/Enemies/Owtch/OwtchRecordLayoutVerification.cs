@@ -15,7 +15,7 @@ internal static class OwtchRecordLayoutVerification
     /// </summary>
     internal static void VerifyOwtchRecordLayout()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new OwtchEnemyState();
         slot.SetSpeciesState(state);

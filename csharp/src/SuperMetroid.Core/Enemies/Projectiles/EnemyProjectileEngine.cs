@@ -115,7 +115,6 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
-        _room.EnsureLoaded();
 
         int hitCount = 0;
         for (int enemyProjectileIndex = _places.Length - 1;
@@ -214,7 +213,6 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
     public void ResolveEnemyProjectileSamusHits(SamusState? samus)
     {
-        _room.EnsureLoaded();
         // Gameplay runs every projectile's update first, then enters the
         // separate Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
@@ -261,7 +259,6 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
-        _room.EnsureLoaded();
 
         // Sprite objects are drawn once, with the projectiles in front of Samus. Drawing them again with the
         // projectiles behind her would duplicate explosions, dust, and Spark's trail in the same frame.
@@ -282,7 +279,6 @@ internal sealed class EnemyProjectileEngine
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
-        _room.EnsureLoaded();
 
         DrawEnemyProjectilesAt(
             sprites,

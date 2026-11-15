@@ -47,7 +47,7 @@ internal static class RidleyAnimationsVerification
     /// <summary>Creates Ridley in slot zero of a fresh enemy system, facing <paramref name="facing"/>.</summary>
     private static NewRidleyResult NewRidley(EnemyDefinitionId definition, RidleyFacing facing)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new RidleyEnemyState { FacingDirection = facing };
         enemies.RidleyEncounter.Ridley = state;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

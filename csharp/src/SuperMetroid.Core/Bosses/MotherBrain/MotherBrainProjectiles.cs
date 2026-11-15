@@ -738,7 +738,6 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
-        _room.EnsureLoaded();
         if (request.Kind != RoomEnemyProjectileKind.MotherBrainGlassShard)
         {
             throw new ArgumentOutOfRangeException(

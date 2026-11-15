@@ -45,12 +45,9 @@ internal static class CeresDoorQuakeDefinitionsVerification
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapDocuments.Load(
             new MemoryStream(stockJson, writable: false));
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)),
-            RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
-        {
-            RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
-            BossArtwork = InstalledFixtures.BossArtwork,
-        };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)),
+            RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
+        enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Ceres Ridley");
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };

@@ -6,6 +6,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Earthquakes;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -23,7 +24,7 @@ internal static class RoomShakeDefinitionsVerification
         Suite(nameof(VerifyRoomShakeProjectileAlgorithm), () => VerifyRoomShakeProjectileAlgorithm(rom));
 
         var guarded = NewRoomShakeReadGuard(rom);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         for (int type = 0; type < NativeEarthquakeTypes.ShownTypeCount; type++)
         {
@@ -100,7 +101,7 @@ internal static class RoomShakeDefinitionsVerification
         enemies.Earthquake.Start(light, 30);
         AssertTrue(enemies.Earthquake.IsShakingWith(light, 30), "a producer's start ends the continuous shake");
 
-        var unshaken = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var unshaken = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // A room no producer has shaken runs on with the shake a new game starts with (#1594).
         unshaken.Earthquake.RunFor(4);
         AssertTrue(unshaken.Earthquake.IsShakingWith(RoomEarthquakeDefinitions.UnshakenRoomShake, 4),

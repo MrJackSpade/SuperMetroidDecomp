@@ -67,7 +67,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
     /// <exception cref="InvalidOperationException">The system is not loaded or no gunship save prompt is awaiting a response.</exception>
     public void AnswerGunshipSavePrompt()
     {
-        _room.EnsureLoaded();
         if (!GunshipSavePromptPending)
             throw new InvalidOperationException("The gunship save prompt is not awaiting a response.");
 

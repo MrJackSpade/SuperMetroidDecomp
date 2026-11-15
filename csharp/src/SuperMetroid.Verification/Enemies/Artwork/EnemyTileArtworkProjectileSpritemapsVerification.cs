@@ -50,6 +50,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>
@@ -486,7 +487,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawReferenceProgramFrame(ImportEnemyArtwork artwork, ushort operand, ISnesAddressSpace source,
             RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             SpriteGraphics graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,
                 EnemyProjectileProgramFrameOperands.Frame(operand), SpawnedGraphics);
             ushort word = graphics.Owner == SpawnedObjectOwner.Shared
@@ -550,7 +551,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The particles draw from the sheets a set loading their spawner composes from this artwork.
         static RoomEnemySystem BurstSystem(ImportEnemyArtwork artwork, EnemyDefinitionId spawner)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
             return enemies;
         }
@@ -642,7 +643,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The spawner's set loaded, its artwork sequences at a step where the frame is drawn.
         static RoomEnemySystem SpawnerSystem(ImportEnemyArtwork artwork, EnemyDefinitionId spawner, EnemyProjectileFrameId frame)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame));
             return enemies;
@@ -689,7 +690,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // A room whose first projectile shows the program frame the key installs, drawn from the sheets of a set spawning it.
         static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, ushort presentationKey, RoomEnemyProjectileKind kind)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -712,7 +713,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawNoobTubeShard(ImportEnemyArtwork artwork,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
             // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.

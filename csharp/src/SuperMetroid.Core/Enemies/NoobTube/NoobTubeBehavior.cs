@@ -34,7 +34,6 @@ internal sealed class NoobTubeBehavior
     public void SpawnNoobTubeProjectile(
         NoobTubeProjectileRequest request)
     {
-        _room.EnsureLoaded();
 
         NoobTubePiece piece = request.Piece;
         RoomEnemyProjectileKind kind = piece.Definition switch

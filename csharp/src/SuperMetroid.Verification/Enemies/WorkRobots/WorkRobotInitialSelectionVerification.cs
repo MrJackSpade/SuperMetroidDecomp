@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 
@@ -28,7 +29,7 @@ internal static class WorkRobotInitialSelectionVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 NativeEnemyAnimationOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
-            var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(EnemyDefinitionId.Robot, parameter);
             var state = new WorkRobotEnemyState();

@@ -23,7 +23,7 @@ internal static class EnemyMathBoundsVerification
             "a sine velocity faster than the original's signed whole speed is rejected");
 
         var services = new VerificationRoomEnemyServices(null) { NextRandom = () => ushort.MaxValue, ReadRandom = () => ushort.MaxValue };
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: services);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: services);
         var projectile = new EnemyProjectile(0, default)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

@@ -58,7 +58,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     /// <summary>Confirms that the parent starts idle while its follower starts the flame program.</summary>
     private static void VerifyLowerNorfairRioInitializerSelections()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
@@ -81,7 +81,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     internal static NewLowerNorfairRioInstructionSystemResult NewLowerNorfairRioInstructionSystem(
         LowerNorfairRioSegment entry)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -97,7 +97,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyLowerNorfairRioOwnedState()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));

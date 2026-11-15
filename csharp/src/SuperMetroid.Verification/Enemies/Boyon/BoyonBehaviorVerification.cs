@@ -172,7 +172,7 @@ internal static class BoyonBehaviorVerification
     /// <summary>A Boyon with a 64-pixel trigger range and the given first parameter after its real initializer.</summary>
     private static BoyonBehaviorCreateResult Create(int parameter1)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

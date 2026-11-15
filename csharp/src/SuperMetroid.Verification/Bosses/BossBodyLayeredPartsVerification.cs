@@ -48,7 +48,7 @@ internal static class BossBodyLayeredPartsVerification
     /// </summary>
     private static int CheckCrocomireMelt(BossSourceArtwork frames, BossBodySheets sheets)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
@@ -95,7 +95,7 @@ internal static class BossBodyLayeredPartsVerification
     /// </summary>
     private static int CheckKraidHead(BossSourceArtwork frames, BossBodySheets sheets)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.BossArtworkBinding.BodySheets = sheets;
         var state = new KraidEnemyState();
         state.InitializeBodyLayer();

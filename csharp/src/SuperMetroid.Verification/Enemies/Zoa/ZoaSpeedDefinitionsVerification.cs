@@ -32,7 +32,7 @@ internal static class ZoaSpeedDefinitionsVerification
             Console.WriteLine("Zoa speed cases: all four stage speeds match the cartridge records.");
             return;
         }
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();

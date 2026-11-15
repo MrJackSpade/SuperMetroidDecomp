@@ -33,7 +33,7 @@ internal static class PuyoOwnedStateVerification
         hop.StepAirbornePlace(Place(0x00ff));
         AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);

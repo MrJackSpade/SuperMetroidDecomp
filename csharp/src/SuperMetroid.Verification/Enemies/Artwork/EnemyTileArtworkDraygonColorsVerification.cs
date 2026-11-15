@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -66,7 +67,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     < (DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

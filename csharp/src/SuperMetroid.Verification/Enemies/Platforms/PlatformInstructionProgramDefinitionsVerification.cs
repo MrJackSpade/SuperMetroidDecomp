@@ -55,7 +55,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
         foreach (PlatformProgramCase testCase in cases)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.SuspensorPlatform

@@ -52,7 +52,7 @@ internal sealed class EnemyFramePhase
     /// <summary>Publishes prior-frame elevator contact and clears Samus's external displacement before enemies add platform motion.</summary>
     internal void PrepareEnemyFrame(RoomScope room)
     {
-        if (_room.Camera is not null && room.Enemies.IsLoaded)
+        if (_room.Camera is not null)
         {
             // Samus's collision phase follows the enemy pass. A pseudo-door contact
             // published last frame therefore arms the elevator immediately before this
@@ -82,7 +82,7 @@ internal sealed class EnemyFramePhase
     /// <param name="room">The loaded room.</param>
     internal void RunEnemyMainPhase(EnemyProcessingList processingList, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomScope room)
     {
-        if (_room.Camera is not null && room.Enemies.IsLoaded)
+        if (_room.Camera is not null)
         {
             bool hyperBeamBefore = _player.Samus?.HyperBeamEnabled == true;
             if (processingList == EnemyProcessingList.Unprepared)

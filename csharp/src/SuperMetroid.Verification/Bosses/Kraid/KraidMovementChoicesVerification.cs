@@ -74,7 +74,7 @@ internal static class KraidMovementChoicesVerification
             Console.WriteLine("Kraid movement selectors: both fields, every RNG word per row and every position/choice pass native-data proofs.");
             return;
         }
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);

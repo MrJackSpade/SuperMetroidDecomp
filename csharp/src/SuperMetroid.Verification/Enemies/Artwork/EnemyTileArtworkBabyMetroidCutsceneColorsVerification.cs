@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -57,7 +58,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         BabyMetroidCutsceneColorCatalog colors = native;
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512).
         var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = motherBrain;

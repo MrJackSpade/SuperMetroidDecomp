@@ -96,7 +96,7 @@ internal static class YardTurnDefinitionsVerification
             YardSegment expectedProgram,
             string context)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));

@@ -42,7 +42,7 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
     /// </summary>
     private static (bool Woke, bool FacesRight) Wakes(int blockX, int samusX)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

@@ -98,7 +98,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     /// <summary>Creates an enemy system bound to the supplied address space.</summary>
     internal static RoomEnemySystem NewEvirInstructionSystem()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 

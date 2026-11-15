@@ -7,6 +7,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -26,7 +27,7 @@ internal static class CeresFallingDebrisAnimationsVerification
             AssertEqual(entry, program == CeresFallingDebrisSegment.Light
                 ? CeresFallingDebrisVisualDefinitionsConstants.LightDefinitionList
                 : CeresFallingDebrisVisualDefinitionsConstants.DarkDefinitionList, $"the {program} tile definition names its native list");
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native Ceres falling tile list at ${address:X6}.");

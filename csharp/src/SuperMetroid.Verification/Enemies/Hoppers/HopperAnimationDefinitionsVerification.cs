@@ -60,7 +60,7 @@ internal static class HopperAnimationDefinitionsVerification
             bool upsideDown = orientation != 0;
             HopperKind kind = HoppersNativeWords.HopperKinds.Decode(variant, "hopper variant");
             string context = $"{kind}/{orientation}";
-            var enemies = new RoomEnemySystem((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { BossArtwork = artwork?.Bosses };
+            var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork?.Bosses);
             enemies.VerificationServices().SeedRandom = _ => { };
             enemies.VerificationServices().NextRandom = () => 0;
 
@@ -114,7 +114,7 @@ internal static class HopperAnimationDefinitionsVerification
     private static void VerifyTourianSidehopperInstructionAlias(
         ImportEnemyArtwork? artwork)
     {
-        var enemies = new RoomEnemySystem((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { BossArtwork = artwork?.Bosses };
+        var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork?.Bosses);
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = () => 0;
 

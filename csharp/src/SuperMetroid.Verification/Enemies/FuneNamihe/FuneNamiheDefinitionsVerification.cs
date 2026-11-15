@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 /// <summary>Checks Fune and Namihe animation selectors against native words and production installs.</summary>
 internal static class FuneNamiheDefinitionsVerification
@@ -19,7 +20,7 @@ internal static class FuneNamiheDefinitionsVerification
         {
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = FuneNamiheBehavior.InitializeFuneNamihe;
             Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

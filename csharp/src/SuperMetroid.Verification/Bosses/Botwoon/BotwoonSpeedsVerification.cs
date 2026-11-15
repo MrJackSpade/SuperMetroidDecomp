@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 
@@ -27,7 +28,7 @@ internal static class BotwoonSpeedsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39e77 + phase * 2)), speed.SpitSpeed, "Botwoon native spit speed");
         }
         Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPhase;
-        var head = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
+        var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new BotwoonEnemyState() { HalfHealth = 1500, QuarterHealth = 750 };
         for (int health = 0; health <= 3000; health++)
         {

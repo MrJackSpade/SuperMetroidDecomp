@@ -34,7 +34,7 @@ internal static class EnemySoundOrderVerification
     /// </summary>
     internal static void VerifyEnemySoundsQueueInRunOrder()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => CryRandom;
         RoomEnemySlot firstMetroid = MetroidAtItsCry(enemies, 0);
@@ -65,7 +65,7 @@ internal static class EnemySoundOrderVerification
         bus.WriteByte(0xa10000 | populationPointer, 0xff);
         bus.WriteByte((0xa10000 | populationPointer) + 1, 0xff);
         bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())));
 

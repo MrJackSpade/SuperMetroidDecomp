@@ -64,7 +64,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             const int roomBlocks = 32;
             const int floorRow = FloorY / 16;
             Level = CreateSolidRowsRoom(new(roomBlocks, roomBlocks), floorRow, roomBlocks - floorRow);
-            Enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { BossArtwork = artwork.Bosses };
+            Enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork.Bosses);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.VerificationServices().NextRandom = NextRandom;
             Enemies.VerificationServices().ReadRandom = () => RandomWord;
@@ -113,7 +113,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>Runs the same drawing as <see cref="Draw"/> once, publishing into <paramref name="frame"/>.</summary>
         internal void DrawInto(SpriteFrameBuffer frame)
         {
-            Enemies.Room.EnsureLoaded();
             Enemies.Drawing.Advance(new(0, 0));
             Enemies.Drawing.Draw(frame, new(0, 0));
             Enemies.SpriteObjects.DrawRoomSpriteObjects(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.NoHitBurstSheets);

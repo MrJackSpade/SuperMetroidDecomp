@@ -152,7 +152,7 @@ internal static void VerifyRoomEnemyLoading()
         stockColors.Add(pointer, EnemyPaletteSheetFile.Read(new MemoryStream(
             EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999));
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999));
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
@@ -200,7 +200,7 @@ internal static void VerifyRoomEnemyLoading()
 
     // Repeating the load with installed art while the cartridge tile sources are forbidden leaves every gameplay field.
     EnemyTileSourceArtwork installedArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors });
-    var installedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(installedArtwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999));
+    var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(installedArtwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999));
     var installedVram = new SnesVram();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(installedVram)));
     AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
@@ -220,10 +220,10 @@ internal static void VerifyRoomEnemyLoading()
     // Load the next room's enemies, over the same session, with an empty population and a deliberately invalid
     // tileset. Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // the death quota untouched even though current enemy counts are cleared.
-    AssertTrue(new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus,
+    AssertTrue(EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus,
             services: new StandaloneRoomEnemyServices(() => 0)).Presentation.DrawnPopulation is null,
         "a room draws the standard artwork until it loads a population that places enemies");
-    enemies = new RoomEnemySystem(enemies.Room.Session, RoomEnemyCompatibilityFixtures.ForNewRoom(), bus, new StandaloneRoomEnemyServices(() => 0));
+    enemies = EnemySystemFixtures.New(enemies.Room.Session, RoomEnemyCompatibilityFixtures.ForNewRoom(), bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
@@ -314,7 +314,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var bus = new TestAddressSpace();
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())));
 
     EnemyProjectile eyeShot = enemies.Projectiles.EnemyProjectiles[17];
@@ -435,7 +435,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new RoomBlockBehavior[foreground.Length], new RoomBlockAppearance[foreground.Length]), RoomLevelData.NothingBeyondGrid());
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)));
     RoomEnemySlot ripper = enemies.SlotTable.Slots[0];
     if (verifyXrayTimers)
@@ -669,7 +669,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Shown.Values.Single(),
@@ -718,7 +718,7 @@ internal static void VerifyCeresDoorBossBranch()
     bool areaBossDefeated = false;
     int areaBossReads = 0;
     var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
         {
             areaBossReads++;
             return areaBossDefeated;
@@ -817,7 +817,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort currentRandom = 0x1234;
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
@@ -832,14 +832,9 @@ internal static void VerifyCeresRidleyRoomEntry()
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             // Every character-zero spawned-object sheet takes the n00b tube's crack shade (#1512).
-            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, Floor = RoomBackgroundsFixtures.CeresFloor() })
-    {
-        BossArtworkBinding =
-        {
-            // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
-            CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays,
-        },
-    };
+            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, Floor = RoomBackgroundsFixtures.CeresFloor() });
+    // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
+    enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays;
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentationFile.Load(escapeText);

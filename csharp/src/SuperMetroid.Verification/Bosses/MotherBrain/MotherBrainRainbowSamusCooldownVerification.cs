@@ -39,7 +39,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
             "lowering the neck gives Samus the beam's cooldown");
 
         // The live encounter gives the requested cooldown to Samus's shared one, replacing a longer cooldown.
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = MotherBrainForm.SecondPhase };

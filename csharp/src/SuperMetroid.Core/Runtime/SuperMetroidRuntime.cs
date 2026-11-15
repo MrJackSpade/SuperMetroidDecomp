@@ -622,7 +622,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Main gameplay begins by determining which enemies to process,
         // before colour effects and Samus. The grapple scan uses this list.
-        if (Room.Camera is not null && Room.LoadedScope.Enemies.IsLoaded)
+        if (Room.Camera is not null)
             Room.LoadedScope.Enemies.ProcessingWindow.PrepareEnemyProcessingList(Room.Camera.PixelPosition);
     }
 
@@ -766,8 +766,7 @@ internal sealed class SuperMetroidRuntime
         // before the active-enemy lists are cleared. Enemy attacks above may have installed
         // a new global quake this frame; consuming it here gives that request its first
         // displacement/decrement immediately and preserves the list used for actor shake.
-        if (Room.LoadedScope.Enemies.IsLoaded)
-            Room.LoadedScope.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
+        Room.LoadedScope.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers();
         ApplyEndOfUpdateAssists(infiniteAmmoGuard);

@@ -18,7 +18,7 @@ internal static class DeadTorizoCollisionVerification
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { BossArtwork = InstalledFixtures.BossArtwork };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork);
             enemies.VerificationServices().ReadRandom = () => 0;
             var slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.CorpseTorizo, slot.Definition);

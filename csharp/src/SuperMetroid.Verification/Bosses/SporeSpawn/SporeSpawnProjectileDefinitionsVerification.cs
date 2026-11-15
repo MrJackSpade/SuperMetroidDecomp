@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 
@@ -37,7 +38,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 delta.Y, $"Spore Spawn drift Y {step}");
         }
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
         Action<RoomEnemySlot, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
         Action<EnemyProjectile> move = SporeSpawnBehavior.DriftSpore;

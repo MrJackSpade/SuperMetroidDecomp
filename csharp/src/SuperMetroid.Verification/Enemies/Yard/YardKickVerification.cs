@@ -10,6 +10,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard's contact-driven kick velocity words against its native vertical-speed table.</summary>
@@ -25,7 +26,7 @@ internal static class YardKickVerification
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
             var kickDistance = new SuperMetroid.Core.Compatibility.YardKickTrackingDistance();
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()),
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()),
                 RoomEnemyCompatibilityFixtures.ForNewRoom(new SuperMetroid.Core.Compatibility.SharedFadeStepCount(), new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), kickDistance),
                 definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));

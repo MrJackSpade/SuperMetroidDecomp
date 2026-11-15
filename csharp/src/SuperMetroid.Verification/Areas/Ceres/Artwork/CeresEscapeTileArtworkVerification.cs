@@ -15,6 +15,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
 
@@ -42,7 +43,7 @@ internal static class CeresEscapeTileArtworkVerification
             writable: false);
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         foreach (CeresEscapeReadying start in new[] { CeresEscapeReadying.Warning, CeresEscapeReadying.Backgrounds })
         {
             var state = new RidleyEnemyState { CeresEscapeReadying = start };

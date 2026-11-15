@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Boyon;
 
@@ -17,7 +18,7 @@ internal static class BoyonSpeedDefinitionsVerification
     /// </summary>
     internal static void VerifyCompiledBoyonSpeeds(CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot> initialize = BoyonBehavior.InitializeBoyon;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);

@@ -23,7 +23,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         AssertEqual<CorpseRowUploadList?>(null, configuration.UploadList,
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         Action<RoomEnemySlot> initialize = DeadTorizoBehavior.InitializeDeadTorizo;
         // A corpse keeps its own state on its own slot, wherever the room lists it (#1808): one listed first and one
         // listed later each start their own fresh schedule.

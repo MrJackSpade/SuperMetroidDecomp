@@ -187,7 +187,6 @@ internal sealed class EnemyDeathsAndDrops
         Position16<RoomPixels> position,
         EnemyDefinitionId definitionId)
     {
-        _room.EnsureLoaded();
         EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
         if (pickup is null)
             return null;
@@ -213,7 +212,6 @@ internal sealed class EnemyDeathsAndDrops
         Position16<RoomPixels> position,
         EnemyDropChances? dropChances)
     {
-        _room.EnsureLoaded();
         EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile();
         if (pickup is null)
             return null;
@@ -400,7 +398,7 @@ internal sealed class EnemyDeathsAndDrops
             return chances;
         return projectile.DropDefinitionId == EnemyDefinitionId.None
             ? null
-            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
+            : _room.Definitions.ReadEnemyDefinition(projectile.DropDefinitionId).DropChances;
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
@@ -553,7 +551,7 @@ internal sealed class EnemyDeathsAndDrops
                 $"Enemy slot {slot.SlotIndex} has no surviving population snapshot to respawn.");
         }
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
+        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
         // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
         // never sets the frame: the actor keeps the empty frame its death left,
         // or what its init AI set, until its first cue. An empty frame is also

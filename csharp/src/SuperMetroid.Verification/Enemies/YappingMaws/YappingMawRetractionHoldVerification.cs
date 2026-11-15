@@ -67,7 +67,7 @@ internal static class YappingMawRetractionHoldVerification
     /// <summary>A Yapping Maw rooted at (128, 128) through the production initializer, reaching as <paramref name="reachParameter"/> says.</summary>
     private static NewInitializedYappingMawResult NewYappingMaw(int reachParameter)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

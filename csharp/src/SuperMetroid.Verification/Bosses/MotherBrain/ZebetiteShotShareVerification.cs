@@ -14,7 +14,7 @@ internal static class ZebetiteShotShareVerification
     /// </summary>
     internal static void VerifyZebetiteShotShare()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
         AssertTrue(ReferenceEquals(slots[4], ZebetiteShotShare.Recipient(slots, slots[4])), "a linked Zebetite shares with its other half");
         AssertTrue(ReferenceEquals(slots[0], ZebetiteShotShare.Recipient<RoomEnemySlot>(slots, null)), "a single Zebetite shares with the first enemy placed");

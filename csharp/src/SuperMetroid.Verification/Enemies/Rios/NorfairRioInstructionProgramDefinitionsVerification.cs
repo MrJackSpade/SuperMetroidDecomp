@@ -63,7 +63,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     private static void VerifyNorfairRioInitializerSelections(
 )
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
@@ -89,7 +89,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             NorfairRioSegment entry,
             ImportEnemyArtwork? art = null)
     {
-        var enemies = new RoomEnemySystem((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = art?.Bosses };
+        var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

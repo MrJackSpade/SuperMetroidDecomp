@@ -30,7 +30,7 @@ internal static class KraidMouthHitboxesVerification
             }
             cursor += 8;
         }
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var guarded = NewKraidMouthLowHalfGuard(rom);
         Func<RoomEnemySlot, ushort, SamusProjectile, bool> overlaps = CoreAccess.KraidMouthHitboxOverlapsShot;
         var body = enemies.SlotTable.Slots[0];

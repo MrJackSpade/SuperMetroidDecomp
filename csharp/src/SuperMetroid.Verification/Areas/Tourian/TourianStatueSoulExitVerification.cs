@@ -35,7 +35,7 @@ internal static class TourianStatueSoulExitVerification
         int thrownAboveTop = 0;
         foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimationDefinitions.Statues.Values)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             enemies.TourianUnlockBehavior.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             for (int update = 0; ; update++)
@@ -57,7 +57,7 @@ internal static class TourianStatueSoulExitVerification
         foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimationDefinitions.Statues.Values)
         {
             ushort sample = random;
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
                 services: new StandaloneRoomEnemyServices(() => sample));
             TourianUnlockBehavior unlock = enemies.TourianUnlockBehavior;
             unlock.TourianStatueWaterSurface = new(0, 216);

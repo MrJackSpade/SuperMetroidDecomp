@@ -119,7 +119,7 @@ internal static class EnemyBombShotReactionVerification
         bus.WriteByte(0xa10000 | populationPointer, 0xff);
         bus.WriteByte((0xa10000 | populationPointer) + 1, 0xff);
         bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

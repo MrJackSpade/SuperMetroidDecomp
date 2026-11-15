@@ -80,7 +80,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     private static RunFuneNamiheProgramResult RunFuneNamiheProgram(
         FuneNamiheProgramCase program)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

@@ -439,7 +439,7 @@ internal static class EnemyDropsVerification
         int NextRandom() => random.Count == 0 ? 1 : random.Dequeue();
 
         RoomLevelData level = CreateEmptyRoom(new(1, 1));
-        var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
+        var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
         system.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9000), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }

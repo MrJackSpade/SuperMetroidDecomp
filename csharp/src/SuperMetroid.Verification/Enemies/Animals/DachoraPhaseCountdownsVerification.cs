@@ -14,7 +14,7 @@ internal static class DachoraPhaseCountdownsVerification
     /// </summary>
     internal static void VerifyDachoraPhaseCountdowns()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DachoraEnemyState();
         slot.SetSpeciesState(state);

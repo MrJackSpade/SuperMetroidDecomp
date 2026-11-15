@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -53,7 +54,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         }
         // Gameplay keeps only Kraid's eye colours (#1512): the hurt flash's and each health band's, which his eye glow
         // reads back. They are the installed health colours at the eyes' inks.
-        var eyeReaderOwner = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+        var eyeReaderOwner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
         foreach (KraidColourBand band in KraidColourBand.All)
         {
@@ -104,7 +105,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// </summary>
     private static void VerifyKraidBackdropSurvivesReinitialization(ImportEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
         enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
@@ -239,7 +240,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>Loads Kraid into a fresh room and makes the import's backdrop shades for a room whose fifth colour group holds distinct colours.</summary>
     private static KraidBackdropFixture NewKraidBackdropFixture(ImportEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
         enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         // A room whose fifth colour group holds distinct colours, so every step of a fade moves them.
@@ -367,7 +368,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         ImportEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var colours = new RgbColor[SnesCgram.ColorCount];
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;

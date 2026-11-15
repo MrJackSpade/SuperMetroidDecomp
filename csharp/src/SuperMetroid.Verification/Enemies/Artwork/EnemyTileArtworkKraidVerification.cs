@@ -15,6 +15,7 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid BG2, head, and room-background artwork against native transfers.</summary>
@@ -96,7 +97,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>The image a capture shows after the room-background characters bind, using a cartridge-free Kraid owner.</summary>
     private static SnesVram UploadKraidRoomBackground(ImportEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         Action upload = enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop;

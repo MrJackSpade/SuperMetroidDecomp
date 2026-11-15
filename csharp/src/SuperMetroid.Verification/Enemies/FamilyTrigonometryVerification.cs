@@ -112,7 +112,7 @@ internal static class FamilyTrigonometryVerification
         const int AnglesPerBlock = (ushort.MaxValue + 1) / AngleBlocks;
         ParallelSweep.For(0, AngleBlocks, block =>
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var previous = enemies.SlotTable.Slots[0];
             var segment = enemies.SlotTable.Slots[1];
             previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);

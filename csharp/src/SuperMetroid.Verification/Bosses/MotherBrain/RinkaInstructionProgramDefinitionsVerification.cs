@@ -54,7 +54,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         RinkaSegment program,
         bool special)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.DefinitionId, default(RoomEnemyDefinition));

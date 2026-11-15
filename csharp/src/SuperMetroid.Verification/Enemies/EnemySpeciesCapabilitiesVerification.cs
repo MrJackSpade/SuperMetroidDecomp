@@ -184,7 +184,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Where(definition => definition != EnemyDefinitionId.None)
             .Distinct();
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         int bound = 0;
         int answers = 0;

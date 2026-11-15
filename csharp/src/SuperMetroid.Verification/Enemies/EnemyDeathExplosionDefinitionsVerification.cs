@@ -28,7 +28,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Animation(explosion)),
                 $"enemy death explosion program {animation}");
 
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
@@ -46,7 +46,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 $"production enemy death explosion Y {animation}");
         }
 
-        var clamped = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var clamped = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, FirefleaTouchDeathExplosion.AfterSurvivedTouch(5, EnemyDeathExplosionDefinitions.AuthoredOrder));

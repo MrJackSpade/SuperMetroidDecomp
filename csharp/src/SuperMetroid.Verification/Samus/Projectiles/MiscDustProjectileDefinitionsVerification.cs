@@ -106,7 +106,7 @@ internal static class MiscDustProjectileDefinitionsVerification
     /// <summary>Builds an enemy fixture that forbids runtime access to compiled misc-dust tables.</summary>
     private static RoomEnemySystem CreateMiscDustEnemySystem()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         return enemies;
     }
 

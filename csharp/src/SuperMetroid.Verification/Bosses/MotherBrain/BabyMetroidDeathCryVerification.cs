@@ -15,7 +15,7 @@ internal static class BabyMetroidDeathCryVerification
     internal static int VerifyBabyMetroidDeathCry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var installation = RepositoryInstallation.Installation;
         // The Baby's scene runs while Mother Brain's encounter is loaded; the room shows the shades it lays (#1512).
         var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);

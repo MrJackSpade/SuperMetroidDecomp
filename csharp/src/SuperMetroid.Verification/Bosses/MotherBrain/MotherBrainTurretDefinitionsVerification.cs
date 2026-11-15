@@ -48,7 +48,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                     $"Mother Brain turret allowed direction {parameter}/{direction}");
             }
 
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
             enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(definition);
 
@@ -131,7 +131,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 definition.BulletVelocity.Y.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet Y velocity {direction}");
 
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var turret = new EnemyProjectile(0, default)
             {
                 Position = new(new(0x0400, 0), new(0x0200, 0)),

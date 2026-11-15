@@ -70,7 +70,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
                 $"names enemy {population.DefinitionId}, not BabyMetroidCutscene.");
         }
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
+        RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializeSlotFromDefinition(babySlot, population, definition);
         _lifecycle.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
 

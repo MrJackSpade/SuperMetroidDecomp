@@ -32,7 +32,6 @@ internal sealed class EyeDoorBehavior
         EyeDoorProjectileRequest request,
         SharedGameState system)
     {
-        _room.EnsureLoaded();
         Ensure.NotNull(system);
 
         RoomEnemyProjectileKind kind = request.Definition switch

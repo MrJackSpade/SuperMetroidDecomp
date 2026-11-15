@@ -85,7 +85,6 @@ internal sealed class EnemyCollision
         Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(samus);
-        _room.EnsureLoaded();
         SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
         if (bodyAttack == SamusBodyAttack.None && !samus.InvincibilityTimer.IsZero)
             return false;
@@ -187,7 +186,6 @@ internal sealed class EnemyCollision
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
-        _room.EnsureLoaded();
 
         int hitCount = 0;
         foreach (RoomEnemySlot enemy in _lifecycle.InteractiveEnemies)
@@ -461,7 +459,6 @@ internal sealed class EnemyCollision
     {
         Ensure.NotNull(bombs);
         Ensure.NotNull(ordinaryProjectiles);
-        _room.EnsureLoaded();
 
         int hitCount = 0;
         for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _lifecycle.InteractiveEnemies.Count); ordinal++)
@@ -675,7 +672,6 @@ internal sealed class EnemyCollision
         Position16<RoomPixels> camera,
         SamusState? samus = null)
     {
-        _room.EnsureLoaded();
         if (explosionRadius == 0)
             return 0;
 

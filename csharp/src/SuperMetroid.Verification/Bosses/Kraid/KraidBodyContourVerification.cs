@@ -29,7 +29,7 @@ internal static class KraidBodyContourVerification
     internal static void VerifyKraidBodyContour(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
         var shot = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)).Shots[0];

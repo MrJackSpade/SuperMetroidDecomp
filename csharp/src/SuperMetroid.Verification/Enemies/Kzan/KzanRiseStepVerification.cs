@@ -21,7 +21,7 @@ internal static class KzanRiseStepVerification
     /// </summary>
     internal static void VerifyKzanRiseStep()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);

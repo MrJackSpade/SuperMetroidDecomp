@@ -34,7 +34,7 @@ internal static class PipeBugBehaviorVerification
                 var name when name.StartsWith("Gamet", StringComparison.Ordinal) => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Gamet, 0),
                 _ => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Geega, 0),
             };
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             Initialize(enemies, slot, definition, parameter);
             slot.PipeBugPlayback = PipeBugsBehavior.StartPipeBugAnimation(slot, program);
@@ -56,7 +56,7 @@ internal static class PipeBugBehaviorVerification
     {
         foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true) })
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
@@ -71,7 +71,7 @@ internal static class PipeBugBehaviorVerification
         }
 
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
@@ -88,7 +88,7 @@ internal static class PipeBugBehaviorVerification
 
         {
             const int onePixel = 65536;
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
@@ -119,7 +119,7 @@ internal static class PipeBugBehaviorVerification
     /// <summary>A freshly initialized Pipe Bug's animation.</summary>
     private static SuperMetroid.Core.Animation.AnimationPlayback<PipeBugSegment> Initialized(EnemyDefinitionId definition, ushort parameter)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Initialize(enemies, slot, definition, parameter);
         return slot.PipeBugPlayback ?? throw new InvalidOperationException("The Pipe Bug initializer left no state.");

@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>Checks Golden Torizo's walking movement and Chozo statue carry motion against native tables.</summary>
@@ -23,7 +24,7 @@ internal static class StatueWalkDefinitionsVerification
     /// <summary>Moves Golden Torizo by each native walking step and compares Chozo carry words, checking production movement and Samus offsets without a bus.</summary>
     internal static void VerifyCompiledStatueWalking(CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.TorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
         Action<RoomEnemySlot, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));

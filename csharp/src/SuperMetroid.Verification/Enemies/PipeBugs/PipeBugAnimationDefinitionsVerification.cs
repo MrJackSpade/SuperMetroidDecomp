@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.PipeBugs;
 
@@ -19,7 +20,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
         foreach (bool strong in new[] { false, true })
         {
-            var initializedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var initializedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
             initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo

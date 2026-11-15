@@ -30,7 +30,7 @@ internal static class BeetomOwnedStateVerification
         arc.StepFallingSpeed(3);
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(64), arc.YSpeedCurvePlace, "falling holds at the maximum");
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);

@@ -28,11 +28,8 @@ internal static class KraidGrowthCommandCursorVerification
         var referenceArt = new EnemyIdentityFixture().Build().Bosses.KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapFiles.Encode(
             new byte[KraidWorkingMapDefinitions.HeadImageCells * 2])));
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
-        {
-            BossArtwork = new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
-                    new Dictionary<int, KraidHeadTilemapAtlas> { [2] = head }, referenceArt.RoomBackgroundTiles) },
-        };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
+                    new Dictionary<int, KraidHeadTilemapAtlas> { [2] = head }, referenceArt.RoomBackgroundTiles) });
         var state = new KraidEnemyState();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.KraidBehavior.Access.Kraid = state;

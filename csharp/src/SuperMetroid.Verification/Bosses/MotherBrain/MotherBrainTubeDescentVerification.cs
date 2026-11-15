@@ -11,7 +11,7 @@ internal static class MotherBrainTubeDescentVerification
     /// <summary>Compares fractional acceleration and head position every frame through tube deletion and room rebuild.</summary>
     internal static int VerifyMotherBrainTubeDescent()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
         enemies.MotherBrainEncounter.MotherBrain = state;
         var tube = enemies.SlotTable.Slots[2];

@@ -19,7 +19,7 @@ internal static class ElevatorBehaviorVerification
     /// <summary>The real initializer starts the Loop program, which the runtime then plays through once and back.</summary>
     internal static void VerifyElevatorBehavior()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -40,7 +40,7 @@ internal static class ElevatorBehaviorVerification
     /// </summary>
     internal static void VerifyElevatorArrivalPlacement()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot elevator = enemies.SlotTable.Slots[3];
         elevator.Bind(EnemyDefinitionId.Elevator, elevator.Definition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);

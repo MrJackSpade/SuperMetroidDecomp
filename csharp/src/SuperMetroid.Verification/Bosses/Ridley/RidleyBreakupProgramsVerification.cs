@@ -27,7 +27,7 @@ internal static class RidleyBreakupProgramsVerification
     /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
     internal static void VerifyRidleyBreakupPrograms()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
         var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyAnimationPlayer.AdvanceAnimation);

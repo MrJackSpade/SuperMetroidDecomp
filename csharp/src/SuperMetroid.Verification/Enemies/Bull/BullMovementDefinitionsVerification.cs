@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Bull;
 
@@ -13,7 +14,7 @@ internal static class BullMovementDefinitionsVerification
     /// <summary>Checks all 104 parameter pairs through the real initializer, including timers and initial instruction.</summary>
     internal static void VerifyCompiledBullMovement(CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);

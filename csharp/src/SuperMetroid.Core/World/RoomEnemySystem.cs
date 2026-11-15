@@ -611,26 +611,25 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// The compatibility services the room's enemies consult: the room's own, created with the system by its builder, and
     /// those that outlive every room, which the builder hands on.
     /// </param>
-    /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
-    /// <param name="services">The game-state services the room's AI calls, or null when none is supplied.</param>
-    /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
+    /// <param name="definitions">The room's enemy definition source.</param>
+    /// <param name="services">The game-state services the room's AI calls.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
     /// <param name="breakableTerrain">
-    /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room; null for a
-    /// system whose enemies never break a block.
+    /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.
     /// </param>
     internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
-        IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
-        BossArtworkBinding? bossArtwork = null, EnemyBreakableTerrainObjects? breakableTerrain = null)
+        IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services,
+        BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain)
     {
         Ensure.NotNull(compatibility);
-        BossArtworkBinding = bossArtwork ?? new();
+        BossArtworkBinding = Ensure.NotNull(bossArtwork);
         Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
-        Presentation = new EnemyPresentation(Room, compatibility.FadeStepCount);
+        Presentation = new EnemyPresentation(session, compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         SlotTable = new EnemySlotTable();
         Audio = new EnemyAudioQueue();
@@ -863,9 +862,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Whether <see cref="Load"/> has loaded this room's population; a room loads it once.</summary>
     private bool _populationLoaded;
 
-    /// <summary>Whether the room's enemy definitions have been bound by <see cref="Load"/>; this reports binding, not successful completion of every initializer or artwork validation.</summary>
-    public bool IsLoaded => Room.IsLoaded;
-
     /// <summary>
     /// Loads the room's enemies: the artwork their population draws from, their population and each one's initialization.
     /// </summary>
@@ -878,7 +874,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // Every encounter of the new room shows the look its room's load gives it until it shows another (#1538), its
         // initialization among them.
         Room.Session.Looks.Restart();
-        IRoomEnemyDefinitionSource definitions = Room.LoadedDefinitions;
+        IRoomEnemyDefinitionSource definitions = Room.Definitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
@@ -906,7 +902,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
     internal EnemyFrameResult StepFrame(RoomEnemyFrame frame)
     {
-        Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(frame.Samus);
         ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);
         FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.SharedProjectiles.PowerBombExplosion, frame.FrameCounter);
@@ -1090,7 +1085,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Runs the room shaking: the earthquake's frame step, then the actor shake it selects.</summary>
     public RoomShakeFrameResult HandleRoomShaking(bool timeIsFrozen)
     {
-        Room.EnsureLoaded();
         // This runs after drawing in the game, so the two-frame actor timer becomes visible
         // on the following frame rather than retroactively changing already-emitted sprites.
         if (Earthquake.Advance(timeIsFrozen))
@@ -1110,7 +1104,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         SamusBombProjectileSystem? samusBombs,
         int frameCounter)
     {
-        Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);
         Projectiles.RunPass(level, samus, camera, shortFrameCounter, samusBombs, frameCounter);
     }

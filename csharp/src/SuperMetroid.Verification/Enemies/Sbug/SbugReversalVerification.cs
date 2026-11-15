@@ -35,7 +35,7 @@ internal static class SbugReversalVerification
         if (placements.Any(placement => placement.Behavior == SbugActivationBehavior.RandomAndReverseWhenFar))
             throw new InvalidOperationException("An authored Sbug reverses when far from Samus, so the original's separate negations are reached.");
 
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

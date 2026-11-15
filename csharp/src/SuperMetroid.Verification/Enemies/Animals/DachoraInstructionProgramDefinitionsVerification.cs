@@ -98,7 +98,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>
     private static DachoraInstructionProgramDefinitionsNewDachoraResult NewDachora(ushort parameter)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

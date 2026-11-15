@@ -20,7 +20,7 @@ internal static class RidleyCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewRidleyCollisionNoReadBus();
-        var compiled = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition));

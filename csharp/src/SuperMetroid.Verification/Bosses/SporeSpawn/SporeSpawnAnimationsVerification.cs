@@ -156,7 +156,7 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     private static RoomEnemySystem NewProjectileSystem()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.SporeSpawnBehavior.SporeSpawn = new SporeSpawnEnemyState(enemies.SlotTable.Slots[0]);
         enemies.VerificationServices().NextRandom = () => 1;
         enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
@@ -171,7 +171,7 @@ internal static class SporeSpawnAnimationsVerification
         Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
     {
         ImportEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.BossArtwork = bound.Bosses;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);

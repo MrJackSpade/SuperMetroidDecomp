@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -76,7 +77,7 @@ internal static class RidleySupplementalArtworkVerification
     internal static OamBuffer DrawInstalledRidleySupplement(
         ImportEnemyArtwork artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         enemies.RidleyEncounter.Parts.AttachBody(slot, "Ceres Ridley");

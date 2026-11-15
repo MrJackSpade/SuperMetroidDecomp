@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 
@@ -54,7 +55,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         foreach ((CrawlerAnimationFamily family, _, CrawlerAnimationFamily? speciesSurfaceFamily) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
@@ -90,7 +91,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceAnimation;
         foreach (CrawlerAnimationFamily surfaceFamily in new[] { CrawlerAnimationFamily.Shared, CrawlerAnimationFamily.Viola, CrawlerAnimationFamily.Sciser, CrawlerAnimationFamily.Zero })
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             var state = new CrawlerEnemyState { SurfaceFamily = surfaceFamily };
 

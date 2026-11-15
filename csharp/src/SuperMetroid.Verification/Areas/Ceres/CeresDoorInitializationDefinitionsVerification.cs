@@ -30,7 +30,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
         for (ushort selector = 0; selector < 7; selector++)
         {
             CeresDoorOrWall actor = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(selector);
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.StartCeresDoorOrWall(actor);

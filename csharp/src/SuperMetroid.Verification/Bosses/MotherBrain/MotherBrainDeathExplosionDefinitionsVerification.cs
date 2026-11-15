@@ -7,6 +7,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -26,7 +27,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         var guarded = NewMotherBrainDeathExplosionReadGuard(rom);
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
             enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body);
             var request = new MotherBrainDeathExplosionRequest(

@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -74,7 +75,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         static SpriteArtworkPlacements ShowAllTakeoffPages(ImportEnemyArtwork art, IInstalledArtworkContent resolver)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom()) { BossArtwork = art.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: art.Bosses);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part);

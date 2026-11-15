@@ -61,7 +61,7 @@ internal static class MotherBrainAnimationsVerification
     /// <summary>Creates Mother Brain's body and head in a fresh enemy system.</summary>
     private static NewMotherBrainResult NewMotherBrain()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot bodySlot = enemies.SlotTable.Slots[0];
         bodySlot.Bind(EnemyDefinitionId.MotherBrainBody, bodySlot.Definition);
         RoomEnemySlot headSlot = enemies.SlotTable.Slots[1];

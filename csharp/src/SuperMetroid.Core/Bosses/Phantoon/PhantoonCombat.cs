@@ -259,7 +259,7 @@ internal sealed class PhantoonCombat
                     $"Projectile {flame.Kind} reached Phantoon's flame drop step.");
             }
 
-            RoomEnemyDefinition eye = room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
+            RoomEnemyDefinition eye = room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 flame.Position.Whole,
                 eye.DropChances);
@@ -276,7 +276,6 @@ internal sealed class PhantoonCombat
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
-        _room.EnsureLoaded();
 
         if (Phantoon is not { } state)
             return 0;

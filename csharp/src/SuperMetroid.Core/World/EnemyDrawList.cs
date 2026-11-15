@@ -68,7 +68,6 @@ internal sealed class EnemyDrawList
     /// <exception cref="InvalidDataException">A reached enemy shows no frame, or an enemy shows a frame that is not installed.</exception>
     public void Advance(Position16<RoomPixels> camera)
     {
-        _room.EnsureLoaded();
         var prepared = new List<PreparedEnemyDraw>();
         foreach ((RoomEnemySlot slot, bool reached) in _queued)
         {

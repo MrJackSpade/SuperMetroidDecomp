@@ -47,7 +47,6 @@ internal sealed class CeresFallingTiles
     /// </summary>
     internal void Spawn(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
-        _room.EnsureLoaded();
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;

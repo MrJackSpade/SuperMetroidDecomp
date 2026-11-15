@@ -24,7 +24,7 @@ internal static class CrocomireCutsceneVerification
     /// <summary>Compares all 33 skeleton frames' hitboxes and callbacks with the cartridge, including the empty E6BC frame.</summary>
     internal static void VerifyCrocomireCorpseCollision()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -100,10 +100,7 @@ internal static class CrocomireCutsceneVerification
         byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
         var scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
-        {
-            BossArtwork = new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) },
-        };
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
         var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(1480, 144));
         var state = new CrocomireEnemyState(body);
@@ -184,10 +181,7 @@ internal static class CrocomireCutsceneVerification
             RoomScrollGrid scrolls = RoomScrollGrid.LoadNativeTable(
                 Enumerable.Repeat(RoomScrollState.Open.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray(),
                 RoomDefinitions.Crocomire.Size);
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
-            {
-                BossArtwork = new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) },
-            };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
             enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];

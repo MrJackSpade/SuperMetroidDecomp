@@ -37,7 +37,7 @@ internal static void VerifyStrictFailureBoundaries()
     AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectKind)(-1)),
         "unknown PLM is absent from the production dispatcher");
 
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
     AssertThrows<InvalidOperationException>(
         () => _ = enemies.Room.Services,
         "enemy AI services are rejected before Load installs them");

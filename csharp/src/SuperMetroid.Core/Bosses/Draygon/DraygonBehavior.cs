@@ -304,7 +304,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The defeated room still has cannon room objects even though its enemy population no
         // longer includes Draygon; only a live Draygon reads the disabled cannons.
-        _room.EnsureLoaded();
         Parts.Draygon?.DisabledCannons.Add(cannon);
     }
 }

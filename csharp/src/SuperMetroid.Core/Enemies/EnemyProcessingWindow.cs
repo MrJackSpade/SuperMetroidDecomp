@@ -55,7 +55,6 @@ internal sealed class EnemyProcessingWindow
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     public void PrepareEnemyProcessingList(Position16<RoomPixels> camera)
     {
-        _room.EnsureLoaded();
         _stepBeforeSelection.StepBeforeEnemySelection();
         DetermineWhichEnemiesToProcess(camera);
     }

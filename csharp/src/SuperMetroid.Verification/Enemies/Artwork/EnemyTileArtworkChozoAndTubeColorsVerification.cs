@@ -14,6 +14,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -74,7 +75,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueSegment? expectedProgram)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
             initialize(enemies, statue);

@@ -21,7 +21,7 @@ internal static class PowampBehaviorVerification
     /// </summary>
     internal static void VerifyPowampBehavior(CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));

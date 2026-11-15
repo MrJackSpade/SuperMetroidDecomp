@@ -139,7 +139,7 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnSmallExplosionNearNorfairRidley;
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -174,7 +174,7 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyExplosionProductionInitializer(
         CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0x8130;
         Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState> initialize = enemies.RidleyBehavior.Death.InitializeNorfairRidleyExplosion;
 

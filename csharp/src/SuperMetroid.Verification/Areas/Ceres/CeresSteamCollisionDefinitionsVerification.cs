@@ -28,7 +28,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                  })
         {
             var denied = NewCeresSteamCollisionNoReadBus();
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { BossArtwork = stock.Bosses };
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
@@ -63,7 +63,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCeresSteamCollisionNoReadBus();
-        var compiled = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition));

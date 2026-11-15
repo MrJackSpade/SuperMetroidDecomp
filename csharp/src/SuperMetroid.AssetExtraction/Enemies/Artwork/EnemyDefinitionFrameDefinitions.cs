@@ -1814,13 +1814,13 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ZebboRisingRightThird,
     ];
 
-    /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Kamer2</c>.</summary>
-    private static readonly EnemyFrameId[] Kamer2Frames =
+    /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>SuspensorPlatform</c>.</summary>
+    private static readonly EnemyFrameId[] SuspensorPlatformFrames =
     [
-        EnemyFrameId.KamerLoopFirst,
-        EnemyFrameId.KamerLoopSecond,
-        EnemyFrameId.KamerLoopThird,
-        EnemyFrameId.KamerLoopFourth,
+        EnemyFrameId.SuspensorPlatformFirst,
+        EnemyFrameId.SuspensorPlatformSecond,
+        EnemyFrameId.SuspensorPlatformThird,
+        EnemyFrameId.SuspensorPlatformFourth,
     ];
 
     /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Tripper</c>.</summary>
@@ -2552,7 +2552,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Geega] = GeegaFrames,
             [EnemyDefinitionId.Zeb] = ZebFrames,
             [EnemyDefinitionId.Zebbo] = ZebboFrames,
-            [EnemyDefinitionId.Kamer2] = Kamer2Frames,
+            [EnemyDefinitionId.SuspensorPlatform] = SuspensorPlatformFrames,
             [EnemyDefinitionId.Tripper] = TripperFrames,
             [EnemyDefinitionId.LavaRocks] = Polyp,
             [EnemyDefinitionId.Powamp] = Powamp,

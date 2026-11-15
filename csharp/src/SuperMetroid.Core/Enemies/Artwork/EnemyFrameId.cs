@@ -1548,14 +1548,14 @@ public enum EnemyFrameId
     TripperFrozenMovingLeft,
     /// <summary>Tripper: frozen moving right.</summary>
     TripperFrozenMovingRight,
-    /// <summary>Kamer: its loop, first frame.</summary>
-    KamerLoopFirst,
-    /// <summary>Kamer: its loop, second frame.</summary>
-    KamerLoopSecond,
-    /// <summary>Kamer: its loop, third frame.</summary>
-    KamerLoopThird,
-    /// <summary>Kamer: its loop, fourth frame.</summary>
-    KamerLoopFourth,
+    /// <summary>The suspensor platform, first frame of its loop.</summary>
+    SuspensorPlatformFirst,
+    /// <summary>The suspensor platform, second frame of its loop.</summary>
+    SuspensorPlatformSecond,
+    /// <summary>The suspensor platform, third frame of its loop.</summary>
+    SuspensorPlatformThird,
+    /// <summary>The suspensor platform, fourth frame of its loop.</summary>
+    SuspensorPlatformFourth,
     /// <summary>Dragon: body idle left.</summary>
     DragonBodyIdleLeft,
     /// <summary>Dragon: wings facing left, first frame.</summary>

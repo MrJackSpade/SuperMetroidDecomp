@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The state of one Tripper or Kamer platform: its patrol speeds, the height it rises back to, its vertical
+/// The state of one Tripper or suspensor platform: its patrol speeds, the height it rises back to, its vertical
 /// acceleration, and the movement and art it has selected.
 /// </summary>
 public sealed class PlatformEnemyState
@@ -45,6 +45,6 @@ public sealed class PlatformEnemyState
     /// <summary>The previous actor update's rider-selected vertical movement; a change restarts the acceleration.</summary>
     public PlatformVerticalMovement PreviousYMovement { get; internal set; }
 
-    /// <summary>True only for Kamer, the suspensor platform, whose art differs from Tripper's.</summary>
+    /// <summary>True only for the suspensor platform, whose art differs from the Tripper's.</summary>
     public bool IsSuspensorPlatform { get; internal set; }
 }

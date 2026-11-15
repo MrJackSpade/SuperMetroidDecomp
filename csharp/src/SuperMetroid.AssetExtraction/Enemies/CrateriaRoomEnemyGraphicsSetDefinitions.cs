@@ -12,7 +12,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.EastOcean), [
             new(EnemyDefinitionId.Choot),
             new(EnemyDefinitionId.Skultera),
-            new(EnemyDefinitionId.Kamer2),
+            new(EnemyDefinitionId.SuspensorPlatform),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaPowerBombs), [
             new(EnemyDefinitionId.Alcoon),

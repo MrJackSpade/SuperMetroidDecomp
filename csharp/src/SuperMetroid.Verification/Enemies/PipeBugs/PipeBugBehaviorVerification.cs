@@ -176,7 +176,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Sciser:
             case EnemyDefinitionId.Zero:
             case EnemyDefinitionId.Tripper:
-            case EnemyDefinitionId.Kamer2:
+            case EnemyDefinitionId.SuspensorPlatform:
             case EnemyDefinitionId.Sbug:
             case EnemyDefinitionId.Mochtroid:
             case EnemyDefinitionId.Sidehopper:

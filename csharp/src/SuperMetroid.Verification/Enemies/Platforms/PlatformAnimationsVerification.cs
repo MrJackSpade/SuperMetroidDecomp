@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Platforms;
 
-/// <summary>#641: the Tripper's and Kamer's typed animations (#1600), each segment matched to its native bank-$A3 list and each animation to the lists' control flow.</summary>
+/// <summary>#641: the Tripper's and the suspensor platform's typed animations (#1600), each segment matched to its native bank-$A3 list and each animation to the lists' control flow.</summary>
 internal static class PlatformAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>

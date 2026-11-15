@@ -81,8 +81,11 @@ public enum EnemyDefinitionId
     Zero,
     /// <summary>The Tripper enemy definition.</summary>
     Tripper,
-    /// <summary>The Kamer2 enemy definition.</summary>
-    Kamer2,
+    /// <summary>
+    /// The suspensor platform: the Tripper's carrying platform with its suspensor art, which sinks under Samus and floats
+    /// back up. The original calls it Kamer too; the shutter-family Kamer is <see cref="Kamer"/>.
+    /// </summary>
+    SuspensorPlatform,
     /// <summary>The Sbug enemy definition.</summary>
     Sbug,
     /// <summary>The Mochtroid enemy definition.</summary>

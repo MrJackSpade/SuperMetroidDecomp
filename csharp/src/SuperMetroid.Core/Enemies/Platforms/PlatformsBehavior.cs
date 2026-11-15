@@ -12,12 +12,12 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer2, EnemyDefinitionId.Tripper];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PlatformsEntity(this, slot, common);
 
-    /// <summary>Clips Tripper/Kamer horizontal and vertical displacement against room terrain.</summary>
+    /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
     /// <summary>Binds the platform movement family to terrain collision.</summary>
@@ -47,23 +47,23 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Recognizes the two enemy definitions sharing platform movement.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
+        definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.SuspensorPlatform;
 
     /// <summary>Runs the two entry points and common initializer.</summary>
     internal static void InitializePlatform(RoomEnemySlot slot)
     {
-        bool isKamer = slot.DefinitionId == EnemyDefinitionId.Kamer2;
+        bool isSuspensorPlatform = slot.DefinitionId == EnemyDefinitionId.SuspensorPlatform;
         var state = new PlatformEnemyState();
         slot.SetSpeciesState(state);
 
-        state.IsSuspensorPlatform = isKamer;
+        state.IsSuspensorPlatform = isSuspensorPlatform;
         // The platform moves left or right; any other movement is corrupt room data and is rejected rather than
         // normalized to rightward movement.
         PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
-            isKamer, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
+            isSuspensorPlatform, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the platform moves at.
         state.Speed = settings.Speed;
@@ -77,7 +77,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }
 
-    /// <summary>Runs the Tripper and Kamer's main AI.</summary>
+    /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
     private void RunPlatformMain(
         RoomEnemySlot slot,
         PlatformEnemyState state,

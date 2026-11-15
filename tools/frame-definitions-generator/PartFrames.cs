@@ -220,7 +220,7 @@ internal sealed record PartFrameConfiguration(
         new("PlatformsBehavior", null, null, "PlatformAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Kamer2"] = ["KamerHeadingLeft", "KamerHeadingRight"],
+                ["SuspensorPlatform"] = ["SuspensorPlatformHeadingLeft", "SuspensorPlatformHeadingRight"],
                 ["Tripper"] = ["TripperMovingLeft", "TripperMovingRight", "TripperStillMovingLeft", "TripperStillMovingRight"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])

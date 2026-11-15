@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Platforms;
 namespace SuperMetroid.Verification.Enemies.Platforms;
 
 /// <summary>
-/// The native bank-$A3 lists the Tripper or Kamer ROM oracle (#641) walks: each program's entry point and the owner
+/// The native bank-$A3 lists the Tripper or suspensor platform ROM oracle (#641) walks: each program's entry point and the owner
 /// instructions the lists use, with the cue each must become and its operand roles (T target, A alternate, V value).
 /// Only verification reads them; the port runs typed programs.
 /// </summary>
@@ -14,19 +14,19 @@ internal static class PlatformNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>
-    /// Each typed program's native entry point, in authored order. The cartridge repeats the Kamer's two headings and its
+    /// Each typed program's native entry point, in authored order. The cartridge repeats the suspensor platform's two headings and its
     /// loop for its moving and its still animations; each repeat is the same typed segment (#1842).
     /// </summary>
     internal static readonly NativeProgramEntry<PlatformSegment>[] Entries =
     [
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingLeft, 0x9bbb),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9bbd),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingRight, 0x9bd1),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9bd3),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingLeft, 0x9be7),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9be9),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerHeadingRight, 0x9bfd),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.KamerLoop, 0x9bff),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingLeft, 0x9bbb),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9bbd),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingRight, 0x9bd1),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9bd3),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingLeft, 0x9be7),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9be9),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingRight, 0x9bfd),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9bff),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingLeft, 0x9c13),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingLeftLoop, 0x9c15),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingRight, 0x9c29),

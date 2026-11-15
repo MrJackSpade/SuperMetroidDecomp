@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The horizontal movement of Tripper and Kamer (the suspensor
+/// The horizontal movement of the Tripper and the suspensor platform (the suspensor
 /// platform): left or right.
 /// </summary>
 public enum PlatformHorizontalMovement

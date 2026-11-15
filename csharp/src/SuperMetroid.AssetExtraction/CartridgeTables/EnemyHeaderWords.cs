@@ -59,7 +59,7 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.Sciser] = 0xd77f,
         [EnemyDefinitionId.Zero] = 0xd7bf,
         [EnemyDefinitionId.Tripper] = 0xd7ff,
-        [EnemyDefinitionId.Kamer2] = 0xd83f,
+        [EnemyDefinitionId.SuspensorPlatform] = 0xd83f,
         [EnemyDefinitionId.Sbug] = 0xd87f,
         [EnemyDefinitionId.Mochtroid] = 0xd8ff,
         [EnemyDefinitionId.Sidehopper] = 0xd93f,

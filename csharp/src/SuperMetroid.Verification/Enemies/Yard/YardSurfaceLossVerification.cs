@@ -29,7 +29,7 @@ internal static class YardSurfaceLossVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(512, 512));
             slot.Radius = new(8, 8);
-            var state = new YardEnemyState(YardMovement.AwaitingAnimationCue)
+            var state = new YardEnemyState(YardMovement.HoldingStill)
             {
                 Movement = YardMovement.CrawlingUpsideUpMovingRight,
                 Behavior = YardBehavior.NormalCrawling,

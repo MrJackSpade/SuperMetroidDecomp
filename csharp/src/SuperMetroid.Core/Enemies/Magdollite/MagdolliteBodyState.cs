@@ -14,11 +14,10 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     public MagdolliteBodyAction Action { get; internal set; }
 
     /// <summary>
-    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset from the nine
-    /// <see cref="MagdolliteRise.Phase"/> phases. It steps by one as the arm rises past each phase's threshold and
-    /// back as it sinks.
+    /// The arm's stage of its rise, which selects its pillar stack, threshold and overlay offset. It steps up as the arm
+    /// rises past each stage's threshold and back down as it sinks.
     /// </summary>
-    public int BodyPhase { get; internal set; }
+    public MagdolliteRiseStage BodyPhase { get; internal set; }
 
     /// <summary>
     /// The arm's whole-pixel vertical displacement from where it started rising, negative while the arm is above that

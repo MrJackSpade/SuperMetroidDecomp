@@ -122,7 +122,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardSpawnSettings settings = slot.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
 
-        var state = new YardEnemyState(YardMovement.AwaitingAnimationCue)
+        var state = new YardEnemyState(YardMovement.HoldingStill)
         {
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A

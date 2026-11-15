@@ -130,7 +130,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its initializer has no speed for.");
 
         CrawlerSurfaceOrientation orientation = settings.Orientation;
-        var state = new CrawlerEnemyState(CrawlerAction.HZoomerSettling)
+        var state = new CrawlerEnemyState(CrawlerAction.OrangeZoomerSettling)
         {
             SurfaceFamily = CrawlerAnimationFamily.OrangeZoomer,
             Surface = orientation,

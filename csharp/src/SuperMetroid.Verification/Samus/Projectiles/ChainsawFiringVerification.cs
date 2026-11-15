@@ -60,7 +60,7 @@ internal static class ChainsawFiringVerification
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
         AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "native Chainsaw admits and allocates the shot");
-        AssertEqual(0, projectiles.Pool.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
+        AssertEqual(0, projectiles.Pool.ShotCount.Count, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Shots[0].InstructionPointer, "deleted Chainsaw has no animation list");
         AssertEqual(0, projectiles.Shots[0].Damage, "deleted Chainsaw releases its damage sentinel");
 
@@ -111,7 +111,7 @@ internal static class ChainsawFiringVerification
         AssertTrue(doorProjectiles.Shots.All(slot =>
                 !slot.Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
-        AssertEqual(0, doorProjectiles.Pool.ProjectileCounter,
+        AssertEqual(0, doorProjectiles.Pool.ShotCount.Count,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
 
         var activeShared = CreateBombFixture();

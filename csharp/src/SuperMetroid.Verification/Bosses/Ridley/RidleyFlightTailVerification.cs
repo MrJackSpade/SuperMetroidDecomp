@@ -97,7 +97,7 @@ internal static class RidleyFlightTailVerification
         aim(state, samus, 0);
         RidleyTailAngle? samusTarget = state.ClockwiseWhipTarget;
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
-        projectiles.Pool.ProjectileCounter = 1;
+        projectiles.Pool.ShotCount.Restore(1);
         projectiles.Shots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Shots[0].Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
         enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, projectiles, new SuperMetroid.Core.Samus.Colours.SamusColours());

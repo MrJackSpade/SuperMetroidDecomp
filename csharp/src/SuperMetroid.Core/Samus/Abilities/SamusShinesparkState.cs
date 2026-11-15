@@ -744,8 +744,8 @@ false);
 
         // The copies stand the crash radius, 0 through 16, from Samus along their angles; placing them past the room's edge
         // continues from its other end, as every room position does.
-        FirstOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
-        SecondOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
+        FirstOrbitingCopy = samus.Position.Whole + OffsetAlong(FirstCrashEchoAngle, CrashRadius);
+        SecondOrbitingCopy = samus.Position.Whole + OffsetAlong(SecondCrashEchoAngle, CrashRadius);
 
         return new ShinesparkMovementResult(
 false);
@@ -803,9 +803,6 @@ false,             CrashSequenceFinished: true);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
-    /// <summary>The radii the sine lookup places an echo at, in pixels; a radius past them places it from Samus again.</summary>
-    private const int EchoPlacementRadii = 256;
-
     /// <summary>Pixels an echo's radius grows by on each update.</summary>
     private const int EchoRadiusStep = 8;
 
@@ -814,8 +811,8 @@ false,             CrashSequenceFinished: true);
 
     /// <summary>
     /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by eight, and the echo is
-    /// placed that far from Samus's current position along its angle, with the radius taken within the lookup's 256 pixels, so an echo still on the screen at 248 pixels returns
-    /// to Samus. An echo placed left of or above the camera's corner, or <see cref="EchoScreenReach"/> or more right of
+    /// placed that far from Samus's current position along its angle, at the radius <see cref="ShinesparkEchoReturn"/>
+    /// places it at, which brings an echo still on the screen back to Samus. An echo placed left of or above the camera's corner, or <see cref="EchoScreenReach"/> or more right of
     /// or below it, has left the screen; the first echo leaves its height for the crash's orbit, or nothing once it has
     /// left (<see cref="CrashOrbitTravelCarryover"/>).
     /// </summary>
@@ -834,7 +831,7 @@ false,             CrashSequenceFinished: true);
         // copies, not ordinary projectiles with independent velocity.
         shot.EchoRadius += EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
-            ProjectileSinLookup(shot.EchoAngle.ToAngle(), shot.EchoRadius % EchoPlacementRadii);
+            OffsetAlong(shot.EchoAngle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(shot.EchoRadius));
         bool onScreen = CoordinateAxis.Difference(point.X, cameraPosition.X) is >= 0 and < EchoScreenReach &&
             CoordinateAxis.Difference(point.Y, cameraPosition.Y) is >= 0 and < EchoScreenReach;
 
@@ -853,8 +850,11 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
-    /// <summary>Exact split multiplication used by the crash's sine and cosine.</summary>
-    internal static Offset16<RoomPixels> ProjectileSinLookup(
+    /// <summary>
+    /// The offset <paramref name="radius"/> pixels from Samus along <paramref name="angle"/> at which the crash places its
+    /// orbiting copies and echoes: each component the radius scaled by the angle's sine or cosine, truncated toward zero.
+    /// </summary>
+    internal static Offset16<RoomPixels> OffsetAlong(
         RotationAngle angle,
         int radius)
     {
@@ -865,7 +865,7 @@ false,             CrashSequenceFinished: true);
         return new(x, y);
     }
 
-    /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table.</summary>
+    /// <summary>The radius scaled by the angle's sine, truncated toward zero.</summary>
     private static int LookupSignedComponent(
         RotationAngle angle,
         int radius)
@@ -947,10 +947,10 @@ false,             CrashSequenceFinished: true);
         // upward magnitude at 15 whole pixels while preserving its fraction, then negates
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
-        // The cap test checks whether the whole pixels' difference from fifteen is negative; it wraps for a magnitude more
-        // than 32753 pixels upward or downward, as the game's comparison does.
+        // The spark's speed is capped at fourteen pixels, so the magnitude stays far inside the range where the game's
+        // wrapping comparison is this ordinary one.
         SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
-        if (CoordinateAxis.Difference(collisionMagnitude.WholePixels, 15) >= 0)
+        if (collisionMagnitude.WholePixels >= 15)
         {
             collisionMagnitude = SignedSixteenSixteen.FromParts(15, collisionMagnitude.Fraction);
             upwardDisplacement = -collisionMagnitude;

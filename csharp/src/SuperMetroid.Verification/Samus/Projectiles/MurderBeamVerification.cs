@@ -83,7 +83,7 @@ internal static class MurderBeamVerification
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");
-        AssertEqual(1, projectiles.Pool.ProjectileCounter,
+        AssertEqual(1, projectiles.Pool.ShotCount.Count,
             "Murder Beam retains its ordinary projectile allocation");
 
         for (int frame = 0; frame < 16; frame++)

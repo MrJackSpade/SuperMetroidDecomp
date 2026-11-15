@@ -616,7 +616,7 @@ public sealed class SamusProjectileSystem
         Combos.OrbitTurnPerUpdate = TrigonometryAngle.Zero;
         Pool.ClearAll();
         Trails.Clear();
-        Pool.ProjectileCounter = 0;
+        Pool.ShotCount.Clear();
         Firing.ProjectileInvincibilityTimer = 0;
         LastFrameResult = default;
     }

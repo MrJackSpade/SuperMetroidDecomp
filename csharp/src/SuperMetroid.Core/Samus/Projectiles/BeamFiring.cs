@@ -230,7 +230,7 @@ internal sealed class BeamFiring
         // charged beam combination. Without Charge Beam, callers attempt a shot every held
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
-        if (_pool.ProjectileCounter >= SamusProjectileSystem.PlaceCount ||
+        if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
             !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
@@ -239,13 +239,13 @@ internal sealed class BeamFiring
         // Allocation writes one before allocating storage. A corrupt counter/free-projectile
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
-        _pool.ProjectileCounter++;
+        _pool.ShotCount.CountShot();
 
         // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
         // the fifth place holds. With every place held the shot is refused and the count is taken back.
         if (_pool.FindFreePlace() is not { } place)
         {
-            _pool.ProjectileCounter--;
+            _pool.ShotCount.TakeBackRefusedShot();
             return new BeamShot(null, null);
         }
 
@@ -256,7 +256,7 @@ internal sealed class BeamFiring
         if (direction is not { } aim)
         {
             // A pose that cannot shoot fires nothing; a transition shot always names an aim (SamusTransitionShot.FromPose).
-            _pool.ProjectileCounter--;
+            _pool.ShotCount.TakeBackRefusedShot();
             return new BeamShot(null, null);
         }
 
@@ -337,23 +337,23 @@ internal sealed class BeamFiring
     {
         // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
-        if (_pool.ProjectileCounter >= SamusProjectileSystem.PlaceCount ||
+        if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
             !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
         }
 
         sharedProjectiles.SetSharedCooldown(1);
-        _pool.ProjectileCounter++;
+        _pool.ShotCount.CountShot();
         if (_pool.FindFreePlace() is not { } place)
         {
-            _pool.ProjectileCounter--;
+            _pool.ShotCount.TakeBackRefusedShot();
             return new BeamShot(null, null);
         }
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
-            _pool.ProjectileCounter--;
+            _pool.ShotCount.TakeBackRefusedShot();
             return new BeamShot(null, null);
         }
 
@@ -424,7 +424,7 @@ internal sealed class BeamFiring
         bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.PlaceCount;
-        if (_pool.ProjectileCounter >= admissionLimit ||
+        if (_pool.ShotCount.Count >= admissionLimit ||
             !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
@@ -443,7 +443,7 @@ internal sealed class BeamFiring
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
-        _pool.ProjectileCounter++;
+        _pool.ShotCount.CountShot();
         ProjectileInvincibilityTimer = 20;
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);

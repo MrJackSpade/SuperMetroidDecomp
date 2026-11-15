@@ -174,7 +174,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             (SoundEffectId?)SamusSound.UnchargedPowerBeam,
             result.QueuedSoundEffect,
             $"power beam direction {direction} queues ROM sound");
-        AssertEqual(1, projectiles.Pool.ProjectileCounter,
+        AssertEqual(1, projectiles.Pool.ShotCount.Count,
             $"power beam direction {direction} increments counter");
         AssertEqual(0x000f, bombs.CooldownTimer.RawValue,
             $"power beam direction {direction} installs cooldown");
@@ -906,7 +906,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(SamusProjectileFamily.BeamExplosion,
         wallProjectiles.Shots[0].Type.Family,
         "wall collision installs beam-explosion family");
-    AssertEqual(1, wallProjectiles.Pool.ProjectileCounter,
+    AssertEqual(1, wallProjectiles.Pool.ShotCount.Count,
         "beam explosion retains ordinary slot count");
     AssertEqual(0xa254, wallProjectiles.Shots[0].SpritemapPointer,
         "collision frame selects first explosion art");
@@ -916,7 +916,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         wallBombs.StepFrame(new SamusTerrain { Level = wall }, wallSamus, 0, 0);
         wallProjectiles.StepFrame(new SamusTerrain { Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
     }
-    AssertEqual(0, wallProjectiles.Pool.ProjectileCounter,
+    AssertEqual(0, wallProjectiles.Pool.ShotCount.Count,
         "explosion delete decrements ordinary counter");
     AssertTrue(!wallProjectiles.Shots[0].IsActive,
         "explosion delete clears ordinary slot");
@@ -1027,7 +1027,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
     AssertEqual(HudItem.Missile, missileSamus.SelectedHudItem,
         "nonempty missile reserve remains HUD-selected");
-    AssertEqual(1, missileProjectiles.Pool.ProjectileCounter,
+    AssertEqual(1, missileProjectiles.Pool.ShotCount.Count,
         "missile increments the shared ordinary-projectile counter");
     AssertEqual(10, missileBombs.CooldownTimer.RawValue,
         "missile producer installs literal ten-frame shared cooldown");
@@ -1091,7 +1091,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "accelerating missile reaches the type-eight wall");
     AssertEqual(SamusProjectileFamily.MissileExplosion, missile.Type.Family,
         "missile collision installs missile-explosion family `$0800`");
-    AssertEqual(1, missileProjectiles.Pool.ProjectileCounter,
+    AssertEqual(1, missileProjectiles.Pool.ShotCount.Count,
         "missile explosion retains its shared ordinary slot count");
     AssertEqual(0xa254, missile.SpritemapPointer,
         "missile collision frame selects first explosion art");
@@ -1104,7 +1104,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
         missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
     }
-    AssertEqual(0, missileProjectiles.Pool.ProjectileCounter,
+    AssertEqual(0, missileProjectiles.Pool.ShotCount.Count,
         "missile explosion delete decrements ordinary counter");
     AssertTrue(!missile.IsActive, "missile explosion delete clears its slot");
 
@@ -1522,7 +1522,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "super producer consumes exactly one ammo");
     AssertEqual(20, superBombs.CooldownTimer.RawValue,
         "super producer installs literal twenty-frame cooldown");
-    AssertEqual(2, superProjectiles.Pool.ProjectileCounter,
+    AssertEqual(2, superProjectiles.Pool.ShotCount.Count,
         "super ignition counts visible owner plus invisible link");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), super.Type, "super owner is a Super Missile");
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
@@ -1579,7 +1579,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(20, NativeEarthquakeTypes.TypeOf(SuperMissileDefinitions.WallImpactEarthquake),
         "super impact's earthquake is quake type `$14`");
     AssertTrue(!superLink.IsActive, "super owner impact clears invisible linked slot");
-    AssertEqual(1, superProjectiles.Pool.ProjectileCounter,
+    AssertEqual(1, superProjectiles.Pool.ShotCount.Count,
         "super explosion retains only its visible owner count");
 
     // Issue #283: reproduce the narrow-pillar helper impact from the player's recording.
@@ -1619,7 +1619,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     pillarProjectiles.StepFrame(new SamusTerrain { Level = secondPillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
     AssertTrue(!pillarLink.IsActive,
         "native second collision deletes the explosion instead of restarting it");
-    AssertEqual(1, pillarProjectiles.Pool.ProjectileCounter,
+    AssertEqual(1, pillarProjectiles.Pool.ShotCount.Count,
         "second helper collision decrements its counted slot exactly once");
 
     // Drive a second real Super Missile into type-$C/BTS-A rather than calling the PLM

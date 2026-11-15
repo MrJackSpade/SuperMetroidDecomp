@@ -111,7 +111,7 @@ internal static class KraidReportedCollisionsVerification
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false); shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
-            runtime.Projectiles.Pool.ProjectileCounter = 1;
+            runtime.Projectiles.Pool.ShotCount.Restore(1);
             runtime.Enemies.ResolveKraidProjectileHits(runtime.Projectiles, runtime.BombProjectiles);
             AssertEqual(true, shot.IsSpent,
                 "Initial closed head blocks shots before the first head animation executes");

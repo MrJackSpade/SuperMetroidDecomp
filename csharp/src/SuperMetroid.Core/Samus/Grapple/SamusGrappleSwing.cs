@@ -459,8 +459,8 @@ public static class SamusGrappleSwing
             CoordinateAxis.Wrap(BiasedWithinBlock(grapple.Anchor.Y, yNegativeCosine)));
 
         Position16<RoomPixels> point = grapple.Anchor + new Offset16<RoomPixels>(
-            CoordinateAxis.AsSigned(ScaleCoordinate(xSine, distance)),
-            CoordinateAxis.AsSigned(ScaleCoordinate(yNegativeCosine, distance)));
+            ScaleCoordinate(xSine, distance),
+            ScaleCoordinate(yNegativeCosine, distance));
 
         // The helper takes each block column and row within the scan cycle. Rooms are authored within it;
         // keeping the cycle matters where a point wraps around the room's coordinates.

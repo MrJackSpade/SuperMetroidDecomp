@@ -368,7 +368,7 @@ internal sealed class ProjectileMotion
         link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         owner.SuperMissileLinkPlace = link.Place;
-        _pool.ProjectileCounter++;
+        _pool.ShotCount.CountShot();
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>

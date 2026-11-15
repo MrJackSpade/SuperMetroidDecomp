@@ -421,7 +421,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(0, horizontal.Shinespark.ReleasedCrashEchoCount,
         "departing crash echoes delete themselves outside the 256-pixel viewport");
     AssertEqual(0, horizontalCompatibility.CrashOrbitTravel.Travel, "a first echo that leaves the screen leaves no travel");
-    AssertEqual(0, horizontalShots.Pool.ProjectileCounter, "each echo that leaves the screen clears its shot");
+    AssertEqual(0, horizontalShots.Pool.ShotCount.Count, "each echo that leaves the screen clears its shot");
 
     // Repeat only the state-machine spine for native projectile-capacity edges. A count of
     // four releases only the second echo; five releases neither.
@@ -431,7 +431,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         SuperMetroid.Core.Samus.SamusCompatibility compatibility)
     {
         var fixtureShots = Shots();
-        fixtureShots.Pool.ProjectileCounter = projectileCounter;
+        fixtureShots.Pool.ShotCount.Restore(projectileCounter);
         var fixture = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
@@ -512,9 +512,9 @@ internal static void VerifySamusStoredShineAndShinespark()
         AssertEqual(16, samus.Shinespark.CrashRadius, "four expanding calls reach radius sixteen");
         AssertEqual(ShinesparkCrashOrbitStage.Orbiting, samus.Shinespark.CrashOrbitStage, "radius sixteen starts the orbit");
         // The copies stand the whole crash radius from Samus along their angles (#1627).
-        AssertEqual(samus.Position.Whole + SamusShinesparkState.ProjectileSinLookup(samus.Shinespark.FirstCrashEchoAngle, 16),
+        AssertEqual(samus.Position.Whole + SamusShinesparkState.OffsetAlong(samus.Shinespark.FirstCrashEchoAngle, 16),
             samus.Shinespark.FirstOrbitingCopy, "the first copy stands sixteen pixels out along its angle");
-        AssertEqual(samus.Position.Whole + SamusShinesparkState.ProjectileSinLookup(samus.Shinespark.SecondCrashEchoAngle, 16),
+        AssertEqual(samus.Position.Whole + SamusShinesparkState.OffsetAlong(samus.Shinespark.SecondCrashEchoAngle, 16),
             samus.Shinespark.SecondOrbitingCopy, "the second copy stands sixteen pixels out along its angle");
 
         StepSpark();

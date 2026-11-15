@@ -6,6 +6,8 @@ using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
 using static SuperMetroid.Verification.Samus.Movement.AirSpikeAlphaRadiusVerification;
+using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEchoReturnVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.SamusShotCountVerification;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Frontend.Map.AreaMapAssetsVerification;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
@@ -826,6 +828,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyXrayExtensions), () => VerifyXrayExtensions()),
         new(nameof(VerifyXrayTilemap), () => VerifyXrayTilemap()),
         new(nameof(VerifyXrayOverlays), () => VerifyXrayOverlays()),
+        new(nameof(VerifyShinesparkEchoReturn), () => VerifyShinesparkEchoReturn()),
+        new(nameof(VerifySamusShotCount), () => VerifySamusShotCount()),
         new(nameof(VerifyBreakableGrappleObjects), () => VerifyBreakableGrappleObjects()),
         new(nameof(VerifyBombBlockPrograms), () => VerifyBombBlockPrograms()),
         new(nameof(VerifyContactCrumblePrograms), () => VerifyContactCrumblePrograms()),

@@ -233,7 +233,7 @@ public sealed class SamusDrainedState
         // not already have the drained pose's radius of 21 pixels.
         int sourceRadius = samus.Kinematics.Radius.Y;
         samus.Position = samus.Position.WithWrappedWholeY(
-            samus.Position.Y.Whole - CoordinateAxis.Wrap(21 - sourceRadius));
+            samus.Position.Y.Whole - (21 - sourceRadius));
 
         // A left-facing pose chooses the left-facing record; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.

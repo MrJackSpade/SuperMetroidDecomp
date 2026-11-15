@@ -41,7 +41,7 @@ internal sealed class ShinesparkEchoProjectile
     internal bool ReleaseCrashEchoes(ShinesparkCrashEcho first, ShinesparkCrashEcho second,
         ShinesparkDepartureAngles angles, SamusBeamCombination picturedBeams, Position16<RoomPixels> crashPosition)
     {
-        int shots = _pool.ProjectileCounter;
+        int shots = _pool.ShotCount.Count;
         if (shots >= SamusProjectileSystem.PlaceCount)
             return false;
 
@@ -58,7 +58,7 @@ internal sealed class ShinesparkEchoProjectile
     /// </summary>
     private SamusProjectile Launch(int place, RotationAngle angle, SamusBeamCombination picturedBeams)
     {
-        _pool.ProjectileCounter++;
+        _pool.ShotCount.CountShot();
         SamusProjectile replaced = _pool.Shots[place];
         Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
             replaced.IsOccupied ? replaced.Position.Whole : null);

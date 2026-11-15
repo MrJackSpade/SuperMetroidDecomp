@@ -88,10 +88,10 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Position = samus.Position.WithWrappedWholeY(
                 samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - samus.Kinematics.Radius.Y));
 
-            // The side is selected from screen X, not world X. Exact center belongs to the
-            // rightward branch because the game checks whether `(screenX - 128)` is negative.
-            int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - cameraX);
-            PushDirection = CoordinateAxis.Difference(screenX, ScreenGeometry.ScreenWidthPixels / 2) < 0
+            // The side is selected from Samus's place on the screen, not in the room. The exact centre belongs to the
+            // rightward shove.
+            int screenX = samus.Position.X.Whole - cameraX;
+            PushDirection = screenX < ScreenGeometry.ScreenWidthPixels / 2
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);

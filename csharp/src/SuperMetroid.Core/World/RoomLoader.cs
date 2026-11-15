@@ -276,7 +276,7 @@ internal sealed class RoomLoader
             AnimationFrame = 0,
         };
         _player.Samus.BindAudioRequests(_audioRequests);
-        _artwork.BindSamusPalettePresentation();
+        _artwork.BindSamusArtwork();
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
         StoredExploredMapLoads.LoadFile(_system.StoredExploredMaps, slot.Progression);
@@ -312,7 +312,7 @@ internal sealed class RoomLoader
         samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
-        _artwork.BindSamusPalettePresentation();
+        _artwork.BindSamusArtwork();
 
         // The arrival on Zebes is a cutscene-only entry high above Landing Site; the gunship is
         // not the checkpoint until the gunship's landing finishes and performs the save.
@@ -1145,7 +1145,7 @@ internal sealed class RoomLoader
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0)),
         };
         _player.Samus.BindAudioRequests(_audioRequests);
-        _artwork.BindSamusPalettePresentation();
+        _artwork.BindSamusArtwork();
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();
 

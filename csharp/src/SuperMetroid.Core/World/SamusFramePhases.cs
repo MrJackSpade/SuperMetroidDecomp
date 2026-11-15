@@ -125,7 +125,7 @@ internal sealed class SamusFramePhases
         }
 
         if (_player.LastGrappleMovement is { Fired: true })
-            LoadGrapplePalette();
+            ShowGrappleShades();
         else if (_player.LastGrappleMovement is { Phase: GrapplePhase.Inactive })
         {
             // Cancellation, drop, wall-jump and swing-release tails all
@@ -142,7 +142,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Shows the grapple's firing beam shade and its flare's shade as Samus's colours (#1512).</summary>
-    internal void LoadGrapplePalette()
+    internal void ShowGrappleShades()
     {
         // Both ordinary HUD firing and debug entry select the same shades.
         _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection));

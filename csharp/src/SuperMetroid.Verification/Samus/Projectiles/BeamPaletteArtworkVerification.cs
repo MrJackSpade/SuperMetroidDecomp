@@ -113,7 +113,7 @@ internal static class BeamPaletteArtworkVerification
         AssertTrue(!runtime.Player.IntroducedSamus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash), "Crystal Flash still clears its owner on completion");
 
         var nativeRuntime = CreateRetailRuntimeFixture();
-        nativeRuntime.LoadDebugGrapplePalette();
+        nativeRuntime.ShowDebugGrappleShades();
         AssertEqual(SamusShades.Beam(SamusBeamCombination.Ice), nativeRuntime.Player.Colours.Beams,
             "Debug grapple selection shows the Ice beam's shade, native beam palette index two");
         AssertEqual(SamusShades.GrappleFiringFlare, nativeRuntime.Player.Colours.GrappleFlare,

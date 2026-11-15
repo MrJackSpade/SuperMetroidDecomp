@@ -897,7 +897,7 @@ internal sealed class SuperMetroidRuntime
             // The stationary lock's movement mode does not run Samus's
             // colour effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
-            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
+            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusColourEffects.Hold : SamusColourEffects.Advance);
     }
 
     /// <summary>Counts the escape timer down and draws it, unless the gunship's movement mode owns the frame.</summary>

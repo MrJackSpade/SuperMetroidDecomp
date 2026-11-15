@@ -193,7 +193,7 @@ internal sealed class DoorTransitionRunner
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectiles(room.BombProjectiles, room);
-        _actorDrawing.DrawGameplayActors(room, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
+        _actorDrawing.DrawGameplayActors(room, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
         // Drawing Samus every frame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)

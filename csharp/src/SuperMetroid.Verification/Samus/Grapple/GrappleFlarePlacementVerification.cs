@@ -131,7 +131,7 @@ internal static class GrappleFlarePlacementVerification
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
         runtime.Player.IntroducedSamus.Grapple.FlarePlacement = null;
         runtime.Player.IntroducedSamus.Grapple.SwingFrames = null;
-        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
+        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
         AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections match the installed placement.");

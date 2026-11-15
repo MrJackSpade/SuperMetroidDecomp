@@ -57,7 +57,7 @@ internal sealed class RuntimeArtwork
         {
             field = value;
             _hud.BindPresentation(value?.GameplayHud);
-            BindSamusPalettePresentation();
+            BindSamusArtwork();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowBeamColours;
             _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
@@ -66,7 +66,7 @@ internal sealed class RuntimeArtwork
     }
 
     /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
-    internal void BindSamusPalettePresentation()
+    internal void BindSamusArtwork()
     {
         if (_player.Samus is null)
             return;

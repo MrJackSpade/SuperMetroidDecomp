@@ -228,7 +228,7 @@ internal static class ProjectileCompositionsVerification
         static ImageSpriteDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
             target.Sprites.FinalizeFrame();
             return target.Sprites.Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);
         }

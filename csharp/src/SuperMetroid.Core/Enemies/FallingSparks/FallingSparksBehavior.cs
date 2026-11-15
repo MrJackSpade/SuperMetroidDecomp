@@ -48,7 +48,7 @@ internal sealed class FallingSparksBehavior
         // FallingSparkUnauthoredLaunch.
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
         Func<int> nextRandom = _room.Random.Generate;
-        SignedSixteenSixteen launch = FallingSparkLaunches.FromRandom(nextRandom(), () => _room.Overreads.FallingSparkUnauthoredLaunch);
+        SignedSixteenSixteen launch = FallingSparkLaunches.FromRandom(nextRandom(), () => _room.Session.Overreads.FallingSparkUnauthoredLaunch);
         projectile.State = new FallingSparkState(launch);
     }
 

@@ -36,15 +36,4 @@ internal sealed class EnemyRoomBinding
     /// <summary>The game random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;
 
-    /// <summary>The session's installed enemy frame displays, which drawing an enemy reads.</summary>
-    internal EnemyFrameDisplays FrameDisplays => Session.FrameDisplays;
-
-    /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
-    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
-
-    /// <summary>The session's installed services reproducing what enemies read past their authored data (#1500).</summary>
-    internal EnemyOverreadServices Overreads => Session.Overreads;
-
-    /// <summary>The session's installed services reproducing what Kraid's nails and Crocomire's volley read past their data.</summary>
-    internal BossAndIntroOverreadServices BossOverreads => Session.BossOverreads;
 }

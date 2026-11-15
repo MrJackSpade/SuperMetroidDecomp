@@ -326,7 +326,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // At full height whether the arm grows its last segment depends on the slot it occupies
         // (MagdolliteApexGrowth); the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
-            ? _room.Overreads.MagdolliteApexGrowth.GrowsFinalSegment(body.SlotIndex)
+            ? _room.Session.Overreads.MagdolliteApexGrowth.GrowsFinalSegment(body.SlotIndex)
             : !CoordinateAxis.Precedes(upwardDistance, phase.DistanceThreshold);
 
         if (roseMaximum || rosePastSamus)

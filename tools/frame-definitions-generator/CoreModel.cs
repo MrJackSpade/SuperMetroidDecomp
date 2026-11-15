@@ -75,7 +75,8 @@ internal sealed class CoreModel
         EnemyProjectileFrameId = SingleType("EnemyProjectileFrameId");
         RoomSpriteObjectKind = SingleType("RoomSpriteObjectKind");
         RoomEnemyProjectileKind = SingleType("RoomEnemyProjectileKind");
-        EnemyProjectileFrameBehavior = SingleType("EnemyProjectileFrameBehavior");
+        EnemyProjectileMotionBehavior = SingleType("EnemyProjectileBehavior", arity: 1);
+        EnemyProjectile = SingleType("EnemyProjectile");
         EnemyDefinitionId = SingleType("EnemyDefinitionId");
         ArchitectureReview = SingleType("ArchitectureReviewAttribute");
         EnemySheetDraw = SingleType("EnemySheetDraw");
@@ -136,8 +137,14 @@ internal sealed class CoreModel
     /// <summary>The enemy definition identity.</summary>
     public INamedTypeSymbol EnemyDefinitionId { get; }
 
-    /// <summary>How an enemy projectile moves itself each pass (its motion), which its kind's definition gives it.</summary>
-    public INamedTypeSymbol EnemyProjectileFrameBehavior { get; }
+    /// <summary>
+    /// The base of a projectile behaviour that moves its projectiles (#1843), <c>EnemyProjectileBehavior&lt;TMotion&gt;</c>,
+    /// whose type argument names the family's motions.
+    /// </summary>
+    public INamedTypeSymbol EnemyProjectileMotionBehavior { get; }
+
+    /// <summary>An enemy projectile: the object a projectile behaviour is bound to, which holds its motion.</summary>
+    public INamedTypeSymbol EnemyProjectile { get; }
 
     /// <summary>The explicit draw of a named definition's sheet frame.</summary>
     public INamedTypeSymbol EnemySheetDraw { get; }
@@ -162,7 +169,7 @@ internal sealed class CoreModel
 
     private ProjectileProgramFrames? _programFrames;
 
-    /// <summary>The programs frame-behaviour handlers restart only the objects of some kinds in, read once (#1854).</summary>
+    /// <summary>The programs motion handlers restart only the objects of some kinds in, read once (#1854, #1843).</summary>
     public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);
 
     private KindRestarts? _kindRestarts;
@@ -310,6 +317,20 @@ internal sealed class CoreModel
         {
             if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
                 return type.TypeArguments[0] as INamedTypeSymbol;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The type of the cues <paramref name="family"/>'s segments publish: the third type argument of the typed animation it
+    /// derives from; null when it derives from none.
+    /// </summary>
+    public INamedTypeSymbol? CueTypeOf(INamedTypeSymbol family)
+    {
+        for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
+                return (type.TypeArguments[2] as INamedTypeSymbol)?.OriginalDefinition;
         }
         return null;
     }

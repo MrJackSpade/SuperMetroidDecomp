@@ -208,7 +208,7 @@ internal sealed class Walk
     public List<CallRecord> Calls { get; } = [];
 
     /// <summary>
-    /// The sheets graphics are reassigned to by code that spawns nothing itself (a cue or frame-behaviour handler switching
+    /// The sheets graphics are reassigned to by code that spawns nothing itself (a cue or motion handler switching
     /// an object's graphics), keyed by the behaviour whose walk runs it, or outside every behaviour by the code's type: any
     /// object that behaviour's (or type's) code spawns may draw from them.
     /// </summary>
@@ -325,7 +325,7 @@ internal sealed class Walk
             // A behaviour's handler starting a program on an object of a family its code spawns (a touch, shot, frame
             // behaviour or step restarting it) changes an object drawing where that code spawned it: Mother Brain's
             // turrets, onion rings, tubes and drool, spawned with the room's graphics, draw from the shared sheet, never
-            // her own (#1513). A frame-behaviour restart only some kinds' motions run is not met here: the kinds carry it to
+            // her own (#1513). A motion-handler restart only some kinds' motions run is not met here: the kinds carry it to
             // where they are spawned (#1854), as Spore Spawn's spawner cadence restarts only his spawners, on his own sheet.
             Collected[] spawnedThere = named.Family is { } family
                 ? [.. spawned.Where(spawn => spawn.Families.Contains(family)).Select(spawn => spawn.Collected)]
@@ -685,7 +685,7 @@ internal sealed class Walk
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEnemyProjectileKind))
         {
             // A typed start names the program its kind starts the family in, when its construction names one (#1513); the
-            // restarts a frame-behaviour handler makes only under the kind's motion run on its objects too (#1854).
+            // restarts a motion handler makes only under a motion the kind starts with run on its objects too (#1854).
             List<(INamedTypeSymbol Family, IReadOnlySet<string>? Programs)> starts =
                 [.. _model.KindRestarts.Of(member).Select(restart => (restart.Family, restart.Programs))];
             if (_model.StartedFamily(member) is { } started)

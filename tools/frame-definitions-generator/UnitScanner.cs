@@ -326,7 +326,7 @@ internal sealed class UnitScanner(CoreModel model)
         while (pending.Count > 0)
         {
             SyntaxNode node = pending.Pop();
-            // A frame-behaviour restart only some kinds' motions run is read, like a typed start, as those kinds' (#1854).
+            // A motion-handler restart only some kinds' motions run is read, like a typed start, as those kinds' (#1854).
             if (node is AttributeListSyntax or CaseSwitchLabelSyntax or ConstantPatternSyntax or RelationalPatternSyntax
                 || model.IsStartEntry(node) || model.KindRestarts.IsRestart(node))
             {

@@ -109,12 +109,16 @@ internal sealed class SpawnAnalysis
 
         // The code outside every behaviour is every shared unit no behaviour or family reaches; it reaches shared code
         // the behaviours reach too, as the enemy deaths it runs for every enemy. A static data member of a type the walks
-        // read belongs to its readers: one no walk reads is no root of its own.
+        // read belongs to its readers: one no walk reads is no root of its own. A family's animation data (the type declaring
+        // the segments its animations play) is the family's: a member of it no walk reaches runs no spawn of its own, as the
+        // view of every frame the n00b tube's pieces show, which only the import reads (#1839).
         var touched = new HashSet<INamedTypeSymbol>(reached.Select(unit => unit.Type), SymbolEqualityComparer.Default);
+        var animationData = new HashSet<INamedTypeSymbol>(
+            model.Families.Select(model.ProgramFrames.AnimationDataType).OfType<INamedTypeSymbol>(), SymbolEqualityComparer.Default);
         var anywhere = new Walk(model, scanner, behaviour: null, family: null);
         foreach (INamedTypeSymbol type in model.Types)
         {
-            if (model.IsTable(type) || model.FamilyOf(type) is not null || model.OwnersOf(type) is not null)
+            if (model.IsTable(type) || model.FamilyOf(type) is not null || model.OwnersOf(type) is not null || animationData.Contains(type))
                 continue;
             foreach (Unit unit in model.UnitsOf(type))
             {

@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>Verification access to the bank-$87 program a <see cref="BlockAnimationLoop"/> replaces.</summary>
 internal static class RoomFxBlockAnimationDefinitionAccess
 {
-    /// <summary>The bank-$87 cursor of <paramref name="animatedObject"/>'s first timed frame.</summary>
-    internal static ushort FirstCursor(BlockAnimation animatedObject) => animatedObject switch
+    /// <summary>The bank-$87 cursor of <paramref name="animation"/>'s first timed frame.</summary>
+    internal static ushort FirstCursor(BlockAnimation animation) => animation switch
     {
         BlockAnimation.HorizontalSpikes => 0x817e,
         BlockAnimation.MaridiaSandCeiling => 0x8221,
@@ -21,8 +21,8 @@ internal static class RoomFxBlockAnimationDefinitionAccess
             or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
             or BlockAnimation.VerticalSpikes or BlockAnimation.CrateriaLake
             or BlockAnimation.BrinstarPlant or BlockAnimation.WreckedShipScreen
-            => throw new InvalidDataException($"Room-FX object {animatedObject} has no frame loop."),
-        _ => throw new InvalidDataException($"Undefined room-FX object {animatedObject}."),
+            => throw new InvalidDataException($"Block animation {animation} has no frame loop."),
+        _ => throw new InvalidDataException($"Undefined block animation {animation}."),
     };
 
     extension(BlockAnimationLoop self)

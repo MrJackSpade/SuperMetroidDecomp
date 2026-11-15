@@ -24,7 +24,7 @@ internal static class SandAnimatedTilesVerification
         {
             AssertTrue(BlockAnimationLoops.TryResolve(
                     definitions[slot], out BlockAnimationLoop? definition),
-                $"sand object {slot} resolves compiled mechanics");
+                $"sand animation {slot} resolves compiled mechanics");
             for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {
                 int source = AnimatedTileImageSources.OfCursor(
@@ -36,7 +36,7 @@ internal static class SandAnimatedTilesVerification
         }
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
         var sand = new RoomSandBlockAnimationsState(RoomFxDefinitions.Suffix(sandFxRecord), null);
-        AssertEqual(2, sand.Count, "both FX sand bits create objects");
+        AssertEqual(2, sand.Count, "both FX sand bits start animations");
         var frames = new ArtworkFrameSelections();
         for (int tick = 0; tick < 31; tick++)
         {
@@ -46,10 +46,10 @@ internal static class SandAnimatedTilesVerification
             sand.Step(frames);
             for (int slot = 0; slot < 2; slot++)
             {
-                var animatedObject = definitions[slot];
-                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(animatedObject), out ArtworkFrame shown),
-                    $"sand object {slot} shows a frame from its first update");
-                AssertEqual(BlockAnimationFrames.Frame(animatedObject, tick / 10 % 4), shown,
+                var animation = definitions[slot];
+                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(animation), out ArtworkFrame shown),
+                    $"sand animation {slot} shows a frame from its first update");
+                AssertEqual(BlockAnimationFrames.Frame(animation, tick / 10 % 4), shown,
                     "sand ceiling/fall frames loop independently on the compiled cartridge durations");
                 AssertEqual(tick % 10 != 0, before[slot] == shown,
                     "sand frames change only on the updates their durations end");

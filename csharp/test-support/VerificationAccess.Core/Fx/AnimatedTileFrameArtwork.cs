@@ -47,14 +47,14 @@ internal static class AnimatedTileFrameArtwork
             : throw new InvalidDataException($"The installed animated tiles hold no {image}.");
 
     /// <summary>
-    /// Writes the frame <paramref name="animatedObject"/> shows in <paramref name="frames"/>, if any, into <paramref name="vram"/>
+    /// Writes the frame <paramref name="animation"/> shows in <paramref name="frames"/>, if any, into <paramref name="vram"/>
     /// where the cartridge copies it, for checks that render a layer from VRAM.
     /// </summary>
-    internal static void ShowIn(SnesVram vram, ArtworkFrameSelections frames, RoomFxBlockAnimationAtlas atlas, BlockAnimation animatedObject)
+    internal static void ShowIn(SnesVram vram, ArtworkFrameSelections frames, RoomFxBlockAnimationAtlas atlas, BlockAnimation animation)
     {
-        if (!frames.TryShown(BlockAnimationFrames.Of(animatedObject), out ArtworkFrame shown))
+        if (!frames.TryShown(BlockAnimationFrames.Of(animation), out ArtworkFrame shown))
             return;
-        BlockAnimationLoop mechanics = RoomFxBlockAnimationLoops.Require(animatedObject);
+        BlockAnimationLoop mechanics = RoomFxBlockAnimationLoops.Require(animation);
         vram.LoadBytes(AnimatedTileVramDestinations.WordOf(mechanics.Animation) * sizeof(ushort), Bytes(BgArtworkIdentity.Frame(shown), atlas).Span);
     }
 

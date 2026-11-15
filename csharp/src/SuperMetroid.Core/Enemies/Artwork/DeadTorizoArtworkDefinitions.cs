@@ -5,4 +5,7 @@ internal static class DeadTorizoArtworkDefinitions
 {
     /// <summary>The frame of the corpse's sand heap, drawn after the enemy queue.</summary>
     internal const EnemyFrameId SandHeapFrame = EnemyFrameId.DeadTorizoCorpseHook;
+
+    /// <summary>Where in the room the sand heap's frame is drawn, below the corpse.</summary>
+    internal static readonly Position16<RoomPixels> SandHeapPlace = new(296, 187);
 }

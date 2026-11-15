@@ -103,7 +103,7 @@ internal sealed class RoomSpriteObjects
         foreach (RoomSpriteObject spawned in Live)
         {
             // Every placement is published wherever it lies; the display clips it to the view (#1520, #1541).
-            Position16<ScreenPixels> screen = spawned.Position.Whole.ToScreen(camera);
+            Offset16<ScreenPixels> screen = spawned.Position.Whole.RelativeToCamera(camera);
             // Whether this draw reaches the value a Puyo's ceiling strike reads depends on where the object lies
             // relative to the view, which the service decides.
             _puyoCeilingTurn.SpriteObjectDrawn(
@@ -113,7 +113,7 @@ internal sealed class RoomSpriteObjects
             // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
             if (spawned.Frame.HitBurst is { } burst)
             {
-                hitBursts.Draw(sprites, instance++, burst, spawned.Position.Whole.RelativeToCamera(camera));
+                hitBursts.Draw(sprites, instance++, burst, screen);
                 continue;
             }
             EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();

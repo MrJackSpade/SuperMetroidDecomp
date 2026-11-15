@@ -138,7 +138,7 @@ internal sealed class CeresRidleyBabyScene
             : RidleySupplementalVisualDefinitions.WingBeatFacingRight;
         EnemyFrameId wingFrame = wingBeat[state.WingBeatStep];
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            new(CoordinateAxis.Wrap(slot.Position.X.Whole - camera.X), CoordinateAxis.Wrap(slot.Position.Y.Whole - camera.Y)), state.TailAndWingsShading);
+            slot.Position.Whole.RelativeToCamera(camera), state.TailAndWingsShading);
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ internal sealed class CeresRidleyBabyScene
             if (AdvanceCeresBabyDrawAnimation(state) is { } babyFrame)
             {
                 _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-                    state.BabyPosition.Whole.ToScreen(camera), EnemyShades.HurtFlashLook);
+                    state.BabyPosition.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook);
             }
         }
 
@@ -205,7 +205,7 @@ internal sealed class CeresRidleyBabyScene
             // own earthquake shake, which moves only the drawn door.
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyRoomDoorDrawnByRidley,
-                new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),
+                (door.Position.Whole + new Offset16<RoomPixels>(quakeXOffset, 0)).RelativeToCamera(camera),
                 // The overlay shows its own standard colours; the door actor's own looks never reach it (#1512).
                 PictureShading.Standard);
         }
@@ -274,7 +274,6 @@ internal sealed class CeresRidleyBabyScene
         EnemyFrameId frame,
         Position16<RoomPixels> camera)
     {
-        Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.PublishEncounterFrame(sprites, source, frame, screen, colouring);
+        _presentation.PublishEncounterFrame(sprites, source, frame, segment.Position.RelativeToCamera(camera), colouring);
     }
 }

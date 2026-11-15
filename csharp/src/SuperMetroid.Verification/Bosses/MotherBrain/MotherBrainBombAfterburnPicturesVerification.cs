@@ -41,7 +41,7 @@ internal static class MotherBrainBombAfterburnPicturesVerification
         {
             // Fails loudly, naming the sheets, when the room's sheets hold no picture of the frame.
             presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile), EnemySheetDefinitions.ProjectileFrameName(frame),
-                new Position16<ScreenPixels>(128, 128), graphics);
+                new Offset16<ScreenPixels>(128, 128), graphics);
         }
         sprites.FinalizeFrame();
         VerificationAssertions.AssertTrue(sprites.Draws.Length > 0, "the afterburn chain draws pictures in Mother Brain's room");

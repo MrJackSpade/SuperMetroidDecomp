@@ -43,7 +43,7 @@ internal static class EscapeWallExplosionPicturesVerification
             {
                 // Fails loudly, naming the sheets, when the room's artwork pictures no such frame.
                 presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile), EnemySheetDefinitions.ProjectileFrameName(frame),
-                    new Position16<ScreenPixels>(128, 128), shared);
+                    new Offset16<ScreenPixels>(128, 128), shared);
             }
             sprites.FinalizeFrame();
         }

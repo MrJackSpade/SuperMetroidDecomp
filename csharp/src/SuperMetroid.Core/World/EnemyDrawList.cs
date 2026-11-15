@@ -83,7 +83,7 @@ internal sealed class EnemyDrawList
 
             // The draw offset is zero for enemies the room places; the offset is added
             // before the camera is taken away, and the sum wraps as room positions do.
-            Position16<ScreenPixels> origin = (slot.Position.Whole + slot.DrawOffset).ToScreen(camera);
+            Offset16<ScreenPixels> origin = (slot.Position.Whole + slot.DrawOffset).RelativeToCamera(camera);
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming
             // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
@@ -92,8 +92,7 @@ internal sealed class EnemyDrawList
             // visibly move with the station instead of remaining pinned to host screen space.
             if (reached && slot.ShakeTimer != 0)
             {
-                origin = origin.WithX(CoordinateAxis.Wrap(origin.X +
-                    (EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(slot.FrameCounter) ? -1 : 1)));
+                origin += new Offset16<ScreenPixels>(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(slot.FrameCounter) ? -1 : 1, 0);
                 slot.ShakeTimer--;
             }
             PictureShading drawShading = SelectCommonEnemyDrawShading(slot);
@@ -146,7 +145,7 @@ internal sealed class EnemyDrawList
             // uses the game's own frame hitboxes, never the picture.
             if (draw.Pictured)
                 _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
-                    new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y))
+                    draw.Origin)
                 {
                     Shading = draw.Shading,
                     RotRows = (slot.Entity as IShowsCorpseRotRows)?.ShownRotRows,
@@ -172,7 +171,7 @@ internal sealed class EnemyDrawList
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     private readonly record struct PreparedEnemyDraw(RoomEnemySlot Slot,
-        Position16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured);
+        Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured);
 
     /// <summary>
     /// Selects the shading an enemy is drawn in, immediately before

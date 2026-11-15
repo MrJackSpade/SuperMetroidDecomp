@@ -151,7 +151,7 @@ public sealed class CeresElevatorArrivalState
             return;
 
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
-            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), projectile.Position.ToScreen(camera),
+            EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), projectile.Position.RelativeToCamera(camera),
             projectile.Graphics);
     }
 

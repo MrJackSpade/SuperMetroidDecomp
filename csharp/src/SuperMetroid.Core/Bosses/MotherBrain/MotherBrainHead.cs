@@ -162,7 +162,7 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> camera)
     {
         // The frame is published wherever it lies, above the screen included; the display clips it (#1587).
-        Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
+        Offset16<ScreenPixels> screen = frame.World.RelativeToCamera(camera);
 
         // The head's sheet pictures each frame as the encounter's artwork changes leave it (#1392); her corpse's frame is drawn
         // whole through her corpse's own rows as its rot leaves them (#1539).

@@ -49,7 +49,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
         {
             // Fails loudly, naming the sheets, when the standard shared variant pictures no such frame.
             presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile), EnemySheetDefinitions.ProjectileFrameName(frame),
-                new Position16<ScreenPixels>(128, 128), shared);
+                new Offset16<ScreenPixels>(128, 128), shared);
         }
         sprites.FinalizeFrame();
         Console.WriteLine($"  Empty rooms: {frames.Count} projectile frames that {rooms} empty-population room states spawn resolve in the standard variants.");

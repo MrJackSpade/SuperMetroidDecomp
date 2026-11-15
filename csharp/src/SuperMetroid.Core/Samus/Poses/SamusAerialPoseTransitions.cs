@@ -80,7 +80,7 @@ internal static class SamusAerialPoseTransitions
             // below. The pose change still runs and sees the spin/wall-jump previous movement type.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-                samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+                samus.HorizontalSpeed.RequestSuitShadeRestore();
             return true;
         }
 
@@ -97,11 +97,11 @@ internal static class SamusAerialPoseTransitions
         if (!beganShinespark)
             InitializeOrdinaryAerialAcceleration(samus);
 
-        // The pose-metadata refresh reloads the ordinary suit palette whenever the previous movement
+        // The pose-metadata refresh reloads the ordinary suit shade whenever the previous movement
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
         // happened to be generic spin or Space Jump art.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-            samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            samus.HorizontalSpeed.RequestSuitShadeRestore();
 
         if (beganShinespark)
             return true;
@@ -303,10 +303,10 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
-        // immediately reloads the normal suit palette before the wall jump starts. The desktop
-        // runtime performs palette writes later in the frame, so preserve that phase split.
+        // immediately reloads the normal suit shade before the wall jump starts. The desktop
+        // runtime performs shade writes later in the frame, so preserve that phase split.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-            samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            samus.HorizontalSpeed.RequestSuitShadeRestore();
 
         samus.Pose = targetPose;
         // Leaves the collision radius at the spin body's radius; the input phase's radius update takes
@@ -759,7 +759,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// neutral and aimed jump-transition art. The game does not consume stored shine when Jump is
     /// first pressed; it waits until the animation's pose-transition cue installs the neutral,
     /// aimed-up or diagonally-up normal jump.
-    /// That delay is visible both to animation and to the 180-frame palette countdown.
+    /// That delay is visible both to animation and to the 180-frame shade countdown.
     /// </remarks>
     internal static bool TryBeginShinesparkWindup(SamusState samus, 
         SamusPoseId targetPose,

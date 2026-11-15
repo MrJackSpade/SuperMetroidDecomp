@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
@@ -57,10 +57,10 @@ internal sealed class BeamFiring
     /// </summary>
     public void ConsumePseudoScrewCharge(SamusColours colours, SamusState samus)
     {
-        _charge.ChargePaletteStep = 0;
+        _charge.ChargeGlowStep = 0;
         _charge.ClearCount();
         _animation.ClearFlareAnimationState();
-        ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
+        ProjectileAnimation.ShowSuitShade(colours, samus);
     }
 
     /// <summary>Clears the charge, its prior sample, and all flare animation layers.</summary>
@@ -168,7 +168,7 @@ internal sealed class BeamFiring
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
                 _animation.ClearFlareAnimationState();
-                samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+                samus.HorizontalSpeed.RequestSuitShadeRestore();
                 return new(null, comboSound, SoundRequestPriority.Normal);
             }
             return new(null, null, null);

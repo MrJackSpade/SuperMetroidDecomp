@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
@@ -28,7 +28,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 {
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryStoredShinePalettePointer(
+        AssertTrue(SamusShadeDefinitions.FullBodyCycles.TryStoredShinePalettePointer(
             0, unchecked((ushort)(frame * 2)), out ushort pointer),
             $"compiled Power stored-shine phase {frame} exists");
         WriteTestWord(bus, SamusSourceDefinitions.PaletteBank.Value | pointer,
@@ -89,21 +89,21 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
         "stage four stores shine");
     AssertEqual(180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
-    AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.SpecialColouring.Holder, "the stored shine takes Samus's suit colouring");
+    AssertEqual(SamusSpecialColouringKind.SpeedBoosterShine, shine.SpecialColouring.Holder, "the stored shine takes Samus's suit colouring");
 
     var samusColours = new SamusColours();
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var shineSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
-    AssertTrue(shine.Shinespark.UpdatePalette(samusColours, equippedItems: 0),
+    AssertTrue(shine.Shinespark.UpdateColouring(samusColours, equippedItems: 0),
         "stored shine copies first ROM palette");
     AssertEqual(0x1100, samusColours.ShownSuit(shineSources)[0], "stored shine follows double pointer");
     AssertEqual(179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
-    AssertEqual(1, shine.Shinespark.PaletteStep,
+    AssertEqual(1, shine.Shinespark.ShadeStep,
         "stored palette advances one cycle step");
 
     // Ten further calls arrive with timer 170 on the final call and publish the warning.
     for (int tick = 0; tick < 10; tick++)
-        shine.Shinespark.UpdatePalette(samusColours, equippedItems: 0);
+        shine.Shinespark.UpdateColouring(samusColours, equippedItems: 0);
     AssertSequenceEqual(new[] { new SoundRequest(RoomSound.StoredShinespark, SoundRequestPriority.High) },
         shine.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.StoredShinespark),
         "stored timer 170 queues the warning sound once, at high priority");

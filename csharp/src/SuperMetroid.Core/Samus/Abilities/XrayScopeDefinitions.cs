@@ -1,25 +1,25 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The X-ray Scope's definitions: its visor cycle, animation angle bands and window growth (#1411).</summary>
 /// <remarks>
 /// The room state's X-ray reveal choice remains room-authored data. This catalog owns the shared
-/// palette, angle bands, tangent table, and cone-window units used by every room.
+/// shade, angle bands, tangent table, and cone-window units used by every room.
 /// </remarks>
 public static class XrayScopeDefinitions
 {
-    /// <summary>Palette colours copied into Samus's visor colors while X-ray is active.</summary>
-    public static class Palette
+    /// <summary>The visor shades X-ray shows while it is active.</summary>
+    public static class VisorShades
     {
         /// <summary>The last widening visor shade, held while the beam widens.</summary>
         public const int WideningFinalShade = 2;
         /// <summary>The first visor shade of the full-beam cycle.</summary>
-        public const int FullCycleFirstShade = SamusPaletteDefinitions.Visor.CycleFirstShade;
+        public const int FullCycleFirstShade = SamusShadeDefinitions.Visor.CycleFirstShade;
         /// <summary>The visor shade count, which ends the full-beam cycle.</summary>
-        public const int FullCycleEndShade = SamusPaletteDefinitions.Visor.CycleEndShade;
+        public const int FullCycleEndShade = SamusShadeDefinitions.Visor.CycleEndShade;
         /// <summary>Frames between visor shade advances.</summary>
-        public const int FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
+        public const int FrameDelay = SamusShadeDefinitions.Visor.FrameDelay;
     }
 
     /// <summary>Angle bands selecting the five standing/crouching X-ray animation frames.</summary>

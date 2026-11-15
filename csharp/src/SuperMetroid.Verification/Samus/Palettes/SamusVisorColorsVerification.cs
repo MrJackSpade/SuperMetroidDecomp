@@ -10,7 +10,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -81,8 +81,8 @@ internal static class SamusVisorColorsVerification
     {
         // Both cycles name shades (#1512); the import resolves the native one from the cartridge's table and the
         // installed one from the catalog.
-        var native = new SamusVisorPaletteState();
-        var installed = new SamusVisorPaletteState();
+        var native = new SamusVisorShadeState();
+        var installed = new SamusVisorShadeState();
         var nativeSources = InstalledFixtures.SamusShadeSources with { Visor = ReadOriginalVisorColors(rom) };
         var installedSources = InstalledFixtures.SamusShadeSources with { Visor = catalog };
         var nativeColours = new SamusColours();
@@ -97,8 +97,8 @@ internal static class SamusVisorColorsVerification
                 RoomVisorAnimation.Animated);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
-            bool expectedWrite = native.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
-            bool actualWrite = installed.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
+            bool expectedWrite = native.Timer == SamusShadeDefinitions.Visor.FrameDelay;
+            bool actualWrite = installed.Timer == SamusShadeDefinitions.Visor.FrameDelay;
             if (expectedWrite)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"room visor frame {frame} matches native color word");
@@ -130,9 +130,9 @@ internal static class SamusVisorColorsVerification
         {
             // This fixture enters the full-beam stage immediately before call 11;
             // native $91:DCEA restarts that stage at the full-beam cycle's first shade.
-            int sourceShade = call == 11 ? XrayScopeDefinitions.Palette.FullCycleFirstShade : native.Xray.VisorShade;
-            bool expected = native.Xray.UpdatePalette(nativeColours, native.EquippedItems);
-            bool actual = installed.Xray.UpdatePalette(installedColours, installed.EquippedItems);
+            int sourceShade = call == 11 ? XrayScopeDefinitions.VisorShades.FullCycleFirstShade : native.Xray.VisorShade;
+            bool expected = native.Xray.UpdateColouring(nativeColours, native.EquippedItems);
+            bool actual = installed.Xray.UpdateColouring(installedColours, installed.EquippedItems);
             if (expected)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"X-ray visor call {call} matches native color word");

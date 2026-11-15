@@ -166,8 +166,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
             SettleAcceptedLanding(samus, leavingScrewAttack);
         else if (leavingScrewAttack)
-            // Palette restoration belongs to the pose change, before the blocked-collision gate on settling.
-            samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            // Shade restoration belongs to the pose change, before the blocked-collision gate on settling.
+            samus.HorizontalSpeed.RequestSuitShadeRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
@@ -227,7 +227,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Settles Samus on a landing the changed-pose collision accepted: arms the autojump input, stops her horizontal and
-    /// vertical motion, and requests the normal suit palette when she lands out of Screw Attack.
+    /// vertical motion, and requests the normal suit shade when she lands out of Screw Attack.
     /// </summary>
     private static void SettleAcceptedLanding(SamusState samus, bool leavingScrewAttack)
     {
@@ -238,11 +238,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
 
-        // Reloads the normal suit palette whenever a pose change leaves spin or
-        // wall-jump movement while Screw Attack is equipped. The suit palette copy occurs
-        // at the later palette phase, so publish that same deferred work here.
+        // Reloads the normal suit shade whenever a pose change leaves spin or
+        // wall-jump movement while Screw Attack is equipped. The suit shade copy occurs
+        // at the later shade phase, so publish that same deferred work here.
         if (leavingScrewAttack)
-            samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+            samus.HorizontalSpeed.RequestSuitShadeRestore();
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
     }
 

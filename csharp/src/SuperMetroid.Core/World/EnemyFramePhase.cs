@@ -93,7 +93,7 @@ internal sealed class EnemyFramePhase
             // The Baby's recovery equips the Hyper Beam and shows its beams' colours in the same enemy pass, as an item
             // pickup does (#1561); its shots show the equipped Plasma-Wave combination's pictures (#1586).
             if (!hyperBeamBefore && _player.Samus is { HyperBeamEnabled: true } hyperBeamSamus)
-                SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(_player.Colours, hyperBeamSamus.EquippedBeams);
+                SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.ShowBeamShade(_player.Colours, hyperBeamSamus.EquippedBeams);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // Making Samus face forward clears all pending pose requests after the input phase
@@ -105,7 +105,7 @@ internal sealed class EnemyFramePhase
                 // clears flare/projectile state, but cannot restore runtime-owned colours.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the charge colouring ends.
-                SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
+                SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
             }
             if (result.DraygonDiscardedSamusPoseRequests)
             {
@@ -162,7 +162,7 @@ internal sealed class EnemyFramePhase
                     // ship explicitly clears elevator status after locking Samus's
                     // control. The enemy system owns pose/motion; these two global values
                     // remain runtime-owned and are applied on its typed event boundary.
-                    SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
+                    SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.Samus.EquippedItems);
                     room.Enemies.Elevator.ResetStatus();
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)

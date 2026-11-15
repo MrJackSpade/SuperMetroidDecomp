@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Animation;

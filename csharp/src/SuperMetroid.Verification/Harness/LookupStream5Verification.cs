@@ -252,7 +252,7 @@ internal static class LookupStream5Verification
             Action<PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
-            system.FrameContext.SeedFrame((ushort)(bucket << 1), InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Palettes.SamusColours());
+            system.FrameContext.SeedFrame((ushort)(bucket << 1), InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours());
             body.Position = body.Position.WithWhole(new(128, 96)); state.BodyState.PhaseTimer = 1; state.BodyState.FlameRainRequested = true;
             begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);

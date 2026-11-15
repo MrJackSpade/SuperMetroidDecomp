@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus;
@@ -17,7 +17,7 @@ public static class SamusPostDrawAudio
     public static void Step(SamusState samus,
         SamusMovementType previousMovement, ControllerButton controllerInput)
     {
-        SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(samus, controllerInput);
+        SamusHurtFlash.ConsumeResumeChargingBeamSound(samus, controllerInput);
         var speed = samus.HorizontalSpeed;
         if (speed.EchoSoundPlaying &&
             !speed.SpeedBoostCounter.IsAtFullStage)

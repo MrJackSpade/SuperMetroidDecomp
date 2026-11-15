@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -49,11 +49,11 @@ internal static class SamusContentIdentityVerification
         var one = new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         var shared = new SpritePart[one.Length];
         var atmosphere = new SamusAtmosphericSourceArtwork(one, shared);
-        ushort[][] Rows() => Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount)
+        ushort[][] Rows() => Enumerable.Range(0, SamusShadeDefinitions.Death.ExplosionShadeCount)
             .Select(_ => new ushort[InstalledSamusDeathPalettes.ColorCount]).ToArray();
         ushort[][][] suited = Enumerable.Range(0, InstalledSamusDeathPalettes.SuitCount).Select(_ => Rows()).ToArray();
         ushort[][] suitless = Rows();
-        var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
+        var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         var explosion = new ushort[SamusDeathExplosionTimingDefinitions.StepCount];
         var deathPalettes = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(suitless), ToColors(whiteout), explosion);
         var cannonDocument = new SamusArmCannonArtworkDocument

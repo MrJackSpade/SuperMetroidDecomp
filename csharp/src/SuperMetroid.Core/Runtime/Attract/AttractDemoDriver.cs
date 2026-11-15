@@ -130,7 +130,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built.
         ApplyAttractRoomSetup(scene.RoomSetup, _room.LoadedScope.Enemies);
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.Samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
         _player.Samus.LiquidPhysics.Room = room.Definition;

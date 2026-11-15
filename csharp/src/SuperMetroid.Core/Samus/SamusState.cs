@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
@@ -361,7 +361,7 @@ public sealed class SamusState
     /// starts on the Speed Booster palette; the palette handling then alternates it with the normal suit every update
     /// until the attacker lets go.
     /// </summary>
-    public SamusMetroidAttachmentPalette MetroidAttachmentPalette { get; internal set; }
+    public SamusMetroidAttachmentShade MetroidAttachmentShade { get; internal set; }
 
     /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
     public SamusBallBounceState MorphBallBounceState { get; set; }
@@ -389,7 +389,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt-flash
-    /// palette advances it and clears it on reaching sixty (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>).
+    /// palette advances it and clears it on reaching sixty (<see cref="SamusHurtFlash.EndingCall"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
@@ -442,7 +442,7 @@ public sealed class SamusState
     /// <summary>
     /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
     /// </summary>
-    public SamusVisorPaletteState VisorPalette { get; } = new();
+    public SamusVisorShadeState VisorShades { get; } = new();
 
     /// <summary>
     /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from

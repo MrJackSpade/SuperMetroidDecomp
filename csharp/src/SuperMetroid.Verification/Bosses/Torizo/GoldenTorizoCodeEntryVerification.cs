@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Checks the Golden Torizo room-entry code, the entering beams' colours it leaves shown and the pictures of its beams.</summary>
 internal static class GoldenTorizoCodeEntryVerification

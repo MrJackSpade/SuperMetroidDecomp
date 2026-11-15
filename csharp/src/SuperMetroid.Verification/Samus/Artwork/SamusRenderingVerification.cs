@@ -15,7 +15,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -49,7 +49,7 @@ internal static void VerifySamusRenderingSlice()
 
     InstalledSamusSuitColors suitColors = SamusSuitColorFile.Read(
         new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-    SamusNormalSuitPalette.LoadPower(samusColours);
+    SamusSuitShade.ShowPower(samusColours);
     // Samus's suit shows the Power Suit's shade; the import's shade holds the installed colours (#1512).
     RgbColor[] powerSuit = samusColours.ShownSuit(InstalledFixtures.SamusShadeSources with { Suits = suitColors });
     AssertEqual(0x3800, powerSuit[0], "Samus power-suit shade colour zero");
@@ -615,10 +615,10 @@ internal static void VerifySamusVisorPalette()
     var visorColors = SamusVisorColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     // The visor cycle names shades (#1512); the import resolves them from the diagnostic visor colours.
     var sources = InstalledFixtures.SamusShadeSources with { Visor = visorColors };
-    var state = new SamusVisorPaletteState();
+    var state = new SamusVisorShadeState();
     samusColours.ShowVisor(SamusShades.DoorCompletionVisor);
     state.Update(
-        samusColours, specialSamusPaletteType: SamusSpecialPaletteType.None,
+        samusColours, specialColouringKind: SamusSpecialColouringKind.None,
         roomVisorAnimation: RoomVisorAnimation.Steady);
     AssertEqual(new VerifySamusVisorPaletteCase(1, 3), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
         "ordinary room resets visor animation, priming timer one and the cycle's first shade");
@@ -658,7 +658,7 @@ internal static void VerifySamusVisorPalette()
         "second write advances to the cycle's last shade");
 
     for (int call = 0; call < 5; call++)
-        state.Update(samusColours, SamusSpecialPaletteType.None, RoomVisorAnimation.Animated);
+        state.Update(samusColours, SamusSpecialColouringKind.None, RoomVisorAnimation.Animated);
     AssertEqual(0x2002, samusColours.ShownVisor(sources), "third backdrop visor color");
     AssertEqual(new VerifySamusVisorPaletteCase(5, 3), new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
         "third write wraps only to the room cycle's first shade");
@@ -666,7 +666,7 @@ internal static void VerifySamusVisorPalette()
     VerifySamusVisorPaletteCase beforeXray = new VerifySamusVisorPaletteCase(state.Timer, state.NextShade);
     samusColours.ShowVisor(SamusShades.Visor(1));
     state.Update(
-        samusColours, SamusSpecialPaletteType.Xray, RoomVisorAnimation.Animated);
+        samusColours, SamusSpecialColouringKind.Xray, RoomVisorAnimation.Animated);
     AssertTrue(new VerifySamusVisorPaletteCase(state.Timer, state.NextShade) == beforeXray && samusColours.VisorShade == SamusShades.Visor(1),
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(beforeXray, new VerifySamusVisorPaletteCase(state.Timer, state.NextShade),
@@ -678,12 +678,12 @@ internal static void VerifySamusVisorPalette()
     // This integration assertion prevents the exact state machine from becoming orphaned.
     var integratedSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-    SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
+    SamusBeamChargeGlowStep charge = projectiles.UpdateBeamChargeGlow(
         samusColours, integratedSamus,
         roomVisorAnimation: RoomVisorAnimation.Animated);
-    AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
+    AssertEqual(SamusBeamChargeGlowAction.Inactive, charge.Action,
         "inactive charging retains beam-palette result");
-    AssertEqual(new VerifySamusVisorPaletteCase(5, 4), new VerifySamusVisorPaletteCase(integratedSamus.VisorPalette.Timer, integratedSamus.VisorPalette.NextShade),
+    AssertEqual(new VerifySamusVisorPaletteCase(5, 4), new VerifySamusVisorPaletteCase(integratedSamus.VisorShades.Timer, integratedSamus.VisorShades.NextShade),
         "inactive charging falls through to visor handler, which writes and advances");
     AssertEqual(0x2000, samusColours.ShownVisor(sources),
         "integrated visor call reads bank-$9B room-cycle color");
@@ -725,17 +725,17 @@ internal static void VerifySamusHurtFlashPalette()
         int counterBefore = samus.HurtFlash.Count;
         RgbColor[] paletteBefore = samusColours.ShownSuit(hurtSources);
         int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
-        SamusHurtFlashPalette.Update(
+        SamusHurtFlash.Update(
             samusColours, samus, controllerInput: 0);
         RgbColor[] suitShown = samusColours.ShownSuit(hurtSources);
-        bool paletteChanged = !paletteBefore.SequenceEqual(suitShown);
+        bool coloursChanged = !paletteBefore.SequenceEqual(suitShown);
         AssertEqual(call, counterBefore,
             $"hurt palette call {call} reads pre-increment counter");
 
         if (call <= 6 && (call & 1) != 0)
         {
             hurtPaletteCalls++;
-            AssertTrue(paletteChanged,
+            AssertTrue(coloursChanged,
                 $"odd hurt call {call} selects fixed flash palette");
             for (int color = 0; color < 16; color++)
             {
@@ -746,7 +746,7 @@ internal static void VerifySamusHurtFlashPalette()
         else if (call <= 6)
         {
             normalPaletteCalls++;
-            AssertTrue(paletteChanged,
+            AssertTrue(coloursChanged,
                 $"even hurt call {call} restores equipment palette");
             AssertEqual(0x0300, suitShown[0],
                 $"hurt call {call} gives Gravity ($9B:9800) priority over Varia");
@@ -759,7 +759,7 @@ internal static void VerifySamusHurtFlashPalette()
         else
         {
             untouchedCalls++;
-            AssertTrue(!paletteChanged,
+            AssertTrue(!coloursChanged,
                 $"hurt call {call} preserves the existing palette");
         }
 
@@ -785,7 +785,7 @@ internal static void VerifySamusHurtFlashPalette()
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
     var cinematic = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = SamusEquipmentFlags.GravitySuit }.WithHurtFlashCount(2);
     cinematic.LiquidPhysics.CinematicActive = true;
-    SamusHurtFlashPalette.Update(
+    SamusHurtFlash.Update(
         samusColours, cinematic, controllerInput: 0);
     RgbColor[] cinematicSuit = samusColours.ShownSuit(hurtSources);
     AssertEqual(0x5000, cinematicSuit[0],
@@ -806,7 +806,7 @@ internal static void VerifySamusHurtFlashPalette()
     {
         Pose = SamusPoseId.ScrewAttackRightPose,
     }.WithHurtFlashCount(39);
-    SamusHurtFlashPalette.Update(
+    SamusHurtFlash.Update(
         samusColours, spinning, controllerInput: 0);
     AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
         "counter forty restores Screw Attack sound");
@@ -822,13 +822,13 @@ internal static void VerifySamusHurtFlashPalette()
     {
         Pose = SamusPoseId.FacingRightNormalPose,
     }.WithBeamChargeCount(0x10).WithHurtFlashCount(39);
-    SamusHurtFlashPalette.Update(
+    SamusHurtFlash.Update(
         samusColours, charging, ControllerButton.X);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
     AssertTrue(charging.ResumeChargingBeamSoundPending,
         "charging recovery publishes native flag one");
-    AssertTrue(SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
+    AssertTrue(SamusHurtFlash.ConsumeResumeChargingBeamSound(
             charging, ControllerButton.X),
         "post-draw handler queues held charging sound");
     AssertTrue(!charging.ResumeChargingBeamSoundPending,
@@ -841,7 +841,7 @@ internal static void VerifySamusHurtFlashPalette()
     // still below `$C856`; cancel-pending is exactly the cutoff and must remain silent.
     var grapple = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()).WithHurtFlashCount(39);
     grapple.Grapple.Phase = GrapplePhase.WallGrabRelease;
-    SamusHurtFlashPalette.Update(
+    SamusHurtFlash.Update(
         samusColours, grapple, controllerInput: 0);
     AssertEqual(1, grapple.LiquidPhysics.SoundRequests.Count,
         "counter forty restores pre-cancel grapple sound");
@@ -851,7 +851,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     var cancelledGrapple = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()).WithHurtFlashCount(39);
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
-    SamusHurtFlashPalette.Update(
+    SamusHurtFlash.Update(
         samusColours, cancelledGrapple, controllerInput: 0);
     AssertTrue(!cancelledGrapple.ResumeChargingBeamSoundPending,
         "grapple cancel cutoff suppresses recovery sound and charging latch");

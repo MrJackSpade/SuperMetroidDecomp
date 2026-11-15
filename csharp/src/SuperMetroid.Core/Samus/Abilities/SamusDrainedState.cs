@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -200,7 +200,7 @@ public sealed class SamusDrainedState
         {
             // The drained palette and the rainbow stop choose Gravity before Varia, then Power, as every
             // other Samus palette restoration path does.
-            SamusNormalSuitPalette.Load(colours, equippedItems);
+            SamusSuitShade.Show(colours, equippedItems);
             _suitPaletteRestoreRequested = false;
             return true;
         }
@@ -216,7 +216,7 @@ public sealed class SamusDrainedState
 
         CommonPaletteTimer = SpecialPaletteFrame;
         HyperBeamGlowStep++;
-        if (HyperBeamGlowStep >= SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount)
+        if (HyperBeamGlowStep >= SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount)
             HyperBeamGlowStep = 0;
         return true;
     }

@@ -7,11 +7,11 @@ internal static class SamusColorClosedContractDefinitions
 {
     /// <summary>Shared native palette definitions required by the player-color providers.</summary>
     private static readonly ReviewedSource PaletteDefinitions = new(
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPaletteDefinitions.cs");
+        "csharp/src/SuperMetroid.Core/Samus/Colours/SamusShadeDefinitions.cs");
 
     /// <summary>The full-body cycle palettes the special palette handlers select from the shared definitions.</summary>
     private static readonly ReviewedSource FullBodyCyclePalettes = new(
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusFullBodyCyclePalettes.cs");
+        "csharp/src/SuperMetroid.Core/Samus/Colours/SamusFullBodyCycleShades.cs");
 
     /// <summary>Reviewed Samus body, suit, charge, hurt, visor, and special
     /// effect color domains with their complete source dependencies.</summary>
@@ -26,7 +26,7 @@ internal static class SamusColorClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Samus.Artwork.SamusChargeColours", "samus-charge-complete-palettes", ["ApplyCharge", "ApplyHyper", "ResolveHyper"],
             [PaletteDefinitions, FullBodyCyclePalettes,
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusChargeColours.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusChargePalette.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusChargeShade.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusHyperBeamColours.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusHurtColors", "samus-hurt-complete-palettes", ["Resolve"],
             [PaletteDefinitions, FullBodyCyclePalettes,

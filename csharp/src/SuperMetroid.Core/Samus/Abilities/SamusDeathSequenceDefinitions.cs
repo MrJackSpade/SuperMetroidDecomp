@@ -7,7 +7,7 @@ public static class SamusDeathSequenceDefinitions
 {
     /// <summary>Sixteen calls display the ordinary death pose before flashing.</summary>
     public const int PreFlashFrameCount = 16;
-    /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
+    /// <summary>Sixty calls alternate shades before the suit explodes.</summary>
     public const int FlashFrameCount = 60;
     /// <summary>Calls the flash holds its first death shade, and waits before its first change of shade.</summary>
     public const int FirstFlashShadeCalls = 3;

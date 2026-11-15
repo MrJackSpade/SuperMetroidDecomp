@@ -8,7 +8,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
@@ -251,10 +251,10 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(bus.ReadCartridgeByte(0x9b8000 + offset), deathCharacters[offset],
                 $"death explosion character byte {offset:X4} is the native character byte");
         for (int suit = 0; suit < InstalledSamusDeathPalettes.SuitCount; suit++)
-        for (int palette = 0; palette < SamusPaletteDefinitions.Death.PaletteCount; palette++)
+        for (int palette = 0; palette < SamusShadeDefinitions.Death.ExplosionShadeCount; palette++)
         {
             int pointerAt = SamusSourceDefinitions.SuitPointers.Value +
-                (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * sizeof(ushort);
+                (suit * SamusShadeDefinitions.Death.ExplosionShadeCount + palette) * sizeof(ushort);
             ushort suitPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAt);
             int suitlessAt = SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort);
             ushort suitlessPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessAt);
@@ -270,7 +270,7 @@ internal static class SamusBodyArtworkVerification
                     $"death suitless palette {palette} color {color}");
             }
         }
-        for (int shade = 0; shade < SamusPaletteDefinitions.Death.WhiteoutShadeCount; shade++)
+        for (int shade = 0; shade < SamusShadeDefinitions.Death.WhiteoutShadeCount; shade++)
         {
             int at = SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort);
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
@@ -321,9 +321,9 @@ internal static class SamusBodyArtworkVerification
                 RgbColor[] shownSuitless = installedColors.ShownSuitless(InstalledFixtures.SamusShadeSources);
                 ushort[] suitWords = [.. shownSuit.Select(colour => colour.ToWord())];
                 ushort[] suitlessWords = [.. shownSuitless.Select(colour => colour.ToWord())];
-                int[] suitMatches = [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount).Where(palette => CartridgeDeathColours(bus,
-                    SamusSourceDefinitions.SuitPointers.Value + (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * sizeof(ushort)).SequenceEqual(suitWords))];
-                int[] suitlessMatches = [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount).Where(palette => CartridgeDeathColours(bus,
+                int[] suitMatches = [.. Enumerable.Range(0, SamusShadeDefinitions.Death.ExplosionShadeCount).Where(palette => CartridgeDeathColours(bus,
+                    SamusSourceDefinitions.SuitPointers.Value + (suit * SamusShadeDefinitions.Death.ExplosionShadeCount + palette) * sizeof(ushort)).SequenceEqual(suitWords))];
+                int[] suitlessMatches = [.. Enumerable.Range(0, SamusShadeDefinitions.Death.ExplosionShadeCount).Where(palette => CartridgeDeathColours(bus,
                     SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)).SequenceEqual(suitlessWords))];
                 // Until the sequence writes its first pair, her colours are the ones she had, as the cartridge's CGRAM is.
                 bool pairWritten = installedColors.Shading.Shades.Any(shade => shade.Effect == SamusShades.DeathSuitless(0).Effect);
@@ -334,7 +334,7 @@ internal static class SamusBodyArtworkVerification
                     : $"death suit {suit} frame {frame} shows one of the cartridge's death palette pairs (suit {Hex(suitWords)}; suitless "
                       + $"{Hex(suitlessWords)}; suit matches {string.Join(',', suitMatches)}; suitless matches {string.Join(',', suitlessMatches)})");
                 AssertTrue(installedSamus.DeathSequence.Whiteout is not { } whiteout ||
-                    Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Any(shade =>
+                    Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Any(shade =>
                         CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort))
                             == whiteout.ToWord()),
                     $"death suit {suit} frame {frame} whiteout is one of the cartridge's whiteout shades");

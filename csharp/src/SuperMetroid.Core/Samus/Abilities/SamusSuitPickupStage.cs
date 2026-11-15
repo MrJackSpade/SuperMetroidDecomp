@@ -12,7 +12,7 @@ public enum SamusSuitPickupStage
     /// <summary>The beam widens along the authored curve while the fixed colour brightens to white.</summary>
     CurvedWidening,
 
-    /// <summary>The suit is equipped and revealed: suited pose, history and palette.</summary>
+    /// <summary>The suit is equipped and revealed: suited pose, history and shade.</summary>
     RevealSuit,
 
     /// <summary>The full-screen beam is wiped from the top and bottom while the colour returns to the suit's tint.</summary>

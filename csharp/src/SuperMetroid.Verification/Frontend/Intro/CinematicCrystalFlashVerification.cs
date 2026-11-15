@@ -109,7 +109,7 @@ internal static class CinematicCrystalFlashVerification
         }
         AssertTrue(superInstalledFalling,
             "Super Metroid drained command replaces retained Flash movement");
-        AssertEqual(SamusSpecialPaletteType.CrystalFlash,
+        AssertEqual(SamusSpecialColouringKind.CrystalFlash,
             superSamus.SpecialColouring.Holder,
             "successful Super Metroid timing retains Flash palette");
         AssertTrue(superSamus.InputSnapshot.CrystalFlashPoseInputLocked,
@@ -172,7 +172,7 @@ internal static class CinematicCrystalFlashVerification
             ceresSamus.CeresRidleyEjection.Request(ceresSamus);
             AssertEqual(CrystalFlashPhase.Inactive, ceresSamus.CrystalFlash.Phase,
                 $"Ceres ejection replaces Flash movement after {movementCalls} calls");
-            AssertEqual(SamusSpecialPaletteType.CrystalFlash,
+            AssertEqual(SamusSpecialColouringKind.CrystalFlash,
                 ceresSamus.SpecialColouring.Holder,
                 "Ceres ejection retains Crystal Flash palette ownership");
             AssertTrue(ceresSamus.InputSnapshot.CrystalFlashPoseInputLocked,
@@ -183,7 +183,7 @@ internal static class CinematicCrystalFlashVerification
             movementCalls: 0,
             admitFlash: false);
         noFlash.CeresRidleyEjection.Request(noFlash);
-        AssertTrue(!noFlash.SpecialColouring.Holds(SamusSpecialPaletteType.CrystalFlash),
+        AssertTrue(!noFlash.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash),
             "adjacent no-Flash Ceres route invents no retained palette");
         AssertTrue(!noFlash.InputSnapshot.CrystalFlashPoseInputLocked,
             "adjacent no-Flash Ceres route invents no input lock");

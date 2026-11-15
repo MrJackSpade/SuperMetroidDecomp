@@ -7,7 +7,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -34,9 +34,9 @@ internal static class SamusChargeColorsVerification
         forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
         {
-            ushort offset = (ushort)((SamusChargePaletteDefinitions.HyperShotSteps - frame) * sizeof(ushort));
+            ushort offset = (ushort)((SamusChargeShadeDefinitions.HyperShotSteps - frame) * sizeof(ushort));
             ushort pointer = BlockWord(SamusSourceDefinitions.HyperBeamShotPointers.Value + offset);
-            AssertTrue(SamusChargePaletteDefinitions.TryHyperShot(offset, out ushort compiledPointer),
+            AssertTrue(SamusChargeShadeDefinitions.TryHyperShot(offset, out ushort compiledPointer),
                 "all native Hyper-shot entries are compiled");
             AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
@@ -72,10 +72,10 @@ internal static class SamusChargeColorsVerification
             for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
             {
                 // The live charge-palette step is the phase this call applies.
-                int appliedPhase = projectiles.Charge.ChargePaletteStep;
-                var step = projectiles.UpdateBeamChargePalette(samusColours, samus);
-                AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle :
-                    SamusBeamChargePaletteAction.PseudoScrewCycle, step.Action,
+                int appliedPhase = projectiles.Charge.ChargeGlowStep;
+                var step = projectiles.UpdateBeamChargeGlow(samusColours, samus);
+                AssertEqual(family == 0 ? SamusBeamChargeGlowAction.ChargeCycle :
+                    SamusBeamChargeGlowAction.PseudoScrewCycle, step.Action,
                     $"installed family {family} suit {suit} phase {phase}");
                 AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
@@ -85,24 +85,24 @@ internal static class SamusChargeColorsVerification
                         $"installed charge CGRAM {family}/{suit}/{phase}/{color}");
             }
         }
-        AssertEqual(0, projectiles.Charge.ChargePaletteStep, "six charge phases wrap");
+        AssertEqual(0, projectiles.Charge.ChargeGlowStep, "six charge phases wrap");
         samus.HyperBeamEnabled = true;
         projectiles.Charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
         for (int call = 0; call < 20; call++)
         {
             PictureShade before = samusColours.Suit;
             int glowStepsBefore = projectiles.Charge.ChargedShotGlow.RemainingSteps;
-            var step = projectiles.UpdateBeamChargePalette(samusColours, samus);
+            var step = projectiles.UpdateBeamChargeGlow(samusColours, samus);
             if ((call & 1) != 0)
             {
-                AssertEqual(SamusBeamChargePaletteAction.HyperHold, step.Action,
+                AssertEqual(SamusBeamChargeGlowAction.HyperHold, step.Action,
                     $"Hyper-shot call {call} holds");
                 AssertEqual(before, samusColours.Suit,
                     $"Hyper-shot call {call} does not repaint");
                 continue;
             }
             int frame = call / 2;
-            AssertEqual(SamusBeamChargePaletteAction.HyperPalette, step.Action,
+            AssertEqual(SamusBeamChargeGlowAction.HyperShade, step.Action,
                 $"Hyper-shot call {call} paints");
             // Even glow steps 20..2 select Hyper palettes 0..9.
             AssertEqual(20 - frame * 2, glowStepsBefore, $"Hyper-shot playback frame {frame}");
@@ -148,11 +148,11 @@ internal static class SamusChargeColorsVerification
                 {
                     ushort pointer = Word(0x910000 | (list + phase * 2));
                     bool found = family == 0
-                        ? SamusChargePaletteDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
-                        : SamusChargePaletteDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
+                        ? SamusChargeShadeDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
+                        : SamusChargeShadeDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
-                    samusColours.ShowSuit(SamusShades.Charge(new SamusChargePalette(
+                    samusColours.ShowSuit(SamusShades.Charge(new SamusChargeShade(
                         family != 0 ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam, SamusSuits.AtListPlace(suit), phase)));
                     RgbColor[] shownSuit = samusColours.ShownSuit(catalogSources);
                     for (int color = 0; color < 16; color++)
@@ -182,7 +182,7 @@ internal static class SamusChargeColorsVerification
             ushort pointer = Word(SamusSourceDefinitions.SuitlessPointers.Value + palette * 2);
             deathSuitless[palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
         }
-        var whiteout = Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount)
+        var whiteout = Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount)
             .Select(index => Word(SamusSourceDefinitions.DeathWhiteoutShades.Value + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount)
             .Select(index => (ushort)rom.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + 2 * index + 1)).ToArray();
@@ -259,16 +259,16 @@ internal static class SamusChargeColorsVerification
             samus.HorizontalSpeed.BodyAttack = family == 0 ? SamusBodyAttack.None : SamusBodyAttack.PseudoScrew;
             for (int phase = 0; phase < 6; phase++)
             {
-                int appliedPhase = projectiles.Charge.ChargePaletteStep;
-                var step = projectiles.UpdateBeamChargePalette(samusColours, samus);
+                int appliedPhase = projectiles.Charge.ChargeGlowStep;
+                var step = projectiles.UpdateBeamChargeGlow(samusColours, samus);
                 AssertEqual(phase, appliedPhase, "Native charge phase order");
-                AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle : SamusBeamChargePaletteAction.PseudoScrewCycle,
+                AssertEqual(family == 0 ? SamusBeamChargeGlowAction.ChargeCycle : SamusBeamChargeGlowAction.PseudoScrewCycle,
                     step.Action, "Native charge family action");
                 for (int color = 0; color < 16; color++)
                     AssertEqual(expected[family, suit, phase, color], samusColours.ShownSuit(catalogSources)[color], "Guarded runtime charge color");
             }
         }
-        AssertEqual(0, projectiles.Charge.ChargePaletteStep, "Charge phase wraps after six calls");
+        AssertEqual(0, projectiles.Charge.ChargeGlowStep, "Charge phase wraps after six calls");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Runtime charge uses no palette ROM reads");
         Console.WriteLine("Charge/death palettes: 1216 original colors, shared fade arithmetic, identity, bounds and 36 guarded charge calls pass.");
         return forbidden;

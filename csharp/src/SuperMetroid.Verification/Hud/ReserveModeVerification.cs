@@ -75,7 +75,7 @@ internal static class ReserveModeVerification
             "Crystal Flash admits under Reserve Mode");
         AssertTrue(reserve.Xray.IsReserveMode,
             "Crystal Flash retains Reserve Mode HDMA ownership");
-        AssertEqual(SamusSpecialPaletteType.CrystalFlash, reserve.SpecialColouring.Holder,
+        AssertEqual(SamusSpecialColouringKind.CrystalFlash, reserve.SpecialColouring.Holder,
             "Crystal Flash's colouring replaces the stranded X-ray visor's");
 
         // The non-CF route stores a shine by crouching after Reserve Mode is established.
@@ -99,7 +99,7 @@ internal static class ReserveModeVerification
             "Reserve Mode non-CF route admits cartridge crouch storage");
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
             "Reserve Mode crouch installs stored-shine owner");
-        AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, knockbackVariant.SpecialColouring.Holder,
+        AssertEqual(SamusSpecialColouringKind.SpeedBoosterShine, knockbackVariant.SpecialColouring.Holder,
             "the Reserve Mode crouch's stored shine replaces the stranded X-ray visor's colouring");
         AssertTrue(knockbackVariant.Xray.IsReserveMode,
             "stored shine retains the stranded greyout HDMA object");

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -24,33 +24,33 @@ internal static class SpeedBoosterInheritedStepVerification
         {
             SamusEquipmentFlags equipped = suitItems | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster;
             SamusSuit suit = equipped.ShownSuit();
-            var lastPalette = new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.SpeedBooster, suit,
-                SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep);
+            var lastPalette = new SamusFullBodyCycleShade(SamusFullBodyCycleFamily.SpeedBooster, suit,
+                SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLastStep);
             PictureShade lastShade = SamusShades.FullBodyCycle(lastPalette);
             foreach (int inherited in new[] { 4, 5 })
             {
                 string context = $"{suit} step {inherited}";
-                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = 1 };
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), CycleShadeTimer = 1 };
                 var colours = new SamusColours();
                 for (int call = 0; call < inherited; call++)
-                    speed.UpdateSpeedBoosterPalette(colours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = equipped });
-                AssertEqual(inherited, speed.CyclePaletteStep, $"{context}: Screw Attack leaves its shared step for the next movement handler");
-                AssertTrue(speed.UpdateSpeedBoosterPalette(colours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }),
+                    speed.UpdateSpeedBoosterGlow(colours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = equipped });
+                AssertEqual(inherited, speed.CycleShadeStep, $"{context}: Screw Attack leaves its shared step for the next movement handler");
+                AssertTrue(speed.UpdateSpeedBoosterGlow(colours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }),
                     $"{context}: leaving Screw Attack while boosted copies a Speed Booster palette");
                 AssertEqual(lastShade, colours.Suit, $"{context}: the inherited step shows the suit's own last Speed Booster shade");
                 RgbColor[] shown = colours.ShownSuit(InstalledFixtures.SamusShadeSources);
                 for (int colour = 0; colour < SamusColourSets.ColoursPerSet; colour++)
                     AssertEqual(InstalledFixtures.SamusShadeSources.FullBodyCycles.Resolve(lastPalette, colour), shown[colour],
                         $"{context}: suit colour {colour} is the suit's own last Speed Booster colour");
-                AssertEqual(SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CyclePaletteStep, $"{context}: the step is clamped only after the copy");
-                AssertEqual(4, speed.SpecialPaletteTimer, $"{context}: the four-frame timer is reloaded");
+                AssertEqual(SamusShadeDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CycleShadeStep, $"{context}: the step is clamped only after the copy");
+                AssertEqual(4, speed.CycleShadeTimer, $"{context}: the four-frame timer is reloaded");
                 for (int call = 0; call < 3; call++)
                 {
-                    AssertTrue(!speed.UpdateSpeedBoosterPalette(colours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }),
+                    AssertTrue(!speed.UpdateSpeedBoosterGlow(colours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }),
                         $"{context}: the shade holds until the timer expires");
                     AssertEqual(lastShade, colours.Suit, $"{context}: the suit's shade holds for four frames");
                 }
-                AssertTrue(speed.UpdateSpeedBoosterPalette(colours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }),
+                AssertTrue(speed.UpdateSpeedBoosterGlow(colours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }),
                     $"{context}: the next copy follows four frames later");
                 AssertEqual(lastShade, colours.Suit, $"{context}: the cycle holds its last shade");
             }

@@ -74,7 +74,7 @@ public static class SamusGrappleMovement
         // The endpoint offset is a signed 1/65536-pixel displacement from Samus plus the origin
         // table. Firing clears both axes, fraction and whole alike.
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
-        // Firing's palette and sound setup.
+        // Firing's shade and sound setup.
         grapple.QuarterVelocity = FixedVector<RoomPixels>.Zero;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.FiringExtension;

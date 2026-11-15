@@ -245,7 +245,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// True when the spin's top-boundary test finds Samus
-    /// fully under water/lava. The caller performs the Gravity-Suit palette-bit exemption.
+    /// fully under water/lava. The caller performs the Gravity Suit's exemption.
     /// </summary>
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
@@ -263,7 +263,7 @@ public sealed class SamusLiquidPhysicsState
     /// <see cref="DetermineMovementMedium"/>: the suit colouring checks for the Gravity
     /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
     /// decisions separate lets the caller reproduce both the submerged Power/Varia early
-    /// return and Gravity Suit's unconditional palette-animation bypass. Water whose surface
+    /// return and Gravity Suit's unconditional colour-animation bypass. Water whose surface
     /// Samus ignores still reads as dry, while a room with no water surface falls through to the
     /// independent lava/acid surface exactly as the game does.
     /// </remarks>
@@ -380,7 +380,7 @@ public sealed class SamusLiquidPhysicsState
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
                 // Lava alone cancels the speed boost before the Gravity-Suit branch.
-                // Cancelling the speed boost owns the momentum/counter/palette/echo transition;
+                // Cancelling the speed boost owns the momentum/counter/shade/echo transition;
                 // the two extra-run speeds are then cleared explicitly by the liquid step.
                 // Acid deliberately skips all three writes.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -766,7 +766,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress the footstep sound.
-        // This is the special-palette timer, not the palette cycle timer: the latter is already nonzero during boost buildup.
+        // A held shine suppresses it; the boost's cycle shade timer, already nonzero during boost buildup, does not.
         if (!CinematicActive &&
             !bossPresent &&
             !SamusInputSnapshot.HoldsShine(samus) &&

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -34,9 +34,9 @@ internal static class SamusHyperBeamColorsVerification
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
-            int pointerAddress = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPointers + frame * 2;
+            int pointerAddress = SamusShadeDefinitions.FullBodyCycles.HyperBeamPointers + frame * 2;
             ushort pointer = rom.ReadCartridgeWord(pointerAddress);
-            int paletteAddress = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(frame);
+            int paletteAddress = SamusShadeDefinitions.FullBodyCycles.HyperBeamPaletteSource(frame);
             AssertEqual(paletteAddress, SamusSourceDefinitions.PaletteBank.Value | pointer,
                 $"Hyper Beam frame {frame} compiled pointer");
             for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
@@ -48,7 +48,7 @@ internal static class SamusHyperBeamColorsVerification
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() =>
-            SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(10),
+            SamusShadeDefinitions.FullBodyCycles.HyperBeamPaletteSource(10),
             "compiled Hyper Beam pointer table remains bounded");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(invalid, 0), "Hyper Beam frame bounds");
@@ -64,7 +64,7 @@ internal static class SamusHyperBeamColorsVerification
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * frame);
             AssertEqual(ReadVerificationWord(rom, 0x91d99e + 2 * (9 - frame)), pointer,
                 "Both native pointer views address the same rows in reverse playback order");
-            shotColours.ShowSuit(SamusShades.HyperShot(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1 - frame));
+            shotColours.ShowSuit(SamusShades.HyperShot(SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - frame));
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
@@ -84,8 +84,8 @@ internal static class SamusHyperBeamColorsVerification
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
-            var step = projectiles.UpdateBeamChargePalette(shotColours, shotSamus);
-            AssertEqual((call & 1) == 0 ? SamusBeamChargePaletteAction.HyperPalette : SamusBeamChargePaletteAction.HyperHold,
+            var step = projectiles.UpdateBeamChargeGlow(shotColours, shotSamus);
+            AssertEqual((call & 1) == 0 ? SamusBeamChargeGlowAction.HyperShade : SamusBeamChargeGlowAction.HyperHold,
                 step.Action, "Original Hyper-shot alternating paint/hold cadence");
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * (call / 2));
             for (int color = 0; color < 16; color++)
@@ -142,9 +142,9 @@ internal static class SamusHyperBeamColorsVerification
     private static CartridgeReadGuard NewForbiddenHyperBeamColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
-                int pointerStart = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPointers;
-                int paletteStart = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(9);
-                int paletteEnd = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(0) +
+                int pointerStart = SamusShadeDefinitions.FullBodyCycles.HyperBeamPointers;
+                int paletteStart = SamusShadeDefinitions.FullBodyCycles.HyperBeamPaletteSource(9);
+                int paletteEnd = SamusShadeDefinitions.FullBodyCycles.HyperBeamPaletteSource(0) +
                     SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort);
                 return (address >= 0x91d829 && address < 0x91d83f) ||
                     (address >= pointerStart && address < pointerStart +

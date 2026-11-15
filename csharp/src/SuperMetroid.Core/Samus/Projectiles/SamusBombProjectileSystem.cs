@@ -416,7 +416,7 @@ public sealed class SamusBombProjectileSystem
             // cooldown running) also cancels the beam charge, so a partial charge carried
             // into the ball does not outlive it. The equipment and armed-Power-Bomb checks
             // reject before the reservation and keep the charge. The runtime publishes the
-            // cancellation's palette and sound.
+            // cancellation's shade and sound.
             rejectedPlacementClearedCharge = samus.BeamCharge.IsCharging;
             return null;
         }
@@ -472,7 +472,7 @@ public sealed class SamusBombProjectileSystem
         {
             // The outer Morph-Ball step cancels charge before testing HUD selection
             //. Releasing Shoot must also cancel with Power Bombs selected;
-            // only held Shoot reaches their branch. Runtime consumes the palette/SFX bridge.
+            // only held Shoot reaches their branch. Runtime consumes the shade/SFX bridge.
             return samus.BeamCharge.IsCharging
                 ? BombSpreadAdmission.ChargeCancelled
                 : BombSpreadAdmission.NotApplicable;

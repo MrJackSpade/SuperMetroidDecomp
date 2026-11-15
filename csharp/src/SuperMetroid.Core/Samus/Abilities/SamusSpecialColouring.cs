@@ -7,19 +7,19 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 public sealed class SamusSpecialColouring
 {
-    /// <summary>The colouring holding Samus's suit, or <see cref="SamusSpecialPaletteType.None"/>.</summary>
-    public SamusSpecialPaletteType Holder { get; private set; }
+    /// <summary>The colouring holding Samus's suit, or <see cref="SamusSpecialColouringKind.None"/>.</summary>
+    public SamusSpecialColouringKind Holder { get; private set; }
 
     /// <summary>Whether <paramref name="colouring"/> holds Samus's suit.</summary>
-    public bool Holds(SamusSpecialPaletteType colouring) => Holder == colouring;
+    public bool Holds(SamusSpecialColouringKind colouring) => Holder == colouring;
 
     /// <summary>Gives Samus's suit to <paramref name="colouring"/>, ending the colouring that held it.</summary>
-    internal void Take(SamusSpecialPaletteType colouring) => Holder = colouring;
+    internal void Take(SamusSpecialColouringKind colouring) => Holder = colouring;
 
     /// <summary>Returns Samus's suit to her own colours when <paramref name="colouring"/> holds it; otherwise changes nothing.</summary>
-    internal void Release(SamusSpecialPaletteType colouring)
+    internal void Release(SamusSpecialColouringKind colouring)
     {
         if (Holder == colouring)
-            Holder = SamusSpecialPaletteType.None;
+            Holder = SamusSpecialColouringKind.None;
     }
 }

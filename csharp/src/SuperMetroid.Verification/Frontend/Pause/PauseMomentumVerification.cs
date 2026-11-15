@@ -22,8 +22,8 @@ internal static class PauseMomentumVerification
                 BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000),
                 ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = new SamusSpeedBoostCounter(4, 2),
-                CyclePaletteStep = 3,
-                SpecialPaletteTimer = 3,
+                CycleShadeStep = 3,
+                CycleShadeTimer = 3,
             };
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.
@@ -42,16 +42,16 @@ internal static class PauseMomentumVerification
             AssertEqual(expectedCounter, speed.SpeedBoostCounter, "unpause preserves, arms or clears boost countdown");
             if (!equipped)
             {
-                AssertEqual(0, speed.CyclePaletteStep, "unpause clears boost palette frame");
-                AssertEqual(0, speed.SpecialPaletteTimer, "unpause clears boost palette timer");
+                AssertEqual(0, speed.CycleShadeStep, "unpause clears boost palette frame");
+                AssertEqual(0, speed.CycleShadeTimer, "unpause clears boost palette timer");
                 AssertEqual(SpeedEchoCursor.FirstEcho, speed.SpeedEchoCursor, "unpause resets the echo cursor without departure");
                 AssertTrue(speed.FirstSpeedEchoPosition is null && speed.SecondSpeedEchoPosition is null &&
                     speed.FirstSpeedEchoVelocity.X == 0 && speed.SecondSpeedEchoVelocity.X == 0, "unpause clears both echo positions and velocities");
             }
             else if (momentum && counter == default)
             {
-                AssertEqual(0, speed.CyclePaletteStep, "newly enabled boost resets palette frame");
-                AssertEqual(0, speed.SpecialPaletteTimer, "unpause arms boost with native zero palette timer");
+                AssertEqual(0, speed.CycleShadeStep, "newly enabled boost resets palette frame");
+                AssertEqual(0, speed.CycleShadeTimer, "unpause arms boost with native zero palette timer");
             }
         }
     }

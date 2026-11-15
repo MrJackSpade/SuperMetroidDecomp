@@ -6,7 +6,7 @@ using SuperMetroid.Core;
 using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -59,22 +59,22 @@ public static class SamusDeathPaletteArtworkFiles
         var suited = new ushort[InstalledSamusDeathPalettes.SuitCount][][];
         for (int suit = 0; suit < suited.Length; suit++)
         {
-            suited[suit] = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
+            suited[suit] = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
             for (int palette = 0; palette < suited[suit].Length; palette++)
             {
                 int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
-                    suit * SamusPaletteDefinitions.Death.PaletteCount * sizeof(ushort) +
+                    suit * SamusShadeDefinitions.Death.ExplosionShadeCount * sizeof(ushort) +
                     palette * sizeof(ushort)));
                 suited[suit][palette] = ReadPalette(bus, pointer);
             }
         }
-        var suitless = new ushort[SamusPaletteDefinitions.Death.PaletteCount][];
+        var suitless = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
             int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
-        var whiteout = new ushort[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
+        var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
             whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
         var selectors = new ushort[SamusDeathExplosionTimingDefinitions.StepCount];
@@ -87,7 +87,7 @@ public static class SamusDeathPaletteArtworkFiles
         SamusDeathSteps steps = Build(document).Steps;
         File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(FormatVersion,
             [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(steps.ExplosionStep)],
-            [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Select(step => PaletteRgb5.From(steps.WhiteoutColour(step)))]),
+            [.. Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Select(step => PaletteRgb5.From(steps.WhiteoutColour(step)))]),
             JsonOptions));
     }
 

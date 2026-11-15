@@ -4,7 +4,7 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Diagnostics.Saves;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -1170,7 +1170,7 @@ internal static class LookupStream4Verification
         {
             var actual = new SamusColours();
             // The beams name the selection's shade (#1512); the import resolves it from the selected palettes.
-            SamusProjectileSystem.LoadBeamPalette(actual, SamusEquipmentWordCodec.FromBeamWord(checked((ushort)selection)) | SamusBeamFlags.Charge);
+            SamusProjectileSystem.ShowBeamShade(actual, SamusEquipmentWordCodec.FromBeamWord(checked((ushort)selection)) | SamusBeamFlags.Charge);
             int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
             RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = stock });
             for (int color = 0; color < 16; color++)

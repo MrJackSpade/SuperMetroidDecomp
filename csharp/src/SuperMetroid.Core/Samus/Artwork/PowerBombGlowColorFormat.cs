@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -11,8 +11,8 @@ public static class PowerBombGlowColorFormat
     /// <exception cref="ArgumentOutOfRangeException">The sequence value is not defined.</exception>
     public static int Count(PowerBombGlowSequence sequence) => sequence switch
     {
-        PowerBombGlowSequence.PreExplosion => SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount,
-        PowerBombGlowSequence.Explosion => SamusPaletteDefinitions.PowerBomb.ExplosionColorCount,
+        PowerBombGlowSequence.PreExplosion => SamusShadeDefinitions.PowerBomb.PreExplosionColorCount,
+        PowerBombGlowSequence.Explosion => SamusShadeDefinitions.PowerBomb.ExplosionColorCount,
         _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
     };
 }

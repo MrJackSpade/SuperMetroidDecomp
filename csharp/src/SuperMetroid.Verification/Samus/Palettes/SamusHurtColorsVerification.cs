@@ -6,7 +6,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -74,7 +74,7 @@ internal static class SamusHurtColorsVerification
         for (int call = 1; call <= 7; call++)
         {
             samusColours.ShowSuit(sentinel);
-            SamusHurtFlashPalette.Update(
+            SamusHurtFlash.Update(
                 samusColours, samus, 0);
             AssertEqual((ushort)(call + 1), samus.HurtFlash.Count,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");

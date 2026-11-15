@@ -12,7 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -74,7 +74,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             var samusColours = new SamusColours();
-            SamusNormalSuitPalette.Load(samusColours, SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]));
+            SamusSuitShade.Show(samusColours, SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]));
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
                     (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),
@@ -83,7 +83,7 @@ internal static class SamusSuitColorsVerification
         }
 
         var powerColours = new SamusColours();
-        SamusNormalSuitPalette.LoadPower(powerColours);
+        SamusSuitShade.ShowPower(powerColours);
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
             AssertEqual(colors.Resolve(SamusSuit.Power, color),
                 powerColours.ShownSuit(sources)[color],
@@ -133,15 +133,15 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
-            SamusNormalSuitPalette.Load(samusColours, samus.EquippedItems);
+            SamusSuitShade.Show(samusColours, samus.EquippedItems);
             AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(offsets[suit], 1),
                 samusColours.ShownSuit(installedSources)[1],
                 $"installed suit {suit} reaches live Samus CGRAM");
         }
 
         samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[1]);
-        samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
-        AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
+        samus.HorizontalSpeed.RequestSuitShadeRestore();
+        AssertTrue(samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
                 samusColours, samus.EquippedItems),
             "momentum cancellation admits installed normal suit restoration");
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Varia, 1),
@@ -151,7 +151,7 @@ internal static class SamusSuitColorsVerification
         samus.HurtFlash.HoldAt(2);
         // Show another shade first so only a real normal-suit reload passes.
         samusColours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
-        SamusHurtFlashPalette.Update(
+        SamusHurtFlash.Update(
             samusColours, samus, controllerInput: 0);
         AssertEqual(SamusShades.Suit(SamusSuit.Varia), samusColours.Suit,
             "even hurt-flash frame restores the normal suit's shade");
@@ -160,7 +160,7 @@ internal static class SamusSuitColorsVerification
             "hurt-flash recovery restores the installed Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
+        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
             "Screw Attack recovery frame restores the normal suit");
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Varia, 1),
             samusColours.ShownSuit(installedSources)[1],

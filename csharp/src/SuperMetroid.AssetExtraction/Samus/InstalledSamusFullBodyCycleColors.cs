@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -38,12 +38,12 @@ public sealed class InstalledSamusFullBodyCycleColors
     /// </summary>
     public SamusFullBodyCycleColours ToColours()
     {
-        var shown = new Dictionary<SamusFullBodyCyclePalette, ImmutableArray<RgbColor>>();
+        var shown = new Dictionary<SamusFullBodyCycleShade, ImmutableArray<RgbColor>>();
         foreach (SamusFullBodyCycleFamily family in Enum.GetValues<SamusFullBodyCycleFamily>())
         foreach (SamusSuit suit in SamusSuitDefinitions.ListOrder)
         for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
         {
-            var palette = new SamusFullBodyCyclePalette(family, suit, shade);
+            var palette = new SamusFullBodyCycleShade(family, suit, shade);
             shown.Add(palette, [.. palettes[SamusFullBodyCycleColorFormat.PaletteIndex(palette)]]);
         }
         return new(shown);

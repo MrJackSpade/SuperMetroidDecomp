@@ -1,9 +1,9 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
-/// <summary>Cartridge values of <see cref="XrayScopeDefinitions.Palette"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="XrayScopeDefinitions.VisorShades"/> that only verification reads.</summary>
 internal static class XrayScopeDefinitionsPaletteConstants
 {
     /// <summary><c>$91:D727</c>, suit-indexed normal Samus palette pointers.</summary>
@@ -20,7 +20,7 @@ internal static class XrayScopeDefinitionsPaletteConstants
     public static readonly int VisorWords = SamusSourceDefinitions.VisorColors.Value;
 
     /// <summary>Provides X-ray palette bank, normal suit pointers, visor words, and suit color count.</summary>
-    extension(XrayScopeDefinitions.Palette)
+    extension(XrayScopeDefinitions.VisorShades)
     {
         /// <inheritdoc cref="XrayScopeDefinitionsPaletteConstants.NormalSuitPointers"/>
         internal static int NormalSuitPointers => XrayScopeDefinitionsPaletteConstants.NormalSuitPointers;

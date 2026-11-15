@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -17,22 +17,22 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
         CartridgeImportAddressSpace rom)
     {
         for (ushort record = 0;
-             record < CrystalFlashPaletteTimingDefinitions.StepCount;
+             record < CrystalFlashPulseTimingDefinitions.StepCount;
              record++)
         {
-            int address = CrystalFlashPaletteTimingDefinitions.NativeFirstTimerAddress +
-                record * CrystalFlashPaletteTimingDefinitions.RecordByteCount;
+            int address = CrystalFlashPulseTimingDefinitions.NativeFirstTimerAddress +
+                record * CrystalFlashPulseTimingDefinitions.RecordByteCount;
             ushort nativeDuration = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(nativeDuration,
-                CrystalFlashPaletteTiming.DurationForStep(record),
+                CrystalFlashPulseTiming.DurationForStep(record),
                 $"Crystal Flash body-palette duration {record}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrystalFlashPaletteTiming.DurationForStep(-1),
+            () => CrystalFlashPulseTiming.DurationForStep(-1),
             "Crystal Flash timing rejects a step before the pulse");
         AssertThrows<InvalidDataException>(
-            () => CrystalFlashPaletteTiming.DurationForStep(CrystalFlashPaletteTimingDefinitions.StepCount),
+            () => CrystalFlashPulseTiming.DurationForStep(CrystalFlashPulseTimingDefinitions.StepCount),
             "Crystal Flash timing rejects a step beyond the authored pulse");
 
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -46,7 +46,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             PowerBombs = 10,
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        samus.HorizontalSpeed.SpecialPaletteTimer = 0;
+        samus.HorizontalSpeed.CycleShadeTimer = 0;
         AssertTrue(
             samus.CrystalFlash.TryBegin(
                 samus, controllerInput: 0, inputCheck: CrystalFlashInputCheck.Skipped),
@@ -54,19 +54,19 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
 
         var guard = NewCrystalFlashPaletteTimingReadGuard(rom);
         var samusColours = new SamusColours();
-        int callCount = CrystalFlashPaletteTimingDefinitions.StepCount *
-            CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
+        int callCount = CrystalFlashPulseTimingDefinitions.StepCount *
+            CrystalFlashPulseTimingDefinitions.AuthoredDuration;
         for (int call = 0; call < callCount; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(samusColours, samus),
+            AssertTrue(samus.CrystalFlash.UpdateColouring(samusColours, samus),
                 $"Crystal Flash timing call {call} retains palette ownership");
 
             ushort expectedTimer = unchecked((ushort)(
-                CrystalFlashPaletteTimingDefinitions.AuthoredDuration -
-                call % CrystalFlashPaletteTimingDefinitions.AuthoredDuration));
-            int loadedRecord = call / CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
-            int expectedStep = (loadedRecord + 1) % CrystalFlashPaletteTimingDefinitions.StepCount;
-            AssertEqual(expectedTimer, samus.CrystalFlash.CrystalPaletteTimer,
+                CrystalFlashPulseTimingDefinitions.AuthoredDuration -
+                call % CrystalFlashPulseTimingDefinitions.AuthoredDuration));
+            int loadedRecord = call / CrystalFlashPulseTimingDefinitions.AuthoredDuration;
+            int expectedStep = (loadedRecord + 1) % CrystalFlashPulseTimingDefinitions.StepCount;
+            AssertEqual(expectedTimer, samus.CrystalFlash.CrystalPulseTimer,
                 $"production Crystal Flash body timer call {call}");
             AssertEqual(expectedStep, samus.CrystalFlash.BodyStep,
                 $"production Crystal Flash body step call {call}");
@@ -84,11 +84,11 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
         new CartridgeReadGuard(source).Forbid(address =>
             {
                 int relative = address -
-                    CrystalFlashPaletteTimingDefinitions.NativeFirstTimerAddress;
+                    CrystalFlashPulseTimingDefinitions.NativeFirstTimerAddress;
                 return relative >= 0 &&
-                    relative < CrystalFlashPaletteTimingDefinitions.StepCount *
-                        CrystalFlashPaletteTimingDefinitions.RecordByteCount &&
-                    relative % CrystalFlashPaletteTimingDefinitions.RecordByteCount < 2;
+                    relative < CrystalFlashPulseTimingDefinitions.StepCount *
+                        CrystalFlashPulseTimingDefinitions.RecordByteCount &&
+                    relative % CrystalFlashPulseTimingDefinitions.RecordByteCount < 2;
             },
             address => $"Crystal Flash palette handler attempted timer read ${address:X6}.");
 

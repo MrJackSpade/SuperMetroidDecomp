@@ -24,7 +24,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core;
@@ -701,7 +701,7 @@ internal static class CollectiblesVerification
             EquippedItems = SamusEquipmentFlags.VariaSuit,
             CollectedItems = SamusEquipmentFlags.VariaSuit,
         }.WithBeamChargeCount(60);
-        SamusNormalSuitPalette.LoadPower(suitColours);
+        SamusSuitShade.ShowPower(suitColours);
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
@@ -779,7 +779,7 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
-        SamusNormalSuitPalette.Load(suitColours, samus.EquippedItems);
+        SamusSuitShade.Show(suitColours, samus.EquippedItems);
         AssertEqual(SamusShades.Suit(SamusSuit.Gravity), suitColours.Suit,
             "normal suit palette loader gives Gravity priority over Varia");
     }
@@ -851,10 +851,10 @@ internal static class CollectiblesVerification
         AssertTrue(flashes.Take(firstCurved).All(flash => flash with { Beam = default } == flashes[0] with { Beam = default }),
             "fixed color holds until the curved stage");
         SamusSuitPickupFlash white = flashes[firstClosing - 1];
-        AssertEqual(new VerifySuitPickupBeamSequenceCase(SamusPaletteDefinitions.SuitPickup.WhiteRed, SamusPaletteDefinitions.SuitPickup.WhiteGreen, SamusPaletteDefinitions.SuitPickup.WhiteBlue),
+        AssertEqual(new VerifySuitPickupBeamSequenceCase(SamusShadeDefinitions.SuitPickup.WhiteRed, SamusShadeDefinitions.SuitPickup.WhiteGreen, SamusShadeDefinitions.SuitPickup.WhiteBlue),
             new VerifySuitPickupBeamSequenceCase(white.Color.FadeLevels.Red, white.Color.FadeLevels.Green, white.Color.FadeLevels.Blue), "the curved stage brightens the fixed color to white");
         SamusSuitPickupFlash last = flashes[^1];
-        AssertEqual(new VerifySuitPickupBeamSequenceCase(SamusPaletteDefinitions.SuitPickup.WhiteRed, SamusPaletteDefinitions.SuitPickup.VariaOrangeGreen, SamusPaletteDefinitions.SuitPickup.VariaOrangeBlue),
+        AssertEqual(new VerifySuitPickupBeamSequenceCase(SamusShadeDefinitions.SuitPickup.WhiteRed, SamusShadeDefinitions.SuitPickup.VariaOrangeGreen, SamusShadeDefinitions.SuitPickup.VariaOrangeBlue),
             new VerifySuitPickupBeamSequenceCase(last.Color.FadeLevels.Red, last.Color.FadeLevels.Green, last.Color.FadeLevels.Blue), "the shrinking Varia beam settles on orange");
         for (int i = firstClosing; i < flashes.Count; i++)
             AssertTrue(flashes[i].Color.FadeLevels.Green <= flashes[i - 1].Color.FadeLevels.Green && flashes[i].Color.FadeLevels.Blue <= flashes[i - 1].Color.FadeLevels.Blue,

@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Beam charge state: the charge count and the Hyper Beam's flare, the charge sampled before the charge input, the
-/// charged-shot glow, the charge palette step and the three flare components' pictures and holds.
+/// charged-shot glow, the charge glow step and the three flare components' pictures and holds.
 /// </summary>
 internal sealed class BeamChargeState
 {
@@ -53,17 +53,17 @@ internal sealed class BeamChargeState
     public ChargedShotGlow ChargedShotGlow { get; internal set; }
 
     /// <summary>
-    /// The charge colour cycle's next step, 0 through 5: each charge-palette call shows it and advances it, and the
+    /// The charge colour cycle's next step, 0 through 5: each charge glow call shows it and advances it, and the
     /// sixth call wraps it to zero.
     /// </summary>
-    public int ChargePaletteStep
+    public int ChargeGlowStep
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, SamusChargePaletteDefinitions.ChargeSteps - 1, value);
+        internal set => field = Ensure.BetweenInclusive(0, SamusChargeShadeDefinitions.ChargeSteps - 1, value);
     }
 
     /// <summary>The most recent charged-shot colour step result, which survives room loads.</summary>
-    internal SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; set; }
+    internal SamusBeamChargeGlowStep LastBeamChargeGlowStep { get; set; }
 
     /// <summary>
     /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its animation, or,

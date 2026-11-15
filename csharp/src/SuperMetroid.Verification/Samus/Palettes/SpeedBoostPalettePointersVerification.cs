@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
@@ -31,35 +31,35 @@ internal static class SpeedBoostPalettePointersVerification
         for (int selection = 0; selection < equipment.Length; selection++)
         {
             ushort offset = SamusPaletteNative.SuitTableByteOffset(equipment[selection].ShownSuit());
-            int source = SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPointers + offset;
+            int source = SamusShadeDefinitions.FullBodyCycles.SpeedBoostPointers + offset;
             ushort nativePointer = rom.ReadCartridgeWord(source);
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"Speed Booster pointer selection {selection} matches retail ROM");
             AssertEqual(nativePointer,
-                SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPalettePointer(offset),
+                SamusShadeDefinitions.FullBodyCycles.SpeedBoostPalettePointer(offset),
                 $"compiled Speed Booster pointer selection {selection} matches retail ROM");
 
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 EquippedItems = equipment[selection],
-                MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
+                MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext,
             };
             var installedColours = new SamusColours();
-            AssertTrue(SamusSpecialSuperPalette.Update(installedColours, samus),
+            AssertTrue(SamusMetroidAttachmentFlash.Update(installedColours, samus),
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
                     installedColours.ShownSuit(InstalledFixtures.SamusShadeSources with { FullBodyCycles = cycleColors })[color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
-            AssertEqual(SamusMetroidAttachmentPalette.NormalSuitNext, samus.MetroidAttachmentPalette,
+            AssertEqual(SamusMetroidAttachmentShade.NormalSuitNext, samus.MetroidAttachmentShade,
                 "the Speed Booster palette alternates to the normal suit");
         }
 
         // Without an attacker the alternation leaves the palette alone.
         var unattached = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
-        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColours(), unattached),
+        AssertTrue(!SamusMetroidAttachmentFlash.Update(new SamusColours(), unattached),
             "no attachment, no alternation");
-        AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,
+        AssertEqual(SamusMetroidAttachmentShade.Inactive, unattached.MetroidAttachmentShade,
             "an inactive alternation stays inactive");
         Console.WriteLine("Speed Booster palettes: four equipment cases name the Speed Booster shade, whose installed colours match ROM with no CPU bus.");
     }

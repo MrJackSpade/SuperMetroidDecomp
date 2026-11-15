@@ -15,7 +15,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus;
@@ -860,7 +860,7 @@ static void InstallHyperBeamSuitPaletteFixture(TestAddressSpace bus)
     // controller-zero/command-$17 restoration rather than retaining rainbow colors.
     for (ushort palette = 0; palette < 10; palette++)
     {
-        ushort pointer = unchecked((ushort)SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteSource(palette));
+        ushort pointer = unchecked((ushort)SamusShadeDefinitions.FullBodyCycles.HyperBeamPaletteSource(palette));
         WriteTestWord(bus, 0x91d99e + palette * 2, pointer);
         for (ushort color = 0; color < 16; color++)
         {

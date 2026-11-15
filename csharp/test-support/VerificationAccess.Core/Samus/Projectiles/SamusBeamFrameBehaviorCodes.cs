@@ -21,7 +21,7 @@ internal static class SamusBeamFrameBehaviorCodes
     public const ushort UnchargedSpazerPlasmaUnconnectedRegionWord = 0x3920;
     /// <summary>
     /// $90:AD16, the invalid beam-combination fourteen entry read two words beyond
-    /// FireUnchargedBeam's callback table. JSR enters the operand of LoadBeamPalette's
+    /// FireUnchargedBeam's callback table. JSR enters the operand of ShowBeamShade's
     /// sprite-palette store, then falls into its increment/loop tail with projectile-owned
     /// X and Y. Later animation frames can therefore copy a large ROM range through WRAM.
     /// </summary>

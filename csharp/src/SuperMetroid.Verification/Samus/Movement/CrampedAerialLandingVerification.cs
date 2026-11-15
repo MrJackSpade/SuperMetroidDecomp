@@ -101,7 +101,7 @@ internal static class CrampedAerialLandingVerification
         samus.Position = samus.Position.WithWholeY(0x0034);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPoseTransitions.TryApplyAerialLanding(samus, level, true, 0, 39440);
-        AssertTrue(samus.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+        AssertTrue(samus.HorizontalSpeed.SuitShadeRestoreRequested,
             "rejected landing still performs pre-command suit palette restoration");
     }
 }

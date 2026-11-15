@@ -16,7 +16,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -478,7 +478,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire retains extra-run aerial acceleration");
     AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), spinFire.PendingTransitionShot,
         "spin Fire publishes target shot direction");
-    AssertTrue(spinFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+    AssertTrue(spinFire.HorizontalSpeed.SuitShadeRestoreRequested,
         "leaving Screw Attack requests normal suit palette");
 
     // `$91:A9EC` is the retail `$83` wall-jump input table. Its Shot record is literally
@@ -514,7 +514,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "wall-jump Shot preserves fractional vertical speed");
     AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), wallFire.PendingTransitionShot,
         "wall-jump Shot publishes target shot direction");
-    AssertTrue(wallFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+    AssertTrue(wallFire.HorizontalSpeed.SuitShadeRestoreRequested,
         "leaving Screw wall-jump requests normal suit palette");
 
     // Down during a left spin selects compact normal-jump pose `$18`. It enters the same
@@ -682,7 +682,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     SeedSamusPaletteWord(bus, 0x9400, 0x0111);
     for (int shade = 0; shade < 4; shade++)
     {
-        AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
+        AssertTrue(SamusShadeDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
             0, unchecked((ushort)(shade * 2)), out ushort pointer),
             $"compiled Power Screw shade {shade} exists");
         SeedSamusPaletteWord(bus, pointer, unchecked((ushort)(0x1200 + shade)));
@@ -696,22 +696,22 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
     var samusColours = new SamusColours();
-    AssertTrue(palettes.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+    AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
         "ending Screw frame copies normal suit palette");
     AssertEqual(0x0111, samusColours.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+        AssertTrue(palettes.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), samusColours.ShownSuit(aerialSources)[0],
             $"Screw palette frame {frame} ROM color");
     }
-    AssertEqual(0, palettes.CyclePaletteStep, "six Screw palettes wrap to step zero");
+    AssertEqual(0, palettes.CycleShadeStep, "six Screw palettes wrap to step zero");
 
     // A Screw landing requests the same normal palette reload performed by `$91:F433`.
     SamusPoseTransitions.ApplyAerialLanding(screwRepeat, wasSpinning: true);
     AssertEqual(SamusPoseId.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
-    AssertTrue(screwRepeat.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+    AssertTrue(screwRepeat.HorizontalSpeed.SuitShadeRestoreRequested,
         "Screw Attack landing requests normal palette restore");
 
     Console.WriteLine(
@@ -1209,7 +1209,7 @@ internal static void VerifySamusAtmosphericEffects()
     // $90:A40E reads $0A68 (stored-shine timer), not the boost palette timer
     // at $0AD0. Boost buildup must still publish footsteps into the real queue.
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-    runner.HorizontalSpeed.SpecialPaletteTimer = 1;
+    runner.HorizontalSpeed.CycleShadeTimer = 1;
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     AssertEqual(new SoundRequest(RoomSound.Footsteps, SoundRequestPriority.Normal),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
@@ -1217,7 +1217,7 @@ internal static void VerifySamusAtmosphericEffects()
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: true);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "a nonzero boss ID suppresses footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine sound gate");
-    runner.HorizontalSpeed.SpecialPaletteTimer = 0;
+    runner.HorizontalSpeed.CycleShadeTimer = 0;
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
 

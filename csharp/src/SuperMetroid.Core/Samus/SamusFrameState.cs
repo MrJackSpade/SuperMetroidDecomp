@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -120,7 +120,7 @@ internal sealed class SamusFrameState
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
 
 
-    /// <summary>Most recent game-state-owned fatal-damage animation/palette/artwork call.</summary>
+    /// <summary>Most recent game-state-owned fatal-damage animation/shade/artwork call.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
 

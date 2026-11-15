@@ -64,7 +64,7 @@ internal sealed class SamusFramePhases
     /// first resumed gameplay frame shows the newly equipped combination's colours.
     /// </summary>
     internal void ShowEquippedBeamColours(SamusBeamFlags equippedBeams) =>
-        SamusProjectileSystem.LoadBeamPalette(_player.Colours, equippedBeams);
+        SamusProjectileSystem.ShowBeamShade(_player.Colours, equippedBeams);
 
     /// <summary>
     /// The grapple beam's step, reached from the HUD selection of
@@ -130,7 +130,7 @@ internal sealed class SamusFramePhases
         {
             // Cancellation, drop, wall-jump and swing-release tails all
             // reload the equipped beam palette before returning to inactive.
-            _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
+            _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 
         // The grapple's bottom-boundary check runs after every grapple phase, including inactive.
@@ -145,8 +145,8 @@ internal sealed class SamusFramePhases
     internal void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the same shades.
-        _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(GrappleBeamDefinitions.Palettes.FiringSelection));
-        _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Palettes.SamusShades.GrappleFiringFlare);
+        _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection));
+        _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Colours.SamusShades.GrappleFiringFlare);
     }
 
     /// <summary>
@@ -330,7 +330,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
                 room.Projectiles.Firing.CancelChargeForHudSelection();
-                SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
+                SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
             // The selected scope uses held Run, not Fire. Setup installs its
@@ -353,7 +353,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             if (room.BombProjectiles.RunHudProducer(samus, _controller1.Current, _controller1.NewlyPressed))
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
-                SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
+                SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
             }
 
         }

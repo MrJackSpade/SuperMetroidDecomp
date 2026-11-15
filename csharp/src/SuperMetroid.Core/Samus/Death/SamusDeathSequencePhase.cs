@@ -7,9 +7,9 @@ public enum SamusDeathSequencePhase
     Inactive,
     /// <summary>The first death game state advances the fatal pose for sixteen calls before flashing.</summary>
     PreFlashing,
-    /// <summary>The flashing game state alternates death palettes before the suit explodes.</summary>
+    /// <summary>The flashing game state alternates death shades before the suit explodes.</summary>
     Flashing,
-    /// <summary>The suit-explosion game state advances explosion frames, palettes, and room whiteout.</summary>
+    /// <summary>The suit-explosion game state advances explosion frames, shades, and room whiteout.</summary>
     SuitExplosion,
     /// <summary>The terminal white frame is installed and the outer room fade may take ownership.</summary>
     Complete,

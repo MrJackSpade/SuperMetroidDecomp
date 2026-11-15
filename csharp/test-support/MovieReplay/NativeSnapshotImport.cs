@@ -188,7 +188,7 @@ internal static class NativeSnapshotImport
         runtime.Projectiles.Firing.ProjectileInvincibilityTimer = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
         runtime.Projectiles.Charge.ChargedShotGlow = SamusSnapshotWords.DecodeChargedShotGlow(W(NativeSnapshotMemory.ChargedShotGlow));
         int chargePaletteByteOffset = W(NativeSnapshotMemory.ChargePaletteIndex);
-        runtime.Projectiles.Charge.ChargePaletteStep = (chargePaletteByteOffset & 1) == 0
+        runtime.Projectiles.Charge.ChargeGlowStep = (chargePaletteByteOffset & 1) == 0
             ? chargePaletteByteOffset / sizeof(ushort)
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
@@ -397,8 +397,8 @@ internal static class NativeSnapshotImport
         game.GameState = GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState));
         // The room load showed the colours of the Samus the Ceres start made; the imported equipment names the suit and
         // beams whose colours the cartridge loaded (#1512), under which her palette-FX records are then laid.
-        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
-        SamusProjectileSystem.LoadBeamPalette(runtime.Player.Colours, samus.EquippedBeams);
+        SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(runtime.Player.Colours, samus.EquippedItems);
+        SamusProjectileSystem.ShowBeamShade(runtime.Player.Colours, samus.EquippedBeams);
         ImportShownPaletteFxFrames(runtime);
         if (game.GameState == SuperMetroidGameState.Paused)
             ImportNativePauseMenu(game, runtime, W, memory);

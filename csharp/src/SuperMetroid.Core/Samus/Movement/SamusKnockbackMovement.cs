@@ -196,7 +196,7 @@ level, targetPose, frameCounter, roomObjects))
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // Starts the hurt flash after cancelling bomb-jump/contact damage. This is an independent
-        // 60-call palette/audio lifetime, not the five-frame knockback timer established above.
+        // 60-call shade/audio lifetime, not the five-frame knockback timer established above.
         samus.HurtFlash.Start();
 
         // Hurt launch retains the bottom-edge and Gravity-Suit selection.
@@ -392,7 +392,7 @@ level, targetPose, frameCounter, roomObjects))
         samus.BombJumpPoseInputLocked = false;
         // Returns her movement to her pose. A Shinespark windup can
         // have been initialized after the knockback check latched this expiry, so end that
-        // spark's hold while retaining its independently owned palette and timer.
+        // spark's hold while retaining its independently owned shade and timer.
         SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Knockback);
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
         // flag has no field of its own; Y-direction two is its movement-visible

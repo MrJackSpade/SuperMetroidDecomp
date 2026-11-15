@@ -244,8 +244,8 @@ internal sealed class DoorTransitionState
                     // that precedes the destination fade-in. Their setup can alter visible
                     // room state here; deferring them to the first ordinary gameplay frame
                     // exposes the room as it was before they ran.
-                    runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
-                    runtime.DoorFade.WriteSamusColours(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
+                    runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Colours.SamusShades.DoorCompletionVisor);
+                    runtime.DoorFade.WriteSamusColours(SuperMetroid.Core.Samus.Colours.SamusShades.DoorCompletionVisor);
                     runtime.RoomObjectPhase.RunRoomObjectsForDoor(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.AlignSamusWithDoorway;
                 }

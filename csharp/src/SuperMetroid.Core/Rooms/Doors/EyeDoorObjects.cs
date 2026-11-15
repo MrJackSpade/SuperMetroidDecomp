@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class EyeDoorObjects
 {
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The enemy effects room objects trigger.</summary>
@@ -22,7 +22,7 @@ internal sealed class EyeDoorObjects
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the eye doors to room services and sound requests.</summary>
-    internal EyeDoorObjects(SharedGameState? system, IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, RoomObjectSoundQueue sounds)
+    internal EyeDoorObjects(SharedGameState system, IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, RoomObjectSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -51,8 +51,7 @@ internal sealed class EyeDoorObjects
             ? new EyeDoorEyeObject(orientation)
             : new EyeDoorPartObject(orientation, component));
 
-        SharedGameState system = _system ??
-            throw new InvalidOperationException("Eye-door setup has no persistence owner.");
+        SharedGameState system = _system;
         if (place.Argument is DoorBitArgument { Persists: true } openedEye &&
             system.HasOpenedDoor(openedEye.Door))
         {

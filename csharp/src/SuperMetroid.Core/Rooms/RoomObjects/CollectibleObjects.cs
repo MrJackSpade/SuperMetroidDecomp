@@ -13,7 +13,7 @@ internal sealed class CollectibleObjects
 {
 
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The room's effect overlay FX.</summary>
@@ -26,7 +26,7 @@ internal sealed class CollectibleObjects
     /// Connects the collectibles to room state and drawing, and to the room's block pairs, which its collectibles that
     /// show their own picture take in turn.
     /// </summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess samus, IRoomFxMotion roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
+    internal CollectibleObjects(SharedGameState system, IRoomSamusAccess samus, IRoomFxMotion roomFx, IRoomObjectDrawing drawing, RoomObjectPlaceList places,
         CollectibleBlockPairs blockPairs, RoomObjectSoundQueue sounds)
     {
         _sounds = Ensure.NotNull(sounds);
@@ -223,8 +223,7 @@ internal sealed class CollectibleObjects
         IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
-        SharedGameState system = _system
-            ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
+        SharedGameState system = _system;
 
         if (place.Argument is CollectedItemArgument collectedItem)
             system.CollectItem(collectedItem.Location);

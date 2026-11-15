@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class DoorObjects
 {
     /// <summary>The room's system and event state.</summary>
-    private readonly SharedGameState? _system;
+    private readonly SharedGameState _system;
     /// <summary>Allocates fallback closing and blue-door actors from the room-object pool.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
@@ -22,7 +22,7 @@ internal sealed class DoorObjects
     private readonly ShotOpenedCapClosing<LockedDoor> _shotCapClosing;
 
     /// <summary>Binds door room-object logic to room persistence, the room's places, sound and the shot cap's closing rule.</summary>
-    internal DoorObjects(SharedGameState? system, RoomObjectPlaceList places, RoomObjectSoundQueue sounds,
+    internal DoorObjects(SharedGameState system, RoomObjectPlaceList places, RoomObjectSoundQueue sounds,
         ShotOpenedCapClosing<LockedDoor> shotCapClosing)
     {
         _system = system;
@@ -134,7 +134,7 @@ internal sealed class DoorObjects
     /// Whether this cap's door has been opened for good before; a cap whose opening never persists never has.
     /// </summary>
     internal bool IsDoorOpened(RoomObjectPlace place) =>
-        place.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
+        place.Argument is DoorBitArgument { Persists: true } cap && _system.HasOpenedDoor(cap.Door);
 
     /// <summary>
     /// Records the door of the cap at <paramref name="place"/> opened for good, when its opening persists, and marks the
@@ -145,14 +145,10 @@ internal sealed class DoorObjects
         Ensure.NotNull(place);
         if (place.Argument is DoorBitArgument { Persists: true } cap)
         {
-            RequireSystem().OpenDoor(cap.Door);
+            _system.OpenDoor(cap.Door);
             place.Argument = SpentDoorArgument.Instance;
         }
     }
-
-    /// <summary>The room's door-bit persistence owner.</summary>
-    private SharedGameState RequireSystem() =>
-        _system ?? throw new InvalidOperationException("A resident door has no persistence owner.");
 
     /// <summary>
     /// Names the color and facing of a colored-door room object (#1414: each of the twelve doors is matched by member, replacing

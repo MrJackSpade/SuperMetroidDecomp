@@ -68,7 +68,7 @@ internal sealed class StationObject(
             Triggered = false;
             bool canActivate = Kind switch
             {
-                StationKind.Map => !stations.RequireSystem("Map station").HasAreaMap(Area),
+                StationKind.Map => !stations.System.HasAreaMap(Area),
                 StationKind.Energy => samus.Health != samus.MaxHealth,
                 StationKind.Missile => samus.Missiles != samus.MaxMissiles,
                 StationKind.Save => true,
@@ -247,7 +247,7 @@ internal sealed class StationObject(
         switch (Kind)
         {
             case StationKind.Map:
-                stations.RequireSystem("Map station").SetAreaMapAcquired(Area);
+                stations.System.SetAreaMapAcquired(Area);
                 ShownAnimation = CompletedAnimation;
                 break;
             case StationKind.Energy:

@@ -38,7 +38,7 @@ internal sealed class MotherBrainEncounterAccess
         MotherBrainEnemyState state) =>
         state.RainbowBeamSequence ??
         throw new InvalidDataException(
-            "Mother Brain's brain program requires the live rainbow/Baby sequence.");
+            "Mother Brain's brain needs the live rainbow beam and Baby sequence.");
 
     /// <summary>Requires a body and head pair initialized in their enemy slots.</summary>
     internal MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)

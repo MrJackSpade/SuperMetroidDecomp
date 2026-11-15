@@ -167,7 +167,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.BodyStumbleRequested)
         {
             MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
-                "Baby requested Mother Brain body movement without a body program.");
+                "The Baby asked Mother Brain's body to stumble without naming its animation.");
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 

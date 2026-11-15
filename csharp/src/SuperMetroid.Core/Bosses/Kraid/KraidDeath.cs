@@ -65,7 +65,7 @@ internal sealed class KraidDeath
         state.ShowsBodyLayer = true;
     }
 
-    /// <summary>Dispatches the staged sinking, colour, and room-repair death sequence.</summary>
+    /// <summary>Runs the current step of Kraid's death: his staged sinking, his colour change and the room's repair.</summary>
     internal void RunKraidDeathPhase(
         RoomEnemySlot body,
         KraidEnemyState state,

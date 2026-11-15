@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The reactions of Ridley's own that its frames' hitboxes name (#1759). Only Ridley's handlers tell them apart; a
+/// The reactions of Ridley's own that its frames' hitboxes name (#1759). Only Ridley's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
 internal static class RidleyReactions

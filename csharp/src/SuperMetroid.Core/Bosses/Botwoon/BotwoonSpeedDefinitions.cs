@@ -7,9 +7,9 @@ public static class BotwoonSpeedDefinitions
     /// Botwoon's speeds by health phase: phase 0 is at least half health, 1 at least quarter, and 2 below quarter.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the Japanese and North American v1.0 release: movement and spit speed are
-    /// p+2, and the body spacing is 12/(p+2) history entries. The spacing division is exact for all three speeds and
-    /// preserves the inverse relationship between speed and body travel time; these are not independent tuning arrays.
+    /// Movement and spit speed are the phase plus two, and the body spacing is twelve divided by that speed, in history
+    /// entries. The spacing division is exact for all three speeds and preserves the inverse relationship between speed
+    /// and body travel time; these are not independent tuning arrays.
     /// Do not extrapolate to another phase or apply this contract to the European release.
     /// </remarks>
     public static readonly BotwoonSpeedDefinition[] ByHealthPhase =

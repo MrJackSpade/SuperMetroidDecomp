@@ -21,10 +21,9 @@ internal static class DraygonIntroDanceDefinitions
     /// The handwritten Keiko Love path every dancing Evir follows, one step per update. Two delete steps end each
     /// Evir's dance part way through; the steps after them stay part of the path.
     /// </summary>
-    /// <remarks>Independently reviewed for #1165: integrating the path's deltas visibly traces hidden
-    /// lettering. Retain this drawing content under the nonsense exception: fitted splines, per-stroke
-    /// corrections or a numeric switch would encode the same particular letter shapes and pen timing. This is not a
-    /// sampled physical trajectory. See the Draygon intro trace review in the #1165 inventory.</remarks>
+    /// <remarks>Adding up the path's steps traces hidden lettering, so the path is kept as drawn: fitted splines,
+    /// per-stroke corrections or a numeric switch would encode the same particular letter shapes and pen timing. This is
+    /// not a sampled physical trajectory.</remarks>
     internal static readonly DraygonIntroMovement[] TracedPath =
     [
         Move(new(3, 0)), Move(new(3, 0)), Move(new(3, 0)), Move(new(3, 0)), Move(new(3, -1)), Move(new(2, -1)), Move(new(2, -2)), Move(new(2, -2)), Move(new(2, -3)),

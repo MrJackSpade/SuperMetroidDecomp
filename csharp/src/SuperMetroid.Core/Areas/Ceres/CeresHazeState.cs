@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// Room-owned haze selection and its fade phases.
-/// Waiting falls through into the first fade-in write; counter16
+/// Waiting falls through into the first fade-in write; a counter of sixteen
 /// selects holding without writing. Holding selects fade-out and returns,
-/// so its first write is on the next call. Fade-in writes counters0..15 before
-/// incrementing; fade-out writes16..1 before decrementing and retains1 at zero.
+/// so its first write is on the next call. Fade-in writes strengths 0 through 15 before
+/// incrementing; fade-out writes 16 through 1 before decrementing and keeps 1 at zero.
 /// These mutually exclusive control phases use scalar state, not a sampled timing
 /// table. Immediate viewport loading starts at the completed fade-in state.
 /// </summary>

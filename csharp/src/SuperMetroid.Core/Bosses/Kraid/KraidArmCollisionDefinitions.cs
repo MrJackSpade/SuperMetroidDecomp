@@ -143,8 +143,7 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>
     /// Each hitbox list's touch reaction and its rectangles in collision order. The articulated and connecting lists
-    /// touch as the arm; the body lists and both dying/lunge lists touch as the background (independently reviewed for
-    /// #1165 against every selected rectangle).
+    /// touch as the arm; the body lists and both dying/lunge lists touch as the background.
     /// </summary>
     internal static readonly Dictionary<KraidArmHitboxList, KraidHitboxListDefinition> HitboxListShapes = new()
     {

@@ -137,7 +137,7 @@ public sealed class MotherBrainEnemyState
     /// back as each angle's movement says.
     /// </summary>
     public RotationAngle NeckTurnPerUpdate { get; internal set; }
-    /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
+    /// <summary>Whether the neck's two angles turn; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
     /// <summary>How the lower neck moves: not at all, bobbing down and up, or a one-way lower or raise; reaching a limit changes it.</summary>
     public MotherBrainNeckMovement LowerNeckMovement { get; internal set; }

@@ -11,8 +11,7 @@ internal static class KraidNailContourDefinitions
     internal const int LedgeCount = 4;
 
     /// <summary>
-    /// Each ledge's left offset. Independently reviewed for #1165 against the game's values:
-    /// the four ledges advance 24 pixels from -64 to 8.
+    /// Each ledge's left offset: the four ledges advance 24 pixels from -64 to 8.
     /// </summary>
     internal static readonly int[] Lefts = [-64, -40, -16, 8];
 

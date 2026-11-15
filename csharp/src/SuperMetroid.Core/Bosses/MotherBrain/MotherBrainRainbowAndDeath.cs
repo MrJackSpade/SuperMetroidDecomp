@@ -189,7 +189,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 "Mother Brain entered a rainbow phase without its live sequence owner.");
 
         // The body animation and articulated-head AI ran through her body and brain on
-        // previous frames. Import that state before dispatch so walk completion and neck
+        // previous frames. Take that state before running the step so walk completion and neck
         // aiming are decided from the same state the game would read.
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
 
@@ -247,7 +247,7 @@ internal sealed class MotherBrainRainbowAndDeath
             (result.BodyWalkRequested || result.BodyPostureRequested))
         {
             MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
-                "Rainbow body AI requested animation without a body program.");
+                "Mother Brain's body asked for an animation during the rainbow beam without naming one.");
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 

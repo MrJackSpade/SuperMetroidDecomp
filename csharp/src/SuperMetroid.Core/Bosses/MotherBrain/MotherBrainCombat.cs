@@ -157,7 +157,7 @@ internal sealed class MotherBrainCombat
         SamusProjectileType projectileType,
         int projectileDamage)
     {
-        // The walker marked the projectile before dispatching this reaction.
+        // The shot collision marked the projectile before running this reaction.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||

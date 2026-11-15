@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// The phase of Phantoon's encounter the body runs each update. The values are arbitrary
-/// identities (#1413), and the main AI dispatches on the member.
+/// identities (#1413).
 /// </summary>
 public enum PhantoonPhase
 {

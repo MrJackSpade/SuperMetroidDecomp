@@ -28,14 +28,13 @@ public static class KraidMovementChoices
 
     /// <summary>
     /// Kraid's movement positions and choices and their target/timer pairs.
-    /// Unlisted positions select the 352 row. RNG choices four through seven
+    /// Unlisted positions select the 352 row. Random choices four through seven
     /// all select its final destination, preserving the half-probability choice.
     /// </summary>
     /// <remarks>
     /// Position and weighted branch select named movement destinations, not a sampled
     /// numerical curve. The pause policy distinguishes the first two branches and the
-    /// third branch at the leftmost, middle and right positions. Independently checked
-    /// against all pairs and both complete selector domains for #1165.
+    /// third branch at the leftmost, middle and right positions.
     /// </remarks>
     public static KraidMovementChoice Select(int position, int random)
     {

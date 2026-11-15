@@ -9,8 +9,8 @@ public sealed class RinkaEnemyState
     internal AnimationPlayback<RinkaSegment> Playback { get; set; } = new(RinkaAnimations.StartingWith(default), AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// Behaviour dispatched by main AI, changed by initialization, the fire step, aim completion, or the special death
-    /// tail.
+    /// The behaviour the Rinka runs each update, changed by initialization, the fire step, aim completion, or the special
+    /// death tail.
     /// </summary>
     public RinkaAction? Action { get; internal set; }
 

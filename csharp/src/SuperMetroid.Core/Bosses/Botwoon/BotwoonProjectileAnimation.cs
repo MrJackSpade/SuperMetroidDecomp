@@ -21,23 +21,23 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileFrameAnimation
     /// <summary>A body segment showing <paramref name="segment"/>.</summary>
     internal static BotwoonProjectileAnimation ForSegment(BotwoonBodyAnimationSegment segment) =>
         segment == BotwoonBodyAnimationSegment.Spit
-            ? throw new ArgumentOutOfRangeException(nameof(segment), segment, "A body segment does not run the spit program.")
+            ? throw new ArgumentOutOfRangeException(nameof(segment), segment, "A body segment does not show the spit animation.")
             : new(segment);
 
     /// <summary>
-    /// Switches a segment to <paramref name="program"/>'s animation from its first frame. An unchanged animation keeps
+    /// Switches a segment to <paramref name="animation"/> from its first frame. An unchanged animation keeps
     /// running, as the game only restarts an animation that differs from the one it is showing.
     /// </summary>
     /// <returns>Whether the animation changed.</returns>
-    internal bool Install(BotwoonBodyAnimationSegment program)
+    internal bool Install(BotwoonBodyAnimationSegment animation)
     {
         if (Segment is not { } segment)
-            throw new InvalidOperationException("A Botwoon spit animation has no segment program to replace.");
-        if (program == BotwoonBodyAnimationSegment.Spit)
-            throw new ArgumentOutOfRangeException(nameof(program), program, "A body segment does not run the spit program.");
-        if (segment == program)
+            throw new InvalidOperationException("A Botwoon spit animation has no segment animation to replace.");
+        if (animation == BotwoonBodyAnimationSegment.Spit)
+            throw new ArgumentOutOfRangeException(nameof(animation), animation, "A body segment does not show the spit animation.");
+        if (segment == animation)
             return false;
-        Playback = new(BotwoonAnimations.ProjectileStartingWith(program), AnimationPlace.StartOfAnimation);
+        Playback = new(BotwoonAnimations.ProjectileStartingWith(animation), AnimationPlace.StartOfAnimation);
         return true;
     }
 

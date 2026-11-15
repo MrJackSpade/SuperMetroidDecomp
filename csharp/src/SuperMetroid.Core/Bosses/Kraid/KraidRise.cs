@@ -136,7 +136,7 @@ internal sealed class KraidRise
         state.ThinkingTimer = _head.ReadKraidThinkingTimer();
     }
 
-    /// <summary>Dispatches the rise, camera, body and colour stages of growth.</summary>
+    /// <summary>Runs the current stage of Kraid's growth: his rise, the camera, his body and his colours.</summary>
     internal void RunKraidGrowthPhase(RoomEnemySlot body, KraidEnemyState state)
     {
         switch (state.BodyState.Phase)

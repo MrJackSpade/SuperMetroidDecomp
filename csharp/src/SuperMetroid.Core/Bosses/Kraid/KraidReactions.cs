@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The reactions of Kraid's own that its frames' hitboxes name (#1759). Only Kraid's handlers tell them apart; a
+/// The reactions of Kraid's own that its frames' hitboxes name (#1759). Only Kraid's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
 internal static class KraidReactions

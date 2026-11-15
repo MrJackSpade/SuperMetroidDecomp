@@ -830,7 +830,7 @@ public sealed class BabyMetroidCutsceneState
         DeathExplosionPatternIndex++;
         if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
             DeathExplosionPatternIndex = 0;
-        // The death explosions hold the scatter shared with Ridley's death. The handler increments its
+        // The death explosions hold the scatter shared with Ridley's death. The explosion step advances its
         // index before looking up a pair, so a freshly cleared counter begins at the scatter's second place.
         return new DustExplosionRequest(
             Position: Position.Whole + DeathExplosionScatter.Offset(DeathExplosionPatternIndex),

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The behaviours Shitroid's main AI dispatches.
+/// The behaviours the Shitroid runs each update.
 /// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
 public enum ShitroidAction

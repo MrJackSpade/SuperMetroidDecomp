@@ -11,8 +11,8 @@ internal static class BotwoonHealthBands
     /// thresholds, zero through seven.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the Japanese and North American v1.0 release:
-    /// threshold(i)=375*(8-i), i=0..7. Botwoon's health never exceeds its 3000 at spawn, so the
+    /// The threshold after i passed thresholds is 375 times (8 - i), for i from zero through seven. Botwoon's health
+    /// never exceeds its 3000 at spawn, so the
     /// game's signed comparison of the difference is the plain comparison. Eight passed thresholds is caller-owned
     /// completion, not an extrapolated threshold.
     /// </remarks>

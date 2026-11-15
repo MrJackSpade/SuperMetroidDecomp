@@ -165,7 +165,7 @@ internal static class BotwoonAnimations
     {
         BotwoonBodyAnimationSegmentKind.Body or BotwoonBodyAnimationSegmentKind.Spit => AnimationEnd.LoopsFrom(0),
         BotwoonBodyAnimationSegmentKind.Tail or BotwoonBodyAnimationSegmentKind.Hidden => AnimationEnd.Holds,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment program kind."),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment animation kind."),
     };
 
     /// <summary>The beats of head animation <paramref name="segment"/>.</summary>
@@ -174,7 +174,7 @@ internal static class BotwoonAnimations
         BotwoonHeadAnimationSegmentKind.Hidden => HiddenHead(),
         BotwoonHeadAnimationSegmentKind.Moving => MovingHead(segment.Facing),
         BotwoonHeadAnimationSegmentKind.Spitting => SpittingHead(segment.Facing),
-        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon head program."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon head animation."),
     };
 
     /// <summary>The invisible head frame, held while Botwoon is inside a wall.</summary>

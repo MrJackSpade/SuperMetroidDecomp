@@ -165,7 +165,7 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];
 
-    /// <summary>The body's phase; body main AI dispatches this before copying coordinates to the three parts.</summary>
+    /// <summary>The body's phase; the body runs it each update before its three parts take the body's position.</summary>
     public DraygonPhase Phase { get; internal set; }
 
     /// <summary>

@@ -9,7 +9,7 @@ internal static class RidleyGrabs
     /// <summary>Whether Ridley may grab Samus: every movement but those that make her immune to his grab.</summary>
     internal static bool CanGrab(SamusMovementType movement) => Policy(movement) != GrabPolicy.Immune;
 
-    /// <summary>The release loads6 frames for morphed overflow and otherwise loads10.</summary>
+    /// <summary>How long Samus stays out of Ridley's reach after he releases her: six frames in ball form, otherwise ten.</summary>
     internal static int ReleaseIntangibilityFrames(SamusMovementType movement) =>
         Policy(movement) == GrabPolicy.Morphed
             ? RidleySamusInteractionDefinitions.MorphedReleaseIntangibilityFrames

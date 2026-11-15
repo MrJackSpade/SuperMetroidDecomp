@@ -5,12 +5,9 @@ public static class KraidNailLaunch
 {
     /// <summary>The launch velocity for a sibling moving <paramref name="siblingYWhole"/> whole pixels a frame vertically.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the nail launch selector
-    /// and all eight launches in the pinned Japanese and North American v1.0 source. The signed compare
-    /// tests the sibling's signed whole-pixel vertical speed: zero belongs to the nonnegative branch.
-    /// Every whole-pixel speed is supported. The three constant fields and the
-    /// sign-selected vertical speed have separate game-data proofs; no
-    /// random choice changes these speeds or requires a stored lookup.
+    /// The launch reads the sibling's whole-pixel vertical speed as signed: a sibling moving up sends this nail down, and
+    /// one moving down or holding still sends it up. Every whole-pixel speed is supported. All eight of the game's nail
+    /// launches share these speeds; no random choice changes them.
     /// </remarks>
     public static FixedVector<RoomPixels> FromSiblingVelocity(int siblingYWhole) =>
         new(KraidNailLaunchDefinitions.Leftward,

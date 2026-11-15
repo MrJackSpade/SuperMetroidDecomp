@@ -48,7 +48,7 @@ public static class PhantoonTimerDefinitions
 
     /// <summary>Selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
     internal const int ShortestVulnerableExposureFrames = 15;
-    /// <summary>Selected closed-eye moving phase lasts4 exposure units, then6 times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
+    /// <summary>Selected closed-eye moving phase lasts four exposure units, six times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
     internal const int EyeShortScale = 4;
     /// <summary>The medium closed-eye duration is six times the phase's short base.</summary>
     internal const int EyeMediumScale = 6;

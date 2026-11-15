@@ -55,7 +55,7 @@ internal sealed class MotherBrainThirdPhaseFight
     public bool Phase3DisableAttacks { get; private set; }
 
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
-    private bool StepPhase3WalkingHandler(MotherBrainRandomSample randomNumberSeed)
+    private bool StepPhase3Walk(MotherBrainRandomSample randomNumberSeed)
     {
         // The phase-three scheduler refuses to run the walking phase while the body animation advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
@@ -139,7 +139,7 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>Advances normal neck motion and the timed recovery after regular or hyper-beam recoil.</summary>
-    private void StepPhase3NeckHandler()
+    private void StepPhase3Neck()
     {
         switch (Phase3NeckPhase)
         {
@@ -267,12 +267,12 @@ internal sealed class MotherBrainThirdPhaseFight
             return false;
         }
 
-        StepPhase3NeckHandler();
-        requests.BodyWalkRequested = StepPhase3WalkingHandler(frame.RandomNumberSeed);
+        StepPhase3Neck();
+        requests.BodyWalkRequested = StepPhase3Walk(frame.RandomNumberSeed);
 
         // The walking animation changes pose later in the enemy animation stage. The
         // AI therefore still sees her standing pose on the call that requests a walk and may
-        // also select an attack, since it reads the pose after the handler runs.
+        // also select an attack, since it reads the pose after the walk step runs.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
             !frame.RandomNumberSeed.IsNegative)
             return false;

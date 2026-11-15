@@ -90,15 +90,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> shows for <c>Crocomire</c>.</summary>
     private static readonly EnemyFrameId[] CrocomireFrames =
     [
-        EnemyFrameId.CrocomireTongueFightFirst,
-        EnemyFrameId.CrocomireTongueFightSecond,
-        EnemyFrameId.CrocomireTongueFightThird,
-        EnemyFrameId.CrocomireTongueFightFourth,
-        EnemyFrameId.CrocomireTongueMeltingPoseFirst,
-        EnemyFrameId.CrocomireTongueMeltingPoseSecond,
-        EnemyFrameId.CrocomireTongueMeltingPoseThird,
-        EnemyFrameId.CrocomireTongueMeltingPoseFourth,
-        EnemyFrameId.CrocomireTongueMeltingPoseFifth,
         EnemyFrameId.CrocomireBodyChargingFirst,
         EnemyFrameId.CrocomireBodyChargingSecond,
         EnemyFrameId.CrocomireBodyChargingThird,

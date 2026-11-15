@@ -21,7 +21,7 @@ internal sealed record StartedObject(ISymbol? Receiver, IReadOnlyList<SpawnTarge
 
 /// <summary>
 /// Reads which object a start starts (#1854): one the starting code spawns itself, with the graphics its spawn call names,
-/// or one it was handed (the object a frame-behaviour or cue handler moves), and whether the code switches that object's
+/// or one it was handed (the object a motion or cue handler moves), and whether the code switches that object's
 /// graphics. A handler's start on an object it spawns (Spore Spawn's spawner cue spawning a spore with <c>SharedIn</c> of
 /// his colours) is that spawn's, never a program the handler's own object plays.
 /// </summary>

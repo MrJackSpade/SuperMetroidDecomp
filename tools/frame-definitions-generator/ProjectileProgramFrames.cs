@@ -39,7 +39,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     private HashSet<IFieldSymbol>? _roomCues;
     private HashSet<SwitchSectionSyntax>? _roomCueSections;
     private readonly Dictionary<INamedTypeSymbol, HandlerStartSet> _cueStarts = new(SymbolEqualityComparer.Default);
-    private HandlerStartSet? _frameBehaviourStarts;
+    private HandlerStartSet? _motionHandlerStarts;
 
     /// <summary>The frames <paramref name="family"/>'s segments or table hold, which its programs choose among.</summary>
     public IReadOnlySet<string> TableFrames(INamedTypeSymbol family) => Of(family).TableFrames;
@@ -100,11 +100,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                         pending.Enqueue((next.Node.IsStart ? AnimationNode.Segment(item.Value) : AnimationNode.Start(item.Value), switched));
                         break;
                     case ProgramItemKind.Cue:
-                    case ProgramItemKind.SetsMotion:
-                        // A cue whose handler continues the play, or a motion under which the frame behaviours restart the
-                        // object, runs those programs on the object publishing it, drawing where it draws (#1881).
-                        IReadOnlyDictionary<string, HashSet<string>> by = item.Kind == ProgramItemKind.Cue ? set.CueStarts : set.MotionStarts;
-                        foreach (string program in by.GetValueOrDefault(item.Value) ?? [])
+                        // A cue whose handler continues the play, or whose handler starts a motion under which the motion
+                        // handlers restart the object, runs those programs on the object publishing it, drawing where it
+                        // draws (#1881).
+                        foreach (string program in (set.CueStarts.GetValueOrDefault(item.Value) ?? []).Concat(set.MotionStarts.GetValueOrDefault(item.Value) ?? []))
                             pending.Enqueue((AnimationNode.Start(program), switched));
                         break;
                     case ProgramItemKind.ShowFrame:
@@ -155,8 +154,9 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         INamedTypeSymbol animation = TypedAnimationOf(family);
         var segmentType = (INamedTypeSymbol)animation.TypeArguments[0];
         var frameType = (INamedTypeSymbol)animation.TypeArguments[1];
-        // A family whose beats name projectile frames shows them as they are; any other presents each pose it shows.
-        bool direct = SymbolEqualityComparer.Default.Equals(frameType, model.EnemyProjectileFrameId);
+        // A family whose beats name projectile frames, outright or as a frame record naming them, shows them as they are; any
+        // other presents each pose it shows.
+        bool direct = SymbolEqualityComparer.Default.Equals(frameType, model.EnemyProjectileFrameId) || IsFrameRecord(frameType);
         ISymbol segments = NamedBy(family, "Segments");
         ISymbol startingAt = NamedBy(family, "StartingAt");
         List<ExpressionSyntax> segmentInitializers = model.InitializersWithSpreads(segments);
@@ -207,13 +207,14 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         (Dictionary<string, HashSet<string>> cueStarts, HashSet<SyntaxNode> cueNamed) = CueSectionStarts(cueType, segmentType);
         HashSet<SyntaxNode> traced = TracedValues(family, segmentType);
         HashSet<string> entered = NamedOutside(family, segmentType, excluded, name => cueNamed.Contains(name) || IsTracedValue(name, traced));
-        // The restarts frame behaviours make under a motion only this family's cues set run where a segment sets it.
+        // The restarts motion handlers make under a motion only this family's cue cases start run where a segment publishes
+        // such a cue.
         Dictionary<string, HashSet<string>> motionStarts = model.KindRestarts.CueMotionRestarts(family)
             .ToDictionary(pair => pair.Key, pair => pair.Value is null ? starts : new HashSet<string>(pair.Value, StringComparer.Ordinal), StringComparer.Ordinal);
         HandlerStartSet cues = CueStarts(cueType);
-        // So can the frame behaviours its kinds run (an afterburn hitting a wall switching to its final puff, #1537), except
-        // a restart under a motion only some kinds' definitions give, which the walks add where they name those kinds (#1854).
-        HandlerStartSet motions = FrameBehaviourStarts();
+        // So can the motions its kinds run (an afterburn hitting a wall switching to its final puff, #1537), except a restart
+        // under a motion only some kinds start with, which the walks add where they name those kinds (#1854).
+        HandlerStartSet motions = MotionHandlerStarts();
         entered.UnionWith(cues.Own.Of(family) ?? starts);
         entered.UnionWith(motions.Own.Of(family) ?? starts);
         HashSet<string> room = [.. cues.Room.Of(family) ?? starts, .. motions.Room.Of(family) ?? starts];
@@ -262,6 +263,20 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 .Select(field => field.Name));
         }
         return frames;
+    }
+
+    /// <summary>
+    /// Whether <paramref name="frameType"/> is a frame record naming the projectile frames its beat shows (#1839): every
+    /// parameter of each of its constructors taking any is a projectile frame, or an optional one, as the n00b tube's frame
+    /// and its shard's mirror image, which a mirroring flicker shows on alternate updates. Its beats show every frame they name.
+    /// </summary>
+    private bool IsFrameRecord(INamedTypeSymbol frameType)
+    {
+        IMethodSymbol[] constructors = [.. frameType.InstanceConstructors.Where(constructor => constructor.Parameters.Length > 0)];
+        return constructors.Length > 0 && constructors.All(constructor => constructor.Parameters.All(parameter =>
+            parameter.Type is INamedTypeSymbol type
+            && SymbolEqualityComparer.Default.Equals(
+                type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T ? type.TypeArguments[0] : type, model.EnemyProjectileFrameId)));
     }
 
     /// <summary>Whether <paramref name="frameType"/> is a pose its programs construct from arguments: neither a plain value nor a lone pose.</summary>
@@ -334,11 +349,6 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 else if (direct && SymbolEqualityComparer.Default.Equals(field.ContainingType, model.EnemyProjectileFrameId))
                 {
                     items.Add(new ProgramItem(ProgramItemKind.ShowFrame, field.Name));
-                    cue = false;
-                }
-                else if (SymbolEqualityComparer.Default.Equals(field.ContainingType, model.EnemyProjectileFrameBehavior))
-                {
-                    items.Add(new ProgramItem(ProgramItemKind.SetsMotion, field.Name));
                     cue = false;
                 }
                 if (cue)
@@ -684,6 +694,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         return [.. initializers, .. SharedRunsIn(initializers), CoreModel.InitializerOf(startingAt)];
     }
 
+    /// <summary>
+    /// The type declaring <paramref name="family"/>'s animation data (the static segments its <c>Segments</c> returns), when it
+    /// declares any this generator reads.
+    /// </summary>
+    public INamedTypeSymbol? AnimationDataType(INamedTypeSymbol family) => ReadableNamedBy(family, "Segments")?.ContainingType.OriginalDefinition;
+
     /// <summary>The static member <paramref name="family"/>'s <paramref name="property"/> returns, when it declares one this generator reads.</summary>
     private ISymbol? ReadableNamedBy(INamedTypeSymbol family, string property)
     {
@@ -718,7 +734,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// The handlers of the cues <paramref name="cueType"/> names (#1760): every Core method that takes such a cue, as the
     /// projectile behaviours' <c>RunCue</c> implementations and the engine's shared-cue handler do.
     /// </summary>
-    private IEnumerable<SyntaxNode> CueHandlers(INamedTypeSymbol cueType)
+    internal IEnumerable<SyntaxNode> CueHandlers(INamedTypeSymbol cueType)
     {
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
         {
@@ -737,18 +753,18 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     }
 
     /// <summary>
-    /// The programs any frame-behaviour handler (a projectile behaviour's <c>Move</c> or a single-motion mover) starts,
-    /// through every Core method and construction it reaches: a handler restarting a projectile restarts one of its own
-    /// family's, as a Ridley afterburn's flight switches it to its final puff when it hits a wall (#1537), so, like its cues'
-    /// starts, these are among the programs every start of the family runs.
+    /// The programs any motion handler (a projectile behaviour's <c>Move</c> or a single-motion mover) starts, through every
+    /// Core method and construction it reaches: a handler restarting a projectile restarts one of its own family's, as a
+    /// Ridley afterburn's flight switches it to its final puff when it hits a wall (#1537), so, like its cues' starts, these
+    /// are among the programs every start of the family runs.
     /// </summary>
-    private HandlerStartSet FrameBehaviourStarts() => _frameBehaviourStarts ??= HandlerStarts(FrameBehaviourHandlers());
+    private HandlerStartSet MotionHandlerStarts() => _motionHandlerStarts ??= HandlerStarts(MotionHandlers());
 
     /// <summary>
-    /// Every frame-behaviour handler (#1760): each projectile behaviour's <c>Move</c> override, and the mover each
+    /// Every motion handler (#1760, #1843): each projectile behaviour's <c>Move</c> override, and the mover each
     /// single-motion behaviour is constructed with.
     /// </summary>
-    private IEnumerable<SyntaxNode> FrameBehaviourHandlers()
+    private IEnumerable<SyntaxNode> MotionHandlers()
     {
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
         {
@@ -889,7 +905,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         && model.ProgramParameters(family).Contains(parameter);
 
     /// <summary>The argument <paramref name="name"/> is, directly or as a choice of a conditional or switch; null when it is no argument.</summary>
-    private static ArgumentSyntax? ArgumentOf(IdentifierNameSyntax name)
+    internal static ArgumentSyntax? ArgumentOf(IdentifierNameSyntax name)
     {
         SyntaxNode node = name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access : name;
         // A program a conditional or switch chooses is the argument too.
@@ -971,14 +987,15 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         /// starting there.
         /// </summary>
         Continue,
-        /// <summary>It names a cue member (<see cref="CueKey"/>), whose handler's case may continue the play elsewhere.</summary>
+        /// <summary>
+        /// It names a cue member (<see cref="CueKey"/>), whose handler's case may continue the play elsewhere or start a motion
+        /// the motion handlers restart the object under.
+        /// </summary>
         Cue,
-        /// <summary>It names a motion, which a cue sets on the object.</summary>
-        SetsMotion,
     }
 
     /// <summary>The key a cue enum member is looked up by: its type and name.</summary>
-    private static string CueKey(IFieldSymbol member) => member.ContainingType.ToDisplayString() + "." + member.Name;
+    internal static string CueKey(IFieldSymbol member) => member.ContainingType.ToDisplayString() + "." + member.Name;
 
     /// <summary>One thing a beat or phase contributes, in order.</summary>
     /// <param name="Kind">What it is.</param>
@@ -1000,9 +1017,9 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// cue runs them, as a Golden Torizo egg's hatch cue continues it in its hatched loop.
     /// </param>
     /// <param name="MotionStarts">
-    /// By motion, the programs frame-behaviour handlers restart the object in under that motion, when only cues of this
-    /// family's segments set it (#1881): a segment setting the motion runs them, as a thrown super missile's flight restarts
-    /// it in its impact.
+    /// By cue (<see cref="CueKey"/>), the programs motion handlers restart the object in under a motion that cue's handler
+    /// case starts, when only cue cases of this family's segments start it (#1881, #1843): a segment publishing the cue runs
+    /// them, as a thrown super missile's flight restarts it in its impact.
     /// </param>
     private sealed record FamilyProgramSet(IReadOnlyDictionary<string, string> Table, IReadOnlySet<string> TableFrames,
         Dictionary<AnimationNode, List<ProgramItem>> Nodes, IReadOnlySet<string> NamedOutside, IReadOnlySet<string> RoomStarted, bool Precise,

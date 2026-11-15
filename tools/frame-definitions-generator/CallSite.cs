@@ -16,12 +16,18 @@ internal sealed record CallSite(ArgumentListSyntax Arguments, SemanticModel Sema
     /// The argument the call passes for <paramref name="parameter"/>: the one naming it, or the positional one at its
     /// place; null when the call leaves it to its default.
     /// </summary>
-    public ExpressionSyntax? ArgumentFor(IParameterSymbol parameter)
+    public ExpressionSyntax? ArgumentFor(IParameterSymbol parameter) => ArgumentFor(Arguments, parameter);
+
+    /// <summary>
+    /// The argument <paramref name="arguments"/> pass for <paramref name="parameter"/>: the one naming it, or the positional
+    /// one at its place; null when they leave it to its default.
+    /// </summary>
+    public static ExpressionSyntax? ArgumentFor(ArgumentListSyntax arguments, IParameterSymbol parameter)
     {
-        if (Arguments.Arguments.FirstOrDefault(argument => argument.NameColon?.Name.Identifier.Text == parameter.Name) is { } named)
+        if (arguments.Arguments.FirstOrDefault(argument => argument.NameColon?.Name.Identifier.Text == parameter.Name) is { } named)
             return named.Expression;
-        return parameter.Ordinal < Arguments.Arguments.Count && Arguments.Arguments[parameter.Ordinal].NameColon is null
-            ? Arguments.Arguments[parameter.Ordinal].Expression
+        return parameter.Ordinal < arguments.Arguments.Count && arguments.Arguments[parameter.Ordinal].NameColon is null
+            ? arguments.Arguments[parameter.Ordinal].Expression
             : null;
     }
 }

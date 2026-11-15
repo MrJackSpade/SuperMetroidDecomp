@@ -41,12 +41,12 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// The random part of a falling ceiling rock's speed in Kraid's room, 0 through 63 256ths of a pixel an update added
-    /// to <see cref="CeilingRockFallSpeedBase"/>: the sample modulo 64.
+    /// to <see cref="CeilingRockSlowestFall"/>: the sample modulo 64.
     /// </summary>
     internal static readonly RandomSampleField CeilingRockFallSpeedSpread = new(0, 6);
 
-    /// <summary>The slowest a ceiling rock falls in Kraid's room: 64 256ths of a pixel an update, a quarter pixel.</summary>
-    internal const int CeilingRockFallSpeedBase = 64;
+    /// <summary>The slowest a ceiling rock falls in Kraid's room: a quarter pixel an update.</summary>
+    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromParts(0, 64);
 
     /// <summary>
     /// Kraid's thinking delay in steps of 64 updates, 0 through 7 with a zero taken as two: the sample modulo 8.
@@ -83,11 +83,8 @@ internal static class KraidRandomDefinitions
     internal const int RisingRockLeftExtraPixels = 1;
 
     /// <summary>
-    /// A rising rock's horizontal speed in steps of <see cref="RisingRockXSpeedStep"/>, 0 through 63: the sample
-    /// divided by 16, modulo 64, which the game reads without shifting it down.
+    /// A rising rock's horizontal speed in sixteenths of a pixel an update, 0 through 63: the sample divided by 16, modulo
+    /// 64, which the game reads without shifting it down.
     /// </summary>
-    internal static readonly RandomSampleField RisingRockXSpeedSteps = new(4, 6);
-
-    /// <summary>One <see cref="RisingRockXSpeedSteps"/> step: sixteen 256ths of a pixel an update.</summary>
-    internal const int RisingRockXSpeedStep = 16;
+    internal static readonly RandomSampleField RisingRockXSpeedSixteenths = new(4, 6);
 }

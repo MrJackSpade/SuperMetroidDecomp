@@ -64,10 +64,12 @@ public sealed class CrocomireDeathState
     public int DistortionSourceRow { get; internal set; }
 
     /// <summary>
-    /// Per-row slope of the melt distortion in 1/65536 of a row; it grows from 256 by 384 a frame and stops
-    /// at the dissolve's maximum.
+    /// The rows the melt distortion falls behind per line (#2016): it starts at
+    /// <see cref="CrocomireMeltingDefinitions.FirstDistortionSlope"/>, grows by
+    /// <see cref="CrocomireMeltingDefinitions.DistortionSlopeGrowth"/> an update and stops at
+    /// <see cref="CrocomireMeltingDefinitions.SteepestDistortionSlope"/>.
     /// </summary>
-    public int DistortionStep { get; internal set; }
+    public UnsignedSixteenSixteen DistortionStep { get; internal set; }
 
     /// <summary>Body X captured immediately before each melting distortion starts; the melt shake jitters around it.</summary>
     public int BodyXBeforeMelting { get; internal set; }

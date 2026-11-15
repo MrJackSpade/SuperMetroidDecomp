@@ -80,11 +80,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The fastest Mini-Kraid's spit falls: four pixels an update.</summary>
     private static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromPixels(4);
 
-    /// <summary>Whole pixels per frame a body spike travels horizontally, toward the side Mini-Kraid faces.</summary>
-    private const int SpikePixelsPerFrame = 2;
-
-    /// <summary>Sub-pixel steps in one whole pixel of a projectile's 1/256-pixel velocity.</summary>
-    private const int SubpixelsPerPixel = 256;
+    /// <summary>The speed a body spike travels horizontally, toward the side Mini-Kraid faces: two pixels an update.</summary>
+    private static readonly SignedEightEight SpikeSpeed = SignedEightEight.FromPixels(2);
 
     /// <summary>Queues one of Mini-Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>
@@ -286,10 +283,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
-        int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
-            ? -SpikePixelsPerFrame
-            : SpikePixelsPerFrame;
-        projectile.Velocity = new(SignedEightEight.FromPixels(spikePixelsPerFrame), SignedEightEight.Zero);
+        projectile.Velocity = new(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft ? -SpikeSpeed : SpikeSpeed, SignedEightEight.Zero);
         return true;
     }
 

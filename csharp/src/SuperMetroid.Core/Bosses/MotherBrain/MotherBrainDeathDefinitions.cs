@@ -20,6 +20,9 @@ public static class MotherBrainDeathDefinitions
     public static readonly EarthquakeShake BrainLandingEarthquake =
         new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
 
+    /// <summary>The fall speed her severed brain gains each update it falls: an eighth of a pixel an update.</summary>
+    public static readonly SignedEightEight BrainFallAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+
     /// <summary>The medium diagonal foreground shake the escape starts and keeps going.</summary>
     public static readonly EarthquakeShake EscapeEarthquake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);

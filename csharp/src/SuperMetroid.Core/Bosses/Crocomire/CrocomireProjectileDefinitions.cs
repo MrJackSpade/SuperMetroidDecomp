@@ -9,7 +9,7 @@ public static class CrocomireProjectileDefinitions
     public const int VelocityMultiplier = 4;
 
     /// <summary>The gradients the volley's first nine shots cycle through, three at a time.</summary>
-    public static ImmutableArray<short> GradientCycle { get; } = [-16, 0, 32];
+    public static ImmutableArray<int> GradientCycle { get; } = [-16, 0, 32];
 
     /// <summary>
     /// The shots the projectile attack spits before Crocomire steps forward. Each reads the gradient its place in the

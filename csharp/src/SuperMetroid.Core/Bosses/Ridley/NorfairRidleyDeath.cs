@@ -230,15 +230,13 @@ internal sealed class NorfairRidleyDeath
         fragment.AnimationClock.Restart();
         fragment.Shading = state.Colours.SpriteShading(flashing: false);
         int random = _room.Random.Generate();
-        int horizontalMagnitude =
-            RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random) * RidleyExplosionDefinitions.SixteenthPixelSpeed +
-            RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random) * RidleyExplosionDefinitions.WholePixelSpeed;
+        SignedEightEight horizontalSpeed =
+            SignedEightEight.FromSixteenthsOfPixel(RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random)) +
+            SignedEightEight.FromPixels(RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random));
         var fragmentState = new RidleyExplosionFragmentState
         {
             Lifetime = RidleyExplosionDefinitions.GetPart(part).Lifetime,
-            Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(BossRandomRolls.InLowerHalf(random)
-                ? horizontalMagnitude
-                : -horizontalMagnitude), default),
+            Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
         };
         fragment.SetSpeciesState(fragmentState);
 

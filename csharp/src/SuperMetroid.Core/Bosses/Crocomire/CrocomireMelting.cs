@@ -92,7 +92,7 @@ internal sealed class CrocomireMelting
         _ = RequireCrocomireMeltingImage(pass);
         _bodyLayer.LevelCrocomireMeltDistortion();
         state.DeathPhase = state.DeathPhase.Next();
-        death.DistortionStep = 256;
+        death.DistortionStep = CrocomireMeltingDefinitions.FirstDistortionSlope;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
         death.DistortionSourceRow = death.LowestDistortionSourceRow;
         death.MeltPass = pass;
@@ -159,7 +159,7 @@ internal sealed class CrocomireMelting
         int nextAdjustedY = death.DistortionSourceRow - 3;
         if (death.DistortionSourceRow < 19)
         {
-            if (death.DistortionStep >= CrocomireBehavior.MaximumCrocomireDistortionStep)
+            if (!death.DistortionStep.IsSlowerThan(CrocomireMeltingDefinitions.SteepestDistortionSlope))
             {
                 CompleteCrocomireMeltingDissolve(state);
                 return;
@@ -167,9 +167,10 @@ internal sealed class CrocomireMelting
             nextAdjustedY = 16;
         }
         death.DistortionSourceRow = nextAdjustedY;
-        death.DistortionStep = Math.Min(
-            death.DistortionStep + 384,
-            CrocomireBehavior.MaximumCrocomireDistortionStep);
+        UnsignedSixteenSixteen steeper = death.DistortionStep + CrocomireMeltingDefinitions.DistortionSlopeGrowth;
+        death.DistortionStep = steeper.IsSlowerThan(CrocomireMeltingDefinitions.SteepestDistortionSlope)
+            ? steeper
+            : CrocomireMeltingDefinitions.SteepestDistortionSlope;
         StretchCrocomireMeltDistortion(state, death);
     }
 
@@ -213,10 +214,11 @@ internal sealed class CrocomireMelting
         // The source row rises a whole row less the slope's fraction each line, so it first reaches the lowest row on the
         // line after its rise passes one row short of it.
         int row = SixteenSixteen.FromWhole(1);
-        int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - death.DistortionStep) + 1;
+        int slope = checked((int)death.DistortionStep.RawValue);
+        int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - slope) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
         death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, _bodyLayer.BodyOrigin.Y,
-            ScreenLine(firstLine), ScreenLine(endLine), death.DistortionStep);
+            ScreenLine(firstLine), ScreenLine(endLine), slope);
 
         // The distortion's lines start at the first gameplay line; those below the screen are never shown.
         static int ScreenLine(int distortionLine) =>

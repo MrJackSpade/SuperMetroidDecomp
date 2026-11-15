@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Assets;
 public enum ColorChannel
 {
     /// <summary>Red, stepped first.</summary>
-    Red = 0,
+    Red,
     /// <summary>Green, stepped second.</summary>
-    Green = 1,
+    Green,
     /// <summary>Blue, stepped last.</summary>
-    Blue = 2,
+    Blue,
 }

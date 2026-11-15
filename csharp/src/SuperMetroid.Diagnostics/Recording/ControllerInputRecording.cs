@@ -73,8 +73,7 @@ public sealed record ControllerInputRecording
 
         // Byte twenty is a format-owned bitfield. Seven reserved zero bytes follow it so
         // future host switches can be added without shifting the ROM digest or payload.
-        if (!Enum.IsDefined(GameOptions.MapReveal))
-            throw new InvalidDataException($"Cannot record undefined map reveal mode {GameOptions.MapReveal}.");
+        int mapRevealNumber = GameOptions.MapReveal.RecordedNumber();
         header[20] = (byte)(
             (GameOptions.SkipOpeningCinematic
                 ? ControllerInputRecordingFormat.SkipOpeningCinematic
@@ -84,7 +83,7 @@ public sealed record ControllerInputRecording
             (GameOptions.GrantAllEquipment ? ControllerInputRecordingFormat.GrantAllEquipment : 0) |
             (GameOptions.UnlockTourian ? ControllerInputRecordingFormat.UnlockTourian : 0) |
             (GameOptions.PreventEscapeTimeout ? ControllerInputRecordingFormat.PreventEscapeTimeout : 0) |
-            ((byte)GameOptions.MapReveal << ControllerInputRecordingFormat.MapRevealShift));
+            (mapRevealNumber << ControllerInputRecordingFormat.MapRevealShift));
         RomSha256.CopyTo(header[
             ControllerInputRecordingFormat.RomDigestOffset..
             (ControllerInputRecordingFormat.RomDigestOffset + ControllerInputRecordingFormat.DigestByteCount)]);
@@ -200,12 +199,8 @@ public sealed record ControllerInputRecording
         ushort encodedEndingMinutes = BinaryPrimitives.ReadUInt16LittleEndian(header[21..]);
         if (encodedEndingMinutes > 6000)
             throw new InvalidDataException("Controller recording ending override exceeds 99:59.");
-        byte mapRevealBits = (byte)((optionFlags & ControllerInputRecordingFormat.MapRevealMask) >>
-            ControllerInputRecordingFormat.MapRevealShift);
-        if (!Enum.IsDefined((MapRevealMode)mapRevealBits))
-            throw new InvalidDataException(
-                $"Controller recording contains undefined map reveal mode {mapRevealBits}.");
-        var mapReveal = (MapRevealMode)mapRevealBits;
+        MapRevealMode mapReveal = MapRevealRecordingNumbering.RecordedMapReveal(
+            (optionFlags & ControllerInputRecordingFormat.MapRevealMask) >> ControllerInputRecordingFormat.MapRevealShift);
 
         int saveRamLength = BinaryPrimitives.ReadInt32LittleEndian(header[60..]);
         if (saveRamLength != SuperMetroid.Diagnostics.Saves.SaveRamLayout.ImageByteCount)

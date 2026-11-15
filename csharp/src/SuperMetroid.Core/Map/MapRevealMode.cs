@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Map;
 public enum MapRevealMode
 {
     /// <summary>Use only persistent exploration and legitimately acquired area-map data.</summary>
-    None = 0,
+    None,
 
     /// <summary>Reveal every cell exposed by the area's ordinary map station.</summary>
-    Public = 1,
+    Public,
 
     /// <summary>Reveal every nonblank map cell, including secret-only cells.</summary>
-    Secret = 2,
+    Secret,
 }

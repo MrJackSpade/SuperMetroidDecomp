@@ -58,7 +58,7 @@ internal static class ControllerInputRecordingFormat
     /// <summary>First bit of the two-bit mutually exclusive map-reveal value.</summary>
     public const int MapRevealShift = 3;
 
-    /// <summary>Two-bit field containing <see cref="SuperMetroid.Core.Map.MapRevealMode"/>.</summary>
+    /// <summary>Two-bit field holding the map-reveal assist's number (<see cref="MapRevealRecordingNumbering"/>).</summary>
     public const byte MapRevealMask = 0b0001_1000;
 
     /// <summary>Every option bit currently understood by the recording reader.</summary>

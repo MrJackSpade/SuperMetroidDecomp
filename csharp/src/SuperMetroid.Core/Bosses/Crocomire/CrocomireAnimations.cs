@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -10,23 +11,30 @@ internal static class CrocomireAnimations
     /// <summary>Frames in the shot projectile's explosion.</summary>
     internal const int ShotPhaseCount = 5;
 
-    /// <summary>The fight tongue's frames, five updates each.</summary>
-    private static readonly CrocomireTongueFrame[] FightTongueFrames =
-        [CrocomireTongueFrame.Fight0, CrocomireTongueFrame.Fight1, CrocomireTongueFrame.Fight2, CrocomireTongueFrame.Fight3];
-
-    /// <summary>The melting tongue's frames, five updates each.</summary>
-    private static readonly CrocomireTongueFrame[] MeltingTongueFrames =
+    /// <summary>The fight tongue's frames, five updates each (#1885).</summary>
+    private static readonly EnemyFrameId[] FightTongueFrames =
     [
-        CrocomireTongueFrame.MeltingPose0, CrocomireTongueFrame.MeltingPose1, CrocomireTongueFrame.MeltingPose2,
-        CrocomireTongueFrame.MeltingPose3, CrocomireTongueFrame.MeltingPose4,
+        EnemyFrameId.CrocomireTongueFightFirst, EnemyFrameId.CrocomireTongueFightSecond, EnemyFrameId.CrocomireTongueFightThird,
+        EnemyFrameId.CrocomireTongueFightFourth,
     ];
 
-    /// <summary>The tongue's segments: the fight loop's frames, the hidden tongue's bare sleep, and the melting loop's frames.</summary>
-    internal static AnimationSegments<CrocomireTongueSegment, CrocomireTongueFrame, NoAnimationCue> TongueSegments { get; } = new(
-        new Dictionary<CrocomireTongueSegment, AnimationBeat<CrocomireTongueFrame, NoAnimationCue>[]>
+    /// <summary>The melting tongue's frames, five updates each (#1885).</summary>
+    private static readonly EnemyFrameId[] MeltingTongueFrames =
+    [
+        EnemyFrameId.CrocomireTongueMeltingPoseFirst, EnemyFrameId.CrocomireTongueMeltingPoseSecond,
+        EnemyFrameId.CrocomireTongueMeltingPoseThird, EnemyFrameId.CrocomireTongueMeltingPoseFourth,
+        EnemyFrameId.CrocomireTongueMeltingPoseFifth,
+    ];
+
+    /// <summary>
+    /// The tongue's segments, each beat naming the installed frame it shows (#1885): the fight loop's frames, none for the
+    /// hidden tongue, and the melting loop's frames.
+    /// </summary>
+    internal static AnimationSegments<CrocomireTongueSegment, EnemyFrameId, NoAnimationCue> TongueSegments { get; } = new(
+        new Dictionary<CrocomireTongueSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
         {
             [CrocomireTongueSegment.Fight] = [.. FightTongueFrames.Select(frame => TongueFrame(frame, 5))],
-            [CrocomireTongueSegment.Sleep] = [],
+            [CrocomireTongueSegment.Hidden] = [],
             [CrocomireTongueSegment.Melting] = [.. MeltingTongueFrames.Select(frame => TongueFrame(frame, 5))],
         });
 
@@ -35,7 +43,7 @@ internal static class CrocomireAnimations
         new Dictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>>
         {
             [CrocomireTongueSegment.Fight] = new([new(CrocomireTongueSegment.Fight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireTongueSegment.Sleep] = new([], AnimationEnd.Holds),
+            [CrocomireTongueSegment.Hidden] = new([], AnimationEnd.Holds),
             [CrocomireTongueSegment.Melting] = new([new(CrocomireTongueSegment.Melting, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         };
 
@@ -82,8 +90,8 @@ internal static class CrocomireAnimations
     internal static Animation<CrocomireProjectileFrameKind> ProjectileStartingWith(CrocomireProjectileFrameKind segment) => ProjectileStartingAt[segment];
 
     /// <summary>Shows tongue frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CrocomireTongueFrame, NoAnimationCue> TongueFrame(CrocomireTongueFrame frame, int duration) =>
-        new AnimationBeat<CrocomireTongueFrame, NoAnimationCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> TongueFrame(EnemyFrameId frame, int duration) =>
+        new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 
     /// <summary>Shows projectile frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue> ProjectileFrame(CrocomireProjectileFrame frame, int duration) =>

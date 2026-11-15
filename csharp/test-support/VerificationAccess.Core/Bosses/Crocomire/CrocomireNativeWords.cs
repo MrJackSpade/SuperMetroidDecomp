@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -88,18 +89,18 @@ internal static class CrocomireNativeWords
         [CrocomirePhase.PowerBombCharge] = 24,
     });
 
-    /// <summary>The bank-$A4 frame word naming each <see cref="CrocomireTongueFrame"/>.</summary>
-    internal static readonly NativeWordIdentities<CrocomireTongueFrame> TongueFrames = new(new Dictionary<CrocomireTongueFrame, ushort>
+    /// <summary>The bank-$A4 frame word of each installed frame Crocomire's tongue shows.</summary>
+    internal static readonly NativeWordIdentities<EnemyFrameId> TongueFrames = new(new Dictionary<EnemyFrameId, ushort>
     {
-        [CrocomireTongueFrame.Fight0] = 0xc65e,
-        [CrocomireTongueFrame.Fight1] = 0xc668,
-        [CrocomireTongueFrame.Fight2] = 0xc672,
-        [CrocomireTongueFrame.Fight3] = 0xc67c,
-        [CrocomireTongueFrame.MeltingPose0] = 0xcace,
-        [CrocomireTongueFrame.MeltingPose1] = 0xcad8,
-        [CrocomireTongueFrame.MeltingPose2] = 0xcae2,
-        [CrocomireTongueFrame.MeltingPose3] = 0xcaec,
-        [CrocomireTongueFrame.MeltingPose4] = 0xcaf6,
+        [EnemyFrameId.CrocomireTongueFightFirst] = 0xc65e,
+        [EnemyFrameId.CrocomireTongueFightSecond] = 0xc668,
+        [EnemyFrameId.CrocomireTongueFightThird] = 0xc672,
+        [EnemyFrameId.CrocomireTongueFightFourth] = 0xc67c,
+        [EnemyFrameId.CrocomireTongueMeltingPoseFirst] = 0xcace,
+        [EnemyFrameId.CrocomireTongueMeltingPoseSecond] = 0xcad8,
+        [EnemyFrameId.CrocomireTongueMeltingPoseThird] = 0xcae2,
+        [EnemyFrameId.CrocomireTongueMeltingPoseFourth] = 0xcaec,
+        [EnemyFrameId.CrocomireTongueMeltingPoseFifth] = 0xcaf6,
     });
 
     /// <summary>Whether a recorded body variable B holds the damage-reaction latch.</summary>

@@ -38,11 +38,11 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// The updates the collapsing bridge's tongue keeps its last frame before its sleep animation is reached, the longest
+    /// The updates the collapsing bridge's tongue keeps its last frame before its hidden animation is reached, the longest
     /// wait a timer is given, kept exact (#1627): the tongue keeps counting it down, and its frame and new-frame flag
-    /// follow that count until the sleep takes over.
+    /// follow that count until the hidden animation takes over.
     /// </summary>
-    private const int TongueSleepDelay = 32767;
+    private const int TongueHideDelay = 32767;
 
     /// <summary>
     /// Carries out the state transition. The individual bridge room objects and the
@@ -71,7 +71,7 @@ internal sealed class CrocomireBridgeCollapse
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Sleep, TongueSleepDelay);
+            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Hidden, TongueHideDelay);
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
     }

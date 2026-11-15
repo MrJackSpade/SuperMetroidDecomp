@@ -3,31 +3,27 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// The body animations Crocomire's fight and death test as groups (#1452). The game tests the body's animation
-/// by its place in the segment layout, so each test admits the segments laid out on one side of one animation; each
-/// group names those animations instead of ordering the animation identities.
+/// The body animations Crocomire's fight and death test as groups (#1452, #1886), each named for what its test decides and
+/// listing only the animations his body can stand in when the test is made.
 /// </summary>
 internal static class CrocomireBodyAnimationGroups
 {
     /// <summary>
-    /// The animations laid out before the stepping-back animation. The stepping fight phase steps forward again only once
-    /// the continuation has left them.
+    /// The step forward still under way: the delayed step and the step itself, the animations his body plays throughout the
+    /// stepping fight phase. That phase starts the step again only once his body stands in none of them.
     /// </summary>
-    internal static readonly FrozenSet<CrocomireBodySegment> BeforeSteppingBack = new[]
+    internal static readonly FrozenSet<CrocomireBodySegment> StepForwardInProgress = new[]
     {
-        CrocomireBodySegment.Initial, CrocomireBodySegment.ProjectileAttack,
-        CrocomireBodySegment.ProjectileAttackLoop, CrocomireBodySegment.StepForwardAfterDelay, CrocomireBodySegment.StepForward,
-        CrocomireBodySegment.StepBack,
+        CrocomireBodySegment.StepForwardAfterDelay, CrocomireBodySegment.StepForward,
     }.ToFrozenSet();
 
     /// <summary>
-    /// The animations laid out before the roar's closing-mouth loop. The damage wait roars again only once the
-    /// continuation has left them.
+    /// The damage wait before its roar has closed his mouth: the step back a hit starts, the wait itself, the moving claws,
+    /// the roar and the mouth closing. The wait roars again only once his body has reached the closed-mouth loop or the
+    /// reaction it runs on into.
     /// </summary>
-    internal static readonly FrozenSet<CrocomireBodySegment> BeforeRoarCloseMouthLoop = new[]
+    internal static readonly FrozenSet<CrocomireBodySegment> RoarYetToCloseMouth = new[]
     {
-        CrocomireBodySegment.Initial, CrocomireBodySegment.ProjectileAttack,
-        CrocomireBodySegment.ProjectileAttackLoop, CrocomireBodySegment.StepForwardAfterDelay, CrocomireBodySegment.StepForward,
         CrocomireBodySegment.StepBack, CrocomireBodySegment.SteppingBack, CrocomireBodySegment.WaitForFirstSecondDamage,
         CrocomireBodySegment.MovingClaws, CrocomireBodySegment.Roar, CrocomireBodySegment.RoarCloseMouth,
     }.ToFrozenSet();

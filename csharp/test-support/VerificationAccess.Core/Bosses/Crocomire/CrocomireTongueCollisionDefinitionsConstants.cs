@@ -1,4 +1,5 @@
-﻿
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Cartridge values and helpers of the tongue's frames that only verification reads.</summary>
@@ -14,7 +15,7 @@ internal static class CrocomireTongueCollisionDefinitionsConstants
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(index < 4
-            ? CrocomireNativeWords.TongueFrames.Word(CrocomireTongueFrame.Fight0) + 10 * index
-            : CrocomireNativeWords.TongueFrames.Word(CrocomireTongueFrame.MeltingPose0) + 10 * (index - 4));
+            ? CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueFightFirst) + 10 * index
+            : CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueMeltingPoseFirst) + 10 * (index - 4));
     }
 }

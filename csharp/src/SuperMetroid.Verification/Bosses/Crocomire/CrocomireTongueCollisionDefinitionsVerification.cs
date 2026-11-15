@@ -23,7 +23,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         var seen = new HashSet<ushort>();
-        foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
+        foreach (EnemyFrameId frame in CrocomireNativeWords.TongueFrames.WordsByIdentity.Keys)
         {
             ushort selected = CrocomireNativeWords.TongueFrames.Word(frame);
             AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(

@@ -50,12 +50,12 @@ public sealed class RoomObjectPopulation
         if (compiledChange is not null)
         {
             if (placement.Kind != RoomObjectKind.ScrollTrigger)
-                throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
+                throw new InvalidDataException("Only a scroll trigger may apply a retail scroll change.");
         }
         else if (placement.Kind == RoomObjectKind.ScrollTrigger)
         {
             if (animation is null || animation.Length >= RoomScrollGrid.KeptCellCount)
-                throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");
+                throw new InvalidDataException("A decoded scroll room object needs a bounded list of scroll writes.");
             foreach (ScreenScrollChange write in animation)
             {
                 // A screen in column X and row Y lies, in a room of any width past its column, at least (X + 1) * (Y + 1) - 1

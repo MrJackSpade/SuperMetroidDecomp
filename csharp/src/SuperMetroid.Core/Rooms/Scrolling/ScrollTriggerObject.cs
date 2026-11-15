@@ -17,7 +17,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     {
         Change = change;
         Writes = change.HasValue ? null : writes?.ToArray() ?? throw new InvalidOperationException(
-            "A scroll trigger has neither an authored program nor constructed writes.");
+            "A scroll trigger has neither an authored scroll change nor constructed writes.");
     }
 
     /// <summary>Whether Samus has touched the trigger since its writes last ran; repeated touches before then change nothing.</summary>

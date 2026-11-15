@@ -66,13 +66,13 @@ internal static class SamusAnimationDelays
         return pose switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
-            SamusPoseId.ForwardFacingSuitedPose => ForwardFacingPowerSuitAnimation,
+            SamusPoseId.ForwardFacingSuitedPose => ForwardFacingAnimation,
             SamusPoseId.FacingRightNormalPose or
-            SamusPoseId.FacingLeftNormalPose => FacingRightNormalAnimation,
+            SamusPoseId.FacingLeftNormalPose => StandingAnimation,
             SamusPoseId.StandingAimUpRightPose or
             SamusPoseId.StandingAimUpLeftPose or
             SamusPoseId.CrouchingAimUpRightPose or
-            SamusPoseId.CrouchingAimUpLeftPose => StandingAimUpRightAnimation,
+            SamusPoseId.CrouchingAimUpLeftPose => AimingUpAnimation,
             SamusPoseId.StandingAimDiagonalUpRightPose or
             SamusPoseId.StandingAimDiagonalUpLeftPose or
             SamusPoseId.StandingAimDiagonalDownRightPose or
@@ -100,7 +100,7 @@ internal static class SamusAnimationDelays
             SamusPoseId.DraygonGrabbedNeutralRightPose or
             SamusPoseId.DraygonGrabbedAimUpRightPose or
             SamusPoseId.DraygonGrabbedFiringRightPose or
-            SamusPoseId.DraygonGrabbedAimDownRightPose => StandingAimDiagonalUpRightAnimation,
+            SamusPoseId.DraygonGrabbedAimDownRightPose => HeldStillAnimation,
             SamusPoseId.MovingRightNormalPose or
             SamusPoseId.MovingLeftNormalPose or
             SamusPoseId.MovingRightGunExtendedPose or
@@ -110,21 +110,21 @@ internal static class SamusAnimationDelays
             SamusPoseId.RunningAimDiagonalUpRightPose or
             SamusPoseId.RunningAimDiagonalUpLeftPose or
             SamusPoseId.RunningAimDiagonalDownRightPose or
-            SamusPoseId.RunningAimDiagonalDownLeftPose => MovingRightNormalAnimation,
+            SamusPoseId.RunningAimDiagonalDownLeftPose => RunningAnimation,
             SamusPoseId.NormalJumpGunExtendedRightPose or
             SamusPoseId.NormalJumpGunExtendedLeftPose or
             SamusPoseId.NormalJumpAimDiagonalUpRightPose or
             SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
             SamusPoseId.NormalJumpAimDiagonalDownRightPose or
-            SamusPoseId.NormalJumpAimDiagonalDownLeftPose => NormalJumpGunExtendedRightAnimation,
+            SamusPoseId.NormalJumpAimDiagonalDownLeftPose => NormalJumpAimingAnimation,
             SamusPoseId.NormalJumpAimUpRightPose or
-            SamusPoseId.NormalJumpAimUpLeftPose => NormalJumpAimUpRightAnimation,
+            SamusPoseId.NormalJumpAimUpLeftPose => NormalJumpAimUpAnimation,
             SamusPoseId.NormalJumpAimDownRightPose or
-            SamusPoseId.NormalJumpAimDownLeftPose => NormalJumpAimDownRightAnimation,
+            SamusPoseId.NormalJumpAimDownLeftPose => NormalJumpAimDownAnimation,
             SamusPoseId.SpinJumpRightPose or
-            SamusPoseId.SpinJumpLeftPose => SpinJumpRightAnimation,
+            SamusPoseId.SpinJumpLeftPose => SpinJumpAnimation,
             SamusPoseId.SpaceJumpRightPose or
-            SamusPoseId.SpaceJumpLeftPose => SpaceJumpRightAnimation,
+            SamusPoseId.SpaceJumpLeftPose => SpaceJumpAnimation,
             SamusPoseId.MorphBallGroundRightPose or
             SamusPoseId.MorphBallMovingRightPose or
             SamusPoseId.MorphBallMovingLeftPose or
@@ -143,17 +143,17 @@ internal static class SamusAnimationDelays
             SamusPoseId.SpringBallFallingLeftPose or
             SamusPoseId.SpringBallJumpRightPose or
             SamusPoseId.SpringBallJumpLeftPose or
-            SamusPoseId.DraygonHeldBallLeftPose => MorphBallGroundRightAnimation,
+            SamusPoseId.DraygonHeldBallLeftPose => MorphBallAnimation,
             SamusPoseId.TurningRightToLeftPose => TurningRightToLeftAnimation,
             SamusPoseId.TurningLeftToRightPose => TurningLeftToRightAnimation,
             SamusPoseId.CrouchingRightPose or
-            SamusPoseId.CrouchingLeftPose => CrouchingRightAnimation,
+            SamusPoseId.CrouchingLeftPose => CrouchingAnimation,
             SamusPoseId.FallingRightPose or
-            SamusPoseId.FallingLeftPose => FallingRightAnimation,
+            SamusPoseId.FallingLeftPose => FallingAnimation,
             SamusPoseId.FallingAimUpRightPose or
-            SamusPoseId.FallingAimUpLeftPose => FallingAimUpRightAnimation,
+            SamusPoseId.FallingAimUpLeftPose => FallingAimUpAnimation,
             SamusPoseId.FallingAimDownRightPose or
-            SamusPoseId.FallingAimDownLeftPose => FallingAimDownRightAnimation,
+            SamusPoseId.FallingAimDownLeftPose => FallingAimDownAnimation,
             SamusPoseId.TurningRightToLeftJumpPose => TurningRightToLeftJumpAnimation,
             SamusPoseId.TurningLeftToRightJumpPose => TurningLeftToRightJumpAnimation,
             SamusPoseId.CrouchingTransitionRightPose => CrouchingTransitionRightAnimation,
@@ -175,19 +175,19 @@ internal static class SamusAnimationDelays
             SamusPoseId.MoonwalkAimUpLeftPose or
             SamusPoseId.MoonwalkAimUpRightPose or
             SamusPoseId.MoonwalkAimDownLeftPose or
-            SamusPoseId.MoonwalkAimDownRightPose => MoonwalkFacingLeftAnimation,
+            SamusPoseId.MoonwalkAimDownRightPose => MoonwalkAnimation,
             SamusPoseId.NeutralJumpTransitionRightPose => NeutralJumpTransitionRightAnimation,
             SamusPoseId.NeutralJumpTransitionLeftPose => NeutralJumpTransitionLeftAnimation,
             SamusPoseId.NeutralJumpRightPose or
             SamusPoseId.NeutralJumpLeftPose or
             SamusPoseId.ShinesparkWindupRightPose or
-            SamusPoseId.ShinesparkWindupLeftPose => NeutralJumpRightAnimation,
+            SamusPoseId.ShinesparkWindupLeftPose => NeutralJumpAndWindupAnimation,
             SamusPoseId.DamageBoostLeftPose or
-            SamusPoseId.DamageBoostRightPose => DamageBoostLeftAnimation,
+            SamusPoseId.DamageBoostRightPose => DamageBoostAnimation,
             SamusPoseId.NormalJumpForwardRightPose or
-            SamusPoseId.NormalJumpForwardLeftPose => NormalJumpForwardRightAnimation,
+            SamusPoseId.NormalJumpForwardLeftPose => NormalJumpForwardAnimation,
             SamusPoseId.KnockbackRightPose or
-            SamusPoseId.KnockbackLeftPose => KnockbackRightAnimation,
+            SamusPoseId.KnockbackLeftPose => KnockbackAnimation,
             SamusPoseId.NormalJumpTransitionAimUpRightPose => NormalJumpTransitionAimUpRightAnimation,
             SamusPoseId.NormalJumpTransitionAimUpLeftPose => NormalJumpTransitionAimUpLeftAnimation,
             SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose => NormalJumpTransitionAimDiagonalUpRightAnimation,
@@ -197,17 +197,17 @@ internal static class SamusAnimationDelays
             SamusPoseId.CompactAirborneRightPose => CompactAirborneRightAnimation,
             SamusPoseId.CompactAirborneLeftPose => CompactAirborneLeftAnimation,
             SamusPoseId.CompactAirborneFallingRightPose or
-            SamusPoseId.CompactAirborneFallingLeftPose => CompactAirborneFallingRightAnimation,
+            SamusPoseId.CompactAirborneFallingLeftPose => CompactAirborneFallingAnimation,
             SamusPoseId.FallingGunExtendedRightPose or
-            SamusPoseId.FallingGunExtendedLeftPose => FallingGunExtendedRightAnimation,
+            SamusPoseId.FallingGunExtendedLeftPose => FallingGunExtendedAnimation,
             SamusPoseId.FallingAimDiagonalUpRightPose or
             SamusPoseId.FallingAimDiagonalUpLeftPose or
             SamusPoseId.FallingAimDiagonalDownRightPose or
-            SamusPoseId.FallingAimDiagonalDownLeftPose => FallingAimDiagonalUpRightAnimation,
+            SamusPoseId.FallingAimDiagonalDownLeftPose => FallingAimDiagonalAnimation,
             SamusPoseId.ScrewAttackRightPose or
-            SamusPoseId.ScrewAttackLeftPose => ScrewAttackRightAnimation,
+            SamusPoseId.ScrewAttackLeftPose => ScrewAttackAnimation,
             SamusPoseId.WallJumpRightPose or
-            SamusPoseId.WallJumpLeftPose => WallJumpRightAnimation,
+            SamusPoseId.WallJumpLeftPose => WallJumpAnimation,
             SamusPoseId.TurningRightToLeftFallingPose => TurningRightToLeftFallingAnimation,
             SamusPoseId.TurningLeftToRightFallingPose => TurningLeftToRightFallingAnimation,
             SamusPoseId.TurningRightToLeftAimUpPose => TurningRightToLeftAimUpAnimation,
@@ -243,14 +243,14 @@ internal static class SamusAnimationDelays
             SamusPoseId.GrappleStandingRightPose or
             SamusPoseId.GrappleStandingLeftPose or
             SamusPoseId.GrappleStandingDownRightPose or
-            SamusPoseId.GrappleStandingDownLeftPose => GrappleStandingRightAnimation,
+            SamusPoseId.GrappleStandingDownLeftPose => GrappleStandingAnimation,
             SamusPoseId.GrappleAirborneGunExtendedRightPose => GrappleAirborneGunExtendedRightAnimation,
             SamusPoseId.GrappleAirborneAimDownRightPose => GrappleAirborneAimDownRightAnimation,
             SamusPoseId.GrappleAirborneAimDiagonalDownRightPose => GrappleAirborneAimDiagonalDownRightAnimation,
             SamusPoseId.GrappleSwingRightPose or
-            SamusPoseId.GrappleSwingLeftPose => GrappleSwingRightAnimation,
+            SamusPoseId.GrappleSwingLeftPose => GrappleSwingAnimation,
             SamusPoseId.DraygonGrabbedMovingLeftPose or
-            SamusPoseId.DraygonGrabbedMovingRightPose => DraygonGrabbedMovingLeftAnimation,
+            SamusPoseId.DraygonGrabbedMovingRightPose => DraygonGrabbedMovingAnimation,
             SamusPoseId.MoonwalkTurnJumpLeftPose => MoonwalkTurnJumpLeftAnimation,
             SamusPoseId.MoonwalkTurnJumpRightPose => MoonwalkTurnJumpRightAnimation,
             SamusPoseId.MoonwalkTurnJumpAimUpLeftPose => MoonwalkTurnJumpAimUpLeftAnimation,
@@ -263,15 +263,15 @@ internal static class SamusAnimationDelays
             SamusPoseId.ShinesparkVerticalRightPose or
             SamusPoseId.ShinesparkVerticalLeftPose or
             SamusPoseId.ShinesparkDiagonalRightPose or
-            SamusPoseId.ShinesparkDiagonalLeftPose => ShinesparkHorizontalRightAnimation,
+            SamusPoseId.ShinesparkDiagonalLeftPose => ShinesparkAnimation,
             SamusPoseId.CrystalFlashRightPose => CrystalFlashRightAnimation,
             SamusPoseId.CrystalFlashLeftPose => CrystalFlashLeftAnimation,
             SamusPoseId.XrayingStandingRightPose or
             SamusPoseId.XrayingStandingLeftPose or
             SamusPoseId.XrayingCrouchingRightPose or
-            SamusPoseId.XrayingCrouchingLeftPose => XrayingStandingRightAnimation,
+            SamusPoseId.XrayingCrouchingLeftPose => XrayingAnimation,
             SamusPoseId.DeathSequenceRightPose or
-            SamusPoseId.DeathSequenceLeftPose => DeathSequenceRightAnimation,
+            SamusPoseId.DeathSequenceLeftPose => DeathSequenceAnimation,
             SamusPoseId.CompactMorphingRightPose => CompactMorphingRightAnimation,
             SamusPoseId.DraygonHeldMorphingLeftPose => DraygonHeldMorphingLeftAnimation,
             SamusPoseId.CompactStandingUpRightPose => CompactStandingUpRightAnimation,

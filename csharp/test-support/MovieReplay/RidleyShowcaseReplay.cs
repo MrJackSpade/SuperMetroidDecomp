@@ -809,7 +809,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // The runtime holds no compositions (#1583); the showcase runs on the installation's enemy artwork.
                     var artwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps;
                     var parts = projectile.PresentationOperandAddress != 0
-                        ? (artwork ?? throw new InvalidOperationException("Verification requires artwork.")).GetProgramFrame(projectile.PresentationOperandAddress)
+                        ? (artwork ?? throw new InvalidOperationException("Verification requires artwork.")).GetProgramFrame(
+                            projectile.Frame ?? throw new InvalidOperationException("A projectile with a presentation operand shows a frame."))
                         : (artwork ?? throw new InvalidOperationException("Verification requires artwork.")).Get(projectile.SpritemapPointer);
                     var expectedOam = new OamBuffer();
                     var actualOam = new OamBuffer();

@@ -9,11 +9,12 @@ internal static class EnemyProjectileNativeImportAccess
 {
     /// <summary>
     /// Shows the recorded frame at bank-$86 operand <paramref name="operandAddress"/>: the installed program frame when
-    /// the operand names one, otherwise the composition frame drawing the bank-$8D spritemap the cartridge selects there.
+    /// the operand names one (where it stores several, the one the sheet the projectile draws from holds), otherwise the
+    /// composition frame drawing the bank-$8D spritemap the cartridge selects there.
     /// </summary>
     internal static void ShowNativeOperand(EnemyProjectile projectile, ushort operandAddress) =>
         projectile.Frame = EnemyProjectileProgramFrameOperands.Contains(operandAddress)
-            ? EnemyProjectileProgramFrameOperands.Frame(operandAddress)
+            ? EnemyProjectileProgramFrameOperands.Frame(operandAddress, projectile.Graphics.Owner)
             : EnemyProjectileSlotFrameAccess.CompositionAt(
                 CompiledEnemyVisualSelectors.TryGet(SnesLittleEndianConstants.BankByte(EnemyProjectileCodePointers.BankBase), operandAddress, out ushort selector)
                     ? selector

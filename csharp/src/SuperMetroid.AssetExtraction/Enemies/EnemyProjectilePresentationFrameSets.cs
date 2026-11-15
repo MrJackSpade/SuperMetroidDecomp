@@ -14,6 +14,7 @@ internal static class EnemyProjectilePresentationFrameSets
         EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatueAdditions,
         EnemyProjectilePresentationFrameDefinitions.PreWorkRobotAdditions,
         EnemyProjectilePresentationFrameDefinitions.PrePolypRockAdditions,
+        EnemyProjectilePresentationFrameDefinitions.PreKagoBugWaitingAdditions,
         EnemyProjectilePresentationFrameDefinitions.CurrentAdditions,
     ];
 

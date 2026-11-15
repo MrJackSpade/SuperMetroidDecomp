@@ -155,10 +155,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
-        ushort ceresOperand = EnemyProjectileProgramFrameSources.Operand(RidleyFireballAnimations.ProjectileFrames[0]);
-        OamBuffer nativeCeres = DrawReferenceProgramFrame(stock, ceresOperand, bus,
+        EnemyProjectileFrameId ceresFireball = RidleyFireballAnimations.ProjectileFrames[0];
+        OamBuffer nativeCeres = DrawReferenceProgramFrame(stock, ceresFireball, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
-        OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
+        OamBuffer installedCeres = DrawProgramFrame(stock, ceresFireball,
             NewEnemyProjectileVisualGuard(bus),
             RoomEnemyProjectileKind.CeresRidleyFireball);
         AssertTrue(nativeCeres.NextByteOffset > 0 &&
@@ -168,116 +168,93 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
              index < AlcoonFireballFrameToolingDefinitions.Frames.Length;
              index++)
         {
-            ushort operand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameToolingDefinitions.Frames[index]);
-            OamBuffer nativeAlcoon = DrawReferenceProgramFrame(stock, operand, bus,
+            EnemyProjectileFrameId fireball = AlcoonFireballFrameToolingDefinitions.Frames[index];
+            OamBuffer nativeAlcoon = DrawReferenceProgramFrame(stock, fireball, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
-            OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
+            OamBuffer installedAlcoon = DrawProgramFrame(stock, fireball,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball);
             AssertTrue(nativeAlcoon.NextByteOffset > 0 &&
-                InstalledStandsFor(nativeAlcoon, installedAlcoon, stock, operand, RoomEnemyProjectileKind.AlcoonFireball),
+                InstalledStandsFor(nativeAlcoon, installedAlcoon, stock, fireball, RoomEnemyProjectileKind.AlcoonFireball),
                 $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(nativeAlcoon)}, installed {OamRecords(installedAlcoon)}");
         }
-        foreach ((string family, RoomEnemyProjectileKind kind, int count,
-                     Func<int, ushort> addressAt) in new VerifyInstalledEnemyProjectileSpritemapsCase[]
+        foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in new ProjectileFrameFamily[]
                  {
-                     new VerifyInstalledEnemyProjectileSpritemapsCase("Golden Torizo Super Missile",
-                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-                         TorizoFrameCount(TorizoProjectileFamily.SuperMissile),
-                         TorizoFrameKey(TorizoProjectileFamily.SuperMissile)),
-                     new VerifyInstalledEnemyProjectileSpritemapsCase("Golden Torizo eye beam",
-                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-                         TorizoFrameCount(TorizoProjectileFamily.EyeBeam),
-                         TorizoFrameKey(TorizoProjectileFamily.EyeBeam)),
+                     TorizoFamily("Golden Torizo Super Missile", RoomEnemyProjectileKind.GoldenTorizoSuperMissile, TorizoProjectileFamily.SuperMissile),
+                     TorizoFamily("Golden Torizo eye beam", RoomEnemyProjectileKind.GoldenTorizoEyeBeam, TorizoProjectileFamily.EyeBeam),
                  })
         {
-            for (int index = 0; index < count; index++)
+            for (int index = 0; index < frames.Count; index++)
             {
-                ushort operand = addressAt(index);
-                if (IsOnNoSheet(operand))
+                EnemyProjectileFrameId programFrame = frames[index];
+                if (IsOnNoSheet(programFrame))
                     continue;
-                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
-                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),
                 $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
-        for (int index = 0;
-             index < TorizoFrameCount(TorizoProjectileFamily.Egg);
-             index++)
+        IReadOnlyList<EnemyProjectileFrameId> eggFrames = TorizoProjectileAnimations.InstalledFrames(TorizoProjectileFamily.Egg);
+        for (int index = 0; index < eggFrames.Count; index++)
         {
-            ushort operand = TorizoFrameKey(TorizoProjectileFamily.Egg)(index);
-            OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus,
+            EnemyProjectileFrameId egg = eggFrames[index];
+            OamBuffer native = DrawReferenceProgramFrame(stock, egg, bus,
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
-            OamBuffer extracted = DrawProgramFrame(stock, operand,
+            OamBuffer extracted = DrawProgramFrame(stock, egg,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
-            AssertTrue(InstalledStandsFor(native, extracted, stock, operand, RoomEnemyProjectileKind.GoldenTorizoEgg),
+            AssertTrue(InstalledStandsFor(native, extracted, stock, egg, RoomEnemyProjectileKind.GoldenTorizoEgg),
                 $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
         }
-        var torizoFamilies = new TorizoFamily[]
+        var torizoFamilies = new ProjectileFrameFamily[]
         {
-            new TorizoFamily("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
-                TorizoFrameCount(TorizoProjectileFamily.Drool),
-                TorizoFrameKey(TorizoProjectileFamily.Drool)),
-            new TorizoFamily("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
-                TorizoFrameCount(TorizoProjectileFamily.Swipe),
-                TorizoFrameKey(TorizoProjectileFamily.Swipe)),
-            new TorizoFamily("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom,
-                TorizoFrameCount(TorizoProjectileFamily.SonicBoom),
-                TorizoFrameKey(TorizoProjectileFamily.SonicBoom)),
-            new TorizoFamily("landing dust", RoomEnemyProjectileKind.BombTorizoRightFootDust,
-                TorizoFrameCount(TorizoProjectileFamily.LandingDust),
-                TorizoFrameKey(TorizoProjectileFamily.LandingDust)),
-            new TorizoFamily("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
-                TorizoFrameCount(TorizoProjectileFamily.Explosion),
-                TorizoFrameKey(TorizoProjectileFamily.Explosion)),
-            new TorizoFamily("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb,
-                TorizoFrameCount(TorizoProjectileFamily.ChozoOrb),
-                TorizoFrameKey(TorizoProjectileFamily.ChozoOrb)),
+            TorizoFamily("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool, TorizoProjectileFamily.Drool),
+            TorizoFamily("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectileFamily.Swipe),
+            TorizoFamily("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom, TorizoProjectileFamily.SonicBoom),
+            TorizoFamily("landing dust", RoomEnemyProjectileKind.BombTorizoRightFootDust, TorizoProjectileFamily.LandingDust),
+            TorizoFamily("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, TorizoProjectileFamily.Explosion),
+            TorizoFamily("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb, TorizoProjectileFamily.ChozoOrb),
         };
-        foreach ((string family, RoomEnemyProjectileKind kind, int count,
-                     Func<int, ushort> addressAt) in torizoFamilies)
+        foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in torizoFamilies)
         {
-            for (int index = 0; index < count; index++)
+            for (int index = 0; index < frames.Count; index++)
             {
-                ushort operand = addressAt(index);
-                if (IsOnNoSheet(operand))
+                EnemyProjectileFrameId programFrame = frames[index];
+                if (IsOnNoSheet(programFrame))
                     continue;
-                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
-                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),
                 $"Torizo {family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
-        var genericDeathFamilies = new TorizoFamily[]
+        var genericDeathFamilies = new ProjectileFrameFamily[]
         {
             ShownFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup, PickupFrames),
             ShownFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
                 EnemyDeathProjectileAnimations.Segments.Frames.Except(PickupFrames)),
         };
-        foreach ((string family, RoomEnemyProjectileKind kind, int count,
-                     Func<int, ushort> addressAt) in genericDeathFamilies)
+        foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in genericDeathFamilies)
         {
-            for (int index = 0; index < count; index++)
+            for (int index = 0; index < frames.Count; index++)
             {
-                ushort operand = addressAt(index);
-                if (IsOnNoSheet(operand))
+                EnemyProjectileFrameId programFrame = frames[index];
+                if (IsOnNoSheet(programFrame))
                     continue;
-                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
-                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),
                 $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
-        var environmentAndAttackFamilies = new TorizoFamily[]
+        var environmentAndAttackFamilies = new ProjectileFrameFamily[]
         {
-            new TorizoFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
-                CeresFallingDebrisVisualDefinitions.Frames.Count,
-                index => EnemyProjectileProgramFrameSources.Operand(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
+            ShownFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
+                CeresFallingDebrisVisualDefinitions.Frames.Select(debris => CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[debris])),
             ShownFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity, SaveStationElectricityAnimations.Segments.Frames),
             ShownFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud, GunshipDustAnimations.Segments.Frames),
             ShownFamily("falling spark", RoomEnemyProjectileKind.FallingSpark, FallingSparkAnimations.Segments.Frames),
@@ -289,55 +266,43 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ShownFamily("Dragon fireball", RoomEnemyProjectileKind.DragonFireball, DragonFireballAnimations.Segments.Frames),
             ShownFamily("Powamp spike", RoomEnemyProjectileKind.PowampSpike, PowampSpikeAnimations.Segments.Frames),
         };
-        foreach ((string family, RoomEnemyProjectileKind kind, int count,
-                     Func<int, ushort> addressAt) in environmentAndAttackFamilies)
+        foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in environmentAndAttackFamilies)
         {
-            for (int index = 0; index < count; index++)
+            for (int index = 0; index < frames.Count; index++)
             {
-                ushort operand = addressAt(index);
-                if (IsOnNoSheet(operand))
+                EnemyProjectileFrameId programFrame = frames[index];
+                if (IsOnNoSheet(programFrame))
                     continue;
-                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
-                OamBuffer extracted = DrawProgramFrame(stock, operand,
+                OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, programFrame,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),
                 $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
-        var motherBrainAndStatueFamilies = new TorizoFamily[]
+        var motherBrainAndStatueFamilies = new ProjectileFrameFamily[]
         {
-            new TorizoFamily("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-                TorizoFrameCount(TorizoProjectileFamily.StatueFragment),
-                TorizoFrameKey(TorizoProjectileFamily.StatueFragment)),
-            new TorizoFamily("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
-                MotherBrainGlassAnimations.ProjectileFrames.Count,
-                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainGlassAnimations.ProjectileFrames[index])),
-            new TorizoFamily("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-                MotherBrainHandBeamAnimations.ProjectileFrames.Count,
-                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainHandBeamAnimations.ProjectileFrames[index])),
-            new TorizoFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
-                MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount,
-                MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress),
-            new TorizoFamily("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
-                MotherBrainTurretAnimations.ProjectileFrames.Count,
-                index => EnemyProjectileProgramFrameSources.Operand(MotherBrainTurretAnimations.ProjectileFrames[index])),
+            TorizoFamily("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking, TorizoProjectileFamily.StatueFragment),
+            ShownFamily("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard, MotherBrainGlassAnimations.ProjectileFrames),
+            ShownFamily("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging, MotherBrainHandBeamAnimations.ProjectileFrames),
+            ShownFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames.Values),
+            ShownFamily("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret, MotherBrainTurretAnimations.ProjectileFrames),
         };
-        foreach ((string family, RoomEnemyProjectileKind kind, int count,
-                     Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
+        foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in motherBrainAndStatueFamilies)
         {
-            for (int index = 0; index < count; index++)
+            for (int index = 0; index < frames.Count; index++)
             {
-                ushort operand = addressAt(index);
-                if (IsOnNoSheet(operand))
+                EnemyProjectileFrameId programFrame = frames[index];
+                if (IsOnNoSheet(programFrame))
                     continue;
-                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
-                OamBuffer extracted = DrawProgramFrame(stock, operand, NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                OamBuffer native = DrawReferenceProgramFrame(stock, programFrame, bus, kind);
+                OamBuffer extracted = DrawProgramFrame(stock, programFrame, NewEnemyProjectileVisualGuard(bus), kind);
+                AssertTrue(InstalledStandsFor(native, extracted, stock, programFrame, kind),
                     $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
         // $86:D5F2 selects the second operand on this even frame; reflected X remains 128.
-        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, 0xd485, bus);
+        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, EnemyProjectileFrameId.NoobTubeShardDownOutwardFlyingMirrored, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             NewEnemyProjectileVisualGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
@@ -425,21 +390,21 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     DrawImportedEnemyProjectileSpritemap(bus, nativeOam, nativePointer,
                         new(originX, originY), FixtureGraphicsIndex, originYIsOnScreen: true);
                     installedOam.AddEnemySpritemap(
-                        installed.GetProgramFrame(frame.OperandAddress).Span,
+                        installed.GetProgramFrame(frame.Frame).Span,
                         new Position16<ScreenPixels>(originX, originY), 0x0a00, 4,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertTrue(nativeOam.NextByteOffset == installedOam.NextByteOffset &&
                         nativeOam.ImageEquals(installedOam),
                         $"installed shared frame $86:{frame.OperandAddress:X4} matches ROM OAM at {originX:X4},{originY:X4}");
                 }
-                if (EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Any(manifest => manifest.OperandAddress == frame.OperandAddress))
+                if (EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Contains(frame))
                 {
-                    EnemyProjectileFrameId shown = EnemyProjectileProgramFrameOperands.Frame(frame.OperandAddress);
+                    EnemyProjectileFrameId shown = frame.Frame;
                     if (SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.Common.Any(common => common.Objects.Projectiles.Contains(shown)))
                     {
-                        OamBuffer sharedReference = DrawReferenceProgramFrame(artwork, frame.OperandAddress, bus);
-                        OamBuffer sharedDrawn = DrawSharedFrame(artwork, frame.OperandAddress, NewEnemyProjectileVisualGuard(bus));
-                        AssertTrue(InstalledStandsFor(sharedReference, sharedDrawn, artwork, frame.OperandAddress, RoomEnemyProjectileKind.MiscDustExplosion),
+                        OamBuffer sharedReference = DrawReferenceProgramFrame(artwork, shown, bus);
+                        OamBuffer sharedDrawn = DrawSharedFrame(artwork, shown, NewEnemyProjectileVisualGuard(bus));
+                        AssertTrue(InstalledStandsFor(sharedReference, sharedDrawn, artwork, shown, RoomEnemyProjectileKind.MiscDustExplosion),
                             $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads: " +
                             $"records (x, y, tile, attributes) native {OamRecords(sharedReference)}, installed {OamRecords(sharedDrawn)}");
                     }
@@ -451,7 +416,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                         {
                             RoomEnemySystem system = SpawnerSystem(artwork, spawner, shown);
                             OamBuffer reference = DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system));
-                            OamBuffer drawn = DrawSpawnerFrame(system, frame.OperandAddress, graphics);
+                            OamBuffer drawn = DrawSpawnerFrame(system, shown, graphics);
                             AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable) || SharedPictureStandsFor(system, reference),
                                 $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}: " +
                                 $"records (x, y, tile, attributes) native {OamRecords(reference)}, installed {OamRecords(drawn)}");
@@ -485,16 +450,15 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // composition, not the installed catalog or production draw callback.
         // The cartridge's draw of a program frame under the graphics word its spawn writes: the shared sheet's for an object
         // any room spawns, else its spawner's own sheet's in the set that loads it, with the row its loaded colours select.
-        static OamBuffer DrawReferenceProgramFrame(ImportEnemyArtwork artwork, ushort operand, ISnesAddressSpace source,
+        static OamBuffer DrawReferenceProgramFrame(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, ISnesAddressSpace source,
             RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            SpriteGraphics graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,
-                EnemyProjectileProgramFrameOperands.Frame(operand), SpawnedGraphics);
+            SpriteGraphics graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics);
             ushort word = graphics.Owner == SpawnedObjectOwner.Shared
                 ? NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics, SpawnedGraphics.FixedPaletteRow)
                 : NativeSpriteGraphicsWords.GraphicsWord(graphics, enemies, graphics.PaletteRowIn(enemies));
-            ushort pointer = ReadNativeEnemyProjectileProgramWord(source, operand);
+            ushort pointer = ReadNativeEnemyProjectileProgramWord(source, EnemyProjectileProgramFrameSources.Operand(frame));
             var oam = new OamBuffer();
             oam.BeginFrame();
             DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96), word, originYIsOnScreen: true);
@@ -580,9 +544,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // A frame on no sheet, so no set loads it (#1513): one showing the empty spritemap draws nothing, and these are never
         // started: no code spawns the Wrecked Ship Chozo's spike-clearing explosions or Shaktool's attack circles. Any other
         // frame a spawn table lacks fails loudly in the set load, as a frame the game can draw must be on a sheet.
-        static bool IsOnNoSheet(ushort operand)
+        static bool IsOnNoSheet(EnemyProjectileFrameId frame)
         {
-            EnemyProjectileFrameId frame = EnemyProjectileProgramFrameOperands.Frame(operand);
             return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame)
                 || frame is EnemyProjectileFrameId.ShaktoolFrontFirst or EnemyProjectileFrameId.ShaktoolFrontSecond
                     or EnemyProjectileFrameId.ShaktoolFrontLoop or EnemyProjectileFrameId.ShaktoolMiddleFirst
@@ -647,13 +610,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         // The frame drawn from the loaded set's sheets under the spawner's graphics.
-        static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, ushort presentationKey, SpriteGraphics graphics)
+        static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = graphics;
-            slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
+            slot.Frame = frame;
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
@@ -661,51 +624,50 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         static OamBuffer DrawSharedFrame(ImportEnemyArtwork artwork,
-            ushort operand, ISnesAddressSpace source) =>
-            DrawProgramFrame(artwork, operand, source,
+            EnemyProjectileFrameId frame, ISnesAddressSpace source) =>
+            DrawProgramFrame(artwork, frame, source,
                 RoomEnemyProjectileKind.MiscDustExplosion);
 
         static OamBuffer DrawProgramFrame(ImportEnemyArtwork artwork,
-            ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
+            EnemyProjectileFrameId frame, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            // Typed programs (#641) present their frames by key.
+            // Typed programs (#641) present their frames by identity.
             return TypedProgramKinds.Contains(kind) || FamilyProjectileStarts.StartingAnimation(kind) is not null
-                ? DrawPresentedFrame(artwork, operand, source, kind)
+                ? DrawPresentedFrame(artwork, frame, source, kind)
                 : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }
 
         static OamBuffer DrawPresentedFrame(ImportEnemyArtwork artwork,
-            ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
+            EnemyProjectileFrameId frame, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            RoomEnemySystem enemies = PresentedSystem(artwork, presentationKey, kind);
+            RoomEnemySystem enemies = PresentedSystem(artwork, frame, kind);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
 
-        // A room whose first projectile shows the program frame the key installs, drawn from the sheets of a set spawning it.
-        static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, ushort presentationKey, RoomEnemyProjectileKind kind)
+        // A room whose first projectile shows the program frame, drawn from the sheets of a set spawning it.
+        static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, RoomEnemyProjectileKind kind)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            // As the typed runner does when it shows the program frame the key installs.
-            slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
+            // As the typed runner does when it shows the program frame.
+            slot.Frame = frame;
             // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it.
-            EnemyProjectileFrameId shown = slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame.");
-            slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, shown, SpawnedGraphics);
-            SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
+            slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics);
+            SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame));
             return enemies;
         }
 
         // Whether the installed draw of a program frame stands for the native OAM: the same image, or the OAM of another
         // composition the frame's shared picture stands for (#1513).
-        static bool InstalledStandsFor(OamBuffer native, OamBuffer installed, ImportEnemyArtwork artwork, ushort operand,
+        static bool InstalledStandsFor(OamBuffer native, OamBuffer installed, ImportEnemyArtwork artwork, EnemyProjectileFrameId frame,
             RoomEnemyProjectileKind kind) =>
             native.NextByteOffset == installed.NextByteOffset &&
-            (native.ImageEquals(installed) || SharedPictureStandsFor(PresentedSystem(artwork, operand, kind), native));
+            (native.ImageEquals(installed) || SharedPictureStandsFor(PresentedSystem(artwork, frame, kind), native));
 
         static OamBuffer DrawNoobTubeShard(ImportEnemyArtwork artwork,
             ISnesAddressSpace source)
@@ -745,12 +707,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             },
             address => $"Installed enemy projectile reread visual byte ${address:X6}.");
 
-    /// <summary>The installed frames of Torizo projectile family <paramref name="family"/>.</summary>
-    private static int TorizoFrameCount(TorizoProjectileFamily family) => TorizoProjectileAnimations.InstalledFrames(family).Count;
-
-    /// <summary>The installed artwork key of each frame of Torizo projectile family <paramref name="family"/>, by index.</summary>
-    private static Func<int, ushort> TorizoFrameKey(TorizoProjectileFamily family) =>
-        index => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileAnimations.InstalledFrames(family)[index]);
+    /// <summary>Torizo projectile family <paramref name="family"/>, drawn as <paramref name="kind"/>, with its installed frames.</summary>
+    private static ProjectileFrameFamily TorizoFamily(string name, RoomEnemyProjectileKind kind, TorizoProjectileFamily family) =>
+        new(name, kind, TorizoProjectileAnimations.InstalledFrames(family));
 
     /// <summary>The drops a dying enemy leaves: the frames of the pickup animations.</summary>
     private static readonly EnemyProjectileFrameId[] PickupFrames =
@@ -764,9 +723,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     ];
 
     /// <summary>A projectile family drawn as <paramref name="kind"/>, whose frames are <paramref name="frames"/>.</summary>
-    private static TorizoFamily ShownFamily(string name, RoomEnemyProjectileKind kind, IEnumerable<EnemyProjectileFrameId> frames)
-    {
-        EnemyProjectileFrameId[] shown = [.. frames];
-        return new TorizoFamily(name, kind, shown.Length, index => EnemyProjectileProgramFrameSources.Operand(shown[index]));
-    }
+    private static ProjectileFrameFamily ShownFamily(string name, RoomEnemyProjectileKind kind, IEnumerable<EnemyProjectileFrameId> frames) =>
+        new(name, kind, [.. frames]);
 }

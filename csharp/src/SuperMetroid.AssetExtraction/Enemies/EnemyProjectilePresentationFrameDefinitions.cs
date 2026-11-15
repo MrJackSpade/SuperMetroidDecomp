@@ -1050,8 +1050,17 @@ internal static class EnemyProjectilePresentationFrameDefinitions
     ];
 
     /// <summary>The Polyp Rock lava rock.</summary>
-    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> CurrentAdditions { get; } =
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreKagoBugWaitingAdditions { get; } =
     [
         new("polyp_rock_initial"),
+    ];
+
+    /// <summary>
+    /// The waiting Kago bug (#2045), which shows the still pose Kraid's resting rocks show but is its own picture, drawn from
+    /// its Kago's sheet.
+    /// </summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> CurrentAdditions { get; } =
+    [
+        new("kago_bug_waiting"),
     ];
 }

@@ -65,7 +65,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
-    private const int LoadedSurfaceFraction = 1 << 15;
+    private const int LoadedSurfaceFraction = (FixedCoordinate.LastFraction + 1) / 2;
     /// <summary>
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.

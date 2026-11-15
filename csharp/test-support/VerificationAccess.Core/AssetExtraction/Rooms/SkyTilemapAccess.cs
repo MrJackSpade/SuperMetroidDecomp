@@ -8,7 +8,7 @@ internal static class SkyTilemapAccess
     /// <summary>The rows of a scrolling sky.</summary>
     extension(SkyTilemap sky)
     {
-        /// <summary>The sky page <paramref name="row"/>'s chunk shows in the sky's chunk table.</summary>
-        internal int RowPage(int row) => ScrollingSkyChunks.PageOf(sky.Variant, row / SkyTilemap.RowsPerChunk);
+        /// <summary>The sky page <paramref name="row"/>'s chunk shows in the sky.</summary>
+        internal int RowPage(int row) => ScrollingSkyChunks.PageOf(sky.Sky, row / SkyTilemap.RowsPerChunk);
     }
 }

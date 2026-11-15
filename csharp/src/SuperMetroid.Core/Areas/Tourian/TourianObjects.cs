@@ -55,7 +55,7 @@ internal sealed class TourianObjects
             return false;
 
         place.Block = block;
-        DoorObjects.SetupDoorTransitionDeactivatedSlot(level, place);
+        DoorObjects.SetupPassableBlock(level, place);
         place.Become(new OldTourianWallObject(_samus, _enemies));
         return true;
     }
@@ -73,7 +73,7 @@ internal sealed class TourianObjects
             return false;
 
         place.Block = block;
-        DoorObjects.SetupDoorTransitionDeactivatedSlot(level, place);
+        DoorObjects.SetupPassableBlock(level, place);
         place.Become(new EscapeAcidRiseObject(_samus, _roomFx));
         return true;
     }

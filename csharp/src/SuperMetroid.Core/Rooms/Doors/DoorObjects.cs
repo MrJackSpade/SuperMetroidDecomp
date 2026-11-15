@@ -87,15 +87,15 @@ internal sealed class DoorObjects
         place.Become(fallback.BlueCapFacing is { } facing
             ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
-        SetupDoorTransitionDeactivatedSlot(level, place);
+        SetupPassableBlock(level, place);
         return true;
     }
 
     /// <summary>
-    /// The deactivating setup: a solid block stays solid and any other block becomes air, keeping its appearance.
-    /// Despite its historical name, the setup does not delete or deactivate the room-object place.
+    /// The setup that makes a room object's block passable: a solid block stays solid and any other block becomes air,
+    /// keeping its appearance. The room object keeps its place.
     /// </summary>
-    internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectPlace place) =>
+    internal static void SetupPassableBlock(RoomLevelData level, RoomObjectPlace place) =>
         level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
 
     /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>

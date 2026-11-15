@@ -48,39 +48,13 @@ public static class SlopeShapeDefinitions
         [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
         SlopeSpeedDefinitions.Unscaled, 256);
 
-    /// <summary>A flat surface at the block's top that no retail slope uses; the game defines six alike.</summary>
-    [NumberedIdentities("The game defines six identical full-height profiles no retail slope uses; the number only tells apart the shapes a block keeps, and nothing indexes them.")]
-    public static SlopeShape UnusedSolid1 { get; } = new(nameof(UnusedSolid1), SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        SlopeSpeedDefinitions.Unscaled, 256);
-
-    /// <summary>A flat surface at the block's top that no retail slope uses; the game defines six alike.</summary>
-    [NumberedIdentities("The game defines six identical full-height profiles no retail slope uses; the number only tells apart the shapes a block keeps, and nothing indexes them.")]
-    public static SlopeShape UnusedSolid2 { get; } = new(nameof(UnusedSolid2), SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        SlopeSpeedDefinitions.Unscaled, 256);
-
-    /// <summary>A flat surface at the block's top that no retail slope uses; the game defines six alike.</summary>
-    [NumberedIdentities("The game defines six identical full-height profiles no retail slope uses; the number only tells apart the shapes a block keeps, and nothing indexes them.")]
-    public static SlopeShape UnusedSolid3 { get; } = new(nameof(UnusedSolid3), SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        SlopeSpeedDefinitions.Unscaled, 256);
-
-    /// <summary>A flat surface at the block's top that no retail slope uses; the game defines six alike.</summary>
-    [NumberedIdentities("The game defines six identical full-height profiles no retail slope uses; the number only tells apart the shapes a block keeps, and nothing indexes them.")]
-    public static SlopeShape UnusedSolid4 { get; } = new(nameof(UnusedSolid4), SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        SlopeSpeedDefinitions.Unscaled, 256);
-
-    /// <summary>A flat surface at the block's top that no retail slope uses; the game defines six alike.</summary>
-    [NumberedIdentities("The game defines six identical full-height profiles no retail slope uses; the number only tells apart the shapes a block keeps, and nothing indexes them.")]
-    public static SlopeShape UnusedSolid5 { get; } = new(nameof(UnusedSolid5), SlopeShapeKind.Profile,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        SlopeSpeedDefinitions.Unscaled, 256);
-
-    /// <summary>A flat surface at the block's top that no retail slope uses; the game defines six alike.</summary>
-    [NumberedIdentities("The game defines six identical full-height profiles no retail slope uses; the number only tells apart the shapes a block keeps, and nothing indexes them.")]
-    public static SlopeShape UnusedSolid6 { get; } = new(nameof(UnusedSolid6), SlopeShapeKind.Profile,
+    /// <summary>
+    /// A flat surface at the block's top that no retail slope uses, numbered six ways by the game. It is the surface of
+    /// <see cref="Solid"/>, kept apart from it because a block keeps its behaviour through a change of collision kind
+    /// (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>): a slope written as
+    /// <see cref="Solid"/> keeps that shape's own behaviour, which this shape's would not (#1909).
+    /// </summary>
+    public static SlopeShape UnusedSolid { get; } = new(nameof(UnusedSolid), SlopeShapeKind.Profile,
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         SlopeSpeedDefinitions.Unscaled, 256);
 
@@ -185,12 +159,7 @@ public static class SlopeShapeDefinitions
         LowPeak,
         HighPeak,
         HalfHeight,
-        UnusedSolid1,
-        UnusedSolid2,
-        UnusedSolid3,
-        UnusedSolid4,
-        UnusedSolid5,
-        UnusedSolid6,
+        UnusedSolid,
         FourPixelStairs,
         TwoPixelStairs,
         Open,

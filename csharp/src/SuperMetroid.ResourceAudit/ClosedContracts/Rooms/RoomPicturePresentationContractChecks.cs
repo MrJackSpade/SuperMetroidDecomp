@@ -39,8 +39,8 @@ internal static class RoomPicturePresentationContractChecks
                     artwork.MessageBox(tileset);
                     artwork.FxOverlay(tileset);
                     artwork.Background(background, door, tileset);
-                    artwork.Sky(ScrollingSkyChunkTable.Land, tileset);
-                    artwork.Sky((ScrollingSkyChunkTable)99, tileset);
+                    artwork.Sky(ScrollingSky.Land, tileset);
+                    artwork.Sky((ScrollingSky)99, tileset);
                     floor.Picture(frame);
                     floor.Picture(CeresFloorAnimationFrame.WingsLowered);
                     floor.Picture((CeresFloorAnimationFrame)99);

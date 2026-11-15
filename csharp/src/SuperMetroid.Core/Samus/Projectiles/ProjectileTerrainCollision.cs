@@ -442,7 +442,7 @@ internal sealed class ProjectileTerrainCollision
         // setup sees the current projectile type while the room object spawns.
         bool translatedBehavior = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or
                 ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe ||
-            ShotBlockReactions.IsLeading(block.Behavior.Shootable);
+            ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable);
         if (translatedBehavior)
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(

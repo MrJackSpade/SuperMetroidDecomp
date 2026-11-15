@@ -35,12 +35,12 @@ public sealed class RoomSkyTilemaps
         }
     }
 
-    /// <summary>The sky rows the land or ocean chunk table selects from these pages (#1347).</summary>
-    public SkyTilemap Tilemap(ScrollingSkyChunkTable variant) => variant switch
+    /// <summary>The rows the land or ocean sky shows from these pages (#1347).</summary>
+    public SkyTilemap Tilemap(ScrollingSky sky) => sky switch
     {
-        ScrollingSkyChunkTable.Land => land ??= new SkyTilemap(pages, variant),
-        ScrollingSkyChunkTable.Ocean => ocean ??= new SkyTilemap(pages, variant),
-        _ => throw new ArgumentOutOfRangeException(nameof(variant), variant, "Unknown scrolling-sky chunk table."),
+        ScrollingSky.Land => land ??= new SkyTilemap(pages, sky),
+        ScrollingSky.Ocean => ocean ??= new SkyTilemap(pages, sky),
+        _ => throw new ArgumentOutOfRangeException(nameof(sky), sky, "Unknown scrolling sky."),
     };
 
     /// <summary>The tiles of one row of one sky page within <paramref name="pages"/>.</summary>

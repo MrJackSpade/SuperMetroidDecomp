@@ -25,20 +25,20 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </remarks>
 public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 {
-    /// <summary>The farthest an extension reaches backward: 128 blocks (or rows).</summary>
-    public const int MostBackwardExtension = -128;
-
-    /// <summary>The farthest an extension reaches forward: 127 blocks (or rows).</summary>
-    public const int MostForwardExtension = 127;
-
-    /// <summary>The last entry of a room's door list a door block selects.</summary>
-    public const int LastDoorLink = 127;
-
     /// <summary>
     /// Every kept behaviour in the order the game numbers them, each one the areas resolve followed by its resolutions in the
     /// game's area order, so a write of a reading keeps the unresolved behaviour before any area's.
     /// </summary>
     private static readonly IReadOnlyList<RoomBlockReadings> Kept = KeptInOrder();
+
+    /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
+    public static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
+
+    /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
+    public static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
+
+    /// <summary>The last entry of a room's door list a door block of any kept behaviour selects.</summary>
+    public static int LastDoorLink { get; } = Kept.Max(static readings => readings.DoorLink);
 
     /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =

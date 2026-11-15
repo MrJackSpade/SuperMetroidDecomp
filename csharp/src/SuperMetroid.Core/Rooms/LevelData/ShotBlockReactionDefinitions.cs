@@ -30,10 +30,10 @@ public static class ShotBlockReactionDefinitions
         };
 
     /// <summary>
-    /// The table's leading reactions, which every weapon's scan dispatches to the table: the breaks, the Power Bomb and
-    /// Super Missile blocks and the empty reaction.
+    /// The reactions every weapon's scan hands to the shot-block response: the breaks, the Power Bomb and Super Missile
+    /// blocks and the empty reaction.
     /// </summary>
-    public static readonly IReadOnlySet<ShootableReaction> LeadingReactions = new HashSet<ShootableReaction>
+    public static readonly IReadOnlySet<ShootableReaction> WeaponReactions = new HashSet<ShootableReaction>
     {
         ShootableReaction.RespawningBreak1x1, ShootableReaction.RespawningBreak2x1,
         ShootableReaction.RespawningBreak1x2, ShootableReaction.RespawningBreak2x2,

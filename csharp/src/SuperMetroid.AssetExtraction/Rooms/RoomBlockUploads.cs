@@ -73,7 +73,7 @@ internal static class RoomBlockUploads
                 names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(library.Background, door, tileset)));
             }
             if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
-                names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(state.MainBehavior), tileset));
+                names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.SkyOf(state.MainBehavior), tileset));
         }
         return [.. names.Distinct(StringComparer.Ordinal)];
     }
@@ -155,7 +155,7 @@ internal static class RoomBlockUploads
                 if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
                 {
                     // The sky's rows show over what the room's load binds.
-                    ScrollingSkyChunkTable variant = ScrollingSkyState.VariantOf(state.MainBehavior);
+                    ScrollingSky variant = ScrollingSkyState.SkyOf(state.MainBehavior);
                     uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
                         BackgroundTileWords.ToWords(inputs.Skies.Tilemap(variant).Tiles), Loaded(inputs, tileset)));
                 }

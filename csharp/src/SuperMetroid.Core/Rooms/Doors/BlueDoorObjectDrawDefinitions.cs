@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class BlueDoorObjectDrawDefinitions
 {
     /// <summary>The opening frame whose picture the physical closed-cap alias shows, with only its first cell solid.</summary>
-    internal const int AliasPictureFrame = 0;
+    internal const int ClosedPictureFrame = 0;
 
     /// <summary>
     /// How the four blocks of each of the twenty blue-cap draws collide, from the cap's first block down its column or along its row. The alias makes only its

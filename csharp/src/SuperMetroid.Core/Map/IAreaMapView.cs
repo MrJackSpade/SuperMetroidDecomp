@@ -9,7 +9,7 @@ public interface IAreaMapView
     AreaId Area { get; }
     /// <summary>How the cell at logical map coordinates X 0..63 and Y 0..31 looks.</summary>
     MapCell Cell(Position16<MapTiles> cell);
-    /// <summary>Returns whether the logical cell can acquire an explored save bit, independently of its current artwork.</summary>
+    /// <summary>Returns whether the cell can be recorded as explored, independently of its current artwork.</summary>
     bool IsDiscoverable(Position16<MapTiles> cell);
     /// <summary>Returns whether downloading the area's map reveals the logical cell, without changing exploration state.</summary>
     bool IsRevealedByMapStation(Position16<MapTiles> cell);

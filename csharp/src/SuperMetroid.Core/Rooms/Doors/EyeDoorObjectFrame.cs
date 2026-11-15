@@ -4,23 +4,23 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal enum EyeDoorObjectFrame
 {
     /// <summary>The closed eye.</summary>
-    Eye0,
+    ClosedEye,
     /// <summary>The half-open eye.</summary>
-    Eye1,
+    HalfOpenEye,
     /// <summary>The open eye.</summary>
-    Eye2,
-    /// <summary>The first flinch pose.</summary>
-    Eye3,
-    /// <summary>The second flinch pose.</summary>
-    Eye4,
+    OpenEye,
+    /// <summary>The eye's first flinch pose.</summary>
+    FlinchingEye,
+    /// <summary>The eye's second flinch pose, screwed shut.</summary>
+    ScrewedShutEye,
     /// <summary>The cleared opening the eye leaves.</summary>
     OpeningClear,
     /// <summary>The blue cap the opening flashes to.</summary>
     BlueCap,
-    /// <summary>A component's first pose.</summary>
-    Pose0,
-    /// <summary>A component's second pose.</summary>
-    Pose1,
-    /// <summary>A component's third pose.</summary>
-    Pose2,
+    /// <summary>The body's or bottom's resting pose, the first of its pulse.</summary>
+    PartResting,
+    /// <summary>The body's or bottom's swelling pose, the middle of its pulse.</summary>
+    PartSwelling,
+    /// <summary>The body's or bottom's swollen pose, the height of its pulse.</summary>
+    PartSwollen,
 }

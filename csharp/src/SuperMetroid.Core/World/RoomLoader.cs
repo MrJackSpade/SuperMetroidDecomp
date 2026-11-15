@@ -868,7 +868,7 @@ internal sealed class RoomLoader
         RoomEffectDefinition? selectedFx = room.State.Fx?.Select(door);
         bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupBehavior);
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainBehavior)
-            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainBehavior), skyHasBands)
+            ? new ScrollingSkyState(ScrollingSkyState.SkyOf(room.State.MainBehavior), skyHasBands)
             : null;
 
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.

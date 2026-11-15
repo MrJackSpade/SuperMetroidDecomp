@@ -306,7 +306,7 @@ internal static class RoomObjectSystemAccess
                     nameof(bts),
                     "The shootable BTS gives a shootable block no reaction.");
             }
-            if (!areaDependent && !ShotBlockReactions.IsLeading(bts.Shootable))
+            if (!areaDependent && !ShotBlockReactions.IsWeaponReaction(bts.Shootable))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),

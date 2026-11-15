@@ -56,6 +56,6 @@ public static class RoomObjectBlueDoorVisualFiles
             throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         // The alias shows its picture frame's artwork, so it shares that frame's name.
-        return $"{direction}-frame-{draw.Frame ?? BlueDoorObjectDrawDefinitions.AliasPictureFrame}";
+        return $"{direction}-frame-{draw.Frame ?? BlueDoorObjectDrawDefinitions.ClosedPictureFrame}";
     }
 }

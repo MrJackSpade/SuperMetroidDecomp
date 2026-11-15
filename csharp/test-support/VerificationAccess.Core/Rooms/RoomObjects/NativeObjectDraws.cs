@@ -48,7 +48,7 @@ internal static class NativeObjectDraws
             .Concat(RoomObjectShotBlockVisualFiles.Calculated.Select(Of))
             .Concat(RoomObjectCollectibleVisualFiles.All.Select(frame => Of(frame.Draw)))
             .Concat(RoomObjectBlueDoorVisualFiles.Editable.Select(list => list.Draw))
-            .Concat(Enum.GetValues<ColoredDoorOrientation>().Select(BlueDoorCaps.Alias))
+            .Concat(Enum.GetValues<ColoredDoorOrientation>().Select(BlueDoorCaps.Closed))
             .Concat(RoomObjectGreyDoorVisualFiles.All.Select(list => list.Draw))
             .Concat(RoomObjectColoredDoorVisualFiles.All.Select(list => list.Draw))
             .Concat(RoomObjectEyeDoorVisualFiles.All.Select(list => list.Draw))

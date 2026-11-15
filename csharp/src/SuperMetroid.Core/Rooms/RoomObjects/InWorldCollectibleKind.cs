@@ -1,48 +1,48 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Twenty-one entries shared by all three retail permanent-item tables.</summary>
+/// <summary>The twenty-one permanent items, each shown as a plain item, a Chozo orb or a shot-revealed item. Its values are arbitrary.</summary>
 public enum InWorldCollectibleKind
 {
-    /// <summary>Item-table entry zero: adds 100 maximum health and refills health to the new maximum.</summary>
+    /// <summary>An Energy Tank: adds 100 maximum health and refills health to the new maximum.</summary>
     EnergyTank,
-    /// <summary>Item-table entry one: adds five missiles to both capacity and current ammunition.</summary>
+    /// <summary>A Missile tank: adds five missiles to both capacity and current ammunition.</summary>
     MissileTank,
-    /// <summary>Item-table entry two: adds five Super Missiles to both capacity and current ammunition.</summary>
+    /// <summary>A Super Missile tank: adds five Super Missiles to both capacity and current ammunition.</summary>
     SuperMissileTank,
-    /// <summary>Item-table entry three: adds five Power Bombs to both capacity and current ammunition.</summary>
+    /// <summary>A Power Bomb tank: adds five Power Bombs to both capacity and current ammunition.</summary>
     PowerBombTank,
-    /// <summary>Item-table entry four: collects and equips the Bombs equipment flag.</summary>
+    /// <summary>The Bombs: collects and equips the Bombs equipment flag.</summary>
     Bombs,
-    /// <summary>Item-table entry five: collects and equips the Charge beam flag.</summary>
+    /// <summary>The Charge Beam: collects and equips the Charge beam flag.</summary>
     ChargeBeam,
-    /// <summary>Item-table entry six: collects and equips the Ice beam flag.</summary>
+    /// <summary>The Ice Beam: collects and equips the Ice beam flag.</summary>
     IceBeam,
-    /// <summary>Item-table entry seven: collects and equips the Hi-Jump Boots equipment flag.</summary>
+    /// <summary>The Hi-Jump Boots: collects and equips the Hi-Jump Boots equipment flag.</summary>
     HiJumpBoots,
-    /// <summary>Item-table entry eight: collects and equips Speed Booster; its Chozo presentation also resumes lava motion after the pickup message.</summary>
+    /// <summary>The Speed Booster: collects and equips Speed Booster; its Chozo presentation also resumes lava motion after the pickup message.</summary>
     SpeedBooster,
-    /// <summary>Item-table entry nine: collects and equips the Wave beam flag.</summary>
+    /// <summary>The Wave Beam: collects and equips the Wave beam flag.</summary>
     WaveBeam,
-    /// <summary>Item-table entry ten: collects and equips Spazer while unequipping Plasma.</summary>
+    /// <summary>The Spazer: collects and equips Spazer while unequipping Plasma.</summary>
     SpazerBeam,
-    /// <summary>Item-table entry eleven: collects and equips the Spring Ball equipment flag.</summary>
+    /// <summary>The Spring Ball: collects and equips the Spring Ball equipment flag.</summary>
     SpringBall,
-    /// <summary>Item-table entry twelve: collects and equips Varia Suit and clears the projectile flare counter before its message.</summary>
+    /// <summary>The Varia Suit: collects and equips Varia Suit and clears the projectile flare counter before its message.</summary>
     VariaSuit,
-    /// <summary>Item-table entry thirteen: collects and equips Gravity Suit and clears the projectile flare counter before its message.</summary>
+    /// <summary>The Gravity Suit: collects and equips Gravity Suit and clears the projectile flare counter before its message.</summary>
     GravitySuit,
-    /// <summary>Item-table entry fourteen: collects and equips the X-Ray Scope equipment flag.</summary>
+    /// <summary>The X-Ray Scope: collects and equips the X-Ray Scope equipment flag.</summary>
     XrayScope,
-    /// <summary>Item-table entry fifteen: collects and equips Plasma while unequipping Spazer.</summary>
+    /// <summary>The Plasma Beam: collects and equips Plasma while unequipping Spazer.</summary>
     PlasmaBeam,
-    /// <summary>Item-table entry sixteen: collects and equips the Grapple Beam equipment flag.</summary>
+    /// <summary>The Grapple Beam: collects and equips the Grapple Beam equipment flag.</summary>
     GrappleBeam,
-    /// <summary>Item-table entry seventeen: collects and equips the Space Jump equipment flag.</summary>
+    /// <summary>The Space Jump: collects and equips the Space Jump equipment flag.</summary>
     SpaceJump,
-    /// <summary>Item-table entry eighteen: collects and equips the Screw Attack equipment flag.</summary>
+    /// <summary>The Screw Attack: collects and equips the Screw Attack equipment flag.</summary>
     ScrewAttack,
-    /// <summary>Item-table entry nineteen: collects and equips the Morph Ball equipment flag.</summary>
+    /// <summary>The Morph Ball: collects and equips the Morph Ball equipment flag.</summary>
     MorphBall,
-    /// <summary>Item-table entry twenty: adds 100 reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
+    /// <summary>A Reserve Tank: adds 100 reserve-energy capacity and selects automatic reserve mode if no mode was set.</summary>
     ReserveTank,
 }

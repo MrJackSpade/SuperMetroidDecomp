@@ -8,8 +8,8 @@ public readonly record struct BlockMoveResult(
 {
     /// <summary>
     /// True when Samus's movement selected downward movement and neither terrain nor a solid enemy
-    /// stopped it. This is the condition that publishes solid-vertical result two
-    /// (falling); an unobstructed upward carry instead publishes result zero (no change).
+    /// stopped it. This is the condition that reports her falling; an unobstructed upward carry
+    /// reports no change instead.
     /// </summary>
     public bool IsUnobstructedDownwardMovement =>
         !Collided && !AcceptedDisplacement.IsNegative;

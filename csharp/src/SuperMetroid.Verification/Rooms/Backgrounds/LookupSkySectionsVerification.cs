@@ -95,7 +95,7 @@ internal static class LookupSkySectionsVerification
         foreach (SkyBand band in ScrollingSkyBandDefinitions.Bands)
             AssertTrue(cartridge.Entries.Any(entry => entry.TopRow == band.TopRow), $"Sky band at row {band.TopRow} begins at a cartridge entry");
 
-        var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
+        var sky = new ScrollingSkyState(ScrollingSky.Land);
         var words = new uint[cartridge.ScrollWords];
         for (int frame = 0; frame < 16; frame++)
         {
@@ -128,7 +128,7 @@ internal static class LookupSkySectionsVerification
     internal static void VerifySkyBandDriftsOverFullPeriod(CartridgeImportAddressSpace rom)
     {
         CartridgeSky cartridge = Decode(rom);
-        var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
+        var sky = new ScrollingSkyState(ScrollingSky.Land);
         var words = new uint[cartridge.ScrollWords];
         int moving = 0, frozenFrames = 0, firstReturn = 0;
         for (int frame = 0; moving < FullPeriodFrames; frame++)

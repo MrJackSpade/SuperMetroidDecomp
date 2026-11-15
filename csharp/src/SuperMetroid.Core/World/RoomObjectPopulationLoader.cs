@@ -214,7 +214,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.MotherBrainEscapeRoomGate)
         {
-            DoorObjects.SetupDoorTransitionDeactivatedSlot(level, place);
+            DoorObjects.SetupPassableBlock(level, place);
             place.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
             return true;
         }

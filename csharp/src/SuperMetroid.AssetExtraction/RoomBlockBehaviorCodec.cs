@@ -47,9 +47,9 @@ public static class RoomBlockBehaviorCodec
     [
         SlopeShapeDefinitions.SquareBottomHalf, SlopeShapeDefinitions.SquareRightHalf, SlopeShapeDefinitions.SquareBottomRightQuarter,
         SlopeShapeDefinitions.SquareAllButTopLeft, SlopeShapeDefinitions.SquareFull, SlopeShapeDefinitions.LowPeak,
-        SlopeShapeDefinitions.HighPeak, SlopeShapeDefinitions.HalfHeight, SlopeShapeDefinitions.UnusedSolid1,
-        SlopeShapeDefinitions.UnusedSolid2, SlopeShapeDefinitions.UnusedSolid3, SlopeShapeDefinitions.UnusedSolid4,
-        SlopeShapeDefinitions.UnusedSolid5, SlopeShapeDefinitions.UnusedSolid6, SlopeShapeDefinitions.FourPixelStairs,
+        SlopeShapeDefinitions.HighPeak, SlopeShapeDefinitions.HalfHeight, SlopeShapeDefinitions.UnusedSolid,
+        SlopeShapeDefinitions.UnusedSolid, SlopeShapeDefinitions.UnusedSolid, SlopeShapeDefinitions.UnusedSolid,
+        SlopeShapeDefinitions.UnusedSolid, SlopeShapeDefinitions.UnusedSolid, SlopeShapeDefinitions.FourPixelStairs,
         SlopeShapeDefinitions.TwoPixelStairs, SlopeShapeDefinitions.Open, SlopeShapeDefinitions.Overhang,
         SlopeShapeDefinitions.UnitRise, SlopeShapeDefinitions.Solid, SlopeShapeDefinitions.UnitRiseLower,
         SlopeShapeDefinitions.UnitRiseUpper, SlopeShapeDefinitions.HalfRiseLower, SlopeShapeDefinitions.HalfRiseUpper,

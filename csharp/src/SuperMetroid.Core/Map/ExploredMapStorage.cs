@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Map;
 /// </summary>
 /// <remarks>
 /// Evidence: saving and loading the map copy only the Zebes areas' exploration; the save-map check compares the kept
-/// cells with the save's packed lists.
+/// cells with the cells the original keeps in a save.
 /// </remarks>
 public static class ExploredMapStorage
 {

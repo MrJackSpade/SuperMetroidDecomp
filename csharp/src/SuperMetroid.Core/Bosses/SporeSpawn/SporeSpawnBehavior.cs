@@ -348,7 +348,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEncounter encounter,
         SporeSpawnProjectileBehavior? spores,
         Func<EnemyProjectileAnimation> shot)
-        : EnemyProjectileBehavior<SporeSpawnProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
+        : EnemyProjectileMotionBehavior<SporeSpawnProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
     {
         /// <summary>The behaviour the spores a spawner releases run: the spores' own.</summary>
         private SporeSpawnProjectileBehavior Spores => spores ?? this;

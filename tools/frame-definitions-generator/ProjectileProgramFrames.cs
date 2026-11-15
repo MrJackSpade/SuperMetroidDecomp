@@ -776,7 +776,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     // Only an override spelled Move can move a projectile.
                     case MethodDeclarationSyntax { Identifier.Text: "Move" } method when method.Modifiers.Any(SyntaxKind.OverrideKeyword):
                         semantic ??= model.ModelOf(tree);
-                        if (semantic.GetDeclaredSymbol(method) is IMethodSymbol { OverriddenMethod.ContainingType.Name: "EnemyProjectileBehavior" or "SingleMotionProjectileBehavior" })
+                        if (semantic.GetDeclaredSymbol(method) is IMethodSymbol { OverriddenMethod.ContainingType.Name: "EnemyProjectileBehavior" or "EnemyProjectileMotionBehavior" or "SingleMotionProjectileBehavior" })
                             yield return method;
                         break;
                     case BaseObjectCreationExpressionSyntax { ArgumentList: { } arguments } creation:

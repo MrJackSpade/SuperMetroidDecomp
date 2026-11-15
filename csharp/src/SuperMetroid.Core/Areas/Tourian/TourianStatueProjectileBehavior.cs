@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 /// <typeparam name="TMotion">The kinds' motions (#1843).</typeparam>
 internal abstract class TourianStatueProjectileBehavior<TMotion>
-    : EnemyProjectileBehavior<TMotion>, IEnemyProjectileCues<TourianStatueProjectileCue>
+    : EnemyProjectileMotionBehavior<TMotion>, IEnemyProjectileCues<TourianStatueProjectileCue>
     where TMotion : struct, Enum
 {
     /// <summary>Kinds that all start in <paramref name="initial"/>.</summary>

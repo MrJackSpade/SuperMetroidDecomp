@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyDeathsAndDrops
-    : EnemyProjectileBehavior<SingleMotion>, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
+    : EnemyProjectileMotionBehavior<SingleMotion>, IEnemyProjectileBranchingCues<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>
 {
     /// <summary>Tracks the room's cumulative enemy-kill count.</summary>
     private readonly EnemyRoomStatus _roomStatus;

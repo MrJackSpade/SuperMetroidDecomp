@@ -101,7 +101,7 @@ internal sealed class EyeDoorBehavior
     /// <param name="initial">The motion the projectile starts with: the sweat's fall, or none for the shot.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
     private sealed class EyeDoorProjectileBehavior(EyeDoorProjectileMotion? initial, Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior<EyeDoorProjectileMotion>(initial, shot), IEnemyProjectileCues<EyeDoorProjectileCue>
+        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(initial, shot), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, EyeDoorProjectileMotion motion)

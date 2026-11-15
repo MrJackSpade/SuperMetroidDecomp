@@ -66,7 +66,7 @@ internal sealed class MotherBrainProjectiles
     /// animation's cues. It needs nothing of the encounter.
     /// </summary>
     private sealed class TurretBulletBehavior()
-        : EnemyProjectileBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new MotherBrainTurretAnimation(), touch: () => new MotherBrainTurretAnimation()),
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new MotherBrainTurretAnimation(), touch: () => new MotherBrainTurretAnimation()),
         IEnemyProjectileCues<MotherBrainTurretCue>
     {
         /// <summary>Flies the bullet, flickering its vulnerability, until it meets a solid block.</summary>
@@ -111,7 +111,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectileBehavior turretBullet,
         MotherBrainProjectileBehavior? spawned = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : EnemyProjectileBehavior<MotherBrainProjectileMotion>(StartingMotions, touch: touch),
+        : EnemyProjectileMotionBehavior<MotherBrainProjectileMotion>(StartingMotions, touch: touch),
         IEnemyProjectileCues<MotherBrainTurretCue>,
         IEnemyProjectileCues<MotherBrainGlassCue>,
         IEnemyProjectileCues<MotherBrainEffectCue>,

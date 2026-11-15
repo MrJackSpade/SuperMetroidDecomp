@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </para>
 /// <para>
 /// A behaviour of this class itself is a kind that never moves itself and whose animations publish only shared cues;
-/// families that move their projectiles derive from <see cref="EnemyProjectileBehavior{TMotion}"/>, which owns their
+/// families that move their projectiles derive from <see cref="EnemyProjectileMotionBehavior{TMotion}"/>, which owns their
 /// typed motions (#1843).
 /// </para>
 /// </summary>

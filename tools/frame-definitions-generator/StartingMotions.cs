@@ -6,7 +6,7 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 
 /// <summary>
 /// The motion each enemy projectile kind starts with (#1843): a projectile behaviour deriving from
-/// <c>EnemyProjectileBehavior&lt;TMotion&gt;</c> owns the motions <c>TMotion</c> names and starts each projectile it is
+/// <c>EnemyProjectileMotionBehavior&lt;TMotion&gt;</c> owns the motions <c>TMotion</c> names and starts each projectile it is
 /// bound to in its kind's motion, which its base constructor call names either as a table naming every kind it serves
 /// (<c>startingMotions</c>), or as one motion for every kind it is bound to (<c>initial</c>), passed down through its own
 /// constructors' parameters from the construction that makes it. A table names its kinds outright; one motion reaches the
@@ -63,7 +63,7 @@ internal sealed class StartingMotions
         ReadBindings(bind, kindParameter, behaviourParameter, new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));
     }
 
-    /// <summary>Every family motion type: the motion type argument of each behaviour deriving from <c>EnemyProjectileBehavior&lt;TMotion&gt;</c>.</summary>
+    /// <summary>Every family motion type: the motion type argument of each behaviour deriving from <c>EnemyProjectileMotionBehavior&lt;TMotion&gt;</c>.</summary>
     public IReadOnlySet<INamedTypeSymbol> MotionTypes => _motionTypes;
 
     /// <summary>Whether <paramref name="field"/> is a motion: a member of a family motion type.</summary>
@@ -80,7 +80,7 @@ internal sealed class StartingMotions
     public bool IsStartingValue(SyntaxNode node) => node.AncestorsAndSelf().Any(_values.Contains);
 
     /// <summary>
-    /// The motion type <paramref name="type"/>'s base chain hands <c>EnemyProjectileBehavior&lt;TMotion&gt;</c>; null when it
+    /// The motion type <paramref name="type"/>'s base chain hands <c>EnemyProjectileMotionBehavior&lt;TMotion&gt;</c>; null when it
     /// derives from none or hands it a type parameter.
     /// </summary>
     private INamedTypeSymbol? MotionTypeOf(INamedTypeSymbol type)
@@ -96,7 +96,7 @@ internal sealed class StartingMotions
     /// <summary>
     /// What the construction calling <paramref name="constructor"/> with <paramref name="argumentFor"/>'s arguments starts its
     /// kinds with: followed through each constructor's base call (a constructor initializer, a primary constructor's base
-    /// call, or the implicit call of the base's parameterless constructor) to <c>EnemyProjectileBehavior&lt;TMotion&gt;</c>'s.
+    /// call, or the implicit call of the base's parameterless constructor) to <c>EnemyProjectileMotionBehavior&lt;TMotion&gt;</c>'s.
     /// </summary>
     private Start Resolve(IMethodSymbol constructor, Func<IParameterSymbol, Argument> argumentFor, int depth)
     {
@@ -123,7 +123,7 @@ internal sealed class StartingMotions
     }
 
     /// <summary>
-    /// The starting motions <c>EnemyProjectileBehavior&lt;TMotion&gt;</c>'s <paramref name="constructor"/> is handed: its table,
+    /// The starting motions <c>EnemyProjectileMotionBehavior&lt;TMotion&gt;</c>'s <paramref name="constructor"/> is handed: its table,
     /// or its one motion (none when the kinds start holding still).
     /// </summary>
     private Start Started(IMethodSymbol constructor, Func<IParameterSymbol, Argument> argumentFor)

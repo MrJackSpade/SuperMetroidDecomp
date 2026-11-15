@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// cues and code change the motion by calling its methods; a shot that destroys the projectile, or its deletion, stops it.
 /// </summary>
 /// <typeparam name="TMotion">The family's motions.</typeparam>
-internal abstract class EnemyProjectileBehavior<TMotion> : EnemyProjectileBehavior
+internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectileBehavior
     where TMotion : struct, Enum
 {
     /// <summary>The motion every kind this behaviour is bound to starts with, or null when it starts holding still.</summary>
@@ -22,7 +22,7 @@ internal abstract class EnemyProjectileBehavior<TMotion> : EnemyProjectileBehavi
     /// <param name="initial">The motion the projectile starts with, or null when it starts holding still.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
     /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
-    private protected EnemyProjectileBehavior(
+    private protected EnemyProjectileMotionBehavior(
         TMotion? initial = null,
         Func<EnemyProjectileAnimation>? shot = null,
         Func<EnemyProjectileAnimation>? touch = null)
@@ -37,7 +37,7 @@ internal abstract class EnemyProjectileBehavior<TMotion> : EnemyProjectileBehavi
     /// </param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
     /// <param name="touch">The animation touching Samus starts, or null when the kind has none of its own.</param>
-    private protected EnemyProjectileBehavior(
+    private protected EnemyProjectileMotionBehavior(
         IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?> startingMotions,
         Func<EnemyProjectileAnimation>? shot = null,
         Func<EnemyProjectileAnimation>? touch = null)

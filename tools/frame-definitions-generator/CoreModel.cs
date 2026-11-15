@@ -75,7 +75,7 @@ internal sealed class CoreModel
         EnemyProjectileFrameId = SingleType("EnemyProjectileFrameId");
         RoomSpriteObjectKind = SingleType("RoomSpriteObjectKind");
         RoomEnemyProjectileKind = SingleType("RoomEnemyProjectileKind");
-        EnemyProjectileMotionBehavior = SingleType("EnemyProjectileBehavior", arity: 1);
+        EnemyProjectileMotionBehavior = SingleType("EnemyProjectileMotionBehavior", arity: 1);
         EnemyProjectile = SingleType("EnemyProjectile");
         EnemyDefinitionId = SingleType("EnemyDefinitionId");
         ArchitectureReview = SingleType("ArchitectureReviewAttribute");
@@ -138,7 +138,7 @@ internal sealed class CoreModel
     public INamedTypeSymbol EnemyDefinitionId { get; }
 
     /// <summary>
-    /// The base of a projectile behaviour that moves its projectiles (#1843), <c>EnemyProjectileBehavior&lt;TMotion&gt;</c>,
+    /// The base of a projectile behaviour that moves its projectiles (#1843), <c>EnemyProjectileMotionBehavior&lt;TMotion&gt;</c>,
     /// whose type argument names the family's motions.
     /// </summary>
     public INamedTypeSymbol EnemyProjectileMotionBehavior { get; }

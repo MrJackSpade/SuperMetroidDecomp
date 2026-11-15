@@ -93,7 +93,7 @@ internal sealed class KraidProjectiles
     /// rock's switch to the shared colours, and the rock animations' cues.
     /// </summary>
     private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
+        : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
     {
         /// <summary>A spat or rising rock flies, and a ceiling rock falls, from its spawn.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, KraidRockMotion?> StartingMotions = new()

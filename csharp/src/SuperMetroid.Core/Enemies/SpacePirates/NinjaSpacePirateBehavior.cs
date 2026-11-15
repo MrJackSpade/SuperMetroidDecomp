@@ -626,7 +626,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal static readonly EnemyProjectileBehavior Claw = new ClawBehavior();
 
     /// <summary>A thrown claw: it flies out and back in its throw's direction, once its animation throws it.</summary>
-    private sealed class ClawBehavior : EnemyProjectileBehavior<PirateClawMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
+    private sealed class ClawBehavior : EnemyProjectileMotionBehavior<PirateClawMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, PirateClawMotion motion)

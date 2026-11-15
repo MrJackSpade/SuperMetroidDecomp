@@ -472,7 +472,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal static readonly EnemyProjectileBehavior Laser = new LaserBehavior();
 
     /// <summary>A laser: it flies left or right until it leaves the camera, once its animation fires it.</summary>
-    private sealed class LaserBehavior : EnemyProjectileBehavior<PirateLaserMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
+    private sealed class LaserBehavior : EnemyProjectileMotionBehavior<PirateLaserMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, PirateLaserMotion motion)

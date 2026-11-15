@@ -484,7 +484,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <param name="projectiles">The enemy projectiles, whose first place the trailing circles follow.</param>
     private sealed class AttackCircleBehavior(EnemyProjectileEngine projectiles)
-        : EnemyProjectileBehavior<ShaktoolCircleMotion>(StartingMotions), IEnemyProjectileCues<ShaktoolCircleCue>
+        : EnemyProjectileMotionBehavior<ShaktoolCircleMotion>(StartingMotions), IEnemyProjectileCues<ShaktoolCircleCue>
     {
         /// <summary>The front circle leads from its spawn; the trailing ones hold still until their animations start them.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, ShaktoolCircleMotion?> StartingMotions = new()

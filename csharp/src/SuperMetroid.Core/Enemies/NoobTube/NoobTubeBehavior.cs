@@ -194,7 +194,7 @@ internal sealed class NoobTubeBehavior
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
     private sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
-        : EnemyProjectileBehavior<NoobTubePieceMotion>(StartingMotions), IEnemyProjectileCues<NoobTubeProjectileCue>
+        : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(StartingMotions), IEnemyProjectileCues<NoobTubeProjectileCue>
     {
         /// <summary>A shard flies from its spawn; the crack and the bubbles hold still until their animations start them.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, NoobTubePieceMotion?> StartingMotions = new()

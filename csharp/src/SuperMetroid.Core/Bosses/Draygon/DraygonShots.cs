@@ -54,7 +54,7 @@ internal sealed class DraygonShots
         DraygonShotMotion? initial,
         Func<EnemyProjectileAnimation> shot,
         Func<EnemyProjectileAnimation>? touch = null)
-        : EnemyProjectileBehavior<DraygonShotMotion>(initial, shot, touch), IEnemyProjectileCues<DraygonProjectileCue>
+        : EnemyProjectileMotionBehavior<DraygonShotMotion>(initial, shot, touch), IEnemyProjectileCues<DraygonProjectileCue>
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)

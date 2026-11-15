@@ -69,7 +69,7 @@ internal sealed class CrocomireCombat
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,
         Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior<CrocomireProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<CrocomireProjectileCue>
+        : EnemyProjectileMotionBehavior<CrocomireProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<CrocomireProjectileCue>
     {
         /// <summary>The mouth shot aims, and the bridge fragments and spike-wall pieces fall, from their spawn.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, CrocomireProjectileMotion?> StartingMotions = new()

@@ -64,7 +64,7 @@ internal sealed class TorizoAttacks
         EnemyDeathsAndDrops deathsAndDrops,
         TorizoEncounterAccess access,
         Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior<TorizoProjectileMotion>(StartingMotions, shot), IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
+        : EnemyProjectileMotionBehavior<TorizoProjectileMotion>(StartingMotions, shot), IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
     {
         /// <summary>The sonic booms, eye beam, orbs, eggs and held super missile move from their spawn; the rest hold still until their animations start them.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, TorizoProjectileMotion?> StartingMotions = new()

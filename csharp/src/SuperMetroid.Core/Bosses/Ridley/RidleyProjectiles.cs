@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// flights and cues spawn the rest of the chain this spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyProjectiles : EnemyProjectileBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
+internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
     /// <summary>Provides Samus's current area when selecting Ridley projectile damage.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;

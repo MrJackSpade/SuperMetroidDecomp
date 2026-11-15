@@ -62,7 +62,7 @@ public sealed class EnemyProjectile
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
     /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
-    /// behaviour owns (<see cref="EnemyProjectileBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
+    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
     /// it at spawn and changes it; a shot that destroys the projectile stops it.
     /// </summary>
     internal Enum? Motion { get; set; }

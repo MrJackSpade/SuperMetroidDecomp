@@ -85,7 +85,7 @@ internal sealed class PhantoonCombat
         PhantoonEncounter encounter,
         PhantoonFlameMotion initial,
         Func<EnemyProjectileAnimation> shot)
-        : EnemyProjectileBehavior<PhantoonFlameMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
+        : EnemyProjectileMotionBehavior<PhantoonFlameMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
     {
         /// <inheritdoc/>
         private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)

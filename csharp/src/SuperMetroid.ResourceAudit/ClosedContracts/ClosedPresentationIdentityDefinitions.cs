@@ -93,7 +93,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomEffectPictures", "Artwork", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsOnOverlay)
             .Select(type => (int)type).ToArray(),
         // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
-        ("InstalledRoomArtwork", "Sky", "variant") => RetailRooms.All.SelectMany(RoomStateLists.GetStates)
+        ("InstalledRoomArtwork", "Sky", "sky") => RetailRooms.All.SelectMany(RoomStateLists.GetStates)
             .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
             .Select(state => (int)ScrollingSkyState.SkyOf(state.MainBehavior)).Distinct().ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and

@@ -29,7 +29,7 @@ internal static class BossDisplayBindingsOracleVerification
         var oam = new List<EnemyExtendedDrawComponent>();
         var bg2 = new List<EnemyBg2TilemapWrite>();
         var physical = BossPhysicalComponents(frame);
-        bool emptyPhysics = frame.Bank == DraygonBg2FrameToolingDefinitions.Bank && DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer);
+        bool emptyPhysics = frame.Bank == DraygonBg2FrameToolingDefinitions.Bank && DraygonCollisionDefinitions.IsCollisionFreeFrame(frame.Pointer);
         // Compiled Draygon OAM collision deliberately omits components whose
         // native lists are empty. Confirm each omitted native list below.
         if (!emptyPhysics) AssertEqual(physical.Length, count, frame.Name + " native physical component count");

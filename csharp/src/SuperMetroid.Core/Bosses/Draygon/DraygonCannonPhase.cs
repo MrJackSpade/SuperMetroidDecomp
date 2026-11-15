@@ -9,8 +9,6 @@ internal enum DraygonCannonPhase
     StartingDestroyed,
     /// <summary>Showing its shield and resting until a missile wakes it.</summary>
     Shielded,
-    /// <summary>A missile woke it: the update counts the hit.</summary>
-    Struck,
     /// <summary>Flashing its shield after a hit that did not destroy it.</summary>
     Flashing,
     /// <summary>Destroyed, smoking for good.</summary>

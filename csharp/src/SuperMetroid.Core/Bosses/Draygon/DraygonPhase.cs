@@ -12,17 +12,17 @@ public enum DraygonPhase
     IntroInitialDelay,
     /// <summary>Advances the opening Evir movement for 1,232 frames before the first swoop.</summary>
     IntroDance,
-    /// <summary>Constructs the swoop-height table, aims horizontal velocity at Samus, and installs right-facing graphics.</summary>
+    /// <summary>Plans the swoop's path of heights, aims horizontal velocity at Samus, and faces Draygon right.</summary>
     SwoopRightSetup,
-    /// <summary>Traverses height samples backward while moving right toward the bottom of the swoop.</summary>
+    /// <summary>Follows the swoop's path down, from its last height to its first, while moving right toward the bottom of the swoop.</summary>
     SwoopRightDescending,
     /// <summary>Recalculates horizontal velocity toward the right exit for the ascending half.</summary>
     SwoopRightApex,
-    /// <summary>Traverses height samples forward and selects a leftward swoop or goop pass from the current random number.</summary>
+    /// <summary>Follows the swoop's path back up and selects a leftward swoop or goop pass from the current random number.</summary>
     SwoopRightAscending,
-    /// <summary>Reuses the generated height table, aims leftward velocity at Samus, and installs left-facing graphics.</summary>
+    /// <summary>Reuses the planned path of heights, aims leftward velocity at Samus, and faces Draygon left.</summary>
     SwoopLeftSetup,
-    /// <summary>Traverses height samples backward while moving left toward the bottom of the swoop.</summary>
+    /// <summary>Follows the swoop's path down while moving left toward the bottom of the swoop.</summary>
     SwoopLeftDescending,
     /// <summary>Recalculates horizontal velocity toward the left reset position for the ascending half.</summary>
     SwoopLeftApex,
@@ -46,8 +46,8 @@ public enum DraygonPhase
     GoopLeftRecovery,
     /// <summary>Moves toward goop-slowed Samus at two pixels per frame and checks the eight-pixel claw window.</summary>
     TryGrabSamus,
-    /// <summary>Despite the managed name, drops an active grapple and enters release without grabbing Samus.</summary>
-    GrabbedSamus,
+    /// <summary>Repels a grapple beam that caught Draygon as he reached Samus: drops the beam and releases her without a grab (#1939).</summary>
+    RepelGrapple,
     /// <summary>Carries Samus toward room pixel (256,384), then starts the rising spiral.</summary>
     CarrySamus,
     /// <summary>Expands and raises the carry orbit, with RNG-selected incidental tail whips.</summary>
@@ -64,8 +64,8 @@ public enum DraygonPhase
     FlyStraightUp,
     /// <summary>Drifts toward room pixel (256,480), then spawns burial Evirs and retires the arms and tail.</summary>
     Dying,
-    /// <summary>Despite the managed name, waits 416 frames while Evirs approach before the body sinks.</summary>
-    DyingSink,
+    /// <summary>Waits 416 frames while the burial Evirs approach, before the body sinks (#1939).</summary>
+    DyingWaitForEvirs,
     /// <summary>Sinks one pixel per frame to Y=576, scatters drops, deletes the remaining parts, and persists defeat.</summary>
     DyingFinish,
 }

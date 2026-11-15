@@ -138,7 +138,7 @@ internal sealed class DraygonParts
     internal void StartDraygonAnimation(RoomEnemySlot part, DraygonSegment segment)
     {
         DraygonEnemyState state = Draygon ??
-            throw new InvalidDataException("Draygon program started without encounter state.");
+            throw new InvalidDataException("Draygon animation started without encounter state.");
         state.StartAnimation(part, segment);
         part.AnimationClock.StepOnNextUpdate();
     }
@@ -216,8 +216,8 @@ internal sealed class DraygonParts
             case DraygonCue.SetOwnEyeAction ownAction:
                 part.RequireSpeciesState<DraygonEyeState>().Action = ownAction.Action;
                 return;
-            case DraygonCue.DisplaceBodyGraphics displace:
-                state.BodyGraphicsDisplacement = displace.Offset;
+            case DraygonCue.ShiftBodyPicture shift:
+                state.BodyPictureShift = shift.Shift;
                 return;
             case DraygonCue.QueueSound sound:
                 RequestDraygonSound(sound.Sound);
@@ -248,7 +248,7 @@ internal sealed class DraygonParts
 
     /// <summary>A linked Draygon part, failing if the part never loaded.</summary>
     internal static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
-        part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
+        part ?? throw new InvalidDataException("A Draygon animation ran before all four parts loaded.");
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>
@@ -325,9 +325,8 @@ internal sealed class DraygonParts
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
-        // The tail hit also publishes the same 32-frame, type-seven quake used by the
-        // game's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
-        // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
+        // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
+        // energy it costs.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
 
         _spriteObjects.SpawnRoomSpriteObject(
@@ -352,7 +351,10 @@ internal sealed class DraygonParts
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 
         int random = _room.Random.Generate();
-        TrigonometryAngle angle = new(DraygonRandomDefinitions.GoopAngleSpread.Of(random) + (movingRight ? 192 : 128));
+        // The goop leaves within the quarter turn from a half turn when Draygon moves left, or from three quarters of a
+        // turn when he moves right.
+        TrigonometryAngle firstAngle = movingRight ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
+        TrigonometryAngle angle = firstAngle + new TrigonometryAngle(DraygonRandomDefinitions.GoopAngleSpread.Of(random));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
     }
 

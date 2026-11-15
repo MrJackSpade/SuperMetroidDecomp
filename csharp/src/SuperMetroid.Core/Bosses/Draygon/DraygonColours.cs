@@ -25,10 +25,7 @@ internal sealed class DraygonColours : IGameplayShadingSource
         ? PictureShading.Shaded(DraygonShades.Intro)
         : PictureShading.Shaded(DraygonShades.Intro).With(white ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
 
-    /// <summary>
-    /// The shading his goop draws in: his opening's colours. Its initialization selects the second sprite row, which only
-    /// his opening's colour load writes, unlike his own row, which his hurt updates rewrite.
-    /// </summary>
+    /// <summary>The shading his goop draws in: his opening's colours, which his hurt updates never change.</summary>
     internal static PictureShading Goop { get; } = PictureShading.Shaded(DraygonShades.Intro);
 
     /// <summary>

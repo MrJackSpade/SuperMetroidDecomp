@@ -142,7 +142,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.TryGrabSamus:
                 Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter);
                 break;
-            case DraygonPhase.GrabbedSamus:
+            case DraygonPhase.RepelGrapple:
                 DraygonGrab.RepelDraygonWithGrapple(state, samus);
                 break;
             case DraygonPhase.CarrySamus:
@@ -169,7 +169,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.Dying:
                 Death.DriftDyingDraygonToBurialPoint(state);
                 break;
-            case DraygonPhase.DyingSink:
+            case DraygonPhase.DyingWaitForEvirs:
                 Death.WaitForDraygonBurialEvirs(state, frameCounter);
                 break;
             case DraygonPhase.DyingFinish:
@@ -215,6 +215,12 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static readonly int DraygonOffscreenLeftX = CoordinateAxis.Wrap(-80);
 
+    /// <summary>
+    /// The Y Draygon parks at above the room after a goop pass (-80, wrapped into the coordinate range), from which his
+    /// next swoop starts.
+    /// </summary>
+    internal static readonly int DraygonOffscreenAboveY = CoordinateAxis.Wrap(-80);
+
     /// <summary>Distance from the left-side reset point to the right-side one: 672 pixels to the right.</summary>
     internal static readonly Offset16<RoomPixels> DraygonRightSideResetDistance = new(672, 0);
 
@@ -227,8 +233,11 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The swoop acceleration, 160/256 pixel per frame per frame, an eye hit may not reach.</summary>
     internal static readonly SignedEightEight DraygonSwoopAccelerationLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(160);
 
-    /// <summary>The swoop path entry at which the arms reach for the swoop's apex, and return to rest on the climb.</summary>
-    internal const int DraygonSwoopApexArmsEntry = 26;
+    /// <summary>
+    /// The updates before the bottom of a swoop at which Draygon's arms reach out on the way down, and the updates after it
+    /// at which they return to rest on the climb: each update of the swoop follows one entry of its path.
+    /// </summary>
+    internal const int DraygonArmsReachUpdatesFromSwoopBottom = 26;
 
     /// <summary>Advances Draygon's typed animation.</summary>
     internal void AdvanceDraygonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
@@ -261,8 +270,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonDeathTargetY = 480;
     /// <summary>Y threshold below the room where Draygon's burial is complete.</summary>
     internal const int DraygonBurialFinishedY = 576;
-    /// <summary>Wait before the burial Evirs and sinking phase proceed.</summary>
-    internal const int DraygonDeathWaitFramesUs = 416;
+    /// <summary>The updates the dying Draygon waits for his burial Evirs before he sinks.</summary>
+    internal const int DraygonBurialWaitUpdates = 416;
     /// <summary>Whole-pixel speed of Draygon's direct chase before the carry spiral.</summary>
     internal const int DraygonChaseSpeed = 2;
     /// <summary>The carry spiral's target and initial center, (256, 384).</summary>
@@ -275,7 +284,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>How much the spiral's turn each frame slows every frame: a 256th of a step.</summary>
     internal static readonly RotationAngle DraygonSpiralTurnSlowing = RotationAngle.FromSteps(0, 1);
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
-    internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromParts(0, 8192);
+    internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
     /// <summary>Largest radius reached by the expanding carry spiral.</summary>
     internal const int DraygonMaximumSpiralRadius = 160;
     /// <summary>Upper room boundary for the spiral center's vertical lift.</summary>

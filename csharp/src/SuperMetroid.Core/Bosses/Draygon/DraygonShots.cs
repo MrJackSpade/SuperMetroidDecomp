@@ -187,8 +187,8 @@ internal sealed class DraygonShots
             int horizontalRadius = powerBomb.ExplosionRadius.WholePixels;
             if (horizontalRadius == 0)
                 return;
-            // The vertical radius is three quarters of the horizontal: half of it, rounded up, plus the whole, halved.
-            int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
+            // The vertical radius is three quarters of the horizontal: half of it, rounded up, plus the whole, halved down.
+            int verticalRadius = (horizontalRadius + (horizontalRadius + 1) / 2) / 2;
             int xDistance = CoordinateAxis.Distance(powerBomb.Position.X, projectile.Position.X.Whole);
             int yDistance = CoordinateAxis.Distance(powerBomb.Position.Y, projectile.Position.Y.Whole);
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)

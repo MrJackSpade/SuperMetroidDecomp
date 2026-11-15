@@ -14,8 +14,8 @@ internal abstract record DraygonCue
     /// <summary>Gives the part running the animation (the eye) its tracking action.</summary>
     internal sealed record SetOwnEyeAction(DraygonEyeAction Action) : DraygonCue;
 
-    /// <summary>Displaces the body's background graphics while the tail whips.</summary>
-    internal sealed record DisplaceBodyGraphics(Offset16<BackgroundPixels> Offset) : DraygonCue;
+    /// <summary>Shifts the body's picture against the body while the tail whips.</summary>
+    internal sealed record ShiftBodyPicture(Offset16<RoomPixels> Shift) : DraygonCue;
 
     /// <summary>Queues a sound effect at normal priority.</summary>
     internal sealed record QueueSound(SoundEffectId Sound) : DraygonCue;

@@ -39,6 +39,15 @@ internal static class DraygonCollisionDefinitionsAccess
         /// <summary>Empty OAM frames across both mirrored Draygon body sequences.</summary>
         internal static int EmptyOamFrameCount => 2 * (6 + 4 + 7 + 7);
 
+        /// <summary>
+        /// Whether the frame at native address <paramref name="pointer"/> has no collision components: every native
+        /// component of it names an empty hitbox list, which the port omits (#1937).
+        /// </summary>
+        internal static bool IsCollisionFreeFrame(ushort pointer) =>
+            RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer) is { } shown &&
+            DraygonCollisionDefinitions.FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components) &&
+            components.IsEmpty;
+
         /// <summary>The cartridge's collision-free ordinary OAM frame roots, in fixed and expanding runs.</summary>
         internal static bool IsEmptyOamFrame(ushort pointer) =>
             InFixedFrames(pointer, LeftSingleFrames, 6, 1) ||

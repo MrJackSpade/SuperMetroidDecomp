@@ -12,7 +12,15 @@ internal static class DraygonBurialEvirs
     /// a sixteenth turn at a time, up to <see cref="DraygonBurialEvirDefinitions.FirstAngle"/> on its left.
     /// </summary>
     internal static IReadOnlyList<DraygonBurialEvirDefinition> InSpawnOrder { get; } =
-        [.. Enumerable.Range(0, EntryCount).Select(step => AtAngle(FirstAngle - AngleStep * (EntryCount - 1 - step)))];
+        [.. Enumerable.Range(0, EntryCount).Select(step => AtAngle(StepsBefore(FirstAngle, EntryCount - 1 - step)))];
+
+    /// <summary><paramref name="angle"/> turned back <paramref name="steps"/> of <see cref="DraygonBurialEvirDefinitions.AngleStep"/>.</summary>
+    private static TrigonometryAngle StepsBefore(TrigonometryAngle angle, int steps)
+    {
+        for (int step = 0; step < steps; step++)
+            angle -= AngleStep;
+        return angle;
+    }
 
     /// <summary>
     /// The burial subspeeds are the absolute unit-circle components scaled by <see cref="DraygonBurialEvirDefinitions.SubspeedScale"/>
@@ -21,9 +29,9 @@ internal static class DraygonBurialEvirs
     /// selects the movement signs. An Evir left of the circle's centre faces right, toward Draygon, and one right of it is
     /// drawn as the intro Evir, which faces left.
     /// </summary>
-    private static DraygonBurialEvirDefinition AtAngle(int angle)
+    private static DraygonBurialEvirDefinition AtAngle(TrigonometryAngle angle)
     {
-        double radians = angle * Math.PI / 128;
+        double radians = angle.RawValue * Math.PI / TrigonometryAngle.HalfTurn.RawValue;
         double x = Math.Cos(radians), y = Math.Sin(radians);
         return new(
             new FixedVector<RoomPixels>(
@@ -32,7 +40,7 @@ internal static class DraygonBurialEvirs
             Position16<RoomPixels>.Wrapped(
                 (int)Math.Floor(CenterX + Radius * x),
                 (int)Math.Floor(CenterY - Radius * y)),
-            TrigonometryAngle.Wrapped(angle),
+            angle,
             x < 0 ? RoomSpriteObjectKind.DraygonDeathEvirFacingRight : RoomSpriteObjectKind.DraygonIntroEvir);
     }
 

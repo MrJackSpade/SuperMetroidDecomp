@@ -15,13 +15,7 @@ internal static class DraygonCannonDefinitions
     /// <summary>Both blocks of a destroyed cannon: the spike-block family with the destroyed-cannon behaviour.</summary>
     internal static readonly DraygonCannonTerrain DestroyedCannon = new(RoomCollisionType.SpikeBlock, RoomBlockBehavior.Reacting(SpikeReaction.TurretSpike));
 
-    /// <summary>
-    /// The hit counter a Super Missile sets: far enough past <see cref="HitsToDestroy"/> that the next counted hit
-    /// destroys the cannon.
-    /// </summary>
-    internal const int SuperMissileHitCounterSeed = 119;
-
-    /// <summary>The hits a shielded cannon takes before it is destroyed.</summary>
+    /// <summary>The hits a shielded cannon takes before it is destroyed; a Super Missile destroys it at once.</summary>
     internal const int HitsToDestroy = 3;
 
     /// <summary>

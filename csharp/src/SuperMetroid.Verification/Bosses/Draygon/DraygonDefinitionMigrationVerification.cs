@@ -28,7 +28,7 @@ internal static class DraygonDefinitionMigrationVerification
         AssertEqual(RoomBlockBehaviorCodec.Decode(0xff), DraygonCannonDefinitions.LiveCannonExtension.Behavior, "live cannon extension behaviour");
         AssertEqual(RoomCollisionType.SpikeBlock, DraygonCannonDefinitions.DestroyedCannon.Type, "destroyed cannon collision kind");
         AssertEqual(RoomBlockBehaviorCodec.Decode(3), DraygonCannonDefinitions.DestroyedCannon.Behavior, "destroyed cannon behaviour");
-        AssertEqual(0x77, DraygonCannonDefinitions.SuperMissileHitCounterSeed, "Super Missile hit counter");
+
         AssertEqual(3, DraygonCannonDefinitions.HitsToDestroy, "hits to destroy");
 
         AssertEqual(0x804b, DraygonNativeWords.EyeActions.Word(DraygonEyeAction.Inert), "inert eye routine");

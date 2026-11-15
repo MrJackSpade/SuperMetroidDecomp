@@ -11,12 +11,8 @@ internal static class DraygonHealthShades
     /// to select a band past the authored ones.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the Japanese and North American v1.0 release:
-    /// threshold(i)=750*(7-i), i=0..7; the band is the first
-    /// nonnegative signed difference. For health 0..6000 no difference overflows,
-    /// so integer division gives the band max(0,7-floor(health/750)). Exact multiples stay
-    /// in the higher band. The max describes the top band, not input clamping.
-    /// There is no ninth threshold.
+    /// Each band covers 750 health, the highest band from 5250 up: the band is seven less the whole 750s of health, and
+    /// never below zero. Health exactly on a boundary stays in the higher band.
     /// </remarks>
     public static int BandForHealth(int health)
     {

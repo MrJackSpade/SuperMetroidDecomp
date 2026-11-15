@@ -34,8 +34,7 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftFireGoop, 0x98fe),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftRoar, 0x9922),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftIdle, 0x9944),
-        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDying, 0x997a),
-        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDyingLoop, 0x997e),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDying, 0x997e),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDead, 0x999c),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingLeft, 0x99ae),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingRight, 0x99b4),
@@ -43,8 +42,7 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingDown, 0x99c0),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftIdle, 0x99c6),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftInitialFakeWhip, 0x99fc),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhips, 0x9a68),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhipsLoop, 0x9a6c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhips, 0x9a6c),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftWhip, 0x9ae8),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFlail, 0x9b5a),
         new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingRightIdle, 0x9bda),
@@ -55,18 +53,28 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightFireGoop, 0x9c90),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightRoar, 0x9cb4),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightIdle, 0x9cd6),
-        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDying, 0x9d1c),
-        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDyingLoop, 0x9d20),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDying, 0x9d20),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDead, 0x9d3e),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingRight, 0x9d50),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingLeft, 0x9d56),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingUp, 0x9d5c),
         new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingDown, 0x9d62),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightIdle, 0x9d68),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhips, 0x9e21),
-        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhipsLoop, 0x9e25),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhips, 0x9e25),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightWhip, 0x9ea1),
         new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFlail, 0x9f15),
+    ];
+
+    /// <summary>
+    /// The native lists that only load the counter and run on into a counted segment (#1938): the animation starting at
+    /// that segment plays its first run as many times as the counter says. They hold no beats, so no segment names them.
+    /// </summary>
+    internal static readonly DraygonNativeListAddressesEntry[] CounterPreambles =
+    [
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDying, 0x997a),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhips, 0x9a68),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDying, 0x9d1c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhips, 0x9e21),
     ];
 
     /// <summary>The operand words each bank-$A5 Draygon callback takes.</summary>
@@ -111,7 +119,8 @@ internal static class DraygonNativeListAddresses
         0x94dd => new DraygonCue.StartPartAnimations(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
         0xc47b => new DraygonCue.SetEyeAction(DraygonNativeWords.EyeActions.Decode(operands[0], "Draygon eye function")),
         0x9736 => new DraygonCue.SetOwnEyeAction(DraygonNativeWords.EyeActions.Decode(operands[0], "Draygon eye function")),
-        0x9e0a => new DraygonCue.DisplaceBodyGraphics(new(unchecked((short)operands[0]), unchecked((short)operands[1]))),
+        // The cartridge scrolls the body's layer by its operands, which shifts the picture the opposite way.
+        0x9e0a => new DraygonCue.ShiftBodyPicture(new(-unchecked((short)operands[0]), -unchecked((short)operands[1]))),
         0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
         0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Room, operands[0])),
         0x973f => new DraygonCue.SpawnDyingObject(RoomSpriteObjectKind.DustCloud),

@@ -82,8 +82,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// the blasts overlap them.
     /// </summary>
     private readonly List<IntroDiscoverySprite> ceresActorsDrawnLast = [];
-    /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
-    private readonly SamusPowerBombExplosionState stationExplosion = new();
+    /// <summary>The blast that destroys the station (#1981), centred on it in screen pixels.</summary>
+    private readonly CeresStationBlast stationExplosion = new();
     /// <summary>
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
@@ -348,22 +348,22 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
-            case CeresDestructionPhase.FlyingTowardZebesA:
+            case CeresDestructionPhase.FlyingTowardZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
                     Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
                 else
-                    Phase = CeresDestructionPhase.FlyingTowardZebesB;
+                    Phase = CeresDestructionPhase.TurningTowardZebes;
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
-            case CeresDestructionPhase.FlyingTowardZebesB:
+            case CeresDestructionPhase.TurningTowardZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
                 if (Background.X.WholePixels < -128)
                 {
-                    Phase = CeresDestructionPhase.FlyingTowardZebesC;
+                    Phase = CeresDestructionPhase.ClosingInOnZebes;
                 }
                 else
                 {
@@ -373,7 +373,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
-            case CeresDestructionPhase.FlyingTowardZebesC:
+            case CeresDestructionPhase.ClosingInOnZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
@@ -630,15 +630,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void LoadFinalExplosionMaps() =>
         FloorShot = WithSamus ? null : CeresFloorShot.Explosion;
 
-    /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
+    /// <summary>Starts the station blast, queues its sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
-        // The final blast calls the ordinary enemy explosion with screen-space coordinates,
-        // before replacing the station picture. Keep its authored curves/colors/lifetime.
-        // The blast centres on the station's floor centre as the moved floor shows it on the screen.
+        // The final blast burns through the Power Bomb blast's stages before the station picture is replaced. It centres
+        // on the station's floor centre as the moved floor shows it on the screen.
         int blastX = CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels;
         int blastY = CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels;
-        stationExplosion.Spawn(Position16<RoomPixels>.Wrapped(blastX, blastY));
+        stationExplosion.Spawn(Offset16<ScreenPixels>.Of(blastX, blastY));
         audio.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
@@ -763,7 +762,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     Background.Y.WithWholePixels(-112));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
-                Phase = CeresDestructionPhase.FlyingTowardZebesA;
+                Phase = CeresDestructionPhase.FlyingTowardZebes;
                 return;
 
             case CinematicSpriteCueKind.StartMotherBrainCrossFade:
@@ -897,9 +896,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Captures the active station blast's added colour as a render layer, over the whole screen.</summary>
-    private ColourAddWindowLayer? CaptureStationExplosion() =>
-        GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(stationExplosion),
-            cameraPosition: Position16<RoomPixels>.Zero, firstLine: 0);
+    private ColourAddWindowLayer? CaptureStationExplosion() => stationExplosion.Capture();
 
     /// <summary>
     /// Places live actors as sprite entries in the order they spawned, the Ceres scene's small asteroids and vortex after

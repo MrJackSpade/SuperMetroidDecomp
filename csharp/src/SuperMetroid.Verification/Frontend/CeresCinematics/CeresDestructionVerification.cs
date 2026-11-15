@@ -134,7 +134,7 @@ internal static void VerifyCeresDestructionCinematic()
         "Ceres fade selects Zebes Mode-1 reveal");
     AssertTrue(firstFrameByPhase.ContainsKey(CeresDestructionPhase.PlanetZebesTitle),
         "Zebes mosaic installs cartridge sprite actors");
-    AssertTrue(firstFrameByPhase.ContainsKey(CeresDestructionPhase.FlyingTowardZebesA),
+    AssertTrue(firstFrameByPhase.ContainsKey(CeresDestructionPhase.FlyingTowardZebes),
         "PLANET ZEBES instruction C9C7 starts camera flight");
     AssertTrue(firstFrameByPhase.ContainsKey(CeresDestructionPhase.SlideZebesSceneAway),
         "close-Zebes hold hands motion to actor pre-instructions");

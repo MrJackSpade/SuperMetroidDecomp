@@ -17,7 +17,7 @@ public static class EndingMotionDefinitions
     /// <summary>The escape and explosion scenes' initial zoom: a quarter floor pixel per screen pixel.</summary>
     public static FloorZoom EscapeInitialZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(64);
 
-    /// <summary>The zoom at which escape scenes A and B begin fading out: one and a half floor pixels per screen pixel.</summary>
+    /// <summary>The zoom at which the side-cloud and top-and-bottom-cloud escapes begin fading out: one and a half floor pixels per screen pixel.</summary>
     public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
     /// <summary>The zoom enabling the side clouds' motion in the side-cloud escape.</summary>

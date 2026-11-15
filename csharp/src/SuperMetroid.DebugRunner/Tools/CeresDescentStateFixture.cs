@@ -25,7 +25,7 @@ internal static class CeresDescentStateFixture
         {
             data.Record(0);
             data.Game.StepCaptured(0);
-            if (data.Game.Session.ScreenAs<CeresDestructionCinematicState>()?.Phase != CeresDestructionPhase.FlyingTowardZebesA) continue;
+            if (data.Game.Session.ScreenAs<CeresDestructionCinematicState>()?.Phase != CeresDestructionPhase.FlyingTowardZebes) continue;
             Console.WriteLine(data.SaveSlot(9));
             Console.WriteLine($"Ceres descent seed: {root}");
             return 0;

@@ -23,12 +23,12 @@ internal enum CeresDestructionPhase
     RemoveZebesPixelation,
     /// <summary>Waits for the title actor's cue to start the camera approach.</summary>
     PlanetZebesTitle,
-    /// <summary>Moves toward Zebes and increases scale to the first approach limit.</summary>
-    FlyingTowardZebesA,
-    /// <summary>Rotates and scales the approach until camera X passes the negative threshold.</summary>
-    FlyingTowardZebesB,
-    /// <summary>Changes pan direction, scales farther, and hides the turning floor before the hold.</summary>
-    FlyingTowardZebesC,
+    /// <summary>The gunship flies toward Zebes, the planet growing to the first approach limit (#1981).</summary>
+    FlyingTowardZebes,
+    /// <summary>The gunship turns toward Zebes, the view rotating and growing until it has panned past 128 pixels left.</summary>
+    TurningTowardZebes,
+    /// <summary>The gunship closes in on Zebes, the view panning back and growing until the turning floor hides before the hold.</summary>
+    ClosingInOnZebes,
     /// <summary>Holds the close planet scene while sprite actors continue.</summary>
     HoldCloseZebes,
     /// <summary>Slides planet and stars upward until the completion star exits.</summary>

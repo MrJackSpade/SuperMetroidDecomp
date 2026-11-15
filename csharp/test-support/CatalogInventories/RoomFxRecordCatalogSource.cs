@@ -202,7 +202,7 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine();
         source.AppendLine("/// <summary>");
         source.AppendLine("/// The retail room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects");
-        source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-fx-records.");
+        source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-effects.");
         source.AppendLine("/// </summary>");
         source.AppendLine("public static class RoomFxDefinitions");
         source.AppendLine("{");

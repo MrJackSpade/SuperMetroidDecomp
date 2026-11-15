@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The retail room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects
-/// Mother Brain's fight applies by itself; regenerate with --generate-room-fx-records.
+/// Mother Brain's fight applies by itself; regenerate with --generate-room-effects.
 /// </summary>
 public static class RoomFxDefinitions
 {

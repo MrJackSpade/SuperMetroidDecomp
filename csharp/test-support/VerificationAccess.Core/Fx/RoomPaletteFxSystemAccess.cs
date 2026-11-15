@@ -13,7 +13,7 @@ internal static class RoomPaletteFxSystemAccess
             ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            return ColourEffectSystem.ForRecord(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
+            return ColourEffectSystem.ForEffect(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
         }
     }
 }

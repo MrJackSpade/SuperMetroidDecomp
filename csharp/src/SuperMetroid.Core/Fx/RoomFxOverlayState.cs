@@ -117,7 +117,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private LiquidRisePhase liquidRisePhase;
     /// <summary>
     /// The update's audio requests the effect's sounds join as it makes them: the runtime's, once it points the room's
-    /// systems at it; the effect's own record before that.
+    /// systems at it; the effect's own requests before that.
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>

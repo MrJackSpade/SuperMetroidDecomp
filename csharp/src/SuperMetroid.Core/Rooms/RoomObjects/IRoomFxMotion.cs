@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The room liquid's motion values room objects write and read (#1395). The room FX state implements it.</summary>
+/// <summary>The room liquid as room objects read and move it (#1395, #1987). The room FX state implements it.</summary>
 public interface IRoomFxMotion
 {
     /// <summary>The liquid's base surface, or null when it has none (#1546).</summary>
@@ -9,13 +9,18 @@ public interface IRoomFxMotion
     /// <summary>The line the liquid moves toward, or null when it has none and never moves (#1546).</summary>
     int? TargetSurface { get; }
 
-    /// <summary>Removes the liquid's target, so the liquid stops.</summary>
-    void RemoveLiquidTarget();
+    /// <summary>Moves the liquid's surface to room line <paramref name="line"/>, keeping its fraction.</summary>
+    void SetLiquidLevel(int line);
 
-    /// <summary>Sets the liquid's level, its target level, its level speed and its move delay; each null value is left as it is.</summary>
-    void SetLiquidMotion(
-        int? liquidLevel = null,
-        int? targetLevel = null,
-        SignedEightEight? levelSpeed = null,
-        int? moveDelay = null);
+    /// <summary>Changes the speed the liquid moves toward its target at, leaving its target and its wait.</summary>
+    void SetLiquidSpeed(SignedEightEight speed);
+
+    /// <summary>Sets the liquid moving toward its target at <paramref name="speed"/> once it has waited <paramref name="delay"/> updates.</summary>
+    void MoveLiquidAfter(int delay, SignedEightEight speed);
+
+    /// <summary>Cuts the liquid's wait to its next update.</summary>
+    void EndLiquidWaitNextUpdate();
+
+    /// <summary>Halts the liquid where it stands: it loses its target and its speed, and its wait is cleared.</summary>
+    void HaltLiquid();
 }

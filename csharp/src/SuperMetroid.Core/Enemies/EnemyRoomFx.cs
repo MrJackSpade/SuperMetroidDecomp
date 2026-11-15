@@ -20,5 +20,5 @@ internal sealed class EnemyRoomFx
     internal void PublishLiquidMotion(int target, SignedEightEight velocity, int delay) =>
         // Apply it when the AI requests it, not from retained state each frame:
         // repeated application would continually reset the liquid's rise delay.
-        FxOverlay?.SetLiquidMotion(targetLevel: target, levelSpeed: velocity, moveDelay: delay);
+        FxOverlay?.MoveLiquidTo(target, velocity, delay);
 }

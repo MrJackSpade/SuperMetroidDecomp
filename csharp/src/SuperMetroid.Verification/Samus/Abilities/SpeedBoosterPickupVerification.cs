@@ -68,7 +68,7 @@ internal static class SpeedBoosterPickupVerification
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
                     fx.NamedBaseY.Whole, "lava rises at native subpixel speed after delay");
             }
-            fx.SetLiquidMotion(levelSpeed: SignedEightEight.Zero);
+            fx.SetLiquidSpeed(SignedEightEight.Zero);
             fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
             AssertEqual((ushort)0, fx.LiquidLevelSpeed.RawValue, "message continuation is consumed once");
         }

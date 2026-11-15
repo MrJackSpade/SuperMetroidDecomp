@@ -35,9 +35,8 @@ internal sealed class EscapeAcidRiseObject(IRoomSamusAccess? samus, IRoomFxMotio
             ?? throw new InvalidOperationException("Escape acid trigger has no live Samus owner.");
         if (!EscapeAcidRiseObjectDefinitions.TriggerPoint.IsPassedBy(current))
             return;
-        (_roomFx ?? throw new InvalidOperationException("Escape acid trigger has no room-FX owner.")).SetLiquidMotion(
-            levelSpeed: EscapeAcidRiseObjectDefinitions.RiseSpeed,
-            moveDelay: EscapeAcidRiseObjectDefinitions.RiseDelay);
+        (_roomFx ?? throw new InvalidOperationException("Escape acid trigger has no room-FX owner.")).MoveLiquidAfter(
+            EscapeAcidRiseObjectDefinitions.RiseDelay, EscapeAcidRiseObjectDefinitions.RiseSpeed);
         context.RoomObjects.DeleteObject(place);
     }
 }

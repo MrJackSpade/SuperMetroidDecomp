@@ -275,12 +275,21 @@ internal static class RoomFxRetailInventoryVerification
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX type");
         // The cartridge word of a typed surface or target (#1546): the typed line, or the word a record naming none holds.
-        AssertEqual(expectedBase, RoomFxRecordEncoding.SurfaceWord(actual.BaseY?.Whole),
-            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
-            $"$83:{doorPointer:X4} FX base Y");
-        AssertEqual(expectedTarget, RoomFxRecordEncoding.SurfaceWord(actual.TargetSurface),
-            $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
-            $"$83:{doorPointer:X4} FX target Y");
+        // A room with no effect record has no liquid surface or target at all (#1987).
+        if (expectedRecord == 0)
+        {
+            AssertTrue(actual.BaseY is null && actual.TargetSurface is null,
+                $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry $83:{doorPointer:X4} has no FX surface or target");
+        }
+        else
+        {
+            AssertEqual(expectedBase, RoomFxRecordEncoding.SurfaceWord(actual.BaseY?.Whole),
+                $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
+                $"$83:{doorPointer:X4} FX base Y");
+            AssertEqual(expectedTarget, RoomFxRecordEncoding.SurfaceWord(actual.TargetSurface),
+                $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
+                $"$83:{doorPointer:X4} FX target Y");
+        }
         AssertEqual(expectedVelocity, actual.LiquidLevelSpeed.RawValue,
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX velocity");

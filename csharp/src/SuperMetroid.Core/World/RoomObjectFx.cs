@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room FX as room objects use it (#1395). Room objects write the shared liquid values Samus reads; the model keeps Samus's
+/// The room FX as room objects use it (#1395). Room objects move the liquid whose surface Samus reads; the model keeps Samus's
 /// copy of whether the water's surface affects her, so enabling water physics writes both in the same operation.
 /// </summary>
 internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samus) : IRoomObjectFx
@@ -17,12 +17,19 @@ internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samu
     public int? TargetSurface => fx.TargetSurface;
 
     /// <inheritdoc/>
-    public void RemoveLiquidTarget() => fx.RemoveLiquidTarget();
+    public void SetLiquidLevel(int line) => fx.SetLiquidLevel(line);
 
     /// <inheritdoc/>
-    public void SetLiquidMotion(int? liquidLevel = null, int? targetLevel = null,
-        SignedEightEight? levelSpeed = null, int? moveDelay = null) =>
-        fx.SetLiquidMotion(liquidLevel, targetLevel, levelSpeed, moveDelay);
+    public void SetLiquidSpeed(SignedEightEight speed) => fx.SetLiquidSpeed(speed);
+
+    /// <inheritdoc/>
+    public void MoveLiquidAfter(int delay, SignedEightEight speed) => fx.MoveLiquidAfter(delay, speed);
+
+    /// <inheritdoc/>
+    public void EndLiquidWaitNextUpdate() => fx.EndLiquidWaitNextUpdate();
+
+    /// <inheritdoc/>
+    public void HaltLiquid() => fx.HaltLiquid();
 
     /// <inheritdoc/>
     public void EnableWaterPhysics()

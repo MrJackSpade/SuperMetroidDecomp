@@ -82,8 +82,7 @@ internal sealed class CollectibleObjects
             return;
         IRoomFxMotion fx = _roomFx
             ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
-        fx.SetLiquidMotion(
-            levelSpeed: SpeedBoosterPickupDefinitions.LavaRiseVelocity);
+        fx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
         _pendingSpeedBoosterPickupContinuation = false;
     }
 

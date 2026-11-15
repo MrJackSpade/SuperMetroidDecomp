@@ -212,12 +212,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 // The cue writes the liquid motion values consumed by the liquid's step once, when
                 // it runs; the liquid owns them from then on.
-                _roomFx.FxOverlay?.SetLiquidMotion(
-                    moveDelay: ChozoStatueFxData.LoweringDelay, levelSpeed: ChozoStatueFxData.LoweringVelocity);
+                _roomFx.FxOverlay?.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.FxOverlay?.SetLiquidMotion(liquidLevel: ChozoStatueRoomDefinitions.LoweredAcidY);
+                _roomFx.FxOverlay?.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:

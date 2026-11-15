@@ -633,9 +633,11 @@ internal static class RoomObjectPopulationVerification
         {
             var fxSession = new RoomFxSession();
             var fx = new RoomFxOverlayState(fxSession);
-            fx.SetLiquidMotion(baseY, targetY, new SignedEightEight(velocity), timer);
-            if (targetY is null)
-                fx.RemoveLiquidTarget();
+            fx.SetLiquidLevel(baseY);
+            if (targetY is int target)
+                fx.MoveLiquidTo(target, new SignedEightEight(velocity), timer);
+            else
+                fx.MoveLiquidAfter(timer, new SignedEightEight(velocity));
             return fx;
         }
 

@@ -79,10 +79,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ButtonCounter = BeetomMashCount;
         state.PreviousController1Input = controllerInput;
 
-        // Every Beetom initializer writes the global seed, even when several Beetoms share
-        // a room. This is observable game behavior, not a per-actor random sequence.
-        Action<int> setRandomNumber = _room.Random.Seed;
-        setRandomNumber(23);
+        // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
+        _room.Random.Seed(BeetomRandomDefinitions.Seed);
 
         state.InitialShortLeapYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(12288, 4);
         state.InitialLongLeapYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(16384, 5);

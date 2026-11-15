@@ -59,9 +59,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
-    private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
-
     /// <summary>Initializes the dead Sidehopper.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
@@ -90,7 +87,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (_shitroid.HasAlreadyFed)
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
 
-        slot.Position = slot.Position.WithWhole(new(488, 184));
+        slot.Position = slot.Position.WithWhole(DeadSidehopperVictimDefinitions.StartPosition);
         slot.Radius = slot.Radius.WithY(21);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
@@ -139,7 +136,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         switch (state.Action)
         {
             case DeadSidehopperAction.AliveWaitForCamera:
-                if ((camera - VictimActivationCamera).X < 0)
+                if (CoordinateAxis.Precedes(camera.X, DeadSidehopperVictimDefinitions.ActivationCameraX))
                 {
                     state.Action = DeadSidehopperAction.ActivatedMovement;
                     goto case DeadSidehopperAction.ActivatedMovement;
@@ -207,16 +204,15 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>
-    /// Moves a dead monster through its staged set. The scripted
-    /// Shitroid-room half moves directly through the staged set until X reaches 544; the
-    /// general room half then switches to the shared terrain collision primitives.
+    /// Moves the victim through its hop. Left of <see cref="DeadSidehopperVictimDefinitions.TerrainFromX"/> it moves
+    /// directly and lands on the scripted floor; from there on it collides with the room's terrain.
     /// </summary>
     private bool MoveDeadSidehopper(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
         RoomLevelData level)
     {
-        bool beforeTerrainBoundary = CoordinateAxis.Difference(slot.Position.X.Whole, 544) < 0;
+        bool beforeTerrainBoundary = CoordinateAxis.Precedes(slot.Position.X.Whole, DeadSidehopperVictimDefinitions.TerrainFromX);
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (beforeTerrainBoundary)
         {
@@ -243,7 +239,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 slot,
                 axis: Axis.Vertical,
                 state.Velocity.Y);
-            return CoordinateAxis.Difference(slot.Position.Y.Whole, 184) >= 0;
+            return !CoordinateAxis.Precedes(slot.Position.Y.Whole, DeadSidehopperVictimDefinitions.FloorY);
         }
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y.ToSixteenSixteenDelta();

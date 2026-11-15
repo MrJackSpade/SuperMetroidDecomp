@@ -100,7 +100,7 @@ internal sealed class CrocomireBodyLayer
         // His body's area lies 51 pixels left of him (#1802); it shows only while he is near the screen, within 128 pixels of
         // either edge and 284 of the screen's left edge plus 51; farther away it shows nothing (#1617).
         bool onScreen = CoordinateAxis.Difference(body.Position.X.Whole, camera.X) >= 0
-            ? CoordinateAxis.Difference(body.Position.X.Whole - 128, (camera.X + 256)) < 0
+            ? CoordinateAxis.Difference(body.Position.X.Whole - 128, camera.X + EnemyView.Extent) < 0
             : CoordinateAxis.AsSigned(body.Position.X.Whole + 128 - camera.X) >= 0;
         BodyOrigin = BodyOrigin.WithX(CoordinateAxis.Wrap(body.Position.X.Whole - CrocomireBodyAreaDefinitions.LeftOfBody));
         ShowsBody = onScreen && CoordinateAxis.Distance(camera.X + CrocomireBodyAreaDefinitions.LeftOfBody, body.Position.X.Whole) < 284;

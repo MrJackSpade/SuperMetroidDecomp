@@ -313,23 +313,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Tests whether the shutter is on screen for sound. Its bottom edge is 256 pixels, deliberately not the 224-line visible
-    /// viewport, because the sound admission test uses a square screen window.
+    /// Publishes the activation sound only when the shutter's centre lies in the enemies' square view, which reaches
+    /// below the screen's visible lines.
     /// </summary>
-    private static bool IsShutterCenterOnScreen(
-        RoomEnemySlot slot,
-        Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) >= 0 &&
-        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) >= 0 &&
-        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) >= 0 &&
-        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
-
-    /// <summary>Publishes the activation sound only when the shutter center lies in the 256-pixel camera square.</summary>
     private void QueueShutterActivationSoundIfOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera)
     {
-        if (IsShutterCenterOnScreen(slot, camera))
+        if (EnemyView.Contains(slot.Position.Whole, camera))
             _audio.QueueEnemySound(ShutterActivationSound, priority: SoundRequestPriority.Normal);
     }
 

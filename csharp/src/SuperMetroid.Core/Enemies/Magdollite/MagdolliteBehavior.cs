@@ -573,11 +573,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case MagdolliteCueKind.PlaySoundIfOnScreen:
             {
-                bool offScreen = CoordinateAxis.Precedes(slot.Position.X.Whole, camera.X) ||
-                    CoordinateAxis.Precedes(camera.X + 256, slot.Position.X.Whole) ||
-                    CoordinateAxis.Precedes(slot.Position.Y.Whole, camera.Y) ||
-                    CoordinateAxis.Precedes(camera.Y + 256, slot.Position.Y.Whole);
-                if (!offScreen)
+                if (EnemyView.Contains(slot.Position.Whole, camera))
                     _audio.QueueEnemySound(cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
                 break;
             }
@@ -800,12 +796,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
-        // The lava is deleted outside the inclusive 256x256 camera square after its
-        // horizontal move. The lava never moves vertically.
-        if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
-        {
+        // The lava leaves once past the view after its horizontal move, the view's right and bottom edges already
+        // outside. The lava never moves vertically.
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
-        }
     }
 }

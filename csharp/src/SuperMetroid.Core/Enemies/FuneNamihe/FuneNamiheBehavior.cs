@@ -221,9 +221,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-
-        // The shared cull treats both camera edges as inclusive: an origin exactly
-        // at camera+256 survives this frame and is deleted only after crossing beyond it.
-        CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
+        EnemyView.DeleteOutside(projectile, camera);
     }
 }

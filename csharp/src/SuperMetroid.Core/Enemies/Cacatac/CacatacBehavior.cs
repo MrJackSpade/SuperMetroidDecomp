@@ -208,24 +208,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-        DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
-    }
-
-    /// <summary>
-    /// Shared clone of the signed four-edge viewport cull. Equality with the right or
-    /// bottom edge remains alive; only strictly outside coordinates delete the projectile.
-    /// </summary>
-    internal static void DeleteEnemyProjectileIfOutsideInclusiveViewport(
-        EnemyProjectile projectile,
-        Position16<RoomPixels> camera)
-    {
-        int right = CoordinateAxis.Wrap(camera.X + 256);
-        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
-        bool outside = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(right, projectile.Position.X.Whole) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(bottom, projectile.Position.Y.Whole) < 0;
-        if (outside)
-            projectile.Delete();
+        EnemyView.DeleteOutside(projectile, camera);
     }
 }

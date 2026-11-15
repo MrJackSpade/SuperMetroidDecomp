@@ -357,12 +357,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         Position16<RoomPixels> camera)
     {
-        bool farOffscreen =
-            CoordinateAxis.Precedes(projectile.Position.X.Whole + EvirFarOffscreenDistance, camera.X) ||
-            CoordinateAxis.Precedes(camera.X + 256 + EvirFarOffscreenDistance, projectile.Position.X.Whole) ||
-            CoordinateAxis.Precedes(projectile.Position.Y.Whole + EvirFarOffscreenDistance, camera.Y) ||
-            CoordinateAxis.Precedes(camera.Y + 256 + EvirFarOffscreenDistance, projectile.Position.Y.Whole);
-        if (!farOffscreen)
+        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirFarOffscreenDistance))
             return;
 
         RoomEnemySlot body = RequireSpitBody(projectile);

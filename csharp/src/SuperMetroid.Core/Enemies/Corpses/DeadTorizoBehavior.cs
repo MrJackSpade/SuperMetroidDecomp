@@ -112,7 +112,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoRotGravity);
-        MoveWithEightEightVelocity(slot, state.Velocity);
+        slot.Position = slot.Position.MovedBy(state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
@@ -193,24 +193,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Read();
         _projectiles.SpawnDustOrExplosion(
-            new(CorpseDustDefinitions.TorizoSpread.Of(random) + 272, 188),
+            new(CorpseDustDefinitions.TorizoSpread.Of(random) + DeadTorizoCorpseDefinitions.DustOrigin.X, DeadTorizoCorpseDefinitions.DustOrigin.Y),
             MiscDustAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>
-    /// Applies shared signed 1/256-pixel enemy velocity pair. Dead Torizo and Shitroid
-    /// both call the same shared helper; retaining one implementation also makes explicit that
-    /// the step moves the subposition only in 256ths of a pixel.
-    /// </summary>
-    internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
-    {
-        FixedCoordinate x = slot.Position.X.MovedBy(velocity.X);
-        slot.Position = slot.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
-
-        FixedCoordinate y = slot.Position.Y.MovedBy(velocity.Y);
-        slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
     /// <summary>The body rows the dead Torizo in <paramref name="slot"/> shows: its own, as its rot calls have left them (#1539).</summary>
@@ -240,9 +226,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 continue;
 
             // The heap is published wherever it lies; the display clips it to the view (#1541).
-            int screenY = CoordinateAxis.Wrap(187 - camera.Y);
+            Position16<RoomPixels> heap = DeadTorizoCorpseDefinitions.SandHeapPosition;
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoSandHeap), DeadTorizoArtworkDefinitions.SandHeapFrame,
-                new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), PictureShading.Standard, rows: ShownSand(state));
+                new Position16<ScreenPixels>(CoordinateAxis.Wrap(heap.X - camera.X), CoordinateAxis.Wrap(heap.Y - camera.Y)), PictureShading.Standard, rows: ShownSand(state));
         }
     }
 

@@ -172,7 +172,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Undefined {nameof(PolypRockMovement)} {phase}.");
         }
 
-        CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
+        EnemyView.DeleteOutside(projectile, camera);
     }
 
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>

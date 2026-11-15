@@ -438,13 +438,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             ? CoordinateAxis.Wrap(projectile.Position.X.Whole + pixels)
             : CoordinateAxis.Wrap(projectile.Position.X.Whole - pixels));
 
-        int right = CoordinateAxis.Wrap(camera.X + 256);
-        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
-        bool offScreen = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.X.Whole, right) >= 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
-        if (offScreen)
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
     }
 

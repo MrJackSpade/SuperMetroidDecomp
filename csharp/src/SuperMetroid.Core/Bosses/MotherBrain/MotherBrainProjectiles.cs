@@ -857,7 +857,7 @@ internal sealed class MotherBrainProjectiles
     {
         if (CoordinateAxis.AsSigned(turret.Position.Y.Whole) < 0 ||
             CoordinateAxis.AsSigned(turret.Position.Y.Whole + 16 - camera.Y) < 0 ||
-            CoordinateAxis.Wrap(turret.Position.Y.Whole + 16 - camera.Y) >= 256)
+            CoordinateAxis.Wrap(turret.Position.Y.Whole + 16 - camera.Y) >= EnemyView.Extent)
         {
             return false;
         }

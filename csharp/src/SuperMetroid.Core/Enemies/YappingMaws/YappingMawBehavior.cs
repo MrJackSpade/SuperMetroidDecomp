@@ -504,14 +504,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>
         state.Origin + state.SegmentOffsets[segment];
 
-    /// <summary>Checks the Maw against the camera's 256-pixel horizontal and vertical spans.</summary>
+    /// <summary>Whether the Maw lies outside the view (<see cref="EnemyView.Contains"/>).</summary>
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) < 0 ||
-        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) < 0 ||
-        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) < 0 ||
-        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) < 0;
+        !EnemyView.Contains(slot.Position.Whole, camera);
 
     /// <summary>
     /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone, kept exact

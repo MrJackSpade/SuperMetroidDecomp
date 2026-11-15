@@ -83,6 +83,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId EtecoonWallSound =
         EnemySoundEffectDefinitions.EtecoonWallSound;
 
+    /// <summary>The room column from which on Samus hears the Etecoons' hops and wall jumps.</summary>
+    private const int EtecoonAudibleFromSamusX = 256;
+
+    /// <summary>Whether Samus stands far enough into the room to hear the Etecoons' hops and wall jumps.</summary>
+    private static bool SamusHearsEtecoon(SamusState samus) =>
+        !CoordinateAxis.Precedes(samus.Position.X.Whole, EtecoonAudibleFromSamusX);
+
     /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
@@ -229,7 +236,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         StartEtecoonAnimation(slot, state, EtecoonSegment.ContinueHoppingFacingLeft);
         state.Action = EtecoonAction.InitialJump;
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
+        if (SamusHearsEtecoon(samus))
             _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -354,7 +361,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             state.Action = EtecoonAction.WallPause;
             state.ActionTimer = WrappingCountdown.Start(8);
-            if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
+            if (SamusHearsEtecoon(samus))
                 _audio.QueueEnemySound(EtecoonWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
@@ -581,7 +588,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         slot.AnimationClock.StepOnNextUpdate();
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
+        if (SamusHearsEtecoon(samus))
             _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -606,7 +613,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);
             state.Action = EtecoonAction.TeachingJump;
-            if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
+            if (SamusHearsEtecoon(samus))
                 _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
         }
         slot.AnimationClock.StepOnNextUpdate();
@@ -650,7 +657,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.QuakePauseFrames = EtecoonQuakeDefinitions.QuakePauseFrames;
-        slot.AnimationClock.Extend(128);
+        slot.AnimationClock.Extend(EtecoonQuakeDefinitions.QuakePauseFrames);
     }
 
     /// <summary>Moves an Etecoon horizontally by its signed 1/65536-pixel speed.</summary>

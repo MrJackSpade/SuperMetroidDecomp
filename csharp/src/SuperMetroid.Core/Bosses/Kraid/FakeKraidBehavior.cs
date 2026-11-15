@@ -58,9 +58,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case FakeKraidCueKind.ChooseAction:
                 return SelectFakeKraidAction(slot.RequireSpeciesState<FakeKraidEnemyState>());
             case FakeKraidCueKind.PlayCrySound:
-                // The spit step queues its sound only while the actor origin is inside the
-                // inclusive 256x256 screen rectangle.
-                if (FakeKraidOriginIsOnScreen(slot, camera))
+                // The spit step queues its sound only while Mini-Kraid is in the view, its edges included.
+                if (EnemyView.Contains(slot.Position.Whole, camera))
                     RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidCry);
                 return null;
             case FakeKraidCueKind.SpitLeft:
@@ -150,7 +149,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             KraidRandomDefinitions.FakeKraidSpikeReloadSpread.Of(ReadFakeKraidRandomNumber()) +
             KraidRandomDefinitions.FakeKraidSpikeReloadBase;
         if (SpawnFakeKraidSpike(slot, state, row) &&
-            FakeKraidOriginIsOnScreen(slot, camera))
+            EnemyView.Contains(slot.Position.Whole, camera))
         {
             RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidSpikeLaunch);
         }
@@ -319,15 +318,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samples the room's random number without advancing it for the action choice.</summary>
     private int ReadFakeKraidRandomNumber() =>
         _room.Random.Read();
-
-    /// <summary>Tests the actor origin against the inclusive 256-pixel camera rectangle for its cry.</summary>
-    private static bool FakeKraidOriginIsOnScreen(
-        RoomEnemySlot slot,
-        Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) >= 0 &&
-        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) >= 0 &&
-        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) >= 0 &&
-        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
 
     /// <summary>
     /// Mini-Kraid's shared death reaction: the enemy's death spawns death

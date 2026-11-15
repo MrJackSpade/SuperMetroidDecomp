@@ -544,19 +544,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int direction = thrown == HorizontalDirection.Right ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound
-        // motion reverses direction and accelerates indefinitely until the 256x256 camera
-        // check deletes the claw. Y advances one pixel on both halves of the flight.
+        // motion reverses direction and accelerates indefinitely until the claw leaves the view, whose right and
+        // bottom edges are already outside. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
             direction * claw.StepAlongThrow());
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
 
-        int right = CoordinateAxis.Wrap(camera.X + 256);
-        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
-        bool offScreen = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.X.Whole, right) >= 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
-        if (offScreen)
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
     }
 

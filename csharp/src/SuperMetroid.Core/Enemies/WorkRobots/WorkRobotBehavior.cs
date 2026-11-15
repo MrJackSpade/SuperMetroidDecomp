@@ -261,7 +261,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot robot,
         Position16<RoomPixels> camera) =>
         CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
-        CoordinateAxis.AsSigned(camera.X + 256 - robot.Position.X.Whole) >= 0 &&
+        CoordinateAxis.AsSigned(camera.X + EnemyView.Extent - robot.Position.X.Whole) >= 0 &&
         CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
         CoordinateAxis.AsSigned(camera.Y + 224 - robot.Position.Y.Whole) >= 0;
 

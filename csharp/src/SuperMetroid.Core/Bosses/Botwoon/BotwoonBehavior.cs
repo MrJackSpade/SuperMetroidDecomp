@@ -1030,13 +1030,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         spit.StateOf<AngledFlightState>().Advance(spit);
 
-        if (CoordinateAxis.Difference(spit.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.AsSigned(camera.X + 256 - spit.Position.X.Whole) < 0 ||
-            CoordinateAxis.Difference(spit.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.AsSigned(camera.Y + 256 - spit.Position.Y.Whole) < 0)
-        {
-            spit.Delete();
-        }
+        EnemyView.DeleteOutside(spit, camera);
     }
 
     /// <summary>Queues one of Botwoon's sounds as Botwoon makes it, after the update's earlier requests.</summary>

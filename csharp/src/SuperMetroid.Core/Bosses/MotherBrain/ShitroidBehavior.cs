@@ -135,7 +135,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // redundantly restores its health every processed frame, exactly as the game does.
         slot.Health = RestoredHealth;
         RunShitroidState(slot, state, samus, camera, sharedProjectiles);
-        DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
+        slot.Position = slot.Position.MovedBy(state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
         if (!_fadeStepCount.IsPastStart)
             StepShitroidMembranePulse(slot, state);

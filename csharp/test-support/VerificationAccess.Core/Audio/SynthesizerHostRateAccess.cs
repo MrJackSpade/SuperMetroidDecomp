@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Audio;
 internal static class SynthesizerHostRateAccess
 {
     /// <summary>The session's stereo frames per 60-Hz update.</summary>
-    private const int HostStereoFramesPerUpdate = AudioSession.StereoFramesPerUpdate;
+    private const int HostStereoFramesPerVideoFrame = AudioSession.StereoFramesPerUpdate;
 
     /// <summary>Host-rate constants the driver definitions no longer carry.</summary>
     extension(SpcDriverDefinitions)
     {
         /// <summary>The session's stereo frames per 60-Hz update, the driver's native frames.</summary>
-        internal static int HostStereoFramesPerUpdate => HostStereoFramesPerUpdate;
+        internal static int HostStereoFramesPerVideoFrame => HostStereoFramesPerVideoFrame;
     }
 
     /// <summary>The backend's session-rate render.</summary>
@@ -23,7 +23,7 @@ internal static class SynthesizerHostRateAccess
     {
         /// <summary>Renders the update's interleaved stereo at the session's rate.</summary>
         internal void Render(in AudioFrameEvents frame, Span<short> stereo) =>
-            self.RenderNative(frame, stereo[..(HostStereoFramesPerUpdate * 2)]);
+            self.RenderNative(frame, stereo[..(HostStereoFramesPerVideoFrame * 2)]);
     }
 
     /// <summary>The player's session-rate frame.</summary>
@@ -32,9 +32,9 @@ internal static class SynthesizerHostRateAccess
         /// <summary>Advances one frame and writes its interleaved stereo at the session's rate.</summary>
         internal void GenerateFrame(ReadOnlySpan<SoundClockStep<SoundEffectLibrary, byte>> schedule, Span<short> destination)
         {
-            if (destination.Length < HostStereoFramesPerUpdate * 2)
-                throw new ArgumentException($"Audio destination requires {HostStereoFramesPerUpdate * 2} samples.", nameof(destination));
-            self.GenerateNativeFrame(schedule, destination[..(HostStereoFramesPerUpdate * 2)]);
+            if (destination.Length < HostStereoFramesPerVideoFrame * 2)
+                throw new ArgumentException($"Audio destination requires {HostStereoFramesPerVideoFrame * 2} samples.", nameof(destination));
+            self.GenerateNativeFrame(schedule, destination[..(HostStereoFramesPerVideoFrame * 2)]);
         }
     }
 }

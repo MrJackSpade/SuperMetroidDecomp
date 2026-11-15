@@ -772,7 +772,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 return;
             Compilation compilation = start.Compilation;
             var codeNames = new Lazy<ImmutableHashSet<string>>(() => CodeNames(compilation, start.CancellationToken));
-            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames));
+            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames, tree.IsGeneratedCode));
         });
     }
 
@@ -785,8 +785,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             .ToImmutableHashSet(StringComparer.Ordinal);
 
     /// <summary>Reports each comment and string literal of a tree that names the hardware.</summary>
-    /// <remarks>A generated file's comments are the generator's, so they are not read for routine labels.</remarks>
-    private static void AnalyzeTree(SyntaxTreeAnalysisContext context, Lazy<ImmutableHashSet<string>>? codeNames)
+    /// <remarks>
+    /// A generated file's comments are the generator's, so they are not read for routine labels, and its text is the
+    /// build's, so it is not read for the review trail: the SDK stamps the target framework's version and the commit into
+    /// the assembly's generated attributes.
+    /// </remarks>
+    private static void AnalyzeTree(SyntaxTreeAnalysisContext context, Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
     {
         SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
         foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: false))
@@ -795,14 +799,14 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 !trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
                 !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
                 continue;
-            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames);
+            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated);
         }
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
                 token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
-                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null);
+                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated);
         }
     }
 
@@ -812,10 +816,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// handlers (<see cref="RoutineHandlerProse"/>) or the C reimplementation
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
-    /// and is not read for labels or hexadecimal literals.
+    /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
+    /// trail (<see cref="ReviewTrailProse"/>).
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
-        Lazy<ImmutableHashSet<string>>? codeNames)
+        Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
@@ -824,7 +829,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RoutineHandlerProse.Match(text) is { Success: true } handler ? handler.Value
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
-            : ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
+            : !generated && ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
             : IsInHardwareOwner(owner) ? null
             : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value

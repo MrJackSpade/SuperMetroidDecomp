@@ -25,7 +25,7 @@ internal sealed class BeamFiring
     /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</summary>
     private readonly UnauthoredBeamFiring<SamusBeamCombination> _unauthoredFiring;
 
-    /// <summary>Connects firing to charge, animation, slot allocation, combo, and terrain systems.</summary>
+    /// <summary>Connects firing to charge, animation, projectile allocation, combo, and terrain systems.</summary>
     internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable,
         ProjectileTerrainCollision terrainCollision, UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
@@ -88,10 +88,10 @@ internal sealed class BeamFiring
         // desktop-held button from allocating more frequently than the game.
         if (samus.HyperBeamEnabled)
         {
-            (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
+            (int? place, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomObjects)
                 : new BeamShot(null, null);
-            return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
+            return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         bool chargeEquipped = samus.EquippedBeams.HasAny(SamusBeamFlags.Charge);
@@ -100,7 +100,7 @@ internal sealed class BeamFiring
         {
             _charge.ClearCount();
             _animation.ClearFlareAnimationState();
-            (int? slot, SoundEffectId? sound) = held
+            (int? place, SoundEffectId? sound) = held
                 ? TryFireBeam(
                     level,
                     samus,
@@ -109,7 +109,7 @@ internal sealed class BeamFiring
                     roomObjects,
                     charged: false)
                 : new BeamShot(null, null);
-            return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
+            return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         if (samus.PendingTransitionShot is not null)
@@ -142,14 +142,14 @@ internal sealed class BeamFiring
                 if (_charge.FlareCounter == 1)
                 {
                     _animation.ClearFlareAnimationState();
-                    (int? slot, SoundEffectId? sound) = TryFireBeam(
+                    (int? place, SoundEffectId? sound) = TryFireBeam(
                         level,
                         samus,
                         controllerNewInput,
                         sharedProjectiles,
                         roomObjects,
                         charged: false);
-                    return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
+                    return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
                 }
 
                 // The flare draw owns both flare graphics and their audio. Its draw-time call
@@ -205,8 +205,8 @@ internal sealed class BeamFiring
         // combination has none. Allocation, not a sound request, distinguishes that success from
         // the shared failure tail which cancels an audible charge. Murder Beam is the observable
         // case: it allocates a persistent projectile while requesting no new sound.
-        if (firing.Slot is not null)
-            return new(firing.Slot, firing.Sound, Priority: SoundRequestPriority.Essential);
+        if (firing.Place is not null)
+            return new(firing.Place, firing.Sound, Priority: SoundRequestPriority.Essential);
 
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
             return new(null, null, null);
@@ -236,14 +236,14 @@ internal sealed class BeamFiring
             return new BeamShot(null, null);
         }
 
-        // Allocation writes one before allocating storage. A corrupt counter/free-slot
+        // Allocation writes one before allocating storage. A corrupt counter/free-projectile
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter++;
 
         // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
         // the fifth place holds. With every place held the shot is refused and the count is taken back.
-        if (_slotTable.FindFreePlace() is not { } slotIndex)
+        if (_slotTable.FindFreePlace() is not { } place)
         {
             _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
@@ -268,12 +268,12 @@ internal sealed class BeamFiring
 
         // The shot starts from the horizontal sub-pixel position its place hands on (LeftMuzzleSubpixelCarry): the left
         // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it.
-        SamusProjectile slot = _slotTable.Occupy(slotIndex);
-        slot.Direction = aim;
-        InitializePosition(samus, slot);
-        slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
-        slot.PicturedBeams = slot.Type.BeamCombination;
+        SamusProjectile projectile = _slotTable.Occupy(place);
+        projectile.Direction = aim;
+        InitializePosition(samus, projectile);
+        projectile.TrailTimer = WrappingCountdown.Start(4);
+        projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
+        projectile.PicturedBeams = projectile.Type.BeamCombination;
         ProjectileInvincibilityTimer = 10;
         // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
@@ -281,17 +281,17 @@ internal sealed class BeamFiring
 
         // The combination selects one projectile, not four independent animation layers
         // composed by the host. In particular, Spazer's familiar three streaks are one
-        // composition in one projectile slot, so no child projectiles are created here.
-        SamusBeamCombination beamType = slot.Type.BeamCombination;
+        // composition in one projectile projectile, so no child projectiles are created here.
+        SamusBeamCombination beamType = projectile.Type.BeamCombination;
 
         // The projectile setup selects the combination's projectile kind, stores damage, chooses the
         // direction-specific animation, samples its initial radii, and arms a one-frame timer.
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(beamType, charged);
-        slot.Damage = SamusProjectileDamage.Read(kind);
+        projectile.Damage = SamusProjectileDamage.Read(kind);
         SamusProjectileSegment? segment = SamusProjectileSelection.BeamShotAnimation(beamType, charged, aim);
-        slot.Playback = SamusProjectilePlayback.Start(segment);
-        slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        projectile.Playback = SamusProjectilePlayback.Start(segment);
+        projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
+        projectile.FrameHold = WrappingCountdown.Start(1);
 
         // The cooldown selection checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
@@ -316,7 +316,7 @@ internal sealed class BeamFiring
         // its shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
             level,
-            slot,
+            projectile,
             roomObjects,
             waveBeam: beamType.HasWave);
         if (!initialImpact)
@@ -329,13 +329,13 @@ internal sealed class BeamFiring
             // or an unconnected region instead of the game's code (UnauthoredBeamFrameBehaviors). Only full memory
             // and processor emulation could reproduce that, so the model rejects the shot under the emulation scope
             // limit (#1500).
-            slot.FrameBehavior = definition.FrameBehavior ?? throw new NotSupportedException(
+            projectile.FrameBehavior = definition.FrameBehavior ?? throw new NotSupportedException(
                 $"Beam frame behaviour {definition.Choice} runs whatever the game's live state or an unconnected region " +
                 "holds; reproducing that needs full memory and processor emulation, which is outside the emulation " +
                 "scope limit (#1500).");
-            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
+            InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
         }
-        return new BeamShot(slotIndex, sound);
+        return new BeamShot(place, sound);
     }
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and a 21-frame cooldown.</summary>
@@ -355,7 +355,7 @@ internal sealed class BeamFiring
 
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter++;
-        if (_slotTable.FindFreePlace() is not { } slotIndex)
+        if (_slotTable.FindFreePlace() is not { } place)
         {
             _slotTable.ProjectileCounter--;
             return new BeamShot(null, null);
@@ -368,10 +368,10 @@ internal sealed class BeamFiring
         }
 
         // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry).
-        SamusProjectile slot = _slotTable.Occupy(slotIndex);
-        slot.Direction = aim;
+        SamusProjectile projectile = _slotTable.Occupy(place);
+        projectile.Direction = aim;
 
-        InitializePosition(samus, slot);
+        InitializePosition(samus, projectile);
         ProjectileInvincibilityTimer = 10;
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
         samus.ResumeChargingBeamSoundPending = false;
@@ -380,27 +380,27 @@ internal sealed class BeamFiring
         // acquisition equips Wave and Plasma, whose pictures its shots show. It first reads the charged
         // Plasma entry; Hyper's setup then deliberately replaces its damage with 1000 before the
         // first animation step runs.
-        slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
-        slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
+        projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
+        projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
-        slot.Damage = SamusProjectileDamage.Read(kind);
-        SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, slot.Direction);
-        slot.Playback = SamusProjectilePlayback.Start(segment);
-        slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Damage = 1000;
+        projectile.Damage = SamusProjectileDamage.Read(kind);
+        SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, projectile.Direction);
+        projectile.Playback = SamusProjectilePlayback.Start(segment);
+        projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
+        projectile.FrameHold = WrappingCountdown.Start(1);
+        projectile.Damage = 1000;
 
         // Hyper uses the Wave beam collision check at this same producer seam. It publishes door and
         // shootable-block reactions but, like every Wave family, is not stopped by solid blocks and
         // survives to receive its normal movement state.
         _ = _terrainCollision.RunInitialBeamCollision(
             level,
-            slot,
+            projectile,
             roomObjects,
             waveBeam: true);
-        slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
-        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
+        projectile.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
+        InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
         sharedProjectiles.SetSharedCooldown(21);
@@ -409,7 +409,7 @@ internal sealed class BeamFiring
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(
             charged: true, hyperBeamType);
-        return new BeamShot(slotIndex, sound);
+        return new BeamShot(place, sound);
     }
 
     /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
@@ -430,7 +430,7 @@ internal sealed class BeamFiring
             return new BeamShot(null, null);
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
-        // slot rejection rolls back the count, but does not undo its cooldown write.
+        // projectile rejection rolls back the count, but does not undo its cooldown write.
         bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.SlotCount;
@@ -444,41 +444,41 @@ internal sealed class BeamFiring
         if (ammo == 0)
             return new BeamShot(null, null);
 
-        if (_slotTable.FindFreePlace() is not { } slotIndex)
+        if (_slotTable.FindFreePlace() is not { } place)
             return new BeamShot(null, null);
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
             return new BeamShot(null, null);
-        SamusProjectile slot = _slotTable.Occupy(slotIndex);
-        slot.Direction = aim;
+        SamusProjectile projectile = _slotTable.Occupy(place);
+        projectile.Direction = aim;
 
-        InitializePosition(samus, slot);
+        InitializePosition(samus, projectile);
         _slotTable.ProjectileCounter++;
         ProjectileInvincibilityTimer = 20;
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else
             samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-        slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
-        slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-        slot.MissileIgnition = SamusMissileIgnition.Pending;
+        projectile.TrailTimer = WrappingCountdown.Start(4);
+        projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
+        projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
+        projectile.MissileIgnition = SamusMissileIgnition.Pending;
         if (isSuperMissile)
-            slot.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
+            projectile.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         // The producer first calls the generic velocity initializer with base speed zero.
         // Ignition replaces that zero with one pixel per update during this same frame's alpha pass;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
-        InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: SignedEightEight.Zero);
+        InitializeDirectionalVelocity(samus.ProjectileInheritance, projectile, baseSpeed: SignedEightEight.Zero);
 
         // The selected HUD item chose the missile family above; the family selects the projectile kind.
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(slot.Type.Family);
-        slot.Damage = SamusProjectileDamage.Read(kind);
-        SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, slot.Direction);
-        slot.Playback = SamusProjectilePlayback.Start(segment);
-        slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.FrameBehavior = isSuperMissile
+        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(projectile.Type.Family);
+        projectile.Damage = SamusProjectileDamage.Read(kind);
+        SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, projectile.Direction);
+        projectile.Playback = SamusProjectilePlayback.Start(segment);
+        projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
+        projectile.FrameHold = WrappingCountdown.Start(1);
+        projectile.FrameBehavior = isSuperMissile
             ? SamusProjectileFrameBehavior.SuperMissile
             : SamusProjectileFrameBehavior.Missile;
 
@@ -495,7 +495,7 @@ internal sealed class BeamFiring
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = HudItem.Beam;
-        return new BeamShot(slotIndex, isSuperMissile
+        return new BeamShot(place, isSuperMissile
             ? SamusProjectileSoundRoutingDefinitions.SuperMissileRequest
             : SamusProjectileSoundRoutingDefinitions.MissileRequest);
     }
@@ -503,7 +503,7 @@ internal sealed class BeamFiring
     /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
     internal static void InitializePosition(
         SamusState samus,
-        SamusProjectile slot)
+        SamusProjectile projectile)
     {
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -512,8 +512,8 @@ internal sealed class BeamFiring
         // the two diagonally-up moonwalk MoonwalkAimUpLeftPose and MoonwalkAimUpRightPose. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
-        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.Direction);
-        slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + origin.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + origin.Y - poseYOffset)));
+        var origin = SamusMuzzleOrigins.Read(runningOrigin, projectile.Direction);
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + origin.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + origin.Y - poseYOffset)));
     }
 
     /// <summary>
@@ -523,28 +523,28 @@ internal sealed class BeamFiring
     /// </summary>
     internal static void InitializePowerBeamVelocity(
         ProjectileLaunchInheritance inheritance,
-        SamusProjectile slot,
+        SamusProjectile projectile,
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         Ensure.NotNull(unauthoredFiring);
-        bool diagonal = slot.Direction is SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
+        bool diagonal = projectile.Direction is SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
             SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft;
-        SamusBeamCombination beams = slot.Type.BeamCombination;
+        SamusBeamCombination beams = projectile.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
         // An unauthored combination's speed is its table's 1/256-pixel speed, which the launch adds as a wrapping velocity.
         SignedEightEight speed = beams.IsRetail ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
 
-        InitializeDirectionalVelocity(inheritance, slot, speed);
+        InitializeDirectionalVelocity(inheritance, projectile, speed);
     }
 
     /// <summary>Clears projectile position fractions and combines base speed with Samus' inherited motion.</summary>
     internal static void InitializeDirectionalVelocity(
         ProjectileLaunchInheritance inheritance,
-        SamusProjectile slot,
+        SamusProjectile projectile,
         SignedEightEight baseSpeed)
     {
-        slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-        slot.Velocity = LaunchVelocity(inheritance, slot.Direction, baseSpeed);
+        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Velocity = LaunchVelocity(inheritance, projectile.Direction, baseSpeed);
     }
 
     /// <summary>

@@ -32,7 +32,7 @@ internal sealed class TorizoCombat
     /// </summary>
     private void ResolveTorizoNormalBomb(
         RoomEnemySlot torizo,
-        SamusBombProjectileSlot bomb,
+        SamusBomb bomb,
         EnemyReaction? selectedShot)
     {
         bool isBombTorizo = torizo.DefinitionId == EnemyDefinitionId.BombTorizo;

@@ -223,7 +223,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), SamusBombProjectileSlot.Direction);
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), SamusBomb.Direction);
             },
         };
 

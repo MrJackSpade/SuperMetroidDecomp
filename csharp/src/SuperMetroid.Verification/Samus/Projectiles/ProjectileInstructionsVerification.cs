@@ -126,7 +126,7 @@ internal static class ProjectileInstructionsVerification
         foreach (ushort entry in entries)
         {
             var slot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(entry), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             ushort timer = 1, pointer = entry, sprite = 0, x = 0, y = 0, trail = 0;
             for (int frame = 0; frame < 64; frame++)
             {

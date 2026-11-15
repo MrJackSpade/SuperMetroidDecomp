@@ -33,12 +33,12 @@ internal static class GroundedBombSpreadVerification
             for (int tick = 0; tick < hold; tick++)
             {
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, shootDown, 0);
-                AssertTrue(bombs.Slots.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
+                AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
                 AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
             bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : ControllerButton.X, 0);
-            AssertTrue(bombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
+            AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual(0, samus.BeamCharge.FlareCounter, "spawn clears actual flare counter");
             AssertEqual(0, samus.BombSpreadChargeTimeoutCounter, "spawn clears hold counter");
@@ -47,9 +47,9 @@ internal static class GroundedBombSpreadVerification
             for (int tick = 1; tick <= 60; tick++)
             {
                 if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.X, 0);
-                for (int slotIndex = 0; slotIndex < bombs.Slots.Count; slotIndex++)
+                for (int slotIndex = 0; slotIndex < bombs.Bombs.Count; slotIndex++)
                 {
-                    var slot = bombs.Slots[slotIndex];
+                    var slot = bombs.Bombs[slotIndex];
                     ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + slotIndex * 2);
                     ushort encodedX = Read(MorphBallBombDefinitions.XVelocities);
                     long initialY = -(Read(MorphBallBombDefinitions.YSpeeds) + (hold >> 6 & 3)) * 65536L + Read(MorphBallBombDefinitions.YSubspeeds);

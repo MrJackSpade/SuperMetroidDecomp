@@ -1113,14 +1113,14 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1LaunchRolesRomByte(rom, address), LookupStream1LaunchRolesRomByte(rom, address + 1));
         for (int index = 0; index < 5; index++)
         {
-            var launch = SamusBombSpreadLaunches.ForSlot(index);
+            var launch = SamusBombSpreadLaunches.ForPlace(index);
             AssertEqual(Word(0x90d8cf + index * 2), launch.FuseTimer, "spread native fuse");
             AssertEqual(Word(0x90d8d9 + index * 2), launch.XVelocity.LaunchWord, "spread native direction/magnitude X");
             AssertEqual(Word(0x90d8e3 + index * 2), launch.YSpeed.Whole, "spread native whole Y");
             AssertEqual(Word(0x90d8ed + index * 2), launch.YSpeed.Fraction, "spread native fraction Y");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForSlot(invalid), "spread native slot rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForPlace(invalid), "spread native slot rejection");
         for (int index = 0; index < HibashiDefinitions.EruptionSteps.Length; index++)
         {
             var frame = HibashiDefinitions.EruptionSteps[index];
@@ -1693,7 +1693,7 @@ internal static class LookupStream1Verification
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
             if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
-            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             AssertTrue(!bombs.AdvanceProjectileAnimation(bomb), "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.FrameHold.RawValue, "Actual bomb timer unchanged");
             AssertEqual(sprite, bomb.SpritemapPointer, "Installed bomb artwork selection");
@@ -1768,7 +1768,7 @@ internal static class LookupStream1Verification
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            var bomb = new SamusBomb(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
             var visited = new HashSet<ushort>();
             bool finished = false;

@@ -1,11 +1,11 @@
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Verification access to <see cref="SamusBombProjectileSlot"/> members production does not use.</summary>
-internal static class SamusBombProjectileSlotAccess
+/// <summary>Verification access to <see cref="SamusBomb"/> members production does not use.</summary>
+internal static class SamusBombAccess
 {
     /// <summary>Recognizes an active bomb whose timer-zero slot owns an explosion or Power Bomb terrain scan.</summary>
-    extension(SamusBombProjectileSlot self)
+    extension(SamusBomb self)
     {
         /// <summary>
         /// True after a normal bomb selects `$93:A06B`, or while a Power Bomb's timer-zero

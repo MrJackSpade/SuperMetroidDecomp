@@ -13,14 +13,12 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The five bomb slots shared by projectile logic, animations,
-/// block reactions, and Samus/projectile overlap handling.
+/// Samus's bombs, which projectile logic, animations, block reactions and Samus/projectile overlap handling share.
 /// </summary>
 /// <remarks>
-/// Slot order: Samus has <see cref="SlotCount"/> bomb slots, each with a fixed ordinal. A placed bomb takes the lowest
-/// free ordinal, a bomb spread fills every slot in ordinal order, and the bomb update and drawing run in update order,
-/// from the highest ordinal down. The bomb-jump scan alone runs in ordinal order, so the highest overlapping bomb decides
-/// Samus's launch.
+/// Place order: Samus has <see cref="PlaceCount"/> bomb places. A placed bomb takes the lowest free place, a bomb spread
+/// fills every place from the first, and the bomb update and drawing run in update order, from the last place down. The
+/// bomb-jump scan alone runs from the first place up, so the last overlapping bomb in place order decides Samus's launch.
 /// </remarks>
 [RoomLifetime]
 public sealed class SamusBombProjectileSystem
@@ -28,7 +26,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>The installed composition each projectile animation frame draws, which a bomb's frames need bound.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
     /// <summary>How many bombs Samus can have out at once.</summary>
-    public const int SlotCount = MorphBallBombDefinitions.SlotCount;
+    public const int PlaceCount = MorphBallBombDefinitions.PlaceCount;
 
     /// <summary>A placed Morph Ball bomb.</summary>
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
@@ -37,36 +35,36 @@ public sealed class SamusBombProjectileSystem
     public static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
-    private readonly SamusBombProjectileSlot[] _slots =
-        Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
+    private readonly SamusBomb[] _bombs =
+        Enumerable.Range(0, PlaceCount).Select(place => new SamusBomb(place)).ToArray();
 
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
-    public IReadOnlyList<SamusBombProjectileSlot> Slots => _slots;
+    public IReadOnlyList<SamusBomb> Bombs => _bombs;
 
     /// <summary>Creates the new bomb of place <paramref name="index"/>, ending the one there.</summary>
     /// <param name="index">The zero-based bomb place.</param>
     /// <returns>The new bomb, at rest at the room's origin with nothing set.</returns>
-    private SamusBombProjectileSlot Occupy(int index)
+    private SamusBomb Occupy(int place)
     {
-        _slots[index].End();
-        var bomb = new SamusBombProjectileSlot(index);
-        _slots[index] = bomb;
+        _bombs[place].End();
+        var bomb = new SamusBomb(place);
+        _bombs[place] = bomb;
         return bomb;
     }
 
     /// <summary>
-    /// Samus's first bomb: the bomb with the lowest ordinal, which a bomb placed while none is out takes and a bomb
+    /// Samus's first bomb: the bomb in the first place, which a bomb placed while none is out takes and a bomb
     /// spread fills first. Kraid's shot passes, which count one past Samus's shots, reach it (<see cref="KraidShotPassReach"/>).
     /// </summary>
-    public SamusBombProjectileSlot FirstBomb => _slots[0];
+    public SamusBomb FirstBomb => _bombs[0];
 
-    /// <summary>The bomb slots in update order, highest ordinal first.</summary>
-    private IEnumerable<SamusBombProjectileSlot> InUpdateOrder
+    /// <summary>The bombs in update order, from the last place to the first.</summary>
+    private IEnumerable<SamusBomb> InUpdateOrder
     {
         get
         {
-            for (int ordinal = _slots.Length - 1; ordinal >= 0; ordinal--)
-                yield return _slots[ordinal];
+            for (int place = _bombs.Length - 1; place >= 0; place--)
+                yield return _bombs[place];
         }
     }
 
@@ -74,14 +72,14 @@ public sealed class SamusBombProjectileSystem
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
     /// <summary>
-    /// How many bombs Samus has out by the placing count, 0 through the bomb slots' count (#1627); kept separately from the
-    /// free-slot search. A placement counts one only below the slot count, a spread or the Shitroid's drain sets the count
+    /// How many bombs Samus has out by the placing count, 0 through the bomb places' count (#1627); kept separately from the
+    /// free-place search. A placement counts one only below the place count, a spread or the Shitroid's drain sets the count
     /// whole, and a bomb that ends takes one away, staying at zero when the count was already cleared.
     /// </summary>
     public int BombCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, SlotCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
     }
 
     /// <summary>
@@ -184,7 +182,7 @@ public sealed class SamusBombProjectileSystem
         // The cooldown runs before the movement type's own HUD step. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch skips this call as well
-        // as the HUD producer, but must still run the existing projectile slots below.
+        // as the HUD producer, but must still run the bombs already out below.
         // The stationary lock's input mode runs the projectile update directly, skipping the HUD
         // step that owns cooldown and new bomb placement.
         if (samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
@@ -212,7 +210,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Handles the bomb slots in update order, the bombs' share of the game's projectile handling, which runs after
+    /// Handles the bombs in update order, the bombs' share of the game's projectile handling, which runs after
     /// every HUD producer and before the shots (<see cref="SamusProjectileSystem.HandleShots"/>).
     /// </summary>
     /// <returns>The bomb jump direction published, or none when <paramref name="overlap"/> defers it.</returns>
@@ -227,22 +225,22 @@ public sealed class SamusBombProjectileSystem
 
         // Bombs run in update order. X-ray may have frozen time in this same HUD pass: the cooldown above still runs, but
         // no projectile is handled after admission.
-        foreach (SamusBombProjectileSlot slot in InUpdateOrder)
+        foreach (SamusBomb bomb in InUpdateOrder)
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (slot.Playback is null)
+            if (bomb.Playback is null)
                 continue;
 
-            bool wasNormalBomb = slot.Type.Family == SamusProjectileFamily.Bomb;
-            bool slotExplosionStarted = RunBombFrameBehavior(
+            bool wasNormalBomb = bomb.Type.Family == SamusProjectileFamily.Bomb;
+            bool bombExplosionStarted = RunBombFrameBehavior(
                 terrain.Level,
-                slot,
+                bomb,
                 blockReactions,
                 terrain.RoomObjects,
                 samus.Kinematics);
-            explosionStarted |= slotExplosionStarted;
-            if (slotExplosionStarted && wasNormalBomb)
+            explosionStarted |= bombExplosionStarted;
+            if (bombExplosionStarted && wasNormalBomb)
             {
                 // The fuse requests this sound at normal priority for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
@@ -250,17 +248,17 @@ public sealed class SamusBombProjectileSystem
                 AudioRequests.QueueSound(EnemySound.BombExplosion, SoundRequestPriority.Normal);
             }
 
-            // The loop still steps the animation after a frame behaviour clears a slot.
+            // The loop still steps the animation after a frame behaviour ends a bomb.
             // Its cleared timer passes zero and returns without reading an empty animation. An
             // inactive projectile has the same externally visible result, so skip the
             // otherwise meaningless decrement rather than pretending an empty animation ran.
-            if (!slot.IsActive)
+            if (!bomb.IsActive)
             {
                 projectileDeleted = true;
                 continue;
             }
 
-            projectileDeleted |= AdvanceProjectileAnimation(slot);
+            projectileDeleted |= AdvanceProjectileAnimation(bomb);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -291,13 +289,13 @@ public sealed class SamusBombProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusBombProjectileSlot slot in InUpdateOrder)
+        foreach (SamusBomb bomb in InUpdateOrder)
         {
             // Power bombs and normal bombs both use the same projectile
             // timed-frame animation. The large power-bomb flash itself is a glowing
             // window and is composed separately from the sprites.
-            SamusProjectileFamily family = slot.Type.Family;
-            if (slot.Playback is null ||
+            SamusProjectileFamily family = bomb.Type.Family;
+            if (bomb.Playback is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
@@ -306,33 +304,33 @@ public sealed class SamusBombProjectileSystem
             // the detonation frame, so the small placed-bomb sprite must disappear exactly
             // when the large explosion effect begins. Normal bomb explosions keep
             // drawing their frames with a zero BombTimer and are unaffected.
-            if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)
+            if (family == SamusProjectileFamily.PowerBomb && bomb.BombTimer.IsZero)
                 continue;
 
             // The bomb is published wherever it lies; the display clips it to the view (#1541).
-            int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
-            int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
+            int screenX = CoordinateAxis.Difference(bomb.Position.X.Whole, cameraPosition.X);
+            int screenY = CoordinateAxis.Wrap(bomb.Position.Y.Whole - cameraPosition.Y);
 
-            ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
+            ProjectileSpriteId sprite = bomb.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
             // The empty composition draws nothing, and so does a composition the sheet of the beams the bomb is pictured
             // with holds as showing nothing (#1513, #1586).
             if (sprite.DrawsNothing)
                 continue;
-            SpriteSheet sheet = artwork.SheetOf(slot.PicturedBeams);
+            SpriteSheet sheet = artwork.SheetOf(bomb.PicturedBeams);
             string frame = ProjectileSheetFrames.ProjectileFrame(sprite);
             if (sheet.ShowsNothing(frame))
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slot.Index), image,
+            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, bomb.Place), image,
                 Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY), SpriteMirror.None));
         }
     }
 
-    /// <summary>Clears the five bomb slots and their two aggregate counters.</summary>
+    /// <summary>Ends Samus's bombs and clears their two aggregate counters.</summary>
     public void Reset()
     {
-        foreach (SamusBombProjectileSlot slot in _slots)
-            slot.End();
+        foreach (SamusBomb bomb in _bombs)
+            bomb.End();
         BombCounter = 0;
         CooldownTimer = WrappingCountdown.Start(0);
         PowerBombExplosion.Reset();
@@ -389,7 +387,7 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb slot.</summary>
+    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb place.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
         ControllerButton controllerInput,
@@ -412,9 +410,9 @@ public sealed class SamusBombProjectileSystem
         if (!placingPowerBomb && !samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs))
             return null;
 
-        if (!TryReserveBombSlot(controllerNewInput, shoot))
+        if (!TryReserveBomb(controllerNewInput, shoot))
         {
-            // A rejected reservation (no new Shoot press, every bomb slot in use, or the
+            // A rejected reservation (no new Shoot press, every bomb place in use, or the
             // cooldown running) also cancels the beam charge, so a partial charge carried
             // into the ball does not outlive it. The equipment and armed-Power-Bomb checks
             // reject before the reservation and keep the charge. The runtime publishes the
@@ -435,13 +433,13 @@ public sealed class SamusBombProjectileSystem
             PowerBombExplosion.Arm();
         }
 
-        int slotIndex = FindFreeBombSlot();
-        SamusBombProjectileSlot slot = Occupy(slotIndex);
-        slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
-        slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-        slot.Position = slot.Position.WithWhole(samus.Position.Whole);
-        slot.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
-        InitializeBomb(slot);
+        int place = FindFreePlace();
+        SamusBomb bomb = Occupy(place);
+        bomb.Type = placingPowerBomb ? PowerBombType : NormalBombType;
+        bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
+        bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
+        bomb.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
+        InitializeBomb(bomb);
         CooldownTimer = WrappingCountdown.Start(placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
             : MorphBallBombDefinitions.NormalBombCooldown);
@@ -461,7 +459,7 @@ public sealed class SamusBombProjectileSystem
             }
         }
 
-        return slotIndex;
+        return place;
     }
 
     /// <summary>Consumes Morph Ball charge input and either continues its Down hold or emits all five spread bombs.</summary>
@@ -502,51 +500,51 @@ public sealed class SamusBombProjectileSystem
         return BombSpreadAdmission.Spawned;
     }
 
-    /// <summary>Installs five projectiles with slot-specific launch values and clears Samus's stored charge.</summary>
+    /// <summary>Installs five bombs with each place's own launch and clears Samus's stored charge.</summary>
     internal void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
             samus.BombSpreadChargeTimeoutCounter / MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel;
-        for (int index = 0; index < SlotCount; index++)
+        for (int place = 0; place < PlaceCount; place++)
         {
-            SamusBombProjectileSlot slot = Occupy(index);
-            slot.Type = NormalBombType;
-            slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-            slot.IsBombSpread = true;
-            slot.Position = slot.Position.WithWhole(samus.Position.Whole);
-            InitializeBomb(slot);
+            SamusBomb bomb = Occupy(place);
+            bomb.Type = NormalBombType;
+            bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
+            bomb.IsBombSpread = true;
+            bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
+            InitializeBomb(bomb);
 
-            BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForSlot(index);
-            slot.BombTimer = WrappingCountdown.Start(launch.FuseTimer);
-            slot.BombSpreadHorizontal = launch.XVelocity;
+            BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(place);
+            bomb.BombTimer = WrappingCountdown.Start(launch.FuseTimer);
+            bomb.BombSpreadHorizontal = launch.XVelocity;
             // The held charge adds up to three whole pixels of upward launch speed.
-            slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
+            bomb.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
                 -(launch.YSpeed.Whole + verticalModifier), launch.YSpeed.Fraction);
-            slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
+            bomb.BombSpreadVerticalVelocity = bomb.BombSpreadLaunchVelocity;
         }
 
-        BombCounter = SlotCount;
+        BombCounter = PlaceCount;
         CooldownTimer = WrappingCountdown.Start(MorphBallBombDefinitions.NormalBombCooldown);
         samus.BombSpreadChargeTimeoutCounter = 0;
         samus.BeamCharge.ClearCount();
     }
 
     /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing the cooldown after the first bomb.</summary>
-    private bool TryReserveBombSlot(ControllerButton controllerNewInput, ControllerButton shoot)
+    private bool TryReserveBomb(ControllerButton controllerNewInput, ControllerButton shoot)
     {
         if ((controllerNewInput & shoot) == ControllerButton.None)
             return false;
 
         // The first bomb is allowed regardless of cooldown. With any active bomb,
-        // five slots or a running cooldown reject the edge.
+        // five bombs out or a running cooldown reject the edge.
         if (BombCounter != 0 &&
-            (BombCounter >= SlotCount || !CooldownTimer.IsZero))
+            (BombCounter >= PlaceCount || !CooldownTimer.IsZero))
         {
             return false;
         }
 
         // Reserving a bomb counts it and lengthens the cooldown by one update before a free
-        // slot is chosen; once the bomb starts, placement replaces the cooldown with the
+        // place is chosen; once the bomb starts, placement replaces the cooldown with the
         // bomb's own.
         CooldownTimer = CooldownTimer.AddFrames(1);
         BombCounter++;
@@ -554,34 +552,35 @@ public sealed class SamusBombProjectileSystem
         return true;
     }
 
-    /// <summary>Finds the lowest free bomb slot, taking the last slot when an inconsistent count admitted a bomb with none free.</summary>
-    private int FindFreeBombSlot()
+    /// <summary>The lowest place no bomb holds.</summary>
+    /// <exception cref="InvalidOperationException">
+    /// Every place holds a bomb. The placing count admits a bomb only below the place count and counts every bomb until it
+    /// ends; only the Shitroid clears it while bombs may be out, and it does so as it releases a Samus its drain has
+    /// left lying since before any bomb she placed could still be burning. A full set of places therefore means the
+    /// count fell out of step with the bombs, where the game would reuse the last place.
+    /// </exception>
+    private int FindFreePlace()
     {
-        int slotIndex = 0;
-        while (!_slots[slotIndex].Type.IsNone)
+        for (int place = 0; place < PlaceCount; place++)
         {
-            slotIndex++;
-            if (slotIndex >= SlotCount)
-            {
-                // This is the game's defensive/corrupt-state fallback: step the index back
-                // once and reuse the last slot. Consistent BombCounter state never needs it.
-                slotIndex = SlotCount - 1;
-                break;
-            }
+            if (_bombs[place].Type.IsNone)
+                return place;
         }
-        return slotIndex;
+
+        throw new InvalidOperationException(
+            $"A bomb was admitted with all {PlaceCount} places held: the placing count ({BombCounter}) is out of step with the bombs out.");
     }
 
-    /// <summary>Starts a bomb: its damage and its animation, from the compiled non-beam projectile data for the slot's family.</summary>
+    /// <summary>Starts a bomb: its damage and its animation, from the compiled non-beam projectile data for the bomb's family.</summary>
     internal static void InitializeBomb(
-        SamusBombProjectileSlot slot)
+        SamusBomb bomb)
     {
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(slot.Type.Family);
+        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(bomb.Type.Family);
 
-        slot.Damage = SamusProjectileDamage.Read(kind);
+        bomb.Damage = SamusProjectileDamage.Read(kind);
 
-        slot.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        bomb.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
+        bomb.FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -599,81 +598,81 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
     private bool RunBombFrameBehavior(
         RoomLevelData level,
-        SamusBombProjectileSlot slot,
+        SamusBomb bomb,
         List<BombBlockReaction> blockReactions,
         ISamusRoomObjects? roomObjects,
         SamusKinematicsState samusKinematics)
     {
         // A bomb that struck an enemy is cleared before its fuse runs.
-        if (slot.IsSpent)
+        if (bomb.IsSpent)
         {
-            ClearProjectile(slot);
+            ClearProjectile(bomb);
             return false;
         }
 
-        SamusProjectileFamily typeFamily = slot.Type.Family;
+        SamusProjectileFamily typeFamily = bomb.Type.Family;
         if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
-            // Bomb slots hold only normal bombs and Power Bombs. No retail producer installs another family in them;
-            // seeing one means the slot model was mutated inconsistently.
+            // Bombs are only normal bombs and Power Bombs. No retail producer places another family;
+            // seeing one means a bomb was mutated inconsistently.
             throw new InvalidDataException(
-                $"Bomb slot {slot.Index} has invalid projectile family {typeFamily}.");
+                $"The bomb in place {bomb.Place} has invalid projectile family {typeFamily}.");
         }
 
         bool explosionStarted = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer, PowerBombExplosion.IsArmed);
-            slot.BombTimer = fuse.Timer;
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.BombTimer, PowerBombExplosion.IsArmed);
+            bomb.BombTimer = fuse.Timer;
             if (fuse.FastAnimation)
-                slot.Playback = SamusPowerBombFuse.FastAnimation(slot.Playback);
+                bomb.Playback = SamusPowerBombFuse.FastAnimation(bomb.Playback);
             if (fuse.DeleteProjectile)
             {
-                ClearProjectile(slot);
+                ClearProjectile(bomb);
                 return false;
             }
             if (fuse.SpawnExplosion)
             {
-                SpawnPowerBombExplosion(slot.Position.Whole);
+                SpawnPowerBombExplosion(bomb.Position.Whole);
                 explosionStarted = true;
             }
         }
-        else if (!slot.BombTimer.IsZero)
+        else if (!bomb.BombTimer.IsZero)
         {
-            slot.BombTimer = slot.BombTimer.Decrement().Remaining;
-            if (slot.BombTimer.IsAt(15))
+            bomb.BombTimer = bomb.BombTimer.Decrement().Remaining;
+            if (bomb.BombTimer.IsAt(15))
             {
                 // The slow and fast animations have identical four-frame layouts and differ by
                 // a fixed distance. Moving the live animation by it preserves phase.
-                slot.Playback = SamusPowerBombFuse.FastAnimation(slot.Playback);
+                bomb.Playback = SamusPowerBombFuse.FastAnimation(bomb.Playback);
             }
-            else if (slot.BombTimer.IsZero)
+            else if (bomb.BombTimer.IsZero)
             {
                 // The explosion reads the animation embedded in the bomb-explosion data
                 // record and resets the animation timer to one.
-                slot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
-                slot.FrameHold = WrappingCountdown.Start(1);
+                bomb.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
+                bomb.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
             }
         }
 
-        if (slot.IsBombSpread && !slot.BombTimer.IsZero)
-            MoveBombSpread(level, slot, samusKinematics);
+        if (bomb.IsBombSpread && !bomb.BombTimer.IsZero)
+            MoveBombSpread(level, bomb, samusKinematics);
 
         if (typeFamily == SamusProjectileFamily.Bomb &&
-            slot.BombTimer.IsZero &&
-            !slot.HasReactedToTerrain)
+            bomb.BombTimer.IsZero &&
+            !bomb.HasReactedToTerrain)
         {
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
-            slot.HasReactedToTerrain = true;
-            CollectBlockExplosionReactions(level, slot, blockReactions, roomObjects);
+            bomb.HasReactedToTerrain = true;
+            CollectBlockExplosionReactions(level, bomb, blockReactions, roomObjects);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
             // The update the explosion starts on touches no terrain. Every later frame scans the
             // newly reached rectangle border using the explosion's shared radii in whole pixels.
-            if (!explosionStarted && slot.BombTimer.IsZero && PowerBombExplosion.IsArmed)
+            if (!explosionStarted && bomb.BombTimer.IsZero && PowerBombExplosion.IsArmed)
             {
                 CollectPowerBombBoundaryReactions(
                     level,
@@ -681,7 +680,7 @@ public sealed class SamusBombProjectileSystem
                     PowerBombExplosion.ExplosionRadius,
                     blockReactions,
                     roomObjects,
-                    slot.Type);
+                    bomb.Type);
             }
 
         }
@@ -692,51 +691,51 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Applies Samus gravity to a spread bomb, reversing horizontal travel at walls and restoring launch speed on a floor bounce.</summary>
     private static void MoveBombSpread(
         RoomLevelData level,
-        SamusBombProjectileSlot slot,
+        SamusBomb bomb,
         SamusKinematicsState samus)
     {
         // Gravity adds with the fraction carrying into the whole pixels.
-        slot.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
+        bomb.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
             samus.YAcceleration.Whole, samus.YAcceleration.Fraction);
 
-        int previousY = slot.Position.Y.Whole;
-        int previousYSub = slot.Position.Y.Fraction;
-        slot.Position = slot.Position.AdvanceY(slot.BombSpreadVerticalVelocity);
-        if (BombSpreadCollides(level, slot))
+        int previousY = bomb.Position.Y.Whole;
+        int previousYSub = bomb.Position.Y.Fraction;
+        bomb.Position = bomb.Position.AdvanceY(bomb.BombSpreadVerticalVelocity);
+        if (BombSpreadCollides(level, bomb))
         {
-            slot.Position = slot.Position.WithWholeY(previousY).WithFractionY(previousYSub);
-            if (slot.BombSpreadVerticalVelocity.WholePixels < 0)
+            bomb.Position = bomb.Position.WithWholeY(previousY).WithFractionY(previousYSub);
+            if (bomb.BombSpreadVerticalVelocity.WholePixels < 0)
             {
                 // A ceiling clears only the speed's whole pixels; the fraction keeps accumulating gravity.
-                slot.BombSpreadVerticalVelocity = slot.BombSpreadVerticalVelocity.WithWholePixels(0);
-                slot.Radius = slot.Radius.WithY(0);
+                bomb.BombSpreadVerticalVelocity = bomb.BombSpreadVerticalVelocity.WithWholePixels(0);
+                bomb.Radius = bomb.Radius.WithY(0);
             }
             else
             {
-                slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
+                bomb.BombSpreadVerticalVelocity = bomb.BombSpreadLaunchVelocity;
             }
             return;
         }
 
-        int previousX = slot.Position.X.Whole;
-        int previousXSub = slot.Position.X.Fraction;
+        int previousX = bomb.Position.X.Whole;
+        int previousXSub = bomb.Position.X.Fraction;
         // Rightward travel adds the speed with the fraction carrying into the whole pixels; leftward travel subtracts
         // it, borrowing from them. Both wrap after 65535 whole pixels, the signed 1/65536-pixel value's wrapping addition.
-        slot.Position = slot.Position.AdvanceX(slot.BombSpreadHorizontal.Displacement);
-        if (!BombSpreadCollides(level, slot))
+        bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontal.Displacement);
+        if (!BombSpreadCollides(level, bomb))
             return;
 
-        slot.Position = slot.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        slot.BombSpreadHorizontal = slot.BombSpreadHorizontal.Reversed();
+        bomb.Position = bomb.Position.WithWholeX(previousX).WithFractionX(previousXSub);
+        bomb.BombSpreadHorizontal = bomb.BombSpreadHorizontal.Reversed();
     }
 
     /// <summary>Tests the bomb center against room bounds, extension parents, solid blocks and the game's non-square slope heights.</summary>
     internal static bool BombSpreadCollides(
         RoomLevelData level,
-        SamusBombProjectileSlot slot)
+        SamusBomb bomb)
     {
-        int blockX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
-        int blockY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
+        int blockX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
+        int blockY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
         if ((uint)blockX >= level.Size.X ||
             (uint)blockY >= level.Size.Y)
         {
@@ -762,15 +761,15 @@ public sealed class SamusBombProjectileSystem
 
         // Non-square slope collision mirrors X before indexing the slope-height row, then compares the
         // resulting height with Y within the block. Equality counts as collision.
-        int xWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
-        int yWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
+        int xWithinBlock = RoomGridConversions.OffsetWithinBlock(bomb.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
+        int yWithinBlock = RoomGridConversions.OffsetWithinBlock(bomb.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
         int height = block.Behavior.Slope.Shape.HeightAt(xWithinBlock);
         return height <= yWithinBlock;
     }
 
     /// <summary>
     /// The power-bomb boundary traversal, shared by every frame behaviour that runs it.
-    /// Coordinates and radius belong to the global explosion, not the calling slot.
+    /// Coordinates and radius belong to the global explosion, not the calling bomb.
     /// </summary>
     internal static void CollectPowerBombBoundaryReactions(
         RoomLevelData level,
@@ -812,12 +811,12 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
-        SamusBombProjectileSlot slot,
+        SamusBomb bomb,
         List<BombBlockReaction> reactions,
         ISamusRoomObjects? roomObjects)
     {
-        int centerX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
-        int centerY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
+        int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
+        int centerY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
         // The centre, then above, right, left and below, in the reaction order.
         Offset16<RoomBlocks>[] cross = [new(0, 0), new(0, -1), new(1, 0), new(-1, 0), new(0, 1)];
 
@@ -840,7 +839,7 @@ public sealed class SamusBombProjectileSystem
                 new Position16<RoomBlocks>(x, y),
                 reactions,
                 roomObjects,
-                slot.Type);
+                bomb.Type);
         }
     }
 
@@ -877,7 +876,7 @@ public sealed class SamusBombProjectileSystem
 
         // The shot reaction selects the temporary generic trigger room object for both solid-block collision and
         // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
-        // slot, finds the resident actor at the same block, and publishes this projectile
+        // object, finds the resident actor at the same block, and publishes this projectile
         // projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
         // to a shootable block, so narrowing this seam to colored doors strands the progression room object.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
@@ -984,8 +983,8 @@ public sealed class SamusBombProjectileSystem
             }
 
             // Shootable air passes a bomb by when its reaction sets off only in a shootable block. A
-            // shootable block with that reaction still spawns the empty room object, which consumes a
-            // slot for one pass.
+            // shootable block with that reaction still spawns the empty room object, which takes a
+            // room-object place for one pass.
             if (block.CollisionType == RoomCollisionType.ShootableAir &&
                 block.Behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks)
                 return;
@@ -1040,70 +1039,70 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>Ticks the bomb animation, including timed frames, delete and jump steps.</summary>
     internal bool AdvanceProjectileAnimation(
-        SamusBombProjectileSlot slot)
+        SamusBomb bomb)
     {
         // Every frame holds the bomb for at least one update: placement starts the count at one and a frame of no
         // duration is rejected below, so the count reaches zero here and never passes it.
-        slot.FrameHold = slot.FrameHold.Decrement().Remaining;
-        if (!slot.FrameHold.IsZero)
+        bomb.FrameHold = bomb.FrameHold.Decrement().Remaining;
+        if (!bomb.FrameHold.IsZero)
             return false;
 
-        AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
+        AnimationPlayback<SamusProjectileSegment> playback = bomb.Playback
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
         if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
         {
-            ClearProjectile(slot);
+            ClearProjectile(bomb);
             return true;
         }
         if (duration == 0)
             throw new InvalidDataException($"Bomb frame {frame} has zero duration.");
         SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.Start(duration);
-        slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
+        bomb.FrameHold = WrappingCountdown.Start(duration);
+        bomb.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's bombs show their frames' installed compositions, which are not bound.")).Resolve(frame);
-        slot.Radius = gameplay.Radius;
-        slot.Playback = playback;
+        bomb.Radius = gameplay.Radius;
+        bomb.Playback = playback;
         return false;
     }
 
-    /// <summary>Scans bombs in ascending slot order and publishes the last overlapping bomb's Samus launch direction.</summary>
+    /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>
     private SamusBombJumpDirection PublishBombJumpOverlap(SamusState samus)
     {
         SamusBombJumpDirection publishedDirection = SamusBombJumpDirection.None;
 
-        // The bomb-jump scan runs in ascending slot order. Only occupied slots holding placed
-        // bombs that have not struck an enemy reach the geometric test; spread bombs never launch Samus.
-        for (int slotIndex = 0; slotIndex < SlotCount; slotIndex++)
+        // The bomb-jump scan runs from the first place up. Only live placed bombs that have not
+        // struck an enemy reach the geometric test; spread bombs never launch Samus.
+        for (int place = 0; place < PlaceCount; place++)
         {
-            SamusBombProjectileSlot slot = _slots[slotIndex];
-            if (!slot.IsActive ||
-                slot.IsBombSpread ||
-                slot.Type.Family.IsExplosion ||
-                slot.IsSpent)
+            SamusBomb bomb = _bombs[place];
+            if (!bomb.IsActive ||
+                bomb.IsBombSpread ||
+                bomb.Type.Family.IsExplosion ||
+                bomb.IsSpent)
             {
                 continue;
             }
 
-            int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
-            if (xDistance >= slot.Radius.X + samus.Kinematics.Radius.X ||
-                yDistance >= slot.Radius.Y + samus.Kinematics.Radius.Y)
+            int xDistance = CoordinateAxis.Distance(bomb.Position.X.Whole, samus.Position.X.Whole);
+            int yDistance = CoordinateAxis.Distance(bomb.Position.Y.Whole, samus.Position.Y.Whole);
+            if (xDistance >= bomb.Radius.X + samus.Kinematics.Radius.X ||
+                yDistance >= bomb.Radius.Y + samus.Kinematics.Radius.Y)
             {
                 continue;
             }
 
-            SamusProjectileFamily typeFamily = slot.Type.Family;
+            SamusProjectileFamily typeFamily = bomb.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
-                !slot.BombTimer.IsAt(8))
+                !bomb.BombTimer.IsAt(8))
                 continue;
 
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;
-            // Samus right of the bomb launches right. Later overlapping slots overwrite
+            // Samus right of the bomb launches right. Later overlapping bombs overwrite
             // earlier ones exactly as the ascending assembly loop does.
-            publishedDirection = samus.Position.X.Whole == slot.Position.X.Whole
+            publishedDirection = samus.Position.X.Whole == bomb.Position.X.Whole
                 ? SamusBombJumpDirection.Straight
-                : CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+                : CoordinateAxis.Difference(samus.Position.X.Whole, bomb.Position.X.Whole) < 0
                     ? SamusBombJumpDirection.Left
                     : SamusBombJumpDirection.Right;
             SamusPoseMetadata.PublishBombJumpDirection(samus, publishedDirection);
@@ -1113,10 +1112,10 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Deletes a bomb, ending it, and decrements the bomb count, clamping a count below zero to zero.</summary>
-    private void ClearProjectile(SamusBombProjectileSlot slot)
+    private void ClearProjectile(SamusBomb bomb)
     {
-        bool wasActive = slot.IsActive;
-        slot.End();
+        bool wasActive = bomb.IsActive;
+        bomb.End();
         if (!wasActive)
             return;
 

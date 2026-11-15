@@ -784,7 +784,7 @@ internal sealed class EnemyProjectileEngine
     /// Creates the dud shot for an exploding bomb an enemy shrugs off: the dud flash where the bomb lies and the dud sound.
     /// The bomb pass has already marked the bomb as having hit.
     /// </summary>
-    internal void CreateBombDudShot(SamusBombProjectileSlot bomb)
+    internal void CreateBombDudShot(SamusBomb bomb)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
             Ensure.NotNull(bomb).Position.Whole,

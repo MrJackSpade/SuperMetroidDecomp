@@ -29,17 +29,17 @@ internal static class SamusBombCountVerification
         var terrain = new SamusTerrain { Level = level };
 
         SamusBombProjectileSystem range = CreateBombFixture();
-        range.SetSharedBombCounter(SamusBombProjectileSystem.SlotCount);
-        AssertEqual(SamusBombProjectileSystem.SlotCount, range.BombCounter, "the count holds every slot's bomb");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.SetSharedBombCounter(SamusBombProjectileSystem.SlotCount + 1),
+        range.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount);
+        AssertEqual(SamusBombProjectileSystem.PlaceCount, range.BombCounter, "the count holds every slot's bomb");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount + 1),
             "no more bombs are out than there are slots");
         AssertThrows<ArgumentOutOfRangeException>(() => range.SetSharedBombCounter(-1), "the count is never below zero");
 
         // A full count rejects a fresh Shoot edge even with no cooldown running: nothing is placed and the count stays full.
         SamusBombProjectileSystem full = CreateBombFixture();
-        full.SetSharedBombCounter(SamusBombProjectileSystem.SlotCount);
+        full.SetSharedBombCounter(SamusBombProjectileSystem.PlaceCount);
         full.StepFrame(terrain, MorphedSamus(), ControllerButton.X, ControllerButton.X);
-        AssertEqual(SamusBombProjectileSystem.SlotCount, full.BombCounter, "a full count stays full");
+        AssertEqual(SamusBombProjectileSystem.PlaceCount, full.BombCounter, "a full count stays full");
         AssertTrue(full.Slots.All(slot => !slot.IsActive), "a full count places no bomb");
 
         // The Shitroid's drain clears the count while a bomb is out; the bomb's end then leaves it at zero.

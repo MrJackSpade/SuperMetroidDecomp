@@ -123,7 +123,7 @@ internal static class ProjectileCompositionsVerification
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = id;
             shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
             shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
-            var bomb = bombs.Slots[0];
+            var bomb = bombs.Bombs[0];
             bomb.Playback = ProjectileFixturePlaybacks.Active; bomb.SpritemapPointer = id;
             bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.BombTimer = WrappingCountdown.Start(1);
@@ -206,7 +206,7 @@ internal static class ProjectileCompositionsVerification
             var kind = family == 0x500 ? SpriteSourceKind.SamusBomb : SpriteSourceKind.SamusProjectile;
             if (family == 0x500)
             {
-                var slot = runtime.BombProjectiles.Slots[0];
+                var slot = runtime.BombProjectiles.Bombs[0];
                 slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Playback = ProjectileFixturePlaybacks.Active; slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }

@@ -65,7 +65,7 @@ internal static class ProjectileDamageVerification
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)); var samus = Samus(); samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(item);
             var result = system.Firing.TryFireMissile(samus, ControllerButton.X, 0, new SamusBombProjectileSystem());
-            AssertEqual(0, result.Slot, "Missile allocation succeeds");
+            AssertEqual(0, result.Place, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
             system.EnemyImpacts.ReflectFromEnemy(samus, system.Slots[0]);
             Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
@@ -89,7 +89,7 @@ internal static class ProjectileDamageVerification
         }
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {
-            var slot = new SamusBombProjectileSlot(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type) };
+            var slot = new SamusBomb(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type) };
             SamusBombProjectileSystem.InitializeBomb(slot);
             AssertEqual((ushort)(type == 0x0300 ? 200 : 30), slot.Damage, "Power/ordinary/spread bomb damage");
         }

@@ -488,7 +488,7 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            foreach (SamusBombProjectileSlot bomb in bombs.Slots)
+            foreach (SamusBomb bomb in bombs.Bombs)
             {
                 SamusProjectileFamily family = bomb.Type.Family;
 
@@ -596,14 +596,14 @@ internal sealed class EnemyCollision
     /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death tail: the
     /// part of the reaction a species' own bomb handling calls before deciding the enemy's death itself.
     /// </summary>
-    internal void ApplyNormalBombDamage(RoomEnemySlot enemy, SamusBombProjectileSlot bomb) => _ = HurtByNormalBomb(enemy, bomb);
+    internal void ApplyNormalBombDamage(RoomEnemySlot enemy, SamusBomb bomb) => _ = HurtByNormalBomb(enemy, bomb);
 
     /// <summary>
     /// Damages <paramref name="enemy"/> by <paramref name="bomb"/> through its bomb vulnerability: a zero multiplier leaves
     /// the dud flash and sound instead; otherwise the enemy flashes, is hurt, cries unless frozen and loses the damage.
     /// </summary>
     /// <returns>Whether the bomb was a dud, hurt the enemy while it was frozen, or hurt it while it was not.</returns>
-    private NormalBombHit HurtByNormalBomb(RoomEnemySlot enemy, SamusBombProjectileSlot bomb)
+    private NormalBombHit HurtByNormalBomb(RoomEnemySlot enemy, SamusBomb bomb)
     {
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
         int damage = vulnerability.DamageFrom(bomb.Damage);

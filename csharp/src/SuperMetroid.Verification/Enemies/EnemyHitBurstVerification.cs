@@ -93,7 +93,7 @@ internal static class EnemyHitBurstVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health: 1000, frozenTimer);
             var bombs = new SamusBombProjectileSystem();
-            SamusBombProjectileSlot bomb = bombs.Slots[0];
+            SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
             bomb.Radius = new(4, 4);

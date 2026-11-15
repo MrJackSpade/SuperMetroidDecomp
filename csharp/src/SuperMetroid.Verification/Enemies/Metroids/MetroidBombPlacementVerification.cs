@@ -52,7 +52,7 @@ internal static class MetroidBombPlacementVerification
         {
             ControllerButton input = frame == 0 ? ControllerButton.X : 0;
             bombs.StepFrame(new SamusTerrain { Level = assets.LevelData }, samus, input, input);
-            if (firstExplosion < 0 && bombs.Slots.Any(b => !b.Type.IsNone && b.BombTimer.IsZero)) firstExplosion = frame;
+            if (firstExplosion < 0 && bombs.Bombs.Any(b => !b.Type.IsNone && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
             if (state.Movement == MetroidMovement.PowerBombEscape && detached < 0) detached = frame;

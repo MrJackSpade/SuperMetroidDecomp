@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// One of Samus's bombs: a placed bomb, a Power Bomb, or a bomb-spread bomb. Each is created fresh when it takes its
 /// place among the five (<see cref="SamusBombProjectileSystem"/>) and ends when it is deleted or Samus's bombs are
-/// cleared; nothing it holds reaches the next bomb in its place. A place no bomb holds reads as the bomb that last
-/// ended there, or one never placed: no type, no damage, at rest at the room's origin.
+/// cleared; nothing it holds reaches the next bomb in its place. Once it ends it reads as no bomb, with no type, no
+/// damage and at rest at the room's origin, until the next bomb takes its place.
 /// </summary>
-public sealed class SamusBombProjectileSlot
+public sealed class SamusBomb
 {
-    /// <summary>Creates a bomb, not yet placed, in <paramref name="index"/> among the five places.</summary>
-    internal SamusBombProjectileSlot(int index) => Index = index;
+    /// <summary>Creates a bomb, not yet placed, in <paramref name="place"/> among the five places.</summary>
+    internal SamusBomb(int place) => Place = place;
 
     /// <summary>The bomb's place among the five, zero through four: bombs take the lowest free one, and a spread fills all five.</summary>
-    public int Index { get; }
+    public int Place { get; }
 
     /// <summary>Room position in 1/65536 pixels.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }

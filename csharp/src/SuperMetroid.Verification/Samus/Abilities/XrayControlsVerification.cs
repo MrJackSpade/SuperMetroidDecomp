@@ -53,7 +53,7 @@ internal static class XrayControlsVerification
             SamusMovementType metadataBeforeActivation = samus.PoseHistory.PreviousMovement;
             // Construct an already-placed bomb, far from Samus, to isolate the shared
             // ten-slot update gate. Its long instruction delay avoids consuming data.
-            var pendingBomb = runtime.BombProjectiles.Slots[0];
+            var pendingBomb = runtime.BombProjectiles.Bombs[0];
             pendingBomb.Type = SamusBombProjectileSystem.NormalBombType;
             pendingBomb.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.Bomb);
             pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(checked((ushort)pendingBomb.InstructionPointer));

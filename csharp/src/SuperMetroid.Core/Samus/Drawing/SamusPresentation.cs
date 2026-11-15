@@ -414,27 +414,27 @@ internal sealed class SamusPresentation
 
         if (samus.HorizontalSpeed.SpeedEchoesDeparting)
         {
-            // The echo update walks slot one before slot zero. Movement is a drawing side
+            // The echo update walks the second echo before the first. Movement is a drawing side
             // effect in the retail game, so do not advance it earlier in StepFrame: frames
             // whose drawing of Samus is suppressed must also freeze these copies.
             if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
-                    slot: 1,
+                    SpeedEcho.Second,
                     samus.Position.Whole))
             {
                 DrawActiveSpeedBoosterEcho(samus, 
                     sprites,
                     samus.HorizontalSpeed.SecondSpeedEchoPosition,
-                    cameraPosition, slot: 1);
+                    cameraPosition, instance: 1);
             }
 
             if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
-                    slot: 0,
+                    SpeedEcho.First,
                     samus.Position.Whole))
             {
                 DrawActiveSpeedBoosterEcho(samus, 
                     sprites,
                     samus.HorizontalSpeed.FirstSpeedEchoPosition,
-                    cameraPosition, slot: 0);
+                    cameraPosition, instance: 0);
             }
 
             samus.HorizontalSpeed.FinishDepartingSpeedEchoFrame();
@@ -444,16 +444,16 @@ internal sealed class SamusPresentation
         if (!samus.HorizontalSpeed.IsActivelySpeedBoosting)
             return;
 
-        // The echo draw draws slot one before slot zero. Drawing order is observable when their
+        // The echo draw draws the second echo before the first. Drawing order is observable when their
         // opaque pixels overlap, so retain that otherwise-surprising reverse order.
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            cameraPosition, slot: 1);
+            cameraPosition, instance: 1);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
-            cameraPosition, slot: 0);
+            cameraPosition, instance: 0);
     }
 
     /// <summary>
@@ -476,11 +476,11 @@ internal sealed class SamusPresentation
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.Shinespark.SecondOrbitingCopy,
-            cameraPosition, slot: 1);
+            cameraPosition, instance: 1);
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.Shinespark.FirstOrbitingCopy,
-            cameraPosition, slot: 0);
+            cameraPosition, instance: 0);
     }
 
     /// <summary>
@@ -498,9 +498,9 @@ internal sealed class SamusPresentation
 
         // The second echo is drawn before the first. That ordering controls drawing priority when copies overlap.
         DrawActiveSpeedBoosterEcho(samus,
-            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition, slot: 3);
+            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition, instance: 3);
         DrawActiveSpeedBoosterEcho(samus,
-            sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition, slot: 2);
+            sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition, instance: 2);
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
@@ -508,14 +508,15 @@ internal sealed class SamusPresentation
         "Samus rendering requires the installed sprite sheets.");
 
     /// <summary>
-    /// Draws an echo, when its slot holds one, with the picture the body last drew, published wherever it lies; the
+    /// Draws an echo, when it stands somewhere, with the picture the body last drew, published wherever it lies; the
     /// display clips it to the view, as it does the body (#1625).
     /// </summary>
+    /// <param name="instance">Which echo picture this is among Samus's echoes, zero through three.</param>
     private void DrawActiveSpeedBoosterEcho(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels>? stored,
         Position16<RoomPixels> cameraPosition,
-        int slot)
+        int instance)
     {
         if (stored is not { } echo)
             return;
@@ -526,6 +527,6 @@ internal sealed class SamusPresentation
         var origin = Position16<ScreenPixels>.Of(screenX, screenY);
         // An echo repeats the whole picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)
-            sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho, slot));
+            sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho, instance));
     }
 }

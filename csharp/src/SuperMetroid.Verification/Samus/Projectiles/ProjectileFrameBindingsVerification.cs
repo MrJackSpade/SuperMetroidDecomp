@@ -41,7 +41,7 @@ internal static class ProjectileFrameBindingsVerification
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 Damage = 30,
             };
-            var nativeBomb = new SamusBombProjectileSlot(0)
+            var nativeBomb = new SamusBomb(0)
             {
                 Playback = nativeShot.Playback,
                 FrameHold = nativeShot.FrameHold,
@@ -51,7 +51,7 @@ internal static class ProjectileFrameBindingsVerification
             };
             var installedShot = new SamusProjectile(0)
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Damage = 30 };
-            var installedBomb = new SamusBombProjectileSlot(0)
+            var installedBomb = new SamusBomb(0)
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = stock } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };

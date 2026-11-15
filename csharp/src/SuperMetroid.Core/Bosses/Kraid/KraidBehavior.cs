@@ -167,10 +167,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>The shot, or null for the bomb.</summary>
         private readonly SamusProjectile? _shot;
         /// <summary>The bomb, or null for a shot.</summary>
-        private readonly SamusBombProjectileSlot? _bomb;
+        private readonly SamusBomb? _bomb;
 
         /// <summary>Holds exactly one of a shot and a bomb.</summary>
-        private KraidPassProjectile(SamusProjectile? shot, SamusBombProjectileSlot? bomb)
+        private KraidPassProjectile(SamusProjectile? shot, SamusBomb? bomb)
         {
             _shot = shot;
             _bomb = bomb;
@@ -182,7 +182,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         /// <summary>The bomb the passes test past the last shot place.</summary>
         /// <param name="bomb">Samus's first bomb.</param>
-        internal static KraidPassProjectile Bomb(SamusBombProjectileSlot bomb) => new(null, Ensure.NotNull(bomb));
+        internal static KraidPassProjectile Bomb(SamusBomb bomb) => new(null, Ensure.NotNull(bomb));
 
         /// <summary>Reads the projectile's position, radius, type and damage.</summary>
         public KraidCollisionShot Read()

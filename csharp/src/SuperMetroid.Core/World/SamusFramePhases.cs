@@ -1100,7 +1100,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // left-to-right turn can retain downward direction while its type remains
         // turning on the ground; treating it as turning while jumping sent it into the aerial turn's movement
         // and produced the live replay crash from issue 58.
-        SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementKind(samus);
+        SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementType(samus);
         if (turnMovementType == SamusMovementType.TurningOnGround ||
             (turnMovementType == SamusMovementType.TurningWhileJumping &&
              samus.Kinematics.YDirection == SamusVerticalDirection.None))

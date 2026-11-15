@@ -31,9 +31,9 @@ internal static class MotherBrainPlasmaImpactVerification
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
-        var shot = shots.Slots[0];
+        var shot = shots.Shots[0];
         SeedChargedPlasma();
         AssertEqual(1, Hit(), "Charged Plasma produces one accepted head impact");
         AssertEqual(17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
@@ -66,7 +66,7 @@ internal static class MotherBrainPlasmaImpactVerification
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;
         SeedChargedPlasma();
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
+        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.Behavior = SamusShotBehaviors.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
         head.InvincibilityTimer = 0;
@@ -84,7 +84,7 @@ internal static class MotherBrainPlasmaImpactVerification
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 450; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
-            shot.FrameBehavior = SamusProjectileFrameBehavior.NoWaveBeam;
+            shot.Behavior = SamusShotBehaviors.Beam;
         }
     }
 

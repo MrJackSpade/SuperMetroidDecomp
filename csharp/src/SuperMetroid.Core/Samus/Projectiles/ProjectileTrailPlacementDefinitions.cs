@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class ProjectileTrailPlacementDefinitions
 {
     /// <summary>
-    /// The family each choice names. Uncharged and charged combinations twelve to fifteen read the following group's first
-    /// choices. Null is a choice that names no family: an empty one, whose directions are left-over values, or a choice
-    /// past the special beam attacks' ten, which reads list data whose values name no trail list.
+    /// The family each choice names. Null is a choice that names no family, which draws no trail: a Spazer and Plasma
+    /// combination's, which the game authors none for (#1926), an empty one, and a special beam attack with no trail of
+    /// its own.
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailChoice, ProjectileTrailFamily?> Families =
         new Dictionary<ProjectileTrailChoice, ProjectileTrailFamily?>
@@ -30,10 +30,10 @@ internal static class ProjectileTrailPlacementDefinitions
             [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.PlasmaWave)] = ProjectileTrailFamily.UnchargedDefault,
             [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.PlasmaIce)] = ProjectileTrailFamily.UnchargedIcePlasma,
             [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.PlasmaIceWave)] = ProjectileTrailFamily.UnchargedWaveIcePlasma,
-            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasma)] = ProjectileTrailFamily.ChargedDefault,
-            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasmaWave)] = ProjectileTrailFamily.ChargedWave,
-            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasmaIce)] = ProjectileTrailFamily.ChargedDefault,
-            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasmaIceWave)] = ProjectileTrailFamily.ChargedWave,
+            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasma)] = null,
+            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasmaWave)] = null,
+            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasmaIce)] = null,
+            [new(ProjectileTrailFamilyGroup.Uncharged, SamusBeamCombination.SpazerPlasmaIceWave)] = null,
             [new(ProjectileTrailFamilyGroup.Charged, SamusBeamCombination.Power)] = ProjectileTrailFamily.ChargedDefault,
             [new(ProjectileTrailFamilyGroup.Charged, SamusBeamCombination.Wave)] = ProjectileTrailFamily.ChargedWave,
             [new(ProjectileTrailFamilyGroup.Charged, SamusBeamCombination.Ice)] = ProjectileTrailFamily.ChargedDefault,
@@ -89,8 +89,8 @@ internal static class ProjectileTrailPlacementDefinitions
         }.ToFrozenDictionary();
 
     /// <summary>
-    /// The placements each list gives an animation frame: its own records, then the records stored after it, up to the
-    /// next table or the end of the trail data.
+    /// The placements each list gives an animation frame: only its own, up to where the next list begins (#1926). A frame
+    /// past them leaves no trail (<see cref="ProjectileTrailPlacements.Start"/>).
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailPlacementList, ProjectileTrailPlacement[]> PlacementsByList =
         new Dictionary<ProjectileTrailPlacementList, ProjectileTrailPlacement[]>
@@ -99,10 +99,6 @@ internal static class ProjectileTrailPlacementDefinitions
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(8, 0), new(0, 0)), new(new(12, 0), new(0, 0)), new(new(16, 0), new(0, 0)),
-                new(new(20, 0), new(0, 0)), new(new(16, 0), new(0, 0)), new(new(12, 0), new(0, 0)), new(new(8, 0), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(-8, 0), new(0, 0)), new(new(-12, 0), new(0, 0)), new(new(-16, 0), new(0, 0)),
-                new(new(-20, 0), new(0, 0)), new(new(-16, 0), new(0, 0)),
             ],
             [L.UnchargedWaveVertical] =
             [
@@ -110,8 +106,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(20, 0), new(0, 0)), new(new(16, 0), new(0, 0)), new(new(12, 0), new(0, 0)), new(new(8, 0), new(0, 0)),
                 new(new(0, 0), new(0, 0)), new(new(-8, 0), new(0, 0)), new(new(-12, 0), new(0, 0)), new(new(-16, 0), new(0, 0)),
                 new(new(-20, 0), new(0, 0)), new(new(-16, 0), new(0, 0)), new(new(-12, 0), new(0, 0)), new(new(-8, 0), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, -8), new(0, 0)), new(new(0, -12), new(0, 0)), new(new(0, -16), new(0, 0)),
-                new(new(0, -20), new(0, 0)), new(new(0, -16), new(0, 0)),
             ],
             [L.UnchargedWaveHorizontal] =
             [
@@ -119,8 +113,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(0, -20), new(0, 0)), new(new(0, -16), new(0, 0)), new(new(0, -12), new(0, 0)), new(new(0, -8), new(0, 0)),
                 new(new(0, 0), new(0, 0)), new(new(0, 8), new(0, 0)), new(new(0, 12), new(0, 0)), new(new(0, 16), new(0, 0)),
                 new(new(0, 20), new(0, 0)), new(new(0, 16), new(0, 0)), new(new(0, 12), new(0, 0)), new(new(0, 8), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(-4, -4), new(0, 0)), new(new(-8, -8), new(0, 0)), new(new(-10, -10), new(0, 0)),
-                new(new(-12, -12), new(0, 0)), new(new(-10, -10), new(0, 0)),
             ],
             [L.UnchargedWaveRisingDiagonal] =
             [
@@ -128,8 +120,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(-12, -12), new(0, 0)), new(new(-10, -10), new(0, 0)), new(new(-8, -8), new(0, 0)), new(new(-4, -4), new(0, 0)),
                 new(new(0, 0), new(0, 0)), new(new(4, 4), new(0, 0)), new(new(8, 8), new(0, 0)), new(new(10, 10), new(0, 0)),
                 new(new(12, 12), new(0, 0)), new(new(10, 10), new(0, 0)), new(new(8, 8), new(0, 0)), new(new(4, 4), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(4, -4), new(0, 0)), new(new(8, -8), new(0, 0)), new(new(10, -10), new(0, 0)),
-                new(new(12, -12), new(0, 0)), new(new(10, -10), new(0, 0)),
             ],
             [L.UnchargedWaveFallingDiagonal] =
             [
@@ -137,286 +127,160 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(12, -12), new(0, 0)), new(new(10, -10), new(0, 0)), new(new(8, -8), new(0, 0)), new(new(4, -4), new(0, 0)),
                 new(new(0, 0), new(0, 0)), new(new(-4, 4), new(0, 0)), new(new(-8, 8), new(0, 0)), new(new(-10, 10), new(0, 0)),
                 new(new(-12, 12), new(0, 0)), new(new(-10, 10), new(0, 0)), new(new(-8, 8), new(0, 0)), new(new(-4, 4), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(-8, 8), new(8, 8)), new(new(-16, 8), new(16, 8)), new(new(0, 0), new(0, 0)),
-                new(new(-8, -8), new(8, -8)), new(new(-16, -8), new(16, -8)),
             ],
             [L.UnchargedIceSpazerUp] =
             [
-                new(new(0, 0), new(0, 0)), new(new(-8, 8), new(8, 8)), new(new(-16, 8), new(16, 8)), new(new(0, 0), new(0, 0)),
-                new(new(-8, -8), new(8, -8)), new(new(-16, -8), new(16, -8)), new(new(-8, 8), new(-8, 8)), new(new(-14, 2), new(-2, 14)),
-                new(new(-20, -4), new(2, 20)), new(new(-8, 0), new(-8, 0)), new(new(-8, -8), new(-8, 8)), new(new(-8, -16), new(-8, 16)),
-                new(new(-8, -8), new(-8, -8)), new(new(-2, -16), new(-16, -2)), new(new(4, -20), new(-20, 4)), new(new(8, -8), new(8, -8)),
-                new(new(14, -2), new(2, -14)), new(new(20, 4), new(-2, -20)), new(new(8, 0), new(8, 0)), new(new(8, 8), new(8, -8)),
-                new(new(8, 16), new(8, -16)), new(new(8, 8), new(8, 8)),
+                new(new(0, 0), new(0, 0)), new(new(-8, 8), new(8, 8)), new(new(-16, 8), new(16, 8)),
             ],
             [L.UnchargedIceSpazerDown] =
             [
-                new(new(0, 0), new(0, 0)), new(new(-8, -8), new(8, -8)), new(new(-16, -8), new(16, -8)), new(new(-8, 8), new(-8, 8)),
-                new(new(-14, 2), new(-2, 14)), new(new(-20, -4), new(2, 20)), new(new(-8, 0), new(-8, 0)), new(new(-8, -8), new(-8, 8)),
-                new(new(-8, -16), new(-8, 16)), new(new(-8, -8), new(-8, -8)), new(new(-2, -16), new(-16, -2)), new(new(4, -20), new(-20, 4)),
-                new(new(8, -8), new(8, -8)), new(new(14, -2), new(2, -14)), new(new(20, 4), new(-2, -20)), new(new(8, 0), new(8, 0)),
-                new(new(8, 8), new(8, -8)), new(new(8, 16), new(8, -16)), new(new(8, 8), new(8, 8)), new(new(2, 16), new(16, 2)),
-                new(new(-4, 20), new(20, -4)), new(new(0, 0), new(0, 0)),
+                new(new(0, 0), new(0, 0)), new(new(-8, -8), new(8, -8)), new(new(-16, -8), new(16, -8)),
             ],
             [L.UnchargedIceSpazerUpRight] =
             [
-                new(new(-8, 8), new(-8, 8)), new(new(-14, 2), new(-2, 14)), new(new(-20, -4), new(2, 20)), new(new(-8, 0), new(-8, 0)),
-                new(new(-8, -8), new(-8, 8)), new(new(-8, -16), new(-8, 16)), new(new(-8, -8), new(-8, -8)), new(new(-2, -16), new(-16, -2)),
-                new(new(4, -20), new(-20, 4)), new(new(8, -8), new(8, -8)), new(new(14, -2), new(2, -14)), new(new(20, 4), new(-2, -20)),
-                new(new(8, 0), new(8, 0)), new(new(8, 8), new(8, -8)), new(new(8, 16), new(8, -16)), new(new(8, 8), new(8, 8)),
-                new(new(2, 16), new(16, 2)), new(new(-4, 20), new(20, -4)), new(new(0, 0), new(0, 0)), new(new(-4, 8), new(4, 8)),
-                new(new(-8, 8), new(8, 8)), new(new(-12, 8), new(12, 8)),
+                new(new(-8, 8), new(-8, 8)), new(new(-14, 2), new(-2, 14)), new(new(-20, -4), new(2, 20)),
             ],
             [L.UnchargedIceSpazerRight] =
             [
-                new(new(-8, 0), new(-8, 0)), new(new(-8, -8), new(-8, 8)), new(new(-8, -16), new(-8, 16)), new(new(-8, -8), new(-8, -8)),
-                new(new(-2, -16), new(-16, -2)), new(new(4, -20), new(-20, 4)), new(new(8, -8), new(8, -8)), new(new(14, -2), new(2, -14)),
-                new(new(20, 4), new(-2, -20)), new(new(8, 0), new(8, 0)), new(new(8, 8), new(8, -8)), new(new(8, 16), new(8, -16)),
-                new(new(8, 8), new(8, 8)), new(new(2, 16), new(16, 2)), new(new(-4, 20), new(20, -4)), new(new(0, 0), new(0, 0)),
-                new(new(-4, 8), new(4, 8)), new(new(-8, 8), new(8, 8)), new(new(-12, 8), new(12, 8)), new(new(-16, 8), new(16, 8)),
-                new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)),
+                new(new(-8, 0), new(-8, 0)), new(new(-8, -8), new(-8, 8)), new(new(-8, -16), new(-8, 16)),
             ],
             [L.UnchargedIceSpazerDownRight] =
             [
-                new(new(-8, -8), new(-8, -8)), new(new(-2, -16), new(-16, -2)), new(new(4, -20), new(-20, 4)), new(new(8, -8), new(8, -8)),
-                new(new(14, -2), new(2, -14)), new(new(20, 4), new(-2, -20)), new(new(8, 0), new(8, 0)), new(new(8, 8), new(8, -8)),
-                new(new(8, 16), new(8, -16)), new(new(8, 8), new(8, 8)), new(new(2, 16), new(16, 2)), new(new(-4, 20), new(20, -4)),
-                new(new(0, 0), new(0, 0)), new(new(-4, 8), new(4, 8)), new(new(-8, 8), new(8, 8)), new(new(-12, 8), new(12, 8)),
-                new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)), new(new(-12, 8), new(12, 8)),
-                new(new(-8, 8), new(8, 8)), new(new(-4, 8), new(4, 8)),
+                new(new(-8, -8), new(-8, -8)), new(new(-2, -16), new(-16, -2)), new(new(4, -20), new(-20, 4)),
             ],
             [L.UnchargedIceSpazerDownLeft] =
             [
-                new(new(8, -8), new(8, -8)), new(new(14, -2), new(2, -14)), new(new(20, 4), new(-2, -20)), new(new(8, 0), new(8, 0)),
-                new(new(8, 8), new(8, -8)), new(new(8, 16), new(8, -16)), new(new(8, 8), new(8, 8)), new(new(2, 16), new(16, 2)),
-                new(new(-4, 20), new(20, -4)), new(new(0, 0), new(0, 0)), new(new(-4, 8), new(4, 8)), new(new(-8, 8), new(8, 8)),
-                new(new(-12, 8), new(12, 8)), new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)),
-                new(new(-12, 8), new(12, 8)), new(new(-8, 8), new(8, 8)), new(new(-4, 8), new(4, 8)), new(new(0, 0), new(0, 0)),
-                new(new(-12, 6), new(-6, 12)), new(new(-14, 2), new(-2, 14)),
+                new(new(8, -8), new(8, -8)), new(new(14, -2), new(2, -14)), new(new(20, 4), new(-2, -20)),
             ],
             [L.UnchargedIceSpazerLeft] =
             [
-                new(new(8, 0), new(8, 0)), new(new(8, 8), new(8, -8)), new(new(8, 16), new(8, -16)), new(new(8, 8), new(8, 8)),
-                new(new(2, 16), new(16, 2)), new(new(-4, 20), new(20, -4)), new(new(0, 0), new(0, 0)), new(new(-4, 8), new(4, 8)),
-                new(new(-8, 8), new(8, 8)), new(new(-12, 8), new(12, 8)), new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)),
-                new(new(-16, 8), new(16, 8)), new(new(-12, 8), new(12, 8)), new(new(-8, 8), new(8, 8)), new(new(-4, 8), new(4, 8)),
-                new(new(0, 0), new(0, 0)), new(new(-12, 6), new(-6, 12)), new(new(-14, 2), new(-2, 14)), new(new(-16, 0), new(0, 16)),
-                new(new(-18, -2), new(2, 18)), new(new(-20, -4), new(2, 20)),
+                new(new(8, 0), new(8, 0)), new(new(8, 8), new(8, -8)), new(new(8, 16), new(8, -16)),
             ],
             [L.UnchargedIceSpazerUpLeft] =
             [
-                new(new(8, 8), new(8, 8)), new(new(2, 16), new(16, 2)), new(new(-4, 20), new(20, -4)), new(new(0, 0), new(0, 0)),
-                new(new(-4, 8), new(4, 8)), new(new(-8, 8), new(8, 8)), new(new(-12, 8), new(12, 8)), new(new(-16, 8), new(16, 8)),
-                new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)), new(new(-12, 8), new(12, 8)), new(new(-8, 8), new(8, 8)),
-                new(new(-4, 8), new(4, 8)), new(new(0, 0), new(0, 0)), new(new(-12, 6), new(-6, 12)), new(new(-14, 2), new(-2, 14)),
-                new(new(-16, 0), new(0, 16)), new(new(-18, -2), new(2, 18)), new(new(-20, -4), new(2, 20)), new(new(-18, -2), new(2, 18)),
-                new(new(-16, 0), new(0, 16)), new(new(-14, 2), new(-2, 14)),
+                new(new(8, 8), new(8, 8)), new(new(2, 16), new(16, 2)), new(new(-4, 20), new(20, -4)),
             ],
             [L.UnchargedWaveIceSpazerUp] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-4, 8), new(4, 8)), new(new(-8, 8), new(8, 8)), new(new(-12, 8), new(12, 8)),
                 new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)), new(new(-16, 8), new(16, 8)), new(new(-12, 8), new(12, 8)),
-                new(new(-8, 8), new(8, 8)), new(new(-4, 8), new(4, 8)), new(new(0, 0), new(0, 0)), new(new(-12, 6), new(-6, 12)),
-                new(new(-14, 2), new(-2, 14)), new(new(-16, 0), new(0, 16)), new(new(-18, -2), new(2, 18)), new(new(-20, -4), new(2, 20)),
-                new(new(-18, -2), new(2, 18)), new(new(-16, 0), new(0, 16)), new(new(-14, 2), new(-2, 14)), new(new(-12, 6), new(-6, 12)),
-                new(new(0, 0), new(0, 0)), new(new(-8, -4), new(-8, 4)),
+                new(new(-8, 8), new(8, 8)), new(new(-4, 8), new(4, 8)),
             ],
             [L.UnchargedWaveIceSpazerUpRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-12, 6), new(-6, 12)), new(new(-14, 2), new(-2, 14)), new(new(-16, 0), new(0, 16)),
                 new(new(-18, -2), new(2, 18)), new(new(-20, -4), new(2, 20)), new(new(-18, -2), new(2, 18)), new(new(-16, 0), new(0, 16)),
-                new(new(-14, 2), new(-2, 14)), new(new(-12, 6), new(-6, 12)), new(new(0, 0), new(0, 0)), new(new(-8, -4), new(-8, 4)),
-                new(new(-8, -8), new(-8, 8)), new(new(-8, -12), new(-8, 12)), new(new(-8, -16), new(-8, 16)), new(new(-8, -16), new(-8, 16)),
-                new(new(-8, -16), new(-8, 16)), new(new(-8, -12), new(-8, 12)), new(new(-8, -8), new(-8, 8)), new(new(-8, -4), new(-8, 4)),
-                new(new(0, 0), new(0, 0)), new(new(-12, -6), new(-6, -12)),
+                new(new(-14, 2), new(-2, 14)), new(new(-12, 6), new(-6, 12)),
             ],
             [L.UnchargedWaveIceSpazerRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-8, -4), new(-8, 4)), new(new(-8, -8), new(-8, 8)), new(new(-8, -12), new(-8, 12)),
                 new(new(-8, -16), new(-8, 16)), new(new(-8, -16), new(-8, 16)), new(new(-8, -16), new(-8, 16)), new(new(-8, -12), new(-8, 12)),
-                new(new(-8, -8), new(-8, 8)), new(new(-8, -4), new(-8, 4)), new(new(0, 0), new(0, 0)), new(new(-12, -6), new(-6, -12)),
-                new(new(-2, -16), new(-16, -2)), new(new(-16, 0), new(0, -16)), new(new(-18, 2), new(2, -18)), new(new(4, -20), new(-20, 4)),
-                new(new(-18, 2), new(2, -18)), new(new(-16, 0), new(0, -16)), new(new(-2, -16), new(-16, -2)), new(new(-12, -6), new(-6, -12)),
-                new(new(0, 0), new(0, 0)), new(new(-4, -8), new(4, -8)),
+                new(new(-8, -8), new(-8, 8)), new(new(-8, -4), new(-8, 4)),
             ],
             [L.UnchargedWaveIceSpazerDownRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-12, -6), new(-6, -12)), new(new(-2, -16), new(-16, -2)), new(new(-16, 0), new(0, -16)),
                 new(new(-18, 2), new(2, -18)), new(new(4, -20), new(-20, 4)), new(new(-18, 2), new(2, -18)), new(new(-16, 0), new(0, -16)),
-                new(new(-2, -16), new(-16, -2)), new(new(-12, -6), new(-6, -12)), new(new(0, 0), new(0, 0)), new(new(-4, -8), new(4, -8)),
-                new(new(-8, -8), new(8, -8)), new(new(-12, -8), new(12, -8)), new(new(-16, -8), new(16, -8)), new(new(-16, -8), new(16, -8)),
-                new(new(-16, -8), new(16, -8)), new(new(-12, -8), new(12, -8)), new(new(-8, -8), new(8, -8)), new(new(-4, -8), new(4, -8)),
-                new(new(0, 0), new(0, 0)), new(new(2, -14), new(14, -2)),
+                new(new(-2, -16), new(-16, -2)), new(new(-12, -6), new(-6, -12)),
             ],
             [L.UnchargedWaveIceSpazerDown] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-4, -8), new(4, -8)), new(new(-8, -8), new(8, -8)), new(new(-12, -8), new(12, -8)),
                 new(new(-16, -8), new(16, -8)), new(new(-16, -8), new(16, -8)), new(new(-16, -8), new(16, -8)), new(new(-12, -8), new(12, -8)),
-                new(new(-8, -8), new(8, -8)), new(new(-4, -8), new(4, -8)), new(new(0, 0), new(0, 0)), new(new(2, -14), new(14, -2)),
-                new(new(0, -16), new(16, 0)), new(new(-2, -18), new(18, 2)), new(new(-2, -20), new(20, 4)), new(new(-2, -20), new(20, 4)),
-                new(new(-2, -20), new(20, 4)), new(new(-2, -18), new(18, 2)), new(new(0, -16), new(16, 0)), new(new(2, -14), new(14, -2)),
-                new(new(0, 0), new(0, 0)), new(new(8, -4), new(8, 4)),
+                new(new(-8, -8), new(8, -8)), new(new(-4, -8), new(4, -8)),
             ],
             [L.UnchargedWaveIceSpazerDownLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(2, -14), new(14, -2)), new(new(0, -16), new(16, 0)), new(new(-2, -18), new(18, 2)),
                 new(new(-2, -20), new(20, 4)), new(new(-2, -20), new(20, 4)), new(new(-2, -20), new(20, 4)), new(new(-2, -18), new(18, 2)),
-                new(new(0, -16), new(16, 0)), new(new(2, -14), new(14, -2)), new(new(0, 0), new(0, 0)), new(new(8, -4), new(8, 4)),
-                new(new(8, -8), new(8, 8)), new(new(8, -12), new(8, 12)), new(new(8, -16), new(8, 16)), new(new(8, -16), new(8, 16)),
-                new(new(8, -16), new(8, 16)), new(new(8, -12), new(8, 12)), new(new(8, -8), new(8, 8)), new(new(8, -4), new(8, 4)),
-                new(new(0, 0), new(0, 0)), new(new(6, 10), new(10, 6)),
+                new(new(0, -16), new(16, 0)), new(new(2, -14), new(14, -2)),
             ],
             [L.UnchargedWaveIceSpazerLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(8, -4), new(8, 4)), new(new(8, -8), new(8, 8)), new(new(8, -12), new(8, 12)),
                 new(new(8, -16), new(8, 16)), new(new(8, -16), new(8, 16)), new(new(8, -16), new(8, 16)), new(new(8, -12), new(8, 12)),
-                new(new(8, -8), new(8, 8)), new(new(8, -4), new(8, 4)), new(new(0, 0), new(0, 0)), new(new(6, 10), new(10, 6)),
-                new(new(2, 16), new(16, 2)), new(new(0, 16), new(16, 0)), new(new(-2, 18), new(18, -2)), new(new(-4, 20), new(20, -4)),
-                new(new(-2, 18), new(18, -2)), new(new(0, 16), new(16, 0)), new(new(2, 16), new(16, 2)), new(new(6, 10), new(10, 6)),
-                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
+                new(new(8, -8), new(8, 8)), new(new(8, -4), new(8, 4)),
             ],
             [L.UnchargedWaveIceSpazerUpLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(6, 10), new(10, 6)), new(new(2, 16), new(16, 2)), new(new(0, 16), new(16, 0)),
                 new(new(-2, 18), new(18, -2)), new(new(-4, 20), new(20, -4)), new(new(-2, 18), new(18, -2)), new(new(0, 16), new(16, 0)),
-                new(new(2, 16), new(16, 2)), new(new(6, 10), new(10, 6)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
-                new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)), new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)),
-                new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)), new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)),
-                new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)),
+                new(new(2, 16), new(16, 2)), new(new(6, 10), new(10, 6)),
             ],
             [L.UnchargedIcePlasmaUp] =
             [
-                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)), new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)),
-                new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)), new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)),
-                new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)), new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)),
-                new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)), new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)),
-                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)), new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
+                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
             ],
             [L.UnchargedIcePlasmaUpRight] =
             [
-                new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)), new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)),
-                new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)), new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)),
-                new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)), new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)),
-                new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
+                new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)),
             ],
             [L.UnchargedIcePlasmaRight] =
             [
-                new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)), new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)),
-                new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)), new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)),
-                new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)), new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)),
-                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)), new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)),
+                new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)),
             ],
             [L.UnchargedIcePlasmaDownRight] =
             [
-                new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)), new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)),
-                new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)), new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)),
-                new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)),
-                new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)),
+                new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)),
             ],
             [L.UnchargedIcePlasmaDown] =
             [
-                new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)), new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)),
-                new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)), new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)),
-                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)), new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)),
-                new(new(-24, 2), new(-2, 20)), new(new(-24, 0), new(0, 24)),
+                new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)),
             ],
             [L.UnchargedIcePlasmaDownLeft] =
             [
-                new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)), new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)),
-                new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)),
-                new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)), new(new(-24, 2), new(-2, 20)), new(new(-24, 0), new(0, 24)),
-                new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)),
+                new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)),
             ],
             [L.UnchargedIcePlasmaLeft] =
             [
-                new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)), new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)),
-                new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)), new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)),
-                new(new(-24, 2), new(-2, 20)), new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)),
-                new(new(-24, 2), new(-2, 20)), new(new(-20, 8), new(-8, 18)),
+                new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)),
             ],
             [L.UnchargedIcePlasmaUpLeft] =
             [
-                new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)),
-                new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)), new(new(-24, 2), new(-2, 20)), new(new(-24, 0), new(0, 24)),
-                new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)), new(new(-24, 2), new(-2, 20)), new(new(-20, 8), new(-8, 18)),
-                new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)),
+                new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)),
             ],
             [L.UnchargedWaveIcePlasmaUp] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, 16)), new(new(-8, 16), new(8, 16)), new(new(-16, 16), new(16, 16)),
                 new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
-                new(new(-8, 16), new(8, 16)), new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)),
-                new(new(-24, 2), new(-2, 20)), new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)),
-                new(new(-24, 2), new(-2, 20)), new(new(-20, 8), new(-8, 18)), new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)),
-                new(new(-16, -8), new(-16, 8)), new(new(-16, -12), new(-16, 12)),
+                new(new(-8, 16), new(8, 16)),
             ],
             [L.UnchargedWaveIcePlasmaUpRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-12, 12), new(-12, 12)), new(new(-20, 8), new(-8, 18)), new(new(-24, 2), new(-2, 20)),
                 new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)), new(new(-24, 2), new(-2, 20)),
-                new(new(-20, 8), new(-8, 18)), new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)), new(new(-16, -8), new(-16, 8)),
-                new(new(-16, -12), new(-16, 12)), new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)),
-                new(new(-16, -12), new(-16, 12)), new(new(-16, -8), new(-16, 8)), new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)),
-                new(new(-18, -6), new(-6, -18)), new(new(-20, -2), new(-2, -20)),
+                new(new(-20, 8), new(-8, 18)),
             ],
             [L.UnchargedWaveIcePlasmaRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-16, 0), new(-16, 0)), new(new(-16, -8), new(-16, 8)), new(new(-16, -12), new(-16, 12)),
                 new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)), new(new(-16, -12), new(-16, 12)),
-                new(new(-16, -8), new(-16, 8)), new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)), new(new(-18, -6), new(-6, -18)),
-                new(new(-20, -2), new(-2, -20)), new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)),
-                new(new(-20, -2), new(-2, -20)), new(new(-18, -6), new(-6, -18)), new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)),
-                new(new(-8, -16), new(8, -16)), new(new(-16, -16), new(16, -16)),
+                new(new(-16, -8), new(-16, 8)),
             ],
             [L.UnchargedWaveIcePlasmaDownRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-12, -12), new(-12, -12)), new(new(-18, -6), new(-6, -18)), new(new(-20, -2), new(-2, -20)),
                 new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)), new(new(-20, -2), new(-2, -20)),
-                new(new(-18, -6), new(-6, -18)), new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)), new(new(-8, -16), new(8, -16)),
-                new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)),
-                new(new(-16, -16), new(16, -16)), new(new(-8, -16), new(8, -16)), new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)),
-                new(new(20, -8), new(8, -18)), new(new(24, -2), new(2, -20)),
+                new(new(-18, -6), new(-6, -18)),
             ],
             [L.UnchargedWaveIcePlasmaDown] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, -16)), new(new(-8, -16), new(8, -16)), new(new(-16, -16), new(16, -16)),
                 new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)),
-                new(new(-8, -16), new(8, -16)), new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)), new(new(20, -8), new(8, -18)),
-                new(new(24, -2), new(2, -20)), new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)),
-                new(new(24, -2), new(2, -20)), new(new(20, -8), new(8, -18)), new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)),
-                new(new(16, -8), new(16, 8)), new(new(16, -12), new(16, 12)),
+                new(new(-8, -16), new(8, -16)),
             ],
             [L.UnchargedWaveIcePlasmaDownLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(12, -12), new(12, -12)), new(new(20, -8), new(8, -18)), new(new(24, -2), new(2, -20)),
                 new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)), new(new(24, -2), new(2, -20)),
-                new(new(20, -8), new(8, -18)), new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)), new(new(16, -8), new(16, 8)),
-                new(new(16, -12), new(16, 12)), new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)),
-                new(new(16, -12), new(16, 12)), new(new(16, -8), new(16, 8)), new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)),
-                new(new(18, 6), new(6, 18)), new(new(20, 2), new(2, 20)),
+                new(new(20, -8), new(8, -18)),
             ],
             [L.UnchargedWaveIcePlasmaLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(16, 0), new(16, 0)), new(new(16, -8), new(16, 8)), new(new(16, -12), new(16, 12)),
                 new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)), new(new(16, -12), new(16, 12)),
-                new(new(16, -8), new(16, 8)), new(new(0, 0), new(0, 0)), new(new(12, 12), new(12, 12)), new(new(18, 6), new(6, 18)),
-                new(new(20, 2), new(2, 20)), new(new(24, 0), new(0, 24)), new(new(24, 0), new(0, 24)), new(new(24, 0), new(0, 24)),
-                new(new(20, 2), new(2, 20)), new(new(18, 6), new(6, 18)),
+                new(new(16, -8), new(16, 8)),
             ],
             [L.UnchargedWaveIcePlasmaUpLeft] =
             [
@@ -428,10 +292,6 @@ internal static class ProjectileTrailPlacementDefinitions
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, 0), new(8, 0)), new(new(-8, 0), new(8, 0)),
-                new(new(-12, 0), new(12, 0)), new(new(-12, 0), new(12, 0)), new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)),
-                new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)),
-                new(new(-12, 0), new(12, 0)), new(new(-12, 0), new(12, 0)),
             ],
             [L.ChargedWaveVertical] =
             [
@@ -439,8 +299,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(-12, 0), new(12, 0)), new(new(-12, 0), new(12, 0)), new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)),
                 new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)), new(new(-16, 0), new(16, 0)),
                 new(new(-12, 0), new(12, 0)), new(new(-12, 0), new(12, 0)), new(new(-8, 0), new(8, 0)), new(new(-8, 0), new(8, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, -8), new(0, 8)), new(new(0, -8), new(0, 8)),
-                new(new(0, -12), new(0, 12)), new(new(0, -12), new(0, 12)),
             ],
             [L.ChargedWaveHorizontal] =
             [
@@ -448,8 +306,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(0, -12), new(0, 12)), new(new(0, -12), new(0, 12)), new(new(0, -16), new(0, 16)), new(new(0, -16), new(0, 16)),
                 new(new(0, -16), new(0, 16)), new(new(0, -16), new(0, 16)), new(new(0, -16), new(0, 16)), new(new(0, -16), new(0, 16)),
                 new(new(0, -12), new(0, 12)), new(new(0, -12), new(0, 12)), new(new(0, -8), new(0, 8)), new(new(0, -8), new(0, 8)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-4, -4), new(4, 4)), new(new(-4, -4), new(4, 4)),
-                new(new(-8, -8), new(8, 8)), new(new(-8, -8), new(8, 8)),
             ],
             [L.ChargedWaveRisingDiagonal] =
             [
@@ -457,8 +313,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(-8, -8), new(8, 8)), new(new(-8, -8), new(8, 8)), new(new(-8, -8), new(8, 8)), new(new(-8, -8), new(8, 8)),
                 new(new(-10, -10), new(10, 10)), new(new(-10, -10), new(10, 10)), new(new(-8, -8), new(8, 8)), new(new(-8, -8), new(8, 8)),
                 new(new(-8, -8), new(8, 8)), new(new(-8, -8), new(8, 8)), new(new(-4, -4), new(4, 4)), new(new(-4, -4), new(4, 4)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-4, 4), new(4, -4)), new(new(-4, 4), new(4, -4)),
-                new(new(-8, 8), new(8, -8)), new(new(-8, 8), new(8, -8)),
             ],
             [L.ChargedWaveFallingDiagonal] =
             [
@@ -466,80 +320,54 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(-8, 8), new(8, -8)), new(new(-8, 8), new(8, -8)), new(new(-8, 8), new(8, -8)), new(new(-8, 8), new(8, -8)),
                 new(new(-10, 10), new(10, -10)), new(new(-10, 10), new(10, -10)), new(new(-8, 8), new(8, -8)), new(new(-8, 8), new(8, -8)),
                 new(new(-8, 8), new(8, -8)), new(new(-8, 8), new(8, -8)), new(new(-4, 4), new(4, -4)), new(new(-4, 4), new(4, -4)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 8), new(0, 8)), new(new(0, 8), new(0, 8)),
-                new(new(0, 16), new(0, 16)), new(new(0, 16), new(0, 16)),
             ],
             [L.ChargedIceSpazerUp] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 8), new(0, 8)), new(new(0, 8), new(0, 8)),
                 new(new(0, 16), new(0, 16)), new(new(0, 16), new(0, 16)), new(new(-8, 16), new(8, 16)), new(new(-8, 16), new(8, 16)),
-                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(-8, 8), new(-8, 8)), new(new(-8, 8), new(-8, 8)), new(new(-12, 12), new(-12, 12)), new(new(-12, 12), new(-12, 12)),
-                new(new(-16, 8), new(-8, 16)), new(new(-16, 8), new(-8, 16)), new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(-16, 16), new(16, 16)), new(new(-16, 16), new(16, 16)),
             ],
             [L.ChargedIceSpazerUpRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, 8), new(-8, 8)), new(new(-8, 8), new(-8, 8)),
                 new(new(-12, 12), new(-12, 12)), new(new(-12, 12), new(-12, 12)), new(new(-16, 8), new(-8, 16)), new(new(-16, 8), new(-8, 16)),
-                new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(-8, 8), new(-8, 8)), new(new(-8, 8), new(-8, 8)), new(new(-16, 0), new(-16, 0)), new(new(-16, 0), new(-16, 0)),
-                new(new(-16, -8), new(-16, 8)), new(new(-16, -8), new(-16, 8)), new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(-24, 0), new(0, 24)), new(new(-24, 0), new(0, 24)),
             ],
             [L.ChargedIceSpazerRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, 8), new(-8, 8)), new(new(-8, 8), new(-8, 8)),
                 new(new(-16, 0), new(-16, 0)), new(new(-16, 0), new(-16, 0)), new(new(-16, -8), new(-16, 8)), new(new(-16, -8), new(-16, 8)),
-                new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(-8, -8), new(-8, -8)), new(new(-8, -8), new(-8, -8)), new(new(-12, -12), new(-12, -12)), new(new(-12, -12), new(-12, -12)),
-                new(new(-16, -8), new(-8, -16)), new(new(-16, -8), new(-8, -16)), new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(-16, -16), new(-16, 16)), new(new(-16, -16), new(-16, 16)),
             ],
             [L.ChargedIceSpazerDownRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, -8), new(-8, -8)), new(new(-8, -8), new(-8, -8)),
                 new(new(-12, -12), new(-12, -12)), new(new(-12, -12), new(-12, -12)), new(new(-16, -8), new(-8, -16)), new(new(-16, -8), new(-8, -16)),
-                new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(0, -8), new(0, -8)), new(new(0, -8), new(0, -8)), new(new(0, -16), new(0, -16)), new(new(0, -16), new(0, -16)),
-                new(new(-8, -16), new(8, -16)), new(new(-8, -16), new(8, -16)), new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(-24, 0), new(0, -24)), new(new(-24, 0), new(0, -24)),
             ],
             [L.ChargedIceSpazerDown] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, -8), new(0, -8)), new(new(0, -8), new(0, -8)),
                 new(new(0, -16), new(0, -16)), new(new(0, -16), new(0, -16)), new(new(-8, -16), new(8, -16)), new(new(-8, -16), new(8, -16)),
-                new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(8, -8), new(8, -8)), new(new(8, -8), new(8, -8)), new(new(12, -12), new(12, -12)), new(new(12, -12), new(12, -12)),
-                new(new(16, -8), new(8, -16)), new(new(16, -8), new(8, -16)), new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(-16, -16), new(16, -16)), new(new(-16, -16), new(16, -16)),
             ],
             [L.ChargedIceSpazerDownLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, -8), new(8, -8)), new(new(8, -8), new(8, -8)),
                 new(new(12, -12), new(12, -12)), new(new(12, -12), new(12, -12)), new(new(16, -8), new(8, -16)), new(new(16, -8), new(8, -16)),
-                new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(8, 0), new(8, 0)), new(new(8, 0), new(8, 0)), new(new(16, 0), new(16, 0)), new(new(16, 0), new(16, 0)),
-                new(new(16, -8), new(16, 8)), new(new(16, -8), new(16, 8)), new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(24, 0), new(0, -24)), new(new(24, 0), new(0, -24)),
             ],
             [L.ChargedIceSpazerLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, 0), new(8, 0)), new(new(8, 0), new(8, 0)),
                 new(new(16, 0), new(16, 0)), new(new(16, 0), new(16, 0)), new(new(16, -8), new(16, 8)), new(new(16, -8), new(16, 8)),
-                new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(8, 8), new(8, 8)), new(new(8, 8), new(8, 8)), new(new(12, 12), new(12, 12)), new(new(12, 12), new(12, 12)),
-                new(new(16, 8), new(8, 16)), new(new(16, 8), new(8, 16)), new(new(24, 0), new(0, 24)), new(new(24, 0), new(0, 24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
+                new(new(16, -16), new(16, 16)), new(new(16, -16), new(16, 16)),
             ],
             [L.ChargedIceSpazerUpLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, 8), new(8, 8)), new(new(8, 8), new(8, 8)),
                 new(new(12, 12), new(12, 12)), new(new(12, 12), new(12, 12)), new(new(16, 8), new(8, 16)), new(new(16, 8), new(8, 16)),
-                new(new(24, 0), new(0, 24)), new(new(24, 0), new(0, 24)), new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)),
-                new(new(0, 8), new(0, 8)), new(new(0, 8), new(0, 8)), new(new(0, 16), new(0, 16)), new(new(0, 16), new(0, 16)),
-                new(new(-4, 16), new(4, 16)), new(new(-4, 16), new(4, 16)), new(new(-8, 16), new(8, 16)), new(new(-8, 16), new(8, 16)),
-                new(new(-12, 16), new(12, 16)), new(new(-12, 16), new(12, 16)),
+                new(new(24, 0), new(0, 24)), new(new(24, 0), new(0, 24)),
             ],
             [L.ChargedWaveIceSpazerUp] =
             [
@@ -617,73 +445,41 @@ internal static class ProjectileTrailPlacementDefinitions
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 12), new(0, 12)), new(new(0, 12), new(0, 12)),
                 new(new(0, 24), new(0, 24)), new(new(0, 24), new(0, 24)), new(new(0, 28), new(0, 28)), new(new(0, 28), new(0, 28)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, 8), new(-8, 8)), new(new(-8, 8), new(-8, 8)),
-                new(new(-16, 16), new(-16, 16)), new(new(-16, 16), new(-16, 16)), new(new(-24, 24), new(-24, 24)), new(new(-24, 24), new(-24, 24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-12, 0), new(-12, 0)), new(new(-12, 0), new(-12, 0)),
-                new(new(-24, 0), new(-24, 0)), new(new(-24, 0), new(-24, 0)),
             ],
             [L.ChargedIcePlasmaUpRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, 8), new(-8, 8)), new(new(-8, 8), new(-8, 8)),
                 new(new(-16, 16), new(-16, 16)), new(new(-16, 16), new(-16, 16)), new(new(-24, 24), new(-24, 24)), new(new(-24, 24), new(-24, 24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-12, 0), new(-12, 0)), new(new(-12, 0), new(-12, 0)),
-                new(new(-24, 0), new(-24, 0)), new(new(-24, 0), new(-24, 0)), new(new(-28, 0), new(-28, 0)), new(new(-28, 0), new(-28, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, -8), new(-8, -8)), new(new(-8, -8), new(-8, -8)),
-                new(new(-16, -16), new(-16, -16)), new(new(-16, -16), new(-16, -16)),
             ],
             [L.ChargedIcePlasmaRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-12, 0), new(-12, 0)), new(new(-12, 0), new(-12, 0)),
                 new(new(-24, 0), new(-24, 0)), new(new(-24, 0), new(-24, 0)), new(new(-28, 0), new(-28, 0)), new(new(-28, 0), new(-28, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, -8), new(-8, -8)), new(new(-8, -8), new(-8, -8)),
-                new(new(-16, -16), new(-16, -16)), new(new(-16, -16), new(-16, -16)), new(new(-24, -24), new(-24, -24)), new(new(-24, -24), new(-24, -24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, -12), new(0, -12)), new(new(0, -12), new(0, -12)),
-                new(new(0, -24), new(0, -24)), new(new(0, -24), new(0, -24)),
             ],
             [L.ChargedIcePlasmaDownRight] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(-8, -8), new(-8, -8)), new(new(-8, -8), new(-8, -8)),
                 new(new(-16, -16), new(-16, -16)), new(new(-16, -16), new(-16, -16)), new(new(-24, -24), new(-24, -24)), new(new(-24, -24), new(-24, -24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, -12), new(0, -12)), new(new(0, -12), new(0, -12)),
-                new(new(0, -24), new(0, -24)), new(new(0, -24), new(0, -24)), new(new(0, -28), new(0, -28)), new(new(0, -28), new(0, -28)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, -8), new(8, -8)), new(new(8, -8), new(8, -8)),
-                new(new(16, -16), new(16, -16)), new(new(16, -16), new(16, -16)),
             ],
             [L.ChargedIcePlasmaDown] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, -12), new(0, -12)), new(new(0, -12), new(0, -12)),
                 new(new(0, -24), new(0, -24)), new(new(0, -24), new(0, -24)), new(new(0, -28), new(0, -28)), new(new(0, -28), new(0, -28)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, -8), new(8, -8)), new(new(8, -8), new(8, -8)),
-                new(new(16, -16), new(16, -16)), new(new(16, -16), new(16, -16)), new(new(24, -24), new(24, -24)), new(new(24, -24), new(24, -24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(12, 0), new(12, 0)), new(new(12, 0), new(12, 0)),
-                new(new(24, 0), new(24, 0)), new(new(24, 0), new(24, 0)),
             ],
             [L.ChargedIcePlasmaDownLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, -8), new(8, -8)), new(new(8, -8), new(8, -8)),
                 new(new(16, -16), new(16, -16)), new(new(16, -16), new(16, -16)), new(new(24, -24), new(24, -24)), new(new(24, -24), new(24, -24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(12, 0), new(12, 0)), new(new(12, 0), new(12, 0)),
-                new(new(24, 0), new(24, 0)), new(new(24, 0), new(24, 0)), new(new(28, 0), new(28, 0)), new(new(28, 0), new(28, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, 8), new(8, 8)), new(new(8, 8), new(8, 8)),
-                new(new(16, 16), new(16, 16)), new(new(16, 16), new(16, 16)),
             ],
             [L.ChargedIcePlasmaLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(12, 0), new(12, 0)), new(new(12, 0), new(12, 0)),
                 new(new(24, 0), new(24, 0)), new(new(24, 0), new(24, 0)), new(new(28, 0), new(28, 0)), new(new(28, 0), new(28, 0)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, 8), new(8, 8)), new(new(8, 8), new(8, 8)),
-                new(new(16, 16), new(16, 16)), new(new(16, 16), new(16, 16)), new(new(24, 24), new(24, 24)), new(new(24, 24), new(24, 24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 12), new(0, 12)), new(new(0, 12), new(0, 12)),
-                new(new(0, 24), new(0, 24)), new(new(0, 24), new(0, 24)),
             ],
             [L.ChargedIcePlasmaUpLeft] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(8, 8), new(8, 8)), new(new(8, 8), new(8, 8)),
                 new(new(16, 16), new(16, 16)), new(new(16, 16), new(16, 16)), new(new(24, 24), new(24, 24)), new(new(24, 24), new(24, 24)),
-                new(new(0, 0), new(0, 0)), new(new(0, 0), new(0, 0)), new(new(0, 12), new(0, 12)), new(new(0, 12), new(0, 12)),
-                new(new(0, 24), new(0, 24)), new(new(0, 24), new(0, 24)), new(new(0, 28), new(0, 28)), new(new(0, 28), new(0, 28)),
-                new(new(-8, 28), new(8, 28)), new(new(-8, 28), new(8, 28)), new(new(-12, 28), new(12, 28)), new(new(-12, 28), new(12, 28)),
-                new(new(-16, 28), new(16, 28)), new(new(-16, 28), new(16, 28)),
             ],
             [L.ChargedWaveIcePlasmaUp] =
             [
@@ -760,20 +556,14 @@ internal static class ProjectileTrailPlacementDefinitions
             [L.SbaWaveSpazerVertical] =
             [
                 new(new(0, 0), new(0, 0)), new(new(16, 0), new(-16, 0)), new(new(0, 0), new(0, 0)), new(new(-16, 0), new(16, 0)),
-                new(new(0, 0), new(0, 0)), new(new(-10, -10), new(10, 10)), new(new(0, 0), new(0, 0)), new(new(10, 10), new(-10, -10)),
-                new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, 16)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, -16)),
-                new(new(0, 0), new(0, 0)), new(new(10, -10), new(-10, 10)), new(new(0, 0), new(0, 0)), new(new(-10, 10), new(10, -10)),
             ],
             [L.SbaWaveSpazerRisingDiagonal] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-10, -10), new(10, 10)), new(new(0, 0), new(0, 0)), new(new(10, 10), new(-10, -10)),
-                new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, 16)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, -16)),
-                new(new(0, 0), new(0, 0)), new(new(10, -10), new(-10, 10)), new(new(0, 0), new(0, 0)), new(new(-10, 10), new(10, -10)),
             ],
             [L.SbaWaveSpazerHorizontal] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, 16)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, -16)),
-                new(new(0, 0), new(0, 0)), new(new(10, -10), new(-10, 10)), new(new(0, 0), new(0, 0)), new(new(-10, 10), new(10, -10)),
             ],
             [L.SbaWaveSpazerFallingDiagonal] =
             [
@@ -781,8 +571,7 @@ internal static class ProjectileTrailPlacementDefinitions
             ],
             [L.SbaSpazer] =
             [
-                new(new(0, 0), new(0, 0)), new(new(-8, 8), new(8, 8)), new(new(-16, 8), new(16, 8)), new(new(0, 0), new(0, 0)),
-                new(new(-8, -8), new(8, -8)), new(new(-16, -8), new(16, -8)),
+                new(new(0, 0), new(0, 0)), new(new(-8, 8), new(8, 8)), new(new(-16, 8), new(16, 8)),
             ],
             [L.SbaSpazerDown] =
             [

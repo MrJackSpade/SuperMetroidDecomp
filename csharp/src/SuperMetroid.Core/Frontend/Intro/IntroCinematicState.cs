@@ -234,7 +234,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         samusOverreads = Ensure.NotNull(overreads.Samus);
         shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
         flashbackProjectiles = new SamusProjectileSystem(new BeamChargeState(), samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;

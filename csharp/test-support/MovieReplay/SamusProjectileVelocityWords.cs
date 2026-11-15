@@ -13,10 +13,9 @@ internal static class SamusProjectileVelocityWords
     /// <summary>The native X velocity word of <paramref name="slot"/>.</summary>
     internal static ushort X(SamusProjectile slot)
     {
-        if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceComboOutward or SamusProjectileFrameBehavior.PlasmaCombo or
-            SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling)
+        if (slot.Behavior is IceSpecialAttackSpread or PlasmaSpecialAttackRing or SpazerSpecialAttackFlight or SpazerSpecialAttackFall)
             return checked((ushort)slot.ComboOrbitRadius);
-        if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
+        if (slot.Behavior is ShinesparkEchoFlight)
             return (ushort)(slot.EchoRadius % 65536); // The game kept the growing radius in a 16-bit word.
         return slot.Velocity.X.RawValue;
     }
@@ -24,12 +23,11 @@ internal static class SamusProjectileVelocityWords
     /// <summary>The native Y velocity word of <paramref name="slot"/>.</summary>
     internal static ushort Y(SamusProjectile slot)
     {
-        if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward or
-            SamusProjectileFrameBehavior.WaveCombo)
+        if (slot.Behavior is IceSpecialAttackOrbit or IceSpecialAttackSpread or WaveSpecialAttackHoming)
             return checked((ushort)slot.ComboLifetime);
-        if (slot.FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo)
+        if (slot.Behavior is PlasmaSpecialAttackRing)
             return PlasmaPhaseWord(slot.PlasmaPhase);
-        if (slot.FrameBehavior is SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling)
+        if (slot.Behavior is SpazerSpecialAttackFlight or SpazerSpecialAttackFall)
             return SignedStepWord(slot.SpazerTurnPerUpdate);
         return slot.Velocity.Y.RawValue;
     }

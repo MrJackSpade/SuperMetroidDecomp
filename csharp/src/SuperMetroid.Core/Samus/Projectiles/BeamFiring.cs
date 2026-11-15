@@ -19,20 +19,20 @@ internal sealed class BeamFiring
     /// <summary>Handles the special beam attack after the charge counter reaches 120.</summary>
     private readonly BeamCombos _combos;
     /// <summary>Owns the five shot places, which a fired projectile takes, and the shot count.</summary>
-    private readonly ProjectileSlotTable _slotTable;
+    private readonly SamusShotPool _pool;
     /// <summary>Runs initial muzzle collision against room terrain and room objects.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
     /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</summary>
     private readonly UnauthoredBeamFiring<SamusBeamCombination> _unauthoredFiring;
 
     /// <summary>Connects firing to charge, animation, projectile allocation, combo, and terrain systems.</summary>
-    internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable,
+    internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, SamusShotPool pool,
         ProjectileTerrainCollision terrainCollision, UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         _animation = animation;
         _charge = charge;
         _combos = combos;
-        _slotTable = slotTable;
+        _pool = pool;
         _terrainCollision = terrainCollision;
         _unauthoredFiring = Ensure.NotNull(unauthoredFiring);
     }
@@ -230,7 +230,7 @@ internal sealed class BeamFiring
         // charged beam combination. Without Charge Beam, callers attempt a shot every held
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
-        if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
+        if (_pool.ProjectileCounter >= SamusProjectileSystem.PlaceCount ||
             !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
@@ -239,13 +239,13 @@ internal sealed class BeamFiring
         // Allocation writes one before allocating storage. A corrupt counter/free-projectile
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter++;
+        _pool.ProjectileCounter++;
 
         // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
         // the fifth place holds. With every place held the shot is refused and the count is taken back.
-        if (_slotTable.FindFreePlace() is not { } place)
+        if (_pool.FindFreePlace() is not { } place)
         {
-            _slotTable.ProjectileCounter--;
+            _pool.ProjectileCounter--;
             return new BeamShot(null, null);
         }
 
@@ -262,13 +262,13 @@ internal sealed class BeamFiring
             if (samus.PendingTransitionShot is not null)
                 throw new InvalidOperationException(
                     "A transition shot names no aim; no retail transition hands one over.");
-            _slotTable.ProjectileCounter--;
+            _pool.ProjectileCounter--;
             return new BeamShot(null, null);
         }
 
         // The shot starts from the horizontal sub-pixel position its place hands on (LeftMuzzleSubpixelCarry): the left
         // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it.
-        SamusProjectile projectile = _slotTable.Occupy(place);
+        SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
         InitializePosition(samus, projectile);
         projectile.TrailTimer = WrappingCountdown.Start(4);
@@ -311,7 +311,7 @@ internal sealed class BeamFiring
             _charge.ChargedShotGlow = ChargedShotGlow.ChargedShotFlash;
 
         // Uncharged and charged firing explicitly zero both speeds and call
-        // the directional or Wave beam collision check before installing the frame behaviour and
+        // the directional or Wave beam collision check before installing the shot's behaviour and
         // initial speed. This is what lets a muzzle already overlapping a door cap trigger
         // its shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
@@ -321,18 +321,14 @@ internal sealed class BeamFiring
             waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
-            // The game installs the frame behaviour only after muzzle collision. Do not infer it from
-            // the Wave component: each combination names its own, the Spazer and Plasma ones included.
-            SamusBeamFrameBehaviorDefinition definition =
-                SamusBeamFrameBehaviors.Resolve(charged, beamType);
-            // The frame behaviours with no model are Spazer and Plasma combinations that run the game's live state
-            // or an unconnected region instead of the game's code (UnauthoredBeamFrameBehaviors). Only full memory
-            // and processor emulation could reproduce that, so the model rejects the shot under the emulation scope
-            // limit (#1500).
-            projectile.FrameBehavior = definition.FrameBehavior ?? throw new NotSupportedException(
-                $"Beam frame behaviour {definition.Choice} runs whatever the game's live state or an unconnected region " +
-                "holds; reproducing that needs full memory and processor emulation, which is outside the emulation " +
-                "scope limit (#1500).");
+            // The game installs the behaviour only after muzzle collision. Do not infer it from the Wave component:
+            // each combination names its own, the Spazer and Plasma ones included. A Spazer and Plasma combination
+            // whose shots run the game's live state or an unconnected region instead of the game's code
+            // (UnauthoredBeamFrameBehaviors) is refused here: only full memory and processor emulation could reproduce
+            // that, which is outside the emulation scope limit (#1500).
+            SamusShotBehavior behavior = SamusBeamFrameBehaviors.Resolve(charged, beamType);
+            behavior.AdmitFiring();
+            projectile.Behavior = behavior;
             InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
         }
         return new BeamShot(place, sound);
@@ -347,28 +343,28 @@ internal sealed class BeamFiring
     {
         // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
-        if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
+        if (_pool.ProjectileCounter >= SamusProjectileSystem.PlaceCount ||
             !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
         }
 
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter++;
-        if (_slotTable.FindFreePlace() is not { } place)
+        _pool.ProjectileCounter++;
+        if (_pool.FindFreePlace() is not { } place)
         {
-            _slotTable.ProjectileCounter--;
+            _pool.ProjectileCounter--;
             return new BeamShot(null, null);
         }
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
-            _slotTable.ProjectileCounter--;
+            _pool.ProjectileCounter--;
             return new BeamShot(null, null);
         }
 
         // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry).
-        SamusProjectile projectile = _slotTable.Occupy(place);
+        SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
@@ -399,7 +395,7 @@ internal sealed class BeamFiring
             projectile,
             roomObjects,
             waveBeam: true);
-        projectile.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
+        projectile.Behavior = SamusShotBehaviors.HyperBeam;
         InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
@@ -433,8 +429,8 @@ internal sealed class BeamFiring
         // projectile rejection rolls back the count, but does not undo its cooldown write.
         bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
-        int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.SlotCount;
-        if (_slotTable.ProjectileCounter >= admissionLimit ||
+        int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.PlaceCount;
+        if (_pool.ProjectileCounter >= admissionLimit ||
             !sharedProjectiles.CooldownTimer.IsZero)
         {
             return new BeamShot(null, null);
@@ -444,16 +440,16 @@ internal sealed class BeamFiring
         if (ammo == 0)
             return new BeamShot(null, null);
 
-        if (_slotTable.FindFreePlace() is not { } place)
+        if (_pool.FindFreePlace() is not { } place)
             return new BeamShot(null, null);
 
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
             return new BeamShot(null, null);
-        SamusProjectile projectile = _slotTable.Occupy(place);
+        SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
-        _slotTable.ProjectileCounter++;
+        _pool.ProjectileCounter++;
         ProjectileInvincibilityTimer = 20;
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
@@ -478,9 +474,9 @@ internal sealed class BeamFiring
         projectile.Playback = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
         projectile.FrameHold = WrappingCountdown.Start(1);
-        projectile.FrameBehavior = isSuperMissile
-            ? SamusProjectileFrameBehavior.SuperMissile
-            : SamusProjectileFrameBehavior.Missile;
+        projectile.Behavior = isSuperMissile
+            ? SamusShotBehaviors.SuperMissile
+            : SamusShotBehaviors.Missile;
 
         // The missile sound and the ten-frame shared cooldown. A Select press made while Item Cancel
         // is held records a one-shot auto-cancel index; a successful missile consumes that

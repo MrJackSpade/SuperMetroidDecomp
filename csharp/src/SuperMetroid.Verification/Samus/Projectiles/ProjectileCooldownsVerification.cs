@@ -93,7 +93,7 @@ internal static class ProjectileCooldownsVerification
                 EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam), SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
-            AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Slots[0].Type.BeamCombination.TableIndex),
+            AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Shots[0].Type.BeamCombination.TableIndex),
                 shared.CooldownTimer.RawValue, "A special attack waits its combination's charged-shot cooldown, the row its first particle selects");
         }
         Console.WriteLine("Projectile cooldowns: 48 combination cooldown bytes, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass.");

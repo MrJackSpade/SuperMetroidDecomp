@@ -61,7 +61,7 @@ public static class SamusGrappleMovement
         // Firing selects run offsets solely for <see cref="SamusMovementType.Running"/>. Moonwalking is
         // distinct moonwalking type, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
-        bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
+        bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         int graphicsYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
@@ -556,7 +556,7 @@ public static class SamusGrappleMovement
         // slot. Normal movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
-        bool emptyMovement = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Grappling;
+        bool emptyMovement = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Grappling;
         if (!deferPoseChange)
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, roomObjects);
         ClearConnectedGrapple(grapple);

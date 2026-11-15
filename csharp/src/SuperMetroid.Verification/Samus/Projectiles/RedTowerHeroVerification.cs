@@ -57,10 +57,10 @@ internal static class RedTowerHeroVerification
                 ControllerButton input = frame == 0
                     ? ControllerButton.Up | runtime.Options.ControllerBindings.Shoot
                     : ControllerButton.Up;
-                if (followShot && frame > 0 && runtime.Projectiles.Slots[0].IsActive)
-                    runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
+                if (followShot && frame > 0 && runtime.Projectiles.Shots[0].IsActive)
+                    runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Shots[0].Position.Y.Whole - 160)));
                 runtime.StepFrame(input);
-                var shot = runtime.Projectiles.Slots[0];
+                var shot = runtime.Projectiles.Shots[0];
                 if (frame == 0)
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");

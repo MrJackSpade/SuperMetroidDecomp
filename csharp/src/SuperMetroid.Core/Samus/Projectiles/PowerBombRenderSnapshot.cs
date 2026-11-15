@@ -2,31 +2,17 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Value-only render input for the power bomb's glow over the scene: the glow window's producing phase and radii,
-/// and the colour it adds. Taking it never advances the explosion.
+/// The Power Bomb's blast as the display shows it (#1927): whether it is running, and the oval of added colour it shows.
+/// Taking it never advances the explosion.
 /// </summary>
-/// <param name="IsActive">Whether the explosion's glow animation is running.</param>
-/// <param name="Position">Room-pixel centre of the explosion.</param>
-/// <param name="RenderedPhase">Phase whose per-line window the current update produced.</param>
-/// <param name="RenderedShape">Pre-scaled shape the current window was built from, or null when it used none.</param>
-/// <param name="RenderedPreExplosionRadius">Pre-explosion 1/256-pixel radius the current window was built from.</param>
-/// <param name="RenderedExplosionRadius">Explosion 1/256-pixel radius the current window was built from.</param>
-/// <param name="GlowColor">The colour the glow adds to the scene inside the window.</param>
-public readonly record struct PowerBombRenderSnapshot(
-    bool IsActive,
-    Position16<RoomPixels> Position,
-    PowerBombExplosionPhase RenderedPhase,
-    PowerBombShapeCursor? RenderedShape,
-    PowerBombRadius RenderedPreExplosionRadius,
-    PowerBombRadius RenderedExplosionRadius,
-    RgbColor GlowColor)
+/// <param name="IsActive">Whether the blast is running.</param>
+/// <param name="Oval">The oval the blast shows this frame.</param>
+public readonly record struct PowerBombRenderSnapshot(bool IsActive, PowerBombBlastOval Oval)
 {
-    /// <summary>Copies the explosion's rendered window inputs and its current glow colour.</summary>
+    /// <summary>Copies the blast's shown oval.</summary>
     public static PowerBombRenderSnapshot Capture(SamusPowerBombExplosionState explosion)
     {
         Ensure.NotNull(explosion);
-        return new(explosion.IsActive, explosion.Position, explosion.RenderedPhase,
-            explosion.RenderedShape, explosion.RenderedPreExplosionRadius,
-            explosion.RenderedExplosionRadius, explosion.GlowColor);
+        return new(explosion.IsActive, explosion.ShownOval);
     }
 }

@@ -24,9 +24,9 @@ internal static class SamusShinesparkStateAccess
         internal void StepReleasedCrashEchoProjectiles(SamusState samus, Position16<RoomPixels> cameraPosition)
         {
             Ensure.NotNull(samus);
-            foreach (SamusProjectile slot in self.SlotTable.InUpdateOrder)
+            foreach (SamusProjectile slot in self.Pool.InUpdateOrder)
             {
-                if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
+                if (slot.Behavior == SamusShotBehaviors.ShinesparkEcho)
                     self.Shinespark.StepShinesparkEcho(samus, slot, cameraPosition);
             }
         }

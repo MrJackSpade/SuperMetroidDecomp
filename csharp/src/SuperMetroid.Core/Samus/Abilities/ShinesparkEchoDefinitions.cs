@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Identities for the ordinary projectile slots used by crash echoes.</summary>
+/// <summary>The angles a shinespark crash's two echoes depart at, by the pose the crash finishes in.</summary>
 public static class ShinesparkEchoDefinitions
 {
     /// <summary>The angles a crash finishing in each of the six crash poses sends its echoes out at.</summary>

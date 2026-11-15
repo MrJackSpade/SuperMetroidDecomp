@@ -143,7 +143,7 @@ internal static class ResumeChargingSoundCancelVerification
                 Position = position,
                 EquippedBeams = beams,
             };
-            Projectiles = new SamusProjectileSystem(Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount))
+            Projectiles = new SamusProjectileSystem(Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
             {
                 Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
             };

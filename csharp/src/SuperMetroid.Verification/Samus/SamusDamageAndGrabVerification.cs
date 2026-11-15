@@ -831,17 +831,20 @@ internal static void VerifySamusGrabbedByDraygon()
     foreach ((int countLeft, bool frees) in new[] { (target + short.MaxValue - 1, true), (target + short.MaxValue, false), (ushort.MaxValue - 1, false) })
     {
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
-        samus.EscapeAndDrainCount.LeaveSuitPickupStage(countLeft);
+        samus.EscapeAndDrainCount.StartAmmoCountdown(countLeft);
         DraygonEscapeResult counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, ControllerButton.Up, grappleLockedInPlace: false);
         AssertEqual(countLeft + 1, samus.DraygonGrabbed.EscapeButtonCounter, $"a press counts onto the {countLeft} another sequence left");
         AssertEqual(frees, counted.Released, $"a press counted onto {countLeft} {(frees ? "frees" : "does not free")} Samus");
         if (!frees)
             samus.DraygonGrabbed.Release(samus);
     }
-    var shared = new SharedEscapeAndDrainCount();
+    var shared = new SharedEscapeAndDrainCount<SuperMetroid.Core.Samus.Abilities.SamusSuitPickupStage>(
+        new SuitPickupStageOrder<SuperMetroid.Core.Samus.Abilities.SamusSuitPickupStage>(
+            SuperMetroid.Core.Samus.Abilities.SuitPickupBeamDefinitions.StageOrder));
     foreach ((int count, bool reaches) in new[] { (0, false), (target - 1, false), (target, true), (target + short.MaxValue, true), (target + short.MaxValue + 1, false), (ushort.MaxValue, false) })
     {
-        shared.LeaveSuitPickupStage(count);
+        // A count Crystal Flash's countdown left, which another sequence may leave on it.
+        shared.StartAmmoCountdown(count);
         AssertEqual(reaches, shared.EscapePressesReach(target), $"an escape count of {count} {(reaches ? "reaches" : "is short of")} the target {target}");
     }
 

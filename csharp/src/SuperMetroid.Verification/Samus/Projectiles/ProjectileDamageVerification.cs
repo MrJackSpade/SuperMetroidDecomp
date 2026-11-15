@@ -52,10 +52,10 @@ internal static class ProjectileDamageVerification
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var samus = Samus(); samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam);
             system.Firing.TryFireBeam(room, samus, ControllerButton.X, new SamusBombProjectileSystem(), null, charged);
-            var slot = system.Slots[0];
+            var slot = system.Shots[0];
             int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction.ToAimIndex());
             system.EnemyImpacts.ReflectFromEnemy(samus, slot);
@@ -63,28 +63,28 @@ internal static class ProjectileDamageVerification
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)); var samus = Samus(); samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(item);
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)); var samus = Samus(); samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(item);
             var result = system.Firing.TryFireMissile(samus, ControllerButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual(0, result.Place, "Missile allocation succeeds");
-            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
-            system.EnemyImpacts.ReflectFromEnemy(samus, system.Slots[0]);
-            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
+            Check(system.Shots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Shots[0].Direction.ToAimIndex());
+            system.EnemyImpacts.ReflectFromEnemy(samus, system.Shots[0]);
+            Check(system.Shots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Shots[0].Direction.ToAimIndex());
             if (item == 2)
             {
-                system.Motion.SpawnSuperMissileLink(samus, system.Slots[0]);
-                AssertEqual(300, system.Slots[1].Damage, "Invisible link remains occupied/nonzero damage");
-                AssertEqual(300, system.Slots[0].Damage, "Link allocation does not replace its owner");
+                system.Motion.SpawnSuperMissileLink(samus, system.Shots[0]);
+                AssertEqual(300, system.Shots[1].Damage, "Invisible link remains occupied/nonzero damage");
+                AssertEqual(300, system.Shots[0].Damage, "Link allocation does not replace its owner");
             }
         }
-        var hyper = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+        var hyper = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         hyper.Firing.TryFireHyperBeam(room, Samus(), new SamusBombProjectileSystem(), null);
-        AssertEqual(1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
+        AssertEqual(1000, hyper.Shots[0].Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)); var samus = Samus();
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)); var samus = Samus();
             samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam); samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
             AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
-            foreach (var slot in system.Slots.Take(4))
+            foreach (var slot in system.Shots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
         }
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
@@ -182,7 +182,7 @@ internal static class ProjectileDamageVerification
         var guarded = NewComboMechanicsReadGuard(rom);
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var shared = new SamusBombProjectileSystem();
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
@@ -201,12 +201,12 @@ internal static class ProjectileDamageVerification
                 AssertEqual(beam is 2 or 8
                         ? SpecialAttackParticleDefinitions.InPlaceOrder[slot].OrbitStart
                         : default,
-                    projectiles.Slots[slot].ComboAngle,
+                    projectiles.Shots[slot].ComboAngle,
                     $"beam {beam:X} slot {slot} receives its compiled origin angle");
 
             if (beam == 1)
                 continue;
-            SamusProjectile first = projectiles.Slots[0];
+            SamusProjectile first = projectiles.Shots[0];
             int amplitude = beam == 2 ? 32 : first.ComboOrbitRadius;
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(first.ComboAngle, amplitude);
             if (beam == 2)
@@ -237,7 +237,7 @@ internal static class ProjectileDamageVerification
             new VerifyComboAngleStepWrapsAtTheByteBoundaryCase(SamusPoseId.FacingLeftNormalPose, -4, 2, 254),
         })
         {
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var shared = new SamusBombProjectileSystem();
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
@@ -254,7 +254,7 @@ internal static class ProjectileDamageVerification
             for (int angle = 0; angle < 256; angle++)
                 AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + projectiles.Combos.OrbitTurnPerUpdate,
                     $"{pose} orbit turn from angle {angle} matches the signed step {step}");
-            SamusProjectile first = projectiles.Slots[0];
+            SamusProjectile first = projectiles.Shots[0];
             first.ComboAngle = new TrigonometryAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             AssertEqual(new TrigonometryAngle(checked((byte)to)), first.ComboAngle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
@@ -278,7 +278,7 @@ internal static class ProjectileDamageVerification
         AssertThrows<ArgumentOutOfRangeException>(() => ComboRingCollapse.Grown(ComboRingCollapse.RadiusSpan, 0),
             "a radius past the largest is rejected");
 
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         var shared = new SamusBombProjectileSystem();
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
@@ -289,7 +289,7 @@ internal static class ProjectileDamageVerification
             PowerBombs = 10,
         };
         AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _), "the Plasma special attack activates");
-        SamusProjectile ring = projectiles.Slots[0];
+        SamusProjectile ring = projectiles.Shots[0];
         ring.PlasmaPhase = PlasmaRingPhase.FinalExpansion;
         ring.ComboOrbitRadius = 254;
         // The camera centres the particle's place at radius 254, so the final expansion's screen test keeps it.

@@ -16,20 +16,15 @@ internal sealed class ShinesparkEchoProjectile
     /// <summary>Animation owner that clears an echo's shot when the echo leaves the screen.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Samus's shots, whose count admits the echoes and whose last two places they take.</summary>
-    private readonly ProjectileSlotTable _slotTable;
+    private readonly SamusShotPool _pool;
 
     /// <summary>Binds projectile animation and the shot pool for Shinespark's departing echoes.</summary>
-    internal ShinesparkEchoProjectile(ProjectileAnimation animation, ProjectileSlotTable slotTable)
+    internal ShinesparkEchoProjectile(ProjectileAnimation animation, SamusShotPool pool)
     {
         _animation = animation;
-        _slotTable = slotTable;
+        _pool = pool;
     }
 
-    /// <summary>The place the first echo takes: the one before the last.</summary>
-    private const int FirstEchoPlace = SamusProjectileSystem.SlotCount - 2;
-
-    /// <summary>The place the second echo takes: the last.</summary>
-    private const int SecondEchoPlace = SamusProjectileSystem.SlotCount - 1;
 
     /// <summary>
     /// Releases a finishing crash's echoes as far as Samus's shot count leaves room: the second echo while the count
@@ -46,14 +41,14 @@ internal sealed class ShinesparkEchoProjectile
     internal bool ReleaseCrashEchoes(ShinesparkCrashEcho first, ShinesparkCrashEcho second,
         ShinesparkDepartureAngles angles, SamusBeamCombination picturedBeams, Position16<RoomPixels> crashPosition)
     {
-        int shots = _slotTable.ProjectileCounter;
-        if (shots >= SamusProjectileSystem.SlotCount)
+        int shots = _pool.ProjectileCounter;
+        if (shots >= SamusProjectileSystem.PlaceCount)
             return false;
 
-        bool firstDeparts = shots < SamusProjectileSystem.SlotCount - 1;
+        bool firstDeparts = shots < SamusProjectileSystem.PlaceCount - 1;
         if (firstDeparts)
-            first.Depart(Launch(FirstEchoPlace, angles.First, picturedBeams), crashPosition);
-        second.Depart(Launch(SecondEchoPlace, angles.Second, picturedBeams), crashPosition);
+            first.Depart(Launch(SamusShotPool.FirstEchoPlace, angles.First, picturedBeams), crashPosition);
+        second.Depart(Launch(SamusShotPool.SecondEchoPlace, angles.Second, picturedBeams), crashPosition);
         return firstDeparts;
     }
 
@@ -63,27 +58,27 @@ internal sealed class ShinesparkEchoProjectile
     /// </summary>
     private SamusProjectile Launch(int place, RotationAngle angle, SamusBeamCombination picturedBeams)
     {
-        _slotTable.ProjectileCounter++;
-        SamusProjectile replaced = _slotTable.Slots[place];
+        _pool.ProjectileCounter++;
+        SamusProjectile replaced = _pool.Shots[place];
         Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
             replaced.IsOccupied ? replaced.Position.Whole : null);
-        SamusProjectile echo = _slotTable.Occupy(place);
+        SamusProjectile echo = _pool.Occupy(place);
         echo.Position = echo.Position.WithWhole(start);
         echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
         echo.PicturedBeams = picturedBeams;
         BeamCombos.InitializeComboData(echo, BeamComboData.Echo);
-        echo.FrameBehavior = SamusProjectileFrameBehavior.ShinesparkEcho;
+        echo.Behavior = SamusShotBehaviors.ShinesparkEcho;
         echo.EchoAngle = angle.ToTrigonometryAngle();
         return echo;
     }
 
-    /// <summary>Runs one update of the echo <paramref name="slot"/> carries, clearing the shot once the echo leaves the screen.</summary>
+    /// <summary>Runs one update of the echo <paramref name="shot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectile slot, Position16<RoomPixels> camera)
+        SamusProjectile shot, Position16<RoomPixels> camera)
     {
-        if (slot.FrameBehavior != SamusProjectileFrameBehavior.ShinesparkEcho)
-            throw new InvalidOperationException("Departing echo no longer owns this projectile slot.");
-        if (!samus.Shinespark.StepReleasedEcho(samus, camera, slot))
-            _animation.ClearProjectile(slot);
+        if (shot.Behavior is not ShinesparkEchoFlight)
+            throw new InvalidOperationException("Departing echo no longer owns this shot.");
+        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot))
+            _animation.ClearProjectile(shot);
     }
 }

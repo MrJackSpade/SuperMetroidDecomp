@@ -158,8 +158,8 @@ internal sealed class RidleyTail
         {
             RidleyTailSegment tip = state.TailSegments[6];
             SamusProjectile? missile = RidleyTailMissileTarget.Target(
-                projectiles.SlotTable.ProjectileCounter,
-                projectiles.Slots,
+                projectiles.Pool.ProjectileCounter,
+                projectiles.Shots,
                 projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
                     CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < 64 &&
                     CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < 64);
@@ -476,7 +476,7 @@ internal sealed class RidleyTail
         // The projectile rectangle check scans the five ordinary slots in ascending
         // order. It admits beams, missiles and Super Missiles and rejects bombs, Power Bombs
         // and shots already converted to explosions.
-        foreach (SamusProjectile projectile in projectiles.Slots)
+        foreach (SamusProjectile projectile in projectiles.Shots)
         {
             if (!projectile.HasEnemyCollisionPayload)
             {

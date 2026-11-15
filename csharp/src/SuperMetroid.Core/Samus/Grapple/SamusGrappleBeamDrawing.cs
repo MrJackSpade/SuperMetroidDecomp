@@ -102,7 +102,7 @@ public static class SamusGrappleBeamDrawing
         SamusState samus,
         SamusGrappleState grapple)
     {
-        bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
+        bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
         var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);

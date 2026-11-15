@@ -494,7 +494,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             (previousDirection == SamusFacingDirection.Left && currentDirection == SamusFacingDirection.Right);
         if (reversed)
         {
-            // Folds run momentum into base speed, the fraction's overflow passing into the whole pixels,
+            // Folds run momentum into base speed, the fraction carrying into the whole pixels,
             // clears the extra speeds, and selects SamusAccelerationMode.Turning so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;

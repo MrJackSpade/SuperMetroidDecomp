@@ -56,8 +56,8 @@ internal static class PoseInputDefinitionsVerification
             edgeInputs[pressed * 2 + noise] = ControllerWordCodec.FromJoypadWord((ushort)((pressed << 6) | (noise == 0 ? 0 : 0xf030)), "pose input edge word");
 
         // The noise buttons are ones the compiled lookup provably never reads once the held word is nonzero. The lookup
-        // tests the whole held word against zero, removes Start and Select, and every rule of SamusPoseInputRulesEarly
-        // and SamusPoseInputRulesLate reads the held and new buttons only through SamusPoseInputs.Has (after
+        // tests the whole held word against zero, removes Start and Select, and every rule of SamusPoseInputRules
+        // and SamusPoseInputRules reads the held and new buttons only through SamusPoseInputs.Has (after
         // MirrorButtons, which only exchanges Left and Right). Has reads only the controller buttons of
         // SamusPoseInputDefinitions.ChordButtons, so B and Y, the held noise, are never read. One lookup therefore
         // stands for both held-noise representatives; the held-noise representative is looked up on its own only for

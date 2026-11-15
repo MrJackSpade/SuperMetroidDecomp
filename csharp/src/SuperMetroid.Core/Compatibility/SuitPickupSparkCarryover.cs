@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// Samus's vertical acceleration to it, and the crash's finish clears it. The suit pickup leaves its stage's place in the
 /// stage order as the acceleration's whole pixels and the light beam's progress as its fraction: the lines the beam has
 /// grown or been wiped by while it grows, reveals the suit or shrinks, and its two edge columns, the right one scaled by
-/// a screen line's width, while it is a column or the centre line. A windup the pickup suspended launches with whatever
+/// a screen line's width, while it is a column or the centre line; the stage's place is the pickup's
+/// (<see cref="SuitPickupStageOrder{TStage}"/>). A windup the pickup suspended launches with whatever
 /// the light beam left, not with its initial acceleration, so the value is gameplay-observable; how the light is drawn is
 /// not.
 /// </summary>
@@ -22,12 +23,21 @@ namespace SuperMetroid.Core.Compatibility;
 /// check confirms the exact value at every stage of a Varia transformation.
 /// </para>
 /// </remarks>
+/// <typeparam name="TStage">A suit pickup stage.</typeparam>
 [CompatibilityService("a shinespark windup after a suit pickup accelerates by the light beam's last recorded progress")]
 [EncodingOwner("suit pickup light beam progress the shinespark reads")]
-public sealed class SuitPickupSparkCarryover
+public sealed class SuitPickupSparkCarryover<TStage>
+    where TStage : notnull
 {
     /// <summary>The highest line count or edge column the light beam leaves.</summary>
     private const int LastLightBeamPlace = 255;
+
+    /// <summary>The order of the suit pickup's stages, whose place the pickup leaves as the whole pixels.</summary>
+    private readonly SuitPickupStageOrder<TStage> _stages;
+
+    /// <summary>Starts with no acceleration, for a Samus whose suit pickup runs its stages in <paramref name="stages"/>' order.</summary>
+    /// <param name="stages">The suit pickup's stage order.</param>
+    public SuitPickupSparkCarryover(SuitPickupStageOrder<TStage> stages) => _stages = Ensure.NotNull(stages);
 
     /// <summary>
     /// The spark's upward acceleration in 16.16 pixels per update per update, or what the suit pickup's light beam last
@@ -49,17 +59,17 @@ public sealed class SuitPickupSparkCarryover
     /// <summary>
     /// The suit pickup leaves its stage and the lines its light beam has grown or been wiped by, 0 through 255.
     /// </summary>
-    /// <param name="stage">The stage's place in the stage order, from zero.</param>
+    /// <param name="stage">The stage the pickup has reached.</param>
     /// <param name="lines">The lines grown or wiped.</param>
-    public void LeaveLines(int stage, int lines) =>
-        SparkAcceleration = SignedSixteenSixteen.FromParts(stage, Ensure.BetweenInclusive(0, LastLightBeamPlace, lines));
+    public void LeaveLines(TStage stage, int lines) =>
+        SparkAcceleration = SignedSixteenSixteen.FromParts(_stages.Number(stage), Ensure.BetweenInclusive(0, LastLightBeamPlace, lines));
 
     /// <summary>The suit pickup leaves its stage and its light beam's two edge columns, each 0 through 255.</summary>
-    /// <param name="stage">The stage's place in the stage order, from zero.</param>
+    /// <param name="stage">The stage the pickup has reached.</param>
     /// <param name="left">The beam's left edge column.</param>
     /// <param name="right">The beam's right edge column.</param>
-    public void LeaveEdges(int stage, int left, int right) =>
-        SparkAcceleration = SignedSixteenSixteen.FromParts(stage,
+    public void LeaveEdges(TStage stage, int left, int right) =>
+        SparkAcceleration = SignedSixteenSixteen.FromParts(_stages.Number(stage),
             Ensure.BetweenInclusive(0, LastLightBeamPlace, left) +
             Ensure.BetweenInclusive(0, LastLightBeamPlace, right) * ScreenGeometry.ScreenWidthPixels);
 }

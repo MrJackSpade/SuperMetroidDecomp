@@ -77,7 +77,7 @@ internal static class WrapShotEnemiesVerification
             // Positive control: move only the eligible enemy onto the unchanged
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
-            enemy.Position = enemy.Position.WithWhole(shots.Slots[0].Position.Whole);
+            enemy.Position = enemy.Position.WithWhole(shots.Shots[0].Position.Whole);
             AssertEqual(1, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, runtime.Room.LoadedRoom.Area), "World-space overlap reaches the same enemy collision dispatcher");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");

@@ -203,9 +203,8 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// The Power Bomb's blast as an oval of added colour around its centre (#1468). While the blast walks its authored
-    /// yellow or white ovals, and through the afterglow that keeps the last of them, the oval is the walked one;
-    /// otherwise it is the blast's current radius. The oval is three quarters as tall as it is wide.
+    /// The Power Bomb's blast as the oval of added colour it shows around its centre (#1468, #1927), three quarters as
+    /// tall as it is wide.
     /// </summary>
     /// <param name="explosion">The blast as the frame shows it.</param>
     /// <param name="cameraPosition">The camera, which places the blast on the screen.</param>
@@ -217,28 +216,12 @@ public static class GameplayEffectCapture
         if ((uint)firstLine > Height)
             throw new ArgumentOutOfRangeException(nameof(firstLine));
         if (!explosion.IsActive) return null;
-        int radius = PowerBombHorizontalRadius(explosion);
-        int verticalRadius = radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
-        ScreenWindow window = verticalRadius == 0 ? ScreenWindow.Closed
-            : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(cameraPosition),
-                new Extent16<ScreenPixels>(radius, verticalRadius)),
+        PowerBombBlastOval oval = explosion.Oval;
+        ScreenWindow window = oval.Radii.Y == 0 ? ScreenWindow.Closed
+            : ScreenWindow.Of(WindowOval.Ellipse(oval.Centre.RelativeToCamera(cameraPosition),
+                new Extent16<ScreenPixels>(oval.Radii.X, oval.Radii.Y)),
                 firstLine);
-        return new(window, explosion.GlowColor);
-    }
-
-    /// <summary>The horizontal radius, in whole pixels, of the blast's oval this frame; zero shows nothing.</summary>
-    private static int PowerBombHorizontalRadius(PowerBombRenderSnapshot explosion)
-    {
-        PowerBombExplosionPhase phase = explosion.RenderedPhase;
-        // A blast spawns after this frame's oval was chosen, so it shows nothing until the next frame.
-        if (phase == PowerBombExplosionPhase.Inactive) return 0;
-        // The afterglow only fades the colour: the last white oval stays.
-        if (phase is PowerBombExplosionPhase.PreExplosionYellow or PowerBombExplosionPhase.ExplosionWhite
-                or PowerBombExplosionPhase.Afterglow && explosion.RenderedShape is { } shape)
-            return shape.HorizontalRadius();
-        return phase == PowerBombExplosionPhase.PreExplosionWhite
-            ? explosion.RenderedPreExplosionRadius.WholePixels
-            : explosion.RenderedExplosionRadius.WholePixels;
+        return new(window, oval.Colour);
     }
 
     /// <summary>

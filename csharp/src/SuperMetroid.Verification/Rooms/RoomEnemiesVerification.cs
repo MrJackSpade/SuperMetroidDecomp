@@ -325,10 +325,10 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
-    var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+    var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
     var shotsEarthquake = new RoomEarthquake();
     shots.Earthquakes.BindRoomEarthquake(shotsEarthquake);
-    SamusProjectile owner = shots.Slots[0];
+    SamusProjectile owner = shots.Shots[0];
     owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;
     owner.Direction = SamusProjectileDirection.Right;
@@ -336,9 +336,9 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Playback = SamusProjectileProgramAddresses.PlaybackAt(0x9f3b);
     owner.FrameHold = WrappingCountdown.Start(15);
     owner.SpritemapPointer = 0xae0f;
-    owner.FrameBehavior = SamusProjectileFrameBehavior.SuperMissile;
+    owner.Behavior = SamusShotBehaviors.SuperMissile;
 
-    SamusProjectile link = shots.Slots[1];
+    SamusProjectile link = shots.Shots[1];
     link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     link.Damage = 0x012c;
     link.Direction = SamusProjectileDirection.Right;
@@ -346,7 +346,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Playback = SamusProjectileProgramAddresses.PlaybackAt(0x9f7b);
     link.FrameHold = WrappingCountdown.Start(1);
     link.SpritemapPointer = 0;
-    link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
+    link.Behavior = SamusShotBehaviors.SuperMissileLink;
 
     int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
@@ -581,7 +581,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort type,
         ushort damage)
     {
-        SamusProjectile projectile = pool.SlotTable.Occupy(0);
+        SamusProjectile projectile = pool.Pool.Occupy(0);
         projectile.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
         projectile.Damage = damage;
         projectile.Direction = SamusProjectileDirection.Right;
@@ -1037,7 +1037,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         projectiles.StepFrame(new SamusTerrain { Level = openRoom }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), sharedProjectiles);
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
-        AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.Position.X.Whole + 8,
+        AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),

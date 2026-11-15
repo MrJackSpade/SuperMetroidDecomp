@@ -73,23 +73,12 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// Compatibility spelling retained for callers that describe the value as a movement
-    /// kind. Both APIs now return the same validated discriminator.
-    /// </summary>
-    public static SamusMovementType ReadMovementKind(SamusState samus) =>
-        ReadMovementType(samus);
-
-    /// <summary>
     /// Reads a prospective pose's movement type without mutating Samus.
     /// Values beyond the retail pose list are corrupt pose metadata and
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
         SamusPoseTraits.ReadMovement(pose);
-
-    /// <summary>Compatibility spelling for an arbitrary prospective pose.</summary>
-    public static SamusMovementType ReadMovementKind(SamusPoseId pose) =>
-        ReadMovementType(pose);
 
     /// <summary>
     /// Reads the current pose's no-input pose: the pose selected when no buttons are held and the
@@ -624,7 +613,7 @@ internal static class SamusPoseMetadata
     {
         if (!samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
-        SamusMovementType movement = ReadMovementKind(samus);
+        SamusMovementType movement = ReadMovementType(samus);
         bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
@@ -649,7 +638,7 @@ internal static class SamusPoseMetadata
         if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
 
-        SamusMovementType movementType = ReadMovementKind(samus);
+        SamusMovementType movementType = ReadMovementType(samus);
         switch (movementType)
         {
             case SamusMovementType.Standing:

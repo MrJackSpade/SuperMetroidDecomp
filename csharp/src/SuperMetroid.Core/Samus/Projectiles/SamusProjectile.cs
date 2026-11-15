@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// One of Samus's ordinary projectiles: a beam, missile, special-attack particle, echo or explosion. Each is created
-/// fresh when it takes its place in Samus's shot pool (<see cref="ProjectileSlotTable.Occupy"/>), keeps its own state,
+/// fresh when it takes its place in Samus's shot pool (<see cref="SamusShotPool.Occupy"/>), keeps its own state,
 /// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
 /// its place; the one value gameplay carries from place to place, the horizontal sub-pixel position, is
 /// <see cref="LeftMuzzleSubpixelCarry"/>'s. A place no projectile holds reads as the projectile that last ended there,
@@ -19,7 +19,7 @@ public sealed class SamusProjectile
     /// <summary>
     /// The projectile's place in the shot pool, 0 through 4. Gameplay reads the place: shots take the lowest free one and
     /// update and draw from the highest down, a special attack's particles take the first four, the crash echoes the
-    /// last two, and a Super Missile names its link's place (<see cref="ProjectileSlotTable"/>).
+    /// last two, and a Super Missile names its link's place (<see cref="SamusShotPool"/>).
     /// </summary>
     [IntegerQuantity("ordinal of the projectile's place in Samus's shot pool")]
     public int Place { get; }
@@ -142,8 +142,11 @@ public sealed class SamusProjectile
     /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot, from zero.</summary>
     public WrappingCountdown ChainsawPowerBombFuse { get; internal set; }
 
-    /// <summary>The projectile's frame behaviour.</summary>
-    public SamusProjectileFrameBehavior FrameBehavior { get; internal set; }
+    /// <summary>
+    /// What the projectile does on its update (#1923), installed when it is fired, released or changed; null for an
+    /// explosion, which only plays its animation, and before the projectile is set up.
+    /// </summary>
+    internal SamusShotBehavior? Behavior { get; set; }
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Playback is not null;
@@ -187,6 +190,6 @@ public sealed class SamusProjectile
         EchoRadius = 0;
         EchoAngle = default;
         ChainsawPowerBombFuse = WrappingCountdown.Start(0);
-        FrameBehavior = SamusProjectileFrameBehavior.None;
+        Behavior = null;
     }
 }

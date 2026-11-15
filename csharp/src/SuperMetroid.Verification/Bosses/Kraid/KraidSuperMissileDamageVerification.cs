@@ -60,26 +60,26 @@ internal static class KraidSuperMissileDamageVerification
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
-                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.FrameBehavior}");
+                foreach(var shot in runtime.Projectiles.Shots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.Place} type={shot.Type} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.Behavior}");
             }
             if (frame is 8 or 32)
             {
                 AssertEqual(frame == 8 ? (ushort)700 : (ushort)400, body.Health,
                     "Each actual close-range Super Missile deals exactly 300 damage");
-                AssertEqual(2, runtime.Projectiles.SlotTable.ProjectileCounter,
+                AssertEqual(2, runtime.Projectiles.Pool.ProjectileCounter,
                     "Mouth collision defers owner/link removal to projectile pre-instructions");
-                AssertEqual(SamusProjectileFrameBehavior.SuperMissile,
-                    runtime.Projectiles.Slots[0].FrameBehavior, "Owner retains native pre-instruction");
-                AssertEqual(SamusProjectileFrameBehavior.SuperMissileLink,
-                    runtime.Projectiles.Slots[1].FrameBehavior, "Link retains native pre-instruction");
-                AssertEqual(true, runtime.Projectiles.Slots[1].IsSpent,
+                AssertEqual(SamusShotBehaviors.SuperMissile,
+                    runtime.Projectiles.Shots[0].Behavior, "Owner retains native pre-instruction");
+                AssertEqual(SamusShotBehaviors.SuperMissileLink,
+                    runtime.Projectiles.Shots[1].Behavior, "Link retains native pre-instruction");
+                AssertEqual(true, runtime.Projectiles.Shots[1].IsSpent,
                     "Descending mouth pass marks the overlapping link for native cleanup");
             }
             if (frame is 9 or 33)
             {
-                AssertEqual(0, runtime.Projectiles.SlotTable.ProjectileCounter,
+                AssertEqual(0, runtime.Projectiles.Pool.ProjectileCounter,
                     "Marked link clears itself and its owner on the next projectile update");
-                AssertEqual(false, runtime.Projectiles.Slots.Any(shot => shot.IsActive),
+                AssertEqual(false, runtime.Projectiles.Shots.Any(shot => shot.IsActive),
                     "No stranded Super Missile or link survives the hit");
             }
             oldHealth=body.Health;
@@ -144,7 +144,7 @@ internal static class KraidSuperMissileDamageVerification
         void Prepare(ushort count)
         {
             projectiles.Reset();
-            projectiles.SlotTable.ProjectileCounter = count;
+            projectiles.Pool.ProjectileCounter = count;
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             state.BodyState.Phase = KraidPhase.MainAttackWithMouthOpen;
@@ -153,7 +153,7 @@ internal static class KraidSuperMissileDamageVerification
         }
         void Place(int index)
         {
-            var shot = projectiles.Slots[index];
+            var shot = projectiles.Shots[index];
             shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
             shot.Damage = 300;
             shot.Position = shot.Position.WithWhole(new(176, 486));
@@ -177,13 +177,13 @@ internal static class KraidSuperMissileDamageVerification
         runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         AssertEqual(700, body.Health,
             "Inclusive count slot hits without an activity sentinel; clobbered scratch rejects slot zero");
-        AssertEqual(true, projectiles.Slots[1].IsSpent,
+        AssertEqual(true, projectiles.Shots[1].IsSpent,
             "The inclusive count slot, not only count minus one, receives the collision");
 
         Prepare(1);
         Place(1);
         Place(0);
-        foreach (var shot in projectiles.Slots.Take(2))
+        foreach (var shot in projectiles.Shots.Take(2))
         {
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true);
             shot.Damage = 60;

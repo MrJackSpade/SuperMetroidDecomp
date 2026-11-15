@@ -25,9 +25,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </para>
 /// <para>
 /// The pickup leaves its stage and its light beam's progress at its setup and after every stage call
-/// (<see cref="LeaveProgress"/>): both in the shinespark's upward acceleration (<see cref="SuitPickupSparkCarryover"/>),
+/// (<see cref="LeaveProgress"/>): both in the shinespark's upward acceleration (<see cref="SuitPickupSparkCarryover{TStage}"/>),
 /// and the stage on the count Crystal Flash's ammunition drain and Draygon's escape share
-/// (<see cref="SharedEscapeAndDrainCount"/>).
+/// (<see cref="SharedEscapeAndDrainCount{TStage}"/>).
 /// </para>
 /// </remarks>
 public sealed class SamusSuitPickupState
@@ -36,17 +36,15 @@ public sealed class SamusSuitPickupState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Effect updates left before the light beam's stage step is installed.
-    /// The step runs an object's frame behaviour before its animation; the animation's
-    /// first call ends on a one-frame table entry and its second installs the
-    /// frame behaviour and rests, so the first stage runs on the third.
+    /// Updates left before the light beam's first stage runs: the light beam starts on the pickup's third update
+    /// (<see cref="SuitPickupBeamDefinitions.UpdatesBeforeLightBeam"/>).
     /// </summary>
-    private int _frameBehaviorInstallCallsRemaining;
+    private int _updatesBeforeLightBeam;
 
-    /// <summary>The suit whose stage-three frame behaviour is installed.</summary>
+    /// <summary>The suit the pickup equips and reveals.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
-    /// <summary>The light-beam stage the next frame-behaviour call runs; it returns to the first stage when the transformation finishes.</summary>
+    /// <summary>The light-beam stage the next update runs; it returns to the first stage when the transformation finishes.</summary>
     public SamusSuitPickupStage Stage { get; private set; }
 
     /// <summary>
@@ -103,7 +101,7 @@ public sealed class SamusSuitPickupState
         _lightBeamLines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
-        _frameBehaviorInstallCallsRemaining = 2;
+        _updatesBeforeLightBeam = SuitPickupBeamDefinitions.UpdatesBeforeLightBeam;
         LeaveProgress(samus);
         _lightBeamSpeed = SuitPickupBeamDefinitions.InitialWideningSpeed;
         Beam = SamusSuitPickupBeam.None;
@@ -153,9 +151,9 @@ public sealed class SamusSuitPickupState
         Ensure.NotNull(colours);
         if (!IsActive)
             return;
-        if (_frameBehaviorInstallCallsRemaining != 0)
+        if (_updatesBeforeLightBeam != 0)
         {
-            _frameBehaviorInstallCallsRemaining--;
+            _updatesBeforeLightBeam--;
             return;
         }
 
@@ -196,38 +194,24 @@ public sealed class SamusSuitPickupState
     /// </summary>
     private void LeaveProgress(SamusState samus)
     {
-        int stage = StageOrder(Stage);
         switch (Stage)
         {
             case SamusSuitPickupStage.LightBeamAppears:
             case SamusSuitPickupStage.RevealSuit:
             case SamusSuitPickupStage.LightBeamShrinks:
-                samus.SparkCarryover.LeaveLines(stage, _lightBeamLines);
+                samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines);
                 break;
             case SamusSuitPickupStage.UniformWidening:
             case SamusSuitPickupStage.CurvedWidening:
             case SamusSuitPickupStage.LightBeamDissipates:
             case SamusSuitPickupStage.Finish:
-                samus.SparkCarryover.LeaveEdges(stage, _lightBeamLeft.X, _lightBeamRight.X);
+                samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft.X, _lightBeamRight.X);
                 break;
             default:
                 throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
         }
-        samus.EscapeAndDrainCount.LeaveSuitPickupStage(stage);
+        samus.EscapeAndDrainCount.LeaveSuitPickupStage(Stage);
     }
-
-    /// <summary>The place of <paramref name="stage"/> in the stage order, 0 through 6.</summary>
-    private static int StageOrder(SamusSuitPickupStage stage) => stage switch
-    {
-        SamusSuitPickupStage.LightBeamAppears => 0,
-        SamusSuitPickupStage.UniformWidening => 1,
-        SamusSuitPickupStage.CurvedWidening => 2,
-        SamusSuitPickupStage.RevealSuit => 3,
-        SamusSuitPickupStage.LightBeamShrinks => 4,
-        SamusSuitPickupStage.LightBeamDissipates => 5,
-        SamusSuitPickupStage.Finish => 6,
-        _ => throw new InvalidDataException($"Unknown suit-pickup stage {stage}."),
-    };
 
     /// <summary>Extends the narrow beam inward from both screen edges until 128 rows are covered.</summary>
     private void StepLightBeamAppears()

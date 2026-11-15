@@ -79,7 +79,7 @@ internal static class SamusOverreadDecoding
             {
                 int place = lists.Position(new SamusProjectileSegmentBeat(program, position));
                 positions.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    [.. Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(slot => SpaceTimeOverwrite(cartridge, place, slot))]);
+                    [.. Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(slot => SpaceTimeOverwrite(cartridge, place, slot))]);
             }
             result.Add(program.ToString(), positions);
         }
@@ -98,7 +98,7 @@ internal static class SamusOverreadDecoding
         {
             foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
             {
-                if (SamusBeamFrameBehaviors.Resolve(charged, beams).FrameBehavior != SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite)
+                if (SamusBeamFrameBehaviors.Resolve(charged, beams) != SamusShotBehaviors.Spacetime)
                     continue;
                 foreach (SamusProjectileSegment program in EquippedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {

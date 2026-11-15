@@ -9,71 +9,71 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit shade the flare restores.</summary>
+/// <summary>The projectile animation player and drawing: ending shots, live projectile and charge-flare sprites, flare animation state and the suit shade the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
     /// <summary>Owns charge-flare frame and countdown arrays advanced by the animation.</summary>
     private readonly BeamChargeState _charge;
     /// <summary>Owns the shot count reduced when a delete cue ends a projectile.</summary>
-    private readonly ProjectileSlotTable _slotTable;
+    private readonly SamusShotPool _pool;
 
-    /// <summary>Binds projectile cues to live slot ownership and charge-flare state.</summary>
-    internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable)
+    /// <summary>Binds projectile cues to the shot pool and charge-flare state.</summary>
+    internal ProjectileAnimation(BeamChargeState charge, SamusShotPool pool)
     {
         _charge = charge;
-        _slotTable = slotTable;
+        _pool = pool;
     }
     /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool AdvanceProjectileAnimation(
-        SamusProjectile slot)
+        SamusProjectile shot)
     {
-        slot.FrameHold = slot.FrameHold.Decrement().Remaining;
-        if (!slot.FrameHold.IsZero)
+        shot.FrameHold = shot.FrameHold.Decrement().Remaining;
+        if (!shot.FrameHold.IsZero)
             return false;
-        AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
+        AnimationPlayback<SamusProjectileSegment> playback = shot.Playback
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
         if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
         {
-            ClearProjectile(slot);
+            ClearProjectile(shot);
             return true;
         }
         SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.Start(duration);
-        slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
+        shot.FrameHold = WrappingCountdown.Start(duration);
+        shot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's projectiles show their frames' installed compositions, which are not bound.")).Resolve(frame);
-        slot.Radius = gameplay.Radius;
-        slot.Playback = playback;
+        shot.Radius = gameplay.Radius;
+        shot.Playback = playback;
         return false;
     }
 
 
     /// <summary>Deletes a projectile, ending it, and decrements the shot count, which stays at zero.</summary>
-    internal void ClearProjectile(SamusProjectile slot)
+    internal void ClearProjectile(SamusProjectile shot)
     {
-        Ensure.NotNull(slot).End();
-        _slotTable.ProjectileCounter = _slotTable.ProjectileCounter == 0
+        Ensure.NotNull(shot).End();
+        _pool.ProjectileCounter = _pool.ProjectileCounter == 0
             ? 0
-            : _slotTable.ProjectileCounter - 1;
+            : _pool.ProjectileCounter - 1;
     }
 
     /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and vertical clipping.</summary>
-    internal static void DrawSlot(
+    internal static void DrawShot(
         SpriteFrameBuffer sprites,
         SpriteSource source,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {
-        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - cameraPosition.Y);
+        int screenX = CoordinateAxis.Difference(shot.Position.X.Whole, cameraPosition.X);
+        int screenY = CoordinateAxis.Wrap(shot.Position.Y.Whole - cameraPosition.Y);
         // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
-        ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
+        ProjectileSpriteId sprite = shot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
         // The empty composition an invisible projectile shows draws nothing, and so does a composition the sheet of the
         // beams it is pictured with holds as showing nothing (#1513, #1586).
         if (sprite.DrawsNothing)
             return;
-        SpriteSheet sheet = artwork.SheetOf(slot.PicturedBeams);
+        SpriteSheet sheet = artwork.SheetOf(shot.PicturedBeams);
         string frame = ProjectileSheetFrames.ProjectileFrame(sprite);
         if (sheet.ShowsNothing(frame))
             return;
@@ -102,7 +102,7 @@ internal sealed class ProjectileAnimation
         if (SamusPoseMetadata.ReadAim(samus).Flare is not { } flare)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
@@ -133,7 +133,7 @@ internal sealed class ProjectileAnimation
             return;
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, ChargeFlarePictures.DrawSlot(component)), image,
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, ChargeFlarePictures.SourceInstance(component)), image,
             Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
 

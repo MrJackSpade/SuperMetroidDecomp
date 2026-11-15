@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus;
@@ -14,13 +15,13 @@ internal sealed class SamusCompatibility
     public required ProjectileLaunchInheritance LaunchInheritance { get; init; }
 
     /// <summary>Her shinespark's upward acceleration, which the suit pickup's light beam overwrites.</summary>
-    public required SuitPickupSparkCarryover SparkCarryover { get; init; }
+    public required SuitPickupSparkCarryover<SamusSuitPickupStage> SparkCarryover { get; init; }
 
     /// <summary>How far her shinespark crash's orbit has turned, which the first echo a crash releases overwrites.</summary>
     public required CrashOrbitTravelCarryover CrashOrbitTravel { get; init; }
 
     /// <summary>The count Crystal Flash's ammunition drain, Draygon's escape and the suit pickup's stage share.</summary>
-    public required SharedEscapeAndDrainCount EscapeAndDrainCount { get; init; }
+    public required SharedEscapeAndDrainCount<SamusSuitPickupStage> EscapeAndDrainCount { get; init; }
 
     /// <summary>The count her hurt flash runs on.</summary>
     public required SharedHurtFlashCount HurtFlash { get; init; }
@@ -35,15 +36,19 @@ internal sealed class SamusCompatibility
     public required BoostRestartAfterEcho BoostRestart { get; init; }
 
     /// <summary>A fresh set for a new Samus.</summary>
-    public static SamusCompatibility ForNewSamus() => new()
+    public static SamusCompatibility ForNewSamus()
     {
-        LaunchInheritance = new ProjectileLaunchInheritance(),
-        SparkCarryover = new SuitPickupSparkCarryover(),
-        CrashOrbitTravel = new CrashOrbitTravelCarryover(),
-        EscapeAndDrainCount = new SharedEscapeAndDrainCount(),
-        HurtFlash = new SharedHurtFlashCount(),
-        EffectWaits = new BreathBubbleAndLavaSprayWaits(),
-        WaterSpeedsInAir = new WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds>(SamusHorizontalSpeedDefinitions.WaterSpeedsInAir),
-        BoostRestart = new BoostRestartAfterEcho(SamusSpeedBoostCounter.AuthoredStages),
-    };
+        var suitPickupStages = new SuitPickupStageOrder<SamusSuitPickupStage>(SuitPickupBeamDefinitions.StageOrder);
+        return new()
+        {
+            LaunchInheritance = new ProjectileLaunchInheritance(),
+            SparkCarryover = new SuitPickupSparkCarryover<SamusSuitPickupStage>(suitPickupStages),
+            CrashOrbitTravel = new CrashOrbitTravelCarryover(),
+            EscapeAndDrainCount = new SharedEscapeAndDrainCount<SamusSuitPickupStage>(suitPickupStages),
+            HurtFlash = new SharedHurtFlashCount(),
+            EffectWaits = new BreathBubbleAndLavaSprayWaits(),
+            WaterSpeedsInAir = new WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds>(SamusHorizontalSpeedDefinitions.WaterSpeedsInAir),
+            BoostRestart = new BoostRestartAfterEcho(SamusSpeedBoostCounter.AuthoredStages),
+        };
+    }
 }

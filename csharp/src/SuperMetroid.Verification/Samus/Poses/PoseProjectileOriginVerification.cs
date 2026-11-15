@@ -39,7 +39,7 @@ internal static class PoseProjectileOriginVerification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
+            int expected = PhysicalOrigin(rom, pose);
             AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
@@ -55,7 +55,7 @@ internal static class PoseProjectileOriginVerification
                 guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
                 samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
                 samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
-                byte physicalY = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
+                int physicalY = PhysicalOrigin(rom, pose);
                 bool running = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 1) == 1;
                 bool beamRunning = running || pose is 0x75 or 0x76;
                 slot.Direction = SamusProjectileDirectionCodec.FromAimIndex(direction);
@@ -90,6 +90,20 @@ internal static class PoseProjectileOriginVerification
             }
         }
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
+    }
+
+    /// <summary>
+    /// The height above Samus's centre <paramref name="pose"/>'s projectiles start at: the cartridge's byte, or for the
+    /// drained poses their signed correction, four below the centre; the original's unsigned read of it, which nothing
+    /// fired from those poses reaches, is gone (#1928).
+    /// </summary>
+    private static int PhysicalOrigin(CartridgeImportAddressSpace rom, int pose)
+    {
+        byte stored = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
+        return SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+            or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
+            ? unchecked((sbyte)stored)
+            : stored;
     }
 
     /// <summary>Runs the pose-based projectile origin verification against the retail cartridge.</summary>

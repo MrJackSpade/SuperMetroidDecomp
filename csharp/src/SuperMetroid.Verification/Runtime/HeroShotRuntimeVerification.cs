@@ -66,7 +66,7 @@ internal static class HeroShotRuntimeVerification
             int impact = -1, deleted = -1;
             void CompareNative(int frame)
             {
-                var shot = runtime.Projectiles.Slots[0];
+                var shot = runtime.Projectiles.Shots[0];
                 if (native is not null)
                 {
                     var expected = native[new HeroShotRuntimeNative(walkAfterShot ? 1 : 0, frame)];
@@ -96,7 +96,7 @@ internal static class HeroShotRuntimeVerification
                 ControllerButton input = frame == 0 ? runtime.Options.ControllerBindings.Shoot
                     : walkAfterShot ? ControllerButton.Right : 0;
                 runtime.StepFrame(input);
-                var shot = runtime.Projectiles.Slots[0];
+                var shot = runtime.Projectiles.Shots[0];
                 CompareNative(frame);
                 if (frame == 0)
                 {

@@ -1,164 +1,171 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>The pose input-transition lists selected by each Samus pose.</summary>
+/// <summary>
+/// The input-transition lists Samus's poses select (#1929), each named for the poses it serves: poses that share their
+/// transitions share a list.
+/// </summary>
 internal enum SamusPoseInputList
 {
-    /// <summary>The input-transition list of <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: diagnostic list identity.</summary>
-    EmptyTransitionList,
-    /// <summary>The input-transition list of the forward facing power suit poses.</summary>
-    ForwardFacingPowerSuitPoseList,
-    /// <summary>The input-transition list of the facing right normal poses.</summary>
-    FacingRightNormalPoseList,
-    /// <summary>The input-transition list of the facing left normal poses.</summary>
-    FacingLeftNormalPoseList,
-    /// <summary>The input-transition list of the moving right normal poses.</summary>
-    MovingRightNormalPoseList,
-    /// <summary>The input-transition list of the moving left normal poses.</summary>
-    MovingLeftNormalPoseList,
-    /// <summary>The input-transition list of the neutral jump transition right poses.</summary>
-    NeutralJumpTransitionRightPoseList,
-    /// <summary>The input-transition list of the neutral jump transition left poses.</summary>
-    NeutralJumpTransitionLeftPoseList,
-    /// <summary>The input-transition list of the normal jump aim up right poses.</summary>
-    NormalJumpAimUpRightPoseList,
-    /// <summary>The input-transition list of the normal jump aim up left poses.</summary>
-    NormalJumpAimUpLeftPoseList,
+    /// <summary>
+    /// The list with no transitions, which every pose whose input does not change it selects: turns in the air and while
+    /// crouching or falling, posture and morph transitions, the Grapple's poses, the shinespark, Crystal Flash, the X-ray
+    /// scope, death and the drained poses.
+    /// </summary>
+    NoInputTransitions,
+    /// <summary>The input-transition list of both forward-facing poses, in the power suit and suited.</summary>
+    ForwardFacing,
+    /// <summary>The input-transition list of the right-facing standing poses and the landings, whatever their aim.</summary>
+    StandingAndLandingRight,
+    /// <summary>The input-transition list of the left-facing standing poses and the landings, whatever their aim.</summary>
+    StandingAndLandingLeft,
+    /// <summary>The input-transition list of the right-facing running poses, whatever their aim.</summary>
+    RunningRight,
+    /// <summary>The input-transition list of the left-facing running poses, whatever their aim.</summary>
+    RunningLeft,
+    /// <summary>The input-transition list of the right-facing jump transitions, whatever their aim.</summary>
+    JumpTransitionRight,
+    /// <summary>The input-transition list of the left-facing jump transitions, whatever their aim.</summary>
+    JumpTransitionLeft,
+    /// <summary>The input-transition list of the right-facing neutral, forward, aimed-up and diagonal normal jumps.</summary>
+    NormalJumpRight,
+    /// <summary>The input-transition list of the left-facing neutral, forward, aimed-up and diagonal normal jumps.</summary>
+    NormalJumpLeft,
     /// <summary>The input-transition list of the damage boost left poses.</summary>
-    DamageBoostLeftPoseList,
+    DamageBoostLeft,
     /// <summary>The input-transition list of the damage boost right poses.</summary>
-    DamageBoostRightPoseList,
+    DamageBoostRight,
     /// <summary>The input-transition list of the spin jump right poses.</summary>
-    SpinJumpRightPoseList,
+    SpinJumpRight,
     /// <summary>The input-transition list of the spin jump left poses.</summary>
-    SpinJumpLeftPoseList,
+    SpinJumpLeft,
     /// <summary>The input-transition list of the space jump right poses.</summary>
-    SpaceJumpRightPoseList,
+    SpaceJumpRight,
     /// <summary>The input-transition list of the space jump left poses.</summary>
-    SpaceJumpLeftPoseList,
+    SpaceJumpLeft,
     /// <summary>The input-transition list of the screw attack right poses.</summary>
-    ScrewAttackRightPoseList,
+    ScrewAttackRight,
     /// <summary>The input-transition list of the screw attack left poses.</summary>
-    ScrewAttackLeftPoseList,
+    ScrewAttackLeft,
     /// <summary>The input-transition list of the morph ball ground right poses.</summary>
-    MorphBallGroundRightPoseList,
+    MorphBallGroundRight,
     /// <summary>The input-transition list of the morph ball moving right poses.</summary>
-    MorphBallMovingRightPoseList,
+    MorphBallMovingRight,
     /// <summary>The input-transition list of the morph ball moving left poses.</summary>
-    MorphBallMovingLeftPoseList,
+    MorphBallMovingLeft,
     /// <summary>The input-transition list of the morph ball ground left poses.</summary>
-    MorphBallGroundLeftPoseList,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>: diagnostic list identity.</summary>
-    GlitchBallRightPoseList,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallLeftPose"/>: diagnostic list identity.</summary>
-    GlitchBallLeftPoseList,
+    MorphBallGroundLeft,
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>.</summary>
+    GlitchBallRight,
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallLeftPose"/>.</summary>
+    GlitchBallLeft,
     /// <summary>The input-transition list of the crouching right poses.</summary>
-    CrouchingRightPoseList,
+    CrouchingRight,
     /// <summary>The input-transition list of the crouching left poses.</summary>
-    CrouchingLeftPoseList,
+    CrouchingLeft,
     /// <summary>The input-transition list of the falling right poses.</summary>
-    FallingRightPoseList,
+    FallingRight,
     /// <summary>The input-transition list of the falling left poses.</summary>
-    FallingLeftPoseList,
+    FallingLeft,
     /// <summary>The input-transition list of the morph ball falling right poses.</summary>
-    MorphBallFallingRightPoseList,
+    MorphBallFallingRight,
     /// <summary>The input-transition list of the morph ball falling left poses.</summary>
-    MorphBallFallingLeftPoseList,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>: diagnostic list identity.</summary>
-    GlitchBallKnockbackRightPoseList,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/>: diagnostic list identity.</summary>
-    GlitchBallKnockbackLeftPoseList,
-    /// <summary>The input-transition list of the moonwalk facing left poses.</summary>
-    MoonwalkFacingLeftPoseList,
-    /// <summary>The input-transition list of the moonwalk facing right poses.</summary>
-    MoonwalkFacingRightPoseList,
+    MorphBallFallingLeft,
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>.</summary>
+    GlitchBallKnockbackRight,
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/>.</summary>
+    GlitchBallKnockbackLeft,
+    /// <summary>The input-transition list of the left-facing moonwalk poses, whatever their aim.</summary>
+    MoonwalkLeft,
+    /// <summary>The input-transition list of the right-facing moonwalk poses, whatever their aim.</summary>
+    MoonwalkRight,
     /// <summary>The input-transition list of the knockback right poses.</summary>
-    KnockbackRightPoseList,
+    KnockbackRight,
     /// <summary>The input-transition list of the knockback left poses.</summary>
-    KnockbackLeftPoseList,
-    /// <summary>The input-transition list of the spring ball ground right poses.</summary>
-    SpringBallGroundRightPoseList,
-    /// <summary>The input-transition list of the spring ball ground left poses.</summary>
-    SpringBallGroundLeftPoseList,
+    KnockbackLeft,
+    /// <summary>The input-transition list of the right-facing spring ball on the ground, still or moving.</summary>
+    SpringBallGroundRight,
+    /// <summary>The input-transition list of the left-facing spring ball on the ground, still or moving.</summary>
+    SpringBallGroundLeft,
     /// <summary>The input-transition list of the spring ball falling right poses.</summary>
-    SpringBallFallingRightPoseList,
+    SpringBallFallingRight,
     /// <summary>The input-transition list of the spring ball falling left poses.</summary>
-    SpringBallFallingLeftPoseList,
+    SpringBallFallingLeft,
     /// <summary>The input-transition list of the spring ball jump right poses.</summary>
-    SpringBallJumpRightPoseList,
+    SpringBallJumpRight,
     /// <summary>The input-transition list of the spring ball jump left poses.</summary>
-    SpringBallJumpLeftPoseList,
+    SpringBallJumpLeft,
     /// <summary>The unused input-transition list of the compact airborne right poses.</summary>
-    CompactAirborneRightPoseList,
+    CompactAirborneRight,
     /// <summary>The unused input-transition list of the compact airborne left poses.</summary>
-    CompactAirborneLeftPoseList,
+    CompactAirborneLeft,
     /// <summary>The unused input-transition list of the compact airborne falling right poses.</summary>
-    CompactAirborneFallingRightPoseList,
+    CompactAirborneFallingRight,
     /// <summary>The unused input-transition list of the compact airborne falling left poses.</summary>
-    CompactAirborneFallingLeftPoseList,
+    CompactAirborneFallingLeft,
     /// <summary>The input-transition list of the wall jump right poses.</summary>
-    WallJumpRightPoseList,
+    WallJumpRight,
     /// <summary>The input-transition list of the wall jump left poses.</summary>
-    WallJumpLeftPoseList,
+    WallJumpLeft,
     /// <summary>The input-transition list of the ran into wall right poses.</summary>
-    RanIntoWallRightPoseList,
+    RanIntoWallRight,
     /// <summary>The input-transition list of the ran into wall left poses.</summary>
-    RanIntoWallLeftPoseList,
+    RanIntoWallLeft,
     /// <summary>The input-transition list of the normal jump gun extended right poses.</summary>
-    NormalJumpGunExtendedRightPoseList,
+    NormalJumpGunExtendedRight,
     /// <summary>The input-transition list of the normal jump gun extended left poses.</summary>
-    NormalJumpGunExtendedLeftPoseList,
+    NormalJumpGunExtendedLeft,
     /// <summary>The input-transition list of the normal jump aim down right poses.</summary>
-    NormalJumpAimDownRightPoseList,
+    NormalJumpAimDownRight,
     /// <summary>The input-transition list of the normal jump aim down left poses.</summary>
-    NormalJumpAimDownLeftPoseList,
+    NormalJumpAimDownLeft,
     /// <summary>The input-transition list of the unmorphing transition right poses.</summary>
-    UnmorphingTransitionRightPoseList,
+    UnmorphingTransitionRight,
     /// <summary>The input-transition list of the unmorphing transition left poses.</summary>
-    UnmorphingTransitionLeftPoseList,
+    UnmorphingTransitionLeft,
     /// <summary>The input-transition list of the turning right to left poses.</summary>
-    TurningRightToLeftPoseList,
+    TurningRightToLeft,
     /// <summary>The input-transition list of the turning left to right poses.</summary>
-    TurningLeftToRightPoseList,
+    TurningLeftToRight,
     /// <summary>The input-transition list of the turning right to left aim up poses.</summary>
-    TurningRightToLeftAimUpPoseList,
+    TurningRightToLeftAimUp,
     /// <summary>The input-transition list of the turning left to right aim up poses.</summary>
-    TurningLeftToRightAimUpPoseList,
+    TurningLeftToRightAimUp,
     /// <summary>The input-transition list of the turning right to left aim diagonal down poses.</summary>
-    TurningRightToLeftAimDiagonalDownPoseList,
+    TurningRightToLeftAimDiagonalDown,
     /// <summary>The input-transition list of the turning left to right aim diagonal down poses.</summary>
-    TurningLeftToRightAimDiagonalDownPoseList,
+    TurningLeftToRightAimDiagonalDown,
     /// <summary>The input-transition list of the shinespark windup right poses.</summary>
-    ShinesparkWindupRightPoseList,
+    ShinesparkWindupRight,
     /// <summary>The input-transition list of the shinespark windup left poses.</summary>
-    ShinesparkWindupLeftPoseList,
+    ShinesparkWindupLeft,
     /// <summary>The input-transition list of the falling aim down right poses.</summary>
-    FallingAimDownRightPoseList,
+    FallingAimDownRight,
     /// <summary>The input-transition list of the falling aim down left poses.</summary>
-    FallingAimDownLeftPoseList,
+    FallingAimDownLeft,
     /// <summary>The unused input-transition list of the draygon held ball left poses.</summary>
-    DraygonHeldBallLeftPoseList,
-    /// <summary>The input-transition list of the draygon grabbed neutral left poses.</summary>
-    DraygonGrabbedNeutralLeftPoseList,
-    /// <summary>The input-transition list of the draygon grabbed neutral right poses.</summary>
-    DraygonGrabbedNeutralRightPoseList,
+    DraygonHeldBallLeft,
+    /// <summary>The input-transition list of every left-facing pose Draygon's grab holds Samus in.</summary>
+    DraygonGrabbedLeft,
+    /// <summary>The input-transition list of every right-facing pose Draygon's grab holds Samus in.</summary>
+    DraygonGrabbedRight,
     /// <summary>The input-transition list of the moving right gun extended poses.</summary>
-    MovingRightGunExtendedPoseList,
+    MovingRightGunExtended,
     /// <summary>The input-transition list of the moving left gun extended poses.</summary>
-    MovingLeftGunExtendedPoseList,
+    MovingLeftGunExtended,
     /// <summary>The input-transition list of the falling gun extended right poses.</summary>
-    FallingGunExtendedRightPoseList,
+    FallingGunExtendedRight,
     /// <summary>The input-transition list of the falling gun extended left poses.</summary>
-    FallingGunExtendedLeftPoseList,
+    FallingGunExtendedLeft,
     /// <summary>The input-transition list of the moonwalk turn jump left poses.</summary>
-    MoonwalkTurnJumpLeftPoseList,
+    MoonwalkTurnJumpLeft,
     /// <summary>The input-transition list of the moonwalk turn jump right poses.</summary>
-    MoonwalkTurnJumpRightPoseList,
+    MoonwalkTurnJumpRight,
     /// <summary>The input-transition list of the moonwalk turn jump aim up left poses.</summary>
-    MoonwalkTurnJumpAimUpLeftPoseList,
+    MoonwalkTurnJumpAimUpLeft,
     /// <summary>The input-transition list of the moonwalk turn jump aim up right poses.</summary>
-    MoonwalkTurnJumpAimUpRightPoseList,
+    MoonwalkTurnJumpAimUpRight,
     /// <summary>The input-transition list of the moonwalk turn jump aim down left poses.</summary>
-    MoonwalkTurnJumpAimDownLeftPoseList,
+    MoonwalkTurnJumpAimDownLeft,
     /// <summary>The input-transition list of the moonwalk turn jump aim down right poses.</summary>
-    MoonwalkTurnJumpAimDownRightPoseList,
+    MoonwalkTurnJumpAimDownRight,
 }

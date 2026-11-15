@@ -43,8 +43,9 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Exact wrapping 1/65536-pixel add shared by the grounded, aerial, and spin-turn
-    /// initializers. It deliberately permits overflow past the whole range, matching the game's arithmetic.
+    /// Folds the extra run speed into the base speed and starts the turn, for the grounded, aerial and spin-turn
+    /// initializers. Both speeds stay a few pixels an update, so their sum is a plain add, its fraction carrying into the
+    /// whole pixels.
     /// </summary>
     internal static void FoldExtraRunSpeedIntoBaseAndStartTurn(SamusState samus)
     {
@@ -61,9 +62,8 @@ internal static class SamusGroundedPoseTransitions
     /// real gun-extended running horizontal-fire poses.
     /// </summary>
     /// <remarks>
-    /// All admitted poses have radius 21. If both endpoints are running, the pose initializer writes
-    /// the new-frame value 32768 and the animation setup preserves the current frame and timer;
-    /// this matters when firing midway through the ten-frame run cycle. A transition between
+    /// All admitted poses have radius 21. If both endpoints are running, the transition keeps the running animation's
+    /// current frame and timer; this matters when firing midway through the ten-frame run cycle. A transition between
     /// movement types initializes frame zero normally. Movement type changes take effect on
     /// the following frame because pose transitions occur after movement.
     /// </remarks>
@@ -111,10 +111,8 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // Sees previous SamusMovementType.Running and publishes 32768. The below-zero check
-        // in the animation setup exits before touching frame, timer, or delay-buffer state. Every live
-        // running arm pose plays the same animation, so the cached animation is
-        // already exact and must not be rebound or reset here.
+        // From a running pose to a running pose the animation keeps its frame, timer and delays: every live running arm
+        // pose plays the same animation, so the current one is already exact and must not be rebound or reset here.
         int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -172,11 +170,11 @@ internal static class SamusGroundedPoseTransitions
         Ensure.NotNull(level);
         onePixelProbe = null;
 
-        if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running)
+        if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running)
             return SelectRanIntoWallPose(samus.Pose);
 
         if (prospectivePose is not { } target ||
-            SamusPoseMetadata.ReadMovementKind(target) != SamusMovementType.Running)
+            SamusPoseMetadata.ReadMovementType(target) != SamusMovementType.Running)
             return null;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
@@ -578,9 +576,8 @@ internal static class SamusGroundedPoseTransitions
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Folds the run-button/speed-booster component into base speed
-        // with two independent additions, the fraction's overflow reaching the whole. Use one wrapping 1/65536-pixel add to
-        // preserve exactly that pair of operations, including overflow past the whole pixels.
+        // Folds the run-button/speed-booster component into base speed, the fraction carrying into the whole pixels.
+        // Both speeds stay a few pixels an update, so the sum is a plain add.
         speed.BaseSpeed += speed.ExtraRunSpeed;
 
         // The transition consumes the extra component and selects

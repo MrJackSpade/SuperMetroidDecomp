@@ -493,13 +493,13 @@ public sealed class SamusState
     /// Her shinespark's upward acceleration, which a suit pickup transforming her overwrites with its light beam's
     /// progress.
     /// </summary>
-    internal SuitPickupSparkCarryover SparkCarryover { get; }
+    internal SuitPickupSparkCarryover<SamusSuitPickupStage> SparkCarryover { get; }
 
     /// <summary>
     /// The count her Crystal Flash's ammunition drain and her escape from Draygon share, on which a suit pickup
     /// transforming her leaves its stage.
     /// </summary>
-    internal SharedEscapeAndDrainCount EscapeAndDrainCount { get; }
+    internal SharedEscapeAndDrainCount<SamusSuitPickupStage> EscapeAndDrainCount { get; }
 
     /// <summary>
     /// The session's unauthored Speed Booster cadence, which times her run when a full sound queue sends the boost onto

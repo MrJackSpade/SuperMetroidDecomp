@@ -151,8 +151,8 @@ internal static class SamusOverreadServicesReader
                 int position = ParseCount(positionName, $"{program} step");
                 if (position >= steps)
                     throw new InvalidDataException($"Samus overread file names step {position} of {program}, which has {steps}.");
-                if (bySlot.Count != SamusProjectileSystem.SlotCount)
-                    throw new InvalidDataException($"Samus overread file holds SpaceTime overwrites for {bySlot.Count} slots, not {SamusProjectileSystem.SlotCount}.");
+                if (bySlot.Count != SamusProjectileSystem.PlaceCount)
+                    throw new InvalidDataException($"Samus overread file holds SpaceTime overwrites for {bySlot.Count} slots, not {SamusProjectileSystem.PlaceCount}.");
                 result.Add(new(program, position), [.. bySlot.Select(Overwrite)]);
             }
         }

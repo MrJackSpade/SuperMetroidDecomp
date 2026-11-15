@@ -31,28 +31,24 @@ internal static class PowerBombShapeVerification
     }
 
     /// <summary>
-    /// Checks each walked oval's radius against the cartridge's pre-scaled shape it replaces: the shape's middle line is
-    /// 255/256 of the radius wide on each side. Also rejects a cursor past the end of either stream.
+    /// Checks each authored oval's radius against the cartridge's pre-scaled shape it replaces: the shape's middle line is
+    /// 255/256 of the radius wide on each side; and that each oval stage shows one oval per update of its duration, the
+    /// cartridge's count of shapes (#1927).
     /// </summary>
     internal static void VerifyPowerBombPreScaledShapes(CartridgeImportAddressSpace rom)
     {
-        AssertEqual(17, PowerBombShapeCursor.CountOf(PowerBombShapeStream.White), "seventeen white shapes");
-        AssertEqual(4, PowerBombShapeCursor.CountOf(PowerBombShapeStream.Yellow), "four yellow shapes");
-        foreach ((PowerBombShapeStream stream, int table) in new[]
+        AssertEqual(17, PowerBombExplosionDefinitions.ExplosionWhiteUpdates, "the white explosion lasts seventeen updates");
+        AssertEqual(4, PowerBombExplosionDefinitions.PreExplosionYellowUpdates, "the yellow pre-explosion lasts four updates");
+        foreach ((string stage, IReadOnlyList<int> radii, int duration, int table) in new (string, IReadOnlyList<int>, int, int)[]
         {
-            new VerifyPowerBombPreScaledShapesCase(PowerBombShapeStream.White, PowerBombShapeReferenceData.PreScaledWhite),
-            new VerifyPowerBombPreScaledShapesCase(PowerBombShapeStream.Yellow, PowerBombShapeReferenceData.PreScaledYellow),
+            ("white", PowerBombExplosionDefinitions.WhiteOvalRadii, PowerBombExplosionDefinitions.ExplosionWhiteUpdates, PowerBombShapeReferenceData.PreScaledWhite),
+            ("yellow", PowerBombExplosionDefinitions.YellowOvalRadii, PowerBombExplosionDefinitions.PreExplosionYellowUpdates, PowerBombShapeReferenceData.PreScaledYellow),
         })
         {
-            for (int index = 0; index < PowerBombShapeCursor.CountOf(stream); index++)
-            {
-                int radius = new PowerBombShapeCursor(stream, index).HorizontalRadius();
-                AssertEqual(rom.ReadCartridgeByte(table + index * PowerBombShapeReferenceData.ShapeLines), radius * 255 / 256,
-                    $"Power Bomb {stream} shape {index} has the cartridge shape's middle width");
-            }
-            AssertThrows<InvalidOperationException>(
-                () => new PowerBombShapeCursor(stream, PowerBombShapeCursor.CountOf(stream)).HorizontalRadius(),
-                $"a {stream} shape past the stream is rejected");
+            AssertEqual(duration, radii.Count, $"the {stage} stage shows one oval on each of its updates");
+            for (int index = 0; index < radii.Count; index++)
+                AssertEqual(rom.ReadCartridgeByte(table + index * PowerBombShapeReferenceData.ShapeLines), radii[index] * 255 / 256,
+                    $"Power Bomb {stage} oval {index} has the cartridge shape's middle width");
         }
     }
 

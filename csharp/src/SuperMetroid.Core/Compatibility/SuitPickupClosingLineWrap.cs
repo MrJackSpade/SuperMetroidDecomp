@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// its right edge at column 248, so the first narrowing carries the left edge round to column 7, and the line closes
 /// from columns 7 and 240 until the left edge reaches column 112, when the pickup finishes and releases Samus: the wrap
 /// sets how many updates pass before Samus moves again, and the edge columns the shinespark's carried acceleration reads
-/// on each of them (<see cref="SuitPickupSparkCarryover"/>).
+/// on each of them (<see cref="SuitPickupSparkCarryover{TStage}"/>).
 /// </summary>
 /// <remarks>
 /// <para>

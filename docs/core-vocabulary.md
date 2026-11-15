@@ -40,7 +40,7 @@ hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr
 A name that says `Callback` names the original's function-pointer dispatch and is reported too (#1624,
 `CoreVocabularyAnalyzer.DispatchWords`): the cartridge stored a room's setup and main behaviour, a beam's frame behaviour
 and each of Kraid's sinking steps as a pointer it called back, and Core names the behaviour instead (`RoomSetupBehavior`,
-`RoomMainBehavior`, `SamusBeamFrameBehaviorChoice`, `KraidSinkStep`). A C# delegate the port passes is a genuine
+`RoomMainBehavior`, `SamusShotBehavior`, `KraidSinkStep`). A C# delegate the port passes is a genuine
 callback and keeps the word: a delegate type and its file, an event, and a field, property, parameter or local whose type
 is a delegate, or an array or constructed generic type of one (`Action? AudioCallback`, `Func<int> callback`,
 `List<Func<int>> PendingCallbacks`). A method's own name is never a delegate, even when it returns one.

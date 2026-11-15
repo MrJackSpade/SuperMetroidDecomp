@@ -5,141 +5,136 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Per-frame projectile movement: the beam, wave, Hyper Beam, missile and Super Missile frame behaviours, Super Missile links, and the movement-window deletion check.</summary>
+/// <summary>Per-update projectile movement: the beam, Wave Beam, Hyper Beam, missile and Super Missile flights, Super Missile links, and the movement-window deletion check.</summary>
 [RoomLifetime]
 internal sealed class ProjectileMotion
 {
     /// <summary>Clears shots that expire or leave the movement window.</summary>
     private readonly ProjectileAnimation _animation;
-    /// <summary>Allocates and removes the invisible Super Missile link slots.</summary>
-    private readonly ProjectileSlotTable _slotTable;
+    /// <summary>The shot pool, whose free places the invisible Super Missile links take.</summary>
+    private readonly SamusShotPool _pool;
     /// <summary>Converts beam and missile block impacts into their family-specific outcomes.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
     /// <summary>Emits beam and missile trails before their parent shots move.</summary>
     private readonly ProjectileTrails _trails;
 
-    /// <summary>Connects projectile motion to animation lifetime, terrain reactions, link slots, and trails.</summary>
-    internal ProjectileMotion(ProjectileAnimation animation, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision, ProjectileTrails trails)
+    /// <summary>Connects projectile motion to animation lifetime, terrain reactions, the shot pool, and trails.</summary>
+    internal ProjectileMotion(ProjectileAnimation animation, SamusShotPool pool, ProjectileTerrainCollision terrainCollision, ProjectileTrails trails)
     {
         _animation = animation;
-        _slotTable = slotTable;
+        _pool = pool;
         _terrainCollision = terrainCollision;
         _trails = trails;
     }
     /// <summary>Accelerates a non-Wave beam, emits its old-position trail, and resolves directional block collision.</summary>
-    internal bool RunNoWaveBeamFrameBehavior(
+    internal void FlyBeam(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
-        if (slot.IsSpent)
+        if (shot.IsSpent)
         {
-            _animation.ClearProjectile(slot);
-            return false;
+            _animation.ClearProjectile(shot);
+            return;
         }
 
         // The trail beam's update allocates a persistent trail before applying acceleration or movement.
         // Thus the detached 8x8 sprite records the beam's old world position and visibly falls
         // behind it. Failure to preserve this order makes the trail sit inside the projectile.
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (slot.TrailTimer.IsZero)
+        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
+        if (shot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = WrappingCountdown.Start(4);
-            _trails.SpawnTrail(slot);
+            shot.TrailTimer = WrappingCountdown.Start(4);
+            _trails.SpawnTrail(shot);
         }
 
-        Accelerate(slot, SamusProjectileAccelerations.For(slot.Direction).Beam);
+        Accelerate(shot, SamusProjectileAccelerations.For(shot.Direction).Beam);
 
-        SamusProjectileDirection direction = slot.Direction;
+        SamusProjectileDirection direction = shot.Direction;
         bool collided = direction switch
         {
             SamusProjectileDirection.UpFacingRight or
             SamusProjectileDirection.DownFacingRight or
             SamusProjectileDirection.DownFacingLeft or
-            SamusProjectileDirection.UpFacingLeft => ProjectileTerrainCollision.MoveVertically(level, slot, roomObjects),
+            SamusProjectileDirection.UpFacingLeft => ProjectileTerrainCollision.MoveVertically(level, shot, roomObjects),
             SamusProjectileDirection.Right or SamusProjectileDirection.Left =>
-                ProjectileTerrainCollision.MoveHorizontally(level, slot, roomObjects),
+                ProjectileTerrainCollision.MoveHorizontally(level, shot, roomObjects),
             SamusProjectileDirection.UpRight or
             SamusProjectileDirection.DownRight or
             SamusProjectileDirection.DownLeft or
             SamusProjectileDirection.UpLeft =>
-                ProjectileTerrainCollision.MoveHorizontally(level, slot, roomObjects) ||
-                ProjectileTerrainCollision.MoveVertically(level, slot, roomObjects),
+                ProjectileTerrainCollision.MoveHorizontally(level, shot, roomObjects) ||
+                ProjectileTerrainCollision.MoveVertically(level, shot, roomObjects),
             _ => throw new InvalidDataException(
-                $"Beam slot contains undefined direction {direction}."),
+                $"Beam shot has undefined direction {direction}."),
         };
 
         if (collided)
-            _terrainCollision.KillBeamOnBlockCollision(slot);
+            _terrainCollision.KillBeamOnBlockCollision(shot);
 
         // The beam update checks the movement window after the direction step even
         // when collision changed the beam into an explosion. KillBeam moves its
         // origin to the contact edge, which can put an otherwise retained shot
         // outside that window on this very frame.
-        DeleteIfOutsideMovementWindow(slot, cameraPosition);
-
-        return collided;
+        DeleteIfOutsideMovementWindow(shot, cameraPosition);
     }
 
-    /// <summary>Updates Wave's three- or four-frame trail cadence before its block-transparent movement.</summary>
-    internal void RunWaveBeamFrameBehavior(
+    /// <summary>Counts the Wave Beam's trail, every <paramref name="trailInterval"/> updates after its first, before its block-transparent movement.</summary>
+    internal void FlyWaveBeam(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomObjects? roomObjects)
+        ISamusRoomObjects? roomObjects,
+        int trailInterval)
     {
-        if (slot.IsSpent)
+        if (shot.IsSpent)
         {
-            _animation.ClearProjectile(slot);
+            _animation.ClearProjectile(shot);
             return;
         }
 
-        // The two trail updates differ only in the value reloaded after a trail timer
-        // expires. The producer always starts at four; an uncharged low-family wave becomes
-        // three only after its first emission. Spawning precedes acceleration and movement,
-        // so the trail samples the old world position just like the no-wave family.
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (slot.TrailTimer.IsZero)
+        // The Wave shots differ only in the interval reloaded after a trail timer expires. Firing always starts it at
+        // four; an uncharged Wave or Ice and Wave shot reloads three only after its first trail. Spawning precedes
+        // acceleration and movement, so the trail samples the old world position just like a beam without Wave.
+        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
+        if (shot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = WrappingCountdown.Start(slot.FrameBehavior ==
-                SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail
-                    ? 3
-                    : 4);
-            _trails.SpawnTrail(slot);
+            shot.TrailTimer = WrappingCountdown.Start(trailInterval);
+            _trails.SpawnTrail(shot);
         }
 
-        RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
+        RunWaveBeamShared(level, shot, cameraPosition, roomObjects);
     }
 
     /// <summary>Uses Wave's block-transparent movement for Hyper Beam without spawning projectile trails.</summary>
-    internal void RunHyperBeamFrameBehavior(
+    internal void FlyHyperBeam(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
-        if (slot.IsSpent)
+        if (shot.IsSpent)
         {
-            _animation.ClearProjectile(slot);
+            _animation.ClearProjectile(shot);
             return;
         }
 
         // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
         // no projectile-trail timer or trail spawn; its long beam picture
         // and the separately counting muzzle flare provide the complete presentation.
-        RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
+        RunWaveBeamShared(level, shot, cameraPosition, roomObjects);
     }
 
     /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring whether terrain stops the shot.</summary>
     private void RunWaveBeamShared(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
-        SamusProjectileDirection direction = slot.Direction;
-        Accelerate(slot, SamusProjectileAccelerations.For(direction).Beam);
+        SamusProjectileDirection direction = shot.Direction;
+        Accelerate(shot, SamusProjectileAccelerations.For(direction).Beam);
 
         // Wave's block collisions advance the same 1/65536-pixel positions and scan every block touched by
         // the projectile radii, but deliberately never report a collision. That is
@@ -147,143 +142,141 @@ internal sealed class ProjectileMotion
         // or clips the shot. The span scanners below now publish ordinary shootable-block
         // room objects while intentionally discarding their collision result, matching this fallthrough.
         if (MovesHorizontally(direction))
-            _terrainCollision.MoveWaveShotHorizontally(level, slot, roomObjects);
+            _terrainCollision.MoveWaveShotHorizontally(level, shot, roomObjects);
         if (MovesVertically(direction))
         {
-            slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
-            ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, slot, roomObjects);
+            shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
+            ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot, roomObjects);
         }
 
-        DeleteIfOutsideMovementWindow(slot, cameraPosition);
+        DeleteIfOutsideMovementWindow(shot, cameraPosition);
     }
 
     /// <summary>Handles ordinary missile ignition, acceleration, trail, point collision, and post-impact deletion.</summary>
-    internal bool RunMissileFrameBehavior(
+    internal void FlyMissile(
         RoomLevelData level,
         SamusState samus,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {
-        if (slot.IsSpent)
+        if (shot.IsSpent)
         {
-            _animation.ClearProjectile(slot);
-            return false;
+            _animation.ClearProjectile(shot);
+            return;
         }
 
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (slot.TrailTimer.IsZero)
+        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
+        if (shot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = WrappingCountdown.Start(4);
-            _trails.SpawnTrail(slot);
+            shot.TrailTimer = WrappingCountdown.Start(4);
+            _trails.SpawnTrail(shot);
         }
 
-        SamusProjectileDirection direction = slot.Direction;
+        SamusProjectileDirection direction = shot.Direction;
         SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(direction);
 
-        // The missile's frame behaviour first applies the same small directional
+        // The missile's flight first applies the same small directional
         // acceleration as beams. On the ignition frame the missile's ignition below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        Accelerate(slot, accelerations.Beam);
+        Accelerate(shot, accelerations.Beam);
 
-        if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
+        if (shot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
             // ignition speed plus Samus's inherited motion.
-            IgniteMissile(samus, slot);
+            IgniteMissile(samus, shot);
         }
         else
         {
-            Accelerate(slot, accelerations.Missile);
+            Accelerate(shot, accelerations.Missile);
         }
 
         bool collided = direction switch
         {
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
                 SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft =>
-                MoveMissileVertically(level, slot, roomObjects),
+                MoveMissileVertically(level, shot, roomObjects),
             SamusProjectileDirection.Right or SamusProjectileDirection.Left =>
-                MoveMissileHorizontally(level, slot, roomObjects),
+                MoveMissileHorizontally(level, shot, roomObjects),
             SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
                 SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft =>
-                MoveMissileHorizontally(level, slot, roomObjects) ||
-                MoveMissileVertically(level, slot, roomObjects),
+                MoveMissileHorizontally(level, shot, roomObjects) ||
+                MoveMissileVertically(level, shot, roomObjects),
             _ => throw new InvalidDataException(
-                $"Missile slot contains undefined direction {direction}."),
+                $"Missile shot has undefined direction {direction}."),
         };
         if (collided)
-            _terrainCollision.KillMissile(slot, sharedProjectiles);
+            _terrainCollision.KillMissile(shot, sharedProjectiles);
 
         // The missile direction step may create an explosion just
         // beyond the retention boundary. Its caller still runs the offscreen
         // check on that same frame, after impact sound/cooldown side effects.
-        DeleteIfOutsideMovementWindow(slot, cameraPosition);
-        return collided;
+        DeleteIfOutsideMovementWindow(shot, cameraPosition);
     }
 
     /// <summary>Ignites a Super Missile with its invisible link and updates both point reactions after each movement axis.</summary>
-    internal bool RunSuperMissileFrameBehavior(
+    internal void FlySuperMissile(
         RoomLevelData level,
         SamusState samus,
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects? roomObjects)
     {
-        if (slot.IsSpent)
+        if (shot.IsSpent)
         {
-            _animation.ClearProjectile(slot);
+            _animation.ClearProjectile(shot);
             ClearAllSuperMissileLinks();
-            return false;
+            return;
         }
 
         // The Super Missile trail begins with the producer's value four but reloads two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
         // both families still select the same trail art.
-        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
-        if (slot.TrailTimer.IsZero)
+        shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
+        if (shot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = WrappingCountdown.Start(2);
-            _trails.SpawnTrail(slot);
+            shot.TrailTimer = WrappingCountdown.Start(2);
+            _trails.SpawnTrail(shot);
         }
 
-        SamusProjectileDirection direction = slot.Direction;
-        if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
+        SamusProjectileDirection direction = shot.Direction;
+        if (shot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then
             // immediately allocates its invisible collision link.
-            IgniteMissile(samus, slot);
-            SpawnSuperMissileLink(samus, slot);
+            IgniteMissile(samus, shot);
+            SpawnSuperMissileLink(samus, shot);
         }
         else
         {
-            Accelerate(slot, SamusProjectileAccelerations.For(direction).SuperMissile);
+            Accelerate(shot, SamusProjectileAccelerations.For(direction).SuperMissile);
         }
 
         bool collided = false;
         if (MovesHorizontally(direction))
         {
-            collided = MoveMissileHorizontally(level, slot, roomObjects);
+            collided = MoveMissileHorizontally(level, shot, roomObjects);
             if (collided)
-                _terrainCollision.KillMissile(slot, sharedProjectiles);
+                _terrainCollision.KillMissile(shot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, slot, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
+                level, shot, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
         }
         if (!collided && MovesVertically(direction))
         {
-            collided = MoveMissileVertically(level, slot, roomObjects);
+            collided = MoveMissileVertically(level, shot, roomObjects);
             if (collided)
-                _terrainCollision.KillMissile(slot, sharedProjectiles);
+                _terrainCollision.KillMissile(shot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, slot, axis: Axis.Vertical, sharedProjectiles, roomObjects);
+                level, shot, axis: Axis.Vertical, sharedProjectiles, roomObjects);
         }
 
-        if (DeleteIfOutsideMovementWindow(slot, cameraPosition))
+        if (DeleteIfOutsideMovementWindow(shot, cameraPosition))
         {
             ClearAllSuperMissileLinks();
         }
-        return collided;
     }
 
     /// <summary>Whether a shot in <paramref name="direction"/> moves horizontally: every direction but straight up or down.</summary>
@@ -301,8 +294,8 @@ internal sealed class ProjectileMotion
     /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind. The velocity
     /// stays far inside its range, since a shot accelerating that long has left the movement window.
     /// </summary>
-    private static void Accelerate(SamusProjectile slot, EightEightVector<RoomPixels> acceleration) =>
-        slot.Velocity += acceleration;
+    private static void Accelerate(SamusProjectile shot, EightEightVector<RoomPixels> acceleration) =>
+        shot.Velocity += acceleration;
 
     /// <summary>
     /// Applies the shared beam/missile deletion window after movement. The game's
@@ -312,14 +305,14 @@ internal sealed class ProjectileMotion
     /// </summary>
     /// <returns>True when the projectile was outside the movement window and cleared.</returns>
     private bool DeleteIfOutsideMovementWindow(
-        SamusProjectile slot,
+        SamusProjectile shot,
         Position16<RoomPixels> cameraPosition)
     {
         const int MinimumVisibleCoordinate = -64;
         const int MaximumVisibleCoordinateExclusive = 320;
 
-        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, cameraPosition.X);
-        int screenY = CoordinateAxis.Difference(slot.Position.Y.Whole, cameraPosition.Y);
+        int screenX = CoordinateAxis.Difference(shot.Position.X.Whole, cameraPosition.X);
+        int screenY = CoordinateAxis.Difference(shot.Position.Y.Whole, cameraPosition.Y);
         bool outside =
             screenX < MinimumVisibleCoordinate ||
             screenX >= MaximumVisibleCoordinateExclusive ||
@@ -328,7 +321,7 @@ internal sealed class ProjectileMotion
         if (!outside)
             return false;
 
-        _animation.ClearProjectile(slot);
+        _animation.ClearProjectile(shot);
         return true;
     }
 
@@ -336,13 +329,13 @@ internal sealed class ProjectileMotion
     /// Ignites a missile: its velocity is rebuilt from its ignition speed, one pixel per update, or more after a
     /// reflection's head start, combined with Samus's inherited motion.
     /// </summary>
-    private static void IgniteMissile(SamusState samus, SamusProjectile slot)
+    private static void IgniteMissile(SamusState samus, SamusProjectile shot)
     {
-        SignedEightEight ignitionSpeed = slot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
+        SignedEightEight ignitionSpeed = shot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-        slot.MissileIgnition = SamusMissileIgnition.Ignited;
-        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, ignitionSpeed);
+        shot.MissileIgnition = SamusMissileIgnition.Ignited;
+        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, shot, ignitionSpeed);
     }
 
     /// <summary>
@@ -353,10 +346,10 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectile owner)
     {
-        if (_slotTable.FindFreePlace() is not { } place)
+        if (_pool.FindFreePlace() is not { } place)
             return;
 
-        SamusProjectile link = _slotTable.OccupyAtRest(place);
+        SamusProjectile link = _pool.OccupyAtRest(place);
         link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
         link.PicturedBeams = owner.PicturedBeams;
         link.Direction = owner.Direction;
@@ -371,18 +364,18 @@ internal sealed class ProjectileMotion
         link.Damage = SamusProjectileDamage.Read(kind);
         link.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         link.FrameHold = WrappingCountdown.Start(1);
-        link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
+        link.Behavior = SamusShotBehaviors.SuperMissileLink;
         link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         owner.SuperMissileLinkPlace = link.Place;
-        _slotTable.ProjectileCounter++;
+        _pool.ProjectileCounter++;
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
-    internal void RunSuperMissileLinkFrameBehavior(SamusProjectile link)
+    internal void HoldSuperMissileLink(SamusProjectile link)
     {
         // The link update leaves an ordinary link completely stationary. A spent link clears every
-        // Super Missile slot, including its owner.
+        // Super Missile shot, including its owner.
         if (!link.IsSpent)
             return;
         _animation.ClearProjectile(link);
@@ -399,7 +392,7 @@ internal sealed class ProjectileMotion
     {
         if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkPlace is not { } linkPlace)
             return;
-        SamusProjectile link = _slotTable.Slots[linkPlace];
+        SamusProjectile link = _pool.Shots[linkPlace];
         if (!link.IsActive)
             return;
 
@@ -442,10 +435,10 @@ internal sealed class ProjectileMotion
             _animation.ClearProjectile(link);
     }
 
-    /// <summary>Clears every Super Missile slot after owner or link termination.</summary>
+    /// <summary>Ends every Super Missile shot after owner or link termination.</summary>
     private void ClearAllSuperMissileLinks()
     {
-        foreach (SamusProjectile candidate in _slotTable.InUpdateOrder)
+        foreach (SamusProjectile candidate in _pool.InUpdateOrder)
         {
             if (candidate.Type.IsFamily(SamusProjectileFamily.SuperMissile))
                 _animation.ClearProjectile(candidate);
@@ -455,45 +448,45 @@ internal sealed class ProjectileMotion
     /// <summary>Advances missile X and tests its center unless it has crossed the room's screen-width boundary.</summary>
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         ISamusRoomObjects? roomObjects)
     {
-        slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
+        shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
 
         // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
         // width is counted in 256-pixel screens; coordinates in or past the first screen beyond
         // the room skip reaction and are left for the later 64-pixel viewport deletion.
         int roomWidthInScreens = RoomGridConversions.ScreensCovering(level.Size.X);
-        if (RoomGridConversions.PixelToScreen(slot.Position.X.Whole) >= roomWidthInScreens)
+        if (RoomGridConversions.PixelToScreen(shot.Position.X.Whole) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
-            level, slot, roomObjects: roomObjects);
+            level, shot, roomObjects: roomObjects);
     }
 
     /// <summary>Advances missile Y and tests its center unless it has crossed the room's screen-height boundary.</summary>
     private static bool MoveMissileVertically(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         ISamusRoomObjects? roomObjects)
     {
-        slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
+        shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
 
         int roomHeightInScreens = RoomGridConversions.ScreensCovering(level.Size.Y);
-        if (RoomGridConversions.PixelToScreen(slot.Position.Y.Whole) >= roomHeightInScreens)
+        if (RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
-            level, slot, roomObjects: roomObjects);
+            level, shot, roomObjects: roomObjects);
     }
 
     /// <summary>Resolves the missile center's extension chain, room-object reaction, and whether the block stops the missile, by block type.</summary>
     /// <returns>True when the block stops the missile.</returns>
     private static bool MissilePointReaction(
         RoomLevelData level,
-        SamusProjectile slot,
+        SamusProjectile shot,
         ISamusRoomObjects? roomObjects)
     {
-        int blockX = RoomGridConversions.PixelToBlock(slot.Position.X.Whole);
-        int blockY = RoomGridConversions.PixelToBlock(slot.Position.Y.Whole);
+        int blockX = RoomGridConversions.PixelToBlock(shot.Position.X.Whole);
+        int blockY = RoomGridConversions.PixelToBlock(shot.Position.Y.Whole);
         if ((uint)blockX >= level.Size.X ||
             (uint)blockY >= level.Size.Y)
         {
@@ -518,7 +511,7 @@ internal sealed class ProjectileMotion
         {
             // The shootable reactions run the spawn before the block's collision kind decides
             // the result: shootable air lets the missile pass; a shootable block stops it.
-            ProjectileTerrainCollision.TrySpawnShootableReaction(level, slot, block, roomObjects);
+            ProjectileTerrainCollision.TrySpawnShootableReaction(level, shot, block, roomObjects);
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
@@ -526,7 +519,7 @@ internal sealed class ProjectileMotion
         {
             // Bombable reactions always index the bomb-block room-object table for nonnegative behaviour.
             // A missile or Super Missile still spawns the room object, but the bomb-block setup
-            // immediately clears the new slot because its family is neither a bomb
+            // immediately clears the new room object because its family is neither a bomb
             // nor a power bomb; no terrain write, timer, sound, or persistent room object survives that call.
             // Whether the block stops the missile is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
@@ -550,7 +543,7 @@ internal sealed class ProjectileMotion
             // Missile slope collision divides slope behaviour values into the five square definitions and
             // the remaining 27 pixel-height definitions. Both paths use the missile center.
             RoomCollisionType.Slope =>
-                MissileSlopePointReaction(block, slot),
+                MissileSlopePointReaction(block, shot),
 
             // The cases above cover every collision kind left after extension redispatch.
             // Keep an explicit guard so a kind reaching here fails rather than silently
@@ -570,7 +563,7 @@ internal sealed class ProjectileMotion
     /// <summary>Tests the missile center against mirrored height tables or the selected square-slope quadrant.</summary>
     internal static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
-        SamusProjectile slot)
+        SamusProjectile shot)
     {
         SlopeShape slopeShape = block.Behavior.Slope.Shape;
         if (!slopeShape.IsSquare)
@@ -579,8 +572,8 @@ internal sealed class ProjectileMotion
             // the game table: the behaviour's flips mirror X and Y. A table height at or
             // above the mirrored Y point (`height - y <= 0`, signed) is
             // solid. Values can reach 20 for overhanging shapes, so do not reduce them modulo 16.
-            int xInBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
-            int yInBlock = RoomGridConversions.OffsetWithinBlock(slot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
+            int xInBlock = RoomGridConversions.OffsetWithinBlock(shot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
+            int yInBlock = RoomGridConversions.OffsetWithinBlock(shot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
 
             int height = slopeShape.HeightAt(xInBlock);
             return height <= yInBlock;
@@ -589,6 +582,6 @@ internal sealed class ProjectileMotion
         // Square slope collision treats each square slope as four 8x8 quadrants: the missile centre's halves of the
         // block, mirrored by the block's reflections, select the quadrant whichever axis the missile moves along.
         return SquareSlopes.IsSolid(block.Behavior, SquareSlopeQuadrant.Showing(block.Behavior,
-            SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(slot.Position.X.Whole)), SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(slot.Position.Y.Whole))));
+            SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole)), SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole))));
     }
 }

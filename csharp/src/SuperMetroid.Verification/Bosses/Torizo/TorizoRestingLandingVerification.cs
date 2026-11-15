@@ -100,8 +100,8 @@ internal static class TorizoRestingLandingVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = FixedPosition<RoomPixels>.FromWhole(at);
         slot.Radius = Radius;
-        var state = new TorizoEnemyState(slot, isGolden: false);
-        enemies.TorizoBehavior.Access.TorizoState = state;
+        var state = new TorizoEnemyState(isGolden: false);
+        slot.SetSpeciesState(state);
         return (enemies, slot, state);
     }
 

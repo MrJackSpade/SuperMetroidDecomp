@@ -13,15 +13,12 @@ internal sealed class TorizoCombat
     private readonly EnemyCollision _collision;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
-    private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal TorizoCombat(EnemyCollision collision, TorizoBody body, TorizoEncounterAccess access)
+    internal TorizoCombat(EnemyCollision collision, TorizoBody body)
     {
         _collision = collision;
         _body = body;
-        _access = access;
     }
 
     /// <summary>
@@ -40,7 +37,7 @@ internal sealed class TorizoCombat
         if (!isBombTorizo && !isGoldenTorizo)
             throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
 
-        TorizoEnemyState state = _access.RequireTorizoState(torizo);
+        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (selectedShot == TorizoReactions.StandUpSitDownShot)
         {
             // The transitional reaction is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
@@ -101,7 +98,7 @@ internal sealed class TorizoCombat
     internal void ApplyTorizoHurt(RoomEnemySlot torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-        TorizoEnemyState state = _access.RequireTorizoState(torizo);
+        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.FlashTimer))
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
@@ -116,7 +113,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Enters the authored death list once and removes the dying statue from Samus collision.</summary>
-    internal void BeginTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
+    internal static void BeginTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
             return;
@@ -131,7 +128,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Latches <paramref name="flags"/>.</summary>
-    internal void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => _access.RequireTorizoState(torizo).Behavior |= flags;
+    internal static void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior |= flags;
 
     /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox reaction.</summary>
     internal void ReactToTorizoBomb(EnemyBombContext c) =>
@@ -160,7 +157,7 @@ internal sealed class TorizoCombat
         AfterCommon = c =>
         {
             if (c.Enemy.Health == 0)
-                BeginTorizoDeath(c.Enemy, _access.RequireTorizoState(c.Enemy));
+                BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
         },
     };
 
@@ -174,7 +171,7 @@ internal sealed class TorizoCombat
         }
         _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
         if (context.Slot.Health == 0)
-            BeginTorizoDeath(context.Slot, _access.RequireTorizoState(context.Slot));
+            BeginTorizoDeath(context.Slot, context.Slot.RequireSpeciesState<TorizoEnemyState>());
     }
 
     /// <summary>
@@ -186,7 +183,7 @@ internal sealed class TorizoCombat
         RoomEnemySlot enemy = c.Enemy;
         bool isBombTorizo = enemy.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = !isBombTorizo;
-        TorizoEnemyState torizoState = _access.RequireTorizoState(enemy);
+        TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
         if (c.HitboxShot == TorizoReactions.StandUpSitDownShot)
         {
             // The transitional reaction returns immediately in Crateria. In every other area it calls a guarded path, which admits common
@@ -211,12 +208,12 @@ internal sealed class TorizoCombat
         // Animation lock and the transitional hitbox reaction bypass that write instead.
         if (c.HitboxShot == TorizoReactions.Shot && isGoldenTorizo &&
             !torizoState.AnimationLocked &&
-            _body.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
+            TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
             SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
 
         if (c.HitboxShot == TorizoReactions.Shot &&
             isGoldenTorizo && !torizoState.AnimationLocked &&
-            !_body.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
+            !TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
         {
             if (c.Family == SamusProjectileFamily.Missile)
             {
@@ -224,7 +221,7 @@ internal sealed class TorizoCombat
                 c.Projectile.IsSpent = false;
                 torizoState.Phase = TorizoPhase.Idle;
                 enemy.AnimationClock.StepOnNextUpdate();
-                _access.RequireTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
+                enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.FacesRight(enemy)
                     ? TorizoAnimation.GoldenDodgeTurningRight
                     : TorizoAnimation.GoldenDodgeTurningLeft);
                 return true;
@@ -232,18 +229,18 @@ internal sealed class TorizoCombat
 
             if (c.Family == SamusProjectileFamily.SuperMissile)
             {
-                if (c.Samus is not null && _access.FacesSamus(enemy, c.Samus))
+                if (c.Samus is not null && TorizoFacing.FacesSamus(enemy, c.Samus))
                 {
                     c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
-                    _access.RequireTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
-                        ? _access.FacesRight(enemy)
+                    enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
+                        ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward
-                        : _access.FacesRight(enemy)
+                        : TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward);
                     return true;

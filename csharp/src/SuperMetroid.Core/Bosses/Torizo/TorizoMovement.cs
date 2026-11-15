@@ -24,17 +24,14 @@ internal sealed class TorizoMovement
         new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
-    private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal TorizoMovement(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, TorizoBody body, TorizoEncounterAccess access)
+    internal TorizoMovement(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, TorizoBody body)
     {
         _room = room;
         _terrain = terrain;
         _earthquake = earthquake;
         _body = body;
-        _access = access;
     }
 
     /// <summary>
@@ -45,13 +42,13 @@ internal sealed class TorizoMovement
     internal void InitializeTorizo(RoomEnemySlot torizo, SamusState? samus, GameplayAction controllerInput)
     {
         bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
-        var state = new TorizoEnemyState(torizo, isGolden)
+        var state = new TorizoEnemyState(isGolden)
         {
             // Every Torizo population entry starts it standing, with no behaviour latch set.
             Posture = TorizoPostureFlags.None,
             Behavior = 0,
         };
-        _access.TorizoState = state;
+        torizo.SetSpeciesState(state);
 
         // The area's Torizo defeat is shared by the Bomb and Golden Torizo encounters, but it is stored
         // per area. The room loader supplies the current area's accessor, keeping the actor
@@ -114,7 +111,7 @@ internal sealed class TorizoMovement
 
         // Two of its latches are the death sequence's. Before they are set,
         // health thresholds interrupt the current authored animation with the core/head bursts.
-        if (!_body.HasBehavior(torizo, TorizoBehaviorFlags.GutBlownUp) &&
+        if (!TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.GutBlownUp) &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {
             state.InterruptedPlayback = state.BodyPlayback;
@@ -122,10 +119,10 @@ internal sealed class TorizoMovement
             return;
         }
 
-        if (!_body.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp) &&
+        if (!TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp) &&
             torizo.Health < TorizoDecisionDefinitions.FaceBlowUpHealth)
         {
-            state.ReturnPlayback = TorizoAnimations.Start(_access.FacesRight(torizo)
+            state.ReturnPlayback = TorizoAnimations.Start(TorizoFacing.FacesRight(torizo)
                 ? TorizoAnimation.FacelessTurningLeft
                 : TorizoAnimation.FacelessTurningRight);
             TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoFaceBlowingUp));
@@ -227,7 +224,7 @@ internal sealed class TorizoMovement
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             // The fall swaps to the in-air animation while the downward probe stays clear; its leaping motion lands it.
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(_access.FacesRight(torizo)
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(torizo)
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
             // The fall starts at the resting speed, so a Torizo whose ground returns at once lands without a quake.
@@ -240,10 +237,10 @@ internal sealed class TorizoMovement
     /// The animation a walking Torizo turns toward Samus with: a faceless Bomb Torizo's faceless turn, otherwise its
     /// definition's turn away from the way it faces.
     /// </summary>
-    private TorizoAnimation TurnTowardSamus(RoomEnemySlot torizo, TorizoEnemyState state)
+    private static TorizoAnimation TurnTowardSamus(RoomEnemySlot torizo, TorizoEnemyState state)
     {
-        bool facesRight = _access.FacesRight(torizo);
-        if (_body.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
+        bool facesRight = TorizoFacing.FacesRight(torizo);
+        if (TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
             return facesRight ? TorizoAnimation.FacelessTurningLeft : TorizoAnimation.FacelessTurningRight;
         TorizoInitializationDefinition definition = state.Definition;
         return facesRight ? definition.TurningLeft : definition.TurningRight;

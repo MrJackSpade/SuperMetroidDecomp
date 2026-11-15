@@ -29,8 +29,7 @@ internal static class GoldenTorizoAttackChoiceVerification
 
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
-        TorizoEnemyState state = runtime.Enemies.TorizoBehavior.Access.GoldenTorizo
-            ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.");
+        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         state.BodyPlayback = TorizoAnimations.Start(TorizoNativeListAddresses.AnimationAt(landedFacingLeft)
             ?? throw new InvalidOperationException("No Torizo animation starts at the landing list."));
         torizo.AnimationClock.StepOnNextUpdate();

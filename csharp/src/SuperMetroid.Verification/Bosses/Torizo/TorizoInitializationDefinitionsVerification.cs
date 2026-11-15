@@ -52,8 +52,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = enemies.TorizoBehavior.Access.TorizoState
-                    ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
+                TorizoEnemyState started = actor.RequireSpeciesState<TorizoEnemyState>();
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.Playing(started.BodyPlayback)), "Real Torizo initial program selection");
                 AssertEqual(TorizoAnimations.Start(TorizoAnimations.Playing(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
                 EnemyPropertyState initialized = EnemyPropertyWordCodec.Decode(properties | native[3], 0);
@@ -68,7 +67,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual((ushort)1, actor.AnimationClock.Hold.RawValue, "Initial instruction timer");
-                var state = variant == 0 ? enemies.BombTorizo : enemies.TorizoBehavior.Access.GoldenTorizo;
+                var state = variant == 0 ? enemies.BombTorizo : enemies.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual(state.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");
                 AssertTrue(!actor.Shading.IsStandard, "Initial colours: his starting look is a shade over his sheet");

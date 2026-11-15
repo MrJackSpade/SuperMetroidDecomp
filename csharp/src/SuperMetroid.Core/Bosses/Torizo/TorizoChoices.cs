@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -16,15 +16,12 @@ internal sealed class TorizoChoices
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves body movement against room blocks and slopes.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
-    private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal TorizoChoices(EnemyRoomBinding room, EnemyTerrain terrain, TorizoEncounterAccess access)
+    internal TorizoChoices(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
-        _access = access;
     }
 
     /// <summary>
@@ -38,7 +35,7 @@ internal sealed class TorizoChoices
         TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + ((samusX + 1) >> 1));
 
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
-    internal AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoMorphBallBranch(
+    internal static AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoMorphBallBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -52,7 +49,7 @@ internal sealed class TorizoChoices
             SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
             SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingRightPose or
             SamusPoseId.SpringBallMovingLeftPose;
-        if (_access.FacesSamus(torizo, samus) ||
+        if (TorizoFacing.FacesSamus(torizo, samus) ||
             distance < TorizoDecisionDefinitions.MorphedBehindNearest || distance >= TorizoDecisionDefinitions.MorphedBehindFarthest || !isGroundedBall)
         {
             return null;
@@ -73,7 +70,7 @@ internal sealed class TorizoChoices
         if (samus is null)
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
-        if (!_access.FacesSamus(torizo, samus) ||
+        if (!TorizoFacing.FacesSamus(torizo, samus) ||
             distance < TorizoDecisionDefinitions.MediumRangeNearest || distance >= TorizoDecisionDefinitions.MediumRangeFarthest ||
             !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
@@ -95,7 +92,7 @@ internal sealed class TorizoChoices
         if (samus is null)
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
-        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !_access.FacesSamus(torizo, samus))
+        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, samus))
             return null;
         GameplayAction heldButtons = controllerInput;
         if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
@@ -111,7 +108,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Starts a backward jump after enough decisions or when Samus closes inside 32 pixels.</summary>
-    internal AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoRepeatedJump(
+    internal static AnimationContinuation<TorizoAnimation>? SelectGoldenTorizoRepeatedJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -121,7 +118,7 @@ internal sealed class TorizoChoices
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (state.DecisionCounter < TorizoDecisionDefinitions.RepeatedJumpSteps &&
-            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !_access.FacesSamus(torizo, samus)))
+            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !TorizoFacing.FacesSamus(torizo, samus)))
         {
             return null;
         }
@@ -144,7 +141,7 @@ internal sealed class TorizoChoices
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.TurnTimer = 0;
-            return TorizoAnimations.ContinueWith(_access.FacesRight(torizo)
+            return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo)
                 ? TorizoAnimation.GoldenTurningLeft
                 : TorizoAnimation.GoldenTurningRight);
         }
@@ -159,23 +156,23 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Sets the facing-dependent forward leap velocity and restarts its frame timer.</summary>
-    private void StartGoldenTorizoForwardJump(
+    private static void StartGoldenTorizoForwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
-        state.Velocity = new(_access.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
+        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
         state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         torizo.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
-    private void StartGoldenTorizoBackwardJump(
+    private static void StartGoldenTorizoBackwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
-        state.Velocity = new(_access.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
+        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         torizo.AnimationClock.StepOnNextUpdate();
     }
@@ -189,7 +186,7 @@ internal sealed class TorizoChoices
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.TurnTimer = 0;
-            return TorizoAnimations.ContinueWith(_access.FacesRight(torizo)
+            return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo)
                 ? step.CollisionFacingRight
                 : step.CollisionFacingLeft);
         }
@@ -204,7 +201,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Saves the next cue and branches when Samus is within 56 pixels behind the statue.</summary>
-    internal AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseBehindBranch(
+    internal static AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -220,21 +217,21 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Launches the reverse jump when Samus is within 32 pixels in the selected facing half-plane.</summary>
-    internal AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseFrontJump(
+    internal static AnimationContinuation<TorizoAnimation>? SelectBombTorizoCloseFrontJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
         TorizoAnimation target)
     {
         if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseInFrontDistance ||
-            !_access.FacesSamus(torizo, samus))
+            !TorizoFacing.FacesSamus(torizo, samus))
         {
             return null;
         }
 
         // The jump back launches away from the way Torizo faces.
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
-        state.Velocity = new(_access.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
+        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         torizo.AnimationClock.StepOnNextUpdate();
         return TorizoAnimations.ContinueWith(target);
@@ -243,11 +240,11 @@ internal sealed class TorizoChoices
     /// <summary>
     /// Whether the Torizo faces away from Samus, as its walking steps and close-behind branch test it: facing right with
     /// Samus to its left, or facing left with Samus to its right or level with it. It is not the negation of
-    /// <see cref="TorizoEncounterAccess.FacesSamus"/>: by the two tests, a Samus level with the Torizo is both in front of
+    /// <see cref="TorizoFacing.FacesSamus"/>: by the two tests, a Samus level with the Torizo is both in front of
     /// and behind it while it faces left, and neither while it faces right.
     /// </summary>
-    private bool FacesAwayFromSamus(
+    private static bool FacesAwayFromSamus(
         RoomEnemySlot torizo,
         SamusState samus) =>
-        _access.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
+        TorizoFacing.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
 }

@@ -68,8 +68,8 @@ internal static class TorizoBellyGlowEndVerification
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Bind(definition, RoomEnemyDefinitionLookup.Get(definition));
         torizo.Health = 800;
-        var state = new TorizoEnemyState(torizo, isGolden) { Phase = TorizoPhase.Falling };
-        enemies.TorizoBehavior.Access.TorizoState = state;
+        var state = new TorizoEnemyState(isGolden) { Phase = TorizoPhase.Falling };
+        torizo.SetSpeciesState(state);
         enemies.BossFrameResults.Begin();
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(
                 torizo, state, new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
@@ -78,7 +78,7 @@ internal static class TorizoBellyGlowEndVerification
         TorizoBellyGlowRequest request = enemies.BossFrameResults.RoomEffects().TorizoBellyGlow
             ?? throw new InvalidOperationException($"{definition}'s fight start asks for no belly glow.");
         AssertEqual(glow, request.Glow, $"{definition}'s fight start asks for its own belly glow");
-        AssertTrue(ReferenceEquals(state, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
+        AssertTrue(ReferenceEquals(torizo.Entity, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
 
         var fx = new ColourEffectSystem(new ColourEffectSessionState());
         fx.StartTorizoBellyGlow(request.Glow, request.Torizo, equippedItems: 0);

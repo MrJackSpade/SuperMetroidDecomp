@@ -7,11 +7,9 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The enemies' colour effect glows and flashes over the species that show them (#1512).</summary>
-/// <param name="bombTorizo">The Bomb and Golden Torizo, whose bellies glow.</param>
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
-/// <param name="slots">The room's enemy places, whose destroyable shutters show the escape's shutter flash.</param>
+/// <param name="slots">The room's enemy places: the Torizo whose belly glows, and the destroyable shutters that show the escape's shutter flash.</param>
 internal sealed class EnemyColourEffectShows(
-    TorizoBehavior bombTorizo,
     TourianEntranceStatueBehavior statue,
     EnemySlotTable slots) : IEnemyColourEffectShows
 {
@@ -26,7 +24,7 @@ internal sealed class EnemyColourEffectShows(
         switch (colours)
         {
             case ColourEffectColours.TorizoBelly:
-                bombTorizo.ShowBellyGlow(frame);
+                TorizoBehavior.ShowBellyGlow(slots.Slots, frame);
                 return;
             case ColourEffectColours.RidleyStatue:
             case ColourEffectColours.PhantoonStatue:

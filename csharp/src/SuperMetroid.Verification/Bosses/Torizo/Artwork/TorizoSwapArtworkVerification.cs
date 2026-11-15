@@ -139,7 +139,7 @@ internal static class TorizoSwapArtworkVerification
     /// <summary>Shows artwork look <paramref name="look"/> through the production cue of <paramref name="torizo"/>, whose programs make it.</summary>
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, EncounterArtwork torizo, TorizoArtworkLook look) =>
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(slot,
-                new TorizoEnemyState(slot, isGolden: torizo == EncounterArtwork.GoldenTorizo),
+                new TorizoEnemyState(isGolden: torizo == EncounterArtwork.GoldenTorizo),
                 new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(look),
                 TorizoAnimations.Start(TorizoAnimation.GoldenTorizoDormant)) is null,

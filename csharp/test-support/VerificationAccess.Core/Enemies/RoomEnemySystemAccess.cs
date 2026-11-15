@@ -342,9 +342,15 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<PlatformEnemyState?> PlatformStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<PlatformsEntity, PlatformEnemyState>())];
 
-        /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
-        internal TorizoEnemyState? BombTorizo =>
-            self.TorizoBehavior.Access.TorizoState is { IsGolden: false } ? self.TorizoBehavior.Access.TorizoState : null;
+        /// <summary>The state the room's Torizo, Bomb or Golden, owns as its entity's species state, or null in a room without one.</summary>
+        internal TorizoEnemyState? Torizo =>
+            self.SlotTable.Slots.Select(slot => slot.SpeciesState<TorizoEnemyState>()).OfType<TorizoEnemyState>().SingleOrDefault();
+
+        /// <summary>The room's Bomb Torizo's state, or null in a room without one.</summary>
+        internal TorizoEnemyState? BombTorizo => self.Torizo is { IsGolden: false } torizo ? torizo : null;
+
+        /// <summary>The room's Golden Torizo's state, or null in a room without one.</summary>
+        internal TorizoEnemyState? GoldenTorizo => self.Torizo is { IsGolden: true } torizo ? torizo : null;
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>

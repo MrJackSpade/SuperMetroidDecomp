@@ -13,7 +13,7 @@ namespace SuperMetroid.TestSupport.MovieReplay.Verification;
 /// mixed exactly as the desktop host presents it, then encoded with ffmpeg into one MP4.
 /// </summary>
 /// <remarks>
-/// Each update yields one 48-kHz stereo frame of 800 samples, so the video runs at exactly
+/// Each update yields one stereo frame at the session's PCM rate (<see cref="AudioSession.SampleRate"/>), so the video runs at exactly
 /// 60 frames per second to stay aligned with the audio. Pixels are upscaled 4x with
 /// nearest-neighbour sampling; the native image is never reduced.
 /// </remarks>
@@ -72,7 +72,7 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
         if (encoder.ExitCode != 0) throw new InvalidOperationException($"ffmpeg video encoding failed with exit code {encoder.ExitCode}.");
         audio.Flush();
         audio.Close();
-        RunFfmpeg($"-y -hide_banner -loglevel error -i \"{videoPath}\" -f s16le -ar 48000 -ac 2 -i \"{audioPath}\" " +
+        RunFfmpeg($"-y -hide_banner -loglevel error -i \"{videoPath}\" -f s16le -ar {AudioSession.SampleRate} -ac 2 -i \"{audioPath}\" " +
             $"-map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k -movflags +faststart \"{outputPath}\"");
         File.Delete(videoPath);
         File.Delete(audioPath);

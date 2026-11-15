@@ -440,10 +440,10 @@ internal sealed class FrontendSession
             // Preserve the appearance track sequence, but switch to the room's data set first
             // just as ordinary room loading does; a set's own songs belong to that data set.
             audio.QueueRoomMusicData(loadedState.Music.DataSet);
-            audio.ScheduleMusic(MusicRequest.SelectTrack(MusicTrack.SamusFanfare), MusicQueueDelay.AtLeastShortest(14));
+            audio.ScheduleMusic(MusicRequest.SelectTrack(MusicTrack.SamusFanfare), SavedGameAppearanceMusicDefinitions.FanfareDelay);
             audio.ScheduleMusic(
                 loadedState.Music.Track.Request,
-                MusicQueueDelay.AtLeastShortest(360 + 5));
+                SavedGameAppearanceMusicDefinitions.RoomTrackDelay);
             LastAudioRoomState = loadedState;
             return false;
         }

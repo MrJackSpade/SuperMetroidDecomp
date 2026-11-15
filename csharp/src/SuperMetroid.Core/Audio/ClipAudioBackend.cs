@@ -10,12 +10,11 @@ namespace SuperMetroid.Core.Audio;
 /// restart. A stop silences the music.</item>
 /// <item>Each library accepts a sound by its clip's policy (priority, low-health mode, exempt sounds); the sound holds
 /// the library until its logical end.</item>
-/// <item>A clip-set switch stops the song and interrupts each sound still holding its library until the sound's next
-/// note, from which it continues in the new set's clips.</item>
+/// <item>A clip-set switch stops the song; the sounds play on, each the same in every clip set (#2057).</item>
 /// <item>A cut clip fades out over <see cref="ReleaseFrames"/> frames.</item>
 /// </list>
-/// Clips mix at their own rate (<see cref="SoundClockTiming.SamplesPerUpdate"/> frames per update) and are resampled
-/// to the host's 48 kHz. Audio output is presentation: nothing here reaches a gameplay update.
+/// Clips mix at their own rate (<see cref="AudioSession.SampleRate"/>), whose frames are the sound clock's samples, and the
+/// host resamples the mix to its device. Audio output is presentation: nothing here reaches a gameplay update.
 /// </summary>
 public sealed class ClipAudioBackend
 {
@@ -23,7 +22,7 @@ public sealed class ClipAudioBackend
     internal const int ReleaseFrames = 256;
 
     /// <summary>Clip frames in one update.</summary>
-    private const int FramesPerUpdate = SoundClockTiming.SamplesPerUpdate;
+    private const int FramesPerUpdate = AudioSession.StereoFramesPerVideoFrame;
 
     /// <summary>Clip frames one sound clock step period accounts for.</summary>
     private const int FramesPerStep = SoundClockTiming.SamplesPerStep;
@@ -48,12 +47,12 @@ public sealed class ClipAudioBackend
     /// <summary>The playback state this backend advances.</summary>
     public ClipPlaybackState State { get; }
 
-    /// <summary>Applies one update's events in order and writes its interleaved 48-kHz stereo PCM.</summary>
+    /// <summary>Applies one update's events in order and writes its interleaved stereo PCM at the clips' rate.</summary>
     /// <exception cref="InvalidDataException">
     /// An event is malformed or out of order, a song is requested with no clip set loaded, or a
     /// requested sound has no clip in the clip set.
     /// </exception>
-    public void Render(in AudioFrameEvents frame, Span<short> stereo48k)
+    public void Render(in AudioFrameEvents frame, Span<short> stereo)
     {
         IReadOnlyList<AudioEvent> events = Ensure.NotNull(frame.Events);
         long frameStart = State.Sample;
@@ -94,28 +93,14 @@ public sealed class ClipAudioBackend
         }
         Mix(frameStart, cursor, FramesPerUpdate);
         State.RenderedTo(frameStart + FramesPerUpdate);
-        PcmFrameResampler.ResampleStereoLinear(mix, stereo48k[..AudioSession.PcmSamplesPerFrame]);
+        mix.CopyTo(stereo[..AudioSession.PcmSamplesPerFrame]);
     }
 
-    /// <summary>A clip-set switch stops the song, drops the waiting song change and interrupts each sound still holding its library until its next note in the new set.</summary>
+    /// <summary>A clip-set switch stops the song and drops the waiting song change; the sounds play on.</summary>
     private void SwitchClipSet(MusicDataSet? clipSet, long now)
     {
         ReleaseMusic(now);
         State.SwitchClipSet(clipSet);
-        foreach (ClipLibraryState library in State.Libraries.Values)
-        {
-            if (library.Sound is not SoundEffectClipEntry sound)
-                continue;
-            ReleaseSound(library, now);
-            if (!library.Active)
-            {
-                library.Clear();
-                continue;
-            }
-            SoundEffectClipEntry continued = catalog.GetSoundEffect(State.ClipSet, sound.Sound);
-            long position = now - library.Start;
-            library.Continue(continued, [.. continued.Layers.Select(layer => NextNote(layer, position))]);
-        }
     }
 
     /// <summary>Plays one clock step: sounds past their logical end release their library at a request check, then the beat advances and, when it completes, the waiting song change takes effect.</summary>
@@ -166,13 +151,12 @@ public sealed class ClipAudioBackend
     private void StartSoundEffect(SoundEffectId soundEffect, long now)
     {
         ClipLibraryState library = State.Libraries[soundEffect.Library];
-        SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect);
-        if (library.Rejects(policy))
+        SoundEffectClipEntry sound = catalog.GetSoundEffect(soundEffect);
+        if (library.Rejects(sound.Policy))
             return;
 
-        SoundEffectClipEntry sound = catalog.GetSoundEffect(State.ClipSet, soundEffect);
         ReleaseSound(library, now);
-        library.Play(sound, now, policy);
+        library.Play(sound, now, sound.Policy);
     }
 
     /// <summary>Fades the playing song out.</summary>
@@ -190,7 +174,7 @@ public sealed class ClipAudioBackend
         for (int layer = 0; layer < sound.Layers.Count; layer++)
         {
             SoundEffectClipLayer clip = sound.Layers[layer];
-            if (now - library.Start >= library.InterruptedUntil[layer] && Position(clip.Clip.Frames, clip.LoopStart, now - library.Start) is not null)
+            if (Position(clip.Clip.Frames, clip.LoopStart, now - library.Start) is not null)
                 State.Releasing.Add(new ReleasingClip(clip.Clip, clip.LoopStart, library.Start, ReleaseFrames));
         }
     }
@@ -210,11 +194,8 @@ public sealed class ClipAudioBackend
                 if (library.Sound is not SoundEffectClipEntry sound)
                     continue;
                 long position = now - library.Start;
-                for (int layer = 0; layer < sound.Layers.Count; layer++)
-                {
-                    if (position >= library.InterruptedUntil[layer])
-                        Add(sound.Layers[layer].Clip, sound.Layers[layer].LoopStart, position, 1, 1, ref left, ref right);
-                }
+                foreach (SoundEffectClipLayer layer in sound.Layers)
+                    Add(layer.Clip, layer.LoopStart, position, 1, 1, ref left, ref right);
             }
             for (int release = State.Releasing.Count - 1; release >= 0; release--)
             {
@@ -250,28 +231,6 @@ public sealed class ClipAudioBackend
         if (loopStart is not long loop)
             return null;
         return loop + (position - loop) % (frames - loop);
-    }
-
-    /// <summary>The unwrapped position of a layer's first note start at or after <paramref name="position"/>; never for a layer with none ahead.</summary>
-    internal static long NextNote(SoundEffectClipLayer layer, long position)
-    {
-        long frames = layer.Clip.Frames;
-        if (Position(frames, layer.LoopStart, position) is not long frame)
-            return long.MaxValue;
-        foreach (long noteStart in layer.NoteStarts)
-        {
-            if (noteStart >= frame)
-                return position + (noteStart - frame);
-        }
-        if (layer.LoopStart is long loopStart)
-        {
-            foreach (long noteStart in layer.NoteStarts)
-            {
-                if (noteStart >= loopStart)
-                    return position + (frames - frame) + (noteStart - loopStart);
-            }
-        }
-        return long.MaxValue;
     }
 
     /// <summary>How long the beat lasts at a clock step now: the playing song's beat length before this step, or the held one.</summary>

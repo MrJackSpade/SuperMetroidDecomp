@@ -11,13 +11,18 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class PaletteFxNativeListAddresses
 {
     /// <summary>
-    /// The native entry of the animation of <paramref name="effect"/> that starts at its frame <paramref name="firstStep"/>
-    /// (a heat shimmer suit's pulse; zero for every other effect): the entry of its set-up list, or of the list its first
-    /// step starts where it has none.
+    /// The native entry of <paramref name="effect"/>'s animation: the entry of its set-up list, or of the list its first
+    /// step starts where it has none. Samus's heat shimmer shows no steps of its own (#2054): its object starts at the
+    /// Power Suit's pulse's list, and its start then chooses the suit's.
     /// </summary>
-    internal static ushort Entry(ColourEffectId effect, int firstStep = 0) =>
-        Entries.Where(entry => entry.Effect == effect && entry.FirstStep == firstStep)
+    internal static ushort Entry(ColourEffectId effect)
+    {
+        ColourEffectId listed = effect == ColourEffectId.SamusInHeat
+            ? ColourEffectAnimations.HeatPulses[ColourEffectHeatSuit.Power]
+            : effect;
+        return Entries.Where(entry => entry.Effect == listed && entry.FirstStep == 0)
             .OrderByDescending(entry => entry.SetsUp).First().Entry;
+    }
 
     /// <summary>Each native list's entry point, once for each animation that plays it, in address order.</summary>
     internal static readonly PaletteFxNativeListAddressesEntry[] Entries =
@@ -85,12 +90,12 @@ internal static class PaletteFxNativeListAddresses
         new PaletteFxNativeListAddressesEntry(ColourEffectId.BombTorizoBelly, 0, 0xe2f1),
         new PaletteFxNativeListAddressesEntry(ColourEffectId.GoldenTorizoBelly, 0, 0xe331, SetsUp: true),
         new PaletteFxNativeListAddressesEntry(ColourEffectId.GoldenTorizoBelly, 0, 0xe339),
-        new PaletteFxNativeListAddressesEntry(ColourEffectId.SamusInHeat, 0, 0xe45e, SetsUp: true),
-        new PaletteFxNativeListAddressesEntry(ColourEffectId.SamusInHeat, 0, 0xe466),
-        new PaletteFxNativeListAddressesEntry(ColourEffectId.SamusInHeat, 16, 0xe68a, SetsUp: true),
-        new PaletteFxNativeListAddressesEntry(ColourEffectId.SamusInHeat, 16, 0xe692),
-        new PaletteFxNativeListAddressesEntry(ColourEffectId.SamusInHeat, 32, 0xe8b6, SetsUp: true),
-        new PaletteFxNativeListAddressesEntry(ColourEffectId.SamusInHeat, 32, 0xe8be),
+        new PaletteFxNativeListAddressesEntry(ColourEffectId.PowerSuitHeatPulse, 0, 0xe45e, SetsUp: true),
+        new PaletteFxNativeListAddressesEntry(ColourEffectId.PowerSuitHeatPulse, 0, 0xe466),
+        new PaletteFxNativeListAddressesEntry(ColourEffectId.VariaSuitHeatPulse, 0, 0xe68a, SetsUp: true),
+        new PaletteFxNativeListAddressesEntry(ColourEffectId.VariaSuitHeatPulse, 0, 0xe692),
+        new PaletteFxNativeListAddressesEntry(ColourEffectId.GravitySuitHeatPulse, 0, 0xe8b6, SetsUp: true),
+        new PaletteFxNativeListAddressesEntry(ColourEffectId.GravitySuitHeatPulse, 0, 0xe8be),
         new PaletteFxNativeListAddressesEntry(ColourEffectId.WreckedShipGreenLights, 0, 0xeae2, SetsUp: true),
         new PaletteFxNativeListAddressesEntry(ColourEffectId.WreckedShipGreenLights, 0, 0xeae6),
         new PaletteFxNativeListAddressesEntry(ColourEffectId.CrateriaLightning, 0, 0xeb3b, SetsUp: true),

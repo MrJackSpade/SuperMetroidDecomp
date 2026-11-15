@@ -10,11 +10,9 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Renders the audio's import data, the extracted catalog, into installed clips (#1305, #1693): every music track in every
-/// bank, and every sound effect the game requests in every bank context, written as content-addressed 16-bit stereo
-/// WAV files at the native S-DSP rate with an <see cref="AudioClipManifest"/>. Tracks and effects
-/// render in parallel; an effect renders once per distinct start, and a bank context whose start
-/// agrees on every input an earlier context's render read takes that render (#1503). Identical
-/// PCM is written once.
+/// bank, and every sound effect the game requests once, from the shared sounds' samples alone (#2057), written as
+/// content-addressed 16-bit stereo WAV files at the native S-DSP rate with an <see cref="AudioClipManifest"/>. Tracks and
+/// effects render in parallel. Identical PCM is written once.
 /// </summary>
 internal static class AudioClipExporter
 {
@@ -32,19 +30,18 @@ internal static class AudioClipExporter
     /// <param name="Track">The track number.</param>
     internal sealed record MusicKey(AudioBank Bank, int Track);
 
-    /// <summary>One sound effect to export in one bank context.</summary>
-    /// <param name="Context">The music bank uploaded after the common upload, or null for the common upload alone.</param>
+    /// <summary>One sound effect to export, rendered from the common upload alone.</summary>
     /// <param name="Library">The effect's library.</param>
     /// <param name="Command">The effect's request byte.</param>
-    internal sealed record SoundEffectKey(AudioBank? Context, SoundEffectLibrary Library, int Command)
+    internal sealed record SoundEffectKey(SoundEffectLibrary Library, int Command)
     {
         /// <summary>The effect's request byte, 0 through 255.</summary>
         public int Command { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Command);
     }
 
     /// <summary>
-    /// Renders every track and every effect in every bank context of the catalog in <paramref name="importDataDirectory"/>
-    /// into <paramref name="audioDirectory"/>.
+    /// Renders every track and every effect of the catalog in <paramref name="importDataDirectory"/> into
+    /// <paramref name="audioDirectory"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">A track has no period, or an effect does not render as its program structure requires.</exception>
     internal static void Export(string importDataDirectory, string audioDirectory)
@@ -70,20 +67,15 @@ internal static class AudioClipExporter
     }
 
     /// <summary>
-    /// Every effect a sound of the game requests, of every library, in the common context and after each music bank's
-    /// upload. A library's other effects, which no sound of the game requests (#1686), stay in the catalog and get no clip.
+    /// Every effect a sound of the game requests, of every library, once. A library's other effects, which no sound of the
+    /// game requests (#1686), stay in the catalog and get no clip.
     /// </summary>
-    internal static IReadOnlyList<SoundEffectKey> AllSoundEffects(ExtractedAudioAssetCatalog catalog)
-    {
-        var contexts = new List<AudioBank?> { null };
-        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.AudioSet));
-        return [.. from library in catalog.SoundLibraries
-                   let sounds = SoundLibraryNumbers.Decode(library.Library)
-                   from effect in library.Effects
-                   where SoundEffectCommands.Names(sounds, effect.Command)
-                   from context in contexts
-                   select new SoundEffectKey(context, sounds, effect.Command)];
-    }
+    internal static IReadOnlyList<SoundEffectKey> AllSoundEffects(ExtractedAudioAssetCatalog catalog) =>
+        [.. from library in catalog.SoundLibraries
+            let sounds = SoundLibraryNumbers.Decode(library.Library)
+            from effect in library.Effects
+            where SoundEffectCommands.Names(sounds, effect.Command)
+            select new SoundEffectKey(sounds, effect.Command)];
 
     /// <summary>Renders the given tracks and effects into <paramref name="audioDirectory"/> and writes the manifest.</summary>
     internal static AudioClipManifest Export(
@@ -100,18 +92,8 @@ internal static class AudioClipExporter
         var music = new MusicClipEntry[tracks.Count];
         Parallel.For(0, tracks.Count, index => music[index] = ExportTrack(catalog, root, files, tracks[index]));
 
-        // Every effect's first context renders first, then all its other contexts at once, each taking a render it
-        // reproduces exactly (#1503); no effect waits on more than two renders in turn.
-        var outcomes = new object[effects.Count];
-        IGrouping<SoundEffectId, int>[] effectContexts =
-            [.. Enumerable.Range(0, effects.Count).GroupBy(index => SoundEffectCommands.Decode(effects[index].Library, effects[index].Command))];
-        Dictionary<SoundEffectId, List<SoundEffectRenderShare>> shares =
-            effectContexts.ToDictionary(contexts => contexts.Key, _ => new List<SoundEffectRenderShare>());
-        Parallel.ForEach(effectContexts, contexts =>
-            outcomes[contexts.First()] = ExportSoundEffect(catalog, root, files, scans, effects[contexts.First()], shares[contexts.Key]));
-        int[] others = [.. effectContexts.SelectMany(contexts => contexts.Skip(1))];
-        Parallel.ForEach(others, index => outcomes[index] = ExportSoundEffect(catalog, root, files, scans, effects[index],
-            shares[SoundEffectCommands.Decode(effects[index].Library, effects[index].Command)]));
+        var soundEffects = new InstalledSoundEffectClip[effects.Count];
+        Parallel.For(0, effects.Count, index => soundEffects[index] = ExportSoundEffect(catalog, root, files, scans, effects[index]));
 
         var manifest = new AudioClipManifest(
             AudioClipManifest.CurrentFormatVersion,
@@ -119,8 +101,7 @@ internal static class AudioClipExporter
             // Every song was rendered from a driver started at its initial tempo, as the game starts the music.
             DriverTempoBeats.LengthAt(SpcDriverDefinitions.Music.InitialTempo),
             music,
-            [.. outcomes.OfType<InstalledSoundEffectClip>()],
-            [.. outcomes.OfType<UnrenderableSoundEffect>()]);
+            soundEffects);
         File.WriteAllText(
             Path.Combine(root, InstalledAudioClips.ManifestFileName),
             JsonSerializer.Serialize(manifest, InstalledAudioClips.ManifestOptions));
@@ -156,58 +137,43 @@ internal static class AudioClipExporter
     }
 
     /// <summary>
-    /// Renders one effect in one context, or records why it has no clip there. A render in <paramref name="shares"/>, from
-    /// another context of the same effect, that this context's start reproduces exactly is taken instead of rendering;
-    /// other contexts of the effect may use <paramref name="shares"/> at the same time.
+    /// Renders one effect from the common upload's samples alone (#2057): a sound effect sounds the same whichever music
+    /// data set is loaded.
     /// </summary>
-    private static object ExportSoundEffect(
+    /// <exception cref="InvalidDataException">The effect plays a sample the common upload does not hold.</exception>
+    private static InstalledSoundEffectClip ExportSoundEffect(
         ExtractedAudioAssetCatalog catalog,
         string root,
         ConcurrentDictionary<string, Lazy<AudioClipFile>> files,
         Dictionary<string, SoundEffectProgramScan> scans,
-        SoundEffectKey key,
-        List<SoundEffectRenderShare> shares)
+        SoundEffectKey key)
     {
         int libraryIndex = SoundLibraryNumbers.DriverIndex(key.Library);
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
             .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);
-        AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
-        MusicDataSet? context = key.Context is AudioBank loaded ? AudioAssetCatalogDefinitions.Get(loaded).DataSet : null;
-        // The index records only that the clip set lacks a sample the effect plays: which instrument and sample number
-        // the driver would have looked up is the catalog's numbering, which the installed clips do not carry (#1693).
+        AudioBank bank = AudioAssetCatalogDefinitions.Common.AudioSet;
+        SoundEffectId sound = SoundEffectCommands.Decode(key.Library, key.Command);
         if (effect.ChannelPrograms.Any(program =>
                 scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)).Any()))
-            return new UnrenderableSoundEffect(context, SoundEffectCommands.Decode(key.Library, key.Command));
+            throw new InvalidDataException($"{sound} plays a sample the shared sounds do not hold.");
 
         SoundEffectClipPolicy policy = Policy(libraryIndex, key.Command, effect.Configuration);
         bool loops = effect.ChannelPrograms.Any(program => scans[program].RepeatsForever);
-        SoundEffectRenderStarts starts = SoundEffectRendering.Starts(catalog, key.Context, key.Library, key.Command, loops);
-        SoundEffectRenderShare? share;
-        lock (shares)
-            share = shares.Find(candidate => candidate.Reproduces(starts));
-        if (share is null)
+        if (loops)
         {
-            var reads = new SoundEffectRenderReads();
-            object rendering = loops
-                ? SoundEffectRendering.RenderLoopingLayers(catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count, reads)
-                : SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command, reads);
-            share = new SoundEffectRenderShare(starts, reads, rendering);
-            lock (shares)
-                shares.Add(share);
-        }
-        if (share.Rendering is IReadOnlyList<SoundEffectRendering.LoopingLayer> layers)
-        {
-            return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, null,
+            IReadOnlyList<SoundEffectRendering.LoopingLayer> layers =
+                SoundEffectRendering.RenderLoopingLayers(catalog, null, key.Library, key.Command, effect.ChannelPrograms.Count);
+            return new InstalledSoundEffectClip(sound, policy, null,
                 [.. layers.Select(layer => new InstalledSoundEffectLayer(
-                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart, layer.NoteStarts))]);
+                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart))]);
         }
-        var shot = (SoundEffectRendering.OneShot)share.Rendering;
+        SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, null, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
-        return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, shot.ActiveFrames,
+        return new InstalledSoundEffectClip(sound, policy, shot.ActiveFrames,
             shot.Clip.Length == 0
                 ? []
-                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null, shot.NoteStarts)]);
+                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null)]);
     }
 
     /// <summary>

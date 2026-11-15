@@ -69,9 +69,9 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");
         AssertEqual(0x40, WaterWaveDefinitions.SurfaceDriftSpeed.InTwoHundredFiftySixthsOfPixel, "water drift");
         AssertEqual(16, WaterWaveDefinitions.WaveDisplacementCount, "water wave steps");
-        AssertEqual(-1, LiquidEffects.WaterWaveDisplacement(5), "water wave sample 5");
-        AssertEqual(1, LiquidEffects.HeatHorizontalWaveDisplacement(2), "horizontal heat-haze sample 2");
-        AssertEqual(-1, LiquidEffects.HeatHorizontalWaveDisplacement(8), "horizontal heat-haze sample 8");
+        AssertEqual(-1, WaterWaveDefinitions.Waveform[5], "water wave sample 5");
+        AssertEqual(1, LavaAcidWaveDefinitions.HorizontalHazeWaveform[2], "horizontal heat-haze sample 2");
+        AssertEqual(-1, LavaAcidWaveDefinitions.HorizontalHazeWaveform[8], "horizontal heat-haze sample 8");
         AssertEqual(4, LavaAcidWaveDefinitions.VerticalWavePhaseDuration, "vertical heat-haze step");
         AssertEqual(0x70, LavaAcidWaveDefinitions.AmbientSoundPeriod, "lava sound period");
         AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta.RawValue, "small tide rising phase step");

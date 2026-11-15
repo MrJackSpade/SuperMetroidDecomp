@@ -31,17 +31,20 @@ internal static class LookupQuakeSoundSuppressionVerification
 
         var stateSession = new RoomFxSession();
         var state = new RoomFxOverlayState(stateSession);
+        state.BindAudioRequests(new GameplayAudioRequests());
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         foreach (RoomDefinition? room in nativeRooms.Select(pointer => RoomDefinitions.Get(pointer)).Append(null))
         {
             state = RoomFxOverlayState.ForRoom(stateSession, fx: null, door: null, randomNumber: 0,
                 room: room);
+            state.BindAudioRequests(new GameplayAudioRequests());
             state.PublishStatueEarthquakeSound(0, SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame);
             AssertEqual(room is not null ? 0 : 1, state.SoundRequests.Count,
                 "Actual room initialization and quake emission honor native suppression");
             state = RoomFxOverlayState.ForRoom(stateSession, fx: null, door: null, randomNumber: 0,
                 room: null);
+            state.BindAudioRequests(new GameplayAudioRequests());
             state.PublishStatueEarthquakeSound(0, SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame);
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");
         }

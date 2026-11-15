@@ -53,7 +53,7 @@ internal sealed class EndingEscapeScenes
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
         audio.ScheduleMusic(
             MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.EscapeSong),
-            MusicQueueDelay.AtLeastShortest(EndingSequenceDefinitions.Music.DelayArgument));
+            EndingSequenceDefinitions.Music.CreditsSongDelay);
         _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 

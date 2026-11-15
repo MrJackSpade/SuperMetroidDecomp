@@ -13,7 +13,7 @@ namespace SuperMetroid.DebugRunner.Tools;
 /// <summary>
 /// The #1305 audio clip inventory: every music track's loop structure, shipped-loop seam and
 /// tempo-phase period, the static sound-program scan for inherited state, and every sound effect's
-/// clips in every bank context, measured over the audio's import data, the extracted catalog (as
+/// clips from the common upload (#2057), measured over the audio's import data, the extracted catalog (as
 /// <c>assets audio-rom</c> writes it beside the clips, #1693), with the same analysis and renderers the
 /// installer's clip export uses. It writes <c>audio-clip-inventory.json</c> and <c>audio-clip-inventory.md</c>.
 /// </summary>
@@ -52,27 +52,27 @@ internal static class AudioClipInventory
         SoundEffectStateScan[] scans = [.. catalog.SoundPrograms.Select(SoundEffectStateScan.Scan)];
         Dictionary<string, SoundEffectProgramScan> exportScans = catalog.SoundPrograms.ToDictionary(program => program.Id, SoundEffectProgramScan.Scan);
         IReadOnlyList<AudioClipExporter.SoundEffectKey> effectKeys = AudioClipExporter.AllSoundEffects(catalog);
-        SoundEffectRow[] effects = Timed(timings, "sound effects (clips in every bank context)", effectKeys.Count, index =>
+        SoundEffectRow[] effects = Timed(timings, "sound effects (clips from the common upload)", effectKeys.Count, index =>
         {
             AudioClipExporter.SoundEffectKey key = effectKeys[index];
             AudioSoundEffectMetadata effect = catalog.SoundLibraries
                 .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
                 .Effects.Single(candidate => candidate.Command == key.Command);
-            AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
+            AudioBank bank = AudioAssetCatalogDefinitions.Common.AudioSet;
             string[] missing = [.. effect.ChannelPrograms
                 .SelectMany(program => exportScans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
                 .Distinct()];
             if (missing.Length != 0)
-                return new SoundEffectRow(key.Context, key.Library, key.Command, null, [], [], missing);
+                return new SoundEffectRow(null, key.Library, key.Command, null, [], [], missing);
             if (effect.ChannelPrograms.Any(program => exportScans[program].RepeatsForever))
             {
                 IReadOnlyList<SoundEffectRendering.LoopingLayer> layers = SoundEffectRendering.RenderLoopingLayers(
-                    catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count, reads: null);
-                return new SoundEffectRow(key.Context, key.Library, key.Command, null,
+                    catalog, null, key.Library, key.Command, effect.ChannelPrograms.Count);
+                return new SoundEffectRow(null, key.Library, key.Command, null,
                     [.. layers.Select(layer => layer.Clip.Length / 2L)], [.. layers.Select(layer => Hash(layer.Clip))], []);
             }
-            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command, reads: null);
-            return new SoundEffectRow(key.Context, key.Library, key.Command, shot.ActiveFrames,
+            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, null, key.Library, key.Command);
+            return new SoundEffectRow(null, key.Library, key.Command, shot.ActiveFrames,
                 shot.Clip.Length == 0 ? [] : [shot.Clip.Length / 2L], shot.Clip.Length == 0 ? [] : [Hash(shot.Clip)], []);
         });
 

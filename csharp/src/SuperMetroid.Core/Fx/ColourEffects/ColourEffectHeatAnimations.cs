@@ -4,9 +4,9 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// Samus's heat shimmer's animations (#1298, #1598, #1739, #1982): one per suit, which loops the suit's heat pulse, one
-/// frame per heat phase, and the place in that pulse the shimmer restarts at when the heated room's glow publishes a new
-/// heat phase. The shimmer's frames hold each suit's pulse in turn (<see cref="ColourEffectAnimations.HeatPulseFirstFrames"/>).
+/// Samus's heat shimmer's animations (#1298, #1598, #1739, #1982, #2054): one per suit, which loops the suit's own heat
+/// pulse (<see cref="ColourEffectAnimations.HeatPulses"/>), one frame per heat phase, and the place in that pulse the
+/// shimmer restarts at when the heated room's glow publishes a new heat phase.
 /// </summary>
 public static class ColourEffectHeatAnimations
 {
@@ -20,8 +20,7 @@ public static class ColourEffectHeatAnimations
     /// that phase, which the shimmer plays on from.
     /// </summary>
     internal static AnimationPlace Phase(ColourEffectHeatSuit suit, HeatPhase phase) =>
-        ColourEffectAnimations.Steps.PlaceOfFrame(Shimmer(suit), ColourEffectId.SamusInHeat,
-            ColourEffectAnimations.HeatPulseFirstFrames[suit] + phase.Index);
+        ColourEffectAnimations.Steps.PlaceOfFrame(Shimmer(suit), ColourEffectAnimations.HeatPulses[suit], phase.Index);
 
     /// <summary>The suit whose heat shimmer <paramref name="equippedItems"/> selects: Gravity before Varia.</summary>
     public static ColourEffectHeatSuit SuitFor(SamusEquipmentFlags equippedItems) =>

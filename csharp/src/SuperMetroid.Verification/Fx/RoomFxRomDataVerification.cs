@@ -172,6 +172,7 @@ internal static class RoomFxRomDataVerification
         var bus = new TestAddressSpace();
         var stateSession = new RoomFxSession();
         var state = new RoomFxOverlayState(stateSession);
+        state.BindAudioRequests(new GameplayAudioRequests());
         const ushort record = 0x9400;
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,

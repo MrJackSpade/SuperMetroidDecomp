@@ -22,19 +22,19 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
     private static readonly PaletteFxHeatProgramDefinition Power = new()
     {
         Suit = ColourEffectHeatSuit.Power,
-        ColorFrames = PaletteFxColorFrames.Run(ColourEffectId.SamusInHeat, ColourEffectAnimations.HeatPulseFirstFrames[ColourEffectHeatSuit.Power], HeatPhase.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        ColorFrames = PaletteFxColorFrames.Run(ColourEffectAnimations.HeatPulses[ColourEffectHeatSuit.Power], 0, HeatPhase.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
     /// <summary>Compiled heat palette control for the Varia Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Varia = new()
     {
         Suit = ColourEffectHeatSuit.Varia,
-        ColorFrames = PaletteFxColorFrames.Run(ColourEffectId.SamusInHeat, ColourEffectAnimations.HeatPulseFirstFrames[ColourEffectHeatSuit.Varia], HeatPhase.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        ColorFrames = PaletteFxColorFrames.Run(ColourEffectAnimations.HeatPulses[ColourEffectHeatSuit.Varia], 0, HeatPhase.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
     /// <summary>Compiled heat palette control for the Gravity Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Gravity = new()
     {
         Suit = ColourEffectHeatSuit.Gravity,
-        ColorFrames = PaletteFxColorFrames.Run(ColourEffectId.SamusInHeat, ColourEffectAnimations.HeatPulseFirstFrames[ColourEffectHeatSuit.Gravity], HeatPhase.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        ColorFrames = PaletteFxColorFrames.Run(ColourEffectAnimations.HeatPulses[ColourEffectHeatSuit.Gravity], 0, HeatPhase.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
 
     /// <summary>The Power, Varia, and Gravity programs in selection order.</summary>

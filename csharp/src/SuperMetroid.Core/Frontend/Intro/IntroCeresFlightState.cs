@@ -128,7 +128,7 @@ internal sealed class IntroCeresFlightState
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
                 audio.ScheduleMusic(
                     MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
-                    MusicQueueDelay.AtLeastShortest(CeresFlightSceneDefinitions.MusicDelay));
+                    CeresFlightSceneDefinitions.MusicDelay);
                 Phase = IntroCeresFlightPhase.WaitForMusicQueue;
                 break;
 

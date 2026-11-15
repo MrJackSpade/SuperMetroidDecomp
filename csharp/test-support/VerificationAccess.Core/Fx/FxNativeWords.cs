@@ -30,13 +30,23 @@ internal static class FxNativeWords
             ? blend : UndefinedPaletteBlend;
 
     /// <summary>
-    /// The bank-$87 object header an area's animated-tile bit names when it selects no object of the game (#1686): the
-    /// unused Crateria lava for Crateria's fourth bit, which no record sets, and the empty object for every other bit no
-    /// area uses.
+    /// The bank-$87 object header an area's animated-tile bit names when it starts no animation: a still object with no
+    /// loop, whose blocks keep their own pictures (#2054) — the vertical spikes in every area, Crateria's lake, Brinstar's
+    /// plant and the Wrecked Ship's screen — or, selecting no object of the game (#1686), the unused Crateria lava for
+    /// Crateria's fourth bit, which no record sets, and the empty object for every other bit no area uses.
     /// </summary>
     internal static ushort UnselectedAnimatedTileObject(int nativeAreaIndex, int bit) =>
-        nativeAreaIndex == SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SuperMetroid.Core.Progression.AreaId.Crateria) && bit == 3
-            ? (ushort)0x8263 : (ushort)0x824b;
+        (bit, nativeAreaIndex < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count
+            ? SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(nativeAreaIndex, "Block-animation area")
+            : (SuperMetroid.Core.Progression.AreaId?)null) switch
+        {
+            (1, _) => 0x8251,
+            (2, SuperMetroid.Core.Progression.AreaId.Crateria) => 0x825d,
+            (3, SuperMetroid.Core.Progression.AreaId.Crateria) => 0x8263,
+            (2, SuperMetroid.Core.Progression.AreaId.Brinstar) => 0x8281,
+            (4, SuperMetroid.Core.Progression.AreaId.WreckedShip) => 0x826f,
+            _ => 0x824b,
+        };
 
     /// <summary>The bank-$87 object header naming each <see cref="BlockAnimation"/>; zero names no object.</summary>
     internal static readonly NativeWordIdentities<BlockAnimation> AnimatedTileObjects = new(new Dictionary<BlockAnimation, ushort>
@@ -47,10 +57,6 @@ internal static class FxNativeWords
         [BlockAnimation.TourianStatueKraid] = 0x8558,
         [BlockAnimation.TourianStatueDraygon] = 0x855e,
         [BlockAnimation.HorizontalSpikes] = 0x8257,
-        [BlockAnimation.VerticalSpikes] = 0x8251,
-        [BlockAnimation.CrateriaLake] = 0x825d,
-        [BlockAnimation.BrinstarPlant] = 0x8281,
-        [BlockAnimation.WreckedShipScreen] = 0x826f,
         [BlockAnimation.MaridiaSandCeiling] = 0x8287,
         [BlockAnimation.MaridiaSandFalling] = 0x828d,
         [BlockAnimation.WreckedShipTreadmillRightwards] = 0x8275,

@@ -373,7 +373,7 @@ implements pitch, pan/volume, ADSR and gain envelopes, Gaussian interpolation, n
 modulation, voice borrowing, and the shared FIR echo buffer. C# also owns the retail bank-$80
 music ring, three bank-$82 SFX handshakes, and acknowledgement timing. The game session advances
 the SPC port model every update whether or not audio is enabled or a device exists; Windows
-`waveOut` owns only buffered delivery of the resulting 48 kHz stereo PCM.
+`waveOut` owns only buffered delivery of the resulting stereo PCM, which the session publishes at the clips' own 32,040-Hz rate and Windows resamples to the device.
 
 The clip export renders from the extracted catalog, which is the import's data (#1693): the
 installer writes it to the audio's import-data directory and deletes it before publishing, so the

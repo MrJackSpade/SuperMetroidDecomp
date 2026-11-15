@@ -20,11 +20,11 @@ internal static class SoundAcceptanceClockVerification
     private const string EmulatedAcknowledgementsSha256 =
         "069F5A367FA36A896F9CEC9A45949DE1C517DA16DEC7B3195083898FFECBFF59";
     /// <summary>
-    /// SHA-256 of the same scenario's 48-kHz PCM from the emulated driver, re-recorded when key-on
+    /// SHA-256 of the same scenario's PCM at the session's rate from the emulated driver (#2057), first recorded when key-on
     /// began restarting the S-DSP interpolation position and envelope counter (#1305).
     /// </summary>
     private const string EmulatedPcmSha256 =
-        "1EDAB958070306151583376ED9EE5E30BF1043ADE91AA6FD4011000FB2BD8CFF";
+        "C7FA446859207A6F1016C87D57974965594B7056B6C396C67BBB3BD4A63287E9";
 
     /// <summary>
     /// Confirms the session's port model and its semantic events reproduce the emulated driver

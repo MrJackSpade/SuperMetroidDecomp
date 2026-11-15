@@ -15,11 +15,14 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class AudioSession
 {
-    /// <summary>Host PCM output rate of 48,000 stereo frames per second, after resampling the clips' 32,040-Hz mix.</summary>
-    public const int SampleRate = 48_000;
+    /// <summary>
+    /// The PCM output rate, in stereo frames per second: the installed clips' own rate, 32,040, at which the session mixes
+    /// them (#2057). The host resamples the PCM to its device's rate.
+    /// </summary>
+    public const int SampleRate = 32_040;
     /// <summary>Two interleaved PCM channels per stereo frame: left followed by right.</summary>
     public const int ChannelCount = 2;
-    /// <summary>Eight hundred stereo frames generated for each 60-Hz update, yielding 1,600 signed channel samples from -32768 through 32767.</summary>
+    /// <summary>534 stereo frames generated for each 60-Hz update, yielding 1,068 signed channel samples from -32768 through 32767.</summary>
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
     /// <summary>Interleaved left/right samples in one update's PCM frame.</summary>
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;
@@ -44,7 +47,7 @@ public sealed class AudioSession
     /// </summary>
     [NonSerialized]
     private ClipAudioBackend? backend;
-    /// <summary>The most recent update's interleaved 48-kHz PCM, copied out by hosts.</summary>
+    /// <summary>The most recent update's interleaved PCM, copied out by hosts.</summary>
     private short[]? lastPcm;
 
     /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
@@ -90,7 +93,7 @@ public sealed class AudioSession
     }
 
     /// <summary>
-    /// Copies the most recent update's 1,600 interleaved 48-kHz stereo samples; silence before
+    /// Copies the most recent update's interleaved stereo samples (<see cref="PcmSamplesPerFrame"/>); silence before
     /// the first synthesized update.
     /// </summary>
     /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>

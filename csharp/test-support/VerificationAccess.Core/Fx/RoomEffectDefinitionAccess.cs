@@ -18,12 +18,13 @@ internal static class RoomEffectDefinitionAccess
         internal ushort DoorPointer => RoomFxDefinitionsAccess.DoorPointerOf(self);
 
         /// <summary>
-        /// Exposes one native byte for consumers that use offset-based FX fields. The two blend bytes and the liquid options
-        /// byte are not exposed: the record holds the visor animation and the effect blend the import read from the blend
-        /// bytes, which several bytes share (#1545), and the liquid it read from the options byte, which drops the bits its
-        /// liquid does not read (#1695).
+        /// Exposes one native byte for consumers that use offset-based FX fields. The two blend bytes, the liquid options
+        /// byte and the block-animation byte are not exposed: the record holds the visor animation and the effect blend the
+        /// import read from the blend bytes, which several bytes share (#1545), the liquid it read from the options byte,
+        /// which drops the bits its liquid does not read (#1695), and the block animations it read from the block-animation
+        /// byte, which drops the bits of still objects (#2054).
         /// </summary>
-        /// <exception cref="NotSupportedException"><paramref name="offset"/> is a blend byte or the liquid options byte.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="offset"/> is a blend byte, the liquid options byte or the block-animation byte.</exception>
         internal byte ReadByte(int offset) => offset switch
         {
             0 => (byte)self.DoorPointer,
@@ -40,7 +41,7 @@ internal static class RoomEffectDefinitionAccess
                 throw new NotSupportedException($"The record holds the blend the import read from byte {offset}, not the byte."),
             12 => throw new NotSupportedException("The record holds the liquid the import read from byte 12, not the byte."),
             13 => RoomFxRecordEncoding.PaletteEffectsByte(self.ColourEffects, self.HeaderArea),
-            14 => RoomFxRecordEncoding.AnimatedTilesByte(self.BlockAnimations, self.HeaderArea),
+            14 => throw new NotSupportedException("The record holds the block animations the import read from byte 14, not the byte."),
             15 => RoomFxRecordEncoding.PaletteBlendByte(self.Tint),
             _ => throw new ArgumentOutOfRangeException(nameof(offset)),
         };

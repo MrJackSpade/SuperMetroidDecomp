@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Follows one sound-effect request through the driver (#1305): the poll that accepts it, its
-/// library's logical end, its key-ons and each allocated channel's first repeated state.
+/// library's logical end and each allocated channel's first repeated state.
 /// Positions are native stereo frames from the accepting poll.
 /// </summary>
 /// <param name="soundLibrary">The library the sound belongs to.</param>
@@ -22,8 +22,6 @@ internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int c
 
     /// <summary>Reusable snapshot buffer.</summary>
     private readonly List<byte> state = [];
-    /// <summary>Key-ons of the sound's voices.</summary>
-    private readonly List<KeyOnSample> keyOns = [];
     /// <summary>First arrival of each channel's own poll states, by state key.</summary>
     private readonly Dictionary<string, long>[] channelStates = [[], [], [], []];
     /// <summary>Each channel's first repeated state and voice, once found.</summary>
@@ -44,9 +42,6 @@ internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int c
 
     /// <summary>Absolute sample of the tick at which the library's logical end came.</summary>
     internal long? EndSample { get; private set; }
-
-    /// <summary>Key-ons of the sound's voices, relative to the start.</summary>
-    internal IReadOnlyList<KeyOnSample> KeyOns => keyOns;
 
     /// <summary>Each allocated channel's first repeated state (E1, E2) and its voice.</summary>
     internal IReadOnlyList<ChannelLoop> ChannelLoops => [.. FoundChannelLoops()];
@@ -98,9 +93,6 @@ internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int c
             return;
         }
         long relative = tickSample - StartSample.Value;
-        int voices = unchecked((byte)(keyOn & library.EnabledVoices));
-        if (voices != 0)
-            keyOns.Add(new KeyOnSample(relative, voices));
         if (EndSample is null && library.CurrentSound == 0)
             EndSample = tickSample;
         if (!polled || EndSample is not null)

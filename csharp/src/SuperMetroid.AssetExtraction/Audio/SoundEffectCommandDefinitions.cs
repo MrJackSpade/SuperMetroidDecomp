@@ -74,7 +74,6 @@ internal static class SoundEffectCommandDefinitions
         [SamusSound.MapReturn] = 0x3c,
         [SamusSound.DudShot] = 0x3d,
         [SamusSound.SpaceJump] = 0x3e,
-        [SamusSound.ResumedSpaceJump] = 0x3f,
         [SamusSound.MotherBrainRainbowBeam] = 0x40,
         [SamusSound.ResumeChargingBeam] = 0x41,
     }.ToFrozenDictionary();
@@ -157,7 +156,6 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.MetroidDrain] = 0x50,
         [EnemySound.ShotCoven] = 0x51,
         [EnemySound.BabyMetroidRemorse] = 0x52,
-        [EnemySound.ShotCrocomire] = 0x54,
         [EnemySound.ShotBeetom] = 0x55,
         [EnemySound.SuitAcquired] = 0x56,
         [EnemySound.DudShotOnDoor] = 0x57,

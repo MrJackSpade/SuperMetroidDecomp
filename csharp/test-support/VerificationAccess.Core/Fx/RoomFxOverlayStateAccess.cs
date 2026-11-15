@@ -6,11 +6,14 @@ internal static class RoomFxOverlayStateAccess
     /// <summary>Builds room FX from an explicit room-FX record through the same core path used by room entry.</summary>
     extension(RoomFxOverlayState)
     {
-        /// <summary>Builds room FX from an explicit immutable FX definition through the normal room-load path.</summary>
+        /// <summary>
+        /// Builds room FX from an explicit immutable FX definition through the normal room-load path, its sounds joining a
+        /// check's own audio requests, as a runtime binds its update's (#2057).
+        /// </summary>
         internal static RoomFxOverlayState ForDefinition(RoomFxSession session, RoomEffectDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            return RoomFxOverlayState.ForSource(session, new RoomFxLoadSource
+            RoomFxOverlayState fx = RoomFxOverlayState.ForSource(session, new RoomFxLoadSource
             {
                 Fx = null,
                 Door = null,
@@ -18,6 +21,8 @@ internal static class RoomFxOverlayStateAccess
                 Room = null,
                 SuppliedDefinition = definition,
             });
+            fx.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
+            return fx;
         }
     }
 

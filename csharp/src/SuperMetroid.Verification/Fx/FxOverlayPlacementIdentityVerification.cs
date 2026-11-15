@@ -299,8 +299,8 @@ internal static class FxOverlayPlacementIdentityVerification
             return null;
         int belowSurface = surfaceLine + 1;
         return RoomFxTypes.UsesWater(fx.Type)
-            ? new SampledScrollWave(fx.Scroll.X, LiquidEffects.WaterWaveform, EightEight.FromWhole(1),
-                SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
+            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform, EightEight.FromWhole(1),
+                SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, WaterWaveDefinitions.Waveform.Length),
                 Math.Clamp(belowSurface, FirstLine, DisplayScreen.Height), DisplayScreen.Height)
             : ScrollBands.Uniform(fx.Scroll.X);
     }

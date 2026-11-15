@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// One sound library's clip playback (#1305): the sound it plays, from which frame, whether it
-/// still holds the library (before its logical end), the library's priority and low-health mode,
-/// and which layers a clip-set switch has interrupted until their next note.
+/// still holds the library (before its logical end), and the library's priority and low-health mode.
 /// </summary>
 internal sealed class ClipLibraryState
 {
@@ -22,9 +21,6 @@ internal sealed class ClipLibraryState
     /// <summary>Whether the room library is in low-health mode, which rejects every request except those exempt from it.</summary>
     internal bool InLowHealthMode { get; private set; }
 
-    /// <summary>Per layer, the sound position before which a clip-set switch has interrupted it; zero when audible.</summary>
-    internal long[] InterruptedUntil { get; private set; } = [];
-
     /// <summary>Whether the library's priority or low-health mode turns away a request under <paramref name="policy"/>.</summary>
     internal bool Rejects(SoundEffectClipPolicy policy) =>
         (!policy.IgnoresLowHealthMode && InLowHealthMode) || (!policy.IgnoresPriority && HighPriority);
@@ -41,7 +37,6 @@ internal sealed class ClipLibraryState
         Sound = sound;
         Start = now;
         Active = true;
-        InterruptedUntil = new long[sound.Layers.Count];
         HighPriority = policy.Priority switch
         {
             SoundEffectPriorityEffect.Low => false,
@@ -66,18 +61,5 @@ internal sealed class ClipLibraryState
             Active = false;
             HighPriority = false;
         }
-    }
-
-    /// <summary>Drops the sound, which a clip-set switch does once the sound has passed its logical end.</summary>
-    internal void Clear() => Sound = null;
-
-    /// <summary>
-    /// Continues the sound as <paramref name="continued"/> from the new clip set, each layer
-    /// silent until <paramref name="interruptedUntil"/>, which a clip-set switch does while the sound still holds the library.
-    /// </summary>
-    internal void Continue(SoundEffectClipEntry continued, long[] interruptedUntil)
-    {
-        Sound = continued;
-        InterruptedUntil = interruptedUntil;
     }
 }

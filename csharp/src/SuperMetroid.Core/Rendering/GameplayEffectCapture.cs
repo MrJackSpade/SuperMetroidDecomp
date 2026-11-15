@@ -41,8 +41,8 @@ public static class GameplayEffectCapture
             fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
         int belowSurface = surfaceLine + 1;
-        return new SampledScrollWave(backgroundScroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
-            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, LiquidEffects.WaterWaveform.Length),
+        return new SampledScrollWave(backgroundScroll.X, WaterWaveDefinitions.Waveform, OnePixelPerSample,
+            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, WaterWaveDefinitions.Waveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
 
@@ -57,7 +57,7 @@ public static class GameplayEffectCapture
         if (fx.Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Horizontal })
             return null;
 
-        return HeatHaze(backgroundScroll.X, backgroundScroll.Y, fx.LavaAcidBackgroundWavePhase, LiquidEffects.HeatHorizontalWaveform);
+        return HeatHaze(backgroundScroll.X, backgroundScroll.Y, fx.LavaAcidBackgroundWavePhase, LavaAcidWaveDefinitions.HorizontalHazeWaveform);
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public static class GameplayEffectCapture
         // The vertical haze repeats the water wave's samples. Its lines move about the row the screen's top shows, while
         // its phase stays counted from the camera's row.
         return HeatHaze(GameplaySceneView.LayerRowAtScreenTop(backgroundVerticalScroll), backgroundVerticalScroll,
-            fx.LavaAcidBackgroundWavePhase, LiquidEffects.WaterWaveform);
+            fx.LavaAcidBackgroundWavePhase, WaterWaveDefinitions.Waveform);
     }
 
     /// <summary>
@@ -174,8 +174,8 @@ public static class GameplayEffectCapture
         // below the surface and drawn back by the wave's phase (#1468).
         int belowSurface = placedLine + 1;
         LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
-            ? new SampledScrollWave(fx.Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
-                SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
+            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform, OnePixelPerSample,
+                SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, WaterWaveDefinitions.Waveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
             : ScrollBands.Uniform(fx.Scroll.X);
         // A liquid last placed while its surface lay above the room shows nothing until the effect places it again.

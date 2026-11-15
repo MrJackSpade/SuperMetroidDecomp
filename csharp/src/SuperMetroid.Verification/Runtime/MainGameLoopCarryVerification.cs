@@ -26,6 +26,7 @@ internal static class MainGameLoopCarryVerification
         {
             var stateSession = new RoomFxSession();
             var state = new RoomFxOverlayState(stateSession);
+            state.BindAudioRequests(new GameplayAudioRequests());
             state.EarthquakeSoundTimer = WrappingCountdown.Start(0);
             state.EarthquakeSoundRhythmPosition = 0;
             // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2 when the carry is set.

@@ -61,7 +61,7 @@ internal static class MusicQueueVerification
             {
                 if (IsScheduled(scheduledMask, queued))
                 {
-                    port.ScheduleMusic(requests[queued], MusicQueueDelay.AtLeastShortest(delays[queued]));
+                    port.ScheduleMusic(requests[queued], MusicQueueDelay.FromEffectiveUpdates(delays[queued]));
                     original.QueueScheduled(queued, delays[queued]);
                 }
                 else

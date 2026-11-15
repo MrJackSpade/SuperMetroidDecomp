@@ -9,9 +9,6 @@ public enum SpecialAirInsideReaction
     /// <summary>Nothing happens.</summary>
     Nothing,
 
-    /// <summary>Crateria's ice floor, which changes nothing while Samus is inside it.</summary>
-    IcePhysics,
-
     /// <summary>The Brinstar plant that bites Samus from the floor.</summary>
     BrinstarFloorPlant,
 

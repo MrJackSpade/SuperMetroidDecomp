@@ -31,6 +31,7 @@ internal static class PaletteFxContractTests
         // step shows the flicker's first record in the engine's colours.
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
+        fx.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
         fx.Start(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
         fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;

@@ -17,14 +17,6 @@ public enum BlockAnimation
     TourianStatueDraygon,
     /// <summary>Horizontal spikes, which a room's effect can animate in every area.</summary>
     HorizontalSpikes,
-    /// <summary>Vertical spikes, which a room's effect can animate in every area.</summary>
-    VerticalSpikes,
-    /// <summary>The Crateria lake, which only a Crateria room's effect animates.</summary>
-    CrateriaLake,
-    /// <summary>The Brinstar plant, which only a Brinstar room's effect animates.</summary>
-    BrinstarPlant,
-    /// <summary>The Wrecked Ship screen, which only a Wrecked Ship room's effect animates.</summary>
-    WreckedShipScreen,
     /// <summary>The Maridia sand ceiling, which only a Maridia room's effect animates.</summary>
     MaridiaSandCeiling,
     /// <summary>Falling Maridia sand, which only a Maridia room's effect animates.</summary>

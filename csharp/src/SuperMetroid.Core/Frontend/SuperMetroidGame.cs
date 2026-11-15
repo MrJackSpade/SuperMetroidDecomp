@@ -128,7 +128,7 @@ public sealed class SuperMetroidGame
     /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
     internal void BindAudio(ClipAudioLibrary clips) => Session.audioSession.BindClips(clips);
 
-    /// <summary>Copies the last update's 1,600 interleaved 48-kHz stereo samples into host-owned storage.</summary>
+    /// <summary>Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned storage.</summary>
     /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>
     /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than 1,600 samples.</exception>
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);

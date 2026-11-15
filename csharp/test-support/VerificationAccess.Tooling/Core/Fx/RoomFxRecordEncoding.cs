@@ -31,14 +31,6 @@ internal static class RoomFxRecordEncoding
         BitsetByte(effects, bit => AreaPaletteFxObjects.Read(area, bit), $"{area} palette effect");
 
     /// <summary>
-    /// The block-animation byte that starts <paramref name="tiles"/> in a room of <paramref name="area"/>: each object's bit
-    /// in the area's list (#1526).
-    /// </summary>
-    /// <exception cref="InvalidDataException">An object is not in the area's list once, or the objects are out of the list's order.</exception>
-    internal static byte AnimatedTilesByte(ImmutableArray<BlockAnimation> tiles, AreaId area) =>
-        BitsetByte(tiles, bit => AreaBlockAnimations.Read(area, bit), $"{area} block animation");
-
-    /// <summary>
     /// The bitset whose bits select <paramref name="effects"/> from the list <paramref name="selected"/> reads, the effects
     /// in ascending bit order as the decode lists them.
     /// </summary>

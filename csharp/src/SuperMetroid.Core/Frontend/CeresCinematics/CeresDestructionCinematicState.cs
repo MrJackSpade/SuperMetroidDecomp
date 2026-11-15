@@ -238,7 +238,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 MusicRequest.SelectTrack(WithSamus
                     ? CeresDestructionSceneDefinitions.Music.CeresWithSamusTrack
                     : CeresDestructionSceneDefinitions.Music.CeresTrack),
-                MusicQueueDelay.AtLeastShortest(CeresDestructionSceneDefinitions.Music.QueueDelay));
+                CeresDestructionSceneDefinitions.Music.QueueDelay);
         }
         else
         {
@@ -416,10 +416,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
         // The cinematic's game state runs the colour effects after cinematic objects, every update from the setup on,
         // including the update which starts an effect. Their frames are shades the import pre-colours the scene's pictures
-        // in (#1512); the scene names the frame each running effect shows (#1597).
+        // in (#1512); the scene names the frame each running effect shows (#1597). The scene binds no audio requests, so an
+        // effect that made a sound would fail loudly (#2057).
         ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        if (ColourEffects.AudioRequests.SoundRequests.Count != 0)
-            throw new InvalidDataException("A Ceres destruction colour effect unexpectedly requested audio.");
 
         // The cinematic's game state increments the shared cinematic frame counter after running the
         // current phase but before its actors. The pixelation's cadence therefore reads

@@ -8,12 +8,17 @@ internal static class RoomPaletteFxSystemAccess
     /// <summary>Builds room palette FX from an explicit FX record.</summary>
     extension(ColourEffectSystem)
     {
-        /// <summary>Builds room palette FX from an explicit FX record through the normal room palette-object path.</summary>
+        /// <summary>
+        /// Builds room palette FX from an explicit FX record through the normal room palette-object path, its sounds joining a
+        /// check's own audio requests, as a runtime binds its update's (#2057).
+        /// </summary>
         internal static ColourEffectSystem ForDefinition(ColourEffectSessionState session, RoomEffectDefinition definition,
             ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            return ColourEffectSystem.ForEffect(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
+            ColourEffectSystem system = ColourEffectSystem.ForEffect(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
+            system.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
+            return system;
         }
     }
 }

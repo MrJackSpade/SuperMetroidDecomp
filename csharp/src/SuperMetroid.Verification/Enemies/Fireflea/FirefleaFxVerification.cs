@@ -30,6 +30,7 @@ internal static class FirefleaFxVerification
             address => $"Fireflea FX attempted migrated definition read ${address:X6}.");
         var fxSession = new RoomFxSession();
         var fx = new RoomFxOverlayState(fxSession);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         FirefleaFxState state = fxSession.Fireflea;
         var vram = new SnesVram();
         RoomEffectDefinition record = RoomFxDefinitions.AllRecords.First(candidate => candidate.Type == RoomFxType.Fireflea && candidate.DoorPointer == 0);
@@ -77,6 +78,7 @@ internal static class FirefleaFxVerification
         }
         // Removing the effect stops its producer, and a room without it shows no Fireflea shade.
         fx = RoomFxOverlayState.ForRoom(fxSession, null, null, 0);
+        fx.BindAudioRequests(new GameplayAudioRequests());
         WrappingCountdown leftTimer = state.Timer;
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual(leftTimer, state.Timer, "non-Fireflea room does not execute the old producer");

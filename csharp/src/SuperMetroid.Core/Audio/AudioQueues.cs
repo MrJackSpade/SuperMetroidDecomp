@@ -146,7 +146,7 @@ public sealed class AudioQueues
         // load stops the music, so the song must be queued again after it instead of leaving
         // only the gunship-engine sound at the Landing Site.
         if (RoomTrackQueues(music.Track, changesMusicData))
-            ScheduleMusic(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
+            ScheduleMusic(music.Track.Request, MusicQueueDelay.Shortest);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public sealed class AudioQueues
     internal void QueueRoomMusicTrack(RoomMusic music)
     {
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
-            ScheduleMusic(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
+            ScheduleMusic(music.Track.Request, MusicQueueDelay.Shortest);
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ public sealed class AudioQueues
         QueueMusic(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
         ScheduleMusic(
             MusicRequest.Stop,
-            MusicQueueDelay.AtLeastShortest(AudioQueueDefinitions.PermanentItemFanfareFrames));
+            AudioQueueDefinitions.PermanentItemFanfareDelay);
         QueueMusic(MusicRequest.SelectTrackOrStop(roomTrack));
     }
 

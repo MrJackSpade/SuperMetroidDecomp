@@ -12,8 +12,7 @@ namespace SuperMetroid.Verification.Audio;
 /// alone: a beat is 256 parts, and each clock step adds the tempo's parts, the tempo a beat length stands for being the
 /// parts of 256 that one 64-frame step plays. Every installed song is played in turn from power-on, each song change
 /// waiting for the beat, through its clip and one more pass of its loop (or past its end); at every clock step the
-/// player's beat and the old arithmetic's must agree. Every sound-effect layer's resumed note after a clip-set switch is
-/// compared with the old lookup over its note starts at every position around each note.
+/// player's beat and the old arithmetic's must agree.
 /// </summary>
 internal static class MusicBeatTimingVerification
 {
@@ -29,16 +28,15 @@ internal static class MusicBeatTimingVerification
     /// <summary>Clip frames an ending song is played past its end, so the beat it leaves held is compared too.</summary>
     private const long PastEndFrames = 8192;
 
-    /// <summary>Plays every installed song and resumes every sound-effect layer through both timings.</summary>
+    /// <summary>Plays every installed song through both timings.</summary>
     internal static void VerifyMusicBeatAndNoteTiming()
     {
         InstalledClipAudioLibrary clips = RepositoryInstallation.Installation.LoadAudioClips();
         AssertEqual(InitialTempo, TempoOf(clips.Manifest.InitialBeat), "the power-on beat lasts as long as the old initial tempo's");
         SongTiming songs = VerifySongs(clips);
-        NoteTiming notes = VerifyNotes(clips.Manifest);
         Console.WriteLine(
             $"  Music beat timing: {clips.Manifest.Music.Count} songs over {songs.Steps} clock steps start their {songs.Beats} beats " +
-            $"on the old tempo arithmetic's frames; {notes.Layers} sound-effect layers resume on the old note at {notes.Positions} positions.");
+            "on the old tempo arithmetic's frames.");
     }
 
     /// <summary>The old tempo a beat length stands for: the parts of a beat one clock step plays, exactly.</summary>
@@ -97,60 +95,6 @@ internal static class MusicBeatTimingVerification
         return new SongTiming(steps, beats);
     }
 
-    /// <summary>Resumes every sound-effect layer at every position around each of its notes, by the player and the old lookup.</summary>
-    /// <returns>The layers and positions compared.</returns>
-    private static NoteTiming VerifyNotes(AudioClipManifest manifest)
-    {
-        int layers = 0;
-        long positions = 0;
-        foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
-        {
-            foreach (InstalledSoundEffectLayer installed in entry.Layers)
-            {
-                SoundEffectClipLayer layer = installed.PlayedLayer();
-                long frames = layer.Clip.Frames;
-                var around = new List<long> { 0, frames - 1, frames, frames + 1 };
-                foreach (long note in layer.NoteStarts)
-                {
-                    around.AddRange([note - 1, note, note + 1]);
-                    if (layer.LoopStart is long loop && note >= loop)
-                        around.AddRange([frames + (note - loop) - 1, frames + (note - loop), frames + (note - loop) + 1]);
-                }
-                foreach (long position in around.Where(position => position >= 0))
-                {
-                    long expected = OldNextNote(layer.NoteStarts, frames, layer.LoopStart, position);
-                    long resumed = ClipAudioBackend.NextNote(layer, position);
-                    if (resumed != expected)
-                        AssertEqual(expected, resumed, $"{entry.Sound} in {entry.Context}: the note resumed at position {position} is the old lookup's");
-                    positions++;
-                }
-                layers++;
-            }
-        }
-        return new NoteTiming(layers, positions);
-    }
-
-    /// <summary>The old lookup: the unwrapped position of a layer's first note start at or after <paramref name="position"/>.</summary>
-    private static long OldNextNote(IReadOnlyList<long> keyOnFrames, long frames, long? loopStart, long position)
-    {
-        if (Position(frames, loopStart, position) is not long frame)
-            return long.MaxValue;
-        foreach (long keyOn in keyOnFrames)
-        {
-            if (keyOn >= frame)
-                return position + (keyOn - frame);
-        }
-        if (loopStart is long loop)
-        {
-            foreach (long keyOn in keyOnFrames)
-            {
-                if (keyOn >= loop)
-                    return position + (frames - frame) + (keyOn - loop);
-            }
-        }
-        return long.MaxValue;
-    }
-
     /// <summary>The clip frame at an unwrapped position: looping clips repeat [loop start, end); others end.</summary>
     private static long? Position(long frames, long? loopStart, long position)
     {
@@ -167,11 +111,6 @@ internal static class MusicBeatTimingVerification
     /// <param name="Steps">Clock steps compared.</param>
     /// <param name="Beats">Beats compared.</param>
     private sealed record SongTiming(long Steps, long Beats);
-
-    /// <summary>What the note comparison covered.</summary>
-    /// <param name="Layers">Sound-effect layers compared.</param>
-    /// <param name="Positions">Positions compared.</param>
-    private sealed record NoteTiming(int Layers, long Positions);
 
     /// <summary>The player's beat as the old arithmetic counted it: parts of a beat, a held tempo, and the song playing.</summary>
     private sealed class TempoArithmetic
@@ -249,7 +188,7 @@ internal static class MusicBeatTimingVerification
         }
     }
 
-    /// <summary>Runs the beat and note timing confirmation over the repository installation's clip index.</summary>
+    /// <summary>Runs the beat timing confirmation over the repository installation's clip index.</summary>
     [VerificationCommand("--music-beat-timing")]
     internal static int MusicBeatTimingCommand()
     {

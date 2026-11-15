@@ -36,8 +36,8 @@ public static class IntroCinematicDefinitions
         public const MusicTrack PeaceLineSong = MusicTrack.GalaxyAtPeace;
         /// <summary>The song the illustrated pages play once the introduction's music set has loaded.</summary>
         public const MusicTrack IntroductionSong = MusicTrack.Introduction;
-        /// <summary>The queue delay the second line's and the pages' songs are requested with.</summary>
-        public const int SceneTrackDelay = 14;
+        /// <summary>How long the second line's and the pages' songs wait on the music queue: fourteen passes.</summary>
+        public static MusicQueueDelay SceneTrackDelay { get; } = new(14);
     }
 
     /// <summary>Screen-fade cadences of the opening's scene changes.</summary>

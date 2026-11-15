@@ -14,8 +14,7 @@ namespace SuperMetroid.Verification.Audio;
 /// emulated driver's byte for byte, both for a Green Brinstar track over 600 updates and for one
 /// library-1 sound with no music. Confirmation 3: scripted events select the clips the driver's
 /// rules select: the same track is ignored, an ended track restarts, stop silences, priority,
-/// low-health mode and exempt requests decide acceptance, and a clip-set switch interrupts a sound until
-/// its next note.
+/// low-health mode and exempt requests decide acceptance, and a clip-set switch leaves a sound playing (#2057).
 /// </summary>
 internal static class AudioClipBackendVerification
 {
@@ -39,17 +38,21 @@ internal static class AudioClipBackendVerification
     {
         InstalledClipAudioLibrary clips = installation.LoadAudioClips();
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
-        VerifyEquivalence(clips.Clips, extracted, AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack)), MusicUpdates, "Green Brinstar room track");
-        VerifyEquivalence(clips.Clips, extracted, new AudioRequest.RequestSound(SamusSound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
+        VerifyEquivalence(clips.Clips, extracted, MusicDataSet.GreenBrinstar, AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack)), MusicUpdates, "Green Brinstar room track");
+        VerifyEquivalence(clips.Clips, extracted, null, new AudioRequest.RequestSound(SamusSound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
         VerifyMusicCommands(clips.Clips, BeatUpdates(clips.Manifest));
         VerifySoundCommands(clips);
         Console.WriteLine(
             "  Audio clip backend: PCM equals the emulated driver for a track and a sound; same-track, end restart, " +
-            "stop, priority, low-health mode, exempt requests and upload silencing select the driver's clips.");
+            "stop, priority, low-health mode and exempt requests select the driver's clips, and a clip-set switch leaves the sounds playing.");
     }
 
-    /// <summary>Feeds one event stream to both backends: uploads on update 0, <paramref name="request"/> on update 1.</summary>
-    private static void VerifyEquivalence(ClipAudioLibrary clips, ExtractedAudioAssetCatalog extracted, AudioRequest request, int updates, string name)
+    /// <summary>
+    /// Feeds one event stream to both backends: the shared sounds and <paramref name="dataSet"/>'s upload, when it names
+    /// one, on update 0, <paramref name="request"/> on update 1. A sound is compared with only the shared sounds loaded, from
+    /// whose samples its clip is rendered.
+    /// </summary>
+    private static void VerifyEquivalence(ClipAudioLibrary clips, ExtractedAudioAssetCatalog extracted, MusicDataSet? dataSet, AudioRequest request, int updates, string name)
     {
         var source = new AudioEventSource(new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus));
         var clipBackend = new ClipAudioBackend(clips);
@@ -61,7 +64,9 @@ internal static class AudioClipBackendVerification
         {
             IReadOnlyList<AudioRequest> commands = update switch
             {
-                0 => [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)],
+                0 => dataSet is MusicDataSet loaded
+                    ? [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(loaded)]
+                    : [new AudioRequest.ChangeMusicDataSet(null)],
                 1 => [request],
                 _ => [],
             };
@@ -118,15 +123,15 @@ internal static class AudioClipBackendVerification
         AssertTrue(script.State.SongStart > firstStart, "the same song restarts after it ended");
     }
 
-    /// <summary>Priority, low-health mode, exempt requests and clip-set switch interruption.</summary>
+    /// <summary>Priority, low-health mode, exempt requests and a clip-set switch leaving a sound playing.</summary>
     private static void VerifySoundCommands(InstalledClipAudioLibrary clips)
     {
         InstalledSoundEffectClip high = clips.Manifest.SoundEffects.First(entry =>
-            entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Enemies &&
+            entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.High, IgnoresPriority: false } &&
             entry.ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
         InstalledSoundEffectClip low = clips.Manifest.SoundEffects.First(entry =>
-            entry.Context == MusicDataSet.GreenBrinstar && entry.Sound.Library == SoundEffectLibrary.Enemies &&
+            entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
         var script = new Script(clips.Clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
@@ -151,10 +156,10 @@ internal static class AudioClipBackendVerification
         script.Advance(4);
         AssertEqual<SoundEffectId?>(RoomSound.LowHealthBeep, library3.Sound?.Sound, "low-health mode rejects another library-3 sound");
 
-        long position = script.State.Sample - library3.Start;
+        long beepStart = library3.Start;
         script.Advance([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
-        SoundEffectClipLayer beep = library3.Sound?.Layers[0] ?? throw new InvalidOperationException("The beep has a layer.");
-        AssertTrue(library3.InterruptedUntil[0] > position && beep.NoteStarts.Count != 0, "a clip-set switch interrupts the looping beep until a later note");
+        AssertTrue(library3.Sound?.Sound == RoomSound.LowHealthBeep && library3.Start == beepStart,
+            "a clip-set switch leaves the looping beep playing on, unchanged");
 
         script.Advance([new AudioRequest.RequestSound(RoomSound.Silence)]);
         script.AdvanceUntil(() => library3.Sound?.Sound == RoomSound.Silence, SoundStartUpdates);

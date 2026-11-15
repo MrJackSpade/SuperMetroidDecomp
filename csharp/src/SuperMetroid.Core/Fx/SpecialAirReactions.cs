@@ -16,7 +16,6 @@ public static class SpecialAirReactions
     /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
     public static SpecialAirInsideReaction InsideOf(SpecialAirReaction? reaction) => Validate(reaction, "inside-body") switch
     {
-        SpecialAirReaction.Ice => SpecialAirInsideReaction.IcePhysics,
         SpecialAirReaction.FloorPlant => SpecialAirInsideReaction.BrinstarFloorPlant,
         SpecialAirReaction.CeilingPlant => SpecialAirInsideReaction.BrinstarCeilingPlant,
         SpecialAirReaction.QuicksandSurface => SpecialAirInsideReaction.QuicksandSurface,
@@ -48,8 +47,8 @@ public static class SpecialAirReactions
         SpecialAirReaction.SlowSandfall => SpecialAirCollisionReaction.SlowSandfall,
         SpecialAirReaction.FastSandfall => SpecialAirCollisionReaction.FastSandfall,
         SpecialAirReaction.PassesThrough or SpecialAirReaction.RightwardConveyorOnFoot or SpecialAirReaction.LeftwardConveyorOnFoot or
-            SpecialAirReaction.RightwardConveyor or SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.ScrollTrigger or
-            SpecialAirReaction.Ice => SpecialAirCollisionReaction.Nothing,
+            SpecialAirReaction.RightwardConveyor or SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.ScrollTrigger
+            => SpecialAirCollisionReaction.Nothing,
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {undefined}."),
     };
 

@@ -535,11 +535,9 @@ internal static class RoomBlockReadingDefinitions
     /// </summary>
     internal static readonly IReadOnlyList<AreaBlockReadings> InAreas =
     [
-        new([AreaId.Crateria], new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.Ice, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
+        new([AreaId.Crateria, AreaId.Norfair, AreaId.Tourian, AreaId.Ceres], new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
             new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, 0)),
         new([AreaId.Brinstar], new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.FloorPlant, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
-            new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, 0)),
-        new([AreaId.Norfair, AreaId.Tourian, AreaId.Ceres], new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.Solid, SpecialAirReaction.PassesThrough, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
             new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, 0)),
         new([AreaId.WreckedShip], new(ShootableReaction.NothingWhenSolid, BombableReaction.Inert, SpecialBlockReaction.WreckedShipChozoHand, SpecialAirReaction.WreckedShipChozoHand, SpikeReaction.HarmlessLetsGrappleThrough, GrappleReaction.Rejected,
             new(SlopeShapeDefinitions.SquareBottomHalf, BlockMirroring.Vertical), -128, 0)),

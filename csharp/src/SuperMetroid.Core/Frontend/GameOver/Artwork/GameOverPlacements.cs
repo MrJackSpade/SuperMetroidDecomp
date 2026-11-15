@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 public sealed record GameOverPlacements
 {
     /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>
-    public required Position16<SpritePixels> BabyAnchor { get; init; }
+    public required Offset16<ScreenPixels> BabyAnchor { get; init; }
     /// <summary>Common horizontal missile-cursor position in screen pixels, 0-255.</summary>
     public required int CursorX { get; init; }
     /// <summary>Vertical missile-cursor position for the Yes answer in screen pixels, 0-255.</summary>

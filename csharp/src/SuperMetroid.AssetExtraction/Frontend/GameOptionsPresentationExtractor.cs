@@ -85,13 +85,13 @@ public static class GameOptionsPresentationExtractor
         // The headings' and cursor's anchors are read from the cartridge's page setups and cursor tables; the game keeps no
         // copy of them (#1615).
         int headingRow = Word(GameOptionsSourceDefinitions.HeadingRowOperand);
-        var headings = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal)
+        var headings = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Heading(GameOptionsPage.Primary),
             [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Heading(GameOptionsPage.Controller),
             [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Heading(GameOptionsPage.Special),
         };
-        var cursors = new Dictionary<string, Position16<SpritePixels>[]>(StringComparer.Ordinal)
+        var cursors = new Dictionary<string, Offset16<ScreenPixels>[]>(StringComparer.Ordinal)
         {
             [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Cursor(GameOptionsPage.Primary, GameOptionsDefinitions.Rows.PrimaryCount),
             [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Cursor(GameOptionsPage.Controller, GameOptionsDefinitions.Rows.ControllerCount),
@@ -132,14 +132,14 @@ public static class GameOptionsPresentationExtractor
 
         int Word(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
-        Position16<SpritePixels> Heading(GameOptionsPage page) =>
-            Position16<SpritePixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);
+        Offset16<ScreenPixels> Heading(GameOptionsPage page) =>
+            Offset16<ScreenPixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);
 
-        Position16<SpritePixels>[] Cursor(GameOptionsPage page, int rows)
+        Offset16<ScreenPixels>[] Cursor(GameOptionsPage page, int rows)
         {
-            var result = new Position16<SpritePixels>[rows];
+            var result = new Offset16<ScreenPixels>[rows];
             for (int row = 0; row < rows; row++)
-                result[row] = Position16<SpritePixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
+                result[row] = Offset16<ScreenPixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
                     Word(GameOptionsSourceDefinitions.CursorRowTables[page] + GameOptionsSourceDefinitions.CursorRowStride * row));
             return result;
         }

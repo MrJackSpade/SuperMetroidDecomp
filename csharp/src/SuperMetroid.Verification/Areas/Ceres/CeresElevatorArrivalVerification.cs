@@ -52,7 +52,7 @@ internal static class CeresElevatorArrivalVerification
         foreach (CeresElevatorArrivalState.CeresElevatorProjectile actor in new[] { arrival.pad, arrival.platform })
             expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalAnimations.Frame(actor.Pose
                     ?? throw new InvalidOperationException("Verification requires a shown arrival pose."))).Span,
-                actor.Position.ToScreen(Position16<RoomPixels>.Zero).ToSpritePosition(), 0, 0);
+                actor.Position.ToScreen(Position16<RoomPixels>.Zero), 0, 0);
         VerificationAssertions.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
             "Ceres pad and level-data concealer draw their compositions at tile base zero in their own palettes");
 

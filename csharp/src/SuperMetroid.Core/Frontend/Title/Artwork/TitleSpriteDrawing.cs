@@ -10,22 +10,22 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 public static class TitleSpriteDrawing
 {
     /// <summary>Places one title frame of the title sheet, its parts drawn in <paramref name="colouring"/> (#1512).</summary>
-    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin,
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         TitleSpriteColouring colouring) =>
         DrawSprite(sheet, sprite, sprites, origin, PictureShading.Shaded(TitleShades.Drawn(colouring)));
 
     /// <summary>Places one whole title composition of the title sheet in <paramref name="shading"/> (#1512).</summary>
-    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin,
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         PictureShading shading)
     {
         Ensure.NotNull(shading);
         Ensure.NotNull(sheet);
         Ensure.NotNull(sprites);
-        sprites.AddImage(sheet.Frame(TitleSpriteDefinitions.FrameName(sprite)), origin - Position16<SpritePixels>.Zero, shading: shading);
+        sprites.AddImage(sheet.Frame(TitleSpriteDefinitions.FrameName(sprite)), origin, shading: shading);
     }
 
     /// <summary>Places a title card's text typed so far, its letters drawn in <paramref name="colouring"/> (#1512, #1979).</summary>
-    public static void DrawCard(SpriteSheet sheet, TitleCardTyping typed, ScreenSprites sprites, Position16<SpritePixels> origin,
+    public static void DrawCard(SpriteSheet sheet, TitleCardTyping typed, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         TitleSpriteColouring colouring) =>
         DrawCard(sheet, typed, sprites, origin, PictureShading.Shaded(TitleShades.Drawn(colouring)));
 
@@ -34,7 +34,7 @@ public static class TitleSpriteDrawing
     /// the card's origin moved by the card's scroll once for every letter typed after it. A letter that shows nothing, such
     /// as a space, places nothing.
     /// </summary>
-    public static void DrawCard(SpriteSheet sheet, TitleCardTyping typed, ScreenSprites sprites, Position16<SpritePixels> origin,
+    public static void DrawCard(SpriteSheet sheet, TitleCardTyping typed, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         PictureShading shading)
     {
         Ensure.NotNull(shading);
@@ -48,9 +48,9 @@ public static class TitleSpriteDrawing
                 continue;
             // Each letter typed after this one has scrolled the card's text once more.
             int scrolls = typed.Letters - letter;
-            Offset16<SpritePixels> scrolled = Offset16<SpritePixels>.Of(
+            Offset16<ScreenPixels> scrolled = Offset16<ScreenPixels>.Of(
                 TitleCardDefinitions.TypedScroll.X * scrolls, TitleCardDefinitions.TypedScroll.Y * scrolls);
-            sprites.AddImage(sheet.Frame(name), origin + scrolled - Position16<SpritePixels>.Zero, shading: shading);
+            sprites.AddImage(sheet.Frame(name), origin + scrolled, shading: shading);
         }
     }
 }

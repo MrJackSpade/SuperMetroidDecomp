@@ -42,7 +42,7 @@ public sealed class FileSelectMapWindow
             throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map transitions.");
         WorldMapLabelPositions installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
-        Position16<SpritePixels> label = installedLabels.Get(area);
+        Offset16<ScreenPixels> label = installedLabels.Get(area);
         this.motion = motion;
         left = right = SignedSixteenSixteen.FromWholePixels(label.X);
         top = bottom = SignedSixteenSixteen.FromWholePixels(label.Y);

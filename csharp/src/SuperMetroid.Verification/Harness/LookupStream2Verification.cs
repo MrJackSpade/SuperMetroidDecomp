@@ -1035,7 +1035,7 @@ internal static class LookupStream2Verification
                 }
             }
             if (nativeWords.TryGetValue(side, out ushort shown))
-                oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), shown);
+                oam.AddProjectileTrailSprite(new Position16<ScreenPixels>((byte)side.Position.X, (byte)side.Position.Y), shown);
         }
     }
 
@@ -1572,8 +1572,8 @@ internal static class LookupStream2Verification
                     AssertEqual((short)wanted.OffsetY, found.Offset.Y, "Golden Torizo independent component Y");
                     AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
                     ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
-                    expectedOam.AddEnemySpritemap(EnemySpritemapParts.FromOwnedArray(parts), new Position16<SpritePixels>(x, y), 0, 0);
-                    actualOam.AddEnemySpritemap(found.Parts, new Position16<SpritePixels>(x, y), 0, 0);
+                    expectedOam.AddEnemySpritemap(EnemySpritemapParts.FromOwnedArray(parts), new Position16<ScreenPixels>(x, y), 0, 0);
+                    actualOam.AddEnemySpritemap(found.Parts, new Position16<ScreenPixels>(x, y), 0, 0);
                 }
                 AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
                 AssertTrue(expectedOam.ImageEquals(actualOam),

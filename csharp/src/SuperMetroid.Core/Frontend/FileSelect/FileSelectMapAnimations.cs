@@ -82,16 +82,16 @@ public sealed class FileSelectMapAnimations
         {
             Arrow arrow = arrows[direction];
             if (!arrow.Visible) continue;
-            MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<SpritePixels>(0, verticalOffset),
+            MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<ScreenPixels>(0, verticalOffset),
                 highlight);
         }
     }
 
     /// <summary>One map-scroll arrow's bound anchor and sprite identity with menu-tick counters.</summary>
-    internal sealed class Arrow(Position16<SpritePixels> position, MapSpriteId spriteBase)
+    internal sealed class Arrow(Offset16<ScreenPixels> position, MapSpriteId spriteBase)
     {
         /// <summary>Installed screen anchor retained while the arrow advances its visual phase.</summary>
-        public readonly Position16<SpritePixels> Position = position;
+        public readonly Offset16<ScreenPixels> Position = position;
         /// <summary>Sprite composition selected for this scroll direction.</summary>
         public readonly MapSpriteId Base = spriteBase;
         /// <summary>Remaining menu ticks before the next phase transition.</summary>

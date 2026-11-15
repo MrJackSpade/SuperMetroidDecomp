@@ -26,13 +26,12 @@ internal sealed class TypedTextSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
             new CinematicSpriteSheet(sheet, family, shading).Draw(pose, objects, place, drawn);
             return;
         }
-        Offset16<SpritePixels> origin = CinematicSpriteSheet.SpritePlace(place);
         PictureShading shown = Ensure.NotNull(shading)(drawn);
         for (int glyph = 0; glyph <= step.Glyph; glyph++)
         {
             string name = GlyphFrameName(family, step.Text, glyph);
             if (!Ensure.NotNull(sheet).ShowsNothing(name))
-                objects.AddImage(sheet.Frame(name), origin, shading: shown);
+                objects.AddImage(sheet.Frame(name), place, shading: shown);
         }
     }
 }

@@ -586,7 +586,7 @@ internal static class LookupStream3Verification
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
-                AssertEqual(new Position16<SpritePixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
+                AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.Presentation.CursorPosition(page, row), "native options cursor anchor");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
@@ -636,13 +636,13 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+                Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
                     AssertEqual(cursors[row], presentation.Presentation.CursorPosition(page, row), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)];
+                Offset16<ScreenPixels> heading = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.Presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
@@ -1870,7 +1870,7 @@ internal static class LookupStream3Verification
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            calculatedOam.AddEnemySpritemap(parts, new Position16<SpritePixels>(128, 128), 0, 0);
+            calculatedOam.AddEnemySpritemap(parts, new Position16<ScreenPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(calculatedOam),
                 "stream 3 installed Baby view matches native OAM drawing");
         }

@@ -75,7 +75,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
     internal TitleCardTyping? ActiveCard { get; set; }
     /// <summary>Screen origin used when drawing the active title frame.</summary>
-    internal Position16<ScreenPixels> ActiveOrigin { get; set; }
+    internal Offset16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
     internal TitleSpriteColouring ActiveColouring { get; set; }
     /// <summary>
@@ -472,9 +472,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         // Every part of the composition draws in the active colouring's shading, whatever colouring the part was stored
         // with; the parts' pictures draw as the title sheet holds them.
         if (ActiveSprite is { } sprite)
-            TitleSpriteDrawing.DrawSprite(sheet, sprite, screenSprites, ActiveOrigin.ToSpritePosition(), ActiveShading);
+            TitleSpriteDrawing.DrawSprite(sheet, sprite, screenSprites, ActiveOrigin, ActiveShading);
         if (ActiveCard is { } typed)
-            TitleSpriteDrawing.DrawCard(sheet, typed, screenSprites, ActiveOrigin.ToSpritePosition(), ActiveShading);
+            TitleSpriteDrawing.DrawCard(sheet, typed, screenSprites, ActiveOrigin, ActiveShading);
 
         // The skip's fade-out draws what its running step draws, which never includes the copyright: the copyright first
         // shows in the copyright's hold, which refuses the skip (#1719).
@@ -482,7 +482,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
             TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.NintendoCopyright, screenSprites,
-                TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
+                TitleSequenceDefinitions.Sprites.CopyrightOrigin,
                 CopyrightShading);
         }
 

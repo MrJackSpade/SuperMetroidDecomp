@@ -64,8 +64,7 @@ internal sealed class ProjectileAnimation
         Position16<RoomPixels> cameraPosition,
         ProjectileDrawArtwork artwork)
     {
-        int screenX = CoordinateAxis.Difference(shot.Position.X.Whole, cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(shot.Position.Y.Whole - cameraPosition.Y);
+        Offset16<ScreenPixels> place = shot.Position.Whole.RelativeToCamera(cameraPosition);
         // Every placement is published wherever it lies; the display clips it to the view (#1541).
 
         ProjectileSpriteId sprite = shot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
@@ -78,8 +77,7 @@ internal sealed class ProjectileAnimation
         if (sheet.ShowsNothing(frame))
             return;
         SpriteSheetFrame image = sheet.Frame(frame);
-        sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY) - Position16<ScreenPixels>.Zero,
-            SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(source, image, place, SpriteMirror.None));
     }
 
     /// <summary>Counts one update off a flare component's wait and shows its animation's next picture once the wait is spent.</summary>
@@ -108,11 +106,9 @@ internal sealed class ProjectileAnimation
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
     internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
-        var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
+        Offset16<RoomPixels> visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
             .Resolve(pose.Running, pose.Aim);
-        int xOffset = visualOffset.X;
-        int yOffset = visualOffset.Y;
 
         // The flare draw applies Ceres's rotation whenever the body renderer does, under the same
         // Ceres status. Only Samus's center is transformed; the pose-selected muzzle
@@ -122,8 +118,8 @@ internal sealed class ProjectileAnimation
         Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(samusPosition)
             : samusPosition;
-        int screenX = CoordinateAxis.Wrap(renderPoint.X + xOffset - cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(renderPoint.Y + yOffset - pose.PoseYOffset - cameraPosition.Y);
+        Offset16<ScreenPixels> place =
+            (renderPoint + visualOffset - Offset16<RoomPixels>.Of(0, pose.PoseYOffset)).RelativeToCamera(cameraPosition);
 
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
@@ -134,7 +130,7 @@ internal sealed class ProjectileAnimation
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, ChargeFlarePictures.SourceInstance(component)), image,
-            Position16<ScreenPixels>.Of(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+            place, SpriteMirror.None));
     }
 
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>

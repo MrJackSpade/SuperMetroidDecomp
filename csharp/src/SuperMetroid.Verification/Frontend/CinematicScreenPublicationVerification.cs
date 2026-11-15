@@ -40,12 +40,12 @@ internal static class CinematicScreenPublicationVerification
         var oam = new OamBuffer();
         raw.BeginFrame();
         oam.BeginFrame();
-        var positions = new List<Position16<SpritePixels>>();
+        var positions = new List<Position16<ScreenPixels>>();
         for (int index = 0; index < 40; index++)
         {
-            var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
+            var position = new Position16<ScreenPixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
             positions.Add(position);
-            raw.AddImage(star, position - Position16<SpritePixels>.Zero, PictureShading.Standard);
+            raw.AddImage(star, position - Position16<ScreenPixels>.Zero, PictureShading.Standard);
             oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(SuperMetroid.AssetExtraction.Frontend.Ending.EndingShootingStarParts.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
         }
         raw.FinishFrame();

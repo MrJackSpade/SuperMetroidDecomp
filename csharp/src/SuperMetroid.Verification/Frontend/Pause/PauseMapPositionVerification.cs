@@ -51,7 +51,7 @@ internal static class PauseMapPositionVerification
                 // The frame as published; whether a repaint shows the same pixels is answered from the two frames'
                 // descriptions, drawing them only when those differ (#1532, #1757).
                 LayeredScene shown = pause.CaptureRenderSnapshot();
-                Position16<ScreenPixels> marker = samusCell.ToMapPixels().ToScreen(pause.MapScroll);
+                Position16<ScreenPixels> marker = Position16<ScreenPixels>.Zero + samusCell.ToMapPixels().RelativeToScroll(pause.MapScroll);
                 ushort x = marker.X, y = marker.Y;
                 var expected = new OamBuffer(); expected.BeginFrame();
                 DrawImportedSpritemap(bus, expected, 0x820000 | Read(0x82c569 + id * 2), new(x, y), 0x0e00);

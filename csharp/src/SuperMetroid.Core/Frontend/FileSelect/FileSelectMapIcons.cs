@@ -99,6 +99,6 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         MapSpriteColouring colouring)
     {
         MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),
-            id, entries, position.ToScreen(scroll).ToSpritePosition(), MapSpriteScreen.FileSelect, colouring);
+            id, entries, position.RelativeToScroll(scroll), MapSpriteScreen.FileSelect, colouring);
     }
 }

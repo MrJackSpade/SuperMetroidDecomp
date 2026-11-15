@@ -9,11 +9,11 @@ public sealed class EscapeTimerPresentation
     private const int DigitBase = 10;
 
     /// <summary>Every anchor's installed screen-relative offset from the timer's origin.</summary>
-    internal readonly Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors;
+    internal readonly Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>> anchors;
 
     /// <summary>Holds every installed anchor and the digit spacing the import pipeline validated.</summary>
     /// <exception cref="InvalidDataException">An anchor has no installed offset.</exception>
-    internal EscapeTimerPresentation(Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors, int digitSpacing)
+    internal EscapeTimerPresentation(Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>> anchors, int digitSpacing)
     {
         foreach (EscapeTimerAnchor anchor in Enum.GetValues<EscapeTimerAnchor>())
             if (!anchors.ContainsKey(anchor))
@@ -45,20 +45,20 @@ public sealed class EscapeTimerPresentation
         DrawPair(readout.Seconds, Anchor(EscapeTimerAnchor.Seconds));
         DrawPair(readout.Centiseconds, Anchor(EscapeTimerAnchor.Centiseconds));
 
-        void DrawPair(int value, Offset16<SpritePixels> anchor)
+        void DrawPair(int value, Offset16<ScreenPixels> anchor)
         {
             DrawFrame(EscapeTimerComposition.DigitGlyph(value / DigitBase), anchor);
             DrawFrame(EscapeTimerComposition.DigitGlyph(value % DigitBase),
-                anchor + new Offset16<SpritePixels>(DigitSpacing, 0));
+                anchor + new Offset16<ScreenPixels>(DigitSpacing, 0));
         }
 
-        void DrawFrame(EscapeTimerGlyph glyph, Offset16<SpritePixels> anchor) =>
+        void DrawFrame(EscapeTimerGlyph glyph, Offset16<ScreenPixels> anchor) =>
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer),
                 sheet.Frame(EscapeTimerComposition.FrameName(glyph)),
-                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y) - Position16<ScreenPixels>.Zero, SpriteMirror.None)
+                timer.ScreenPlace + anchor, SpriteMirror.None)
             { Shading = PictureShading.Standard });
     }
 
     /// <summary>The installed offset of <paramref name="anchor"/>.</summary>
-    private Offset16<SpritePixels> Anchor(EscapeTimerAnchor anchor) => anchors[anchor];
+    private Offset16<ScreenPixels> Anchor(EscapeTimerAnchor anchor) => anchors[anchor];
 }

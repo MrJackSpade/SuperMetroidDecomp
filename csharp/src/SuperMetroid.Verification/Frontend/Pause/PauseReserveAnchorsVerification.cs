@@ -36,8 +36,8 @@ internal static class PauseReserveAnchorsVerification
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {
-            var anchors = (Position16<SpritePixels>[])document.Anchors.Clone();
-            anchors[0] = horizontal ? new(unchecked((ushort)invalid), anchors[0].Y) : new(anchors[0].X, unchecked((ushort)invalid));
+            var anchors = (Offset16<ScreenPixels>[])document.Anchors.Clone();
+            anchors[0] = horizontal ? new(invalid, anchors[0].Y) : new(anchors[0].X, invalid);
             AssertThrows<InvalidDataException>(() =>
             {
                 using var written = new MemoryStream();

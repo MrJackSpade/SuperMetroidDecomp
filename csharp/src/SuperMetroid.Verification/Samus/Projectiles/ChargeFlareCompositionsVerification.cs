@@ -44,8 +44,8 @@ internal static class ChargeFlareCompositionsVerification
                 var native = new OamBuffer(); var actual = new OamBuffer();
                 for (int i = 0; i < occupied; i++)
                 {
-                    native.AddProjectileSpritePart(default, 0, default, new Position16<SpritePixels>(10, 20));
-                    actual.AddProjectileSpritePart(default, 0, default, new Position16<SpritePixels>(10, 20));
+                    native.AddProjectileSpritePart(default, 0, default, new Position16<ScreenPixels>(10, 20));
+                    actual.AddProjectileSpritePart(default, 0, default, new Position16<ScreenPixels>(10, 20));
                 }
                 DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
                 stock.Draw(selector, actual, new(x, y));
@@ -72,7 +72,7 @@ internal static class ChargeFlareCompositionsVerification
 
     /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
     internal static void DrawImportedFlareSpritemap(CartridgeImportAddressSpace bus, OamBuffer oam,
-        ushort selector, Position16<SpritePixels> origin)
+        ushort selector, Position16<ScreenPixels> origin)
     {
         int table = SnesAddressMath.AddWithinBank(0x93a1a1, selector * 2);
         int record = 0x930000 | CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(table);

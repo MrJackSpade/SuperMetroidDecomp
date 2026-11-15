@@ -22,7 +22,7 @@ public sealed class GameOverPresentation
     }
 
     /// <summary>Shared drawing origin of the Baby and egg compositions in screen pixels, with both coordinates in 0-255.</summary>
-    public Position16<SpritePixels> BabyAnchor { get; }
+    public Offset16<ScreenPixels> BabyAnchor { get; }
     /// <summary>Missile-cursor horizontal screen coordinate in pixels, shared by both answers and bounded to 0-255.</summary>
     public int CursorX { get; }
     /// <summary>Missile-cursor vertical screen coordinate in pixels for the Yes answer, bounded to 0-255.</summary>
@@ -39,14 +39,14 @@ public sealed class GameOverPresentation
     /// <param name="colours">Idle or one of the three crying colourings selected by the compiled Baby sequence (#1512).</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
     public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame, GameOverBabyColouring colours) =>
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.BabyFrameName(frame)), BabyAnchor - Position16<SpritePixels>.Zero,
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.BabyFrameName(frame)), BabyAnchor,
             shading: PictureShading.Shaded(GameOverBabyShades.Colours(colours)));
 
     /// <summary>Appends the egg composition at the shared Baby anchor in the installed egg colouring.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawEgg(ScreenSprites screenSprites, SpriteSheet sheet) =>
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.EggFrame), BabyAnchor - Position16<SpritePixels>.Zero,
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.EggFrame), BabyAnchor,
             shading: PictureShading.Standard);
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
@@ -60,6 +60,6 @@ public sealed class GameOverPresentation
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.CursorFrameName(frame)),
-            new Offset16<SpritePixels>(CursorX, selectNo ? NoCursorY : YesCursorY), shading: PictureShading.Standard);
+            new Offset16<ScreenPixels>(CursorX, selectNo ? NoCursorY : YesCursorY), shading: PictureShading.Standard);
     }
 }

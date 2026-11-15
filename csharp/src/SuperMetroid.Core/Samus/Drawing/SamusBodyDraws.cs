@@ -12,14 +12,14 @@ public static class SamusBodyDraws
     /// </summary>
     /// <param name="sprites">The frame receiving the draw after everything already emitted.</param>
     /// <param name="frame">The whole body whose picture is drawn.</param>
-    /// <param name="origin">Screen-space origin produced by Samus's draw.</param>
+    /// <param name="origin">The signed screen place Samus's draw produced: left of or above the screen is negative.</param>
     /// <param name="sheets">The installed sheets.</param>
     /// <param name="source">The Samus element the draw shows.</param>
     /// <exception cref="InvalidDataException">The body sheet holds no picture for the frame.</exception>
     public static void AddSamusBody(
         this SpriteFrameBuffer sprites,
         SamusBodyFrame frame,
-        Position16<ScreenPixels> origin,
+        Offset16<ScreenPixels> origin,
         InstalledSpriteSheets sheets,
         SpriteSource source)
     {
@@ -29,6 +29,6 @@ public static class SamusBodyDraws
         string name = frame.Name;
         if (body.ShowsNothing(name))
             return;
-        sprites.Add(new ImageSpriteDraw(source, body.Frame(name), origin - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(source, body.Frame(name), origin, SpriteMirror.None));
     }
 }

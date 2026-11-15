@@ -9,5 +9,5 @@ public sealed record PauseReserveTankLayoutDocument
     public required int Version { get; init; }
 
     /// <summary>Gets the six screen-pixel anchors for five tank positions and the trailing cap.</summary>
-    public required Position16<SpritePixels>[] Anchors { get; init; }
+    public required Offset16<ScreenPixels>[] Anchors { get; init; }
 }

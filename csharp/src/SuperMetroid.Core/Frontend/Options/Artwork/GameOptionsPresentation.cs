@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 public sealed class GameOptionsPresentation
 {
     /// <summary>The installed heading anchors by menu layout.</summary>
-    private readonly Dictionary<GameOptionsPage, Position16<SpritePixels>> headingAnchors;
+    private readonly Dictionary<GameOptionsPage, Offset16<ScreenPixels>> headingAnchors;
     /// <summary>The installed cursor anchors by menu layout.</summary>
-    private readonly Dictionary<GameOptionsPage, Position16<SpritePixels>[]> cursorAnchors;
+    private readonly Dictionary<GameOptionsPage, Offset16<ScreenPixels>[]> cursorAnchors;
 
     /// <summary>Keeps the complete installed anchors; the installation is their only source (#1596).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>
@@ -21,7 +21,7 @@ public sealed class GameOptionsPresentation
     {
         Ensure.NotNull(placements);
         headingAnchors = placements.HeadingAnchors.ToDictionary(pair => pair.Key, pair => pair.Value);
-        cursorAnchors = placements.CursorAnchors.ToDictionary(pair => pair.Key, pair => (Position16<SpritePixels>[])[.. pair.Value]);
+        cursorAnchors = placements.CursorAnchors.ToDictionary(pair => pair.Key, pair => (Offset16<ScreenPixels>[])[.. pair.Value]);
         CursorFrameDuration = placements.CursorFrameDuration;
     }
 
@@ -29,11 +29,11 @@ public sealed class GameOptionsPresentation
     public int CursorFrameDuration { get; }
 
     /// <summary>Gets the cursor origin for an authored page and selection row.</summary>
-    internal Position16<SpritePixels> CursorPosition(GameOptionsPage page, int selectedItem)
+    internal Offset16<ScreenPixels> CursorPosition(GameOptionsPage page, int selectedItem)
     {
         if (!Enum.IsDefined(page))
             throw new ArgumentOutOfRangeException(nameof(page), page, "Options cursors exist only for the three menu pages.");
-        Position16<SpritePixels>[] points = cursorAnchors[page];
+        Offset16<ScreenPixels>[] points = cursorAnchors[page];
         return (uint)selectedItem < points.Length
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
@@ -41,13 +41,13 @@ public sealed class GameOptionsPresentation
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)
     {
-        Position16<SpritePixels> point = headingAnchors[page];
+        Offset16<ScreenPixels> point = headingAnchors[page];
         // Scrolling moves the heading up by the menu's scroll.
-        Position16<SpritePixels> origin = point + new Offset16<SpritePixels>(0, -verticalScroll);
-        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
+        Offset16<ScreenPixels> origin = point + new Offset16<ScreenPixels>(0, -verticalScroll);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin, shading: PictureShading.Standard);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
-    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<SpritePixels> point) =>
-        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
+    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Offset16<ScreenPixels> point) =>
+        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point, shading: PictureShading.Standard);
 }

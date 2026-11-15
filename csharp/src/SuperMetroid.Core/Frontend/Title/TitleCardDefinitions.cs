@@ -13,7 +13,7 @@ internal static class TitleCardDefinitions
     /// How far a card's text moves each time it types a letter (a space included): one letter's width leftward, so each new
     /// letter appears at the same place on the right while the letters before it scroll left.
     /// </summary>
-    internal static readonly Offset16<SpritePixels> TypedScroll = Offset16<SpritePixels>.Of(-8, 0);
+    internal static readonly Offset16<ScreenPixels> TypedScroll = Offset16<ScreenPixels>.Of(-8, 0);
 
     /// <summary>The year card: a 60-update blank opening, then 1994, held for 45 updates before the lower pan.</summary>
     internal static readonly TitleCardDefinition Year =

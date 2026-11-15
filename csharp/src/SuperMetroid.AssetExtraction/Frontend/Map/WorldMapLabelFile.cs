@@ -21,7 +21,7 @@ public static class WorldMapLabelFile
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)
             throw new InvalidDataException("World-map labels require version 1 and exactly the six Zebes areas.");
-        Position16<SpritePixels> RequireArea(AreaId area)
+        Offset16<ScreenPixels> RequireArea(AreaId area)
         {
             string name = area.ToString();
             if (!document.Areas.TryGetValue(name, out var point) ||

@@ -13,7 +13,7 @@ internal sealed record NativeEnemySpritemapDraw
     public required ushort Pointer { get; init; }
 
     /// <summary>Origin.</summary>
-    public required Position16<SpritePixels> Origin { get; init; }
+    public required Position16<ScreenPixels> Origin { get; init; }
 
     /// <summary>Palette bits.</summary>
     public required int PaletteBits { get; init; }

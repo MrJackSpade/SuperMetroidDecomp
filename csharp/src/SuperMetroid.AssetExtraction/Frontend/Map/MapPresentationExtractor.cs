@@ -126,7 +126,7 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(PathOf(MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
-        var labelPoints = new Dictionary<string, Position16<SpritePixels>>();
+        var labelPoints = new Dictionary<string, Offset16<ScreenPixels>>();
         foreach (AreaId area in AreaIds.Zebes)
         {
             int address = MapSourceDefinitions.FileSelectMap.LabelPositions + AreaNumberCodec.Encode(area) * 4;

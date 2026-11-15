@@ -29,7 +29,7 @@ internal static class ImportedSpritemapsVerification
 
     /// <summary>Draws a bank-$8D projectile map with its native graphics selection and vertical-wrap clipping.</summary>
     internal static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        ushort bank8dSpritemapPointer, Position16<SpritePixels> origin,
+        ushort bank8dSpritemapPointer, Position16<ScreenPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
             bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
@@ -62,7 +62,7 @@ internal static class ImportedSpritemapsVerification
         expected.BeginFrame();
         actual.BeginFrame();
         DrawImportedEnemyProjectileSpritemap(rom, expected, nativePointer, new(128, 112), 0, true);
-        actual.AddEnemySpritemap(parts.Span, new Position16<SpritePixels>(128, 112), 0, 0,
+        actual.AddEnemySpritemap(parts.Span, new Position16<ScreenPixels>(128, 112), 0, 0,
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
             $"projectile frame $86:{operand:X4} native sprite part count");

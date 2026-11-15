@@ -33,10 +33,10 @@ public record GameOptionsLayoutDocument
     public required Dictionary<string, GameOptionsToggleVisualDocument> SpecialToggles { get; init; }
     /// <summary>Heading origins for primary, controller, and special menus in screen pixels, X=0-255 and Y=0-255; drawing subtracts vertical scroll from Y.</summary>
     [JsonPropertyOrder(8)]
-    public required Dictionary<string, Position16<SpritePixels>> HeadingAnchors { get; init; }
+    public required Dictionary<string, Offset16<ScreenPixels>> HeadingAnchors { get; init; }
     /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
     [JsonPropertyOrder(9)]
-    public required Dictionary<string, Position16<SpritePixels>[]> CursorAnchors { get; init; }
+    public required Dictionary<string, Offset16<ScreenPixels>[]> CursorAnchors { get; init; }
     /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     [JsonPropertyOrder(11)]
     public required int SelectedPalette { get; init; }

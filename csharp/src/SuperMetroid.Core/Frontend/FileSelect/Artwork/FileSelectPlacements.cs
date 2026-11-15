@@ -13,15 +13,15 @@ public sealed record FileSelectPlacements
     /// <summary>Each save slot's field layout on the copy and clear pages.</summary>
     public required IReadOnlyDictionary<SaveSlot, FileSelectSlotFieldDocument> DataSlots { get; init; }
     /// <summary>Each bordered heading's origin in screen pixels.</summary>
-    public required IReadOnlyDictionary<FileSelectBorder, Position16<SpritePixels>> BorderAnchors { get; init; }
+    public required IReadOnlyDictionary<FileSelectBorder, Offset16<ScreenPixels>> BorderAnchors { get; init; }
     /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels.</summary>
-    public required Position16<SpritePixels>[] MainCursorAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] MainCursorAnchors { get; init; }
     /// <summary>Four missile-cursor origins in data-management selection order, in screen pixels.</summary>
-    public required Position16<SpritePixels>[] DataCursorAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] DataCursorAnchors { get; init; }
     /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels.</summary>
-    public required Position16<SpritePixels>[] ConfirmationCursorAnchors { get; init; }
+    public required Offset16<ScreenPixels>[] ConfirmationCursorAnchors { get; init; }
     /// <summary>Each save slot's helmet origin, in screen pixels.</summary>
-    public required IReadOnlyDictionary<SaveSlot, Position16<SpritePixels>> HelmetAnchors { get; init; }
+    public required IReadOnlyDictionary<SaveSlot, Offset16<ScreenPixels>> HelmetAnchors { get; init; }
     /// <summary>The page pixel each copy or clear page's slot letter is shown at.</summary>
     public required IReadOnlyDictionary<FileSelectAnchor, Position16<PlanePixels>> DynamicAnchors { get; init; }
     /// <summary>Menu updates per missile-cursor animation frame, at least one.</summary>

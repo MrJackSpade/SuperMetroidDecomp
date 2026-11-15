@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingShootingStarFieldVerification
 {
     /// <summary>The origin a star returns to.</summary>
-    private static readonly Position16<ScreenPixels> Origin = new(EndingShootingStarDefinitions.Origin, EndingShootingStarDefinitions.Origin);
+    private static readonly Offset16<ScreenPixels> Origin = new(EndingShootingStarDefinitions.Origin, EndingShootingStarDefinitions.Origin);
 
     /// <summary>
     /// Star 1 drifts right and slightly up, star 11 slightly right and down, both from the start; each is placed on and
@@ -25,6 +25,9 @@ internal static class EndingShootingStarFieldVerification
         StepStar(11, new(128, 256), Origin, "a star past the field's bottom edge returns to the origin");
         StepStar(1, new(4, 128), new(4, 127), "a star on the field's near edge keeps flying");
         StepStar(1, new(3, 128), Origin, "a star nearer the left than the sprite offset returns to the origin");
+        // Left of or above the screen a star's place is negative, which lies nearer than the sprite offset (#2020).
+        StepStar(1, new(-1, 128), Origin, "a star left of the screen returns to the origin");
+        StepStar(1, new(128, -1), Origin, "a star above the screen returns to the origin");
     }
 
     /// <summary>The animation period the cartridge gives every still star, in updates.</summary>
@@ -64,11 +67,11 @@ internal static class EndingShootingStarFieldVerification
     }
 
     /// <summary>Places star <paramref name="index"/> at rest at <paramref name="start"/>, steps the stars once and checks where it is.</summary>
-    private static void StepStar(int index, Position16<ScreenPixels> start, Position16<ScreenPixels> expected, string context)
+    private static void StepStar(int index, Offset16<ScreenPixels> start, Offset16<ScreenPixels> expected, string context)
     {
         var stars = new EndingShootingStars();
         AssertTrue(!stars.stars[index].Delayed, $"star {index} flies from the start");
-        stars.stars[index].Position = FixedPosition<ScreenPixels>.FromWhole(start);
+        stars.stars[index].Position = FixedVector<ScreenPixels>.FromWholePixels(start);
         stars.Step();
         AssertEqual(expected, stars.stars[index].Position.Whole, context);
     }

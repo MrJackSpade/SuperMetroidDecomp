@@ -283,7 +283,7 @@ internal static void VerifyEscapeTimerStateMachine()
     AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
     AssertEqual(EscapeTimerPhase.InitialDelay, timer.Phase, "Ceres enters initial delay");
     AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "Ceres starts at one minute");
-    FixedPosition<ScreenPixels> centre = FixedPosition<ScreenPixels>.FromWhole(new(128, 128));
+    FixedVector<ScreenPixels> centre = FixedVector<ScreenPixels>.FromWholePixels(Offset16<ScreenPixels>.Of(128, 128));
     AssertEqual(centre, timer.Position, "timer starts at the screen centre, pixel 128 on each axis with no fraction");
 
     // The initial delay lasts sixteen updates and never counts down.
@@ -306,13 +306,13 @@ internal static void VerifyEscapeTimerStateMachine()
     // X reaches its clamp in 106 frames; Y requires 107, so the phase advances on 107.
     // Each update moves it 224/256 of a pixel right and 193/256 up, the fractions kept between updates.
     timer.Process(97);
-    AssertEqual(new FixedPosition<ScreenPixels>(FixedCoordinate.Of(128, 224 << 8), FixedCoordinate.Of(127, 63 << 8)), timer.Position,
+    AssertEqual(new FixedVector<ScreenPixels>(SignedSixteenSixteen.FromParts(128, 224 << 8), SignedSixteenSixteen.FromParts(127, 63 << 8)), timer.Position,
         "the first slide update keeps 224/256 of a pixel right and 63/256 above row 127");
-    AssertEqual(new Position16<ScreenPixels>(128, 127), timer.PixelPosition, "the timer is drawn from the slide's whole pixels");
+    AssertEqual(new Offset16<ScreenPixels>(128, 127), timer.ScreenPlace, "the timer is drawn from the slide's whole pixels");
     for (int frame = 98; frame <= 203; frame++)
         timer.Process(frame);
     AssertEqual(EscapeTimerPhase.InPlace, timer.Phase, "timer reaches its corner");
-    AssertEqual(FixedPosition<ScreenPixels>.FromWhole(new(220, 48)), timer.Position,
+    AssertEqual(FixedVector<ScreenPixels>.FromWholePixels(Offset16<ScreenPixels>.Of(220, 48)), timer.Position,
         "timer clamps at column 220 and row 48 with no fraction");
 
     var borrowSecond = CreateRunningTimer(EscapeTimerClock.Time(0, 1, 0));

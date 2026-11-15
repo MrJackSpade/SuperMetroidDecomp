@@ -20,7 +20,7 @@ public sealed class PauseReserveTankSourcePresentation
     private readonly Dictionary<PauseReserveTankVisual, SpriteComposition> frames;
 
     /// <summary>Stores the installed anchors, frame art, and the sprite set the strip's frames are composed in.</summary>
-    private PauseReserveTankSourcePresentation(Position16<SpritePixels>[] anchors,
+    private PauseReserveTankSourcePresentation(Offset16<ScreenPixels>[] anchors,
         Dictionary<PauseReserveTankVisual, SpriteComposition> frames, int spriteSet)
     {
         Presentation = new PauseReserveTankPresentation(anchors);
@@ -52,7 +52,7 @@ public sealed class PauseReserveTankSourcePresentation
         if (document.Version != PauseReserveTankFormat.Version || (uint)document.Palette > 7 ||
             document.Frames is null || document.Frames.Count != PauseReserveTankParts.Frames().Count())
             throw new InvalidDataException("Reserve tanks require version 1, palette 0..7, six anchors and ten named frames.");
-        Position16<SpritePixels>[] anchors = PauseReserveTankLayoutFile.Anchors(document.Anchors);
+        Offset16<ScreenPixels>[] anchors = PauseReserveTankLayoutFile.Anchors(document.Anchors);
         var frames = new Dictionary<PauseReserveTankVisual, SpriteComposition>();
         foreach (var frame in PauseReserveTankParts.Frames())
         {

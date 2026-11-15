@@ -119,7 +119,7 @@ public sealed class FileSelectAreaMapGraphics
                 shown == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 
-        void Draw(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring)
+        void Draw(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring)
         {
             MapSpriteSheet.Draw(mapSheet, id, entries, origin, MapSpriteScreen.FileSelect, colouring);
         }

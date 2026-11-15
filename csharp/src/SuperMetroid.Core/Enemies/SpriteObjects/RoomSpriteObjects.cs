@@ -113,7 +113,7 @@ internal sealed class RoomSpriteObjects
             // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
             if (spawned.Frame.HitBurst is { } burst)
             {
-                hitBursts.Draw(sprites, instance++, burst, screen);
+                hitBursts.Draw(sprites, instance++, burst, spawned.Position.Whole.RelativeToCamera(camera));
                 continue;
             }
             EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();

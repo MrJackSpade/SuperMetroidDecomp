@@ -95,15 +95,14 @@ public sealed class SamusArmCannonState
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
         // The cover is published wherever it lies, off the screen included; the display clips it (#1587).
-        int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole + offset.X - cameraPosition.X);
-        int screenY = CoordinateAxis.Wrap(
-            samus.Position.Y.Whole + offset.Y - graphicsYOffset - cameraPosition.Y);
+        Offset16<ScreenPixels> place =
+            (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
         // The cover's direction and picture name its sheet frame; a closed cover returned above.
         InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
             "Arm cannon requires the installed sprite sheets.");
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
             sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, cover)),
-            new Position16<ScreenPixels>(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+            place, SpriteMirror.None));
     }
 
     /// <summary>

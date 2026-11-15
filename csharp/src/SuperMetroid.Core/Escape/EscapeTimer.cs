@@ -33,8 +33,11 @@ public sealed class EscapeTimer
     /// <summary>The minutes, seconds and centiseconds the timer shows.</summary>
     public EscapeTimeReadout Readout => EscapeTimeReadout.Of(RemainingCentiseconds);
 
-    /// <summary>The timer's on-screen position, its fractions kept as it slides into its corner.</summary>
-    public FixedPosition<ScreenPixels> Position { get; private set; }
+    /// <summary>
+    /// The timer's signed place on the screen, from the screen's top-left corner, its fractions kept as it slides into its
+    /// corner.
+    /// </summary>
+    public FixedVector<ScreenPixels> Position { get; private set; }
 
     /// <summary>
     /// Whether the countdown has expired and is only drawn: after expiry the timer never counts again until an escape
@@ -42,8 +45,8 @@ public sealed class EscapeTimer
     /// </summary>
     public bool CountdownExpired { get; private set; }
 
-    /// <summary>Whole-pixel on-screen position the timer's label and digits are drawn from.</summary>
-    public Position16<ScreenPixels> PixelPosition => Position.Whole;
+    /// <summary>The whole-pixel screen place the timer's label and digits are drawn from.</summary>
+    public Offset16<ScreenPixels> ScreenPlace => Position.Whole;
 
     /// <summary>Requests the one-minute Ceres countdown; the next <see cref="Process"/> call starts it.</summary>
     public void RequestCeresStart() => RequestStart(CeresDuration);
@@ -92,7 +95,7 @@ public sealed class EscapeTimer
     /// <summary>Stops the timer, empties its countdown and returns it to the screen's centre.</summary>
     public void Clear()
     {
-        Position = FixedPosition<ScreenPixels>.FromWhole(new(ClearedPixel, ClearedPixel));
+        Position = FixedVector<ScreenPixels>.FromWholePixels(Offset16<ScreenPixels>.Of(ClearedPixel, ClearedPixel));
         _startupFrames = 0;
         _pendingDuration = 0;
         RemainingCentiseconds = 0;
@@ -146,16 +149,16 @@ public sealed class EscapeTimer
     {
         int axesInPosition = 0;
 
-        var settledX = new FixedCoordinate(SettledX, 0);
-        FixedCoordinate nextX = Position.X.MovedBy(RightwardSpeed);
+        SignedSixteenSixteen settledX = SignedSixteenSixteen.FromWholePixels(SettledX);
+        SignedSixteenSixteen nextX = Position.X + RightwardSpeed.ToSixteenSixteenDelta();
         if (!(nextX - settledX).IsNegative)
         {
             axesInPosition++;
             nextX = settledX;
         }
 
-        var settledY = new FixedCoordinate(SettledY, 0);
-        FixedCoordinate nextY = Position.Y.MovedBy(-UpwardSpeed);
+        SignedSixteenSixteen settledY = SignedSixteenSixteen.FromWholePixels(SettledY);
+        SignedSixteenSixteen nextY = Position.Y - UpwardSpeed.ToSixteenSixteenDelta();
         if ((nextY - settledY).IsNegative)
         {
             axesInPosition++;

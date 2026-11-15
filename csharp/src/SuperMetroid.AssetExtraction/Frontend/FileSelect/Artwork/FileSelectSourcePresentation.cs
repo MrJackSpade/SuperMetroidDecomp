@@ -400,16 +400,16 @@ public sealed class FileSelectSourcePresentation
     }
 
     /// <summary>Requires an exact number of valid OAM pixel anchors for a menu layout.</summary>
-    private static void ValidatePoints(Position16<SpritePixels>[]? points, int count, string owner)
+    private static void ValidatePoints(Offset16<ScreenPixels>[]? points, int count, string owner)
     {
         if (points is null || points.Length != count)
             throw new InvalidDataException($"File-select {owner} requires {count} points.");
-        foreach (Position16<SpritePixels> point in points)
+        foreach (Offset16<ScreenPixels> point in points)
             ValidatePoint(point, owner);
     }
 
     /// <summary>Restricts a sprite anchor to the sprite plane: X 0..511 and Y 0..255.</summary>
-    private static void ValidatePoint(Position16<SpritePixels> point, string owner)
+    private static void ValidatePoint(Offset16<ScreenPixels> point, string owner)
     {
         if (point.X < 0 || point.X > SpritePart.PlaneWidth - 1 ||
             (uint)point.Y > byte.MaxValue)

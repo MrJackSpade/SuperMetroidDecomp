@@ -66,7 +66,7 @@ internal static class BossDisplayBindingsStockVerification
                     AssertTrue(original.Parts.SequenceEqual(imported.Parts), frame.Name + " exact native sprite records");
                     parts += original.Parts.Length;
                     expectedOam.AddEnemySpritemap(original.Parts,
-                        new Position16<SpritePixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))),
+                        new Position16<ScreenPixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))),
                         NativeSpriteGraphicsWords.PaletteBits(fixture.Actor.PaletteRowIn(fixture.Enemies)), checked((ushort)fixture.Actor.NativeTileBaseIn(fixture.Enemies)),
                         clipVerticalWrap: true, originYIsOnScreen: (EightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
                 }

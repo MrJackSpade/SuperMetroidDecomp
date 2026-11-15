@@ -308,8 +308,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             // The bomb is published wherever it lies; the display clips it to the view (#1541).
-            int screenX = CoordinateAxis.Difference(bomb.Position.X.Whole, cameraPosition.X);
-            int screenY = CoordinateAxis.Wrap(bomb.Position.Y.Whole - cameraPosition.Y);
+            Offset16<ScreenPixels> place = bomb.Position.Whole.RelativeToCamera(cameraPosition);
 
             ProjectileSpriteId sprite = bomb.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.");
             // The empty composition draws nothing, and so does a composition the sheet of the beams the bomb is pictured
@@ -322,7 +321,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, bomb.Place), image,
-                Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+                place, SpriteMirror.None));
         }
     }
 

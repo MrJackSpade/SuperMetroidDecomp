@@ -67,7 +67,7 @@ internal static class MapSpriteCasesVerification
                 int palette = MapSpriteSets[colouring];
                 native = new OamBuffer(); native.BeginFrame(); installed.BeginFrame();
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
-                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), installed, new(x, y), colouring);
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(catalog), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), installed, Offset16<ScreenPixels>.Wrapped(x, y), colouring);
                 native.FinalizeFrame(); installed.FinalizeFrame();
                 AssertEqual(native.LastFinalizedSpriteCount, installed.LastFinalizedSpriteCount, "map sprite count/capacity matches native");
                 AssertTrue(native.ImageEquals(installed),

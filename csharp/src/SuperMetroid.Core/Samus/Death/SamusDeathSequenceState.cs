@@ -60,8 +60,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// </summary>
     public RgbColor? Whiteout { get; private set; }
 
-    /// <summary>Screen-space position captured at death-pose setup.</summary>
-    public Position16<ScreenPixels> ScreenPosition { get; private set; }
+    /// <summary>The signed screen place captured at death-pose setup: left of or above the screen is negative.</summary>
+    public Offset16<ScreenPixels> ScreenPosition { get; private set; }
 
 
     /// <summary>The suit-explosion frame shown, or null outside the explosion.</summary>
@@ -108,7 +108,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // renderer adds the foreground back before drawing. Retain world coordinates in Samus
         // for the shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-frame path.
-        ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);
+        ScreenPosition = samus.Position.Whole.RelativeToCamera(cameraPosition);
 
         PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;
         FlashShadeTimer = SamusDeathSequenceDefinitions.FirstFlashShadeCalls;
@@ -236,7 +236,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             "Samus death explosion requires the installed sprite sheets.")).Get(SpriteSheetId.SamusDeath);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
             death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
-            ScreenPosition - Position16<ScreenPixels>.Zero, SpriteMirror.None));
+            ScreenPosition, SpriteMirror.None));
     }
 
     /// <summary>Advances the explosion timer, death shade and terminal whiteout, returning whether to draw this frame.</summary>

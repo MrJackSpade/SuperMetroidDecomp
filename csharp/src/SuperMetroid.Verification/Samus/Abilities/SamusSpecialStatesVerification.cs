@@ -758,7 +758,7 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
         samus.PoseHistory.PreviousMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
-    AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
+    AssertEqual(new Offset16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
     AssertEqual(0, samus.AudioRequests.CountOf(SamusSound.SpinJumpEnd), "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 

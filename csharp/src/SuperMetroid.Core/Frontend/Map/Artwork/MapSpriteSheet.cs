@@ -19,7 +19,7 @@ internal static class MapSpriteSheet
     /// <param name="screen">The map screen the sprite is drawn on.</param>
     /// <param name="colouring">What the map shows the sprite's recolourable parts as.</param>
     /// <exception cref="InvalidOperationException">The sprite is not one <see cref="MapSpriteColourings"/> draws in <paramref name="colouring"/>, so the sheet does not picture it in that colouring.</exception>
-    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<SpritePixels> origin,
+    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         MapSpriteScreen screen, MapSpriteColouring colouring)
     {
         if (!Ensure.Listed(MapSpriteColourings.Drawn, id).Contains(colouring))
@@ -33,12 +33,12 @@ internal static class MapSpriteSheet
     /// <param name="sprites">The screen's sprite entries.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="shading">The shades the sprite shows, such as the highlight cycle's current frame.</param>
-    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<SpritePixels> origin,
+    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Offset16<ScreenPixels> origin,
         PictureShading shading)
     {
         Ensure.NotNull(sheet);
         Ensure.NotNull(shading);
         SpriteSheetFrame frame = sheet.Frame(MapSpriteNames.Name(id));
-        Ensure.NotNull(sprites).AddImage(frame, origin - Position16<SpritePixels>.Zero, shading: shading);
+        Ensure.NotNull(sprites).AddImage(frame, origin, shading: shading);
     }
 }

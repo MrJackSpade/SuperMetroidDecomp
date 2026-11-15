@@ -24,9 +24,11 @@ public readonly record struct Offset16<TSpace>
     }
 
     /// <summary>The horizontal displacement, -32768 through 32767.</summary>
+    [IntegerQuantity("horizontal displacement")]
     public short X { get; init; }
 
     /// <summary>The vertical displacement, -32768 through 32767.</summary>
+    [IntegerQuantity("vertical displacement")]
     public short Y { get; init; }
 
     /// <summary>No displacement.</summary>
@@ -54,6 +56,10 @@ public readonly record struct Offset16<TSpace>
     /// <summary>Adds two displacements, wrapping each axis at sixteen bits.</summary>
     public static Offset16<TSpace> operator +(Offset16<TSpace> left, Offset16<TSpace> right) =>
         Wrapped(left.X + right.X, left.Y + right.Y);
+
+    /// <summary>Subtracts one displacement from another, wrapping each axis at sixteen bits.</summary>
+    public static Offset16<TSpace> operator -(Offset16<TSpace> left, Offset16<TSpace> right) =>
+        Wrapped(left.X - right.X, left.Y - right.Y);
 
     /// <summary>Reverses the displacement, wrapping at sixteen bits.</summary>
     public static Offset16<TSpace> operator -(Offset16<TSpace> offset) =>

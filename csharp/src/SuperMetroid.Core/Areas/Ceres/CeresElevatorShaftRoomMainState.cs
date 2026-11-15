@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// Authored room-main state for the Ceres elevator shaft.
 /// </summary>
 /// <remarks>
-/// The elevator door's setup starts the shaft level, with its turn timer, before the shaft becomes visible. The room's
+/// The elevator door's setup starts the shaft level, with its hold before the first turn, before the shaft becomes visible. The room's
 /// main behaviour later sweeps the tilt clockwise and back. The turn it last reached is what the following room's main
 /// inherits (<see cref="RoomMainCarryover"/>).
 /// </remarks>
@@ -22,8 +22,8 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The last tilt of the backward sweep, one step short of the full anticlockwise tilt.</summary>
     private const int LastBackwardTilt = 1 - CeresShaftRotationDefinitions.FullTiltSteps;
 
-    /// <summary>The turn timer the elevator door's setup starts the shaft with.</summary>
-    public const int InitialRotationTimer = 60;
+    /// <summary>The updates the shaft holds level, once the elevator door's destruction releases it, before its first turn.</summary>
+    public const int LevelHoldFrames = 60;
 
     /// <summary>The elevator hold reaching the Ceres elevator writes.</summary>
     public const int DepartureHoldFrames = 60;
@@ -31,8 +31,8 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>Whether the active room owns this room-main behaviour.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>The countdown to the shaft's next turn place.</summary>
-    public int RotationTimer { get; private set; }
+    /// <summary>The further updates the shaft holds its tilt; the update after the last of them turns it.</summary>
+    public int HoldFramesLeft { get; private set; }
 
     /// <summary>
     /// The shaft's tilt in steps from level, each a 256th of a radian, clockwise positive (#1895): from the full
@@ -69,7 +69,7 @@ public sealed class CeresElevatorShaftRoomMainState
         {
             TiltSteps = 0;
             LeaveTurnStep(carryover);
-            RotationTimer = InitialRotationTimer;
+            HoldFramesLeft = LevelHoldFrames;
         }
     }
 
@@ -123,14 +123,16 @@ public sealed class CeresElevatorShaftRoomMainState
             DepartureRequestedThisFrame = true;
         }
 
-        // The turn moves on when the timer runs past zero: zero remains visible for one complete call; only the following
-        // call makes it -1 and turns to the next place. This differs from a conventional <= 0 timer.
-        if (--RotationTimer >= 0)
+        if (HoldFramesLeft > 0)
+        {
+            HoldFramesLeft--;
             return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
+        }
 
         // Both sweeps show the current tilt.
+        // The update that turns the shaft to a tilt is the first of the updates it holds it.
         var rotation = CeresShaftRotation.Read(TiltSteps);
-        RotationTimer = rotation.Timer;
+        HoldFramesLeft = rotation.HoldFrames - 1;
         Transform = new TurningFloorTransform(rotation.Tilt, CeresShaftRotationCenter);
 
         // The forward sweep turns clockwise one step at a time; after its last tilt the turn reverses at the full

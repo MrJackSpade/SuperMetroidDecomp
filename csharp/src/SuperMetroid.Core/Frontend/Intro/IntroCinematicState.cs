@@ -123,7 +123,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal const int GameplayFlashbackVerticalScroll = 8;
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
-    private readonly AudioQueues? audio;
+    private readonly AudioQueues audio;
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
     internal readonly IntroNarrationText narrationText = new();
     /// <summary>The cinematic actors' sprite entries over the intro sprite page (#1358).</summary>
@@ -196,10 +196,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
     internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
-    /// <summary>Cinematic-phase countdown for the running colour transition.</summary>
-    private WrappingCountdown crossfadeCounter;
-    /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
-    private WrappingCountdown introCrossfadeCounter;
+    /// <summary>
+    /// What the running crossfade did on this update (#1980), or null on an update no crossfade runs: the actors the
+    /// crossfade's finish ends react to it after the cinematic phase has advanced it.
+    /// </summary>
+    private IntroCrossfadeTick? crossfadeTick;
     /// <summary>
     /// The shared Samus systems' frame counter: the updates the cinematic has run, counted from zero at its creation. The
     /// intro reaches the title long before the game counter's 65536-update wrap, so it is a plain count.
@@ -211,21 +212,21 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal ScreenBrightness Brightness { get => brightness; set => brightness = value; }
     /// <summary>Times the narration's screen fades at cinematic entry, between pages and at exit.</summary>
     private readonly ScreenFade fade = new();
-    /// <summary>Fallback music-queue delay when no audio state is installed.</summary>
-    private int timer = 8;
+    /// <summary>The updates the running narration hold has left.</summary>
+    private int timer;
 
     /// <summary>Creates the opening cinematic and performs its initial graphics and music setup.</summary>
     /// <param name="overreads">
     /// The installed services reproducing Samus's glitch reads, for the flashbacks' Samus and projectiles, and the steps
     /// the egg's shell fragments fall by past their gravity curve.
     /// </param>
-    /// <param name="audio">Optional audio state that owns queued music and sound effects.</param>
+    /// <param name="audio">The audio state that owns queued music and sound effects; the cinematic waits on its music queue.</param>
     /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
         IntroCinematicOverreads overreads,
-        AudioQueues? audio = null,
+        AudioQueues audio,
         IntroCinematicArtwork? characterArtwork = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
@@ -237,7 +238,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
-        this.audio = audio;
+        this.audio = Ensure.NotNull(audio);
         CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
@@ -272,12 +273,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         controller.Latch(controllerInput);
         bool explosionsExistedBeforeThisFrame = FlashbackMotherBrainExplosions is not null;
         frameCounter++;
+        crossfadeTick = null;
         switch (Phase)
         {
             case IntroCinematicPhase.Initial:
                 // Stop the music, then load the opening music data.
-                audio?.QueueMusic(MusicRequest.Stop);
-                audio?.QueueMusic(
+                audio.QueueMusic(MusicRequest.Stop);
+                audio.QueueMusic(
                     MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
                 Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
                 break;
@@ -303,7 +305,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
-                    audio?.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
+                    audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -314,15 +316,14 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     // The next music requests wait on the music queue before the
                     // documented four-second hold; the shortest delay is their slot.
-                    audio?.QueueMusic(MusicRequest.Stop);
-                    audio?.QueueMusic(
+                    audio.QueueMusic(MusicRequest.Stop);
+                    audio.QueueMusic(
                         MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
-                    audio?.ScheduleMusic(
+                    audio.ScheduleMusic(
                         MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.PeaceLineSong),
                         MusicQueueDelay.AtLeastShortest(
                             IntroCinematicDefinitions.Music.SceneTrackDelay));
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
-                    timer = 8;
                 }
                 break;
 
@@ -479,8 +480,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // brightness owner: the narration has just deliberately reached
                     // a blanked screen, while the approach restores full brightness only after
                     // the fourteen-frame delayed music request has completed.
-                    CurrentCeresFlight = new IntroCeresFlightState(audio
-                        ?? throw new InvalidOperationException("The Ceres flight waits on the music queue."),
+                    CurrentCeresFlight = new IntroCeresFlightState(audio,
                         CharacterArtwork?.CeresFlight, subtitles.Enabled,
                         spriteSheets ?? throw new InvalidOperationException("The Ceres flight requires the installed sprite sheets."));
                     Phase = IntroCinematicPhase.CeresFlight;
@@ -542,7 +542,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             CurrentFlashbackMotherBrain.RunBehavior(
                 frameCounter,
-                crossfadeCounter.RemainingFrames);
+                CrossfadeFinishing);
             // Deleting Mother Brain after the page-two crossfade hides Samus from
             // the next update on.
             if (!CurrentFlashbackMotherBrain.IsVisible)
@@ -570,13 +570,13 @@ public sealed class IntroCinematicState : IFrontendScreen
             // The eight actors are allocated while object zero is already being processed,
             // so their first cinematic sprite update occurs on the following frame. Hit count
             // four is reached on the spawn frame, after the update passed their free slots.
-            FlashbackMotherBrainExplosions?.Step(crossfadeCounter.RemainingFrames);
+            FlashbackMotherBrainExplosions?.Step(CrossfadeFinishing);
         }
 
         // The cinematic sprites update after the cinematic phase, so the
         // actors a scene setup spawns take their first step in that same update.
-        CurrentBabyDiscovery?.Step(frameCounter, crossfadeCounter.RemainingFrames);
-        CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
+        CurrentBabyDiscovery?.Step(frameCounter, CrossfadeFinishing);
+        CurrentScientistCutscene?.Step(crossfadeTick);
 
         // The cinematic's game state runs the colour effects after its sprite objects. The fight lights' own check ends
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
@@ -631,24 +631,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The scene setup starts the crossfade from the narration into the flashback, which starts black.
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
 
-        // The sprite setup stored 127 in both the intro crossfade counter and (through the sprite
-        // object's setup) the scene's own copy. The crossfade tests the old counter, then decrements it.
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
     /// <summary>Advances 32 component updates of the text-to-gameplay fade before exposing the Mother Brain room.</summary>
     private void StepMotherBrainCrossfade()
     {
-        // The crossfade updates only when the pre-decrement counter is divisible by four.
-        // Values 124..0 therefore yield exactly 32 component updates.
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
-        {
-            crossfade.Step();
-        }
-
-        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
-        if (!crossfadeCounter.IsNegative)
+        if (!AdvanceCrossfade())
             return;
 
         // Transition completion selects the visible layers and blanks the English narration text. The
@@ -678,7 +667,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The crossfade recolours every colour from the opening's own, so the fight lights' last record no longer shows.
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
@@ -693,13 +681,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Fades gameplay and projectile ranges out while restoring portrait and text ranges.</summary>
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
-        {
-            crossfade.Step();
-        }
-
-        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
-        if (crossfadeCounter.IsNegative)
+        if (AdvanceCrossfade())
             Phase = completedPhase;
     }
 
@@ -727,20 +709,13 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles.Reset();
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
     internal void StepBabyDiscoveryCrossfade()
     {
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
-        {
-            crossfade.Step();
-        }
-
-        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
-        if (!crossfadeCounter.IsNegative)
+        if (!AdvanceCrossfade())
             return;
 
         // The crossfade's end clears the English text region after the final fade update. The
@@ -758,7 +733,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         // step used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
@@ -778,39 +752,27 @@ public sealed class IntroCinematicState : IFrontendScreen
         Objects.HideCaret();
         Objects.AcceptPageTurn();
 
-        // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
-        // seeds the intro crossfade counter, and spawns the delivered baby before configuring the
-        // scientist colour transition. Its picture is already in the intro's artwork.
+        // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight, and
+        // spawns the delivered baby before starting the crossfade into the laboratory. Its picture is already in the
+        // intro's artwork.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
         CurrentBabyDiscovery = null;
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
-
-        // The intro alternates two adjacent counters. Page-three setup left
-        // the cinematic phase's counter at 127; this setup writes the separate intro counter.
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
     /// <summary>Fades page-three text and portrait ranges into the delivery laboratory colours.</summary>
     internal void StepBabyMetroidDeliveryCrossfade()
     {
-        // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory background and sprite
-        // colours. Only the cinematic phase's counter is decremented on this direction.
+        // The scientist crossfade fades the narration away while bringing in the laboratory and its scientists.
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
     }
 
-    /// <summary>Advances the text-to-laboratory colour spans using the cinematic-phase countdown.</summary>
+    /// <summary>Advances the crossfade from the narration into the laboratory.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
-        {
-            crossfade.Step();
-        }
-
-        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
-        if (!crossfadeCounter.IsNegative)
+        if (!AdvanceCrossfade())
             return;
 
         ClearVisibleNarrationText();
@@ -820,35 +782,39 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts page four and the alternate-timer fade back from the delivery laboratory.</summary>
     private void SetupPageFourCrossfade()
     {
-        // The baby's page-four step selects page four. Page four starts its text and seeds the
-        // cinematic-phase counter, while the reverse step deliberately consumes the
-        // still-127 intro crossfade counter set by the delivery scene.
+        // The baby's page-four step selects page four, which starts its text and the crossfade back from the laboratory.
         Objects.StartEnglishPageFour();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
     /// <summary>Restores text and portrait colors while fading the delivery laboratory out.</summary>
     private void StepPageFourCrossfade()
     {
-        // The scientist-specific inverse: text/portrait colors fade in as the
-        // laboratory background and its nine sprite colors fade out. It consumes the alternate counter.
+        // The scientist-specific inverse: the narration fades in as the laboratory and its scientists fade out.
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFourText);
     }
 
-    /// <summary>Advances the laboratory-to-text colour ranges using the retained intro countdown.</summary>
+    /// <summary>Advances the crossfade from the laboratory back into the narration.</summary>
     private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (introCrossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
-        {
-            crossfade.Step();
-        }
-
-        introCrossfadeCounter = introCrossfadeCounter.Decrement().Remaining;
-        if (introCrossfadeCounter.IsNegative)
+        if (AdvanceCrossfade())
             Phase = completedPhase;
     }
+
+    /// <summary>
+    /// Advances the running crossfade by one update and publishes what it did to this update's actors (#1980); true once
+    /// it has ended.
+    /// </summary>
+    private bool AdvanceCrossfade()
+    {
+        IntroCrossfadeTick tick = crossfade.Advance();
+        crossfadeTick = tick;
+        return tick.Ended;
+    }
+
+    /// <summary>Whether the running crossfade reached its final update on this update (#1980).</summary>
+    private bool CrossfadeFinishing => crossfadeTick?.Finishing == true;
 
     /// <summary>Starts the second laboratory scene on its vertically offset page.</summary>
     private void SetupBabyMetroidExamination()
@@ -857,11 +823,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         Objects.AcceptPageTurn();
 
         // The examination setup shows the examination page, starts the page at Y=-24, and spawns the examined baby.
-        // Its setup is otherwise the same two-counter scientist crossfade as delivery.
+        // Its setup is otherwise the same scientist crossfade as delivery.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateExamination();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
@@ -874,7 +838,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         Objects.StartEnglishPageFive();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
-        crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
@@ -885,10 +848,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Seeds the final narration page's timer, preserving the English and Japanese pages' difference in timing.</summary>
     private void SetupPageSix()
     {
-        // Page five's setup seeds the intro crossfade counter, which turns the page and deletes the Japanese text's
-        // next-page arrow. English falls straight through into page six; Japanese text selects page six as the next
-        // update's cinematic phase.
-        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
+        // Page six's setup turns the page, which deletes the Japanese text's next-page arrow. English falls straight
+        // through into page six; Japanese text selects page six as the next update's cinematic phase.
         Objects.AcceptPageTurn();
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
@@ -918,7 +879,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
-            audio?.QueueSound(
+            audio.QueueSound(
                 soundEffect,
                 flashbackProjectiles.LastFrameResult.QueuedSoundMaximum
                     ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
@@ -1213,22 +1174,18 @@ level, samus, frameCounter);
             subtitles,
             audio,
             NarrationPresentation);
-        audio?.QueueMusic(MusicRequest.Stop);
-        audio?.QueueMusic(
+        audio.QueueMusic(MusicRequest.Stop);
+        audio.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
-        audio?.ScheduleMusic(
+        audio.ScheduleMusic(
             MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.IntroductionSong),
             MusicQueueDelay.AtLeastShortest(
                 IntroCinematicDefinitions.Music.SceneTrackDelay));
-        timer = IntroCinematicDefinitions.Music.DiscoveryInitialTimer;
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
     }
 
-    /// <summary>
-    /// Production follows the shared HasQueuedMusic result. Standalone actor tests do
-    /// not own a music queue, so they retain the previously explicit local countdown.
-    /// </summary>
-    private bool MusicQueueFinished() => audio is null ? --timer <= 0 : !audio.HasQueuedMusic;
+    /// <summary>Whether the music queue has sent every request the cinematic queued.</summary>
+    private bool MusicQueueFinished() => !audio.HasQueuedMusic;
 
     /// <summary>Clears the narration's text rows.</summary>
     private void ClearVisibleNarrationText() => narrationText.ClearText();

@@ -31,11 +31,11 @@ internal sealed class IntroMotherBrainExplosionSystem
             actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.BigExplosionActor.Animation));
     }
 
-    /// <summary>Advances every allocated object through the exact cinematic animation format.</summary>
-    public void Step(int introCrossfadeTimer)
+    /// <summary>Advances every explosion; page two's crossfade reaching its final update (#1980) ends them.</summary>
+    public void Step(bool crossfadeFinishing)
     {
         foreach (ExplosionActor actor in actors)
-            actor.Step(introCrossfadeTimer);
+            actor.Step(crossfadeFinishing);
     }
 
     /// <summary>Adds each visible frame in actor order to the cinematic sprites.</summary>
@@ -83,13 +83,13 @@ internal sealed class IntroMotherBrainExplosionSystem
             new(IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset, animation, placement.StartDelayFrames);
 
         /// <summary>Runs one cinematic update of the explosion.</summary>
-        public void Step(int introCrossfadeTimer)
+        public void Step(bool crossfadeFinishing)
         {
             if (!IsActive)
                 return;
 
-            // The explosions are gone from the update the later page-two crossfade ends.
-            if (introCrossfadeTimer == 0)
+            // The explosions are gone from the update page two's crossfade reaches its final update.
+            if (crossfadeFinishing)
                 sprite.Delete();
             sprite.Step();
         }

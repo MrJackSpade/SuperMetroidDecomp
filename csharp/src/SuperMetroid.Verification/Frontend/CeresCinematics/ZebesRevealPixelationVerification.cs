@@ -42,7 +42,8 @@ internal static class ZebesRevealPixelationVerification
         byte transitionStep = cartridge.ReadCartridgeByte(TransitionStepOperand);
         byte transitionClear = cartridge.ReadCartridgeByte(TransitionClearOperand);
 
-        CeresDestructionCinematicState scene = InstalledFixtures.CreateDestruction();
+        var audio = AudioQueues.Standalone();
+        CeresDestructionCinematicState scene = InstalledFixtures.CreateDestruction(audio);
         byte? setting = null;
         bool ended = false;
         var shownWidths = new List<int>();
@@ -53,7 +54,7 @@ internal static class ZebesRevealPixelationVerification
             // reads it before the update's increment.
             int frameCounter = update - CeresDestructionSceneDefinitions.InitialFrameWaits;
             CeresDestructionPhase before = scene.Phase;
-            scene.Step();
+            { scene.Step(); audio.AdvanceFrame(default); }
             bool cleared = false;
             if (before == CeresDestructionPhase.FlyToZebesInitial)
                 setting = startingSetting;

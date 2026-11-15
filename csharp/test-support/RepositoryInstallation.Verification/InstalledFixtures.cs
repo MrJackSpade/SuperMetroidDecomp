@@ -409,17 +409,23 @@ internal static class InstalledFixtures
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
     internal static SamusState CreateSamus() => BindSamus(new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
 
-    /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, ImportIntroCinematicArtwork? artwork = null) =>
+    /// <summary>
+    /// Creates Ceres destruction with installed cinematic art and fixed colors, waiting on <paramref name="audio"/>'s music:
+    /// a test stepping the scene advances the audio after each step, as the session does (#1980).
+    /// </summary>
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues audio, ImportIntroCinematicArtwork? artwork = null) =>
         new(audio, Maps.PowerBombGlowColors, (artwork ?? IntroArtwork).BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
-    /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
+    /// <summary>
+    /// Creates an intro scene with installed character, projectile, narration, and hurt-color art, queueing its music on
+    /// <paramref name="audio"/>, or on an audio state of its own for a test that steps no music wait (#1980).
+    /// </summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
         ImportIntroCinematicArtwork? characterArtwork = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio ?? AudioQueues.Standalone(),
             (characterArtwork ?? IntroArtwork).BoundCatalog, samusBodyArtwork ?? SamusBody.Gameplay)
         {
             Random = new SharedRandom(),

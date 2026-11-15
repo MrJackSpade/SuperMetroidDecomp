@@ -98,7 +98,9 @@ internal sealed class IntroBabyDiscoveryState
     /// the cinematic phase, so the setup update already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
-    public void Step(int frameCounter, int introCrossfadeTimer)
+    /// <param name="frameCounter">The cinematic's frame counter, which Samus's demo movement reads.</param>
+    /// <param name="crossfadeFinishing">Whether the running crossfade reached its final update on this update (#1980).</param>
+    public void Step(int frameCounter, bool crossfadeFinishing)
     {
         // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusUpdateStopped)
@@ -106,7 +108,7 @@ internal sealed class IntroBabyDiscoveryState
             // The demo's pose input runs the demo input object inside Samus's
             // input phase, ahead of her pose input and movement.
             if (demo.IsPlaying)
-                CheckDemoPhase(introCrossfadeTimer);
+                CheckDemoPhase(crossfadeFinishing);
             demo.Step(HandleDemoCue);
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
@@ -140,10 +142,9 @@ internal sealed class IntroBabyDiscoveryState
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
-        // The egg is gone from the update page three's reverse crossfade ends. The egg's animation starts the wait
+        // The egg is gone from the update page three's crossfade reaches its final update. The egg's animation starts the wait
         // after starting page three.
-        if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd &&
-            introCrossfadeTimer == 0)
+        if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd && crossfadeFinishing)
         {
             egg.Delete();
             // Page three's text hides Samus.
@@ -153,7 +154,7 @@ internal sealed class IntroBabyDiscoveryState
 
         // The baby slot follows the egg slot in the descending actor traversal, so
         // it observes the egg's freshly advanced animation position in this same frame.
-        StepConfusedBaby(introCrossfadeTimer);
+        StepConfusedBaby(crossfadeFinishing);
         confusedBaby.Step();
 
         foreach (IntroEggParticle particle in eggParticles)
@@ -181,7 +182,7 @@ internal sealed class IntroBabyDiscoveryState
     /// Moves the scripted input from running to stopping and looking once Samus passes her scripted place, and from
     /// looking to its ending once the crossfade finishes. Runs before the input's step, in the same step.
     /// </summary>
-    private void CheckDemoPhase(int introCrossfadeTimer)
+    private void CheckDemoPhase(bool crossfadeFinishing)
     {
         switch (DemoPhase)
         {
@@ -194,7 +195,7 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case IntroBabyDiscoveryDemoPhase.StoppedAndLooking:
-                if (introCrossfadeTimer == 0)
+                if (crossfadeFinishing)
                 {
                     DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
                     demo.SwitchTo(DemoInputRecordingId.IntroBabyDiscoveryEnd);
@@ -290,7 +291,7 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
-    private void StepConfusedBaby(int introCrossfadeTimer)
+    private void StepConfusedBaby(bool crossfadeFinishing)
     {
         switch (babyMotion)
         {
@@ -319,7 +320,7 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case ConfusedBabyMotion.Dancing:
-                StepDancingBaby(introCrossfadeTimer);
+                StepDancingBaby(crossfadeFinishing);
                 return;
 
             default:
@@ -371,9 +372,9 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Moves the baby around Samus, switches their draw order, and ends on crossfade completion.</summary>
-    private void StepDancingBaby(int introCrossfadeTimer)
+    private void StepDancingBaby(bool crossfadeFinishing)
     {
-        if (introCrossfadeTimer == 0)
+        if (crossfadeFinishing)
         {
             confusedBaby.Delete();
             // The dancing baby's drift.

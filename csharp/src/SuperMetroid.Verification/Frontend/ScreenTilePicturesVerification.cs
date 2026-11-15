@@ -140,7 +140,8 @@ internal static class ScreenTilePicturesVerification
             sampled.Add(name);
             check(scene, vram, name);
         }
-        CeresDestructionCinematicState destruction = CreateRetailDestructionFixture();
+        var destructionAudio = AudioQueues.Standalone();
+        CeresDestructionCinematicState destruction = CreateRetailDestructionFixture(destructionAudio);
         for (int frame = 0; frame < 5000 && !destruction.Finished; frame++)
         {
             string destructionName = $"Ceres destruction {destruction.Phase}";
@@ -153,7 +154,7 @@ internal static class ScreenTilePicturesVerification
                     Check(destructionScene, shownDestruction, destructionName);
                 }
             }
-            destruction.Step();
+            { destruction.Step(); destructionAudio.AdvanceFrame(default); }
         }
         AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
         AssertTrue(sampled.Any(), "the Ceres destruction's floor is checked");

@@ -47,7 +47,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
-    private readonly AudioQueues? audio;
+    private readonly AudioQueues audio;
     /// <summary>
     /// What the turning floor shows (#1467), or null while it shows nothing: before the station is set up, and once the
     /// final explosion with Samus still aboard has cleared the whole floor (#1513).
@@ -136,8 +136,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     [IntegerQuantity("pixelation block width in screen pixels, one through sixteen")]
     private int revealBlockWidth = 1;
-    /// <summary>Fallback music wait when no shared audio queue is present.</summary>
-    private int musicQueueTimer = 14;
     /// <summary>Completed waiting updates before the scene is set up; setup follows the last wait.</summary>
     private int initialFrameWaits;
     /// <summary>
@@ -158,7 +156,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
 
-    /// <param name="audio">The shared music and sound queue.</param>
+    /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
     /// <param name="outcome">
@@ -168,7 +166,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
-        AudioQueues? audio = null,
+        AudioQueues audio,
         InstalledPowerBombGlowColors? glowColors = null,
         IntroCinematicArtwork? artwork = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
@@ -178,7 +176,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         this.japaneseText = japaneseText;
         BindSpriteSheets(spriteSheets);
         WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
-        this.audio = audio;
+        this.audio = Ensure.NotNull(audio);
         Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         stationExplosion.PresentationColors = glowColors;
@@ -233,10 +231,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             initialFrameWaits++;
             SetupCeresDestruction();
             // Setup queues the cinematic music and the state's own track last.
-            audio?.QueueMusic(MusicRequest.Stop);
-            audio?.QueueMusic(
+            audio.QueueMusic(MusicRequest.Stop);
+            audio.QueueMusic(
                 MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-            audio?.ScheduleMusic(
+            audio.ScheduleMusic(
                 MusicRequest.SelectTrack(WithSamus
                     ? CeresDestructionSceneDefinitions.Music.CeresWithSamusTrack
                     : CeresDestructionSceneDefinitions.Music.CeresTrack),
@@ -324,7 +322,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     if (WithSamus)
                     {
-                        audio?.QueueMusic(MusicRequest.Stop);
+                        audio.QueueMusic(MusicRequest.Stop);
                         Phase = CeresDestructionPhase.Finished;
                     }
                     else
@@ -543,9 +541,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return revealBlockWidth == 1;
     }
 
-    /// <summary>Waits for queued music, using a fixed fallback when audio is absent.</summary>
-    private bool MusicQueueFinished() =>
-        audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
+    /// <summary>Whether the music queue has sent every request the scene queued.</summary>
+    private bool MusicQueueFinished() => !audio.HasQueuedMusic;
 
     /// <summary>Installs an authored sprite at <paramref name="start"/> with its colouring and animation.</summary>
     private static IntroDiscoverySprite CreateActor(
@@ -642,7 +639,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         int blastX = CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels;
         int blastY = CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels;
         stationExplosion.Spawn(Position16<RoomPixels>.Wrapped(blastX, blastY));
-        audio?.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
+        audio.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
             Position16<ScreenPixels>.Wrapped(blastX, blastY),

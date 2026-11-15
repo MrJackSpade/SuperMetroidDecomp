@@ -19,7 +19,8 @@ internal static class RetailTransitionTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var destruction = RenderRetailFixture.CreateDestruction();
+        var destructionAudio = AudioQueues.Standalone();
+        var destruction = RenderRetailFixture.CreateDestruction(destructionAudio);
         var phases = new HashSet<CeresDestructionPhase>();
         bool mode1 = false, mode7 = false;
         int cinematicCount = 0, menuCount = 0;
@@ -35,10 +36,10 @@ internal static class RetailTransitionTests
                 cinematicCount++;
                 var packet = new DisplayPacket((ushort)tick, scene);
                 Check(packet, expected, $"Ceres/Zebes {destruction.Phase}, tick {tick}");
-                destruction.Step();
+                { destruction.Step(); destructionAudio.AdvanceFrame(default); }
                 Check(packet, expected, $"retained Ceres/Zebes tick {tick}");
             }
-            else destruction.Step();
+            else { destruction.Step(); destructionAudio.AdvanceFrame(default); }
         }
         if (!destruction.Finished || !mode1 || !mode7)
             throw new InvalidOperationException("Ceres/Zebes coverage did not finish with both modes.");

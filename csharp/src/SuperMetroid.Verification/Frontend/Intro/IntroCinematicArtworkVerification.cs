@@ -401,7 +401,7 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
-        explosions.Step(introCrossfadeTimer: 1);
+        explosions.Step(crossfadeFinishing: false);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.Sprites.MotherBrainExplosion));

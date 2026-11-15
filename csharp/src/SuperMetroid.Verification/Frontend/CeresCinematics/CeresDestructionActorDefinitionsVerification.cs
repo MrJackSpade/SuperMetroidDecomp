@@ -28,9 +28,10 @@ internal static class CeresDestructionActorDefinitionsVerification
 
 
         var guard = NewCeresDestructionActorDefinitionReadGuard(retail);
-        var state = CreateRetailDestructionFixture();
+        var audio = AudioQueues.Standalone();
+        var state = CreateRetailDestructionFixture(audio);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
-            state.Step();
+            { state.Step(); audio.AdvanceFrame(default); }
         AssertTrue(state.Finished,
             "Ceres destruction and Zebes reveal complete through production actor paths");
         AssertEqual(0, guard.ForbiddenReadAttempts,

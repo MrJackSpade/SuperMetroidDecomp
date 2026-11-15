@@ -79,7 +79,8 @@ internal static class CinematicColourEffectTests
     /// <summary>The Ceres destruction: its floor's lights from the station's setup, then the caption's fades.</summary>
     private static int Destruction(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        CeresDestructionCinematicState scene = RenderRetailFixture.CreateDestruction();
+        var audio = AudioQueues.Standalone();
+        CeresDestructionCinematicState scene = RenderRetailFixture.CreateDestruction(audio);
         PictureShade caption = CeresShades.Drawn(CeresSpriteColouring.ZebesTitle);
         int? setUp = null, fadeIn = null, fadeOut = null;
         int checks = 0, showing = 0;
@@ -90,6 +91,7 @@ internal static class CinematicColourEffectTests
                 throw new InvalidOperationException("The Ceres destruction did not end.");
             bool wasSetUp = scene.FloorShot is not null;
             scene.Step();
+            audio.AdvanceFrame(default);
             if (!wasSetUp && scene.FloorShot is not null)
                 setUp = update;
             // A fade starts on the update its caption fade first shows a record of its own.

@@ -17,8 +17,8 @@ internal static class RetailGameFixtureVerification
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
         InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames, hostServices, random);
 
-    /// <summary>Creates a Ceres destruction state with optional supplied audio and cinematic artwork.</summary>
-    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(AudioQueues? audio = null, ImportIntroCinematicArtwork? artwork = null) =>
+    /// <summary>Creates a Ceres destruction state waiting on <paramref name="audio"/>'s music, with optional cinematic artwork.</summary>
+    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(AudioQueues audio, ImportIntroCinematicArtwork? artwork = null) =>
         InstalledFixtures.CreateDestruction(audio, artwork);
 
     /// <summary>Creates an ending state with supplied game time, inventory, audio, and language selection.</summary>

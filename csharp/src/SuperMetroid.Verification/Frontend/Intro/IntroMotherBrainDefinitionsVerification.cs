@@ -78,7 +78,7 @@ internal static class IntroMotherBrainDefinitionsVerification
                 $"intro Mother Brain hit {hit + 1} starts explosion only on the fourth hit");
         for (ushort frame = 1; frame <= 128; frame++)
         {
-            motherBrain.RunBehavior(frame, introCrossfadeTimer: 1);
+            motherBrain.RunBehavior(frame, crossfadeFinishing: false);
             motherBrain.Step();
             if (frame < 128)
                 AssertTrue(!motherBrain.PageTwoRequested,
@@ -89,7 +89,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int frame = 0; frame < 64; frame++)
         {
             motherBrain.RunBehavior((ushort)(129 + frame),
-                introCrossfadeTimer: 1);
+                crossfadeFinishing: false);
             motherBrain.Step();
             int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainPageTwo) +
                 (((frame + 1) / 16) % 4) * 4;
@@ -98,7 +98,7 @@ internal static class IntroMotherBrainDefinitionsVerification
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
         motherBrain.RunBehavior(cinematicFrameCounter: 193,
-            introCrossfadeTimer: 0);
+            crossfadeFinishing: true);
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");
 
@@ -108,7 +108,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         var explosionActors = explosions.actors;
         for (int frame = 0; frame < 192; frame++)
         {
-            explosions.Step(introCrossfadeTimer: 1);
+            explosions.Step(crossfadeFinishing: false);
             int smallPhase = frame % LoopFrames(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
             int bigPhase = frame % LoopFrames(CinematicSpriteSegment.IntroMotherBrainExplosionBig);
             ushort expectedSmall = smallPhase < 18
@@ -128,7 +128,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         }
         AssertEqual(8, explosions.ActiveCount,
             "intro Mother Brain explosion actors survive until page-two crossfade completion");
-        explosions.Step(introCrossfadeTimer: 0);
+        explosions.Step(crossfadeFinishing: true);
         AssertEqual(0, explosions.ActiveCount,
             "intro Mother Brain explosion actors delete at page-two crossfade completion");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

@@ -110,7 +110,7 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
-            characterArtwork: introArtwork.BoundCatalog,
+            AudioQueues.Standalone(), characterArtwork: introArtwork.BoundCatalog,
             samusBodyArtwork: body)
         {
             Random = new SharedRandom(),
@@ -151,7 +151,7 @@ internal static class GenericSpriteArtworkVerification
 
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
-        explosions.Step(introCrossfadeTimer: 1);
+        explosions.Step(crossfadeFinishing: false);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
         explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.Sprites.MotherBrainExplosion));
         actual.FinalizeFrame();

@@ -82,15 +82,16 @@ internal static void VerifyCeresDestructionCinematic()
     // The fixture composes its sheets as the import does, from the import's read, which alone reads the colours (#1544).
     var artwork = IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory, importData);
     var presentation = RetailPresentationFixture();
-    var state = new CeresDestructionCinematicState(glowColors: presentation.PowerBombGlowColors, artwork: artwork.BoundCatalog,
+    var audio = AudioQueues.Standalone();
+    var state = new CeresDestructionCinematicState(audio, glowColors: presentation.PowerBombGlowColors, artwork: artwork.BoundCatalog,
         spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)
     {
-        state.Step();
+        { state.Step(); audio.AdvanceFrame(default); }
         AssertTrue(state.IsWaitingOutDisplayFrame, "Ceres initializer resumes after each of its NMI waits");
     }
-    state.Step();
+    { state.Step(); audio.AdvanceFrame(default); }
     AssertTrue(!state.IsWaitingOutDisplayFrame, "Ceres initializer returns to the main loop after setup");
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
@@ -105,7 +106,7 @@ internal static void VerifyCeresDestructionCinematic()
     bool observedZebesActorDeletionBeforeHandoff = false;
     while (!state.Finished && frame < 5000)
     {
-        state.Step();
+        { state.Step(); audio.AdvanceFrame(default); }
         frame++;
         firstFrameByPhase.TryAdd(state.Phase, frame);
         observedZebesActorDeletionBeforeHandoff |=

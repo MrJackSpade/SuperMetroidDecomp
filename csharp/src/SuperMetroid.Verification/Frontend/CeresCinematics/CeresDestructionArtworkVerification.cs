@@ -77,8 +77,9 @@ internal static class CeresDestructionArtworkVerification
         }
 
         var guard = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.CeresFlightSprites | IntroArtworkSources.CeresDestructionSprites);
-        var native = CreateRetailDestructionFixture();
-        var installed = CreateRetailDestructionFixture(artwork: stock);
+        AudioQueues nativeAudio = AudioQueues.Standalone(), installedAudio = AudioQueues.Standalone();
+        var native = CreateRetailDestructionFixture(nativeAudio);
+        var installed = CreateRetailDestructionFixture(installedAudio, artwork: stock);
         var phases = new HashSet<CeresDestructionPhase>();
         for (int frame = 0; frame < 5000 && !native.Finished; frame++)
         {
@@ -98,8 +99,8 @@ internal static class CeresDestructionArtworkVerification
                         ScenePixels.Same(actual, expected),
                     $"installed Ceres/Zebes art preserves native visible pixels at frame {frame}");
             }
-            native.Step();
-            installed.Step();
+            native.Step(); nativeAudio.AdvanceFrame(default);
+            installed.Step(); installedAudio.AdvanceFrame(default);
         }
         AssertTrue(native.Finished && installed.Finished &&
                 phases.Contains(CeresDestructionPhase.FlyingAwayFromExplosion) &&

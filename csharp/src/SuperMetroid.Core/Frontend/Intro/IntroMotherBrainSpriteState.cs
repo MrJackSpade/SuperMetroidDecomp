@@ -69,16 +69,17 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Runs the actor's behaviour, which precedes its animation's timer decrement.
     /// </summary>
+    /// <param name="cinematicFrameCounter">The cinematic's frame counter, which paces the room's shake.</param>
+    /// <param name="crossfadeFinishing">Whether page two's crossfade reached its final update on this update (#1980).</param>
     public void RunBehavior(
         int cinematicFrameCounter,
-        int introCrossfadeTimer)
+        bool crossfadeFinishing)
     {
         if (crossfadingToPageTwo)
         {
             ApplyScreenShake(cinematicFrameCounter);
-            // The cross-fade observes the timer after the cinematic phase has decremented it.
-            // At zero it redirects this actor to delete and clears Samus's intro display.
-            if (introCrossfadeTimer == 0)
+            // Page two's crossfade reaching its final update deletes this actor and clears Samus's intro display.
+            if (crossfadeFinishing)
                 IsVisible = false;
             return;
         }

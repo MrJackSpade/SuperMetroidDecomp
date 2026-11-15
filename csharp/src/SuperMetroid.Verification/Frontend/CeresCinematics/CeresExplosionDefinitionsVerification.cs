@@ -38,9 +38,10 @@ internal static class CeresExplosionDefinitionsVerification
         AssertEqual(4, CeresExplosionDefinitions.FinalWave.Count, "the final wave spawns four blasts");
 
         var guard = NewCeresExplosionDefinitionReadGuard(retail);
-        var state = CreateRetailDestructionFixture();
+        var audio = AudioQueues.Standalone();
+        var state = CreateRetailDestructionFixture(audio);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
-            state.Step();
+            { state.Step(); audio.AdvanceFrame(default); }
         AssertTrue(state.Finished, "Ceres destruction completes through production actor paths");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Ceres destruction never rereads compiled explosion definitions");

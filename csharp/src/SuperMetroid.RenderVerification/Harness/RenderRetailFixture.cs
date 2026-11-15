@@ -21,9 +21,9 @@ internal static class RenderRetailFixture
     /// <summary>Creates the title sequence from the shared retail fixture installation.</summary>
     internal static TitleSequenceState CreateTitle() => InstalledFixtures.CreateTitle();
 
-    /// <summary>Creates the Ceres destruction sequence from the shared retail fixture installation.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction() =>
-        InstalledFixtures.CreateDestruction();
+    /// <summary>Creates the Ceres destruction sequence from the shared retail fixture installation, waiting on <paramref name="audio"/>'s music.</summary>
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues audio) =>
+        InstalledFixtures.CreateDestruction(audio);
 
     /// <summary>Creates the intro cinematic from the shared retail fixture installation, queueing its music on <paramref name="audio"/>.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues audio) => InstalledFixtures.CreateIntro(audio);

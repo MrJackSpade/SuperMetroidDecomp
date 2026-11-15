@@ -9,8 +9,8 @@ internal static class BombTorizoStatueFragmentDefinitions
     /// </summary>
     internal const int FragmentCount = 8;
 
-    /// <summary>Every fragment's initial downward velocity.</summary>
-    internal const int YVelocity = 256;
+    /// <summary>Every fragment's initial fall speed, one pixel an update.</summary>
+    internal static readonly SignedEightEight InitialFallSpeed = SignedEightEight.FromPixels(1);
 
     /// <summary>Every fragment's downward acceleration.</summary>
     internal static readonly SignedEightEight Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);

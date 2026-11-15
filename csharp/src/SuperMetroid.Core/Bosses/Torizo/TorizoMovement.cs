@@ -75,7 +75,8 @@ internal sealed class TorizoMovement
 
         state.Phase = TorizoPhase.Falling;
         state.Motion = null;
-        state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
+        state.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.FallAtRestingSpeed();
 
         // Init writes the shared colours' targets and then selects the encounter-specific body
         // colours. This runtime exposes the live colours rather than separate current/target
@@ -114,7 +115,7 @@ internal sealed class TorizoMovement
         // Two of its latches are the death sequence's. Before they are set,
         // health thresholds interrupt the current authored animation with the core/head bursts.
         if (!_body.HasBehavior(torizo, TorizoBehaviorFlags.GutBlownUp) &&
-            torizo.Health < TorizoBehavior.BombTorizoHeadExplosionHealth)
+            torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {
             state.InterruptedPlayback = state.BodyPlayback;
             TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoGutBlowingUp));
@@ -122,7 +123,7 @@ internal sealed class TorizoMovement
         }
 
         if (!_body.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp) &&
-            torizo.Health < TorizoBehavior.BombTorizoCoreExplosionHealth)
+            torizo.Health < TorizoDecisionDefinitions.FaceBlowUpHealth)
         {
             state.ReturnPlayback = TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoAnimation.FacelessTurningLeft
@@ -158,7 +159,10 @@ internal sealed class TorizoMovement
         }
     }
 
-    /// <summary>Moves the statue vertically and starts a landing quake when downward motion hits terrain.</summary>
+    /// <summary>
+    /// Moves the statue vertically. Meeting the ground while falling faster than it rests, it lands: a quake starts and it
+    /// rests; meeting it at rest, or meeting the ceiling, changes nothing.
+    /// </summary>
     internal void ApplyTorizoGravity(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -167,11 +171,10 @@ internal sealed class TorizoMovement
         SignedSixteenSixteen displacement = state.Velocity.Y.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyVertically(level, torizo, displacement))
         {
-            int velocity = state.Velocity.Y.InTwoHundredFiftySixthsOfPixel;
-            if (velocity is >= 0 and not 256)
+            if (!state.Velocity.Y.IsNegative && !state.FallsAtRestingSpeed)
             {
-                _earthquake.Start(LandingShake, 32);
-                state.Velocity = state.Velocity.WithY(SignedEightEight.FromPixels(1));
+                _earthquake.Start(LandingShake, TorizoMotionDefinitions.LandingQuakeUpdates);
+                state.FallAtRestingSpeed();
             }
             return;
         }
@@ -197,8 +200,8 @@ internal sealed class TorizoMovement
                 state.Velocity.Y.ToSixteenSixteenDelta()))
         {
             TorizoBody.StartTorizoBodyAnimation(torizo, state, state.ReturnPlayback);
-            state.Velocity = state.Velocity.WithY(SignedEightEight.FromPixels(1));
-            _earthquake.Start(LandingShake, 32);
+            state.FallAtRestingSpeed();
+            _earthquake.Start(LandingShake, TorizoMotionDefinitions.LandingQuakeUpdates);
             return;
         }
 
@@ -227,7 +230,9 @@ internal sealed class TorizoMovement
             TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
-            state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
+            // The fall starts at the resting speed, so a Torizo whose ground returns at once lands without a quake.
+            state.Velocity = EightEightVector<RoomPixels>.Zero;
+            state.FallAtRestingSpeed();
         }
     }
 

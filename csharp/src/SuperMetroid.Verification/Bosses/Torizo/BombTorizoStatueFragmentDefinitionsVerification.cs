@@ -48,7 +48,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             AssertEqual(unchecked((ushort)(20 * 16 + expected.Offset.Y)),
                 projectile.Position.Y.Whole,
                 $"Bomb Torizo statue fragment {index} production Y");
-            AssertEqual(expected.YVelocity, projectile.Velocity.Y.RawValue,
+            AssertEqual(expected.InitialFallSpeed, projectile.Velocity.Y,
                 $"Bomb Torizo statue fragment {index} production velocity");
             AssertEqual(expected.Acceleration, projectile.StateOf<BombTorizoStatueFragmentState>().Acceleration,
                 $"Bomb Torizo statue fragment {index} production acceleration");
@@ -84,7 +84,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7fb + parameter)),
-                BombTorizoStatueFragments.ForFragment(fragment).YVelocity, "statue native constant launch velocity field");
+                BombTorizoStatueFragments.ForFragment(fragment).InitialFallSpeed.RawValue, "statue native constant launch velocity field");
     }
     /// <summary>Checks the repeated native vertical acceleration entries.</summary>
     private static void VerifyStatueFragmentAccelerationField(ISnesAddressSpace rom)

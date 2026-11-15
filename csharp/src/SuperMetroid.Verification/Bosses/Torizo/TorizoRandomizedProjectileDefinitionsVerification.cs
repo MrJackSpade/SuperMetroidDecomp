@@ -22,9 +22,18 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             new TorizoRandomizedProjectileDefinitionsDefinition(0x86aca3, TorizoRandomizedProjectiles.GoldenChozoOrb(false), "Golden orb left"),
             new TorizoRandomizedProjectileDefinitionsDefinition(0x86b02f, TorizoRandomizedProjectiles.GoldenEgg(true), "Golden egg right"),
             new TorizoRandomizedProjectileDefinitionsDefinition(0x86b039, TorizoRandomizedProjectiles.GoldenEgg(false), "Golden egg left"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b376, TorizoRandomizedProjectiles.GoldenEyeBeam(true), "Golden eye beam right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b380, TorizoRandomizedProjectiles.GoldenEyeBeam(false), "Golden eye beam left"),
         ];
+
+        // The eye beam's launch tuple names its program and its offsets; its velocity words are written and then replaced
+        // by its aimed heading, so the port keeps no base velocity for it (#1945).
+        foreach ((int address, bool facingRight) in new[] { (0x86b376, true), (0x86b380, false) })
+        {
+            Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.EyeBeam),
+                $"eye beam facing right {facingRight} instruction");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2)), muzzle.X, $"eye beam facing right {facingRight} X offset");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6)), muzzle.Y, $"eye beam facing right {facingRight} Y offset");
+        }
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
         foreach ((int address, TorizoRandomizedProjectileDefinition definition, string name)
@@ -68,39 +77,59 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
                 (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
                 facingRight,
-                TorizoRandomizedProjectiles.BombChozoOrb(facingRight),
-                velocityIsReplaced: false);
+                TorizoRandomizedProjectiles.BombChozoOrb(facingRight));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
                 (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
                 facingRight,
-                TorizoRandomizedProjectiles.GoldenChozoOrb(facingRight),
-                velocityIsReplaced: false);
+                TorizoRandomizedProjectiles.GoldenChozoOrb(facingRight));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
                 (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
                 facingRight,
-                TorizoRandomizedProjectiles.GoldenEgg(facingRight),
-                velocityIsReplaced: false);
-            VerifyTorizoRandomizedSpawn(
-                nameof(TorizoAttacks.SpawnGoldenTorizoEyeBeam),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo),
-                facingRight,
-                TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight),
-                velocityIsReplaced: true);
+                TorizoRandomizedProjectiles.GoldenEgg(facingRight));
+            VerifyGoldenEyeBeamSpawn(facingRight);
         }
 
         Console.WriteLine(
-            "Torizo randomized projectiles: all forty tuple words, signed-jitter boundaries, and eight real Bomb/Golden orb, egg and eye-beam spawns pass with every tuple forbidden.");
+            "Torizo randomized projectiles: thirty orb and egg tuple words, the eye beam's program and offsets, signed-jitter boundaries, and eight real Bomb/Golden orb, egg and eye-beam spawns pass with every tuple forbidden.");
     }
 
-    /// <summary>Checks each direction's spawner uses its compiled instruction, offset, and velocity policy.</summary>
+    /// <summary>
+    /// Spawns Golden Torizo's eye beam facing each way: its program and muzzle placement, and the launch's three draws of
+    /// the room's random numbers, two for the velocity jitters its aim replaces and one for its heading.
+    /// </summary>
+    private static void VerifyGoldenEyeBeamSpawn(bool facingRight)
+    {
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        int draws = 0;
+        enemies.VerificationServices().NextRandom = () =>
+        {
+            draws++;
+            return 0;
+        };
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
+        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
+        enemies.TorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
+
+        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo);
+
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();
+        AssertTrue(projectile.IsActive, $"eye beam facing right {facingRight} allocation");
+        AssertEqual<TorizoProjectileSegment?>(TorizoProjectileSegment.EyeBeam, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
+            $"eye beam facing right {facingRight} program");
+        AssertEqual(unchecked((ushort)(1000 + muzzle.X)), projectile.Position.X.Whole, $"eye beam facing right {facingRight} X");
+        AssertEqual(unchecked((ushort)(500 + muzzle.Y)), projectile.Position.Y.Whole, $"eye beam facing right {facingRight} Y");
+        AssertEqual(3, draws, $"eye beam facing right {facingRight} draws two jitters and a heading");
+    }
+
+    /// <summary>Checks each direction's spawner uses its compiled instruction, offset and jittered base velocity.</summary>
     private static void VerifyTorizoRandomizedSpawn(
         string methodName,
         Action<RoomEnemySystem, RoomEnemySlot> spawn,
         bool facingRight,
-        TorizoRandomizedProjectileDefinition expected,
-        bool velocityIsReplaced)
+        TorizoRandomizedProjectileDefinition expected)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
@@ -118,13 +147,10 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             $"{methodName} facing {facingRight} X");
         AssertEqual(unchecked((ushort)(500 + expected.Offset.Y)), projectile.Position.Y.Whole,
             $"{methodName} facing {facingRight} Y");
-        if (!velocityIsReplaced)
-        {
-            AssertEqual(unchecked((ushort)(expected.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.X.RawValue,
-                $"{methodName} facing {facingRight} X jitter");
-            AssertEqual(unchecked((ushort)(expected.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.Y.RawValue,
-                $"{methodName} facing {facingRight} Y jitter");
-        }
+        AssertEqual(unchecked((ushort)(expected.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.X.RawValue,
+            $"{methodName} facing {facingRight} X jitter");
+        AssertEqual(unchecked((ushort)(expected.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.Y.RawValue,
+            $"{methodName} facing {facingRight} Y jitter");
     }
 
     /// <summary>Rejects live reads of all eight migrated projectile tuple ranges.</summary>

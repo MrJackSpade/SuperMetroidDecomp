@@ -8,9 +8,9 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>
-/// Checks Torizo's widened state: the decision and space-jump counts wrap to zero past their largest value, the
-/// animation lock follows its cues, the jump acceleration changes only the vertical velocity, and the posture and
-/// behaviour cues replace or add only the latches they name.
+/// Checks Torizo's widened state: a stepping cue counts a decision step, the space-jump count wraps to zero past 65535
+/// (#1945), the animation lock follows its cues, the jump acceleration changes only the vertical velocity, and the
+/// posture and behaviour cues replace or add only the latches they name.
 /// </summary>
 internal static class TorizoStateQuantitiesVerification
 {
@@ -30,14 +30,11 @@ internal static class TorizoStateQuantitiesVerification
         state.DecisionCounter = 7;
         Apply(TorizoCueKind.SteppedLeftWithLeftFoot);
         AssertEqual(8, state.DecisionCounter, "a stepping cue counts one decision step");
-        state.DecisionCounter = TorizoEnemyState.LargestCount;
-        Apply(TorizoCueKind.SteppedRightWithRightFoot);
-        AssertEqual(0, state.DecisionCounter, "counting past the largest decision count wraps to zero");
 
         state.SamusSpaceJumpFrames = 360;
         state.CountSamusSpaceJumpFrame();
         AssertEqual(361, state.SamusSpaceJumpFrames, "a space-jumping frame counts one frame");
-        state.SamusSpaceJumpFrames = TorizoEnemyState.LargestCount;
+        state.SamusSpaceJumpFrames = SuperMetroid.Core.Compatibility.WrappingCounter.LargestCount;
         state.CountSamusSpaceJumpFrame();
         AssertEqual(0, state.SamusSpaceJumpFrames, "counting past the largest space-jump count wraps to zero");
 
@@ -64,7 +61,7 @@ internal static class TorizoStateQuantitiesVerification
         Apply(TorizoCueKind.MarkFaceBlownUp);
         AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "setting a held latch leaves the word unchanged");
 
-        Console.WriteLine("Torizo state quantities: count wraps, animation lock, jump acceleration and posture and behaviour latches pass.");
+        Console.WriteLine("Torizo state quantities: decision count, space-jump count wrap, animation lock, jump acceleration and posture and behaviour latches pass.");
     }
 
     /// <summary>Runs Torizo's state quantity checks.</summary>

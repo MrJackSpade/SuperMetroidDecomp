@@ -21,7 +21,7 @@ internal static class BombTorizoStatueFragments
         return new(
             TorizoProjectileAnimations.StatueFragment(fragment),
             new Offset16<RoomPixels>(16 * (cell % 3) - 8, 16 * (cell / 3) - 8),
-            YVelocity,
+            InitialFallSpeed,
             Acceleration);
     }
 }

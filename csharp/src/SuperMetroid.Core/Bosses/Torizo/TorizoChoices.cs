@@ -53,7 +53,7 @@ internal sealed class TorizoChoices
             SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingRightPose or
             SamusPoseId.SpringBallMovingLeftPose;
         if (_access.FacesSamus(torizo, samus) ||
-            distance < 4 || distance >= 40 || !isGroundedBall)
+            distance < TorizoDecisionDefinitions.MorphedBehindNearest || distance >= TorizoDecisionDefinitions.MorphedBehindFarthest || !isGroundedBall)
         {
             return null;
         }
@@ -74,7 +74,8 @@ internal sealed class TorizoChoices
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (!_access.FacesSamus(torizo, samus) ||
-            distance < 32 || distance >= 96 || !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
+            distance < TorizoDecisionDefinitions.MediumRangeNearest || distance >= TorizoDecisionDefinitions.MediumRangeFarthest ||
+            !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
             return null;
         }
@@ -94,10 +95,10 @@ internal sealed class TorizoChoices
         if (samus is null)
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
-        if (distance < 112 || !_access.FacesSamus(torizo, samus))
+        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !_access.FacesSamus(torizo, samus))
             return null;
         ControllerButton heldButtons = controllerInput;
-        if (state.SamusSpaceJumpFrames <= 360 &&
+        if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
             (!heldButtons.HasAny(ControllerButtons.HorizontalDirections) ||
                 TorizoRandomDefinitions.ForwardLeap.IsTakenBy(_room.Random.Generate())))
         {
@@ -119,8 +120,8 @@ internal sealed class TorizoChoices
         if (samus is null)
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
-        if (state.DecisionCounter < 8 &&
-            (distance >= 32 || !_access.FacesSamus(torizo, samus)))
+        if (state.DecisionCounter < TorizoDecisionDefinitions.RepeatedJumpSteps &&
+            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !_access.FacesSamus(torizo, samus)))
         {
             return null;
         }
@@ -130,7 +131,7 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, branches on wall collision, and arms a sixteen-update turn toward Samus.</summary>
+    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, branches on wall collision, and arms a turn toward Samus behind it.</summary>
     internal AnimationContinuation<TorizoAnimation>? ProcessGoldenTorizoWalkAnimation(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -152,7 +153,7 @@ internal sealed class TorizoChoices
         if (samus is not null && FacesAwayFromSamus(torizo, samus) &&
             state.TurnTimer == 0)
         {
-            state.TurnTimer = 16;
+            state.TurnTimer = TorizoDecisionDefinitions.GoldenTurnDelay;
         }
         return null;
     }
@@ -162,9 +163,9 @@ internal sealed class TorizoChoices
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
-        state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? 2 : -2),
-            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472));
-        state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
+        SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
+        state.Velocity = new(_access.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
+        state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         torizo.AnimationClock.StepOnNextUpdate();
     }
 
@@ -173,13 +174,13 @@ internal sealed class TorizoChoices
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
-        state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? -3 : 3),
-            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152));
-        state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
+        SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
+        state.Velocity = new(_access.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
+        state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         torizo.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Uses the walk step's velocity and wall branches, arming a 72-update turn toward Samus when she crosses the facing test.</summary>
+    /// <summary>Uses the walk step's velocity and wall branches, arming a turn toward Samus when she is behind it.</summary>
     internal AnimationContinuation<TorizoAnimation>? ProcessBombTorizoWalkAnimation(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, TorizoWalkStep step)
     {
         int stepPixels = step.Velocity;
@@ -197,7 +198,7 @@ internal sealed class TorizoChoices
         if (samus is not null && FacesAwayFromSamus(torizo, samus) &&
             state.TurnTimer == 0)
         {
-            state.TurnTimer = 72;
+            state.TurnTimer = TorizoDecisionDefinitions.BombTurnDelay;
         }
         return null;
     }
@@ -210,7 +211,7 @@ internal sealed class TorizoChoices
         AnimationPlayback<TorizoAnimation> continuation,
         TorizoAnimation target)
     {
-        if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 56)
+        if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseBehindDistance)
             return null;
         if (FacesAwayFromSamus(torizo, samus))
             return null;
@@ -225,17 +226,16 @@ internal sealed class TorizoChoices
         SamusState? samus,
         TorizoAnimation target)
     {
-        if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 32 ||
+        if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseInFrontDistance ||
             !_access.FacesSamus(torizo, samus))
         {
             return null;
         }
 
-        // The jump-back launches away from the currently faced direction at 3 px/frame and
-        // starts with -4.5 px/frame vertical speed, adding 40/256 px/frame each tick.
-        state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? -3 : 3),
-            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152));
-        state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
+        // The jump back launches away from the way Torizo faces.
+        SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
+        state.Velocity = new(_access.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
+        state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
         torizo.AnimationClock.StepOnNextUpdate();
         return TorizoAnimations.ContinueWith(target);
     }

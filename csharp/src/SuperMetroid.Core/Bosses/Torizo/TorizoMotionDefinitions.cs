@@ -4,12 +4,37 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoMotionDefinitions
 {
     /// <summary>
-    /// A speed of sixteen pixels per frame: a falling projectile at this speed and below twice it has run away.
+    /// A speed of sixteen pixels per frame: a projectile that reaches it has run away (#1945). Each projectile tested
+    /// for it starts below it and gains at most 48 256ths of a pixel an update, so it is met within one pixel of it.
     /// </summary>
     internal static readonly SignedEightEight RunawaySpeed = SignedEightEight.FromParts(16, 0);
 
-    /// <summary>Twice <see cref="RunawaySpeed"/>, thirty-two pixels per frame: the top of the runaway range.</summary>
-    internal static readonly SignedEightEight TwiceRunawaySpeed = SignedEightEight.FromPixels(32);
+    /// <summary>
+    /// A resting Torizo's fall speed, one pixel an update: its setup, a landing and a walk off a ledge give it this
+    /// speed, and a Torizo meeting the ground at it lands without a quake (<see cref="TorizoEnemyState.FallsAtRestingSpeed"/>).
+    /// </summary>
+    internal static readonly SignedEightEight RestingFallSpeed = SignedEightEight.FromPixels(1);
+
+    /// <summary>The updates a landing Torizo's quake shakes the room.</summary>
+    internal const int LandingQuakeUpdates = 32;
+
+    /// <summary>Golden Torizo's forward leap's rise, five and three-quarter pixels an update.</summary>
+    internal static readonly SignedEightEight ForwardLeapRise = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472);
+
+    /// <summary>Golden Torizo's forward leap's sideways speed, toward the way it faces.</summary>
+    internal static readonly SignedEightEight ForwardLeapSideSpeed = SignedEightEight.FromPixels(2);
+
+    /// <summary>Either Torizo's backward jump's rise, four and a half pixels an update.</summary>
+    internal static readonly SignedEightEight BackwardJumpRise = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152);
+
+    /// <summary>Either Torizo's backward jump's sideways speed, away from the way it faces.</summary>
+    internal static readonly SignedEightEight BackwardJumpSideSpeed = SignedEightEight.FromPixels(3);
+
+    /// <summary>The gravity on a leaping Torizo, forty 256ths of a pixel an update, each update.</summary>
+    internal static readonly SignedEightEight LeapGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40);
+
+    /// <summary>A sonic boom's launch speed, about two and a half pixels an update, the way Torizo faces.</summary>
+    internal static readonly SignedEightEight SonicBoomLaunchSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(624);
 
     /// <summary>The drag a falling drool's sideways speed loses each update.</summary>
     internal static readonly SignedEightEight DroolDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
@@ -66,9 +91,6 @@ internal static class TorizoMotionDefinitions
     /// </summary>
     internal static readonly SignedEightEight SettledBounceSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
-    /// <summary>The pixels of one room block: a landing projectile is placed relative to its block's top.</summary>
-    internal const int BlockPixels = 16;
-
     /// <summary>The pixels the initial drool is lifted above the jittered spawn height.</summary>
     internal const int InitialDroolLift = 5;
 
@@ -86,8 +108,8 @@ internal static class TorizoMotionDefinitions
     internal const int InitialDroolSideOffset = 8;
 
     /// <summary>
-    /// Golden Torizo's egg hatch timer. The egg's initializer masks a fixed value rather than a random number, an
-    /// authentic bug that fixes the timer at 66 updates.
+    /// Golden Torizo's egg hatch timer, 66 updates for every egg: the egg's initializer meant to draw it at random but
+    /// reads a fixed value (#1945).
     /// </summary>
-    internal const int EggHatchTimer = (226 & 0b1_1111) + 64;
+    internal const int EggHatchTimer = 66;
 }

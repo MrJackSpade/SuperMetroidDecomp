@@ -53,6 +53,7 @@ internal static class TitleGraphicsExtractor
             Height = TitleGraphicsFormat.MapHeight,
             Tiles = map.Select(value => (int)value).ToArray(),
             Sprites = TitleSpriteExtractor.Extract(bus),
+            Cards = TitleSpriteExtractor.ExtractCards(bus),
         });
         files.Add(TitleGraphicsFormat.FloorMapFile, mapJson.ToArray());
         return files;

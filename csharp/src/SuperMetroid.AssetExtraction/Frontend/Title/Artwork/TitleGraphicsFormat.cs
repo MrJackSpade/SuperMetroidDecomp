@@ -5,10 +5,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// <summary>Schema, dimensions, filenames, and validation limits for editable title graphics.</summary>
 public static class TitleGraphicsFormat
 {
-    /// <summary>Current title-graphics document schema version; version three keys sprite frames by composition name.</summary>
-    public const int Version = 3;
-    /// <summary>Number of title sprite frames, one per <see cref="TitleSprite"/>.</summary>
-    public const int SpriteFrameCount = 31;
+    /// <summary>
+    /// Current title-graphics document schema version; version three keys sprite frames by composition name, version four
+    /// keys each card's frames by its card and the letters it has typed (#1979).
+    /// </summary>
+    public const int Version = 4;
+    /// <summary>Number of whole title sprite frames, one per <see cref="TitleSprite"/>.</summary>
+    public const int SpriteFrameCount = 2;
     /// <summary>Maximum OBJ parts accepted in one title sprite frame.</summary>
     public const int MaximumSpriteParts = 128;
     /// <summary>Width of the title OBJ character sheet in eight-pixel tiles.</summary>
@@ -41,17 +44,15 @@ public static class TitleGraphicsFormat
     public const int BabyHeight = 32;
     /// <summary>The title sprites' 512 four-bit characters.</summary>
     public const int ObjectCharacterByteCount = 512 * 32;
-    /// <summary>Every <see cref="TitleSprite"/>, each exactly once: the four cards' reveals, the logo and the copyright, which the installed title artwork must provide.</summary>
+    /// <summary>Every <see cref="TitleSprite"/>, each exactly once: the logo and the copyright, which the installed title artwork must provide.</summary>
     public static readonly IReadOnlyList<TitleSprite> Sprites =
     [
-        TitleSprite.YearReveal1, TitleSprite.YearReveal2, TitleSprite.YearReveal3, TitleSprite.YearReveal4,
-        TitleSprite.NintendoReveal1, TitleSprite.NintendoReveal2, TitleSprite.NintendoReveal3, TitleSprite.NintendoReveal4,
-        TitleSprite.NintendoReveal5, TitleSprite.NintendoReveal6, TitleSprite.NintendoReveal7, TitleSprite.NintendoReveal8,
-        TitleSprite.PresentsReveal1, TitleSprite.PresentsReveal2, TitleSprite.PresentsReveal3, TitleSprite.PresentsReveal4,
-        TitleSprite.PresentsReveal5, TitleSprite.PresentsReveal6, TitleSprite.PresentsReveal7, TitleSprite.PresentsReveal8,
-        TitleSprite.MetroidThreeReveal1, TitleSprite.MetroidThreeReveal2, TitleSprite.MetroidThreeReveal3,
-        TitleSprite.MetroidThreeReveal4, TitleSprite.MetroidThreeReveal5, TitleSprite.MetroidThreeReveal6,
-        TitleSprite.MetroidThreeReveal7, TitleSprite.MetroidThreeReveal8, TitleSprite.MetroidThreeReveal9,
         TitleSprite.SuperMetroidLogo, TitleSprite.NintendoCopyright,
     ];
+    /// <summary>
+    /// Every typing step of the four cards, each exactly once, in typing order (#1979): the installed title artwork must
+    /// provide each as the whole of what it shows.
+    /// </summary>
+    public static readonly IReadOnlyList<TitleCardTyping> Typings =
+        [.. TitleCards.All.SelectMany(card => TitleCards.Typings(card.Card))];
 }

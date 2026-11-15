@@ -19,13 +19,13 @@ internal static class TitleCardOracle
     /// <summary>
     /// Requires every card's typed steps to match its native list word for word: each timed frame's duration, a blank
     /// typed frame on a blank native entry, each named composition on the spritemap the extraction assigns it, then
-    /// the scene trigger and deletion. Also requires the extraction to give all 31 compositions distinct spritemaps,
+    /// the scene trigger and deletion. Also requires the extraction to give the two compositions and the 29 typing steps distinct spritemaps,
     /// with the logo on the title's logo pointer. Returns the number of steps compared.
     /// </summary>
     internal static int CompareAll(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        IReadOnlyDictionary<TitleSprite, int> extracted = TitleSpriteExtractor.MapSprites(rom);
+        TitleSpritemaps extracted = TitleSpriteExtractor.MapSprites(rom);
         int compared = 0;
         foreach (TitleTextSequenceDefinition card in Cards)
         {
@@ -43,8 +43,8 @@ internal static class TitleCardOracle
                 {
                     AssertEqual(step.Duration, word, $"{at}: duration");
                     ushort nativeSpritemap = cartridge.ReadCartridgeWord(address + sizeof(ushort));
-                    if (step.Sprite is { } sprite)
-                        AssertEqual(nativeSpritemap, extracted[sprite], $"{at}: {sprite} is extracted from the listed spritemap");
+                    if (step.Typed is { } typed)
+                        AssertEqual(nativeSpritemap, extracted.Cards[typed], $"{at}: {typed} is extracted from the listed spritemap");
                     else
                         AssertEqual(FrontendSourceDefinitions.TitleBlankSpritemap, nativeSpritemap, $"{at}: blank typed frame is a blank native entry");
                     address += TitleSourceDefinitions.TimedEntryByteCount;
@@ -53,9 +53,10 @@ internal static class TitleCardOracle
             }
         }
         AssertEqual(cartridge.ReadCartridgeWord((int)FrontendSourceDefinitions.TitleLogoSpritemapOperand),
-            extracted[TitleSprite.SuperMetroidLogo], "title logo is extracted from the logo pointer");
-        AssertEqual(TitleGraphicsFormat.Sprites.Count, extracted.Count, "extraction maps every title composition");
-        AssertEqual(extracted.Count, extracted.Values.Distinct().Count(), "every title composition has its own spritemap");
+            extracted.Sprites[TitleSprite.SuperMetroidLogo], "title logo is extracted from the logo pointer");
+        AssertEqual(TitleGraphicsFormat.Sprites.Count, extracted.Sprites.Count, "extraction maps every title composition");
+        AssertEqual(TitleGraphicsFormat.Typings.Count, extracted.Cards.Count, "extraction maps every card typing step");
+        AssertEqual(extracted.All.Count(), extracted.All.Distinct().Count(), "every title composition and typing step has its own spritemap");
         return compared;
     }
 }

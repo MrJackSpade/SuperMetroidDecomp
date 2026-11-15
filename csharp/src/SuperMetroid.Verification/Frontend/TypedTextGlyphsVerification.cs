@@ -33,16 +33,20 @@ internal static class TypedTextGlyphsVerification
     {
         var findings = new List<string>();
         var typed = new List<TypedStepFrame>();
-        foreach (TitleTextSequenceDefinition card in (TitleTextSequenceDefinition[])[TitleSequenceDefinitions.TextSequences.Year,
-            TitleSequenceDefinitions.TextSequences.Nintendo, TitleSequenceDefinitions.TextSequences.Presents,
-            TitleSequenceDefinitions.TextSequences.MetroidThree])
+        // The title sheet holds the logo and the copyright whole and each card's letters (#1979); any other frame would picture
+        // a card's typing step whole.
+        var titleFrames = new HashSet<string>(StringComparer.Ordinal)
         {
-            foreach (TitleCardStep step in TitleCards.Steps(card.Phase))
-            {
-                if (step.Sprite is { } sprite)
-                    typed.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.FrameName(sprite)));
-            }
+            TitleSpriteDefinitions.FrameName(TitleSprite.SuperMetroidLogo), TitleSpriteDefinitions.FrameName(TitleSprite.NintendoCopyright),
+        };
+        foreach (TitleCardDefinition card in TitleCards.All)
+        {
+            foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
+                titleFrames.Add(TitleSpriteDefinitions.LetterFrameName(step));
         }
+        SpriteSheet titleSheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.Title);
+        foreach (string frame in titleSheet.frames.Keys.Concat(titleSheet.blanks).Where(frame => !titleFrames.Contains(frame)))
+            findings.Add($"{SpriteSheetId.Title} pictures {frame}, which is no whole composition or letter");
         foreach (CinematicSpriteSegment program in EndingTypedPrograms)
         {
             foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
@@ -59,10 +63,10 @@ internal static class TypedTextGlyphsVerification
         }
         // Each glyph a typed step adds is held, as a picture or as one that shows nothing (a space).
         var glyphs = new List<TypedStepFrame>();
-        foreach (TitleSequencePhase card in TitleTypedCards.Cards)
+        foreach (TitleCardDefinition card in TitleCards.All)
         {
-            for (int glyph = 0; glyph < TitleTypedCardSteps.Of(card).Count; glyph++)
-                glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.GlyphFrameName(card, glyph)));
+            foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
+                glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.LetterFrameName(step)));
         }
         foreach (CinematicSpriteSegment text in EndingTypedTexts.Texts.Texts)
         {

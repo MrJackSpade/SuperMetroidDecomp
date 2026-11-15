@@ -116,16 +116,25 @@ internal static class TitleGradientVerification
             "title extraction covers all cartridge-selected OBJ frames");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
-        IReadOnlyDictionary<TitleSprite, int> spritemaps =
+        AssertEqual(TitleGraphicsFormat.Typings.Count, spriteDocument.Cards.Length,
+            "title extraction covers every card typing step");
+        SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
-        AssertEqual(yearPointer, spritemaps[TitleSprite.YearReveal1], "the year's first letter is the year card's first listed spritemap");
+        AssertEqual(yearPointer, spritemaps.Cards[new(TitleSequencePhase.YearText, 1)], "the year's first letter is the year card's first listed spritemap");
         // Independent native OBJ records are the cartridge reference for each extracted composition's draw.
         // Both draws show the title cards' text colours: the native records take their sprite set as palette bits.
         ushort textPaletteBits = SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Text), 0).PaletteBits;
+        SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title);
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
+            CompareComposition(spritemaps.Sprites[frame.Sprite], frame.Sprite.ToString(),
+                installed => TitleSpriteDrawing.DrawSprite(titleSheet, frame.Sprite, installed, new(128, 112), TitleSpriteColouring.Text));
+        foreach (TitleCardFrame frame in spriteDocument.Cards)
+            CompareComposition(spritemaps.Cards[frame.Typed], frame.Typed.ToString(),
+                installed => TitleSpriteDrawing.DrawCard(titleSheet, frame.Typed, installed, new(128, 112), TitleSpriteColouring.Text));
+        void CompareComposition(int spritemap, string composition, Action<ScreenSprites> draw)
         {
             var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();
-            int address = ((int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]));
+            int address = ((int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemap));
             ushort Word(int at) => LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1));
             int count = Word(address);
             for (int part = 0; part < count; part++)
@@ -135,12 +144,12 @@ internal static class TitleGradientVerification
                     new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(textPaletteBits),
                     new Position16<SpritePixels>(128, 112));
             }
-            TitleSpriteDrawing.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), TitleSpriteColouring.Text);
+            draw(installedOam);
             nativeOam.FinalizeFrame(); installedOam.FinishFrame();
             // The glyphs of a typed card never overlap, so the order the objects are listed in shows nothing: the native
             // spritemap lists the newest glyph first and the installed draw places glyph 0 first. Compare the objects as a set.
             AssertEqual(string.Join(',', ObjectRecords(nativeOam)), string.Join(',', ObjectRecords(ScreenSpritesFixtures.ToOam(installedOam))),
-                $"Title composition {frame.Sprite} holds the independent native OBJ records");
+                $"Title composition {composition} holds the independent native OBJ records");
         }
         // Every object's record and size bits, in a fixed order, so two frames listing the same objects compare equal.
         static string[] ObjectRecords(OamBuffer oam)
@@ -151,7 +160,7 @@ internal static class TitleGradientVerification
             Array.Sort(records, StringComparer.Ordinal);
             return records;
         }
-        TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);
+        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleSequencePhase.YearText, 1));
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);

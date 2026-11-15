@@ -55,34 +55,49 @@ internal static class GenericSpriteArtworkVerification
             ArtworkJson.Options);
         OamBuffer expected;
         int titleCases = 0;
-        IReadOnlyDictionary<TitleSprite, int> spritemaps =
+        SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(reference);
         foreach (TitleSpriteFrame frame in document.Sprites)
-        foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
-        // Origins on the screen's lines; a part below the last line no longer comes round at the top (#1587).
-        foreach (ushort y in new ushort[] { 0, 1, 223 })
         {
-            // The colouring the title draws the composition in, whose sprite set the cartridge oracle takes as its palette
-            // bits; the sheet pictures each composition only as it is drawn (#1513).
-            TitleSpriteColouring colouring = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSpriteColourings.Of(frame.Sprite);
-            int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
-            title.ActiveSprite = frame.Sprite;
-            title.ActiveOrigin = new(x, y);
-            title.ActiveObjectColouring = colouring;
-            title.PrepareRenderSprites();
-            expected = new OamBuffer(); expected.BeginFrame();
-            DrawImportedSpritemap(reference, expected,
-                (int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y),
-                SnesObjAttributeWord.Create(0, palette, 0).PaletteBits);
-            expected.FinalizeFrame();
-            string titleCase = $"title composition/coordinate/palette parity of {frame.Sprite} at ({x}, {y}) in {colouring}";
-            if (TitleTypedCards.Find(frame.Sprite) is null)
-                EqualSprites(expected, title.objects, titleCase);
-            else
-                EqualTypedReveal(expected, title.objects, titleCase);
-            titleCases++;
+            CompareTitle(spritemaps.Sprites[frame.Sprite], frame.Sprite.ToString(),
+                SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSpriteColourings.Of(frame.Sprite), typed: false,
+                () => { title.ActiveSprite = frame.Sprite; title.ActiveCard = null; });
+        }
+        foreach (TitleCardFrame frame in document.Cards)
+        {
+            CompareTitle(spritemaps.Cards[frame.Typed], frame.Typed.ToString(),
+                SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSpriteColourings.Of(frame.Typed), typed: true,
+                () => { title.ActiveSprite = null; title.ActiveCard = frame.Typed; });
+        }
+        // Draws one title composition at origins across the screen, against the cartridge's spritemap.
+        void CompareTitle(int spritemap, string composition, TitleSpriteColouring colouring, bool typed, Action show)
+        {
+            foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
+            // Origins on the screen's lines; a part below the last line no longer comes round at the top (#1587).
+            foreach (ushort y in new ushort[] { 0, 1, 223 })
+            {
+                // The colouring the title draws the composition in, whose sprite set the cartridge oracle takes as its
+                // palette bits; the sheet pictures each composition only as it is drawn (#1513).
+                int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
+                show();
+                title.ActiveOrigin = new(x, y);
+                title.ActiveObjectColouring = colouring;
+                title.PrepareRenderSprites();
+                expected = new OamBuffer(); expected.BeginFrame();
+                DrawImportedSpritemap(reference, expected,
+                    (int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, spritemap), new(x, y),
+                    SnesObjAttributeWord.Create(0, palette, 0).PaletteBits);
+                expected.FinalizeFrame();
+                string titleCase = $"title composition/coordinate/palette parity of {composition} at ({x}, {y}) in {colouring}";
+                if (typed)
+                    EqualTypedReveal(expected, title.objects, titleCase);
+                else
+                    EqualSprites(expected, title.objects, titleCase);
+                titleCases++;
+            }
         }
         title.ActiveSprite = null;
+        title.ActiveCard = null;
         title.Phase = TitleSequencePhase.TitleScreen;
         title.PrepareRenderSprites();
         expected = new OamBuffer(); expected.BeginFrame();

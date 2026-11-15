@@ -37,33 +37,31 @@ internal static class TitleSheetComposer
         Ensure.NotNull(palette);
         Ensure.NotNull(paletteFx);
         // Each composition's palette-inheriting parts are pictured in the sprite set of the one colouring the title draws
-        // it in (#1513), so the sheet shows every frame in its own colours. A card's reveals are pictured as the glyphs they
-        // type, each once: a reveal's glyph is the parts it adds to the reveal before it, and a reveal adding none types a
-        // space, which the sheet holds as showing nothing.
+        // it in (#1513), so the sheet shows every frame in its own colours. A card's text is pictured as the letters it
+        // types, each once (#1979): a letter is the parts its typing step adds to the step before it, and a step adding none
+        // types a space, which the sheet holds as showing nothing.
         var frames = new List<SheetFrameSource>();
         var blank = new List<string>();
         foreach (TitleSprite sprite in TitleGraphicsFormat.Sprites)
         {
-            if (TitleTypedCards.Find(sprite) is not null)
-                continue;
             string name = TitleSpriteDefinitions.FrameName(sprite);
             frames.Add(new SheetFrameSource(name, characters.Frame(sprite, name), characters.ObjectPage,
                 TitleSheetInks.SpriteSet(TitleSpriteColourings.Of(sprite))));
         }
-        foreach (TitleSequencePhase card in TitleTypedCards.Cards)
+        foreach (TitleCardDefinition card in TitleCards.All)
         {
-            IReadOnlyList<TitleSprite> reveals = TitleTypedCardSteps.Of(card);
-            SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(card.ToString(),
-                [.. reveals.Select(sprite => characters.Frame(sprite, TitleSpriteDefinitions.FrameName(sprite)))],
+            IReadOnlyList<TitleCardTyping> typings = TitleCards.Typings(card.Card);
+            SpriteFramePart[][] letters = TypedTextGlyphs.Of(card.Card.ToString(),
+                [.. typings.Select(typed => characters.Frame(typed, TitleSpriteDefinitions.LetterFrameName(typed)))],
                 Offset16<ScreenPixels>.Of(TitleCardDefinitions.TypedScroll.X, TitleCardDefinitions.TypedScroll.Y));
-            for (int glyph = 0; glyph < glyphs.Length; glyph++)
+            for (int letter = 0; letter < letters.Length; letter++)
             {
-                string name = TitleSpriteDefinitions.GlyphFrameName(card, glyph);
-                if (glyphs[glyph].Length == 0)
+                string name = TitleSpriteDefinitions.LetterFrameName(typings[letter]);
+                if (letters[letter].Length == 0)
                     blank.Add(name);
                 else
-                    frames.Add(new SheetFrameSource(name, new SpriteFrame(name, [.. glyphs[glyph]]), characters.ObjectPage,
-                        TitleSheetInks.SpriteSet(TitleSpriteColourings.Of(reveals[glyph]))));
+                    frames.Add(new SheetFrameSource(name, new SpriteFrame(name, [.. letters[letter]]), characters.ObjectPage,
+                        TitleSheetInks.SpriteSet(TitleSpriteColourings.Of(typings[letter]))));
             }
         }
         // The title's colours run in cartridge order: its background colours, then its sprite colours.
@@ -95,9 +93,8 @@ internal static class TitleSheetComposer
         };
     }
 
-    /// <summary>The frames the title sheet holds: each card's glyphs, and the logo and copyright whole (#1513).</summary>
+    /// <summary>The frames the title sheet holds: each card's letters, and the logo and copyright whole (#1513, #1979).</summary>
     internal static IEnumerable<string> FrameNames() =>
-        TitleGraphicsFormat.Sprites.Where(sprite => TitleTypedCards.Find(sprite) is null).Select(TitleSpriteDefinitions.FrameName)
-            .Concat(TitleTypedCards.Cards.SelectMany(card => Enumerable.Range(0, TitleTypedCardSteps.Of(card).Count)
-                .Select(glyph => TitleSpriteDefinitions.GlyphFrameName(card, glyph))));
+        TitleGraphicsFormat.Sprites.Select(TitleSpriteDefinitions.FrameName)
+            .Concat(TitleGraphicsFormat.Typings.Select(TitleSpriteDefinitions.LetterFrameName));
 }

@@ -117,8 +117,8 @@ internal static class EndingSceneActors
             else if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame shown)
                 draws.AddPose(CinematicSpriteFamily.EndingReward, shown.Shown, landing);
         }
-        for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
-            draws.AddProgram(CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Animation, EndingLogoDefinitions.Colouring);
+        foreach (EndingLogoActorDefinition actor in EndingLogoDefinitions.Actors)
+            draws.AddProgram(CinematicSpriteFamily.EndingLogo, actor.Animation, EndingLogoDefinitions.Colouring);
     }
 
     /// <summary>Records <paramref name="actor"/>'s poses in the colouring its initialization gives it.</summary>

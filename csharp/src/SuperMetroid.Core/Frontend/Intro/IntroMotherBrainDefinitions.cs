@@ -18,27 +18,34 @@ internal static class IntroMotherBrainDefinitions
     /// <summary>Mother Brain starts at the cinematic origin (56,111).</summary>
     public static Position16<ScreenPixels> MotherBrainOrigin => new(56, 111);
 
-    /// <summary>The number of large explosions.</summary>
-    public const int BigExplosionCount = 5;
+    /// <summary>The small explosion right of Mother Brain's origin, the first to burst.</summary>
+    internal static IntroMotherBrainExplosionPlacement SmallRight { get; } = new(new(16, 0), 1);
 
-    /// <summary>The number of small explosions.</summary>
-    public const int SmallExplosionCount = 3;
+    /// <summary>The small explosion below and left of Mother Brain's origin.</summary>
+    internal static IntroMotherBrainExplosionPlacement SmallLowerLeft { get; } = new(new(-16, 4), 8);
 
-    /// <summary>The values <see cref="IntroMotherBrainExplosionPlacements.BigExplosion"/> selects, in index order.</summary>
-    internal static readonly IntroMotherBrainExplosionPlacement[] BigExplosions =
-    [
-        new(new(0, 0), 1),
-        new(new(16, -16), 16),
-        new(new(-16, 8), 32),
-        new(new(-8, -16), 48),
-        new(new(8, 8), 64),
-    ];
+    /// <summary>The small explosion above and left of Mother Brain's origin.</summary>
+    internal static IntroMotherBrainExplosionPlacement SmallUpperLeft { get; } = new(new(-16, -8), 16);
 
-    /// <summary>The values <see cref="IntroMotherBrainExplosionPlacements.SmallExplosion"/> selects, in index order.</summary>
-    internal static readonly IntroMotherBrainExplosionPlacement[] SmallExplosions =
-    [
-        new(new(16, 0), 1),
-        new(new(-16, 4), 8),
-        new(new(-16, -8), 16),
-    ];
+    /// <summary>The large explosion at Mother Brain's origin, the first to burst.</summary>
+    internal static IntroMotherBrainExplosionPlacement BigCentre { get; } = new(new(0, 0), 1);
+
+    /// <summary>The large explosion above and right of Mother Brain's origin.</summary>
+    internal static IntroMotherBrainExplosionPlacement BigUpperRight { get; } = new(new(16, -16), 16);
+
+    /// <summary>The large explosion below and left of Mother Brain's origin.</summary>
+    internal static IntroMotherBrainExplosionPlacement BigLowerLeft { get; } = new(new(-16, 8), 32);
+
+    /// <summary>The large explosion above and a little left of Mother Brain's origin.</summary>
+    internal static IntroMotherBrainExplosionPlacement BigUpperLeft { get; } = new(new(-8, -16), 48);
+
+    /// <summary>The large explosion below and right of Mother Brain's origin, the last to burst.</summary>
+    internal static IntroMotherBrainExplosionPlacement BigLowerRight { get; } = new(new(8, 8), 64);
+
+    /// <summary>The small explosions in the order they spawn.</summary>
+    internal static IReadOnlyList<IntroMotherBrainExplosionPlacement> SmallExplosions { get; } = [SmallRight, SmallLowerLeft, SmallUpperLeft];
+
+    /// <summary>The large explosions in the order they spawn, after the small ones.</summary>
+    internal static IReadOnlyList<IntroMotherBrainExplosionPlacement> BigExplosions { get; } =
+        [BigCentre, BigUpperRight, BigLowerLeft, BigUpperLeft, BigLowerRight];
 }

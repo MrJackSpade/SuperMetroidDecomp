@@ -5,17 +5,20 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Logo actors followed by sixteen colour loads.</summary>
+/// <summary>
+/// The ending's assembling logo, followed by sixteen colour loads: its two S halves move into place while its two
+/// circles draw in (#1979).
+/// </summary>
 internal sealed class EndingLogo
 {
-    /// <summary>Scene cue fired when the top logo half reaches its landing point.</summary>
-    private readonly Action landed;
-    /// <summary>Two moving halves and two supporting logo sprites.</summary>
-    private readonly IntroDiscoverySprite[] actors = new IntroDiscoverySprite[4];
-    /// <summary>Accelerating per-frame speeds of the two moving halves.</summary>
-    private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
-    /// <summary>Stops each half at its respective landing point.</summary>
-    private readonly bool[] settled = new bool[2];
+    /// <summary>The upper S half, which signals the scene as it lands.</summary>
+    private readonly MovingHalf upperS;
+    /// <summary>The lower S half.</summary>
+    private readonly MovingHalf lowerS;
+    /// <summary>The upper circle.</summary>
+    private readonly IntroDiscoverySprite upperCircle;
+    /// <summary>The lower circle.</summary>
+    private readonly IntroDiscoverySprite lowerCircle;
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of crossfade steps already shown.</summary>
@@ -23,23 +26,22 @@ internal sealed class EndingLogo
     /// <summary>The logo hands off to percentage text after its sixteenth colour step.</summary>
     public bool Completed => CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps;
 
-    /// <summary>Creates four logo actors, blacks out the logo's background colours and shows its first sprite colours (#1512).</summary>
+    /// <summary>Creates the four logo actors, blacks out the logo's background colours and shows its first sprite colours (#1512).</summary>
     /// <param name="stage">The stage whose colours the logo shows.</param>
-    /// <param name="landed">Called once the top half lands.</param>
+    /// <param name="landed">Called once the upper S half lands.</param>
     public EndingLogo(EndingStage stage, Action landed)
     {
-        this.landed = landed;
-        for (int i = 0; i < actors.Length; i++)
-        {
-            CinematicActorDefinition definition = EndingLogoActors.Actor(i);
-            actors[i] = new IntroDiscoverySprite(
-                EndingLogoActors.Origin(i),
-                EndingShades.Drawn(EndingLogoDefinitions.Colouring),
-                definition.Animation);
-        }
+        Ensure.NotNull(landed);
+        upperS = new MovingHalf(Create(EndingLogoDefinitions.UpperS), EndingLogoDefinitions.TopLanding, Direction: -1, landed);
+        lowerS = new MovingHalf(Create(EndingLogoDefinitions.LowerS), EndingLogoDefinitions.BottomLanding, Direction: 1, Landed: null);
+        upperCircle = Create(EndingLogoDefinitions.UpperCircle);
+        lowerCircle = Create(EndingLogoDefinitions.LowerCircle);
         Ensure.NotNull(stage).Colours.Flash(EndingFlash.LogoBackground, null);
         stage.LoadColours(EndingColourLoad.LogoInitial);
     }
+
+    /// <summary>The actors in the order they spawned, which is the order they step and draw in.</summary>
+    private IEnumerable<IntroDiscoverySprite> Actors => [upperS.Actor, lowerS.Actor, upperCircle, lowerCircle];
 
     /// <summary>Shows the pending crossfade step before moving actors and running their next cues.</summary>
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
@@ -53,29 +55,13 @@ internal sealed class EndingLogo
             Ensure.NotNull(colours).LogoCrossfade(CrossfadeStep);
             if (++CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps) return;
         }
-        for (int i = 0; i < actors.Length; i++)
-        {
-            if (i < 2 && !settled[i]) MoveHalf(i);
-            actors[i].Step(HandleCue);
-        }
-    }
-
-    /// <summary>Accelerates one logo half toward its landing point and signals arrival for the top half.</summary>
-    private void MoveHalf(int index)
-    {
-        var actor = actors[index];
-        int direction = index == 0 ? -1 : 1;
-        Position16<ScreenPixels> moved = actor.WholePosition +
-            new Offset16<ScreenPixels>(direction * speeds[index], -direction * speeds[index]);
-        actor.WholePosition = moved;
-        var target = index == 0 ? EndingLogoDefinitions.TopLanding : EndingLogoDefinitions.BottomLanding;
-        if (index == 0 ? CoordinateAxis.Difference(moved.X - target.X, 1) < 0 : CoordinateAxis.Difference(moved.X, target.X) >= 0)
-        {
-            actor.WholePosition = target;
-            settled[index] = true;
-            if (index == 0) landed();
-        }
-        else speeds[index] += EndingLogoDefinitions.Acceleration;
+        // Each S half moves just before its own animation steps.
+        upperS.Move();
+        upperS.Actor.Step(HandleCue);
+        lowerS.Move();
+        lowerS.Actor.Step(HandleCue);
+        upperCircle.Step(HandleCue);
+        lowerCircle.Step(HandleCue);
     }
 
     /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>
@@ -91,7 +77,45 @@ internal sealed class EndingLogo
     {
         Ensure.NotNull(destination);
         if (!Completed)
-            foreach (var actor in actors)
+            foreach (IntroDiscoverySprite actor in Actors)
                 actor.Draw(destination, EndingLogoDefinitions.Camera, installedArt);
+    }
+
+    /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>
+    private static IntroDiscoverySprite Create(EndingLogoActorDefinition definition) =>
+        new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), definition.Animation);
+
+    /// <summary>
+    /// An S half accelerating diagonally toward its landing point: the upper half down and left, the lower half up and
+    /// right, each stopping where it reaches or passes its landing point's X.
+    /// </summary>
+    /// <param name="Actor">The half's actor.</param>
+    /// <param name="Landing">Where the half comes to rest.</param>
+    /// <param name="Direction">The half's horizontal direction: minus one moves it left and down, one right and up.</param>
+    /// <param name="Landed">Called as the half lands, or null for none.</param>
+    private sealed record MovingHalf(IntroDiscoverySprite Actor, Position16<ScreenPixels> Landing, int Direction, Action? Landed)
+    {
+        /// <summary>The half's speed on each axis, in pixels per update.</summary>
+        private int speed = EndingLogoDefinitions.InitialSpeed;
+
+        /// <summary>Whether the half has landed and moves no more.</summary>
+        private bool settled;
+
+        /// <summary>Moves the half one update toward its landing point, landing it there once it reaches or passes it.</summary>
+        internal void Move()
+        {
+            if (settled)
+                return;
+            Position16<ScreenPixels> moved = Actor.WholePosition + new Offset16<ScreenPixels>(Direction * speed, -Direction * speed);
+            Actor.WholePosition = moved;
+            // The half lands once it reaches or passes its landing point's X in its own direction.
+            if ((moved.X - Landing.X) * Direction >= 0)
+            {
+                Actor.WholePosition = Landing;
+                settled = true;
+                Landed?.Invoke();
+            }
+            else speed += EndingLogoDefinitions.Acceleration;
+        }
     }
 }

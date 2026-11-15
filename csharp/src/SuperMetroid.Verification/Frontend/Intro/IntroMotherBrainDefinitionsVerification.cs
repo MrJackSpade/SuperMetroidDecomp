@@ -33,9 +33,12 @@ internal static class IntroMotherBrainDefinitionsVerification
                 $"intro Mother Brain actor {index} instruction list");
         }
 
-        for (int index = 0; index < IntroMotherBrainDefinitions.BigExplosionCount; index++)
+        // The native tables list each size's explosions in spawn order (#1979: each placement is named).
+        AssertEqual(5, IntroMotherBrainDefinitions.BigExplosions.Count, "intro Mother Brain big explosion count");
+        AssertEqual(3, IntroMotherBrainDefinitions.SmallExplosions.Count, "intro Mother Brain small explosion count");
+        for (int index = 0; index < IntroMotherBrainDefinitions.BigExplosions.Count; index++)
         {
-            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainExplosionPlacements.BigExplosion(index);
+            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.BigExplosions[index];
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain big explosion {index} X offset");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
@@ -44,9 +47,9 @@ internal static class IntroMotherBrainDefinitionsVerification
                 actual.StartDelayFrames, $"intro Mother Brain big explosion {index} timer");
         }
 
-        for (int index = 0; index < IntroMotherBrainDefinitions.SmallExplosionCount; index++)
+        for (int index = 0; index < IntroMotherBrainDefinitions.SmallExplosions.Count; index++)
         {
-            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainExplosionPlacements.SmallExplosion(index);
+            IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.SmallExplosions[index];
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain small explosion {index} X offset");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
@@ -54,15 +57,6 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2)),
                 actual.StartDelayFrames, $"intro Mother Brain small explosion {index} timer");
         }
-
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroMotherBrainExplosionPlacements.BigExplosion(
-                IntroMotherBrainDefinitions.BigExplosionCount),
-            "intro Mother Brain big explosion definition boundary");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => IntroMotherBrainExplosionPlacements.SmallExplosion(
-                IntroMotherBrainDefinitions.SmallExplosionCount),
-            "intro Mother Brain small explosion definition boundary");
 
         var guarded = NewIntroMotherBrainDefinitionGuard(retail);
         var motherBrain = new IntroMotherBrainSpriteState();

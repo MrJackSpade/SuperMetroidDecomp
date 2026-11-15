@@ -9,18 +9,18 @@ internal static class EndingLogoDefinitions
     /// <summary>The colouring every logo actor draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.Logo;
 
-    /// <summary>Upper S, moving into place, showing LogoUpperS.</summary>
-    internal static CinematicActorDefinition UpperS => new(CinematicSpriteSegment.LogoUpperS);
-    /// <summary>Lower S, moving into place, showing LogoLowerS.</summary>
-    internal static CinematicActorDefinition LowerS => new(CinematicSpriteSegment.LogoLowerS);
-    /// <summary>Upper circle, stationary, running LogoUpperCircle.</summary>
-    internal static CinematicActorDefinition UpperCircle => new(CinematicSpriteSegment.LogoUpperCircle);
-    /// <summary>Lower circle, stationary, running LogoLowerCircle.</summary>
-    internal static CinematicActorDefinition LowerCircle => new(CinematicSpriteSegment.LogoLowerCircle);
+    /// <summary>The upper S half, which moves down and left into place.</summary>
+    internal static EndingLogoActorDefinition UpperS { get; } = new(CinematicSpriteSegment.LogoUpperS, new(530, 231));
+    /// <summary>The lower S half, which moves up and right into place.</summary>
+    internal static EndingLogoActorDefinition LowerS { get; } = new(CinematicSpriteSegment.LogoLowerS, new(246, 519));
+    /// <summary>The upper circle, which holds still while it draws in.</summary>
+    internal static EndingLogoActorDefinition UpperCircle { get; } = new(CinematicSpriteSegment.LogoUpperCircle, new(385, 366));
+    /// <summary>The lower circle, which holds still while it draws in.</summary>
+    internal static EndingLogoActorDefinition LowerCircle { get; } = new(CinematicSpriteSegment.LogoLowerCircle, new(391, 384));
 
-    /// <summary>The logo actors in allocation order.</summary>
-    internal static readonly EndingLogoActorKind[] ActorKinds =
-        [EndingLogoActorKind.UpperS, EndingLogoActorKind.LowerS, EndingLogoActorKind.UpperCircle, EndingLogoActorKind.LowerCircle];
+    /// <summary>The logo's actors in the order they spawn, step and draw.</summary>
+    internal static IReadOnlyList<EndingLogoActorDefinition> Actors { get; } = [UpperS, LowerS, UpperCircle, LowerCircle];
+
     /// <summary>The logo scene sets both camera coordinates to 256; the actors draw at their world centers minus it.</summary>
     public static Offset16<ScreenPixels> Camera => new(256, 256);
     /// <summary>The S halves start with a motion step of eight.</summary>

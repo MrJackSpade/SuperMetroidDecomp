@@ -14,6 +14,8 @@ public sealed record TitleFloorMapDocument
     public required int Height { get; init; }
     /// <summary>Gets the row-major eight-bit Mode 7 character indexes.</summary>
     public required int[] Tiles { get; init; }
-    /// <summary>Gets every native-selected title OBJ frame.</summary>
+    /// <summary>Gets every native-selected whole title OBJ frame: the logo and the copyright.</summary>
     public required TitleSpriteFrame[] Sprites { get; init; }
+    /// <summary>Gets every native-selected title card frame, each its card's text typed so far (#1979).</summary>
+    public required TitleCardFrame[] Cards { get; init; }
 }

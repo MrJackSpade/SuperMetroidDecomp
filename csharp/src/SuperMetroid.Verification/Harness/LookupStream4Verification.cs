@@ -1083,8 +1083,8 @@ internal static class LookupStream4Verification
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));
         AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
         AssertEqual(TitleGraphicsFormat.Sprites.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
-        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Values),
-            "extraction maps every native title selector to exactly one named composition");
+        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).All),
+            "extraction maps every native title selector to exactly one named composition or card typing step");
         AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimation.Count, "title baby animation frame count");
         for (int frame = 0; frame < 4; frame++)
         {

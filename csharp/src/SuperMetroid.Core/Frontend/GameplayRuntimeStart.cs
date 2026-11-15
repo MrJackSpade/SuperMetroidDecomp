@@ -16,7 +16,7 @@ internal sealed record GameplayRuntimeStart
     /// <summary>What the session keeps across runtimes: its clock, what the shared game state continues from, the compatibility services kept across games, and its audio.</summary>
     public required GameplaySessionCarryover Carryover { get; init; }
 
-    /// <summary>The installed catalogs; the runtime loads their initial palette and binds every catalog.</summary>
+    /// <summary>The installed catalogs; the runtime loads their initial colours and binds every catalog.</summary>
     public required GameArtwork Artwork { get; init; }
 
     /// <summary>The menu choices of a selected game; <see langword="null"/> for an attract demo.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// </summary>
 public sealed class MapHighlightCycle
 {
-    /// <summary>The hold of each frame, in map-palette animation updates.</summary>
+    /// <summary>The hold of each frame, in map colour animation updates.</summary>
     private readonly ImmutableArray<int> durations;
 
     /// <summary>Keeps each frame's hold.</summary>

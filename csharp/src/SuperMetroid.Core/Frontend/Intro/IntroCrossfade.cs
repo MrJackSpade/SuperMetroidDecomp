@@ -84,7 +84,7 @@ public sealed class IntroCrossfade
     }
 
     /// <summary>
-    /// An actor's shading: <paramref name="drawn"/>, then each scene's level below full over the actor's own-palette parts
+    /// An actor's shading: <paramref name="drawn"/>, then each scene's level below full over the actor's own-colour parts
     /// and over the parts its drawn shade colours.
     /// </summary>
     internal PictureShading ActorShading(PictureShade drawn)

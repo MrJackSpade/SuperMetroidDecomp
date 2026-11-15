@@ -17,7 +17,7 @@ public static class IntroShades
 
     /// <summary>
     /// <paramref name="scene"/>'s colours at crossfade <paramref name="level"/>, below full, on the scene pictures or on the
-    /// intro sprite sheet's own-palette parts.
+    /// intro sprite sheet's own-colour parts.
     /// </summary>
     public static PictureShade Faded(IntroCrossfadeScene scene, int level) => new($"IntroFade{scene}", level);
 

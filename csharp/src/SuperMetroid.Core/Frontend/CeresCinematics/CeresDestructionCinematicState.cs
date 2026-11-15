@@ -200,7 +200,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// Binds installed artwork when the game is bound to its installed content. Only the
     /// graphics already reached by the current phase are refreshed; counters,
     /// actors, audio and gameplay timeline remain untouched. The backdrop is refreshed only
-    /// before the later engine-flicker palette animation starts, as the scene reloads the
+    /// before the later engine-flicker colour effect starts, as the scene reloads the
     /// flight's colours only until then (#1512).
     /// </summary>
     internal void BindArtwork(IntroCinematicArtwork? value)

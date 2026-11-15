@@ -25,7 +25,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>The menu screen the options menu draws: its artwork, pictures, palette and sprite entries.</summary>
+    /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>

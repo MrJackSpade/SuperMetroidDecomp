@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// <summary>How an expired escape countdown whites out the screen.</summary>
 internal static class TimeUpDefinitions
 {
-    /// <summary>The colour every palette colour fades towards.</summary>
+    /// <summary>The colour every screen colour fades towards.</summary>
     public static RgbColor WhiteColor => RgbColor.White;
 
     /// <summary>The denominator of the gradual colour change towards white.</summary>

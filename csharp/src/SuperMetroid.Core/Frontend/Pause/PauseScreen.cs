@@ -97,7 +97,7 @@ internal sealed class PauseScreen
     }
 
     /// <summary>
-    /// The HUD's images under the pause palette (#1466): a lookup of the bound sheet's frames, remade from the sheet when
+    /// The HUD's images in the pause colours (#1466): a lookup of the bound sheet's frames, remade from the sheet when
     /// absent, not game state.
     /// </summary>
     [field: NonSerialized]
@@ -120,7 +120,7 @@ internal sealed class PauseScreen
     }
 
     /// <summary>
-    /// The HUD pause shows (#1466): the shown HUD's images under the pause palette, drawn on the HUD's own layer. The
+    /// The HUD pause shows (#1466): the shown HUD's images in the pause colours, drawn on the HUD's own layer. The
     /// cleared cells the pause leaves beneath and around the HUD show nothing, so pause draws none.
     /// </summary>
     internal PicturedHud ShownHudPictures() => pictured ??= HudPictures.Pictured(Hud, PictureShading.Standard);

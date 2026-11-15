@@ -18,9 +18,9 @@ internal sealed class EndingEscapeScenes
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
+    /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and colour assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -57,7 +57,7 @@ internal sealed class EndingEscapeScenes
         _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 
-    /// <summary>Installs the top-and-bottom-cloud escape and its grey-cloud palette effect before its fade-in.</summary>
+    /// <summary>Installs the top-and-bottom-cloud escape and its grey-cloud colour effect before its fade-in.</summary>
     internal void SetupTopAndBottomCloudEscape()
     {
         _stage.ResetColourEffects();
@@ -106,7 +106,7 @@ internal sealed class EndingEscapeScenes
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    /// <summary>Carries out the ending sprite animations' cues that spawn actors, trigger palette effects or advance the cinematic phase.</summary>
+    /// <summary>Carries out the ending sprite animations' cues that spawn actors, trigger colour effects or advance the cinematic phase.</summary>
     private void HandleSpriteCue(CinematicSpriteCueKind cue)
     {
         switch (cue)

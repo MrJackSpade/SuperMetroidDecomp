@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <remarks>
 /// The definition's initializer fixes the actor at (56,111) in her own colouring,
 /// in front of the scene. Its animation cycles four authored frames at
-/// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
+/// sixteen frames apiece. The actor also retains the hit counter, eight-frame colour
 /// flash, and the 128-frame exploding state and the room picture's shake.
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
@@ -19,7 +19,7 @@ internal sealed class IntroMotherBrainSpriteState
     private readonly IntroDiscoverySprite actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
-    /// <summary>Remaining palette alternations after a missile hit.</summary>
+    /// <summary>Remaining colour alternations after a missile hit.</summary>
     private int hurtFlashTimer;
     /// <summary>
     /// Updates since the fourth hit began the explosion phase: zero at the hit, counted up once per update to the

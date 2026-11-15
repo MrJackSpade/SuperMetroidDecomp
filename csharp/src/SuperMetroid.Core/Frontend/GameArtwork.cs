@@ -38,7 +38,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>No catalog bound: the state of a new game, or of a restored one before its host rebinds.</summary>
     public static GameArtwork Unbound { get; } = new();
 
-    /// <summary>Area maps with the pause, HUD, title, intro and ending text and palettes that share their installation.</summary>
+    /// <summary>Area maps with the pause, HUD, title, intro and ending text and colours that share their installation.</summary>
     public AreaMapPresentation? MapPresentation { get; init; }
 
     /// <inheritdoc/>
@@ -47,7 +47,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The opening's and the Ceres scenes' backdrops and actor placements; their pictures are the sprite sheets (#1616).</summary>
     public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 
-    /// <summary>Samus body pictures, palettes and death palettes.</summary>
+    /// <summary>Samus body pictures, suit colours and death colours.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
     /// <summary>The ending scenes' backdrops (#1544).</summary>

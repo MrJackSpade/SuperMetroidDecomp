@@ -62,7 +62,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
-    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
+    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
     /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
@@ -136,7 +136,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
         {
-            // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it under its palette, so the energy and
+            // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it in its colours, so the energy and
             // ammo HUD stays over the area it covers instead of the map showing there.
             screen.ShowHud(entry.GameplayHud);
         }

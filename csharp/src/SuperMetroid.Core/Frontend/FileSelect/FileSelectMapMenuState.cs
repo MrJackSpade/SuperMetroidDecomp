@@ -40,7 +40,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private readonly LoadStation station;
     /// <summary>Suppresses marker display until the room-map entry animation reaches it.</summary>
     private bool markerDrawn;
-    /// <summary>Advances map icon arrows and highlight palette independently of rendering.</summary>
+    /// <summary>Advances map icon arrows and highlight colours independently of rendering.</summary>
     private readonly FileSelectMapAnimations animations;
     /// <summary>Controls whether room-map scrolling arrows are included in a frame.</summary>
     private bool drawArrows;
@@ -58,7 +58,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private AreaMapPresentation? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
-    /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
+    /// <param name="audio">Owner receiving menu confirmation, scroll, colour-loop, and transition sound requests.</param>
     /// <param name="random">The session's random number generator, which the saved progress the map reads shares with the rest of the session.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Controller buttons already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
@@ -122,7 +122,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         return new FileSelectMapScroll(catalog.Get(area), roomGraphics.MapSystem, anchor);
     }
 
-    /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
+    /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon and colour animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
     /// <param name="input">Current held controller buttons; edge reading is owned by navigation, not by rendering.</param>
     public void Step(ControllerButton input)
     {

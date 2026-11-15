@@ -13,7 +13,7 @@ public enum EndingColourLoad
     /// <summary>The planet explosion's colours, which the flyaway keeps.</summary>
     Explosion,
 
-    /// <summary>The explosion's background colours, restored over its palette effects as the explosion's hold begins.</summary>
+    /// <summary>The explosion's background colours, restored over its colour effects as the explosion's hold begins.</summary>
     ExplosionBackgrounds,
 
     /// <summary>The final gunship's colours, shown under the operation text.</summary>

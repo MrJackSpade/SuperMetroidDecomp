@@ -11,7 +11,7 @@ internal sealed class EndingZebesExplosion
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
     /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
     private readonly EndingFlyaway _flyaway;
@@ -25,7 +25,7 @@ internal sealed class EndingZebesExplosion
         _flyaway = flyaway;
     }
 
-    /// <summary>Starts the planet explosion's palette crossfade and spawns its actors.</summary>
+    /// <summary>Starts the planet explosion's colour crossfade and spawns its actors.</summary>
     internal void SetupZebesExplosion()
     {
         _stage.LoadColours(EndingColourLoad.Explosion);
@@ -43,17 +43,17 @@ internal sealed class EndingZebesExplosion
         _stage.Phase = EndingCreditsPhase.FadeInZebesExplosion;
     }
 
-    /// <summary>Current palette interpolation step during the explosion crossfade.</summary>
+    /// <summary>Current colour crossfade step during the explosion crossfade.</summary>
     private int explosionFadeStep;
 
-    /// <summary>Whether the explosion's palette interpolation still owns the colour writes.</summary>
+    /// <summary>Whether the explosion's colour crossfade still owns the colour writes.</summary>
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionCrossfade;
 
-    /// <summary>Stops cloud palette effects and seeds the planet object's first fade step.</summary>
+    /// <summary>Stops cloud colour effects and seeds the planet object's first fade step.</summary>
     private void BeginExplosionCrossfade()
     {
-        // The cloud palette effects end before the crossfade begins; otherwise their next record would show over it.
+        // The cloud colour effects end before the crossfade begins; otherwise their next step would show over it.
         // The crossfade fades the escape's far background out and the explosion's planet and lava in, from colours the
         // import scales at every level (#1512).
         _stage.ResetColourEffects();
@@ -63,7 +63,7 @@ internal sealed class EndingZebesExplosion
         _stage.PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
-    /// <summary>Interpolates explosion palettes on alternating calls and then enters the explosion's hold.</summary>
+    /// <summary>Crossfades the explosion's colours on alternating updates and then enters the explosion's hold.</summary>
     internal void StepExplosionCrossfade()
     {
         _stage.FloorZoom = _stage.FloorZoom.Widened(EndingExplosionFadeDefinitions.ZoomStep);

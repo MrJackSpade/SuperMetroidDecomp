@@ -77,7 +77,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The 32 by 16 discovery room with the game's partial foreground copy.</summary>
     public RoomLevelData Level { get; }
 
-    /// <summary>Signals the outer cinematic owner to start page three's palette transition.</summary>
+    /// <summary>Signals the outer cinematic owner to start page three's colour transition.</summary>
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
@@ -235,7 +235,7 @@ internal sealed class IntroBabyDiscoveryState
 
             case CinematicSpriteCueKind.StartIntroPage3:
                 // This cue switches the outer cinematic phase to page three. The state
-                // owner performs the palette transition; the actor merely reports the request.
+                // owner performs the colour transition; the actor merely reports the request.
                 PageThreeRequested = true;
                 return;
 
@@ -469,7 +469,7 @@ internal sealed class IntroBabyDiscoveryState
             : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
     }
 
-    /// <summary>Instantiates a cinematic actor with its authored position, palette, animation, and frame behaviour.</summary>
+    /// <summary>Instantiates a cinematic actor with its authored position, colouring, animation, and frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(

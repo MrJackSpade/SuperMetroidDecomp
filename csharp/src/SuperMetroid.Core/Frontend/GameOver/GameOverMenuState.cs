@@ -25,7 +25,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly AudioQueues audio;
-    /// <summary>The menu screen game over draws: its artwork, pictures, palette and sprite entries.</summary>
+    /// <summary>The menu screen game over draws: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>

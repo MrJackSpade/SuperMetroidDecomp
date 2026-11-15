@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-/// <summary>One named cinematic actor's initial whole-pixel screen position; animation, palette, sliding, and deletion remain compiled mechanics.</summary>
+/// <summary>One named cinematic actor's initial whole-pixel screen position; animation, colouring, sliding, and deletion remain compiled mechanics.</summary>
 [SpatialComponents("External format: the actor layout JSON stores each spawn position as signed x/y screen pixels.")]
 public sealed record CeresRevealActorPlacement
 {

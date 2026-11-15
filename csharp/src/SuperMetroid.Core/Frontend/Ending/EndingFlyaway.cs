@@ -13,7 +13,7 @@ internal sealed class EndingFlyaway
     private readonly bool crittersEscaped;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -37,7 +37,7 @@ internal sealed class EndingFlyaway
     /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
 
-    /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored palette effects.</summary>
+    /// <summary>Clears flash backdrop colors and starts the accelerating planet flyaway with its authored colour effects.</summary>
     internal void SetupPlanetEscape()
     {
         // The flyaway's setup clears the explosion flash from the backdrop and the transparent colours.

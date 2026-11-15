@@ -29,7 +29,7 @@ public static class EndingSequenceDefinitions
         public const int HelmetlessMaximumHoursExclusive = 10;
     }
 
-    /// <summary>Authored reveal, palette-fade and panel-hold durations, in cinematic updates.</summary>
+    /// <summary>Authored reveal, colour-fade and panel-hold durations, in cinematic updates.</summary>
     public static class Timing
     {
         /// <summary>The reward reveal pauses after its counter runs from 127 to 63; the remaining 64 calls follow later.</summary>
@@ -38,8 +38,8 @@ public static class EndingSequenceDefinitions
         /// <summary>The copyright panel's hold.</summary>
         public const int CopyrightHoldFrames = 180;
 
-        /// <summary>The waiting palette fade's steps: 32 additions of target-component / 32 in 256ths.</summary>
-        public const int WaitingPaletteFadeFrames = 32;
+        /// <summary>The waiting backdrop fade's steps: 32 additions of target-component / 32 in 256ths.</summary>
+        public const int WaitingBackdropFadeFrames = 32;
 
         /// <summary>The waiting backdrop's hold.</summary>
         public const int WaitingBackdropFrames = 180;

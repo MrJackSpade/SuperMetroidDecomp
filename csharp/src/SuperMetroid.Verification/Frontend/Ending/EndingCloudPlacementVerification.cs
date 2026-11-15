@@ -37,7 +37,7 @@ internal static class EndingCloudPlacementVerification
             EndingActorDefinitions.TopCloudEdge, EndingActorDefinitions.BottomCloudEdge,
             EndingActorDefinitions.BottomCloudPattern];
         var actors = definitions.Select((definition, index) => new EndingSprite(
-            new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), EndingShades.Drawn(definition.Colouring),
+            new IntroDiscoverySprite(Offset16<ScreenPixels>.Wrapped(128, nativeY[index]), EndingShades.Drawn(definition.Colouring),
                 definition.Animation), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.CloudSprites);
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The
@@ -75,8 +75,8 @@ internal static class EndingCloudPlacementVerification
                 // next call starts +/-1 Y per frame, even after zoom exceeds 176.
                 // Do not reuse EndingCloudMotion as the expected-motion oracle.
                 if (frame != 0)
-                    actor.Sprite.WholePosition = actor.Sprite.WholePosition.WithY(
-                        unchecked((ushort)(actor.Sprite.WholePosition.Y + (index < 2 ? 1 : -1))));
+                    actor.Sprite.ScreenPlace = actor.Sprite.ScreenPlace.WithY(
+                        actor.Sprite.ScreenPlace.Y + (index < 2 ? 1 : -1));
                 actor.Sprite.Step();
             }
             // The clouds move a pixel a frame, so a misplaced origin or a wrong step shows on every later frame: the

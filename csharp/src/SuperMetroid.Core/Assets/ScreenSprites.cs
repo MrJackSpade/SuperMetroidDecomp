@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
 /// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Every frame is published
-/// where the screen places it, its origin read as signed screen pixels, and the display clips whatever lies off the screen
+/// where the screen places it, at a signed place on the screen (#2000), and the display clips whatever lies off the screen
 /// (#1587). A frame is always drawn whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513).
 /// The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
@@ -35,22 +35,25 @@ public sealed class ScreenSprites
     }
 
     /// <summary>
-    /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392); an empty frame places nothing. The frame is
+    /// Places a whole pre-coloured frame at <paramref name="place"/> (#1392); an empty frame places nothing. The frame is
     /// published wherever its origin lies, on the screen or off it, and the display clips it (#1587).
     /// </summary>
     /// <param name="frame">The frame placed.</param>
-    /// <param name="origin">Where the frame's origin lands, each coordinate read as signed screen pixels.</param>
+    /// <param name="place">
+    /// Where the frame's origin lands, in pixels from the screen's top-left corner (#2000): left of or above the screen
+    /// is negative.
+    /// </param>
     /// <param name="shading">
     /// The shades and colour effects the screen shows the frame in (#1512); <see cref="PictureShading.Standard"/> where
     /// the screen shows no effect on it.
     /// </param>
-    public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, PictureShading shading)
+    public void AddImage(SpriteSheetFrame frame, Offset16<SpritePixels> place, PictureShading shading)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(shading);
         if (frame.IsEmpty)
             return;
-        placed.Add(new ScreenObject(origin, frame, shading));
+        placed.Add(new ScreenObject(place, frame, shading));
     }
 
     /// <summary>The finished frame's placed frames as draws.</summary>
@@ -62,12 +65,15 @@ public sealed class ScreenSprites
         return result;
     }
 
-    /// <summary>The draw of <paramref name="placedObject"/>'s frame at its origin, in screen pixels.</summary>
+    /// <summary>
+    /// The draw of <paramref name="placedObject"/>'s frame at its place: a sprite placement is counted in the screen's own
+    /// pixels, so the place is the draw's screen origin unchanged.
+    /// </summary>
     private static ImageSpriteDraw Draw(ScreenObject placedObject, int index) =>
         new(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
-            new Position16<ScreenPixels>(placedObject.Position.X, placedObject.Position.Y), SpriteMirror.None)
+            new Offset16<ScreenPixels>(placedObject.Place.X, placedObject.Place.Y), SpriteMirror.None)
             { Shading = placedObject.Shading };
 
-    /// <summary>One placed frame at its origin, with the shading the screen shows it in (#1512).</summary>
-    private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, PictureShading Shading);
+    /// <summary>One placed frame at its place, with the shading the screen shows it in (#1512).</summary>
+    private readonly record struct ScreenObject(Offset16<SpritePixels> Place, SpriteSheetFrame Image, PictureShading Shading);
 }

@@ -20,7 +20,7 @@ internal sealed class IntroEggSlimeDrop
     private bool motionEnabled = true;
 
     /// <summary>Starts a drop at the confused Baby's position, flying as <paramref name="launch"/> says.</summary>
-    public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, IntroEggSlimeLaunch launch)
+    public IntroEggSlimeDrop(Offset16<ScreenPixels> babyPosition, IntroEggSlimeLaunch launch)
     {
         CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
         this.launch = launch;
@@ -68,7 +68,7 @@ internal sealed class IntroEggSlimeDrop
     private void AddVelocity(Axis axis, SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal
-            ? sprite.Position.WithX(sprite.Position.X.MovedBy(velocity))
-            : sprite.Position.WithY(sprite.Position.Y.MovedBy(velocity));
+            ? sprite.Position.WithX(sprite.Position.X + velocity)
+            : sprite.Position.WithY(sprite.Position.Y + velocity);
     }
 }

@@ -256,7 +256,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             (FileCopyArrowShape shape, int y) = FileCopyArrows.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
-                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, y),
+                new Offset16<SpritePixels>(FileCopyArrowDefinitions.OriginX, y),
                 shading: PictureShading.Shaded(FileCopyArrowShades.Rotation(CopyArrowRotation)));
         }
         sprites.FinishFrame();

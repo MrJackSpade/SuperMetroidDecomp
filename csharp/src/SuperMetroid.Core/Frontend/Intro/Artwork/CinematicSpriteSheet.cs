@@ -24,15 +24,17 @@ internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     /// <summary>The sheet's frame for <paramref name="family"/>'s composition of <paramref name="pose"/>.</summary>
     internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose}";
 
-    /// <inheritdoc/>
-    void IIntroCinematicSpritePresentation.Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn) =>
-        Draw(pose, objects, (Position16<ScreenPixels>.Zero + place).ToSpritePosition(), drawn);
+    /// <summary>
+    /// The sprite placement of a cinematic screen place (#2000): a sprite placement is counted in the screen's own pixels,
+    /// so the place is unchanged.
+    /// </summary>
+    internal static Offset16<SpritePixels> SpritePlace(Offset16<ScreenPixels> place) => new(place.X, place.Y);
 
-    /// <summary>Draws <paramref name="pose"/>'s frame at <paramref name="origin"/> in its drawn shade's shading (#1512).</summary>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn) =>
-        Draw(pose, objects, origin, Ensure.NotNull(shading)(drawn));
+    /// <summary>Draws <paramref name="pose"/>'s frame at <paramref name="place"/> in its drawn shade's shading (#1512).</summary>
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn) =>
+        Draw(pose, objects, place, Ensure.NotNull(shading)(drawn));
 
     /// <summary>Draws <paramref name="pose"/>'s frame in <paramref name="shown"/>, a shading its screen composed itself (#1512).</summary>
-    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShading shown) =>
-        Ensure.NotNull(objects).AddImage(Ensure.NotNull(sheet).Frame(FrameName(family, pose)), origin, shading: Ensure.NotNull(shown));
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShading shown) =>
+        Ensure.NotNull(objects).AddImage(Ensure.NotNull(sheet).Frame(FrameName(family, pose)), SpritePlace(place), shading: Ensure.NotNull(shown));
 }

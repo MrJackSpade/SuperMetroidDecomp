@@ -271,7 +271,7 @@ internal static class IntroCinematicArtworkVerification
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.Sprites.Caret).Draw(definition.Pose, installed,
-                new(originX, originY), palette);
+                Offset16<ScreenPixels>.Wrapped(originX, originY), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
@@ -358,7 +358,7 @@ internal static class IntroCinematicArtworkVerification
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.Sprites.MotherBrain).Draw(definition.Pose, installed,
-                IntroMotherBrainSpriteState.Position.ToSpritePosition(),
+                IntroMotherBrainSpriteState.Position,
                 IntroMotherBrainSpriteState.Colouring);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -387,7 +387,7 @@ internal static class IntroCinematicArtworkVerification
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             CinematicSheetFixtures.Drawer(stock.Sprites.MotherBrainExplosion).Draw(definition.Pose, installed,
-                new(x, y), palette);
+                Offset16<ScreenPixels>.Wrapped(x, y), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

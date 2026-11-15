@@ -76,7 +76,7 @@ internal sealed class EndingStage
         int rank = SoleActorRank(role);
         if (rank >= 0)
             sprites.RemoveAll(actor => actor.Role == role);
-        var added = new EndingSprite(new IntroDiscoverySprite(Position16<ScreenPixels>.Zero + position, EndingShades.Drawn(colouring), segment), role);
+        var added = new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), segment), role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
@@ -134,9 +134,9 @@ internal sealed class EndingStage
         {
             case EndingSpriteRole.AnimalEscape:
                 sprite.Position = new(
-                    sprite.Position.X.WithWhole(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity),
+                    sprite.Position.X.WithWholePixels(sprite.Position.X.WholePixels + EndingAnimalEscapeDefinitions.XVelocity),
                     IntroCinematicMotion.AddFraction(sprite.Position.Y, EndingAnimalEscapeDefinitions.YFractionVelocity));
-                if (sprite.Position.X.Whole >= EndingAnimalEscapeDefinitions.DeleteX)
+                if (sprite.ScreenPlace.X >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();
                 break;
             case EndingSpriteRole.ExplosionGlow:
@@ -197,7 +197,7 @@ internal sealed class EndingStage
                 break;
             case EndingStarsMotion.Moving:
                 stars.FlyawayVelocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
-                sprite.Position = sprite.Position.WithX(sprite.Position.X.MovedBy(stars.FlyawayVelocity));
+                sprite.Position = sprite.Position.WithX(sprite.Position.X + stars.FlyawayVelocity);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {motion}.");

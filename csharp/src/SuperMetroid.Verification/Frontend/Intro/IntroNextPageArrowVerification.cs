@@ -38,7 +38,7 @@ internal static class IntroNextPageArrowVerification
     private const int UpdatesBeforeSecondSubtitle = 2 * LoopFrameUpdates + 3;
 
     /// <summary>Where the arrow shows: the screen's middle, below the page's text ($8B:AE07).</summary>
-    private static readonly Position16<ScreenPixels> ArrowPosition = new(128, 216);
+    private static readonly Offset16<ScreenPixels> ArrowPosition = new(128, 216);
 
     /// <summary>Runs pages one and two with Japanese and English text and checks the arrow at their input waits.</summary>
     internal static void VerifyIntroNextPageArrow(ISnesAddressSpace rom)
@@ -132,7 +132,7 @@ internal static class IntroNextPageArrowVerification
     {
         IntroDiscoverySprite arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"Japanese {page} spawned no next-page arrow as its text ended.");
-        AssertEqual(ArrowPosition, arrow.WholePosition, $"Japanese {page}'s next-page arrow shows at the screen's middle below the text");
+        AssertEqual(ArrowPosition, arrow.ScreenPlace, $"Japanese {page}'s next-page arrow shows at the screen's middle below the text");
         AssertTrue(arrow.Pose is null, $"Japanese {page}'s next-page arrow first updates on the update after its spawn");
     }
 

@@ -50,10 +50,10 @@ internal static class SpeedBoosterEchoDrawVerification
         SpriteDraw[] drawn = [.. echoes.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusEcho)];
         AssertEqual(2, drawn.Length, "both echoes are published, though neither lies in the view");
         AssertEqual(new SpriteSource(SpriteSourceKind.SamusEcho, 1), drawn[0].Source, "the second echo is drawn first");
-        AssertEqual(Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(below.X - camera.X), CoordinateAxis.Wrap(below.Y - graphicsYOffset - camera.Y)),
+        AssertEqual(Offset16<ScreenPixels>.Wrapped(below.X - camera.X, below.Y - graphicsYOffset - camera.Y),
             drawn[0].Origin, "the echo below the view is published where it lies");
         AssertEqual(new SpriteSource(SpriteSourceKind.SamusEcho, 0), drawn[1].Source, "the first echo is drawn second");
-        AssertEqual(Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(above.X - camera.X), CoordinateAxis.Wrap(above.Y - graphicsYOffset - camera.Y)),
+        AssertEqual(Offset16<ScreenPixels>.Wrapped(above.X - camera.X, above.Y - graphicsYOffset - camera.Y),
             drawn[1].Origin, "the echo above the view is published where it lies");
         AssertTrue(CoordinateAxis.AsSigned(drawn[1].Origin.Y) < 0 && drawn[0].Origin.Y >= 224,
             "one echo lies above the view's top and the other below its bottom");

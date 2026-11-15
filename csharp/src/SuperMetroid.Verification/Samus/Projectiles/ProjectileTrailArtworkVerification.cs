@@ -98,7 +98,7 @@ internal static class ProjectileTrailArtworkVerification
             system.DrawTrails(sprites, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
             OamBuffer authored = sprites.FinalizeAsOam();
             AssertEqual(1, sprites.Draws.Length, $"Trail pose {pose} at {coordinate} is published once");
-            AssertEqual(Position16<ScreenPixels>.Of(coordinate, coordinate), sprites.Draws[0].Origin,
+            AssertEqual(Position16<ScreenPixels>.Of(coordinate, coordinate) - Position16<ScreenPixels>.Zero, sprites.Draws[0].Origin,
                 $"Trail pose {pose} at {coordinate} is published where it lies");
             if (coordinate < 256)
             {

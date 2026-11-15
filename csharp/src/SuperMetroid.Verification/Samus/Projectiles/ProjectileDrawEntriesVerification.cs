@@ -33,6 +33,6 @@ internal static class ProjectileDrawEntriesVerification
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(beam));
         AssertTrue(ReferenceEquals(sheet.Image, image.Image.Sheet), $"{subject} is drawn from the {beam} beam's sheet");
         AssertEqual(sheet.Frame(frame), image.Image, $"{subject} shows its frame {frame}");
-        AssertEqual(origin, draw.Origin, $"{subject} is placed at its camera-relative position");
+        AssertEqual(origin - Position16<ScreenPixels>.Zero, draw.Origin, $"{subject} is placed at its camera-relative position");
     }
 }

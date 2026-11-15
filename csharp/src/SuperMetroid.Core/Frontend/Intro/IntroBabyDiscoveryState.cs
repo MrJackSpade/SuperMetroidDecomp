@@ -342,10 +342,10 @@ internal sealed class IntroBabyDiscoveryState
     {
         // Equality is intentional: the hatched baby tests for equality, and the actor's subpixel integration
         // reaches this row once. Four init parameters select four distinct arcs.
-        if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
+        if (confusedBaby.ScreenPlace.Y == IntroEggMotionDefinitions.SlimeShedRow && slimeDrops.Count == 0)
         {
             foreach (IntroEggSlimeLaunch launch in IntroEggMotionDefinitions.SlimeLaunches)
-                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, launch));
+                slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.ScreenPlace, launch));
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio.QueueSound(
@@ -356,7 +356,7 @@ internal sealed class IntroBabyDiscoveryState
         // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 1/256 pixels.
         int targetY = Samus.Position.Y.Whole - 32;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
-            confusedBaby.WholePosition.Y,
+            confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
             limit: VerticalSpeedLimit));
@@ -393,7 +393,7 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         BabyVelocity = BabyVelocity.WithX(AccelerateToward(
-            confusedBaby.WholePosition.X,
+            confusedBaby.ScreenPlace.X,
             Samus.Position.X.Whole,
             BabyVelocity.X,
             limit: HorizontalSpeedLimit));
@@ -405,7 +405,7 @@ internal sealed class IntroBabyDiscoveryState
 
         int targetY = Samus.Position.Y.Whole - 8;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
-            confusedBaby.WholePosition.Y,
+            confusedBaby.ScreenPlace.Y,
             targetY,
             BabyVelocity.Y,
             limit: VerticalSpeedLimit));

@@ -103,7 +103,7 @@ public sealed class SamusArmCannonState
             "Arm cannon requires the installed sprite sheets.");
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
             sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, cover)),
-            new Position16<ScreenPixels>(screenX, screenY), SpriteMirror.None));
+            new Position16<ScreenPixels>(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
     }
 
     /// <summary>

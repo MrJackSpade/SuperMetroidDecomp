@@ -197,6 +197,6 @@ internal sealed class ProjectileTrails
 
         SpriteSheetFrame image = objects.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, trailIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
-            image, Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
+            image, Position16<ScreenPixels>.Of(screenX, screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
     }
 }

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroEggMotionDefinitions
 {
     /// <summary>Where each piece of the shell starts, which <see cref="IntroEggMotion.FragmentInitialPosition"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, Position16<ScreenPixels>> FragmentInitialPositions =
-        new Dictionary<IntroEggShellFragment, Position16<ScreenPixels>>
+    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, Offset16<ScreenPixels>> FragmentInitialPositions =
+        new Dictionary<IntroEggShellFragment, Offset16<ScreenPixels>>
         {
             [IntroEggShellFragment.UpperLeft] = new(108, 147),
             [IntroEggShellFragment.UpperRight] = new(115, 147),
@@ -32,6 +32,12 @@ internal static class IntroEggMotionDefinitions
     /// they land; the installed <see cref="ShellFragmentFallPastCurve"/> holds those steps (#1500).
     /// </summary>
     internal const int FragmentCurveFrames = 38;
+
+    /// <summary>
+    /// The screen row at which the hatched Baby, rising out of the egg, sheds its slime drops and first cries: it reaches the
+    /// row exactly once on its way up.
+    /// </summary>
+    internal const int SlimeShedRow = 145;
 
     /// <summary>The screen row a falling shell piece is deleted at once its position reaches it.</summary>
     internal const int FragmentFloorY = 168;

@@ -48,7 +48,7 @@ internal static class BossSpriteEntriesVerification
             AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoSandHeap), corpse.Source, "Dead Torizo's hook names its source");
             AssertTrue(corpse is ImageSpriteDraw hook && hookPictures.Sheets.Any(sheet => sheet.Image == hook.Image.Sheet),
                 "Dead Torizo's hook draws from its set's character-zero pictures");
-            AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)(296 - DeadTorizoCamera.X)), unchecked((ushort)(187 - DeadTorizoCamera.Y))), corpse.Origin,
+            AssertEqual(Offset16<ScreenPixels>.Wrapped(296 - DeadTorizoCamera.X, 187 - DeadTorizoCamera.Y), corpse.Origin,
                 "Dead Torizo's hook frame sits at its fixed room point");
         }
 
@@ -127,7 +127,7 @@ internal static class BossSpriteEntriesVerification
         AssertTrue(published.SequenceEqual(expected),
             "Ridley publishes the tail tip, then segments five to the base, then the wings; published "
             + string.Join(", ", published.Select(source => $"{source.Kind} {source.Instance}")));
-        AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
+        AssertEqual(new Offset16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
         int characters = CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 512, 512)
             ?? throw new InvalidOperationException("The warning page holds the transfer.");

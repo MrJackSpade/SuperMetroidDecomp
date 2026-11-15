@@ -44,10 +44,10 @@ public sealed class GameOptionsPresentation
         Position16<SpritePixels> point = headingAnchors[page];
         // Scrolling moves the heading up by the menu's scroll.
         Position16<SpritePixels> origin = point + new Offset16<SpritePixels>(0, -verticalScroll);
-        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin, shading: PictureShading.Standard);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
     internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<SpritePixels> point) =>
-        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point, shading: PictureShading.Standard);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point - Position16<SpritePixels>.Zero, shading: PictureShading.Standard);
 }

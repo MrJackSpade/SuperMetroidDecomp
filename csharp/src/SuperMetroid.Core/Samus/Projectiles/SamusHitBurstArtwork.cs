@@ -23,6 +23,6 @@ public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Objects
     {
         Ensure.NotNull(sprites);
         SpriteSheetFrame image = Objects.SheetOf(EquippedBeams).Frame(ProjectileSheetFrames.HitBurstFrame(picture));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst, instance), image, origin, SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst, instance), image, origin - Position16<ScreenPixels>.Zero, SpriteMirror.None));
     }
 }

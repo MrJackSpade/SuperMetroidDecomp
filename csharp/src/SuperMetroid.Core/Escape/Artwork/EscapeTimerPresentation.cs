@@ -55,7 +55,7 @@ public sealed class EscapeTimerPresentation
         void DrawFrame(EscapeTimerGlyph glyph, Offset16<SpritePixels> anchor) =>
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer),
                 sheet.Frame(EscapeTimerComposition.FrameName(glyph)),
-                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None)
+                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y) - Position16<ScreenPixels>.Zero, SpriteMirror.None)
             { Shading = PictureShading.Standard });
     }
 

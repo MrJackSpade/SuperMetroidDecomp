@@ -29,6 +29,6 @@ public static class SamusBodyDraws
         string name = frame.Name;
         if (body.ShowsNothing(name))
             return;
-        sprites.Add(new ImageSpriteDraw(source, body.Frame(name), origin, SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(source, body.Frame(name), origin - Position16<ScreenPixels>.Zero, SpriteMirror.None));
     }
 }

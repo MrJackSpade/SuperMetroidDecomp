@@ -72,7 +72,7 @@ internal sealed class IntroEggParticle
         SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal
-            ? sprite.Position.WithX(sprite.Position.X.MovedBy(velocity))
-            : sprite.Position.WithY(sprite.Position.Y.MovedBy(velocity));
+            ? sprite.Position.WithX(sprite.Position.X + velocity)
+            : sprite.Position.WithY(sprite.Position.Y + velocity);
     }
 }

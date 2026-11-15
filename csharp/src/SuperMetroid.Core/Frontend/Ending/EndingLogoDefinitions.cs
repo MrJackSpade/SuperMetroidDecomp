@@ -28,9 +28,9 @@ internal static class EndingLogoDefinitions
     /// <summary>The approaching S halves accelerate by two pixels per call.</summary>
     public const int Acceleration = 2;
     /// <summary>The upper S half stops at world (394,367).</summary>
-    public static Position16<ScreenPixels> TopLanding => new(394, 367);
+    public static Offset16<ScreenPixels> TopLanding => new(394, 367);
     /// <summary>The lower S half stops at world (382,383).</summary>
-    public static Position16<ScreenPixels> BottomLanding => new(382, 383);
+    public static Offset16<ScreenPixels> BottomLanding => new(382, 383);
     /// <summary>The logo's colour cycle completes after sixteen colour pairs.</summary>
     public const int CrossfadeSteps = 16;
     /// <summary>The upper S spawns the logo's glare colour effect at landing.</summary>

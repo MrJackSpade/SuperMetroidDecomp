@@ -39,7 +39,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.Sprites).Draw(frame.Pose, installed, new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
+                CinematicSheetFixtures.Drawer(stock.Sprites).Draw(frame.Pose, installed, Offset16<ScreenPixels>.Wrapped(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

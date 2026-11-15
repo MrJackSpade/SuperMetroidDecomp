@@ -48,7 +48,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.Sprites.DiscoveryActor).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.Sprites.DiscoveryActor).Draw(definition.Pose, installed, Offset16<ScreenPixels>.Wrapped(x, y),
                     palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&

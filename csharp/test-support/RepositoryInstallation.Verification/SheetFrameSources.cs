@@ -194,14 +194,14 @@ internal static class SheetFrameSources
         // every part's own palette, as it ORs a draw's palette bits (#1512).
         if (source.PartsKeepOwnRows && DrawnShadeRows.RowOf(draw.Shading) is { } shaded)
             return new CharacterSpriteDraw(draw.Source, new SpriteFrame(source.Frame.Name,
-                [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | shaded })]), characters ?? source.Page, draw.Origin, flip, shaded, 0);
+                [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | shaded })]), characters ?? source.Page, Position16<ScreenPixels>.Zero + draw.Origin, flip, shaded, 0);
         // A family's palette bits OR into each part's own row, as the cartridge ORs an enemy's.
         // A shaded draw selects the row of its last selection shade, as a hit or freeze flash does (#1512).
         int bits = draw.Shading is { } shading ? SuperMetroid.Core.Enemies.Drawing.SpriteColouringAccess.RowSelectedBy(shading, source.PaletteBits)
             : source.PaletteBits;
         SpriteFrame frame = bits == 0 ? source.Frame
             : new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | bits })]);
-        return new CharacterSpriteDraw(draw.Source, frame, characters ?? source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);
+        return new CharacterSpriteDraw(draw.Source, frame, characters ?? source.Page, Position16<ScreenPixels>.Zero + draw.Origin, flip, source.FramePalette ?? 0, 0);
     }
 
     /// <summary>The object sizes of the screen an image draw's sheet frame was composed for.</summary>

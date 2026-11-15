@@ -323,7 +323,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, bomb.Place), image,
-                Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY), SpriteMirror.None));
+                Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY) - Position16<ScreenPixels>.Zero, SpriteMirror.None));
         }
     }
 

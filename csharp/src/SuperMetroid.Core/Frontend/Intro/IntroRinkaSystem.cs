@@ -192,13 +192,11 @@ internal sealed class IntroRinkaSystem
 
     /// <summary>
     /// Moves the Rinka sideways by <paramref name="sideways"/> and down by half a pixel: every second update the half
-    /// pixels add up to one more whole pixel, and the position wraps at its width.
+    /// pixels add up to one more whole pixel.
     /// </summary>
     private static void Drift(IntroDiscoverySprite rinka, SignedSixteenSixteen sideways)
     {
-        FixedCoordinate x = rinka.Position.X;
-        rinka.Position = rinka.Position.WithX(sideways.AddTo(x.Whole, x.Fraction));
-        FixedCoordinate y = rinka.Position.Y;
-        rinka.Position = rinka.Position.WithY(IntroRinkaDefinitions.DownwardDrift.AddTo(y.Whole, y.Fraction));
+        rinka.Position = rinka.Position.WithX(rinka.Position.X + sideways);
+        rinka.Position = rinka.Position.WithY(rinka.Position.Y + IntroRinkaDefinitions.DownwardDrift);
     }
 }

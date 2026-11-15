@@ -21,7 +21,7 @@ public static class TitleSpriteDrawing
         Ensure.NotNull(shading);
         Ensure.NotNull(sheet);
         Ensure.NotNull(sprites);
-        sprites.AddImage(sheet.Frame(TitleSpriteDefinitions.FrameName(sprite)), origin, shading: shading);
+        sprites.AddImage(sheet.Frame(TitleSpriteDefinitions.FrameName(sprite)), origin - Position16<SpritePixels>.Zero, shading: shading);
     }
 
     /// <summary>Places a title card's text typed so far, its letters drawn in <paramref name="colouring"/> (#1512, #1979).</summary>
@@ -50,7 +50,7 @@ public static class TitleSpriteDrawing
             int scrolls = typed.Letters - letter;
             Offset16<SpritePixels> scrolled = Offset16<SpritePixels>.Of(
                 TitleCardDefinitions.TypedScroll.X * scrolls, TitleCardDefinitions.TypedScroll.Y * scrolls);
-            sprites.AddImage(sheet.Frame(name), origin + scrolled, shading: shading);
+            sprites.AddImage(sheet.Frame(name), origin + scrolled - Position16<SpritePixels>.Zero, shading: shading);
         }
     }
 }

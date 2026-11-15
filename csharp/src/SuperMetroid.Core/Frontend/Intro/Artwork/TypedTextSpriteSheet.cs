@@ -21,12 +21,12 @@ internal sealed class TypedTextSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     public void Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn)
     {
         Ensure.NotNull(objects);
-        Position16<SpritePixels> origin = (Position16<ScreenPixels>.Zero + place).ToSpritePosition();
         if (Ensure.NotNull(texts).Find(pose) is not { } step)
         {
-            new CinematicSpriteSheet(sheet, family, shading).Draw(pose, objects, origin, drawn);
+            new CinematicSpriteSheet(sheet, family, shading).Draw(pose, objects, place, drawn);
             return;
         }
+        Offset16<SpritePixels> origin = CinematicSpriteSheet.SpritePlace(place);
         PictureShading shown = Ensure.NotNull(shading)(drawn);
         for (int glyph = 0; glyph <= step.Glyph; glyph++)
         {

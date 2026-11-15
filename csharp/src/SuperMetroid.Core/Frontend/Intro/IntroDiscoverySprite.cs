@@ -23,13 +23,16 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Whether the animation has come to rest for good, so it plays on no further until its owner starts another.</summary>
     private bool held;
 
-    /// <summary>Creates an actor at a whole-pixel origin with the drawn shade of the colouring it starts drawing in (#1512) and its animation.</summary>
+    /// <summary>
+    /// Creates an actor at a whole-pixel screen place with the drawn shade of the colouring it starts drawing in (#1512) and
+    /// its animation.
+    /// </summary>
     public IntroDiscoverySprite(
-        Position16<ScreenPixels> position,
+        Offset16<ScreenPixels> place,
         PictureShade colouring,
         CinematicSpriteSegment segment)
     {
-        Position = new(new(position.X, 0), new(position.Y, 0));
+        Position = FixedVector<ScreenPixels>.FromWholePixels(place);
         Colouring = colouring;
         Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
@@ -37,21 +40,21 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Cleared when the animation's end retires the actor.</summary>
     public bool IsActive { get; private set; } = true;
 
-    /// <summary>The whole and subpixel parts of the sprite's position on both axes.</summary>
-    public FixedPosition<ScreenPixels> Position { get; set; }
-
-    /// <summary>The whole pixels of <see cref="Position"/>; assigning replaces them and keeps both subpixel parts.</summary>
-    public Position16<ScreenPixels> WholePosition
-    {
-        get => Position.Whole;
-        set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
-    }
+    /// <summary>
+    /// Where the actor stands on the screen, in whole pixels and 65536ths, measured from the screen's top-left corner
+    /// (#2000): a place left of or above the screen is negative.
+    /// </summary>
+    public FixedVector<ScreenPixels> Position { get; set; }
 
     /// <summary>
-    /// Where the actor's whole pixels lie on the screen (#1974): a place left of or above the screen has a negative
-    /// coordinate.
+    /// The whole pixels of <see cref="Position"/> (#1974, #2000): a place left of or above the screen has a negative
+    /// coordinate. Assigning replaces them and keeps both fractions.
     /// </summary>
-    internal Offset16<ScreenPixels> ScreenPlace => Position.Whole - Position16<ScreenPixels>.Zero;
+    internal Offset16<ScreenPixels> ScreenPlace
+    {
+        get => Position.Whole;
+        set => Position = Position.WithWhole(value);
+    }
 
     /// <summary>The drawn shade of the colouring the current pose's recolourable parts draw in (#1512).</summary>
     public PictureShade Colouring { get; private set; }
@@ -146,13 +149,32 @@ internal sealed class IntroDiscoverySprite
 
     /// <summary>
     /// The width, in pixels, of the horizontal loop the actor's own motion carries it around, or null for an actor that
-    /// travels no loop. A looping actor's position wraps within the loop, and the half of the loop past its middle lies
-    /// left of the screen, where the actor comes round into view again.
+    /// travels no loop. A looping actor travels round the loop (<see cref="TravelLoop"/>), and the half of the loop past
+    /// its middle lies left of the screen, where the actor comes round into view again.
     /// </summary>
     internal int? HorizontalLoopWidth { get; init; }
 
     /// <summary>
-    /// Draws the current frame at the whole position minus <paramref name="scroll"/>, wherever that lies: the display clips
+    /// Moves a looping actor right by the fraction of <paramref name="horizontalDelta"/> alone and carries it round its loop
+    /// (<see cref="HorizontalLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// </summary>
+    /// <remarks>
+    /// The looping field adds only the delta's fraction, with nothing in the whole pixel: a leftward delta, whose fraction is
+    /// the rest of a pixel, carries the actor right instead.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
+    internal void TravelLoop(SignedSixteenSixteen horizontalDelta)
+    {
+        int loop = HorizontalLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop travelled round one.");
+        SignedSixteenSixteen x = IntroCinematicMotion.AddFraction(Position.X, horizontalDelta);
+        Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
+    }
+
+    /// <summary>Where <paramref name="x"/> lies along a loop <paramref name="loop"/> pixels wide, from zero up to the width.</summary>
+    private static int AlongLoop(int x, int loop) => ((x % loop) + loop) % loop;
+
+    /// <summary>
+    /// Draws the current frame at the screen place minus <paramref name="scroll"/>, wherever that lies: the display clips
     /// a frame off the screen (#1587).
     /// </summary>
     public void Draw(ScreenSprites objects, Offset16<ScreenPixels> scroll = default,
@@ -161,12 +183,11 @@ internal sealed class IntroDiscoverySprite
         // The blank pose draws nothing.
         if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
             return;
-        Position16<ScreenPixels> origin = Position.Whole - scroll;
-        Offset16<ScreenPixels> placed = origin - Position16<ScreenPixels>.Zero;
+        Offset16<ScreenPixels> placed = ScreenPlace + -scroll;
         if (HorizontalLoopWidth is int loop)
         {
             // The half of the loop past its middle lies left of the screen, at a negative screen X.
-            int alongLoop = origin.X % loop;
+            int alongLoop = AlongLoop(placed.X, loop);
             placed = new Offset16<ScreenPixels>(alongLoop < loop / 2 ? alongLoop : alongLoop - loop, placed.Y);
         }
         (installedArt ?? throw new InvalidOperationException(

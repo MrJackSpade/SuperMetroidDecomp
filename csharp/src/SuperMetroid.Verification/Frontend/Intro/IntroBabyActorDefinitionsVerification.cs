@@ -111,7 +111,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 egg visual frame {frame} matches ROM-backed instruction playback");
             AssertEqual(nativeBaby.Pose, baby.Pose,
                 $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
-            AssertEqual(nativeBaby.WholePosition.Y, baby.WholePosition.Y,
+            AssertEqual(nativeBaby.ScreenPlace.Y, baby.ScreenPlace.Y,
                 $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");
             if (discovery.PageThreeRequested)
             {

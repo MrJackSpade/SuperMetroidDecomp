@@ -30,11 +30,11 @@ internal static class IntroRinkaSpriteArtworkVerification
     {
         ushort spritemap = CinematicSpritePoseSpritemaps.Of(actor.Pose);
         if (!actor.IsActive || spritemap == 0) return;
-        ushort y = actor.WholePosition.Y;
+        ushort y = unchecked((ushort)actor.ScreenPlace.Y);
         if (unchecked((ushort)(y + 128)) >= 511) return;
         DrawImportedSpritemap(bus, oam,
             ((int)new SnesAddress(            IntroCinematicSourceDefinitions.SpritemapBank, spritemap)),
-            new(actor.WholePosition.X, y), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(actor.Colouring), 0).PaletteBits,
+            new(unchecked((ushort)actor.ScreenPlace.X), y), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(actor.Colouring), 0).PaletteBits,
             originIsOnScreen: y < 256);
     }
     /// <summary>Compares installed Rinka OAM with native art, live actors included, without rereading cartridge maps.</summary>
@@ -61,7 +61,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.Sprites.Rinka).Draw(definition.Pose, installed, new(x, y), palette);
+                CinematicSheetFixtures.Drawer(stock.Sprites.Rinka).Draw(definition.Pose, installed, Offset16<ScreenPixels>.Wrapped(x, y), palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

@@ -13,9 +13,9 @@ internal static class GameLoadingDefinitions
 
     /// <summary>
     /// Updates a load spends setting up the room's enemies before gameplay starts (enemy setup plus one update's wait
-    /// while its counter runs from six to zero), used by every load except the Zebes landing. The updates themselves
-    /// are kept because how long loading takes decides which update gameplay resumes on; the enemies' pictures need
-    /// no time to appear.
+    /// while its counter runs from six to zero), used by every load except the Zebes landing, and by every title
+    /// demonstration before its playback starts. The updates themselves are kept because how long loading takes decides
+    /// which update gameplay resumes on; the enemies' pictures need no time to appear.
     /// </summary>
     public const int EnemySetupWaits = 7;
 

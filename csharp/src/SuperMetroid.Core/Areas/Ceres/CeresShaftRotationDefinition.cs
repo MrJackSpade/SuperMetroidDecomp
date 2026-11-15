@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>One step of the Ceres elevator shaft's rotation: how long it lasts and how far the shaft is tilted.</summary>
-/// <param name="Timer">How many frames the step lasts.</param>
+/// <summary>One tilt of the Ceres elevator shaft's rotation: how long the shaft holds it and how far it is tilted.</summary>
+/// <param name="HoldFrames">The updates the shaft holds the tilt, counting the update that turns it there.</param>
 /// <param name="Tilt">How far the shaft's floor is turned clockwise on the screen, in radians.</param>
-public readonly record struct CeresShaftRotationDefinition(int Timer, double Tilt);
+public readonly record struct CeresShaftRotationDefinition(int HoldFrames, double Tilt);

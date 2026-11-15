@@ -10,6 +10,11 @@ internal static class CeresShaftRotationVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Numeric coefficients/phases were proven by the #1165 research; this check covers
         // actual per-frame publication only.
+        // The authored hold of every tilt is the native record's countdown and the update that loads it (#1955).
+        for (int record = 0; record <= 2 * CeresShaftRotationDefinitions.FullTiltSteps; record++)
+            AssertEqual(rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + record * 6) + 1,
+                CeresShaftRotationDefinitions.TiltHoldFrames[Math.Abs(record - CeresShaftRotationDefinitions.FullTiltSteps)],
+                $"shaft hold of native record {record}");
         var carryover = new RoomMainCarryover();
         var state = new CeresElevatorShaftRoomMainState(active: true, carryover);
         ushort phaseWord = 34, timer = 60;
@@ -26,7 +31,7 @@ internal static class CeresShaftRotationVerification
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
             var actual = state.Step(null, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
             AssertEqual(changed, actual.TiltChanged, "shaft tilt publication frame");
-            AssertEqual(timer, state.RotationTimer, "shaft native timer every frame");
+            AssertEqual(timer, state.HoldFramesLeft, "shaft native timer every frame");
             if (changed)
             {
                 // The native record holds the tilt's sine and cosine in 256ths: its sine is the tilt in steps, and its

@@ -148,7 +148,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)
     {
         // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
-        // The last two dispersal frames use an empty hitbox list and cannot reach
+        // The last two dispersal frames have no plume and cannot reach
         // this branch. Insisting on both facts keeps collision tied to the authored geometry.
         if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
         {
@@ -165,34 +165,25 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
     }
 
-    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
-    /// <exception cref="InvalidDataException">The frame shown has no compiled steam collision.</exception>
+    /// <summary>The reaction of the plume rectangle the frame shown has, when the probe overlaps it.</summary>
+    /// <exception cref="InvalidDataException">The frame shown is not one of the steam's frames.</exception>
     internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
 
-        // A steam frame's drawing details are not another component: only its
-        // listed components damage Samus. Both damaging rectangles and
-        // reactions remain fixed even if its installed picture is edited.
-        foreach (CeresSteamCollisionComponent component in
-                 CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))
-        {
-            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (EnemyHitboxRectangle hitbox in
-                     component.Hitboxes)
-            {
-                int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
-                int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
-                int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
-                int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
-                if (!probe.Overlaps(left, top, right, bottom))
-                    continue;
-                reaction = probe.SelectsShot
-                    ? CeresSteamCollisionDefinitions.ShotReaction
-                    : CeresSteamCollisionDefinitions.TouchReaction;
-                return true;
-            }
-        }
-        return false;
+        // Only the frame's plume rectangle damages Samus, whatever its installed picture shows; a hidden plume has none.
+        if (enemy.Frame is not { } frame || !CeresSteamCollisionDefinitions.Plumes.TryGetValue(frame, out EnemyHitboxRectangle? plume))
+            throw new InvalidDataException($"Ceres steam frame {enemy.Frame} has no plume collision.");
+        if (plume is not { } rectangle)
+            return false;
+
+        // The probe compares the edges by their signed distances, so an edge past the room's edge needs no wrapping.
+        Position16<RoomPixels> vent = enemy.Position.Whole;
+        if (!probe.Overlaps(vent.X + rectangle.Left, vent.Y + rectangle.Top, vent.X + rectangle.Right, vent.Y + rectangle.Bottom))
+            return false;
+        reaction = probe.SelectsShot
+            ? CeresSteamCollisionDefinitions.ShotReaction
+            : CeresSteamCollisionDefinitions.TouchReaction;
+        return true;
     }
 }

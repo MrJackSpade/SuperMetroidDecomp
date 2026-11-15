@@ -141,16 +141,17 @@ internal static class LookupStream5Verification
         {
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var slot = system.SlotTable.Slots[0];
+            slot.BindCeresDoorOrWall(CeresDoorOrWall.ElevatorDoor);
             slot.Position = slot.Position.WithWhole(origin);
-            var doorState = new CeresDoorEnemyState { RumbleCallsLeft = 48 };
+            var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, RumbleCallsLeft = 48 };
             slot.SetSpeciesState(doorState);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0);
-            Action<RoomEnemySlot> tick = system.CeresDoorBehavior.RunCeresDoorRumbleAndExplosions;
+            Action tick = slot.ElevatorDoor().Explode;
             for (int call = 1; call <= 49; call++)
             {
-                tick(slot);
+                tick();
                 int emitted = Math.Min(10, (call + 4) / 5);
                 AssertEqual(emitted, randomCalls, "One RNG call per selected anchor, none between emissions");
                 var particles = system.Projectiles.EnemyProjectiles.Where(p => p.IsActive).ToArray();
@@ -321,10 +322,11 @@ internal static class LookupStream5Verification
         RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();
         var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = floor });
         var slots = (RoomEnemySlot[])system.SlotTable.Slots;
+        slots[0].BindCeresDoorOrWall(CeresDoorOrWall.ElevatorDoor);
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
             slots[0].FrameCounter = tick;
-            system.CeresDoorBehavior.RunCeresElevatorGlowAndPlatform(slots[0]);
+            slots[0].ElevatorDoor().CycleGlowAndPlatform();
             AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
@@ -1479,12 +1481,8 @@ internal static class LookupStream5Verification
     /// <summary>Checks compiled lookup initialization words against banked cartridge values.</summary>
     internal static void VerifyLookupStream5Initialization(ISnesAddressSpace rom)
     {
-        for (ushort variant = 0; variant < 7; variant++)
-        {
-            var actual = CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
-            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Animation), "Ceres door original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorActions.Word(actual.MainAction), "Ceres door original function dispatch");
-        }
+        // The Ceres doors' and walls' selector words are checked against the production actors by
+        // VerifyCeresDoorInitializationDefinitions (#1953).
         // The vents' ways in the order of the cartridge's tables, which a vent's first spawn parameter indexes.
         CeresSteamVariant[] steamVariants = [CeresSteamVariant.Up, CeresSteamVariant.Left, CeresSteamVariant.Down, CeresSteamVariant.Right, CeresSteamVariant.RotatingElevatorLeft, CeresSteamVariant.RotatingElevatorRight];
         for (int variant = 0; variant < steamVariants.Length; variant++)
@@ -1500,8 +1498,8 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyAnimation), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
-        AssertThrows<InvalidDataException>(() => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(7)), "Ceres door upper bound");
-        AssertThrows<InvalidDataException>(() => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(ushort.MaxValue)), "Ceres door full-word rejection");
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(7), "Ceres door upper bound");
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(ushort.MaxValue), "Ceres door full-word rejection");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1), "Magdollite lower bound");
@@ -1590,10 +1588,9 @@ internal static class LookupStream5Verification
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.SlotTable.Slots[1];
-        door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
+        door.BindCeresDoorOrWall(CeresDoorOrWall.RidleyRoomDoor);
         enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
-        var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
-        door.SetSpeciesState(doorState);
+        door.SetSpeciesState(new CeresRidleyRoomDoorState { HandsDrawingToRidley = true });
         door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
@@ -1700,8 +1697,8 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom());
-                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
-                new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
+                var slot = system.SlotTable.Slots[0];
+                slot.StartCeresDoorOrWall(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(variant));
                 // The initializer shows the normal colours as the door's shade, which the import paints from this paint (#1512).
                 AssertEqual(CeresDoorShades.InNormalColours, slot.Shading, "Actual normal/target initializer shows the normal colours");
             }
@@ -1744,8 +1741,8 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }};
-                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
-                new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
+                var slot = system.SlotTable.Slots[0];
+                slot.StartCeresDoorOrWall(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorOrWallActor(variant));
                 // Once the self-destruct starts, the initializer shows the escaping colours as the door's shade (#1512).
                 AssertEqual(CeresDoorShades.InEscapingColours, slot.Shading, "Actual escape initializer shows the escaping colours");
             }
@@ -1791,9 +1788,10 @@ internal static class LookupStream5Verification
             var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() });
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemySlot door = system.SlotTable.Slots[0];
+            door.BindCeresDoorOrWall(CeresDoorOrWall.ElevatorDoor);
             foreach (int counter in Enumerable.Range(0, 64))
             {
-                door.FrameCounter = (ushort)counter; system.CeresDoorBehavior.RunCeresElevatorGlowAndPlatform(door);
+                door.FrameCounter = (ushort)counter; door.ElevatorDoor().CycleGlowAndPlatform();
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
                 AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");

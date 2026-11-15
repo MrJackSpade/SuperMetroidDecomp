@@ -1105,7 +1105,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
         .Where(slot => slot.DefinitionId == ceresDoorDefinitionPointer &&
-            slot.SpawnSettings<CeresDoorSpawnSettings>().Variant is CeresDoorVariant.RidleyEscapeFloorLeftWall or CeresDoorVariant.RidleyEscapeFloorRightWall)
+            slot.SpawnSettings<CeresDoorOrWallSpawnSettings>().Actor is CeresDoorOrWall.GetawayChamberLeftWall or CeresDoorOrWall.GetawayChamberRightWall)
         .ToArray();
     AssertTrue(mode7Walls.All(wall => wall.Presence.HasAny(EnemyPresence.Hidden)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,

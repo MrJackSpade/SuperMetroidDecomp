@@ -17,7 +17,7 @@ internal static class CeresShaftRotationDefinitionsConstants
     /// certify each trig rounding. All 65,536 phase values were checked, including the 138
     /// valid aliases created by wrapped 16-bit multiplication before indexing.
     /// This proves a compatible generator, not the original authoring tool. The existing
-    /// coefficient logic matches it; the separate timer ramp is described below.
+    /// coefficient logic matches it; the hold of each tilt is authored data (#1955).
     /// </remarks>
     public const int ReferenceAddress = 0x89ad5f;
 

@@ -15,7 +15,7 @@ internal static class CeresDoorAnimations
     internal static AnimationSegments<CeresDoorSegment, EnemyFrameId, CeresDoorCue> Segments { get; } = new(
         new Dictionary<CeresDoorSegment, AnimationBeat<EnemyFrameId, CeresDoorCue>[]>
     {
-        [P.RidleyRoomFacingRight] =
+        [P.RidleyRoomDoor] =
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
@@ -30,13 +30,13 @@ internal static class CeresDoorAnimations
             Show(EnemyFrameId.CeresDoorRightHold, 1),
             Cue(new(K.MakeInvisible)),
         ],
-        [P.RidleyRoomFacingRightWait] =
+        [P.RidleyRoomDoorWait] =
         [
             Show(EnemyFrameId.CeresDoorRightHold, 2),
-            Cue(new(K.GoToIfAreaBossAlive, Target: P.RidleyRoomFacingRightWait)),
+            Cue(new(K.GoToIfAreaBossAlive, Target: P.RidleyRoomDoorWait)),
             Cue(new(K.MakeVisibleAndTakeDrawingBack)),
         ],
-        [P.NormalFacingRight] =
+        [P.DoorFacingRight] =
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
@@ -74,7 +74,7 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
         ],
-        [P.NormalFacingLeft] =
+        [P.DoorFacingLeft] =
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
@@ -112,37 +112,37 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
         ],
-        [P.RotatingElevatorPreExplosionOverlay] =
+        [P.ElevatorDoor] =
         [
             Cue(new(K.MakeIntangible)),
         ],
-        [P.RotatingElevatorPreExplosionOverlayLoop] =
+        [P.ElevatorDoorLoop] =
         [
             Show(EnemyFrameId.CeresDoorRotatingOverlay, 1),
         ],
-        [P.RotatingElevatorInvisibleWall] =
+        [P.ElevatorRoomWall] =
         [
-            Cue(new(K.GoToIfRidleyNotEscaped, Target: P.NormalFacingLeft)),
+            Cue(new(K.GoToIfRidleyNotEscaped, Target: P.DoorFacingLeft)),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeInvisible)),
         ],
-        [P.RotatingElevatorInvisibleWallLoop] =
+        [P.ElevatorRoomWallLoop] =
         [
             Show(EnemyFrameId.CeresDoorLeftHold, 1),
         ],
-        [P.RidleyEscapeFloorLeftWall] =
+        [P.GetawayChamberLeftWall] =
         [
             Cue(new(K.MakeIntangible)),
         ],
-        [P.RidleyEscapeFloorLeftWallLoop] =
+        [P.GetawayChamberLeftWallLoop] =
         [
             Show(EnemyFrameId.CeresDoorTurningFloorLeftWall, 1),
         ],
-        [P.RidleyEscapeFloorRightWall] =
+        [P.GetawayChamberRightWall] =
         [
             Cue(new(K.MakeIntangible)),
         ],
-        [P.RidleyEscapeFloorRightWallLoop] =
+        [P.GetawayChamberRightWallLoop] =
         [
             Show(EnemyFrameId.CeresDoorTurningFloorRightWall, 1),
         ],
@@ -151,26 +151,26 @@ internal static class CeresDoorAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt { get; } = new Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>
     {
-        [P.RidleyRoomFacingRight] = new([new(P.RidleyRoomFacingRight, 0, 12, 1), new(P.RidleyRoomFacingRightWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.RidleyRoomFacingRightWait] = new([new(P.RidleyRoomFacingRightWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.NormalFacingRight] = new([new(P.NormalFacingRight, 0, 4, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.RidleyRoomDoor] = new([new(P.RidleyRoomDoor, 0, 12, 1), new(P.RidleyRoomDoorWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.RidleyRoomDoorWait] = new([new(P.RidleyRoomDoorWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.DoorFacingRight] = new([new(P.DoorFacingRight, 0, 4, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
         [P.OpenFacingRight] = new([new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CloseFacingRight] = new([new(P.CloseFacingRight, 0, 6, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
         [P.ClosedFacingRight] = new([new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
         [P.ClosedFacingRightWait] = new([new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.NormalFacingLeft] = new([new(P.NormalFacingLeft, 0, 4, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DoorFacingLeft] = new([new(P.DoorFacingLeft, 0, 4, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
         [P.OpenFacingLeft] = new([new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CloseFacingLeft] = new([new(P.CloseFacingLeft, 0, 6, 1), new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
         [P.ClosedFacingLeft] = new([new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
         [P.ClosedFacingLeftWait] = new([new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RotatingElevatorPreExplosionOverlay] = new([new(P.RotatingElevatorPreExplosionOverlay, 0, 1, 1), new(P.RotatingElevatorPreExplosionOverlayLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RotatingElevatorPreExplosionOverlayLoop] = new([new(P.RotatingElevatorPreExplosionOverlayLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RotatingElevatorInvisibleWall] = new([new(P.RotatingElevatorInvisibleWall, 0, 3, 1), new(P.RotatingElevatorInvisibleWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RotatingElevatorInvisibleWallLoop] = new([new(P.RotatingElevatorInvisibleWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RidleyEscapeFloorLeftWall] = new([new(P.RidleyEscapeFloorLeftWall, 0, 1, 1), new(P.RidleyEscapeFloorLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RidleyEscapeFloorLeftWallLoop] = new([new(P.RidleyEscapeFloorLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RidleyEscapeFloorRightWall] = new([new(P.RidleyEscapeFloorRightWall, 0, 1, 1), new(P.RidleyEscapeFloorRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RidleyEscapeFloorRightWallLoop] = new([new(P.RidleyEscapeFloorRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ElevatorDoor] = new([new(P.ElevatorDoor, 0, 1, 1), new(P.ElevatorDoorLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ElevatorDoorLoop] = new([new(P.ElevatorDoorLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ElevatorRoomWall] = new([new(P.ElevatorRoomWall, 0, 3, 1), new(P.ElevatorRoomWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ElevatorRoomWallLoop] = new([new(P.ElevatorRoomWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GetawayChamberLeftWall] = new([new(P.GetawayChamberLeftWall, 0, 1, 1), new(P.GetawayChamberLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.GetawayChamberLeftWallLoop] = new([new(P.GetawayChamberLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GetawayChamberRightWall] = new([new(P.GetawayChamberRightWall, 0, 1, 1), new(P.GetawayChamberRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.GetawayChamberRightWallLoop] = new([new(P.GetawayChamberRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

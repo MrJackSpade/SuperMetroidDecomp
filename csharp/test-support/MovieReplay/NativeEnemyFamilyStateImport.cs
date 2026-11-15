@@ -180,14 +180,21 @@ internal static class NativeEnemyFamilyStateImport
             ceresSteamRecord.Action = words.A == 0 ? null : CeresNativeWords.DecodeSteamAction(words.A, "recorded CeresSteamAction");
             ceresSteamRecord.ActivationDelay = WrappingCountdown.Start(words.D);
         }
-        if (slot.SpeciesState<CeresDoorEnemyState>() is { } ceresDoorRecord)
+        if (slot.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)
         {
-            ceresDoorRecord.Action = words.A == 0 ? null : CeresNativeWords.DoorActions.Decode(words.A, "recorded CeresDoorAction");
-            ceresDoorRecord.HandsDrawingToRidley = words.B != 0;
-            ceresDoorRecord.RumbleCallsLeft = words.D;
-            ceresDoorRecord.ExplosionIntervalLeft = words.E;
-            ceresDoorRecord.LastExplosionPlace = words.F;
+            elevatorDoorRecord.Phase = CeresNativeWords.ElevatorDoorPhases.Decode(words.A, "recorded Ceres elevator door phase");
+            elevatorDoorRecord.RumbleCallsLeft = words.D;
+            elevatorDoorRecord.ExplosionIntervalLeft = words.E;
+            elevatorDoorRecord.LastExplosionPlace = words.F;
         }
+        else if (slot.SpeciesState<CeresDoorAnimationState>() is not null && words.A != CeresNativeWords.MainBehaviourWord(slot))
+        {
+            // Every other Ceres door and wall runs one main behaviour, which its actor names (#1953).
+            throw new InvalidDataException(
+                $"Recorded Ceres door or wall {slot.SlotIndex} runs routine {words.A:X4}, not its actor's {CeresNativeWords.MainBehaviourWord(slot):X4}.");
+        }
+        if (slot.SpeciesState<CeresRidleyRoomDoorState>() is { } ridleyRoomDoorRecord)
+            ridleyRoomDoorRecord.HandsDrawingToRidley = words.B != 0;
         if (slot.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
             deadTorizoRecord.Phase = words.A == 0 ? null : CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded DeadTorizoPhase");

@@ -7,8 +7,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The Tourian unlock species owner: its per-room state, behaviour and the interactions it registers. It is its effects'
-/// projectile behaviour (#1801): the release's cues spawn more of the effects it spawns, at the water surface it holds.
+/// The Tourian statues' unlock effects (#1801, #1956): the projectile behaviour that spawns and moves the descending
+/// statue's dust, the eyes' glows, the released souls, the particles and their tails, and the splashes at the water surface
+/// it holds. The release's cues spawn more of the effects it spawns.
 /// </summary>
 [RoomLifetime]
 internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
@@ -126,22 +127,22 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     private void HoldTourianStatueSplash(EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
 
-    /// <summary>Raises a soul, accelerating upward, and deletes it once it leaves the room.</summary>
+    /// <summary>Raises a soul, accelerating upward, and deletes it once it rises above the room's top.</summary>
     internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-        // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
-        // top screen row, that first happens when it wraps above the room's top edge.
-        int soulScreenRow = RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole);
-        if (soulScreenRow % 2 != 0)
+        if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0)
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         }
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - SoulRiseAcceleration);
     }
 
-    /// <summary>Drops a particle under gravity, splashing as it crosses the water surface and deleting it below the room.</summary>
-    private void DropTourianStatueParticle(EnemyProjectile projectile)
+    /// <summary>
+    /// Drops a particle under gravity, splashing as it crosses the water surface and deleting it once it sinks past the
+    /// bottom of the statues' screen. A particle thrown above the room's top falls back through it.
+    /// </summary>
+    internal void DropTourianStatueParticle(EnemyProjectile projectile)
     {
         // A splash marks the update the particle crosses the surface in either direction: the wrapped
         // signed distance from the particle down to the surface changes sign.
@@ -150,7 +151,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
         if (submergedBefore != submergedAfter)
             SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash);
-        if (RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole) == 1)
+        if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) >= TourianStatueParticleDefinitions.SunkDepth)
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         }

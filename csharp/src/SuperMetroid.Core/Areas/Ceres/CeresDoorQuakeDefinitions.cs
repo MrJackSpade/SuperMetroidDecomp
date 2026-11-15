@@ -14,8 +14,8 @@ internal static class CeresDoorQuakeDefinitions
     internal static readonly RandomChance StrongQuake = RandomChance.Lowest(128, new RandomSampleField(0, 12));
 
     /// <summary>
-    /// The animation of each explosion of the door's destruction (#1619): the lowest 16384 of the 65536 samples, a
-    /// quarter, play the door's explosion animation; the rest its smoke animation.
+    /// The animation of each explosion of the elevator door's destruction (#1619): the lowest 16384 of the 65536 samples, a
+    /// quarter, burst as smoke; the rest as small explosions.
     /// </summary>
     internal static readonly RandomChance RumbleExplosion = RandomChance.Lowest(16384, RandomSampleField.Whole);
 

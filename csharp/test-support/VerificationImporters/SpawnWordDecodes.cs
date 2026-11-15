@@ -19,8 +19,8 @@ internal static class SpawnWordDecodes
         Settings<TourianEntranceStatueSpawnSettings>(EnemyDefinitionId.TourianStatue, parameter1).Statue;
 
     /// <summary>The Ceres door or wall a first parameter word names.</summary>
-    public static CeresDoorVariant CeresDoor(int parameter1) =>
-        Settings<CeresDoorSpawnSettings>(EnemyDefinitionId.CeresDoor, parameter1).Variant;
+    public static CeresDoorOrWall CeresDoorOrWallActor(int parameter1) =>
+        Settings<CeresDoorOrWallSpawnSettings>(EnemyDefinitionId.CeresDoor, parameter1).Actor;
 
     /// <summary>The escape Etecoon role a first parameter word names.</summary>
     public static EscapeEtecoonRole EscapeEtecoonRole(int parameter1) =>

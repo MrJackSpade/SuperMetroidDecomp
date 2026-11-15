@@ -1,26 +1,25 @@
+using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>One CeresDoor occupant: its own AI, with the shared reactions.</summary>
-/// <param name="species">The CeresDoor species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <summary>
+/// An ordinary Ceres door (#1953): it opens as Samus comes near and closes behind her, and keeps the station's escape
+/// quake going through the foreground, the background and the enemies.
+/// </summary>
+/// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="slot">The slot the door occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresDoorEntity(CeresDoorBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IDrawnByCeresRidleyScene
+/// <param name="opening">The animation the door starts in, for the way it faces.</param>
+internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemySlot slot, EnemyCommonParticipation common, CeresDoorSegment opening)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeCeresDoor(Slot);
+    public void Initialize() => doors.Start(Slot, opening);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunCeresDoorMain(Slot);
+    public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceCeresDoorTypedAnimation(Slot, context);
-
-    /// <summary>
-    /// Whether the door's animation has handed its drawing to Ridley's scene (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>)
-    /// and not yet taken it back (<see cref="CeresDoorCueKind.MakeVisibleAndTakeDrawingBack"/>).
-    /// </summary>
-    public bool HandsDrawingToRidley => Slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Slot, context.Samus);
 }

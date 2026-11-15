@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Areas.Ceres;
@@ -9,16 +10,36 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresNativeWords
 {
-    /// <summary>The routine word naming each <see cref="CeresDoorAction"/>, stored in the door's variable A.</summary>
-    internal static readonly NativeWordIdentities<CeresDoorAction> DoorActions = new(new Dictionary<CeresDoorAction, ushort>
+    /// <summary>The routine word of the escape quake an ordinary door and the elevator room's wall keep, in variable A.</summary>
+    internal const ushort EscapeQuakeWord = 0xf76b;
+
+    /// <summary>The routine word of the escape quake the door of Ridley's room keeps, in variable A.</summary>
+    internal const ushort RidleyRoomEscapeQuakeWord = 0xf770;
+
+    /// <summary>The routine word of a getaway chamber wall's main behaviour, which only holds its place, in variable A.</summary>
+    internal const ushort GetawayChamberWallWord = 0xf7a5;
+
+    /// <summary>The routine word naming each <see cref="CeresElevatorDoorPhase"/>, stored in the elevator door's variable A.</summary>
+    internal static readonly NativeWordIdentities<CeresElevatorDoorPhase> ElevatorDoorPhases = new(new Dictionary<CeresElevatorDoorPhase, ushort>
     {
-        [CeresDoorAction.HandleEarthquakeDuringEscape] = 0xf76b,
-        [CeresDoorAction.HandleEarthquakeDuringEscapeInRidleysRoom] = 0xf770,
-        [CeresDoorAction.RidleyEscapeFloorWall] = 0xf7a5,
-        [CeresDoorAction.RotatingElevatorRoomDefault] = 0xf7bd,
-        [CeresDoorAction.RotatingElevatorRumble] = 0xf7dc,
-        [CeresDoorAction.ElevatorAnimation] = 0xf850,
+        [CeresElevatorDoorPhase.Intact] = 0xf7bd,
+        [CeresElevatorDoorPhase.Exploding] = 0xf7dc,
+        [CeresElevatorDoorPhase.Destroyed] = 0xf850,
     });
+
+    /// <summary>
+    /// The routine word of the main behaviour <paramref name="slot"/>'s Ceres door or wall runs now (#1953): the cartridge
+    /// stored it in the shared enemy's variable A, and each actor runs its own.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The slot holds no Ceres door or wall.</exception>
+    internal static ushort MainBehaviourWord(RoomEnemySlot slot) => slot.Entity switch
+    {
+        CeresDoorEntity or CeresElevatorRoomWallEntity => EscapeQuakeWord,
+        CeresRidleyRoomDoorEntity => RidleyRoomEscapeQuakeWord,
+        CeresGetawayChamberWallEntity => GetawayChamberWallWord,
+        CeresElevatorDoorEntity => ElevatorDoorPhases.Word(slot.RequireSpeciesState<CeresElevatorDoorState>().Phase),
+        var other => throw new InvalidDataException($"Enemy slot {slot.SlotIndex} holds {other?.GetType().Name ?? "no actor"}, not a Ceres door or wall."),
+    };
 
     /// <summary>The routine word naming each <see cref="CeresSteamAction"/>, stored in the steam actor's variable A.</summary>
     internal static readonly NativeWordIdentities<CeresSteamAction> SteamActions = new(new Dictionary<CeresSteamAction, ushort>

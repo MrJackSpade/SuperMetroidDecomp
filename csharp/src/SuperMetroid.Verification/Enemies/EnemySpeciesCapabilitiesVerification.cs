@@ -190,6 +190,9 @@ internal static class EnemySpeciesCapabilitiesVerification
         int answers = 0;
         foreach (EnemyDefinitionId definition in definitions)
         {
+            // The Ceres doors and walls are actors their placement names; bind the door of Ridley's room (#1953).
+            if (definition == EnemyDefinitionId.CeresDoor)
+                slot.SetSpawnSettings(new CeresDoorOrWallSpawnSettings(CeresDoorOrWall.RidleyRoomDoor));
             slot.Bind(definition, HeaderOf(definition));
             IEnemyEntity entity = slot.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
             bound++;
@@ -206,7 +209,7 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
-            var doorState = new CeresDoorEnemyState();
+            var doorState = new CeresRidleyRoomDoorState();
             slot.SetSpeciesState(doorState);
             foreach (bool handed in new[] { false, true })
             {

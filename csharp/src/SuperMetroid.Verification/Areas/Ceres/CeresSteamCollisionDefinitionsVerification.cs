@@ -57,7 +57,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             $"{selected} compiled visual selections, no ROM reads.");
     }
 
-    /// <summary>Checks frame components, hitbox lists, and shot/touch boundary behavior without production ROM reads.</summary>
+    /// <summary>Checks frame plumes, hitbox lists, and shot/touch boundary behavior, through coordinate wrap, without production ROM reads.</summary>
     internal static void VerifyCeresSteamCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -78,20 +78,18 @@ internal static class CeresSteamCollisionDefinitionsVerification
         int probes = 0;
         foreach (ushort frame in CeresSteamCollisionDefinitionsConstants.FramePointers)
         {
-            CeresSteamCollisionComponent[] components =
-                CeresSteamCollisionDefinitions.ComponentsAt(frame);
-            AssertEqual(1, components.Length,
-                $"Ceres steam $A6:{frame:X4} has one physical component");
+            EnemyHitboxRectangle? plume = CeresSteamCollisionDefinitions.PlumeAt(frame);
             AssertEqual((ushort)0x1001, rom.ReadCartridgeWord((0xa60000 | frame)),
                 $"Ceres steam $A6:{frame:X4} preserves the native $1001 header");
-            CeresSteamCollisionComponent component = components[0];
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa60000 | frame + 2))), component.Offset.X,
-                "Ceres steam native component X");
-            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa60000 | frame + 4))), component.Offset.Y,
-                "Ceres steam native component Y");
-            AssertEqual(rom.ReadCartridgeWord((0xa60000 | frame + 8)), component.HitboxPointer,
+            // The native frame's one component lies at the vent, so the plume's rectangle about the vent is all Core keeps (#1954).
+            AssertEqual(0, (int)unchecked((short)rom.ReadCartridgeWord((0xa60000 | frame + 2))),
+                $"Ceres steam $A6:{frame:X4} native component lies at the vent horizontally");
+            AssertEqual(0, (int)unchecked((short)rom.ReadCartridgeWord((0xa60000 | frame + 4))),
+                $"Ceres steam $A6:{frame:X4} native component lies at the vent vertically");
+            ushort hitboxList = CeresSteamCollisionDefinitions.HitboxListOf(plume);
+            AssertEqual(rom.ReadCartridgeWord((0xa60000 | frame + 8)), hitboxList,
                 "Ceres steam native hitbox-list pointer");
-            seenLists.Add(component.HitboxPointer);
+            seenLists.Add(hitboxList);
 
             compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
@@ -104,7 +102,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 // Probe every rectangle boundary and the fully hidden frames.
                 // Shot and touch use different strict/inclusive comparisons.
                 ReadOnlySpan<EnemyHitboxRectangle> boxes =
-                    CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer);
+                    CeresSteamCollisionDefinitions.HitboxesAt(hitboxList);
                 ushort[] xs = boxes.IsEmpty
                     ? [originX, unchecked((ushort)(originX + 12))]
                     : BoundaryPoints(originX, boxes[0].Left, boxes[0].Right);
@@ -151,7 +149,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             }
         }
         AssertThrows<InvalidDataException>(
-            () => CeresSteamCollisionDefinitions.ComponentsAt(0x8000),
+            () => CeresSteamCollisionDefinitions.PlumeAt(0x8000),
             "unknown Ceres steam frame fails loudly");
         AssertThrows<InvalidDataException>(
             () => CeresSteamCollisionDefinitions.HitboxesAt(0x8000),

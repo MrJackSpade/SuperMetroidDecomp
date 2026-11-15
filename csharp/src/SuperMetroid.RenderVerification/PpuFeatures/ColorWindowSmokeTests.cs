@@ -44,6 +44,19 @@ internal static class ColorWindowSmokeTests
             Check(new ColourAddWindowLayer(window, colour, sample % 2 == 0 ? null
                 : new LineColourSteps(random.Next(224), 1 + random.Next(16), 1 + random.Next(15), random.Next(-1, 2))));
         }
+        // Ovals whose edges pass exactly through pixels (#2001): every device lights exactly the pixels within or on each
+        // oval, among them the Power Bomb blast's ovals around the Ceres station blast's centre, whose 181 by 135 oval's
+        // left tip the graphics card once left dark, and a column with rounded sides like the suit pickup's beam.
+        var dark = FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []);
+        RgbColor lit = new FadeLevelColour(31, 0, 0).ToColour();
+        for (int radius = 1; radius < 256; radius++)
+        {
+            int tall = radius * 3 / 4;
+            if (tall > 0)
+                CheckOvalEdge(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(193, 136),
+                    new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)tall))));
+        }
+        CheckOvalEdge(new WindowOval(Offset16<ScreenPixels>.Of(40, 112), 100, new Extent16<ScreenPixels>(24, 112)));
         // The haze in the tints the import installs (#1596).
         var hazeTints = new SuperMetroid.Core.Fx.Artwork.CeresHazeTints(
             SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFiles.StockCeresHazeBlue,
@@ -99,5 +112,34 @@ internal static class ColorWindowSmokeTests
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }
+
+        // Draws the oval alone over a dark screen and checks each pixel is lit exactly when it lies within or on the oval.
+        void CheckOvalEdge(WindowOval oval)
+        {
+            count++;
+            var frame = new DisplayPacket(0, new LayeredScene(dark,
+                new DisplayLayer[] { new ColourAddWindowLayer(ScreenWindow.Of(oval), lit) }, DisplayBrightness.Full));
+            RgbaPixel[] drawn = renderer.RenderForReadback(frame);
+            for (int y = 0; y < DisplayScreen.Height; y++)
+            for (int x = 0; x < DisplayScreen.Width; x++)
+            {
+                bool shown = drawn[y * DisplayScreen.Width + x].R != 0, covered = OvalCovers(oval, x, y);
+                if (shown != covered)
+                    throw new InvalidOperationException($"{device.Kind}: {oval} {(shown ? "lights" : "leaves dark")} ({x},{y}), " +
+                        $"which lies {(covered ? "within or on" : "outside")} its edge.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Whether the pixel at <paramref name="x"/>, <paramref name="y"/> lies within or on <paramref name="oval"/>, worked in
+    /// whole numbers: its distance beside the core and from the middle line, scaled by the radii, is at most one.
+    /// </summary>
+    private static bool OvalCovers(WindowOval oval, int x, int y)
+    {
+        Int128 dx = Math.Max(0, Math.Max(oval.CoreStart.X - x, x - (oval.CoreStart.X + oval.CoreWidth)));
+        Int128 dy = y - oval.CoreStart.Y;
+        Int128 rx = oval.Radii.X, ry = oval.Radii.Y;
+        return dx * dx * ry * ry + dy * dy * rx * rx <= rx * rx * ry * ry;
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -42,6 +43,17 @@ internal static class GameplayHudStockDefinitions
     /// <summary>The minimap's upper-left cell: <c>$90:A91B</c> writes its five columns from word 26 of each of the three rows.</summary>
     internal static Position16<CharacterCells> MinimapAnchor { get; } = new(26, 0);
 
-    /// <summary>Each icon's width in cells, in Missile, Super Missile, Power Bomb, Grapple and X-Ray order: the missile has a central shaft.</summary>
-    internal static readonly int[] IconWidths = [3, 2, 2, 2, 2];
+    /// <summary>The order the cartridge's icon tables list the item icons in: its icon words and its icon offsets.</summary>
+    internal static IReadOnlyList<HudIcon> IconSourceOrder { get; } =
+        [HudIcon.Missile, HudIcon.SuperMissile, HudIcon.PowerBomb, HudIcon.Grapple, HudIcon.XRay];
+
+    /// <summary>Each icon's width in cells: the missile has a central shaft.</summary>
+    internal static IReadOnlyDictionary<HudIcon, int> IconWidths { get; } = new Dictionary<HudIcon, int>
+    {
+        [HudIcon.Missile] = 3,
+        [HudIcon.SuperMissile] = 2,
+        [HudIcon.PowerBomb] = 2,
+        [HudIcon.Grapple] = 2,
+        [HudIcon.XRay] = 2,
+    };
 }

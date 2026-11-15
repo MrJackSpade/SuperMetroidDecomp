@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -20,10 +21,11 @@ public static class GameplayHudPresentationExtractor
         Ensure.NotNull(bus);
         var icons = new Dictionary<string, GameplayHudIconDocument>(StringComparer.Ordinal);
         int sourceWord = 0;
-        for (int item = 0; item < GameplayHudDefinitions.IconNames.Length; item++)
+        for (int item = 0; item < GameplayHudStockDefinitions.IconSourceOrder.Count; item++)
         {
-            int count = GameplayHudStockDefinitions.IconWidths[item] * 2;
-            icons.Add(GameplayHudDefinitions.IconNames[item], new()
+            HudIcon icon = GameplayHudStockDefinitions.IconSourceOrder[item];
+            int count = GameplayHudStockDefinitions.IconWidths[icon] * GameplayHudIcon.Height;
+            icons.Add(icon.ToString(), new()
             {
                 Anchor = Point(GameplayHudStockCells.ItemCell(item)),
                 Cells = ReadCells(bus, HudSourceDefinitions.Icons + sourceWord * sizeof(ushort), count),
@@ -60,10 +62,10 @@ public static class GameplayHudPresentationExtractor
             },
             AutoReserve = new()
             {
-                Anchors = Enumerable.Range(0, GameplayHudDefinitions.AutoReserveCellCount)
+                Anchors = Enumerable.Range(0, GameplayHudDocumentDefinitions.AutoReserveCellCount)
                     .Select(cell => Point(GameplayHudStockCells.AutoReserveCellIndex(cell))).ToArray(),
-                ContainsEnergy = ReadCells(bus, HudSourceDefinitions.AutoReserve, 6),
-                Empty = ReadCells(bus, HudSourceDefinitions.AutoReserve + HudSourceDefinitions.AutoReserveEmptyOffset, 6),
+                ContainsEnergy = ReadCells(bus, HudSourceDefinitions.AutoReserve, GameplayHudDocumentDefinitions.AutoReserveCellCount),
+                Empty = ReadCells(bus, HudSourceDefinitions.AutoReserve + HudSourceDefinitions.AutoReserveEmptyOffset, GameplayHudDocumentDefinitions.AutoReserveCellCount),
             },
             Icons = icons,
         });

@@ -902,7 +902,7 @@ internal static class LookupStream4Verification
             ushort[] native=Enumerable.Repeat(stock.Blank.PackedWord,96).ToArray();int sourceWord=0;
             for(int item=0;item<5;item++)
             {
-                stock.TryApplyIcon(native,item);int width=item==0?3:2;int anchor=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e+item*2)/2;
+                stock.TryApplyIcon(native,GameplayHudStockDefinitions.IconSourceOrder[item]);int width=item==0?3:2;int anchor=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e+item*2)/2;
                 for(int cell=0;cell<width*2;cell++,sourceWord++)
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceWord*2),native[anchor+cell/width*32+cell%width],"Stock icon draws the native word at the native offset");
             }
@@ -913,19 +913,19 @@ internal static class LookupStream4Verification
             ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();
             for(int item=0;item<5;item++)
             {
-                var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;
-                selected.TryApplyIcon(tiles,item);
+                var icon=document.Icons[GameplayHudStockDefinitions.IconSourceOrder[item].ToString()];int width=item==0?3:2;
+                selected.TryApplyIcon(tiles,GameplayHudStockDefinitions.IconSourceOrder[item]);
                 for(int cell=0;cell<width*2;cell++)
                     AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every stock icon cell");
             }
             {
                 var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.NewGame with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
-                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords(selected)[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
+                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudStockDefinitions.IconSourceOrder[item].ToString()];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords(selected)[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
-            for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
-            for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
+            for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,GameplayHudStockDefinitions.IconSourceOrder[item]);
+            for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudStockDefinitions.IconSourceOrder[item].ToString()];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
         }
-        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.TryApplyIcon(new ushort[96],invalid),"Icon item domain");
+        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.TryApplyIcon(new ushort[96],(HudIcon)invalid),"Icon item domain");
         const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
         for(int item=0;item<5;item++)
         {

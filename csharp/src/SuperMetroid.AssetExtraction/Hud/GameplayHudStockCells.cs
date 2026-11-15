@@ -17,10 +17,10 @@ internal static class GameplayHudStockCells
         : throw new ArgumentOutOfRangeException(nameof(tank));
 
     /// <summary><c>ToggleHUDItemHighlight.HUDItemOffsets</c> at $80:9D6E: three-cell missiles, then two-cell icons, each with a blank gap.</summary>
-    /// <param name="item">Zero-based icon index 0..4 in <see cref="GameplayHudDefinitions.IconNames"/> order, rather than the live selection's one-based item code.</param>
+    /// <param name="item">The icon's place in <see cref="GameplayHudStockDefinitions.IconSourceOrder"/>, 0..4, rather than the live selection's one-based item code.</param>
     /// <returns>Cell index of the icon's upper-left word in the mutable HUD tilemap (the native table holds twice this).</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> is outside the five item icons.</exception>
-    internal static int ItemCell(int item) => (uint)item < GameplayHudDefinitions.ItemCount
+    internal static int ItemCell(int item) => (uint)item < GameplayHudStockDefinitions.IconSourceOrder.Count
         ? 10 + item * 3 + (item > 0 ? 1 : 0)
         : throw new ArgumentOutOfRangeException(nameof(item));
 
@@ -28,7 +28,7 @@ internal static class GameplayHudStockCells
     /// <param name="cell">Zero-based composition cell 0..5, ordered left-to-right and top-to-bottom.</param>
     /// <returns>Word index in the 32-by-3 mutable HUD tilemap, not a byte offset.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the six AUTO cells.</exception>
-    internal static int AutoReserveCellIndex(int cell) => (uint)cell < GameplayHudDefinitions.AutoReserveCellCount
+    internal static int AutoReserveCellIndex(int cell) => (uint)cell < GameplayHudDocumentDefinitions.AutoReserveCellCount
         ? 8 + cell % 2 + cell / 2 * GameplayHudDocumentDefinitions.Columns
         : throw new ArgumentOutOfRangeException(nameof(cell));
 }

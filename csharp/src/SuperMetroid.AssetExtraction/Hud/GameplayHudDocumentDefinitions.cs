@@ -12,7 +12,7 @@ public static class GameplayHudDocumentDefinitions
     /// <summary>Installed JSON filename for the gameplay HUD's layout (<see cref="GameplayHudLayoutDocument"/>).</summary>
     public const string FileName = "gameplay-hud.json";
     /// <summary>Supported gameplay-HUD layout schema revision.</summary>
-    public const int LayoutVersion = 1;
+    public const int LayoutVersion = 2;
     /// <summary>Import-data JSON filename for the gameplay HUD's artwork (<see cref="GameplayHudPresentationDocument"/>).</summary>
     public const string ArtworkFileName = "gameplay-hud-artwork.json";
     /// <summary>Cells across each of the HUD's rows.</summary>
@@ -25,4 +25,8 @@ public static class GameplayHudDocumentDefinitions
     public static Extent16<CharacterCells> Size => new(Columns, DrawnRows);
     /// <summary>Thirty-two cells in the static minimap-border row.</summary>
     public const int TopRowCellCount = Columns;
+    /// <summary>The AUTO indicator's block of cells: its label and arrows, two columns across and three rows down.</summary>
+    public static Extent16<CharacterCells> AutoReserveSize => new(2, 3);
+    /// <summary>The cells in the AUTO indicator's block, counted left to right and then top to bottom.</summary>
+    public const int AutoReserveCellCount = 6;
 }

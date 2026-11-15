@@ -16,24 +16,7 @@ public static class GameplayHudDefinitions
     /// <summary>The decimal numerals a counter's digits show.</summary>
     public const int Numerals = 10;
 
-    /// <summary>Required case-sensitive icon keys in zero-based layout order: Missile, SuperMissile, PowerBomb, Grapple and XRay. The array reference is fixed but its entries are not protected from caller mutation.</summary>
-    public static readonly string[] IconNames = ["Missile", "SuperMissile", "PowerBomb", "Grapple", "XRay"];
-
-    /// <summary>The item icons in <see cref="IconNames"/> order, the order the HUD's layout lists them in.</summary>
-    internal static readonly HudIcon[] Icons = [HudIcon.Missile, HudIcon.SuperMissile, HudIcon.PowerBomb, HudIcon.Grapple, HudIcon.XRay];
-
-    /// <summary>The selectable item each icon in <see cref="IconNames"/> order shows; the beam selection has no icon.</summary>
-    internal static readonly SuperMetroid.Core.Samus.HudItem[] IconItems =
-    [
-        SuperMetroid.Core.Samus.HudItem.Missile, SuperMetroid.Core.Samus.HudItem.SuperMissile,
-        SuperMetroid.Core.Samus.HudItem.PowerBomb, SuperMetroid.Core.Samus.HudItem.Grapple, SuperMetroid.Core.Samus.HudItem.XRay,
-    ];
-
     /// <summary>Fourteen energy tanks in two rows of seven; this excludes the numeric energy count.</summary>
     public const int EnergyTankCount = 14;
-    /// <summary>Five selectable item icons; the beam selection is not an icon.</summary>
-    public const int ItemCount = 5;
-    /// <summary>Six parts in the two-column, three-row AUTO label and arrows.</summary>
-    public const int AutoReserveCellCount = 6;
 
 }

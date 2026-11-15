@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -61,17 +62,18 @@ public static class GameplayHudPresentationFile
     /// <summary>Decodes every cell and anchor and rejects any element outside the HUD or over another.</summary>
     private static GameplayHudArtworkParts Decode(GameplayHudPresentationDocument document)
     {
-        if (document.Icons is null || document.Icons.Count != GameplayHudDefinitions.IconNames.Length ||
-            GameplayHudDefinitions.IconNames.Any(name => !document.Icons.ContainsKey(name)))
+        HudIcon[] named = Enum.GetValues<HudIcon>();
+        if (document.Icons is null || document.Icons.Count != named.Length ||
+            named.Any(item => !document.Icons.ContainsKey(item.ToString())))
             throw new InvalidDataException("Gameplay HUD requires exactly the five named item icons.");
-        var icons = ImmutableArray.CreateBuilder<GameplayHudIcon>(GameplayHudDefinitions.ItemCount);
-        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
+        var icons = ImmutableDictionary.CreateBuilder<HudIcon, GameplayHudIcon>();
+        foreach (HudIcon item in named)
         {
-            string name = GameplayHudDefinitions.IconNames[item];
+            string name = item.ToString();
             GameplayHudIconDocument icon = document.Icons[name] ?? throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
             int width = GameplayHudStockDefinitions.IconWidths[item];
             Position16<CharacterCells> anchor = ValidateAnchor(icon.Anchor, new(checked((ushort)width), GameplayHudIcon.Height), $"{name} icon");
-            icons.Add(new GameplayHudIcon(anchor, width, CompileCells(icon.Cells, width * GameplayHudIcon.Height, $"{name} icon")));
+            icons.Add(item, new GameplayHudIcon(anchor, width, CompileCells(icon.Cells, width * GameplayHudIcon.Height, $"{name} icon")));
         }
         var minimapHidden = MapTileWords.HudBlank;
         var parts = new GameplayHudArtworkParts
@@ -88,12 +90,12 @@ public static class GameplayHudPresentationFile
             MissileAmmoAnchor = ValidateAnchor(document.Digits.MissileAnchor, new(3, 1), "missile digits"),
             SuperMissileAmmoAnchor = ValidateAnchor(document.Digits.SuperMissileAnchor, new(2, 1), "Super Missile digits"),
             PowerBombAmmoAnchor = ValidateAnchor(document.Digits.PowerBombAnchor, new(2, 1), "Power Bomb digits"),
-            AutoReserveFilled = CompileCells(document.AutoReserve.ContainsEnergy, GameplayHudDefinitions.AutoReserveCellCount, "filled AUTO indicator"),
-            AutoReserveEmpty = CompileCells(document.AutoReserve.Empty, GameplayHudDefinitions.AutoReserveCellCount, "empty AUTO indicator"),
-            AutoReserveCells = CompileAnchors(document.AutoReserve.Anchors, GameplayHudDefinitions.AutoReserveCellCount, "AUTO indicator"),
+            AutoReserveFilled = CompileCells(document.AutoReserve.ContainsEnergy, GameplayHudDocumentDefinitions.AutoReserveCellCount, "filled AUTO indicator"),
+            AutoReserveEmpty = CompileCells(document.AutoReserve.Empty, GameplayHudDocumentDefinitions.AutoReserveCellCount, "empty AUTO indicator"),
+            AutoReserveCells = CompileAutoReserveBlock(document.AutoReserve.Anchors),
             SelectedPalette = ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette)),
             DeselectedPalette = ValidatePalette(document.DeselectedPalette, nameof(document.DeselectedPalette)),
-            Icons = icons.MoveToImmutable(),
+            Icons = icons.ToImmutable(),
             MinimapAnchor = ValidateAnchor(document.MinimapAnchor, MinimapCells, "minimap"),
             MinimapHidden = minimapHidden.ToTile(),
             MinimapUnexploredColourVariant = minimapHidden.ForHud(explored: false).PaletteIndex,
@@ -119,8 +121,8 @@ public static class GameplayHudPresentationFile
             for (int x = 0; x < width; x++)
                 Own(anchor + new Offset16<CharacterCells>(checked((short)x), checked((short)y)), owner);
         }
-        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
-            OwnRun(parts.Icons[item].Anchor, parts.Icons[item].Width, GameplayHudIcon.Height, GameplayHudDefinitions.IconNames[item]);
+        foreach (HudIcon item in Enum.GetValues<HudIcon>())
+            OwnRun(parts.Icons[item].Anchor, parts.Icons[item].Width, GameplayHudIcon.Height, item.ToString());
         foreach (Position16<CharacterCells> tank in parts.EnergyTankCells) Own(tank, "energy tank");
         foreach (Position16<CharacterCells> cell in parts.AutoReserveCells) Own(cell, "AUTO indicator");
         OwnRun(parts.HealthAnchor, 2, 1, "health digits");
@@ -128,6 +130,25 @@ public static class GameplayHudPresentationFile
         OwnRun(parts.SuperMissileAmmoAnchor, 2, 1, "Super Missile digits");
         OwnRun(parts.PowerBombAmmoAnchor, 2, 1, "Power Bomb digits");
         OwnRun(parts.MinimapAnchor, MinimapCells.X, MinimapCells.Y, "minimap");
+    }
+
+    /// <summary>
+    /// The AUTO indicator's six cells, after requiring them to form its block: two cells across and three down, listed left
+    /// to right and then top to bottom, so the indicator pictures as one image placed at its first cell (#1908).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The cells are missing, outside the HUD or not the indicator's block.</exception>
+    private static ImmutableArray<Position16<CharacterCells>> CompileAutoReserveBlock(Position16<CharacterCells>[]? anchors)
+    {
+        ImmutableArray<Position16<CharacterCells>> cells = CompileAnchors(anchors, GameplayHudDocumentDefinitions.AutoReserveCellCount, "AUTO indicator");
+        Extent16<CharacterCells> block = GameplayHudDocumentDefinitions.AutoReserveSize;
+        ValidateAnchor(cells[0], block, "AUTO indicator");
+        for (int cell = 0; cell < cells.Length; cell++)
+        {
+            if (cells[cell] != cells[0] + new Offset16<CharacterCells>(cell % block.X, cell / block.X))
+                throw new InvalidDataException(
+                    $"Gameplay HUD AUTO indicator cell {cell} does not continue its block of {block.X} cells across and {block.Y} down.");
+        }
+        return cells;
     }
 
     /// <summary>Requires the expected cell count and decodes each authored cell's tile.</summary>

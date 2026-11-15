@@ -56,11 +56,11 @@ public sealed class GameplayHudArtwork
 
     /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
-    /// <param name="itemIndex">The zero-based item icon index.</param>
-    internal void TryApplyIcon(Span<BackgroundTile> tiles, int itemIndex)
+    /// <param name="item">The item icon.</param>
+    internal void TryApplyIcon(Span<BackgroundTile> tiles, HudIcon item)
     {
         ValidateTilemap(tiles);
-        GameplayHudIcon icon = Icon(itemIndex);
+        GameplayHudIcon icon = Icon(item);
         if (tiles[Index(icon.Anchor)].Tile != Blank.Tile)
             return;
         for (int cell = 0; cell < icon.Cells.Length; cell++)
@@ -75,9 +75,9 @@ public sealed class GameplayHudArtwork
     {
         ValidateTilemap(tiles);
         if ((uint)palette >= BackgroundTile.ColourVariants) throw new ArgumentOutOfRangeException(nameof(palette));
-        int itemIndex = Array.IndexOf(GameplayHudDefinitions.IconItems, selectedItem);
-        if (itemIndex < 0) return;
-        GameplayHudIcon icon = Icon(itemIndex);
+        if (Enum.GetValues<HudIcon>().Where(item => HudIconDefinitions.Items[item] == selectedItem).ToArray() is not [HudIcon shown])
+            return;
+        GameplayHudIcon icon = Icon(shown);
         for (int cell = 0; cell < icon.Cells.Length; cell++)
         {
             int destination = Index(icon.CellAt(cell));
@@ -99,7 +99,7 @@ public sealed class GameplayHudArtwork
         HudEnergyDigitImage digit => OneCell(image, parts.HealthDigits[digit.Numeral]),
         HudAmmoDigitImage digit => OneCell(image, parts.AmmoDigits[digit.Numeral]),
         HudIconImage icon => IconTiles(icon),
-        HudReserveCellImage reserve => OneCell(image, ReserveTile(reserve.Indicator, reserve.Cell)),
+        HudReserveIndicatorImage reserve => new HudImageTiles(image, GameplayHudDocumentDefinitions.AutoReserveSize, ReserveTiles(reserve.Indicator)),
         HudMinimapCellImage cell => OneCell(image, MinimapTile(cell)),
         HudMinimapHiddenImage => OneCell(image, parts.MinimapHidden),
         _ => throw new ArgumentOutOfRangeException(nameof(image), image, "Undefined HUD image."),
@@ -109,18 +109,17 @@ public sealed class GameplayHudArtwork
     private HudImageTiles IconTiles(HudIconImage image)
     {
         var drawn = new BackgroundTile[GameplayHudDocumentDefinitions.CellCount];
-        int order = GameplayHudPresentation.IconOrder(image.Item);
         ApplyTemplate(drawn);
         if (image.Cover == HudIconCover.Icon)
-            TryApplyIcon(drawn, order);
+            TryApplyIcon(drawn, image.Item);
         if (image.Shade is { } shade)
-            ToggleItemHighlight(drawn, GameplayHudDefinitions.IconItems[order], shade switch
+            ToggleItemHighlight(drawn, HudIconDefinitions.Items[image.Item], shade switch
             {
                 HudIconShade.Selected => SelectedPalette,
                 HudIconShade.Deselected => DeselectedPalette,
                 _ => throw new ArgumentOutOfRangeException(nameof(image), shade, "Undefined icon shade."),
             });
-        GameplayHudIcon icon = Icon(order);
+        GameplayHudIcon icon = Icon(image.Item);
         var cells = ImmutableArray.CreateBuilder<BackgroundTile>(icon.Cells.Length);
         for (int cell = 0; cell < icon.Cells.Length; cell++)
             cells.Add(drawn[Index(icon.CellAt(cell))]);
@@ -135,12 +134,12 @@ public sealed class GameplayHudArtwork
         _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined energy tank state."),
     };
 
-    /// <summary>The tile AUTO cell <paramref name="cell"/> shows under <paramref name="indicator"/>; a cleared cell is blank.</summary>
-    private BackgroundTile ReserveTile(HudReserveIndicator indicator, int cell) => indicator switch
+    /// <summary>The tiles the AUTO indicator shows under <paramref name="indicator"/>, row by row; a cleared indicator is blank.</summary>
+    private ImmutableArray<BackgroundTile> ReserveTiles(HudReserveIndicator indicator) => indicator switch
     {
-        HudReserveIndicator.Filled => parts.AutoReserveFilled[cell],
-        HudReserveIndicator.Empty => parts.AutoReserveEmpty[cell],
-        HudReserveIndicator.Cleared => Blank,
+        HudReserveIndicator.Filled => parts.AutoReserveFilled,
+        HudReserveIndicator.Empty => parts.AutoReserveEmpty,
+        HudReserveIndicator.Cleared => [.. Enumerable.Repeat(Blank, GameplayHudDocumentDefinitions.AutoReserveCellCount)],
         _ => throw new ArgumentOutOfRangeException(nameof(indicator), indicator, "Undefined reserve indicator."),
     };
 
@@ -163,10 +162,11 @@ public sealed class GameplayHudArtwork
     /// <summary>A one-cell image of <paramref name="tile"/>.</summary>
     private static HudImageTiles OneCell(HudImage image, BackgroundTile tile) => new(image, new(1, 1), [tile]);
 
-    /// <summary>Resolves a zero-based item icon index to its installed icon.</summary>
-    private GameplayHudIcon Icon(int itemIndex) => (uint)itemIndex < (uint)parts.Icons.Length
-        ? parts.Icons[itemIndex]
-        : throw new ArgumentOutOfRangeException(nameof(itemIndex));
+    /// <summary>The installed cells of item icon <paramref name="item"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> names no item icon.</exception>
+    private GameplayHudIcon Icon(HudIcon item) => parts.Icons.TryGetValue(item, out GameplayHudIcon? icon)
+        ? icon
+        : throw new ArgumentOutOfRangeException(nameof(item), item, "Undefined item icon.");
 
     /// <summary>Converts an HUD tile coordinate to the mutable row-major cell index.</summary>
     private static int Index(Position16<CharacterCells> point) => GameplayHudDocumentDefinitions.Size.RowMajorIndex(point);
@@ -184,10 +184,10 @@ public sealed class GameplayHudArtwork
     {
         Ensure.NotNull(parts);
         if (parts.TopRow.Length != GameplayHudDocumentDefinitions.TopRowCellCount || parts.Template.Length != GameplayHudDocumentDefinitions.CellCount ||
-            parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount || parts.AutoReserveCells.Length != GameplayHudDefinitions.AutoReserveCellCount ||
-            parts.AutoReserveFilled.Length != GameplayHudDefinitions.AutoReserveCellCount || parts.AutoReserveEmpty.Length != GameplayHudDefinitions.AutoReserveCellCount ||
+            parts.EnergyTankCells.Length != GameplayHudDefinitions.EnergyTankCount || parts.AutoReserveCells.Length != GameplayHudDocumentDefinitions.AutoReserveCellCount ||
+            parts.AutoReserveFilled.Length != GameplayHudDocumentDefinitions.AutoReserveCellCount || parts.AutoReserveEmpty.Length != GameplayHudDocumentDefinitions.AutoReserveCellCount ||
             parts.HealthDigits.Length != GameplayHudDefinitions.Numerals || parts.AmmoDigits.Length != GameplayHudDefinitions.Numerals ||
-            parts.Icons.Length != GameplayHudDefinitions.ItemCount)
+            !Enum.GetValues<HudIcon>().All(parts.Icons.ContainsKey) || parts.Icons.Count != Enum.GetValues<HudIcon>().Length)
             throw new ArgumentException("The gameplay HUD's artwork does not hold one picture for each of its cells.", nameof(parts));
         return new GameplayHudPresentationParts
         {
@@ -196,10 +196,11 @@ public sealed class GameplayHudArtwork
             MissileAmmoAnchor = Shown(parts.MissileAmmoAnchor),
             SuperMissileAmmoAnchor = Shown(parts.SuperMissileAmmoAnchor),
             PowerBombAmmoAnchor = Shown(parts.PowerBombAmmoAnchor),
-            AutoReserveCorners = [.. parts.AutoReserveCells.Select(Shown)],
-            IconAnchors = [.. parts.Icons.Select(icon => Shown(icon.Anchor))],
+            // The indicator's cells form its block, so it is placed by its first, upper-left cell.
+            AutoReserveCorner = Shown(parts.AutoReserveCells[0]),
             // The cartridge draws an icon only over a blank anchor, and nothing but the template ever sits under an icon.
-            IconsShowOverTemplate = [.. parts.Icons.Select(icon => parts.Template[Index(icon.Anchor)].Tile == parts.Blank.Tile)],
+            Icons = parts.Icons.ToImmutableDictionary(pair => pair.Key, pair => new HudIconPlacement(
+                Shown(pair.Value.Anchor), parts.Template[Index(pair.Value.Anchor)].Tile == parts.Blank.Tile)),
             MinimapAnchor = Shown(parts.MinimapAnchor),
         };
     }

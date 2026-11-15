@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>
 /// Pictures every image the gameplay HUD can place (#1466): its top row and template, each energy tank, each numeral,
-/// each item icon's cells in each shade, each AUTO cell as the indicator shows and every minimap cell the installed maps
+/// each item icon's cells in each shade, the AUTO indicator in each of its states and every minimap cell the installed maps
 /// can show, each its own frame named by the image. Each room tileset's BG3 sheet pictures them under its palette; the
 /// pause HUD sheet pictures them under the pause palette.
 /// </summary>
@@ -40,7 +40,7 @@ internal static class HudImageSheet
         for (int numeral = 0; numeral < GameplayHudDefinitions.Numerals; numeral++)
             images.Add(new HudAmmoDigitImage(numeral));
         HudIconShade?[] shades = [null, .. Enum.GetValues<HudIconShade>().Select(shade => (HudIconShade?)shade)];
-        foreach (HudIcon item in GameplayHudDefinitions.Icons)
+        foreach (HudIcon item in Enum.GetValues<HudIcon>())
         {
             foreach (HudIconCover cover in Enum.GetValues<HudIconCover>())
             {
@@ -50,10 +50,7 @@ internal static class HudImageSheet
             }
         }
         foreach (HudReserveIndicator indicator in Enum.GetValues<HudReserveIndicator>())
-        {
-            for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
-                images.Add(new HudReserveCellImage(indicator, cell));
-        }
+            images.Add(new HudReserveIndicatorImage(indicator));
         images.Add(HudMinimapHiddenImage.Instance);
         var minimap = new HashSet<HudMinimapCellImage>();
         foreach (IAreaMapView map in Ensure.NotNull(maps))
@@ -80,7 +77,7 @@ internal static class HudImageSheet
     /// <summary>
     /// Lays every one of <paramref name="hud"/>'s images out on shelves across the HUD's width, each image left of the next
     /// until a shelf has no room for it. An image showing the same tiles as one laid before it, such as an ammo numeral
-    /// and the energy numeral it matches, or each cleared AUTO cell, is placed where that one is, so the sheet holds each
+    /// and the energy numeral it matches, is placed where that one is, so the sheet holds each
     /// picture once (#1513).
     /// </summary>
     internal static HudSheetLayout Layout(GameplayHudArtwork hud, IEnumerable<IAreaMapView> maps)

@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -20,10 +22,10 @@ public static class GameplayHudLayoutFile
         GameplayHudPresentationParts parts = Ensure.NotNull(artwork).LayoutParts;
         var anchors = new Dictionary<string, Position16<ScreenPixels>>(StringComparer.Ordinal);
         var showsOverTemplate = new Dictionary<string, bool>(StringComparer.Ordinal);
-        for (int icon = 0; icon < GameplayHudDefinitions.IconNames.Length; icon++)
+        foreach (HudIcon icon in Enum.GetValues<HudIcon>())
         {
-            anchors.Add(GameplayHudDefinitions.IconNames[icon], parts.IconAnchors[icon]);
-            showsOverTemplate.Add(GameplayHudDefinitions.IconNames[icon], parts.IconsShowOverTemplate[icon]);
+            anchors.Add(icon.ToString(), parts.Icons[icon].Anchor);
+            showsOverTemplate.Add(icon.ToString(), parts.Icons[icon].ShowsOverTemplate);
         }
         return JsonSerializer.SerializeToUtf8Bytes(new GameplayHudLayoutDocument
         {
@@ -33,7 +35,7 @@ public static class GameplayHudLayoutFile
             MissileAmmoAnchor = parts.MissileAmmoAnchor,
             SuperMissileAmmoAnchor = parts.SuperMissileAmmoAnchor,
             PowerBombAmmoAnchor = parts.PowerBombAmmoAnchor,
-            AutoReserveCorners = [.. parts.AutoReserveCorners],
+            AutoReserveCorner = parts.AutoReserveCorner,
             IconAnchors = anchors,
             IconsShowOverTemplate = showsOverTemplate,
             MinimapAnchor = parts.MinimapAnchor,
@@ -65,13 +67,12 @@ public static class GameplayHudLayoutFile
         }
         if (document.Version != GameplayHudDocumentDefinitions.LayoutVersion)
             throw new InvalidDataException($"Gameplay HUD layout requires version {GameplayHudDocumentDefinitions.LayoutVersion}.");
-        if (document.EnergyTankCorners is null || document.EnergyTankCorners.Length != GameplayHudDefinitions.EnergyTankCount ||
-            document.AutoReserveCorners is null || document.AutoReserveCorners.Length != GameplayHudDefinitions.AutoReserveCellCount)
-            throw new InvalidDataException("Gameplay HUD layout requires every energy tank's and AUTO part's corner.");
+        if (document.EnergyTankCorners is null || document.EnergyTankCorners.Length != GameplayHudDefinitions.EnergyTankCount)
+            throw new InvalidDataException("Gameplay HUD layout requires every energy tank's corner.");
+        HudIcon[] icons = Enum.GetValues<HudIcon>();
         if (document.IconAnchors is null || document.IconsShowOverTemplate is null ||
-            document.IconAnchors.Count != GameplayHudDefinitions.IconNames.Length ||
-            document.IconsShowOverTemplate.Count != GameplayHudDefinitions.IconNames.Length ||
-            GameplayHudDefinitions.IconNames.Any(name => !document.IconAnchors.ContainsKey(name) || !document.IconsShowOverTemplate.ContainsKey(name)))
+            document.IconAnchors.Count != icons.Length || document.IconsShowOverTemplate.Count != icons.Length ||
+            icons.Any(icon => !document.IconAnchors.ContainsKey(icon.ToString()) || !document.IconsShowOverTemplate.ContainsKey(icon.ToString())))
             throw new InvalidDataException("Gameplay HUD layout requires exactly the five named item icons.");
         return new GameplayHudPresentation(new GameplayHudPresentationParts
         {
@@ -80,9 +81,9 @@ public static class GameplayHudLayoutFile
             MissileAmmoAnchor = InBand(document.MissileAmmoAnchor, "missile digits"),
             SuperMissileAmmoAnchor = InBand(document.SuperMissileAmmoAnchor, "Super Missile digits"),
             PowerBombAmmoAnchor = InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"),
-            AutoReserveCorners = [.. document.AutoReserveCorners.Select((corner, index) => InBand(corner, $"AUTO part {index}"))],
-            IconAnchors = [.. GameplayHudDefinitions.IconNames.Select(name => InBand(document.IconAnchors[name], $"{name} icon"))],
-            IconsShowOverTemplate = [.. GameplayHudDefinitions.IconNames.Select(name => document.IconsShowOverTemplate[name])],
+            AutoReserveCorner = InBand(document.AutoReserveCorner, "AUTO indicator"),
+            Icons = icons.ToImmutableDictionary(icon => icon, icon => new HudIconPlacement(
+                InBand(document.IconAnchors[icon.ToString()], $"{icon} icon"), document.IconsShowOverTemplate[icon.ToString()])),
             MinimapAnchor = InBand(document.MinimapAnchor, "minimap"),
         });
     }

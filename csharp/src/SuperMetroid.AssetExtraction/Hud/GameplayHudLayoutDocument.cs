@@ -21,8 +21,8 @@ public sealed record GameplayHudLayoutDocument
     public required Position16<ScreenPixels> SuperMissileAmmoAnchor { get; init; }
     /// <summary>The screen pixel the Power Bomb count's first digit's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> PowerBombAmmoAnchor { get; init; }
-    /// <summary>The screen pixel each of the AUTO indicator's six parts' upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels>[] AutoReserveCorners { get; init; }
+    /// <summary>The screen pixel the AUTO indicator's upper-left corner shows at.</summary>
+    public required Position16<ScreenPixels> AutoReserveCorner { get; init; }
     /// <summary>The screen pixel each item icon's upper-left corner shows at, keyed by the icon's canonical name.</summary>
     public required Dictionary<string, Position16<ScreenPixels>> IconAnchors { get; init; }
     /// <summary>

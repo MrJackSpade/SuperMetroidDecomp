@@ -58,8 +58,7 @@ internal static class GameplayHudArtworkAccess
         /// <summary>Draws the AUTO reserve indicator as <paramref name="indicator"/> shows it into the three drawn rows.</summary>
         internal void ApplyAutoReserve(Span<BackgroundTile> tiles, HudReserveIndicator indicator)
         {
-            foreach (PlacedHudImage placed in artwork.Presentation.AutoReserve(indicator))
-                artwork.Write(tiles, placed, 1);
+            artwork.Write(tiles, artwork.Presentation.AutoReserve(indicator), 1);
         }
 
         /// <summary>Clears the AUTO reserve indicator in the three drawn rows.</summary>

@@ -24,20 +24,11 @@ internal sealed record GameplayHudPresentationParts
     /// <summary>The screen pixel the Power Bomb count's first digit's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> PowerBombAmmoAnchor { get; init; }
 
-    /// <summary>The screen pixel each of the AUTO indicator's six parts' upper-left corner shows at.</summary>
-    public required ImmutableArray<Position16<ScreenPixels>> AutoReserveCorners { get; init; }
+    /// <summary>The screen pixel the AUTO indicator's upper-left corner shows at.</summary>
+    public required Position16<ScreenPixels> AutoReserveCorner { get; init; }
 
-    /// <summary>
-    /// The screen pixel each item icon's upper-left corner shows at, in <see cref="GameplayHudDefinitions.IconNames"/>
-    /// order.
-    /// </summary>
-    public required ImmutableArray<Position16<ScreenPixels>> IconAnchors { get; init; }
-
-    /// <summary>
-    /// Whether the template leaves each item icon's place blank, in icon order: the HUD draws an icon only over a blank
-    /// place, and nothing but the template ever sits under an icon.
-    /// </summary>
-    public required ImmutableArray<bool> IconsShowOverTemplate { get; init; }
+    /// <summary>Where each item icon is placed and whether the template leaves its place blank.</summary>
+    public required ImmutableDictionary<HudIcon, HudIconPlacement> Icons { get; init; }
 
     /// <summary>The screen pixel the minimap's upper-left square's corner shows at.</summary>
     public required Position16<ScreenPixels> MinimapAnchor { get; init; }

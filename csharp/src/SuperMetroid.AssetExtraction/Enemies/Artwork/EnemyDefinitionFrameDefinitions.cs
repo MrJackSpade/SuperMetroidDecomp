@@ -1117,8 +1117,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChootFallEnd,
     ];
 
-    /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows for <c>Chozo</c>.</summary>
-    private static readonly EnemyFrameId[] ChozoFrames =
+    /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows.</summary>
+    private static readonly EnemyFrameId[] ChozoStatue =
     [
         EnemyFrameId.ChozoStatueLowerNorfairInitial,
         EnemyFrameId.ChozoStatueLowerNorfairActivatedSecond,
@@ -1147,9 +1147,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChozoStatueWreckedShipWalkingSeventh,
         EnemyFrameId.ChozoStatueWreckedShipWalkingEighth,
     ];
-
-    /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows for <c>NoobTubeCrack</c>.</summary>
-    private static readonly EnemyFrameId[] NoobTubeCrackFrames = [];
 
     /// <summary>The frames <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] DeadSidehopper =
@@ -1754,6 +1751,9 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MorphEyeMountLeft,
         EnemyFrameId.MorphEyeMountUp,
     ];
+
+    /// <summary>The frames <c>Enemies/NoobTube/NoobTubeBehavior.cs</c> shows.</summary>
+    private static readonly EnemyFrameId[] NoobTube = [];
 
     /// <summary>The frames <c>Enemies/Nuclear/NuclearWaffleBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] NuclearWaffle =
@@ -2523,8 +2523,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Bull] = Bull,
             [EnemyDefinitionId.Cacatac] = Cacatac,
             [EnemyDefinitionId.Choot] = Choot,
-            [EnemyDefinitionId.Chozo] = ChozoFrames,
-            [EnemyDefinitionId.NoobTubeCrack] = NoobTubeCrackFrames,
+            [EnemyDefinitionId.Chozo] = ChozoStatue,
             [EnemyDefinitionId.CorpseSidehopper] = DeadSidehopper,
             [EnemyDefinitionId.CorpseTorizo] = DeadTorizo,
             [EnemyDefinitionId.CorpseRipper] = CorpseRipperFrames,
@@ -2576,6 +2575,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Metroid] = Metroid,
             [EnemyDefinitionId.Mochtroid] = Mochtroid,
             [EnemyDefinitionId.Eye] = MorphBallEye,
+            [EnemyDefinitionId.NoobTubeCrack] = NoobTube,
             [EnemyDefinitionId.Puromi] = NuclearWaffle,
             [EnemyDefinitionId.Owtch] = Owtch,
             [EnemyDefinitionId.Gamet] = GametFrames,

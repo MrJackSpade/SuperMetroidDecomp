@@ -439,7 +439,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
     /// <param name="controller1Input">The host's controller buttons, normalized through the action bindings when the frame boundary latches player input; attract playback publishes its independent scripted buttons later.</param>
     /// <param name="request">The state policy, audio calls and the host's work after the frame boundary.</param>
-    public RuntimeFrameResult StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
+    public void StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
         Assists.GrantLoadoutToNewSamus();
@@ -447,7 +447,7 @@ internal sealed class SuperMetroidRuntime
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, Player.Samus);
         try
         {
-            return StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
+            StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
         }
         finally
         {
@@ -464,7 +464,7 @@ internal sealed class SuperMetroidRuntime
     /// Advances one frame boundary and the corresponding gameplay update while the
     /// frame-exit ammo guard remains active through callbacks.
     /// </summary>
-    private RuntimeFrameResult StepFrameGuarded(
+    private void StepFrameGuarded(
         ControllerButton controller1Input,
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard)
@@ -475,7 +475,10 @@ internal sealed class SuperMetroidRuntime
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
-            return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
+        {
+            StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
+            return;
+        }
         BeginAcceptedGameplayFrame(controller1Input, frameRequest);
         RunLiquidWaveAndStatueDescent();
         AdvanceMainLoopRandom();
@@ -496,8 +499,11 @@ internal sealed class SuperMetroidRuntime
             context.Tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
         }
         if (SuspendTailForMessageBox(context))
-            return Snapshot(infiniteAmmoGuard);
-        return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard);
+        {
+            ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+            return;
+        }
+        FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard);
     }
 
     /// <summary>Points the cross-owner routing at this frame's room owners and Samus, then applies pending Chozo statue room objects.</summary>
@@ -726,7 +732,7 @@ internal sealed class SuperMetroidRuntime
     /// The remainder of a main-gameplay update after the room objects' step. A frame whose room-object
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
-    internal RuntimeFrameResult FinishGameplayFrame(
+    internal void FinishGameplayFrame(
         SuspendedGameplayFrameTail? frameTail,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard)
@@ -758,7 +764,7 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers();
-        return Snapshot(infiniteAmmoGuard);
+        ApplyEndOfUpdateAssists(infiniteAmmoGuard);
     }
 
     /// <summary>Resolves enemy-projectile hits on Samus and her projectiles, then ordinary power-bomb hits.</summary>
@@ -1010,8 +1016,8 @@ internal sealed class SuperMetroidRuntime
         System.UpdateHeldInput(timerReset, PhysicalController1.Current, PhysicalController1.NewlyPressed);
     }
 
-    /// <summary>Applies the assists' end-of-update floors before publishing the runtime result.</summary>
-    internal RuntimeFrameResult Snapshot(
+    /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
+    internal void ApplyEndOfUpdateAssists(
         AmmoLoanGuard infiniteAmmoGuard)
     {
         // Every damage source applies its normal amount first. The assist intervenes
@@ -1021,8 +1027,6 @@ internal sealed class SuperMetroidRuntime
             samus.Health = 1;
 
         infiniteAmmoGuard.Complete(Player.Samus);
-
-        return new RuntimeFrameResult();
     }
 
     /// <summary>
@@ -1129,7 +1133,7 @@ internal sealed class SuperMetroidRuntime
     /// One update of an open message box. Its completion returns into the suspended
     /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
-    internal RuntimeFrameResult StepMessageBoxFrame(
+    internal void StepMessageBoxFrame(
         ControllerButton controller1Input,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard)
@@ -1148,7 +1152,10 @@ internal sealed class SuperMetroidRuntime
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;
         if (MessageBox.IsActive)
-            return Snapshot(infiniteAmmoGuard);
+        {
+            ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+            return;
+        }
 
         MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope);
         // The room objects' step returns once the box and its item's step finish; the
@@ -1156,8 +1163,9 @@ internal sealed class SuperMetroidRuntime
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard);
+            FinishGameplayFrame(tail, policy, infiniteAmmoGuard);
+            return;
         }
-        return Snapshot(infiniteAmmoGuard);
+        ApplyEndOfUpdateAssists(infiniteAmmoGuard);
     }
 }

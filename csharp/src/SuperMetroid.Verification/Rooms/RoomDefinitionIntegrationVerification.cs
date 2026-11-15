@@ -65,10 +65,8 @@ internal static class RoomDefinitionIntegrationVerification
         while (actual.Enemies.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted &&
                frames < PostCeresLandingMaximumFrames)
         {
-            RuntimeFrameResult expectedFrame = expected.StepFrame(0);
-            RuntimeFrameResult actualFrame = actual.StepFrame(0);
-            AssertEqual(expectedFrame, actualFrame,
-                $"guarded post-Ceres frame result {frames}");
+            expected.StepFrame(0);
+            actual.StepFrame(0);
             AssertEqual(
                 new RoomDefinitionIntegrationVerifyCompiledRoomDefinitionIntegrationCase(expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.Position.X.Fraction,
                     expected.Room.LoadedCamera.PixelPosition.Y, expected.Room.LoadedCamera.Position.Y.Fraction,

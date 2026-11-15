@@ -18,8 +18,8 @@ public sealed class FirefleaEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FirefleaSegment> Playback { get; set; }
 
-    /// <summary>The turn a circling Fireflea makes each update, from its spawn settings.</summary>
-    public RotationAngle AngularSpeed { get; internal set; }
+    /// <summary>How far, and which way, a circling Fireflea turns around its circle each update, from its spawn settings.</summary>
+    public AngularSpeed AngularSpeed { get; internal set; }
 
     /// <summary>The movement radius in pixels, 8 through 64, from its spawn settings.</summary>
     public int Radius { get; internal set; }

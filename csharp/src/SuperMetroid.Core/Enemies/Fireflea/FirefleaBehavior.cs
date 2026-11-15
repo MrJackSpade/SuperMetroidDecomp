@@ -68,7 +68,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
 
-            state.Angle += state.AngularSpeed;
+            state.Angle = state.Angle.TurnedBy(state.AngularSpeed);
             return;
         }
 

@@ -81,6 +81,12 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public RotationAngle TurnedBySteps(int steps) => AddRaw(steps * FractionsPerStep);
 
     /// <summary>
+    /// The angle turned one update's worth at <paramref name="speed"/>, its fraction carrying into its whole steps and the
+    /// result going on round the turn past either end.
+    /// </summary>
+    public RotationAngle TurnedBy(AngularSpeed speed) => TurnedByFractionsOfStep(speed.FractionsOfStep);
+
+    /// <summary>
     /// The turn from <paramref name="origin"/> to this angle the shorter way round, in 256ths of a step, -32768 through
     /// 32767: negative when this angle lies behind the origin, as a heading compares itself with its target.
     /// </summary>

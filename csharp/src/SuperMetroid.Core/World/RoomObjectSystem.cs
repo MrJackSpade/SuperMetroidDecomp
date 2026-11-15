@@ -123,8 +123,9 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// its builder so each room starts at the first pair.
     /// </param>
     /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
+    /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places)
+        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
@@ -150,7 +151,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         Stations = new StationObjects(room.System, services.Samus, Drawing, Places, Sounds);
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, Places, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
-        DoorObjects = new DoorObjects(room.System, Places, Sounds);
+        DoorObjects = new DoorObjects(room.System, Places, Sounds, shotCapClosing);
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });

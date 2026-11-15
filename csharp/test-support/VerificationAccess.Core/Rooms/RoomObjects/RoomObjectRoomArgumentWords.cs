@@ -179,6 +179,8 @@ internal static class RoomObjectRoomArgumentWords
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (Array.IndexOf(GreyDoorConditionsInTableOrder, grey.Condition) << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
             SpentDoorArgument => SpentMark,
+            // A shot-opened cap's argument is the cleared word, which names the door its closing rule consults.
+            ShotOpenedCapArgument => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft)),
             SaveStationArgument saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument { Cleared: { } cleared } =>
                 checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, cleared)) * 2)),

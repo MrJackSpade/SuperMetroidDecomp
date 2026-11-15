@@ -8,6 +8,8 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -61,16 +63,20 @@ internal static class RoomObjectFixtures
         visuals.RoomObjectMotherBrainFakeDeathVisuals ??= MotherBrainFakeDeathFrames.Value;
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces());
+        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing());
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
+
+    /// <summary>The shot cap's closing rule the room loader composes each room's objects with (#1906).</summary>
+    private static ShotOpenedCapClosing<LockedDoor> ShotCapClosing() =>
+        new(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
 
     /// <summary>A new PLM system bound to <paramref name="room"/>, drawing with <paramref name="fixture"/>'s artwork, as a room load builds it.</summary>
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces());
+        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing());
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }

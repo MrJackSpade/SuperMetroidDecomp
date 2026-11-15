@@ -244,6 +244,23 @@ internal static class RoomObjectPopulationVerification
         AssertThrows<InvalidDataException>(
             () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
             "a shot blue cap at the door is outside the resident closing domain");
+
+        // #1906: once the Landing Site's green door is open for good, a shot blue cap at the door stays open and the door's
+        // own blue closer is placed instead.
+        RoomLevelData openLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
+        var openObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(openObjects.DoorObjects.TrySpawnBlueDoorOpening(openLevel, new(1, 1),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
+            "a shot blue cap stands at the door's block once more");
+        var landingSiteOpened = new SharedGameState(new SharedRandom());
+        landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
+        AssertTrue(openObjects.DoorObjects.TrySpawnDoorClosingObject(openLevel, blueDoor, landingSiteOpened),
+            "the door places its own closer beside the shot cap");
+        AssertEqual(2, openObjects.Places.ActiveCount, "the shot cap stays and the closer joins it");
+        AssertTrue(openObjects.Places.InUpdateOrder[0].Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Opening },
+            "the shot cap keeps opening");
+        AssertTrue(openObjects.Places.InUpdateOrder[1].Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing },
+            "the door's blue closer closes behind Samus");
     }
 
     /// <summary>Compares the three Speed Booster escape stages with retail control data and their runtime handoffs.</summary>

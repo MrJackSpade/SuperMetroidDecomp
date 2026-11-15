@@ -951,9 +951,11 @@ internal sealed class RoomLoader
             Enemies = roomObjectServices,
         };
         // Each room's room objects get their own collectible block pairs, the room's first collectible that shows its own
-        // picture taking the first pair, and their own places, every one free.
+        // picture taking the first pair, and their own places, every one free; a cap a shot opened consults the Landing
+        // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
-            new RoomObjectPlaces());
+            new RoomObjectPlaces(),
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft));
         scope.RoomObjects = roomObjects;
         roomObjects.Sounds.BindAudioRequests(_audioRequests);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);

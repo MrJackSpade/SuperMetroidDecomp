@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -17,13 +18,17 @@ internal sealed class DoorObjects
     private readonly RoomObjectPlaceList _places;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;
+    /// <summary>Whether a blue cap a shot opened closes behind Samus.</summary>
+    private readonly ShotOpenedCapClosing<LockedDoor> _shotCapClosing;
 
-    /// <summary>Binds door room-object logic to room persistence, drawing, allocation, and sound owners.</summary>
-    internal DoorObjects(SharedGameState? system, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
+    /// <summary>Binds door room-object logic to room persistence, the room's places, sound and the shot cap's closing rule.</summary>
+    internal DoorObjects(SharedGameState? system, RoomObjectPlaceList places, RoomObjectSoundQueue sounds,
+        ShotOpenedCapClosing<LockedDoor> shotCapClosing)
     {
         _system = system;
         _places = places;
         _sounds = sounds;
+        _shotCapClosing = Ensure.NotNull(shotCapClosing);
     }
     /// <summary>
     /// Closes the door Samus entered through behind her, after the destination room's objects and its door and setup
@@ -32,6 +37,8 @@ internal sealed class DoorObjects
     /// <remarks>
     /// The first object at the door's block, in the room's update order, closes unless it is a cap whose door has been
     /// opened for good: a coloured or grey cap, an eye door's eye or Mother Brain's escape gate closes from its next update.
+    /// A blue cap a shot opened has no closing of its own; the room's <see cref="ShotOpenedCapClosing{TDoor}"/> rule decides
+    /// whether it stays open (#1906).
     /// With no object there, the door's closing behaviour may place a blue cap closing toward the travel direction or the
     /// escape gate closing, in the first free place, like any other room object.
     /// </remarks>
@@ -61,6 +68,8 @@ internal sealed class DoorObjects
             {
                 break;
             }
+            if (resident.Argument is ShotOpenedCapArgument && _shotCapClosing.StaysOpen(system.HasOpenedDoor))
+                break;
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
             (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
@@ -193,10 +202,8 @@ internal sealed class DoorObjects
 
         place.Block = position;
         place.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
-        // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
-        // check reads: once that door has been opened for good, the spawned blue door never closes.
-        place.Argument = new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft,
-            DoorOpeningPersistence.Persistent);
+        // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906).
+        place.Argument = ShotOpenedCapArgument.Instance;
 
         // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision
         // sees the solid block at once.

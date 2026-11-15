@@ -76,50 +76,59 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot, NativeEnemyRecordWords words)
     {
         int index = slot.SlotIndex;
-        // The cartridge gives each record word a meaning per part (#1476); each part's own state says which.
-        if (slot.SpeciesState<PhantoonEyeState>() is { } phantoonEye)
+        // The cartridge gives each of Phantoon's parts' record words a meaning per part (#1476); each part's words belong to
+        // the encounter's state grouped by what it does (#1933).
+        if (slot.SpeciesState<PhantoonEnemyState>() is { } phantoon)
         {
-            phantoonEye.ClosedTimer = CoordinateAxis.AsSigned(words.A);
-            phantoonEye.FigureEightReversed = words.C != 0;
-            phantoonEye.DyingFadeCycles = words.C;
-            phantoonEye.FadeDenominator = words.D;
-            phantoonEye.FadeNumerator = words.E;
-            phantoonEye.FadeComplete = words.F != 0;
-            phantoonEye.RageWaveCount = words.F;
-            PhantoonNativeWords.ImportDeathMosaic(phantoonEye, words.C);
-        }
-        if (slot.SpeciesState<PhantoonTentaclesState>() is { } phantoonTentacles)
-        {
-            phantoonTentacles.SwoopRequested = words.A != 0;
-            phantoonTentacles.RoundDamage = words.B;
-            phantoonTentacles.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
-            PhantoonNativeWords.ImportSwoopTarget(phantoonTentacles, words.E);
-            phantoonTentacles.ExplosionIndex = words.F;
-        }
-        if (slot.SpeciesState<PhantoonMouthState>() is { } phantoonMouth)
-        {
-            phantoonMouth.CasualFlamePattern = words.A;
-            phantoonMouth.CasualFlameHold = CoordinateAxis.AsSigned(words.B);
-            // The record's count reads below zero while no burst is under way, which the mouth holds as no count.
-            short casualFlames = unchecked((short)words.C);
-            phantoonMouth.CasualFlameCount = casualFlames < 0 ? null : casualFlames;
-            phantoonMouth.WaveAmplitude = words.D;
-            phantoonMouth.WaveAmplitudeShrinking = words.E != 0;
-            phantoonMouth.WavyPhaseDelta = words.F;
-        }
-        if (slot.SpeciesState<PhantoonBodyState>() is { } phantoonBody)
-        {
-            phantoonBody.StartingFlameIndex = words.A;
-            phantoonBody.PathCursor = words.A;
-            phantoonBody.ExplosionPass = words.A;
-            phantoonBody.StartingFlamesActive = words.B != 0;
-            phantoonBody.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
-            phantoonBody.FigureEightStage = PhantoonFigureEightStageWords.Decode(words.D);
-            phantoonBody.PhaseTimer = CoordinateAxis.AsSigned(words.E);
-            if (words.F != 0)
-                phantoonBody.Phase = words.F == PhantoonNativeWords.NoPhase
-                    ? null
-                    : PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
+            EnemyDefinitionId part = slot.DefinitionId;
+            if (part == EnemyDefinitionId.PhantoonEye)
+            {
+                phantoon.Round.EyeClosedTimer = CoordinateAxis.AsSigned(words.A);
+                phantoon.FigureEight.Reversed = words.C != 0;
+                phantoon.Death.FadeCycles = words.C;
+                phantoon.BodyFade.Denominator = words.D;
+                phantoon.BodyFade.Numerator = words.E;
+                phantoon.BodyFade.Complete = words.F != 0;
+                phantoon.RageWaveCount = words.F;
+                PhantoonNativeWords.ImportDeathMosaic(phantoon.Death, words.C);
+            }
+            else if (part == EnemyDefinitionId.PhantoonTentacles)
+            {
+                phantoon.Swoop.Requested = words.A != 0;
+                phantoon.Round.Damage = words.B;
+                phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
+                PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);
+                phantoon.Death.NextExplosion = words.F;
+            }
+            else if (part == EnemyDefinitionId.PhantoonMouth)
+            {
+                phantoon.CasualFlames.Pattern = words.A;
+                phantoon.CasualFlames.Hold = CoordinateAxis.AsSigned(words.B);
+                // The record's count reads below zero while no burst is under way, which the burst holds as no count.
+                short casualFlames = unchecked((short)words.C);
+                phantoon.CasualFlames.Remaining = casualFlames < 0 ? null : casualFlames;
+                phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
+                phantoon.Wave.AmplitudeShrinking = words.E != 0;
+                phantoon.Wave.PhaseStep = words.F;
+            }
+            else if (part == EnemyDefinitionId.PhantoonBody)
+            {
+                phantoon.StartingFlames.NextFlame = words.A;
+                phantoon.FigureEight.PathCursor = words.A;
+                phantoon.Death.ExplosionPasses = words.A;
+                phantoon.StartingFlames.Orbiting = words.B != 0;
+                phantoon.FigureEight.Speed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
+                phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
+                phantoon.PhaseTimer = CoordinateAxis.AsSigned(words.E);
+                if (words.F != 0)
+                    phantoon.Phase = words.F == PhantoonNativeWords.NoPhase
+                        ? null
+                        : PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
+            }
+            else
+            {
+                throw new InvalidDataException($"Enemy {part} holds Phantoon's state but is not one of his parts.");
+            }
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
@@ -230,7 +239,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
-            crocomireRecord.Phase = CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
+            // The fight table's first entry, which no live fight selects, stands for no fight under way (#1939).
+            crocomireRecord.Phase = words.C == 0 ? null : CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }

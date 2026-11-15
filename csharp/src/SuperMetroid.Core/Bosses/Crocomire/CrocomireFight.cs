@@ -328,9 +328,8 @@ internal sealed class CrocomireFight
     {
         switch (state.Phase)
         {
-            case CrocomirePhase.ResetAnimation:
-                state.Body.AnimationClock.StepOnNextUpdate();
-                return CrocomireBodySegment.Initial;
+            case null:
+                throw new InvalidOperationException("Crocomire's fight cue fired with no fight under way.");
 
             case CrocomirePhase.Sleeping:
                 if (samus is not null && CoordinateAxis.Distance(

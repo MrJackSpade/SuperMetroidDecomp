@@ -4,9 +4,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// State shared by Phantoon's four parts: body, eye, tentacles and mouth. Each part is its own enemy, attached by
-/// reference when it initializes, and keeps its own typed state here, because the parts' behaviour reads one another's
-/// values, and keeping the values per part keeps those relationships visible.
+/// Phantoon's encounter: his four parts, body, eye, tentacles and mouth, each its own enemy attached by reference when it
+/// initializes and keeping only its animation here, and the fight's state grouped by what it does (#1933): the phase and
+/// its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the wave,
+/// whether his body shows, and his death.
 /// </summary>
 public sealed class PhantoonEnemyState
 {
@@ -16,20 +17,53 @@ public sealed class PhantoonEnemyState
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
-    /// <summary>Gets the body, owner of the phases, health, motion, and shared encounter values; it runs first.</summary>
+    /// <summary>Gets the body, whose health and position are his; it runs first.</summary>
     public RoomEnemySlot Body { get; }
 
-    /// <summary>The body's own state.</summary>
-    public PhantoonBodyState BodyState { get; } = new();
+    /// <summary>
+    /// The encounter phase his body runs, or null while it runs none: while his eye's opening or closing animation
+    /// decides what comes next, the body does nothing on its turn (#1870).
+    /// </summary>
+    public PhantoonPhase? Phase { get; internal set; }
 
-    /// <summary>The eye's own state.</summary>
-    public PhantoonEyeState EyeState { get; } = new();
+    /// <summary>The updates before the current phase moves on.</summary>
+    public int PhaseTimer { get; internal set; }
 
-    /// <summary>The tentacles' own state.</summary>
-    public PhantoonTentaclesState TentaclesState { get; } = new();
+    /// <summary>Whether the eye-close animation's pattern choice takes the flame-rain branch.</summary>
+    public bool FlameRainRequested { get; internal set; }
 
-    /// <summary>The mouth's own state, which every part's initialization also writes.</summary>
-    public PhantoonMouthState MouthState { get; } = new();
+    /// <summary>The flames that circle the room before he appears.</summary>
+    public PhantoonStartingFlamesState StartingFlames { get; } = new();
+
+    /// <summary>His figure-eight.</summary>
+    public PhantoonFigureEightState FigureEight { get; } = new();
+
+    /// <summary>His swoop at Samus.</summary>
+    public PhantoonSwoopState Swoop { get; } = new();
+
+    /// <summary>The current round of his vulnerability.</summary>
+    public PhantoonRoundState Round { get; } = new();
+
+    /// <summary>The burst of casual flames his mouth spits.</summary>
+    public PhantoonCasualFlameBurst CasualFlames { get; } = new();
+
+    /// <summary>The flame waves his rage has sent, zero through eight; each rage starts from none.</summary>
+    public int RageWaveCount { get; internal set => field = Ensure.AtLeastZero(value); }
+
+    /// <summary>How far the fade on his body has run.</summary>
+    public PhantoonBodyFadeProgress BodyFade { get; } = new();
+
+    /// <summary>The wave his body ripples with.</summary>
+    public PhantoonWaveState Wave { get; } = new();
+
+    /// <summary>
+    /// Whether his body shows while he is not translucent. Every part's start asks to hide it before
+    /// <see cref="PhantoonBodyVisibilityEffect"/> first reads it.
+    /// </summary>
+    public PhantoonBodyVisibilityRequest BodyVisibilityRequest { get; internal set; } = PhantoonBodyVisibilityRequest.Hide;
+
+    /// <summary>His death.</summary>
+    public PhantoonDeathState Death { get; } = new();
 
     /// <summary>The eye, once attached (<see cref="Eye"/>).</summary>
     private RoomEnemySlot? _eye;
@@ -44,7 +78,7 @@ public sealed class PhantoonEnemyState
     public RoomEnemySlot Eye { get => _eye ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set => _eye = value; }
     /// <summary>Gets the tentacles, attached by part initialization and positioned from the body after its AI pass.</summary>
     public RoomEnemySlot Tentacles { get => _tentacles ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set => _tentacles = value; }
-    /// <summary>Gets the mouth, attached by part initialization and also retaining the wave/blending controls.</summary>
+    /// <summary>Gets the mouth, attached by part initialization and positioned from the body after its AI pass.</summary>
     public RoomEnemySlot Mouth { get => _mouth ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set => _mouth = value; }
 
     /// <summary>
@@ -90,8 +124,8 @@ public sealed class PhantoonEnemyState
     public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
     /// <summary>
-    /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever his
-    /// mouth's <see cref="PhantoonMouthState.BodyLayer"/> asks.
+    /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever
+    /// <see cref="BodyVisibilityRequest"/> asks.
     /// </summary>
     public bool Translucent { get; internal set; }
 

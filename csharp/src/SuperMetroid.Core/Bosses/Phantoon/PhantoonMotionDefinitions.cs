@@ -31,24 +31,26 @@ public static class PhantoonMotionDefinitions
     /// about -6 pixels per update; the European release's differs).
     /// </summary>
     public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1535);
-    /// <summary>The figure-eight's slow-stage sub-pixel acceleration, shared by its reverse, fractional 1/65536-pixel acceleration.</summary>
-    public const int SlowFraction = 1536;
-    /// <summary>Slow-stage whole acceleration, zero in both directions.</summary>
-    public const int SlowWhole = 0;
-    /// <summary>The figure-eight's fast-stage sub-pixel acceleration, shared by its reverse.</summary>
-    public const int FastFraction = 4096;
-    /// <summary>Fast-stage whole acceleration, zero in both directions.</summary>
-    public const int FastWhole = 0;
-    /// <summary>The figure-eight's stage-zero maximum speed.</summary>
+    /// <summary>
+    /// The figure-eight's speed change each update while it eases in, in path places per update, in either direction
+    /// (#1936): six 256ths of a place.
+    /// </summary>
+    public static SignedSixteenSixteen SlowSpeedChange { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(6);
+    /// <summary>
+    /// The figure-eight's speed change each update while it surges and settles, in path places per update, in either
+    /// direction (#1936): a sixteenth of a place.
+    /// </summary>
+    public static SignedSixteenSixteen FastSpeedChange { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+    /// <summary>The whole speed, in path places per update, at which a forward figure-eight stops easing in and surges.</summary>
     public const int ForwardSlowCap = 2;
-    /// <summary>The figure-eight's stage-one maximum speed, seven.</summary>
+    /// <summary>The whole speed at which a forward figure-eight stops surging and settles: seven places per update.</summary>
     public const int ForwardFastCap = 7;
-    /// <summary>The figure-eight's stage-two minimum speed.</summary>
+    /// <summary>The whole speed a forward figure-eight settles down to before it eases in again.</summary>
     public const int ForwardMinimum = 0;
-    /// <summary>The reverse figure-eight's stage-zero maximum, the slow stage's signed whole-speed cap.</summary>
+    /// <summary>The signed whole speed at which a returning figure-eight stops easing in and surges.</summary>
     public const int ReverseSlowCap = -2;
-    /// <summary>The reverse figure-eight's stage-one maximum, the fast stages' signed whole-speed cap.</summary>
+    /// <summary>The signed whole speed at which a returning figure-eight stops surging and settles.</summary>
     public const int ReverseFastCap = -7;
-    /// <summary>The reverse figure-eight's stage-two minimum.</summary>
+    /// <summary>The signed whole speed a returning figure-eight settles back to before it eases in again.</summary>
     public const int ReverseMaximum = 0;
 }

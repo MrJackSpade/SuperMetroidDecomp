@@ -43,8 +43,11 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// <summary>Where the gut explosion interrupted the body's play, resumed afterwards.</summary>
     internal AnimationPlayback<TorizoAnimation> InterruptedPlayback { get; set; }
 
-    /// <summary>Delayed in-air transition counter.</summary>
-    public int AirTransitionTimer { get; internal set; }
+    /// <summary>
+    /// Updates until the walking Torizo turns toward Samus, or zero while no turn is due: a walking step arms it when
+    /// Samus is behind the Torizo, and its walking motion counts it down (#1931).
+    /// </summary>
+    public int TurnTimer { get; internal set; }
 
     /// <summary>
     /// Whether the body's animation is locked: the awakening animation locks it and
@@ -83,10 +86,12 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// <summary>The main phase the Torizo runs each frame, or null until its first animation selects one.</summary>
     public TorizoPhase? Phase { get; internal set; }
 
-    /// <summary>
-    /// The behaviour the Torizo runs before each animation step while active, or null until an animation installs one.
-    /// </summary>
-    public TorizoFrameBehavior? FrameBehavior { get; internal set; }
+    /// <summary>How the body moves itself each update while it fights, or null while it holds still (#1931).</summary>
+    internal TorizoBodyMotion? Motion { get; set; }
+
+    /// <summary>The definition of this Torizo, Bomb or Golden, whose values its motions read (#1931).</summary>
+    internal TorizoInitializationDefinition Definition =>
+        IsGolden ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
 
     /// <summary>Latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }

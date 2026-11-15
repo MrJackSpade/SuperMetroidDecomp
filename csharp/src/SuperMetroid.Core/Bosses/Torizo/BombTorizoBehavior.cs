@@ -94,7 +94,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetTorizoFadeTarget(TorizoEnemyState state, TorizoLookKind look) =>
         state.Colours.FadeToward(new TorizoLook(look));
 
-    /// <summary>Runs Bomb Torizo's per-frame behaviour and its main phases.</summary>
+    /// <summary>Runs the main phase of Bomb or Golden Torizo for one update.</summary>
     private void RunBombTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -135,14 +135,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case TorizoPhase.GoldenGravity:
+            case TorizoPhase.GoldenActive:
                 Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-                Movement.ApplyBombTorizoGravity(torizo, state, TorizoMovement.RequireBombTorizoLevel(level));
-                return;
-
-            case TorizoPhase.GoldenFrameBehavior:
-                Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-                Movement.RunBombTorizoFrameBehavior(torizo, state, level);
+                Movement.MoveBody(torizo, state, level);
                 return;
 
             default:
@@ -254,12 +249,20 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case TorizoCue.SetFrameBehavior setFrameBehavior:
-                state.FrameBehavior = setFrameBehavior.FrameBehavior;
+            case TorizoCue.Signal { Kind: TorizoCueKind.StartWalking }:
+                state.Motion = TorizoBodyMotion.Walking;
                 return null;
 
-            case TorizoCue.Signal { Kind: TorizoCueKind.ClearFrameBehavior }:
-                state.FrameBehavior = TorizoFrameBehavior.Idle;
+            case TorizoCue.Signal { Kind: TorizoCueKind.StartStanding }:
+                state.Motion = TorizoBodyMotion.Standing;
+                return null;
+
+            case TorizoCue.Signal { Kind: TorizoCueKind.StartLeaping }:
+                state.Motion = TorizoBodyMotion.Leaping;
+                return null;
+
+            case TorizoCue.Signal { Kind: TorizoCueKind.StopMoving }:
+                state.Motion = null;
                 return null;
 
             case TorizoCue.SetPhase setPhase:

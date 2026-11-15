@@ -11,12 +11,14 @@ internal static class PhantoonMotionDefinitionsVerification
     internal static void VerifyCompiledPhantoonMotion(CartridgeImportAddressSpace rom)
     {
         // Each definition is the signed value the cartridge's word holds; every unsigned one is below $8000.
-        int[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,
-            PhantoonMotionDefinitions.FastFraction, PhantoonMotionDefinitions.FastWhole,
+        // The cartridge keeps each speed change as its fraction's word and its whole word, once for each direction (#1936).
+        SignedSixteenSixteen slow = PhantoonMotionDefinitions.SlowSpeedChange, fast = PhantoonMotionDefinitions.FastSpeedChange;
+        int[] definitions = [slow.Fraction, slow.WholePixels,
+            fast.Fraction, fast.WholePixels,
             PhantoonMotionDefinitions.ForwardSlowCap, PhantoonMotionDefinitions.ForwardFastCap,
-            PhantoonMotionDefinitions.ForwardMinimum, PhantoonMotionDefinitions.SlowFraction,
-            PhantoonMotionDefinitions.SlowWhole, PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole, PhantoonMotionDefinitions.ReverseSlowCap,
+            PhantoonMotionDefinitions.ForwardMinimum, slow.Fraction,
+            slow.WholePixels, fast.Fraction,
+            fast.WholePixels, PhantoonMotionDefinitions.ReverseSlowCap,
             PhantoonMotionDefinitions.ReverseFastCap, PhantoonMotionDefinitions.ReverseMaximum];
         var native = new ushort[14];
         for (int i = 0; i < native.Length; i++)
@@ -25,8 +27,8 @@ internal static class PhantoonMotionDefinitionsVerification
             native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(unchecked((short)native[i]), definitions[i], "Phantoon compiled motion value");
         }
-        Action<PhantoonBodyState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
-        Action<PhantoonBodyState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
+        Action<PhantoonFigureEightState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
+        Action<PhantoonFigureEightState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
         // The phase words the cartridge writes: the slow start, the surge and settling (PhantoonFigureEightStageWords).
         ushort[] phases = [0, 1, 2];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];
@@ -37,30 +39,30 @@ internal static class PhantoonMotionDefinitionsVerification
         ParallelSweep.For(0, cases.Length, index =>
         {
             (bool backwards, ushort phase, ushort fraction) = cases[index];
-            var words = new PhantoonBodyState();
+            var words = new PhantoonFigureEightState();
             // Every whole speed the figure-eight reaches, with a margin: its caps keep it within seven entries of rest.
             for (int whole = -16; whole <= 16; whole++)
             {
-                words.FigureEightSpeed = SignedSixteenSixteen.FromParts(whole, fraction);
-                words.FigureEightStage = SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(phase);
+                words.Speed = SignedSixteenSixteen.FromParts(whole, fraction);
+                words.Stage = SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(phase);
                 (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);
-                AssertEqual(low, words.FigureEightSpeed.Fraction, "Phantoon real fractional speed after adjustment");
-                AssertEqual(high, words.FigureEightSpeed.UnsignedWholePixels, "Phantoon real signed whole speed after adjustment");
-                AssertEqual(SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(next), words.FigureEightStage, "Phantoon real acceleration phase transition");
+                AssertEqual(low, words.Speed.Fraction, "Phantoon real fractional speed after adjustment");
+                AssertEqual(high, words.Speed.UnsignedWholePixels, "Phantoon real signed whole speed after adjustment");
+                AssertEqual(SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(next), words.Stage, "Phantoon real acceleration phase transition");
             }
         });
         Console.WriteLine("Phantoon motion: 14 native words and 1,782 real speed/stage adjustments match without a bus.");
         foreach (bool backwards in new[] { false, true })
         {
             // A pass from rest runs the stages in their order and returns to its start, as the cartridge's phase word does.
-            var body = new PhantoonBodyState { FigureEightSpeed = SignedSixteenSixteen.FromParts(backwards ? 0 : 1, 0) };
-            var stages = new List<PhantoonFigureEightStage> { body.FigureEightStage };
+            var body = new PhantoonFigureEightState { Speed = SignedSixteenSixteen.FromParts(backwards ? 0 : 1, 0) };
+            var stages = new List<PhantoonFigureEightStage> { body.Stage };
             while (stages.Count < 4)
             {
                 (backwards ? reverse : forward)(body);
-                if (body.FigureEightStage != stages[^1])
-                    stages.Add(body.FigureEightStage);
+                if (body.Stage != stages[^1])
+                    stages.Add(body.Stage);
             }
             AssertTrue(stages.SequenceEqual([PhantoonFigureEightStage.EasingIn, PhantoonFigureEightStage.Surging,
                 PhantoonFigureEightStage.Settling, PhantoonFigureEightStage.EasingIn]),

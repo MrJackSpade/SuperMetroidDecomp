@@ -35,50 +35,50 @@ internal sealed class PhantoonOpening
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        _ = SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.BodyState.StartingFlameIndex));
+        _ = SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.StartingFlames.NextFlame));
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
-        state.BodyState.PhaseTimer = 30;
-        state.BodyState.StartingFlameIndex = WrappingCounter.IncrementCount(state.BodyState.StartingFlameIndex);
-        if (state.BodyState.StartingFlameIndex < 8)
+        state.PhaseTimer = 30;
+        state.StartingFlames.NextFlame++;
+        if (state.StartingFlames.NextFlame < 8)
             return;
 
-        state.BodyState.StartingFlameIndex = 0;
-        state.TentaclesState.RoundDamage = 0;
-        state.BodyState.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
-        state.BodyState.PhaseTimer = 30;
+        state.StartingFlames.NextFlame = 0;
+        state.Round.Damage = 0;
+        state.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
+        state.PhaseTimer = 30;
         _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>
-    internal static void RunPhantoonStartingFlamePause(PhantoonBodyState body)
+    internal static void RunPhantoonStartingFlamePause(PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(body))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
-        body.PhaseTimer = 240;
-        body.StartingFlamesActive = true;
-        body.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
+        state.PhaseTimer = 240;
+        state.StartingFlames.Orbiting = true;
+        state.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
 
     /// <summary>Waits for the initial flames to finish orbiting before the next phase.</summary>
     internal void RunPhantoonStartingFlameOrbitWait(
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        state.BodyState.StartingFlamesActive = false;
+        state.StartingFlames.Orbiting = false;
         state.Translucent = true;
-        state.BodyState.Phase = PhantoonPhase.WavyFadeIn;
-        state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
-        state.BodyState.PhaseTimer = 120;
-        state.MouthState.WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
-        state.MouthState.WaveAmplitudeShrinking = false;
-        state.EyeState.FadeComplete = false;
+        state.Phase = PhantoonPhase.WavyFadeIn;
+        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
+        state.PhaseTimer = 120;
+        state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
+        state.Wave.AmplitudeShrinking = false;
+        state.BodyFade.Complete = false;
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
-        state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
+        state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
     }
 
@@ -89,18 +89,18 @@ internal sealed class PhantoonOpening
     {
         _presentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         if (PhantoonPresentation.AdvancePhantoonWaveAmplitude(
-                state.MouthState,
-                PhantoonBehavior.PhantoonIntroAmplitudeDelta,
-                PhantoonBehavior.PhantoonIntroMaximumAmplitude))
+                state.Wave,
+                PhantoonWaveDefinitions.IntroAmplitudeChange,
+                PhantoonWaveDefinitions.IntroAmplitude))
         {
-            state.BodyState.Phase = PhantoonPhase.PickFirstRoundPattern;
-            state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
-            state.BodyState.PhaseTimer = 30;
+            state.Phase = PhantoonPhase.PickFirstRoundPattern;
+            state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
+            state.PhaseTimer = 30;
             return;
         }
 
-        if (PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
-            state.MouthState.WaveAmplitudeShrinking = true;
+        if (PhantoonPresentation.TickPhantoonPhaseTimer(state))
+            state.Wave.AmplitudeShrinking = true;
     }
 
     /// <summary>Allocates one intro flame at its place on the circle round the body.</summary>

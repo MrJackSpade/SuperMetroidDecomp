@@ -69,19 +69,19 @@ internal static class PhantoonNativeWords
     /// <summary>The eye's word C for a death-mosaic block size: the size less one in the high nibble, BG2 enabled.</summary>
     internal static ushort DeathMosaicWord(int size) => (ushort)((size - 1) * 16 | 0x02);
 
-    /// <summary>Imports the tentacles' swoop target from their recorded word E.</summary>
-    internal static void ImportSwoopTarget(PhantoonTentaclesState part, ushort wordE)
+    /// <summary>Imports the swoop's target from the tentacles' recorded word E.</summary>
+    internal static void ImportSwoopTarget(PhantoonSwoopState swoop, ushort wordE)
     {
-        part.SwoopTargetX = wordE & ~SwoopReturningBit;
-        part.SwoopReturning = (wordE & SwoopReturningBit) != 0;
+        swoop.TargetX = wordE & ~SwoopReturningBit;
+        swoop.TargetReturning = (wordE & SwoopReturningBit) != 0;
     }
 
-    /// <summary>Imports the eye's death mosaic from its recorded word C, when it holds a mosaic word.</summary>
-    internal static void ImportDeathMosaic(PhantoonEyeState part, ushort wordC)
+    /// <summary>Imports the death's pixelation from the eye's recorded word C, when it holds a mosaic word.</summary>
+    internal static void ImportDeathMosaic(PhantoonDeathState death, ushort wordC)
     {
-        part.DeathPixelationFinished = wordC == DeathMosaicFinished;
+        death.PixelationFinished = wordC == DeathMosaicFinished;
         for (int size = PhantoonDeathDefinitions.InitialPixelationSize; size <= PhantoonDeathDefinitions.FinalPixelationSize; size++)
             if (wordC == DeathMosaicWord(size))
-                part.DeathPixelationSize = size;
+                death.PixelationSize = size;
     }
 }

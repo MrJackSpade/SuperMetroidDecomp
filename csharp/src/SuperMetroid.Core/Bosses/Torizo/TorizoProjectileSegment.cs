@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's projectile animations (#641, #1788): one for each animation a spawn, a frame behaviour, a
+/// Bomb and Golden Torizo's projectile animations (#641, #1788): one for each animation a spawn, a motion, a
 /// reaction, a resting egg's wake or another animation's cue starts, named for what it shows. Each is its steps, the
 /// phases it plays them in and how it ends (<see cref="TorizoProjectileAnimations"/>).
 /// </summary>

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>
 /// The wavy distortion of Phantoon's body: his body ripples sideways down the screen. It runs with the room's effects
 /// each update; a requested wave starts on the next update, which only sets it up, and ripples from the update after
-/// (gameplay reads it: setup writes the eye's wave length, which Phantoon's AI reads).
+/// (gameplay reads it: setup writes the wave's length, which Phantoon's AI reads).
 /// </summary>
 public sealed class PhantoonBodyWaveEffect
 {
@@ -18,11 +18,11 @@ public sealed class PhantoonBodyWaveEffect
     /// zero-amplitude wave. Setup and ending the wave keep them.
     /// </summary>
     private PhantoonWaveShape _built;
-    /// <summary>Whether a setup has run and the wave has not since observed the eye's wave length cleared; requesting it with Begin alone does not activate it.</summary>
+    /// <summary>Whether a setup has run and the wave has not since observed its length cleared; requesting it with Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
     /// The wave's phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
-    /// start), then each active call adds twice the mouth's phase step and keeps the remainder within one cycle, so the
+    /// start), then each active call adds twice the wave's phase step and keeps the remainder within one cycle, so the
     /// phase is that seed or 0..511. Seeding two before a whole number of cycles gives the same first remainder.
     /// </summary>
     public int Phase { get; private set; }
@@ -70,14 +70,14 @@ public sealed class PhantoonBodyWaveEffect
         _pendingSetup = true;
     }
 
-    /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once the eye's length is cleared or advance its phase and rebuild its shape.</summary>
-    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and where his body lies remain boss-owned inputs.</param>
+    /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once its length is cleared or advance its phase and rebuild its shape.</summary>
+    /// <param name="boss">Owning Phantoon state; its wave's length, phase step and amplitude, and where his body lies, remain boss-owned inputs.</param>
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
         if (_pendingSetup)
         {
-            boss.EyeState.WaveLength = _pendingLength;
+            boss.Wave.Length = _pendingLength;
             _setupLength = _pendingLength;
             Phase = PhantoonWaveDefinitions.InitialPhase;
             Active = true;
@@ -85,15 +85,15 @@ public sealed class PhantoonBodyWaveEffect
             return; // The setup update does not also ripple.
         }
         if (!Active) return;
-        if (boss.EyeState.WaveLength is null)
+        if (boss.Wave.Length is null)
         {
             Active = false; // The wave ends, keeping its last shape.
             return;
         }
-        Phase = PhaseInCycle(Phase + 2 * boss.MouthState.WavyPhaseDelta);
-        if (boss.EyeState.WaveLength != _setupLength)
-            throw new InvalidOperationException($"Phantoon's wave length {boss.EyeState.WaveLength} changed from its setup length {_setupLength}.");
-        _built = new(Phase, boss.MouthState.WaveAmplitude, boss.BodyOrigin.X);
+        Phase = PhaseInCycle(Phase + 2 * boss.Wave.PhaseStep);
+        if (boss.Wave.Length != _setupLength)
+            throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {_setupLength}.");
+        _built = new(Phase, boss.Wave.Amplitude.InTwoFiftySixths, boss.BodyOrigin.X);
     }
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>

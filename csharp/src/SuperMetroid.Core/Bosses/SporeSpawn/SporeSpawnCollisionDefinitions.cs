@@ -3,11 +3,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>
-/// The twelve Spore Spawn frames and
-/// their fixed gameplay hitboxes. Version 6 mislabeled their visual keys as
-/// Draygon, but collision always follows the actual Spore Spawn animation.
-/// </summary>
+/// <summary>The twelve Spore Spawn frames and their fixed gameplay hitboxes.</summary>
 internal static class SporeSpawnCollisionDefinitions
 {
     /// <summary>Spore Spawn's contact reaction, on the active shell and vulnerable point.</summary>
@@ -52,30 +48,34 @@ internal static class SporeSpawnCollisionDefinitions
     /// <summary>Single trailing point that rejects shots through the dud reaction.</summary>
     internal static readonly EnemyCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
 
-    /// <summary>The trailing-point hitboxes by oscillation phase B, C, D, C: only phase D's point rejects shots; the mirrored point shares the active list.</summary>
-    private static readonly EnemyCollisionHitbox[][] InnerPointsByPhase = [ShotPointList, ShotPointList, DudPointList, ShotPointList];
+    /// <summary>
+    /// The inner point's hitboxes at each step of its four-step pulse (#1937): only the third step's point rejects shots, and
+    /// the fourth repeats the second's.
+    /// </summary>
+    private static readonly EnemyCollisionHitbox[][] InnerPointsByPulseStep = [ShotPointList, ShotPointList, DudPointList, ShotPointList];
 
     /// <summary>The opening poses' head lists, in pose order; the moving heads follow the wider first pose.</summary>
     internal static readonly EnemyCollisionHitbox[][] OpeningHeadLists = [ExtendedHeadList, .. MovingHeadLists];
 
-    /// <summary>The dead root's one inactive head component.</summary>
+    /// <summary>The dead frame's one inactive head component.</summary>
     internal static readonly EnemyCollisionComponent[] DeadComponents = [new(Offset16<RoomPixels>.Zero, ClosedHeadList)];
-    /// <summary>The closed root's one head component.</summary>
+    /// <summary>The closed frame's one head component.</summary>
     internal static readonly EnemyCollisionComponent[] ClosedComponents = [new(Offset16<RoomPixels>.Zero, OpenHeadList)];
-    /// <summary>Each opening root's head and inner point, indexed by opening step; the inner point oscillates B, C, D, C.</summary>
+    /// <summary>Each opening frame's head and inner point, indexed by opening step; the inner point steps through its pulse.</summary>
     internal static readonly EnemyCollisionComponent[][] OpeningComponents =
         [.. Enumerable.Range(0, OpeningHeadLists.Length).Select(opening => HeadAndPoint(OpeningHeadLists[opening], opening % 4))];
-    /// <summary>Each fully open root's final head and inner point, indexed by oscillation phase B, C, D.</summary>
+    /// <summary>Each fully open frame's final head and inner point, indexed by the pulse's first three steps.</summary>
     internal static readonly EnemyCollisionComponent[][] FullyOpenComponents =
-        [.. Enumerable.Range(0, 3).Select(phase => HeadAndPoint(MovingHeadLists[^1], phase))];
+        [.. Enumerable.Range(0, 3).Select(pulseStep => HeadAndPoint(MovingHeadLists[^1], pulseStep))];
 
-    /// <summary>A zero-offset head followed by its zero-offset inner point at <paramref name="phase"/>.</summary>
-    private static EnemyCollisionComponent[] HeadAndPoint(EnemyCollisionHitbox[] head, int phase) =>
-        [new(Offset16<RoomPixels>.Zero, head), new(Offset16<RoomPixels>.Zero, InnerPointsByPhase[phase])];
+    /// <summary>A zero-offset head followed by its zero-offset inner point at pulse step <paramref name="pulseStep"/>.</summary>
+    private static EnemyCollisionComponent[] HeadAndPoint(EnemyCollisionHitbox[] head, int pulseStep) =>
+        [new(Offset16<RoomPixels>.Zero, head), new(Offset16<RoomPixels>.Zero, InnerPointsByPulseStep[pulseStep])];
 
     /// <summary>
     /// Each Spore Spawn frame's components: the dead and closed frames contain one head; opening frames advance the head
-    /// geometry while the inner point oscillates B, C, D, C; fully open frames hold the final head and select B, C, D.
+    /// geometry while the inner point steps through its pulse; fully open frames hold the final head and the pulse's first
+    /// three steps.
     /// All component offsets are zero.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()

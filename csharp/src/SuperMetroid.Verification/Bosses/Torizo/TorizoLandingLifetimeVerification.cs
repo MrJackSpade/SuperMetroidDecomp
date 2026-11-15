@@ -27,7 +27,7 @@ internal static class TorizoLandingLifetimeVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BombTorizo);
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.DefinitionId==EnemyDefinitionId.BombTorizo);
         var state= runtime.Enemies.BombTorizoBehavior.Access.TorizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState.");
-        state.Phase=TorizoPhase.Active;state.FrameBehavior=TorizoFrameBehavior.Jump;state.ReturnPlayback=TorizoAnimations.Start(TorizoAnimation.FacingLeftLanding);
+        state.Phase=TorizoPhase.Active;state.Motion=TorizoBodyMotion.Leaping;state.ReturnPlayback=TorizoAnimations.Start(TorizoAnimation.FacingLeftLanding);
         state.Velocity=EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);state.JumpAcceleration=EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         body.Health=body.Definition.Health;state.Posture=TorizoPostureFlags.None;state.Behavior=0;
         body.Contact = EnemyContact.None;
@@ -51,7 +51,7 @@ internal static class TorizoLandingLifetimeVerification
             var result=game.Step(0);
             // Every rendered earthquake type displaces BG1 or BG2, so only an unapplied frame leaves the default delta.
             var shake=runtime.Enemies.Earthquake.LastRoomShake;bool shakeApplied=shake!=default;if(shakeApplied)shaken++;
-            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={state.FrameBehavior} timer={runtime.Enemies.Earthquake.RemainingFrames} shake={shake}");
+            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} motion={state.Motion} timer={runtime.Enemies.Earthquake.RemainingFrames} shake={shake}");
             if(shakeApplied!=(frame<32))throw new InvalidDataException("Full frontend landing-shake lifetime differs from 32 native frames.");
         }
         Console.WriteLine($"shaken={shaken}");

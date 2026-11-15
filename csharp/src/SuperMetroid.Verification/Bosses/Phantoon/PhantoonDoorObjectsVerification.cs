@@ -119,11 +119,11 @@ internal static class PhantoonDoorObjectsVerification
         PhantoonEnemyState state = enemies.PhantoonBehavior.Combat.Phantoon
             ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
         BossFrameResultBuilder results = enemies.BossFrameResults;
-        state.BodyState.StartingFlameIndex = 6;
-        state.BodyState.PhaseTimer = 1;
+        state.StartingFlames.NextFlame = 6;
+        state.PhaseTimer = 1;
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         AssertEqual((PhantoonDoorChange?)null, results.PhantoonDoor, "the seventh starting flame asks for no door change");
-        state.BodyState.PhaseTimer = 1;
+        state.PhaseTimer = 1;
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.FightDoor, results.PhantoonDoor, "the eighth starting flame asks for the fight's door");
 
@@ -154,9 +154,9 @@ internal static class PhantoonDoorObjectsVerification
             SamusCompatibility.ForNewSamus(), new BeamChargeState()) { Health = 99, MaxHealth = 99 });
         // The boss bit is the room services' to keep; this fixture has none, so the bit counts as already set.
         state.BossDefeatPersisted = true;
-        state.BodyState.PhaseTimer = 0;
+        state.PhaseTimer = 0;
         // Past the power's last step: this update completes the power coming back.
-        state.EyeState.FadeNumerator = 14;
+        state.BodyFade.Numerator = 14;
         enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, results.PhantoonDoor, "the power's return asks for the restored door");
 

@@ -134,7 +134,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         // freshly constructed state's arrays are that cleared state.
     }
 
-    /// <summary>Runs Botwoon's per-frame behaviour and its movement-phase step.</summary>
+    /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
     private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -815,7 +815,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
     private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
     {
         switch (motion)
@@ -894,7 +894,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         segment.CanDamageSamus = false;
     }
 
-    /// <summary>Runs a body segment's per-frame behaviour through its four movement states.</summary>
+    /// <summary>Moves a body segment for one update through its four movement states.</summary>
     internal void RunBotwoonBodyFrameBehavior(
         EnemyProjectile segment,
         int randomEnemyCounter)

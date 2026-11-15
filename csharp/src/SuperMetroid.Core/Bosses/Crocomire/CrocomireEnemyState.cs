@@ -35,15 +35,29 @@ public sealed class CrocomireEnemyState
     internal CrocomireBodyFrame? BodyFrame { get; set; }
 
     /// <summary>
-    /// The segment the body's animation rests in. Resting after the last beat of a segment that runs on into the next, it
-    /// already rests in the next, as the body's animation position then lies inside it.
+    /// The segment the body's animation rests in. Resting after the last beat of a segment its animation plays on from
+    /// into another, it already rests in that next segment.
     /// </summary>
     internal CrocomireBodySegment BodyResidentAnimation =>
         ResidentSegment(BodyPlayback);
 
-    /// <summary>The segment <paramref name="playback"/>, a body animation, rests in.</summary>
-    internal static CrocomireBodySegment ResidentSegment(AnimationPlayback<CrocomireBodySegment> playback) =>
-        AnimationResidence.ResidentSegment(CrocomireBodyAnimations.Segments, CrocomireBodyAnimations.StartingAt, CrocomireBodyAnimations.RunsOnInto, playback);
+    /// <summary>
+    /// The segment <paramref name="playback"/>, a body animation, rests in (#1938): its playing phase's segment, or,
+    /// resting after the last beat of a segment its animation plays on from, the segment of the animation's next phase.
+    /// Before its first play it rests in the segment its animation starts at.
+    /// </summary>
+    internal static CrocomireBodySegment ResidentSegment(AnimationPlayback<CrocomireBodySegment> playback)
+    {
+        Animation<CrocomireBodySegment> animation = Ensure.NotNull(playback.Animation);
+        if (animation.Phases.Count == 0 || playback.Place == AnimationPlace.StartOfAnimation)
+            return CrocomireBodyAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key;
+        int phaseIndex = playback.Place.Phase;
+        AnimationPhase<CrocomireBodySegment> phase = animation.Phases[phaseIndex];
+        // A hold rests after the phase's last beat, as the end of its play does.
+        bool pastSegmentEnd = playback.Place.Beat >= phase.BeatCount
+            && phase.FirstBeat + phase.BeatCount == CrocomireBodyAnimations.Segments.Beats(phase.Segment).Count;
+        return pastSegmentEnd && phaseIndex + 1 < animation.Phases.Count ? animation.Phases[phaseIndex + 1].Segment : phase.Segment;
+    }
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
@@ -58,23 +72,19 @@ public sealed class CrocomireEnemyState
     /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
     public bool DamageReactionPending { get; internal set; }
 
-    /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame.</summary>
-    public CrocomirePhase Phase { get; internal set; }
+    /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame; none in a defeated room (#1939).</summary>
+    public CrocomirePhase? Phase { get; internal set; }
 
     /// <summary>
     /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
-    /// mouth hit while stepping back consumes them, so the count stays far
-    /// inside <see cref="MaximumStepCount"/>. A store outside that range is rejected rather than wrapped, because the
-    /// power-bomb charge's signed comparison is exact only inside it.
+    /// mouth hit while stepping back consumes them, so the count stays a few steps from none and never nears a wrap
+    /// (#1940).
     /// </summary>
     public int StepCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, MaximumStepCount, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
-
-    /// <summary>The largest queued step count the fight AI's signed comparisons read as the game does.</summary>
-    private const int MaximumStepCount = short.MaxValue;
 
     /// <summary>
     /// In the submerged pause and while the skeleton is bared behind the wall: the frames left in that death phase, counted down only while

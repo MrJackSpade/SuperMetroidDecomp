@@ -17,7 +17,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFirst, 10),
@@ -42,7 +42,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFirst, 10),
@@ -65,7 +65,7 @@ internal static class TorizoSharedSteps
     /// <summary>Torizo starts a fall facing left: its jump lands it in the landing.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftFallStart =
     [
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
+        Cue(new TorizoCue.Signal(K.StartLeaping)),
         Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: A.FacingLeftLanding)),
     ];
 
@@ -78,7 +78,7 @@ internal static class TorizoSharedSteps
     /// <summary>Torizo starts its backward fall facing left: its jump lands it on its left foot.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftBackwardFallStartToLeftFoot =
     [
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
+        Cue(new TorizoCue.Signal(K.StartLeaping)),
         Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: A.FacingLeftLandingBackwardOnLeftFoot)),
     ];
 
@@ -91,7 +91,7 @@ internal static class TorizoSharedSteps
     /// <summary>Torizo starts its backward fall facing left: its jump lands it on its right foot.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftBackwardFallStartToRightFoot =
     [
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
+        Cue(new TorizoCue.Signal(K.StartLeaping)),
         Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: A.FacingLeftLandingBackwardOnRightFoot)),
     ];
 
@@ -106,7 +106,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFirst, 1),
@@ -127,7 +127,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFirst, 1),
@@ -148,7 +148,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedRightWithRightFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFirst, 10),
@@ -174,7 +174,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFirst, 10),
@@ -197,7 +197,7 @@ internal static class TorizoSharedSteps
     /// <summary>Torizo starts a fall facing right: its jump lands it in the landing.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightFallStart =
     [
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
+        Cue(new TorizoCue.Signal(K.StartLeaping)),
         Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: A.FacingRightLanding)),
     ];
 
@@ -210,7 +210,7 @@ internal static class TorizoSharedSteps
     /// <summary>Torizo starts its backward fall facing right: its jump lands it on its right foot.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightBackwardFallStartToRightFoot =
     [
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
+        Cue(new TorizoCue.Signal(K.StartLeaping)),
         Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: A.FacingRightLandingBackwardOnRightFoot)),
     ];
 
@@ -223,7 +223,7 @@ internal static class TorizoSharedSteps
     /// <summary>Torizo starts its backward fall facing right: its jump lands it on its left foot.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightBackwardFallStartToLeftFoot =
     [
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.Jump)),
+        Cue(new TorizoCue.Signal(K.StartLeaping)),
         Cue(new TorizoCue.Branch(TorizoBranchKind.Link, Target: A.FacingRightLandingBackwardOnLeftFoot)),
     ];
 
@@ -238,7 +238,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedRightWithRightFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFirst, 1),
@@ -259,7 +259,7 @@ internal static class TorizoSharedSteps
     [
         Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFirst, 1),
@@ -279,8 +279,8 @@ internal static class TorizoSharedSteps
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingLeftRightLegStep =
     [
         Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
-        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenFrameBehavior)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegMovingFirst, 8),
         Cue(new TorizoCue.Branch(TorizoBranchKind.JumpForwardIfSamusFar, Target: A.FacingLeftJumpingForward)),
@@ -304,8 +304,8 @@ internal static class TorizoSharedSteps
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingLeftLeftLegStep =
     [
         Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
-        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenFrameBehavior)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegMovingFirst, 8),
         Cue(new TorizoCue.Branch(TorizoBranchKind.GoToIfSamusMorphedBehind, Target: A.GoldenFacingLeftSittingDownAttack)),
@@ -330,8 +330,8 @@ internal static class TorizoSharedSteps
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingRightLeftLegStep =
     [
         Cue(new TorizoCue.Signal(K.SteppedRightWithRightFoot)),
-        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenFrameBehavior)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingRightWalkingLeftLegMovingFirst, 8),
         Cue(new TorizoCue.Branch(TorizoBranchKind.JumpForwardIfSamusFar, Target: A.FacingRightJumpingForward)),
@@ -355,8 +355,8 @@ internal static class TorizoSharedSteps
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingRightRightLegStep =
     [
         Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
-        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenFrameBehavior)),
-        Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+        Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
+        Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
         Show(EnemyFrameId.TorizoFacingRightWalkingRightLegMovingFirst, 8),
         Cue(new TorizoCue.Branch(TorizoBranchKind.GoToIfSamusMorphedBehind, Target: A.GoldenFacingRightSittingDownAttack)),

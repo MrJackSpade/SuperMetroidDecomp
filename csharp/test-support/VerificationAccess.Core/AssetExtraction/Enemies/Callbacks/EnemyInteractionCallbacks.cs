@@ -37,10 +37,9 @@ internal static class EnemyInteractionCallbacks
         [MaridiaLargeSnailReactions.NonDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailNonDamagingTouch,
         [MaridiaLargeSnailReactions.Shot] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailShot,
         [CrocomireReactions.ClawTouch] = EnemyAiRoutineDefinitions.BankA4.ClawTouch,
-        [CrocomireReactions.HitCountShot] = EnemyAiRoutineDefinitions.BankA4.HitCountShot,
-        [CrocomireReactions.DustHitboxShot] = EnemyAiRoutineDefinitions.BankA4.DustHitboxShot,
+        [CrocomireReactions.AbsorbedShot] = EnemyAiRoutineDefinitions.BankA4.HitCountShot,
+        [CrocomireReactions.DustShot] = EnemyAiRoutineDefinitions.BankA4.DustHitboxShot,
         [CrocomireReactions.MouthShot] = EnemyAiRoutineDefinitions.BankA4.MouthShot,
-        [CrocomireReactions.AlternateDustHitboxShot] = EnemyAiRoutineDefinitions.BankA4.AlternateDustHitboxShot,
         [SporeSpawnReactions.Touch] = EnemyAiRoutineDefinitions.BankA5.SporeSpawnTouch,
         [SporeSpawnReactions.Shot] = EnemyAiRoutineDefinitions.BankA5.SporeSpawnShot,
         [DraygonReactions.Touch] = EnemyAiRoutineDefinitions.BankA5.DraygonTouch,
@@ -66,9 +65,20 @@ internal static class EnemyInteractionCallbacks
         [PhantoonReactions.Shot] = EnemyAiRoutineDefinitions.BankA7.PhantoonShot,
     };
 
+    /// <summary>
+    /// A species' further callbacks that do what one of its named reactions does (#1939): Crocomire's second dust routine
+    /// raises dust as his first does.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<SnesAddress, EnemyReaction> SameReactionAddresses =
+        new Dictionary<SnesAddress, EnemyReaction>
+    {
+        [EnemyAiRoutineDefinitions.BankA4.AlternateDustHitboxShot] = CrocomireReactions.DustShot,
+    };
+
     /// <summary>The named reaction whose callback lies at each native long address.</summary>
     private static readonly FrozenDictionary<SnesAddress, EnemyReaction> ByAddress =
-        Addresses.ToFrozenDictionary(pair => pair.Value, pair => pair.Key);
+        Addresses.Select(pair => KeyValuePair.Create(pair.Value, pair.Key)).Concat(SameReactionAddresses)
+            .ToFrozenDictionary(pair => pair.Key, pair => pair.Value);
 
     /// <summary>
     /// The shared reaction a header's touch word names in <paramref name="bank"/>'s code, or null for a zero word or the

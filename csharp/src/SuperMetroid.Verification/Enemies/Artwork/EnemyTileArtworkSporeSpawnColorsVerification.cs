@@ -35,7 +35,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
-            SporeSpawnColorDefinitions.HealthFrameCount, native.ResolveHealth, "health"));
+            SporeSpawnColorDefinitions.HealthStageCount, native.ResolveHealth, "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
             SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation),
             state.BodyPlayback, "Spore Spawn starts its living animation");
 
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
+        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthStageCount; frame++)
         {
             int shown = frame;
             enemies.SporeSpawnBehavior.ShowSporeSpawnHealthShade(frame);

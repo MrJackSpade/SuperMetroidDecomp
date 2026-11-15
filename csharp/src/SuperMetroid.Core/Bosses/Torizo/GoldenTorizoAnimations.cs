@@ -75,7 +75,7 @@ internal static class GoldenTorizoAnimations
         ],
         [A.GoldenFacingLeftSpewingChozoOrbsRightFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst, 6),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardThird, 3),
@@ -89,12 +89,12 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFourth, 3),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardThird, 3),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardSecond, 3),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst, 6),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardThird, 3),
@@ -108,12 +108,12 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFourth, 3),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardThird, 3),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSecond, 3),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingLeftSonicBoomsRightFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst, 3),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardThird, 3),
@@ -136,12 +136,12 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Signal(K.SpawnGoldenTorizoSonicBoom)),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardEighth, 1),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSeventh, 4),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingLeftSonicBoomsLeftFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst, 3),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardThird, 3),
@@ -164,12 +164,12 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Signal(K.SpawnGoldenTorizoSonicBoom)),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardEighth, 1),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSeventh, 4),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingRightSpewingChozoOrbsLeftFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst, 6),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardThird, 3),
@@ -183,12 +183,12 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFourth, 3),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardThird, 3),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardSecond, 3),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingRightSpewingChozoOrbsRightFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst, 6),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardThird, 3),
@@ -202,12 +202,12 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFourth, 3),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardThird, 3),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardSecond, 3),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingRightSonicBoomsLeftFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst, 3),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardThird, 3),
@@ -230,12 +230,12 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Signal(K.SpawnGoldenTorizoSonicBoom)),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardEighth, 1),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSeventh, 4),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingRightSonicBoomsRightFootForward] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst, 3),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSecond, 3),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardThird, 3),
@@ -258,7 +258,7 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Signal(K.SpawnGoldenTorizoSonicBoom)),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardEighth, 1),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSeventh, 4),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenFacingLeftLandedBackwardOnLeftFoot] =
@@ -288,7 +288,7 @@ internal static class GoldenTorizoAnimations
         [A.GoldenFacingLeftCatchingSuperMissileLeftLegForward] =
         [
             Cue(new TorizoCue.Signal(K.PlaySonicBoomSound)),
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenGravity)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst, 1),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardSecond, 1),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsLeftFootForwardThird, 1),
@@ -318,7 +318,7 @@ internal static class GoldenTorizoAnimations
         [A.GoldenFacingLeftCatchingSuperMissileRightLegForward] =
         [
             Cue(new TorizoCue.Signal(K.PlaySonicBoomSound)),
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenGravity)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst, 1),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardSecond, 1),
             Show(EnemyFrameId.TorizoFacingLeftSonicBoomsRightFootForwardThird, 1),
@@ -348,7 +348,7 @@ internal static class GoldenTorizoAnimations
         [A.GoldenFacingRightCatchingSuperMissileRightLegForward] =
         [
             Cue(new TorizoCue.Signal(K.PlaySonicBoomSound)),
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenGravity)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst, 1),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardSecond, 1),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsRightFootForwardThird, 1),
@@ -376,7 +376,7 @@ internal static class GoldenTorizoAnimations
         [A.GoldenFacingRightCatchingSuperMissileLeftLegForward] =
         [
             Cue(new TorizoCue.Signal(K.PlaySonicBoomSound)),
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenGravity)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst, 1),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardSecond, 1),
             Show(EnemyFrameId.TorizoFacingRightSonicBoomsLeftFootForwardThird, 1),
@@ -403,7 +403,7 @@ internal static class GoldenTorizoAnimations
         ],
         [A.GoldenFacingLeftSittingDownAttack] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpSixth, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.SitDown, Displacement: new(-7, 0))),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpFifth, 8),
@@ -428,13 +428,13 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-16, 0))),
             Show(EnemyFrameId.TorizoFacingLeftStandingUpFifth, 10),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-7, 0))),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             .. S.GoldenFacingLeftLeftLegStep,
             .. S.GoldenFacingLeftRightLegStep,
         ],
         [A.GoldenFacingRightSittingDownAttack] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Show(EnemyFrameId.TorizoFacingRightStandingUpSixth, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.SitDown, Displacement: new(7, 0))),
             Show(EnemyFrameId.TorizoFacingRightStandingUpFifth, 8),
@@ -459,13 +459,13 @@ internal static class GoldenTorizoAnimations
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(16, 0))),
             Show(EnemyFrameId.TorizoFacingRightStandingUpFifth, 10),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(7, 0))),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             .. S.GoldenFacingRightRightLegStep,
             .. S.GoldenFacingRightLeftLegStep,
         ],
         [A.GoldenReleasingEggs] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             ShowArtwork(L.ChestOpening1Top),
             ShowArtwork(L.ChestOpening1),
             Wait(8),
@@ -491,12 +491,12 @@ internal static class GoldenTorizoAnimations
             Wait(8),
             ShowArtwork(L.ChestClosedTop),
             ShowArtwork(L.ChestClosed),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenEyeBeamAttack] =
         [
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenGravity)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Cue(new TorizoCue.Signal(K.DisableEyeBeamExplosions)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Wait(8),
@@ -516,7 +516,7 @@ internal static class GoldenTorizoAnimations
             Wait(8),
             Cue(new TorizoCue.Signal(K.DisableEyeBeamExplosions)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
-            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenFrameBehavior)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [A.GoldenDodgeTurningLeft] =

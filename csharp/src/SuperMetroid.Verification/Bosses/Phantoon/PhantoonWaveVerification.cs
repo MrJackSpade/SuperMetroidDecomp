@@ -19,13 +19,13 @@ internal static class PhantoonWaveVerification
         {
             Eye = new RoomEnemySlot(1, EnemySlotFixtures.Registry), Mouth = new RoomEnemySlot(3, EnemySlotFixtures.Registry),
         };
-        boss.MouthState.WaveAmplitude = 3072;
-        boss.MouthState.WavyPhaseDelta = 8;
+        boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
+        boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
-        AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.EyeState.WaveLength, "the wave's setup copies the pending length to the eye");
+        AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.Wave.Length, "the wave's setup copies the pending length to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
         AssertEqual(new PhantoonWave(0, 0, new TrigonometryAngle(0), PhantoonWaveDefinitions.ShortPeriod),
@@ -52,7 +52,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
         AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
-        boss.EyeState.WaveLength = null;
+        boss.Wave.Length = null;
         PhantoonWave? retained = wave.CurrentWave;
         wave.Step(boss);
         AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");
@@ -101,7 +101,7 @@ internal static class PhantoonWaveVerification
     {
         var visibility = boss.BodyVisibility;
         boss.Translucent = true;
-        boss.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
+        boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         for (int i = 0; i < PhantoonBodyVisibilityEffect.SetupCalls; i++)
         {
             visibility.Step(boss);
@@ -112,15 +112,15 @@ internal static class PhantoonWaveVerification
         visibility.LatchDisplay(pixelationBlockSize: 5);
         boss.PixelationBlockSize = 6;
         boss.Translucent = false;
-        boss.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
+        boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "a shown body shows as the room does, not as the previous update showed it");
         AssertEqual(PhantoonBodyVisibility.Translucent, visibility.DisplayedVisibility, "a live change cannot change the latched visibility");
         AssertEqual(5, visibility.DisplayedPixelationBlockSize, "a live pixelation change waits for the next display latch");
-        boss.MouthState.BodyLayer = PhantoonBodyLayer.Hidden;
+        boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Hidden, visibility.Visibility, "a hidden body is hidden");
-        boss.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
+        boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Hidden, visibility.Visibility, "the update that clears the body still hides it");
         boss.Translucent = true;

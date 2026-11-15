@@ -78,29 +78,29 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(band)), Shown(state), $"Phantoon live health restore band {band}");
             AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
-            state.EyeState.FadeNumerator = 1;
-            state.EyeState.FadeComplete = false;
+            state.BodyFade.Numerator = 1;
+            state.BodyFade.Complete = false;
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 12);
             AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(band), PhantoonBodyLook.Health(band), 12, 1, 1), Shown(state),
                 $"Phantoon live materialization band {band}");
-            AssertEqual(2, state.EyeState.FadeNumerator,
+            AssertEqual(2, state.BodyFade.Numerator,
                 $"Phantoon fade-in band {band} retains native numerator advance");
         }
 
         body.Health = unchecked(2 * 312 + 1);
         body.FlashTimer = 8;
-        state.TentaclesState.HurtFlashShown = true;
+        state.Round.HurtFlashShown = true;
         enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");
-        AssertTrue(!state.TentaclesState.HurtFlashShown, "Phantoon hurt restore clears the flash latch");
+        AssertTrue(!state.Round.HurtFlashShown, "Phantoon hurt restore clears the flash latch");
 
-        state.EyeState.FadeNumerator = 13;
-        state.EyeState.FadeComplete = false;
+        state.BodyFade.Numerator = 13;
+        state.BodyFade.Complete = false;
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 12);
         PictureShade fadedOut = PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 13, 13);
         AssertEqual(fadedOut, Shown(state), "Phantoon live fade-out names its last step");
         AssertShade(bodyShades, fadedOut, colors.ResolveFadeOut, "Phantoon live fade-out target");
-        AssertEqual(14, state.EyeState.FadeNumerator,
+        AssertEqual(14, state.BodyFade.Numerator,
             "Phantoon fade-out retains native numerator advance");
 
         // A hurt colouring written mid-fade restarts the fade from it at the value the fade stands at (#1512): the
@@ -119,9 +119,9 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         AssertThrows<InvalidOperationException>(() => state.Colours.Fade(PhantoonBodyLook.Health(2), 12, 6),
             "A fade toward another target while his colours are mid-fade is refused");
 
-        state.EyeState.FadeDenominator = 12;
-        state.EyeState.FadeNumerator = 13;
-        bool complete = PhantoonDeath.AdvanceWreckedShipPowerOn(state, state.EyeState);
+        state.BodyFade.Denominator = 12;
+        state.BodyFade.Numerator = 13;
+        bool complete = PhantoonDeath.AdvanceWreckedShipPowerOn(state);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
         SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses, new RgbColor[ImageColourGroup.HalfColours])
             .Single(shade => shade.Shade == PhantoonShades.PowerOn(13));
@@ -129,7 +129,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             AssertEqual(colors.ResolvePowerOnAtNative(color),
                 powered.Colours[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
-        AssertEqual(14, state.EyeState.FadeNumerator,
+        AssertEqual(14, state.BodyFade.Numerator,
             "Phantoon ship power-on retains native numerator advance");
 
         AssertThrows<InvalidDataException>(

@@ -74,7 +74,7 @@ internal sealed class TorizoMovement
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Phase = TorizoPhase.Falling;
-        state.FrameBehavior = TorizoFrameBehavior.Idle;
+        state.Motion = null;
         state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
 
         // Init writes the shared colours' targets and then selects the encounter-specific body
@@ -103,7 +103,7 @@ internal sealed class TorizoMovement
             TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.BombStatue));
     }
 
-    /// <summary>Interrupts active AI at the head and core health thresholds before normal frame behaviours resume.</summary>
+    /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
     internal void RunBombTorizoActiveState(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -131,49 +131,30 @@ internal sealed class TorizoMovement
             return;
         }
 
-        RunBombTorizoFrameBehavior(torizo, state, level);
+        MoveBody(torizo, state, level);
     }
 
-    /// <summary>Dispatches the movement behaviour installed by the current Bomb or Golden animation.</summary>
-    internal void RunBombTorizoFrameBehavior(
+    /// <summary>Moves Bomb or Golden Torizo's body by the motion its animation started, or holds it still with none (#1931).</summary>
+    internal void MoveBody(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         RoomLevelData? level)
     {
-        switch (state.FrameBehavior)
+        switch (state.Motion)
         {
-            case TorizoFrameBehavior.Idle:
+            case null:
                 return;
-            case TorizoFrameBehavior.AirTransition:
-                RunBombTorizoAirTransition(
-                    torizo,
-                    state,
-                    RequireBombTorizoLevel(level));
+            case TorizoBodyMotion.Walking:
+                Walk(torizo, state, RequireBombTorizoLevel(level));
                 return;
-            case TorizoFrameBehavior.Gravity:
-                ApplyBombTorizoGravity(
-                    torizo,
-                    state,
-                    RequireBombTorizoLevel(level));
+            case TorizoBodyMotion.Standing:
+                ApplyBombTorizoGravity(torizo, state, RequireBombTorizoLevel(level));
                 return;
-            case TorizoFrameBehavior.Jump:
-                RunBombTorizoJump(torizo, state, RequireBombTorizoLevel(level));
-                return;
-            case TorizoFrameBehavior.GoldenAirTransition:
-                RunGoldenTorizoAirTransition(
-                    torizo,
-                    state,
-                    RequireBombTorizoLevel(level));
-                return;
-            case TorizoFrameBehavior.GoldenGravity:
-                ApplyBombTorizoGravity(
-                    torizo,
-                    state,
-                    RequireBombTorizoLevel(level));
+            case TorizoBodyMotion.Leaping:
+                Leap(torizo, state, RequireBombTorizoLevel(level));
                 return;
             default:
-                throw new InvalidDataException(
-                    $"Bomb Torizo has no frame behaviour {state.FrameBehavior}.");
+                throw new InvalidOperationException($"Undefined {nameof(TorizoBodyMotion)} {state.Motion}.");
         }
     }
 
@@ -198,8 +179,8 @@ internal sealed class TorizoMovement
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + TorizoMotionDefinitions.StatueGravity);
     }
 
-    /// <summary>Advances a jump across slopes; landing restores the saved animation and triggers the impact quake.</summary>
-    private void RunBombTorizoJump(
+    /// <summary>Advances a leap or fall across slopes; landing plays the animation it lands into and shakes the room.</summary>
+    private void Leap(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         RoomLevelData level)
@@ -224,68 +205,46 @@ internal sealed class TorizoMovement
         state.Velocity += state.JumpAcceleration;
     }
 
-    /// <summary>Waits for Bomb Torizo's landing timer or selects the airborne animation while a downward probe is clear.</summary>
-    private void RunBombTorizoAirTransition(
+    /// <summary>
+    /// Walks on (#1931): once the turn timer runs out the Torizo turns toward Samus, and while the ground under it has given
+    /// way it starts its fall. Both statues walk alike; the turns are their definition's, and a faceless Bomb Torizo turns
+    /// faceless.
+    /// </summary>
+    private void Walk(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        bool alternateLanding = _body.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp);
-        if (state.AirTransitionTimer != 0)
+        if (state.TurnTimer != 0 && --state.TurnTimer == 0)
         {
-            if (--state.AirTransitionTimer == 0)
-            {
-                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(alternateLanding
-                    ? (_access.FacesRight(torizo)
-                        ? TorizoAnimation.FacelessTurningLeft
-                        : TorizoAnimation.FacelessTurningRight)
-                    : (_access.FacesRight(torizo)
-                        ? TorizoAnimation.TurningLeft
-                        : TorizoAnimation.TurningRight)));
-                return;
-            }
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TurnTowardSamus(torizo, state)));
+            return;
         }
 
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
-            // Bomb Torizo's fall swaps to the authored in-air animation while the downward probe remains
-            // clear. Landing itself is handled by the animation-installed gravity/jump behaviour.
-            TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
+            // The fall swaps to the in-air animation while the downward probe stays clear; its leaping motion lands it.
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
             state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }
 
-    /// <summary>Uses Golden Torizo's timed facing transition and landing animations during an airborne probe.</summary>
-    private void RunGoldenTorizoAirTransition(
-        RoomEnemySlot torizo,
-        TorizoEnemyState state,
-        RoomLevelData level)
+    /// <summary>
+    /// The animation a walking Torizo turns toward Samus with: a faceless Bomb Torizo's faceless turn, otherwise its
+    /// definition's turn away from the way it faces.
+    /// </summary>
+    private TorizoAnimation TurnTowardSamus(RoomEnemySlot torizo, TorizoEnemyState state)
     {
-        // Golden Torizo's fall is the Golden analogue of Bomb Torizo's. Its only behavioral difference is the
-        // sixteen-frame facing transition and Golden landing animations selected when it expires.
-        if (state.AirTransitionTimer != 0)
-        {
-            if (--state.AirTransitionTimer == 0)
-            {
-                TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                    ? TorizoAnimation.GoldenTurningLeft
-                    : TorizoAnimation.GoldenTurningRight));
-                return;
-            }
-        }
-
-        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
-        {
-            TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoAnimation.FacingRightFalling
-                : TorizoAnimation.FacingLeftFalling));
-            state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
-        }
+        bool facesRight = _access.FacesRight(torizo);
+        if (_body.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
+            return facesRight ? TorizoAnimation.FacelessTurningLeft : TorizoAnimation.FacelessTurningRight;
+        TorizoInitializationDefinition definition = state.Definition;
+        return facesRight ? definition.TurningLeft : definition.TurningRight;
     }
 
-    /// <summary>Requires a collision layer for movement behaviours that cannot run outside a loaded room.</summary>
+    /// <summary>Requires a collision layer for the motions, which cannot run outside a loaded room.</summary>
     internal static RoomLevelData RequireBombTorizoLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException(
             "Bomb Torizo movement requires the active room collision layer.");

@@ -1,13 +1,15 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's three fixed hitbox lists, separate from its editable background frames: the inert point carried by hidden
-/// parts and tentacles, the five-rectangle full body, and the vulnerable eye alone. Every frame root has zero
-/// component offsets; the three tentacle roots each have two components.
+/// Phantoon's fixed hitboxes, separate from his editable background frames (#1937): the five-rectangle full body, the
+/// vulnerable eye alone, and the invulnerable body's centre point (<see cref="PhantoonSolidifyingCentre"/>). Every
+/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore Samus,
+/// so the inert point the original gave their looks was never read.
 /// </summary>
 internal static class PhantoonCollisionDefinitions
 {
@@ -36,24 +38,22 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>The center tentacle's rectangle.</summary>
     internal static readonly EnemyCollisionHitbox CenterTentacle = Centered(CenterTentacleHalfWidth, top: 53, bottom: 69);
 
-    /// <summary>The single no-reaction point carried by hidden parts and by both tentacle components.</summary>
-    internal static readonly EnemyCollisionHitbox[] PointList =
-        [new(0, 0, 0, 0, EnemyReaction.Ignore, EnemyReaction.Ignore)];
     /// <summary>The visible body: body, eye, left, right and center tentacle rectangles, tested in that order.</summary>
     internal static readonly EnemyCollisionHitbox[] FullBodyList =
         [Body, Eye, LeftTentacle, RightTentacle, CenterTentacle];
     /// <summary>The vulnerable eye alone, repeating the full body's eye rectangle.</summary>
     internal static readonly EnemyCollisionHitbox[] EyeOnlyList = [Eye];
 
-    /// <summary>The one inert point component most frames carry.</summary>
-    internal static readonly ImmutableArray<EnemyCollisionComponent> PointComponents = [new(Offset16<RoomPixels>.Zero, PointList)];
+    /// <summary>The invulnerable body's one component: the centre point that absorbs a shot or a bomb as it turns solid.</summary>
+    internal static readonly ImmutableArray<EnemyCollisionComponent> SolidifyingCentreComponents =
+        [new(Offset16<RoomPixels>.Zero, [new(PhantoonSolidifyingCentre.Centre.X, PhantoonSolidifyingCentre.Centre.Y,
+            PhantoonSolidifyingCentre.Centre.X, PhantoonSolidifyingCentre.Centre.Y, EnemyReaction.Ignore, EnemyReaction.Ignore)])];
+    /// <summary>The components of a part's look that carries no hitbox.</summary>
+    internal static readonly ImmutableArray<EnemyCollisionComponent> NoComponents = [];
     /// <summary>The full body's one component.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> FullBodyComponents = [new(Offset16<RoomPixels>.Zero, FullBodyList)];
     /// <summary>The eye-only body's one component.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> EyeOnlyComponents = [new(Offset16<RoomPixels>.Zero, EyeOnlyList)];
-    /// <summary>A tentacle frame's two inert point components.</summary>
-    internal static readonly ImmutableArray<EnemyCollisionComponent> TentacleComponents =
-        [new(Offset16<RoomPixels>.Zero, PointList), new(Offset16<RoomPixels>.Zero, PointList)];
 
     /// <summary>A body rectangle that Samus touches and shoots.</summary>
     private static EnemyCollisionHitbox Contact(int left, int top, int right, int bottom) =>
@@ -67,32 +67,32 @@ internal static class PhantoonCollisionDefinitions
     private static EnemyCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
-    /// Each Phantoon background frame's components: the full body and the eye alone each have one component, the three
-    /// tentacle frames two inert points, and every other frame one inert point.
+    /// Each Phantoon background frame's components: the full body, the eye alone and the invulnerable body each have one
+    /// component, and the eye's, tentacles' and mouth's looks none.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
     {
-        [EnemyFrameId.PhantoonInvulnerableBody] = PointComponents,
+        [EnemyFrameId.PhantoonInvulnerableBody] = SolidifyingCentreComponents,
         [EnemyFrameId.PhantoonFullHitboxBody] = FullBodyComponents,
         [EnemyFrameId.PhantoonEyeHitboxBody] = EyeOnlyComponents,
-        [EnemyFrameId.PhantoonEyeClosed] = PointComponents,
-        [EnemyFrameId.PhantoonEyeOpenFirst] = PointComponents,
-        [EnemyFrameId.PhantoonEyeOpenSecond] = PointComponents,
-        [EnemyFrameId.PhantoonEyeOpenThird] = PointComponents,
-        [EnemyFrameId.PhantoonEyeballCentered] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingUp] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingDown] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingLeft] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingRight] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingDownLeft] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingDownRight] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingUpLeft] = PointComponents,
-        [EnemyFrameId.PhantoonEyeLookingUpRight] = PointComponents,
-        [EnemyFrameId.PhantoonTentaclesFirst] = TentacleComponents,
-        [EnemyFrameId.PhantoonTentaclesSecond] = TentacleComponents,
-        [EnemyFrameId.PhantoonTentaclesThird] = TentacleComponents,
-        [EnemyFrameId.PhantoonMouthInitial] = PointComponents,
-        [EnemyFrameId.PhantoonMouthSpawnFlameSecond] = PointComponents,
-        [EnemyFrameId.PhantoonMouthSpawnFlameFirst] = PointComponents,
+        [EnemyFrameId.PhantoonEyeClosed] = NoComponents,
+        [EnemyFrameId.PhantoonEyeOpenFirst] = NoComponents,
+        [EnemyFrameId.PhantoonEyeOpenSecond] = NoComponents,
+        [EnemyFrameId.PhantoonEyeOpenThird] = NoComponents,
+        [EnemyFrameId.PhantoonEyeballCentered] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingUp] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingDown] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingLeft] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingRight] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingDownLeft] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingDownRight] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingUpLeft] = NoComponents,
+        [EnemyFrameId.PhantoonEyeLookingUpRight] = NoComponents,
+        [EnemyFrameId.PhantoonTentaclesFirst] = NoComponents,
+        [EnemyFrameId.PhantoonTentaclesSecond] = NoComponents,
+        [EnemyFrameId.PhantoonTentaclesThird] = NoComponents,
+        [EnemyFrameId.PhantoonMouthInitial] = NoComponents,
+        [EnemyFrameId.PhantoonMouthSpawnFlameSecond] = NoComponents,
+        [EnemyFrameId.PhantoonMouthSpawnFlameFirst] = NoComponents,
     };
 }

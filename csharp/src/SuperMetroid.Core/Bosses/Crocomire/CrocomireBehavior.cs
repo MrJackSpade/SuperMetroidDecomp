@@ -85,7 +85,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly SignedSixteenSixteen SkeletonArcFallSpeed =
         SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(224);
 
-    /// <summary>Runs the live-fight phase of Crocomire's per-frame behaviour.</summary>
+    /// <summary>Runs the live-fight phase of Crocomire's main AI for one update.</summary>
     internal void RunCrocomireMain(
         RoomEnemySlot slot,
         SamusState? samus,

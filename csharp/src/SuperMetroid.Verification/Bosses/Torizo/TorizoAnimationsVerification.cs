@@ -190,8 +190,8 @@ internal static class TorizoAnimationsVerification
     }
 
     /// <summary>
-    /// Compares a Torizo instruction with its cue: the cue it must become and each operand word with the value, phase, frame
-    /// behaviour or animation the cue carries; a replay's operand is the entry of the list its run begins at.
+    /// Compares a Torizo instruction with its cue: the cue it must become and each operand word with the value, phase, body
+    /// motion or animation the cue carries; a replay's operand is the entry of the list its run begins at.
     /// </summary>
     private static void CompareInstruction(IImportCartridgeSource cartridge, NativePhase run, int address, TorizoCue cue, string at)
     {
@@ -237,6 +237,20 @@ internal static class TorizoAnimationsVerification
                 AssertEqual((int)unchecked((short)cartridge.ReadCartridgeWord(table + value)), walk.Velocity, $"{at}: walking velocity");
                 continue;
             }
+            if (role == TorizoOperand.Function)
+            {
+                // Bomb and Golden Torizo's falling routines both name the falling phase (#1931).
+                AssertEqual(TorizoNativeWords.Phases.Decode(value, "Torizo phase routine"),
+                    AssertIs<TorizoCue.SetPhase>(cue, $"{at}: cue").Phase, $"{at}: phase");
+                continue;
+            }
+            if (role == TorizoOperand.Motion)
+            {
+                // Bomb and Golden Torizo's walking and standing routines start the same motions (#1931).
+                AssertEqual(TorizoNativeWords.MotionCues.Decode(value, "Torizo body-motion routine"),
+                    AssertIs<TorizoCue.Signal>(cue, $"{at}: cue").Kind, $"{at}: body motion");
+                continue;
+            }
             if (role == TorizoOperand.ReplayedRun)
                 AssertEqual(0, run.FirstBeat, $"{at}: a replayed run begins its list");
             ushort typed = role switch
@@ -247,8 +261,6 @@ internal static class TorizoAnimationsVerification
                     TorizoCue.LowHealthExplosions explosions => (explosions.Site == BombTorizoExplosionSite.Gut ? 0 : 1) * 6,
                     _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
                 })),
-                TorizoOperand.Function => TorizoNativeWords.Phases.Word(AssertIs<TorizoCue.SetPhase>(cue, $"{at}: cue").Phase),
-                TorizoOperand.FrameBehavior => TorizoNativeWords.FrameBehaviors.Word(AssertIs<TorizoCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
                 TorizoOperand.Target => Entry(cue switch
                 {
                     TorizoCue.Branch branch => branch.Target,
@@ -257,7 +269,7 @@ internal static class TorizoAnimationsVerification
                 }),
                 TorizoOperand.Alternate => Entry(AssertIs<TorizoCue.Choice>(cue, $"{at}: cue").Alternate),
                 TorizoOperand.ReplayedRun => run.List,
-                TorizoOperand.SwipePlacement or TorizoOperand.Unread =>
+                TorizoOperand.SwipePlacement or TorizoOperand.Unread or TorizoOperand.Function or TorizoOperand.Motion =>
                     throw new InvalidOperationException($"{at}: the {role} operand is compared before the word table."),
                 _ => throw new InvalidOperationException($"Undefined {nameof(TorizoOperand)} {role}."),
             };

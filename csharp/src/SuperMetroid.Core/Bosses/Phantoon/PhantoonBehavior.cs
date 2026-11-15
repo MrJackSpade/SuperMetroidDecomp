@@ -59,13 +59,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, FrameResults = dependencies.FrameResults });
     }
 
-    /// <summary>Per-update increase in introductory wave amplitude.</summary>
-    internal const int PhantoonIntroAmplitudeDelta = 64;
-    /// <summary>Wave amplitude at which the intro advances to the next phase.</summary>
-    internal const int PhantoonIntroMaximumAmplitude = 3072;
-    /// <summary>Per-update phase increment for the wavy background distortion.</summary>
-    internal const int PhantoonWavyPhaseDelta = 8;
-
     /// <summary>Sets Phantoon's body up when the room spawns it.</summary>
     internal void InitializePhantoonBody(RoomEnemySlot body)
     {
@@ -77,15 +70,16 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // His body is black as the fight starts, which his later fades start from (#1512).
         Combat.Phantoon.Colours.Show(PhantoonBodyLook.Black);
 
-        PhantoonBodyState bodyState = Combat.Phantoon.BodyState;
-        bodyState.PhaseTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
-        bodyState.StartingFlameIndex = 0;
-        bodyState.StartingFlamesActive = false;
+        PhantoonEnemyState state = Combat.Phantoon;
+        state.PhaseTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
+        state.StartingFlames.NextFlame = 0;
+        state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(body, PhantoonPartSegment.InvulnerableBody);
-        bodyState.StartPart();
-        body.SetSpeciesState(bodyState);
-        bodyState.Phase = PhantoonPhase.SpawnStartingFlames;
+        // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
+        state.FlameRainRequested = false;
+        body.SetSpeciesState(state);
+        state.Phase = PhantoonPhase.SpawnStartingFlames;
         ResetPhantoonMouthControls(Combat.Phantoon);
     }
 
@@ -93,30 +87,29 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
-        // Each part is its own enemy, so the part's identity selects its animation and its own state, and attaches it.
+        // Each part is its own enemy, so the part's identity selects its animation; every part belongs to the encounter.
         if (part.DefinitionId == EnemyDefinitionId.PhantoonEye)
         {
             state.Eye = part;
             StartPhantoonPart(part, PhantoonPartSegment.EyeClosed);
-            state.EyeState.StartPart();
-            part.SetSpeciesState(state.EyeState);
+            // The eye's start ends any wave.
+            state.Wave.Length = null;
         }
         else if (part.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
         {
             state.Tentacles = part;
             StartPhantoonPart(part, PhantoonPartSegment.Tentacles);
-            part.SetSpeciesState(state.TentaclesState);
         }
         else if (part.DefinitionId == EnemyDefinitionId.PhantoonMouth)
         {
             state.Mouth = part;
             StartPhantoonPart(part, PhantoonPartSegment.MouthInitial);
-            part.SetSpeciesState(state.MouthState);
         }
         else
         {
             throw new InvalidDataException($"Phantoon part slot {part.SlotIndex} holds {part.DefinitionId}, not a Phantoon part.");
         }
+        part.SetSpeciesState(state);
         ResetPhantoonMouthControls(state);
     }
 
@@ -132,22 +125,22 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Every part's setup, the body's included, hides Phantoon's body and empties the casual-flame schedule on the
-    /// mouth's state, which owns the casual-flame schedule used much later in the fight.
+    /// Every part's setup, the body's included, asks to hide Phantoon's body and ends any casual-flame burst, which the
+    /// fight only starts much later.
     /// </summary>
     private static void ResetPhantoonMouthControls(PhantoonEnemyState state)
     {
-        state.MouthState.BodyLayer = PhantoonBodyLayer.Hidden;
-        state.MouthState.CasualFlameCount = null;
+        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
+        state.CasualFlames.Remaining = null;
     }
 
-    /// <summary>Runs Phantoon's per-frame behaviour.</summary>
+    /// <summary>Runs Phantoon's encounter phase for one update.</summary>
     private void RunPhantoonMain(
         RoomEnemySlot body,
         SamusState? samus)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        PhantoonPhase? phase = state.BodyState.Phase;
+        PhantoonPhase? phase = state.Phase;
 
         switch (phase)
         {
@@ -155,7 +148,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Opening.RunPhantoonStartingFlameSpawner(body, state);
                 break;
             case PhantoonPhase.WaitBeforeActivatingStartingFlames:
-                PhantoonOpening.RunPhantoonStartingFlamePause(state.BodyState);
+                PhantoonOpening.RunPhantoonStartingFlamePause(state);
                 break;
             case PhantoonPhase.WaitForStartingFlamesToDisappear:
                 Opening.RunPhantoonStartingFlameOrbitWait(state);
@@ -185,7 +178,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     RequirePhantoonSamus(samus));
                 break;
             case PhantoonPhase.WaitAfterFadeOut:
-                PhantoonPatterns.RunPhantoonHiddenWait(state.BodyState);
+                PhantoonPatterns.RunPhantoonHiddenWait(state);
                 break;
             case PhantoonPhase.PickNextAppearance:
                 Patterns.PlacePhantoonForNextFigureEight(body, state);
@@ -251,7 +244,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Phantoon has no behaviour for phase {state.BodyState.Phase}.");
+                    $"Phantoon has no behaviour for phase {state.Phase}.");
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
@@ -264,7 +257,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
-        if (state.EyeState.WaveLength is null)
+        if (state.Wave.Length is null)
         {
             state.BodyOrigin = new(
                 CoordinateAxis.Wrap(body.Position.X.Whole - PhantoonBodyAreaDefinitions.LeftOfBody),
@@ -278,7 +271,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires a live Samus state for Phantoon movement and eye targeting.</summary>
     private static SamusState RequirePhantoonSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
-            "Phantoon's eye and swoop programs require the active Samus actor.");
+            "Phantoon's eye and swoop require the active Samus.");
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;
@@ -286,31 +279,27 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Phantoon's hurt reaction, which only flashes his colours.</summary>
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
-        PhantoonTentaclesState tentacles = state.TentaclesState;
+        PhantoonRoundState round = state.Round;
         bool showHealthColours = body.FlashTimer == 8 ||
-            !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && tentacles.HurtFlashShown;
+            !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && round.HurtFlashShown;
         if (showHealthColours)
         {
             ShowPhantoonHealthColours(body);
-            tentacles.HurtFlashShown = false;
+            round.HurtFlashShown = false;
             return;
         }
 
-        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) || tentacles.HurtFlashShown)
+        if (!PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) || round.HurtFlashShown)
             return;
 
         state.Colours.Show(PhantoonBodyLook.White);
-        tentacles.HurtFlashShown = true;
+        round.HurtFlashShown = true;
     }
 
     /// <summary>Shows his body in the colours of his health band.</summary>
     internal void ShowPhantoonHealthColours(RoomEnemySlot body) =>
         (Combat.Phantoon ?? throw new InvalidOperationException("Phantoon's health colours show once Phantoon is loaded."))
             .Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(body)));
-    /// <summary>Per-update wave increment during the wavy pixelation death animation.</summary>
-    internal const int PhantoonDeathWaveDelta = 256;
-    /// <summary>Wave ceiling reached before the death animation advances.</summary>
-    internal const int PhantoonDeathWaveMaximum = 61440;
 
     /// <summary>
     /// Runs a Phantoon part's animation where the shared enemy animation runs: the frame expires on the update
@@ -373,12 +362,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
     internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
-        state.TentaclesState.SwoopRequested = false;
+        state.Swoop.Requested = false;
         RoomEnemySlot body = state.Body;
         PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        state.BodyState.PhaseTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
-        state.BodyState.Phase = PhantoonPhase.EyeTracksSamus;
+        state.PhaseTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
+        state.Phase = PhantoonPhase.EyeTracksSamus;
         PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
     }
 

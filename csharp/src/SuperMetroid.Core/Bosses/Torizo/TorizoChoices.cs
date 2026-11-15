@@ -130,7 +130,7 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, branches on wall collision, and arms a sixteen-frame air transition near Samus.</summary>
+    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, branches on wall collision, and arms a sixteen-update turn toward Samus.</summary>
     internal AnimationContinuation<TorizoAnimation>? ProcessGoldenTorizoWalkAnimation(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -142,7 +142,7 @@ internal sealed class TorizoChoices
         SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(stepPixels);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = 0;
+            state.TurnTimer = 0;
             return TorizoAnimations.ContinueWith(_access.FacesRight(torizo)
                 ? TorizoAnimation.GoldenTurningLeft
                 : TorizoAnimation.GoldenTurningRight);
@@ -150,9 +150,9 @@ internal sealed class TorizoChoices
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
-            state.AirTransitionTimer == 0)
+            state.TurnTimer == 0)
         {
-            state.AirTransitionTimer = 16;
+            state.TurnTimer = 16;
         }
         return null;
     }
@@ -179,7 +179,7 @@ internal sealed class TorizoChoices
         torizo.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Uses the walk step's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
+    /// <summary>Uses the walk step's velocity and wall branches, arming a 72-update turn toward Samus when she crosses the facing test.</summary>
     internal AnimationContinuation<TorizoAnimation>? ProcessBombTorizoWalkAnimation(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, TorizoWalkStep step)
     {
         int stepPixels = step.Velocity;
@@ -187,7 +187,7 @@ internal sealed class TorizoChoices
         SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(stepPixels);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = 0;
+            state.TurnTimer = 0;
             return TorizoAnimations.ContinueWith(_access.FacesRight(torizo)
                 ? step.CollisionFacingRight
                 : step.CollisionFacingLeft);
@@ -195,9 +195,9 @@ internal sealed class TorizoChoices
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
-            state.AirTransitionTimer == 0)
+            state.TurnTimer == 0)
         {
-            state.AirTransitionTimer = 72;
+            state.TurnTimer = 72;
         }
         return null;
     }

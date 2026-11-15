@@ -99,7 +99,7 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// One of Mother Brain's projectiles: every frame behaviour of her bombs, glass, beams, rings, turrets, tubes and
+    /// One of Mother Brain's projectiles: every motion of her bombs, glass, beams, rings, turrets, tubes and
     /// effects, and the cues of her turret, glass, effect and hand-beam animations.
     /// </summary>
     /// <param name="dependencies">The room, projectiles, earthquake, drops, Mother Brain's fight state and the room's other actors.</param>
@@ -263,7 +263,7 @@ internal sealed class MotherBrainProjectiles
             }
         }
 
-        /// <summary>Runs the bomb's frame behaviour.</summary>
+        /// <summary>Moves the bomb.</summary>
         private void RunMotherBrainBombFrameBehavior(
             EnemyProjectile bomb,
             SamusBombProjectileSystem? samusBombs)
@@ -375,7 +375,7 @@ internal sealed class MotherBrainProjectiles
             dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);
         }
 
-        /// <summary>Runs the frame behaviour of the four falling ceiling-tube actors.</summary>
+        /// <summary>Moves the four falling ceiling-tube pieces.</summary>
         private void RunMotherBrainTopTubeFrameBehavior(EnemyProjectile projectile)
         {
             MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
@@ -398,7 +398,7 @@ internal sealed class MotherBrainProjectiles
             dependencies.Projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.Smoke);
         }
 
-        /// <summary>Runs the glass shard's frame behaviour.</summary>
+        /// <summary>Moves the glass shard.</summary>
         private void RunMotherBrainGlassShardFrameBehavior(EnemyProjectile shard)
         {
             shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
@@ -507,7 +507,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>
-        /// Runs the onion ring's frame behaviour. A live Baby slot is tested before Samus and the room,
+        /// Moves the onion ring. A live Baby slot is tested before Samus and the room,
         /// matching the private projectile's cross-enemy collision order during phase three.
         /// </summary>
         internal void RunMotherBrainOnionRingFrameBehavior(
@@ -796,7 +796,7 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Difference(beam.Position.X.Whole, 238) >= 0;
 
     /// <summary>
-    /// Runs the falling drool's frame behaviour. The actor uses signed 1/256-pixel velocity, adds twelve
+    /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds twelve
     /// units of gravity per frame, and switches to its four-map splash at world Y 215.
     /// </summary>
     internal static void RunMotherBrainFallingDroolFrameBehavior(

@@ -6,6 +6,15 @@ public static class PhantoonPathDefinitions
     /// <summary>The path's 534 signed X/Y unit steps.</summary>
     public const int Length = 534;
 
+    /// <summary>The path's last place, where a figure-eight run backwards from its start begins (#1940).</summary>
+    public const int LastPlace = Length - 1;
+
+    /// <summary>The place on the path he reappears at on the right of his room, at X 208 (#1940).</summary>
+    public const int RightAppearance = 136;
+
+    /// <summary>The place on the path he reappears at on the left of his room, at X 48 (#1940).</summary>
+    public const int LeftAppearance = 399;
+
     /// <summary>Lossless keypad notation for unit steps with screen Y increasing downward; source rows are formatting only.</summary>
     /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. The movement cursor crosses string-row boundaries without resetting.</remarks>
     internal const string Directions =

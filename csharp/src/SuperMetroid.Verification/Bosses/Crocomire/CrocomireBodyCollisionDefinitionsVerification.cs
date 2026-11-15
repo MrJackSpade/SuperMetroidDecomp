@@ -53,11 +53,15 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 $"Crocomire body $A4:{frame:X4} has compiled collision");
             ReadOnlySpan<EnemyCollisionComponent> components =
                 CrocomireBodyCollision.ComponentsAt(frame);
-            AssertEqual((byte)rom.ReadCartridgeWord((0xa40000 | frame)), (byte)components.Length,
+            // The compiled frame keeps each native component with hitboxes, once at its place (#1937).
+            int?[] kept = CrocomireKeptComponents.Of(rom.ReadCartridgeWord, 0xa40000 | frame);
+            AssertEqual(kept.Count(index => index is not null), components.Length,
                 $"Crocomire body $A4:{frame:X4} component count");
-            for (int index = 0; index < components.Length; index++)
+            for (int native = 0; native < kept.Length; native++)
             {
-                int address = 0xa40000 | unchecked((ushort)(frame + 2 + index * 8));
+                if (kept[native] is not int index)
+                    continue;
+                int address = 0xa40000 | unchecked((ushort)(frame + 2 + native * 8));
                 EnemyCollisionComponent component = components[index];
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), component.Offset.X,
                     $"Crocomire $A4:{frame:X4} component {index} X");
@@ -94,8 +98,8 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
             }
         }
 
-        AssertEqual(15, seenLists.Count,
-            "fifty Crocomire body frames refer to fifteen hitbox lists");
+        AssertEqual(13, seenLists.Count,
+            "fifty Crocomire body frames refer to thirteen hitbox lists with hitboxes");
         AssertThrows<InvalidDataException>(
             () => CrocomireBodyCollision.ComponentsAt(0x8000),
             "unknown Crocomire body frame fails loudly");

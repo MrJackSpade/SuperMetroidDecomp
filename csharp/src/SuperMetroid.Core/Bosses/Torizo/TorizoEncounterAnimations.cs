@@ -132,7 +132,7 @@ internal static class TorizoEncounterAnimations
         ],
         [A.Stunned] =
         [
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenGravity)),
+            Cue(new TorizoCue.Signal(K.StartStanding)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Wait(24),
             Wait(3),
@@ -146,7 +146,7 @@ internal static class TorizoEncounterAnimations
             Wait(16),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.UnmarkStunned)),
-            Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.GoldenAirTransition)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
     };

@@ -56,10 +56,6 @@ internal abstract record TorizoCue
     /// <param name="Phase">The main-AI phase a <see cref="SetPhase"/> cue selects.</param>
     internal sealed record SetPhase(TorizoPhase Phase) : TorizoCue;
 
-    /// <summary>Installs the body's frame behaviour.</summary>
-    /// <param name="FrameBehavior">The frame behaviour a <see cref="SetFrameBehavior"/> cue installs.</param>
-    internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
-
     /// <summary>Shows a look of the body's artwork under its poses.</summary>
     /// <param name="Look">The look a <see cref="ShowArtwork"/> cue shows.</param>
     internal sealed record ShowArtwork(TorizoArtworkLook Look) : TorizoCue;

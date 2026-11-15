@@ -22,13 +22,17 @@ public sealed class SporeSpawnEnemyState
     /// <summary>The body's animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SporeSpawnBodySegment> BodyPlayback { get; set; }
     /// <summary>
+    /// His stalk's four links, from the one at the ceiling down toward his body (#1932): his last spawned link hangs at the
+    /// ceiling. They live as long as he does; his death clears every other projectile.
+    /// </summary>
+    internal IReadOnlyList<EnemyProjectile> StalkLinks { get; set; } = [];
+    /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
     /// above it.
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
-    /// Spawn body position in room pixels, the sway centre, retained before the live spawn
-    /// is raised 128 pixels; its <c>XOrigin</c>/<c>YOrigin</c>.
+    /// Where his body spawned in room pixels, the centre of his sway, kept before the live fight raises him 128 pixels.
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }
     /// <summary>

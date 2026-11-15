@@ -120,7 +120,7 @@ internal sealed class KraidCombat
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
-    /// removal is deferred to the projectile's frame behaviour.
+    /// removal is deferred to the projectile's own update.
     /// </summary>
     internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {

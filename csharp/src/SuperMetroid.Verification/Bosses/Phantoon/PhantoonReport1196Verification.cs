@@ -21,7 +21,7 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var state = enemies.PhantoonBehavior.Combat.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).BodyState.PhaseTimer = 1;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).PhaseTimer = 1;
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
@@ -56,14 +56,14 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Combat.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyOrigin = boss.BodyOrigin.WithX(9);
-        boss.MouthState.WaveAmplitude = 3072;
-        boss.MouthState.WavyPhaseDelta = 8;
+        boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
+        boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         wave.Step(boss);
         wave.Step(boss);
         AssertTrue(wave.CurrentWave is { Amplitude: 3072 }, "fixture retains a used introductory wave");
-        boss.EyeState.WaveLength = null;
+        boss.Wave.Length = null;
         wave.Step(boss);
         boss.BodyOrigin = boss.BodyOrigin.WithX(13);
         boss.Body.Health = 0;
@@ -77,7 +77,7 @@ internal static class PhantoonReport1196Verification
         PhantoonWave displayed = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
         AssertEqual(13, displayed.BodyLeft, "every first-frame death scroll starts at his body's column");
         AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
-        boss.MouthState.WaveAmplitude = 3072;
+        boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.CurrentWave is { BodyLeft: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),

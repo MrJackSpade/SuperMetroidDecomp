@@ -1,10 +1,16 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's body animations does: show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, or resume where it was interrupted.</summary>
+/// <summary>What a cue of Torizo's body animations does: start or stop its body's motion, show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, or resume where it was interrupted.</summary>
 internal enum TorizoCueKind
 {
-    /// <summary>Clears the body's frame behaviour.</summary>
-    ClearFrameBehavior,
+    /// <summary>Starts the body walking (#1931).</summary>
+    StartWalking,
+    /// <summary>Starts the body standing its ground (#1931).</summary>
+    StartStanding,
+    /// <summary>Starts the body leaping (#1931).</summary>
+    StartLeaping,
+    /// <summary>Stops the body's motion: it holds still (#1931).</summary>
+    StopMoving,
     /// <summary>Marks Bomb Torizo's gut blown up and spawns six drool pieces.</summary>
     BlowUpGut,
     /// <summary>Marks Bomb Torizo's face blown up.</summary>

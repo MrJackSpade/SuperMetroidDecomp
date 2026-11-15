@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 /// <remarks>
 /// One mutable instance belongs to the encounter. Its setup progress and its end persist for its lifetime. It reads
-/// <see cref="PhantoonEnemyState.Translucent"/> and the mouth's <see cref="PhantoonMouthState.BodyLayer"/> and changes
+/// <see cref="PhantoonEnemyState.Translucent"/> and <see cref="PhantoonEnemyState.BodyVisibilityRequest"/> and changes
 /// neither, nor any other gameplay state: no gameplay reads what it shows.
 /// </remarks>
 public sealed class PhantoonBodyVisibilityEffect
@@ -18,7 +18,7 @@ public sealed class PhantoonBodyVisibilityEffect
     internal const int SetupCalls = 2;
     /// <summary>Number of initial updates consumed before the effect shows what the boss asks.</summary>
     private int _setupCalls;
-    /// <summary>Whether a <see cref="PhantoonBodyLayer.Cleared"/> body has ended the effect for good.</summary>
+    /// <summary>Whether a <see cref="PhantoonBodyVisibilityRequest.HideForGood"/> body has ended the effect for good.</summary>
     private bool _ended;
     /// <summary>How his body shows as of the last update; not necessarily what the display shows.</summary>
     public PhantoonBodyVisibility Visibility { get; private set; }
@@ -29,8 +29,8 @@ public sealed class PhantoonBodyVisibilityEffect
 
     /// <summary>
     /// Advances one ordinary-gameplay update: his body shows as the room shows it during the two setup updates and after
-    /// the effect has ended. Thereafter translucency takes precedence; otherwise the mouth's
-    /// <see cref="PhantoonMouthState.BodyLayer"/> hides his body, hides it and ends the effect for good, or shows it.
+    /// the effect has ended. Thereafter translucency takes precedence; otherwise
+    /// <see cref="PhantoonEnemyState.BodyVisibilityRequest"/> hides his body, hides it and ends the effect for good, or shows it.
     /// </summary>
     /// <param name="boss">Encounter state read without mutation or retention; its mouth must exist once the effect is set up.</param>
     /// <remarks>Translucency takes precedence over ending. This does not publish display state, write colours, or update the boss.</remarks>
@@ -42,11 +42,11 @@ public sealed class PhantoonBodyVisibilityEffect
         if (_setupCalls < SetupCalls) { _setupCalls++; return; }
         if (boss.Translucent)
             Visibility = PhantoonBodyVisibility.Translucent;
-        else if (boss.MouthState.BodyLayer is PhantoonBodyLayer.Hidden or PhantoonBodyLayer.Cleared)
+        else if (boss.BodyVisibilityRequest is PhantoonBodyVisibilityRequest.Hide or PhantoonBodyVisibilityRequest.HideForGood)
         {
             Visibility = PhantoonBodyVisibility.Hidden;
             // A cleared body still shows hidden on this update; the effect ends with it.
-            _ended = boss.MouthState.BodyLayer == PhantoonBodyLayer.Cleared;
+            _ended = boss.BodyVisibilityRequest == PhantoonBodyVisibilityRequest.HideForGood;
         }
     }
 

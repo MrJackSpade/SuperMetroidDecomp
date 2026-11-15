@@ -130,7 +130,7 @@ internal static class SpawnedObjectSheetComposer
                 EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase, 0),
                 Drawn(FrameDrawings.Of(frame))))
             .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(frame => characters.Pictures(
-                EnemySheetDefinitions.SpriteObjectFrameName(frame),
+                EnemySheetDefinitions.EffectActorFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), objectBase, 0),
                 Drawn(FrameDrawings.Of(frame)))))
@@ -167,7 +167,7 @@ internal static class SpawnedObjectSheetComposer
     {
         SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(owner, 0, 0, 0, [.. spawners], [.. sharedSpawners], common, []));
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
-            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName))
+            .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.EffectActorFrameName))
             .Concat(EncounterFrames(spawners, owner == SpawnedObjectOwner.Shared).Select(EnemySheetDefinitions.EncounterFrameName));
     }
 
@@ -219,7 +219,7 @@ internal static class SpawnedObjectSheetComposer
         {
             SpawnedObjects spawned = SpawnedObjectFrameDefinitions.SharedByEnemy[spawner];
             foreach (string frame in spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
-                .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName)).Distinct())
+                .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.EffectActorFrameName)).Distinct())
             {
                 if (!spawnersOf.TryGetValue(frame, out List<EnemyDefinitionId>? spawners))
                 {

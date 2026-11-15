@@ -117,7 +117,7 @@ internal sealed class RoomSpriteObjects
             }
             EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject),
-                EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, spawned.Graphics);
+                EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
         }
     }
 }

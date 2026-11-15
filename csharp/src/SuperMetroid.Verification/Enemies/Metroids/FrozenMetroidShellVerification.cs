@@ -78,7 +78,7 @@ internal static class FrozenMetroidShellVerification
             // lies at the same place and shows its own pictures. A shell picture that shows nothing draws nothing.
             Offset16<ScreenPixels> place = shell.Position.Whole.RelativeToCamera(Position16<RoomPixels>.Zero);
             SpawnedObjectSheet sheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid), shell.Graphics.Owner);
-            string picture = EnemySheetDefinitions.SpriteObjectFrameName(shell.Frame.RequireEnemyFrame());
+            string picture = EnemySheetDefinitions.EffectActorFrameName(shell.Frame.RequireEnemyFrame());
             SpriteSheetFrame? shown = sheet.ShowsNothing(picture) ? null : sheet.Frame(picture);
             var oam = new OamBuffer();
             oam.BeginFrame();

@@ -17,6 +17,6 @@ public static class EnemySheetDefinitions
     /// <summary>The spawned-object sheet frame showing an enemy projectile frame.</summary>
     internal static string ProjectileFrameName(Projectiles.EnemyProjectileFrameId frame) => $"Projectile.{frame}";
 
-    /// <summary>The spawned-object sheet frame showing a room sprite-object frame by the enemy frame it shows.</summary>
-    internal static string SpriteObjectFrameName(EnemyFrameId frame) => $"SpriteObject.{EnemyFrameSheetKeys.Of(frame)}";
+    /// <summary>The spawned-object sheet frame showing a room effect-actor frame by the enemy frame it shows (#2004).</summary>
+    internal static string EffectActorFrameName(EnemyFrameId frame) => $"EffectActor.{EnemyFrameSheetKeys.Of(frame)}";
 }

@@ -144,7 +144,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledAnimation = null;
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
-        state.DesiredAnimation = MagdolliteRise.Phase(0).BodyAnimation;
+        state.DesiredAnimation = MagdolliteRiseStage.Setup.Phase.BodyAnimation;
         StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         state.Action = MagdolliteAction.BodyDormant;
@@ -306,7 +306,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MagdolliteAction.BodyRising;
         state.RiseDisplacement = Offset16<RoomPixels>.Zero;
         state.BodyWakeRequested = false;
-        state.BodyPhase = 1;
+        state.BodyPhase = MagdolliteRiseStage.FirstPillar;
         body.Position = body.Position.WithWholeY(state.Origin.Y);
     }
 
@@ -322,7 +322,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RiseDisplacement += AddMagdolliteY(body, -speedOwner.Speed);
 
         int upwardDistance = -state.RiseDisplacement.Y;
-        MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
+        MagdollitePhaseDefinition phase = state.BodyPhase.Phase;
         bool roseMaximum = !CoordinateAxis.Precedes(upwardDistance, MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null &&
             CoordinateAxis.Precedes(body.Position.Y.Whole - phase.OverlayYOffset, samus.Position.Y.Whole);
@@ -344,10 +344,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.BodyPhase++;
+        state.BodyPhase = state.BodyPhase.Higher;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + MagdollitePhaseDefinitions.BodyShiftPerPhase);
-        state.DesiredAnimation = MagdolliteRise
-            .Phase(state.BodyPhase).BodyAnimation;
+        state.DesiredAnimation = state.BodyPhase.Phase.BodyAnimation;
         StartMagdolliteAnimation(body, state);
     }
 
@@ -370,14 +369,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int downwardDistanceRemaining = -state.RiseDisplacement.Y;
-        int threshold = MagdolliteRise.Phase(state.BodyPhase - 1).DistanceThreshold;
+        int threshold = state.BodyPhase.Lower.Phase.DistanceThreshold;
         if (!CoordinateAxis.Precedes(downwardDistanceRemaining, threshold))
             return;
 
-        state.BodyPhase--;
+        state.BodyPhase = state.BodyPhase.Lower;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - MagdollitePhaseDefinitions.BodyShiftPerPhase);
-        state.DesiredAnimation = MagdolliteRise
-            .Phase(state.BodyPhase).BodyAnimation;
+        state.DesiredAnimation = state.BodyPhase.Phase.BodyAnimation;
         StartMagdolliteAnimation(body, state);
     }
 
@@ -436,8 +434,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int offset = MagdolliteRise
-                .Phase(bodyState.BodyPhase).OverlayYOffset;
+            int offset = bodyState.BodyPhase.Phase.OverlayYOffset;
             overlay.Position = overlay.Position.WithWrappedWholeY(body.Position.Y.Whole - offset);
         }
 
@@ -458,8 +455,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int offset = MagdolliteRise
-                .Phase(bodyState.BodyPhase).OverlayYOffset;
+            int offset = bodyState.BodyPhase.Phase.OverlayYOffset;
             overlay.Position = overlay.Position.WithWrappedWholeY(body.Position.Y.Whole - offset);
         }
 

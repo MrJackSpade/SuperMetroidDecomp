@@ -1,21 +1,25 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// Compiled physical contour of Mama Turtle's dormant shell. The first half describes
-/// actors left of the parent origin; the second half describes actors to its right.
+/// The physical contour of Mama Turtle's dormant shell (#2044): its surface's height above an actor beside her origin,
+/// by the actor's distance from it, on each side. The shell is not symmetric.
 /// </summary>
 internal static class MamaTurtleShellContourDefinitions
 {
-
-    /// <summary>Maximum horizontal distance represented by either contour half.</summary>
+    /// <summary>The distance from her origin, in pixels, either contour reaches; an actor this far or further is clear of the shell.</summary>
     internal const int HalfWidth = 24;
 
-    /// <summary>Vertical shell contour: 24 samples per side of the parent origin.</summary>
-    internal static ReadOnlySpan<int> Offsets =>
+    /// <summary>The shell's surface above an actor at or left of her origin, by the actor's distance from it, 0 through 23 pixels.</summary>
+    internal static ReadOnlySpan<int> LeftOfOrigin =>
     [
         -16, -16, -16, -16, -15, -15, -15, -15,
         -15, -14, -13, -13, -12, -11, -10, -9,
         -8, -7, -6, -5, -4, -4, 0, 0,
+    ];
+
+    /// <summary>The shell's surface above an actor right of her origin, by the actor's distance from it, 1 through 23 pixels.</summary>
+    internal static ReadOnlySpan<int> RightOfOrigin =>
+    [
         -16, -16, -16, -15, -15, -15, -14, -13,
         -12, -11, -10, -9, -8, -7, -6, -5,
         -4, -3, -3, -2, 0, 0, 0, 0,

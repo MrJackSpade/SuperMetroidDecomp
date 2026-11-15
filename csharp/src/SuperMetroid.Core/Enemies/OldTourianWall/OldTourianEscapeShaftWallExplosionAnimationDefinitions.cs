@@ -28,17 +28,14 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     /// <summary>The priority of each burst's explosion sound.</summary>
     internal static readonly SoundRequestPriority ExplosionSoundPriority = SoundRequestPriority.Normal;
 
-    /// <summary>The six small-explosion frames the burst shows, in order (#1817).</summary>
-    internal static IReadOnlyList<EnemyProjectileFrameId> Frames { get; } =
+    /// <summary>The six small-explosion frames the burst shows, in order (#1817), each with how long it holds (#2044).</summary>
+    internal static IReadOnlyList<OldTourianWallExplosionBeat> Beats { get; } =
     [
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth,
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst, 4),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond, 6),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird, 5),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth, 5),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth, 5),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth, 6),
     ];
-
-    /// <summary>How long each of <see cref="Frames"/> holds: 4, 6, 5, 5, 5 and 6 updates.</summary>
-    internal static ReadOnlySpan<int> FrameDurations => [4, 6, 5, 5, 5, 6];
 }

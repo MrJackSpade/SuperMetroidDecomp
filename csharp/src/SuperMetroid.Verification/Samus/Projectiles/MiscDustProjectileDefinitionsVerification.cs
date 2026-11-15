@@ -45,11 +45,19 @@ internal static class MiscDustProjectileDefinitionsVerification
         AssertEqual(Enum.GetValues<MiscDustAnimation>().Length, MiscDustAnimationIndices.SelectorCount - unrequested,
             "every misc-dust animation has its selector");
 
-        for (ushort index = 0; index < 5; index++)
+        // The cartridge's five placement records, in its order (#2044).
+        MiscDustPlacementDefinition[] placements =
+        [
+            MiscDustSmokePlacements.Point,
+            MiscDustSmokePlacements.CentredEightPixelSquare,
+            MiscDustSmokePlacements.CentredSixteenPixelSquare,
+            MiscDustSmokePlacements.CentredSixteenByThirtyTwoBox,
+            MiscDustSmokePlacements.CentredThirtyTwoBySixtyFourBox,
+        ];
+        for (int index = 0; index < placements.Length; index++)
         {
             int address = placementTable + index * 8;
-            MiscDustPlacementDefinition definition =
-                MiscDustProjectiles.SmokePlacement(index);
+            MiscDustPlacementDefinition definition = placements[index];
             // The native masks apply to the sample's low (X) and high (Y) bytes; each field reads exactly those bits.
             int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2));
@@ -67,9 +75,9 @@ internal static class MiscDustProjectileDefinitionsVerification
             var enemies = CreateMiscDustEnemySystem();
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
-            Action<EnemyProjectile, MiscDustAnimation, int, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
+            Action<EnemyProjectile, MiscDustAnimation, MiscDustPlacementDefinition, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
             EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles[0];
-            initialize(smoke, MiscDustAnimation.CorpseDustCloud, index, new(7, 9));
+            initialize(smoke, MiscDustAnimation.CorpseDustCloud, definition, new(7, 9));
             AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
@@ -96,9 +104,6 @@ internal static class MiscDustProjectileDefinitionsVerification
         AssertEqual(0, invalidRoom.ActiveEnemyProjectileCount,
             "invalid room-graphics misc dust does not partially allocate a slot");
 
-        AssertThrows<InvalidDataException>(
-            () => MiscDustProjectiles.SmokePlacement(5),
-            "misc-dust placement beyond authored table");
         Console.WriteLine(
             "Misc dust definitions: fourteen selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");
     }

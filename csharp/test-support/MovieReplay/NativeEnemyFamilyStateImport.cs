@@ -312,7 +312,11 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MagdolliteEnemyState>() is { } magdolliteRecord)
         {
             magdolliteRecord.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteActions.Decode(words.F, "recorded MagdolliteAction");
-            magdolliteRecord.BodyPhase = words.B / 2;
+            // The recorded word counts the arm's stages up from its setup, two to a stage.
+            MagdolliteRiseStage stage = MagdolliteRiseStage.Setup;
+            for (int place = 0; place < words.B / 2; place++)
+                stage = stage.Higher;
+            magdolliteRecord.BodyPhase = stage;
             magdolliteRecord.ThrowsRight = words.B != 0;
             magdolliteRecord.RiseDisplacement = new(0, unchecked((short)words.E));
         }

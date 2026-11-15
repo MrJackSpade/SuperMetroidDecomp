@@ -8,10 +8,17 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
     /// <summary>$A2:D034, Hitbox_Oum_FacingLeft_0, the first of the contiguous hitbox lists.</summary>
     private const ushort FirstList = 0xd034;
 
+    /// <summary>Each frame's hitbox list in the frames' native order, which is the order the cartridge stores the lists in.</summary>
+    private static readonly EnemyCollisionHitbox[][] ListsInNativeOrder =
+    [
+        .. MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Select(frame =>
+            MaridiaLargeSnailCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame))),
+    ];
+
     /// <summary>The hitbox lists laid over their native run.</summary>
     private static readonly CollisionRecordRuns<EnemyCollisionHitbox> NativeLists =
         CollisionRecordRuns<EnemyCollisionHitbox>.HitboxLists(
-            new CollisionRecordRun<EnemyCollisionHitbox>(FirstList, MaridiaLargeSnailCollisionDefinitions.Lists));
+            new CollisionRecordRun<EnemyCollisionHitbox>(FirstList, ListsInNativeOrder));
 
     /// <summary>Native views of the catalog.</summary>
     extension(MaridiaLargeSnailCollisionDefinitions)
@@ -27,7 +34,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
 
         /// <summary>The native address of the hitbox list the frame at <paramref name="frame"/> selects.</summary>
         internal static ushort HitboxListAt(ushort frame) => HasFrame(frame)
-            ? NativeLists.PointerAt(Array.IndexOf(MaridiaLargeSnailCollisionDefinitions.Lists,
+            ? NativeLists.PointerAt(Array.IndexOf(ListsInNativeOrder,
                 MaridiaLargeSnailCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame))))
             : throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
 

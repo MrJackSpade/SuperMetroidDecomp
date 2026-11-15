@@ -245,8 +245,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (distance >= MamaTurtleShellContourDefinitions.HalfWidth)
             return;
 
-        // The first 24 contour entries describe Samus to the left; the second 24 describe
-        // Samus to the right. This asymmetry is visible around the dormant shell's lip.
+        // The shell's contour on Samus's left differs from its contour on her right; the asymmetry is visible
+        // around the dormant shell's lip.
         int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(CoordinateAxis.Wrap(-contourOffset));
         mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);

@@ -157,7 +157,7 @@ internal sealed class MotherBrainAscent
         state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.MotherBrainBattle), MusicQueueDelay.Shortest);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 256);
-        state.NeckAngleDelta = 80;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
         state.NeckMovementEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
@@ -216,7 +216,7 @@ internal sealed class MotherBrainAscent
 
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
         state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp;
-        state.NeckAngleDelta = 64;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         state.PhaseTimer = 256;
         BringMotherBrainHeadBackUp(state);
     }

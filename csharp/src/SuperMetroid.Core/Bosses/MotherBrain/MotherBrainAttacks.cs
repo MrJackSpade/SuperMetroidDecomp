@@ -422,7 +422,7 @@ internal sealed class MotherBrainAttacks
             : MotherBrainNeckMovement.Lower;
         state.LowerNeckMovement = targetMovement;
         state.UpperNeckMovement = targetMovement;
-        state.NeckAngleDelta = 512;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Quick;
         state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire;
         state.PhaseTimer = 4;
     }
@@ -438,7 +438,7 @@ internal sealed class MotherBrainAttacks
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.NeckAngleDelta = state.NeckAngleDelta >= 0 ? 256 : -256;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
         state.Phase = MotherBrainBodyPhase.SecondPhaseLaserFinishAttack;
         state.PhaseTimer = 16;

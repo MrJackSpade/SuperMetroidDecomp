@@ -79,7 +79,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
-    baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
+    baby.Initialize(leftInPlace: FixedPosition<RoomPixels>.Zero);
     // The population's animation and off-screen processing, plus initialization's Plasma Beam block (native $3800).
     AssertEqual(EnemyContact.BlocksPlasmaBeam, baby.Contact, "Baby population/init contact OR");
     AssertEqual(EnemyProcessing.Animates | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
@@ -111,7 +111,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(SuperMetroid.Core.Spatial.RotationAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
-    AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
+    AssertEqual(SignedEightEight.FromPixels(10), baby.Speed, "Baby first curve speed");
     AssertEqual(0xf772, baby.Velocity.X.RawValue, "Baby first ROM sine X velocity");
     AssertEqual(0x051e, baby.Velocity.Y.RawValue, "Baby first ROM cosine Y velocity");
     AssertEqual(ExpectedBabyPoint(0x0137, 0x7200, 0x0065, 0x1e00),
@@ -185,7 +185,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Mother Brain taken-aback lower neck index");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.UpperNeckMovement,
         "Mother Brain taken-aback upper neck index");
-    AssertEqual(0x0700, motherBrain.State.NeckAngleDelta,
+    AssertEqual(RotationAngle.FromSteps(7), motherBrain.State.NeckTurnPerUpdate,
         "Mother Brain taken-aback neck delta");
 
     int regainCalls = 1;
@@ -214,22 +214,22 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     /// </summary>
     internal static void VerifySamusRainbowFractionCarry()
     {
-        AssertEqual(new SamusRainbowFractionStep(3, false), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(0),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePart.Of(3), false), RainbowFramePart.None.AdvancedByOneCall(),
             "one call from a cleared accumulator adds three 256ths without completing a frame");
-        int fraction = 0;
+        RainbowFramePart fraction = RainbowFramePart.None;
         for (int call = 1; call <= 85; call++)
         {
-            (int next, bool completed) = BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(fraction);
+            (RainbowFramePart next, bool completed) = fraction.AdvancedByOneCall();
             AssertTrue(!completed, $"call {call} stays below a whole frame");
             fraction = next;
         }
-        AssertEqual(255, fraction, "85 calls accumulate 255 of the 256 a frame needs");
-        AssertEqual(new SamusRainbowFractionStep(2, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(fraction),
+        AssertEqual(RainbowFramePart.Of(255), fraction, "85 calls accumulate 255 of the 256 a frame needs");
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePart.Of(2), true), fraction.AdvancedByOneCall(),
             "the 86th call completes a frame and keeps the two-256ths remainder");
-        AssertEqual(new SamusRainbowFractionStep(1, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(254),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePart.Of(1), true), RainbowFramePart.Of(254).AdvancedByOneCall(),
             "a fraction two short of a frame completes it and keeps the remainder");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(256),
+            () => RainbowFramePart.Of(256),
             "a fraction that is already a whole frame is rejected");
         Console.WriteLine("  Baby Metroid: the slowing Samus rainbow carries exactly at whole frames.");
     }

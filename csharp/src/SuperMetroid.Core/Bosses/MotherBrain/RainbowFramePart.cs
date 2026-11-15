@@ -1,0 +1,42 @@
+namespace SuperMetroid.Core.Bosses.MotherBrain;
+
+/// <summary>
+/// A part of one of Samus's rainbow colour frames (#1951): what the Baby Metroid's slowing of her rainbow has accumulated
+/// toward the next time her rainbow's glow is held longer. Each call adds three 256ths of a frame; a sum that completes a
+/// whole frame holds the glow longer and keeps the remainder.
+/// </summary>
+public readonly record struct RainbowFramePart
+{
+    /// <summary>The parts one whole rainbow frame is counted in: 256ths of a frame.</summary>
+    private const int PartsPerFrame = 256;
+
+    /// <summary>The parts one call of the slowing adds: three 256ths of a frame.</summary>
+    private const int PartsPerCall = 3;
+
+    /// <summary>Holds <paramref name="twoHundredFiftySixths"/> 256ths of a frame, 0 through 255.</summary>
+    private RainbowFramePart(int twoHundredFiftySixths) =>
+        TwoHundredFiftySixthsOfFrame = Ensure.BetweenInclusive(0, PartsPerFrame - 1, twoHundredFiftySixths);
+
+    /// <summary>The part of a frame, in 256ths of a frame, 0 through 255.</summary>
+    [IntegerQuantity("256ths of a rainbow colour frame accumulated toward the next held glow")]
+    public int TwoHundredFiftySixthsOfFrame { get; }
+
+    /// <summary>No part of a frame.</summary>
+    public static RainbowFramePart None => default;
+
+    /// <summary>The part of <paramref name="twoHundredFiftySixths"/> 256ths of a frame, 0 through 255.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The part is a whole frame or more, or below zero.</exception>
+    public static RainbowFramePart Of(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
+
+    /// <summary>
+    /// Adds one call's three 256ths of a frame, returning the part left over and whether the addition completed a whole
+    /// frame.
+    /// </summary>
+    public SamusRainbowFractionStep AdvancedByOneCall()
+    {
+        int sum = TwoHundredFiftySixthsOfFrame + PartsPerCall;
+        return sum >= PartsPerFrame
+            ? new SamusRainbowFractionStep(new RainbowFramePart(sum - PartsPerFrame), true)
+            : new SamusRainbowFractionStep(new RainbowFramePart(sum), false);
+    }
+}

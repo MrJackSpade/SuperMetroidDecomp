@@ -366,7 +366,7 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainNeckJointDefinitions.InitialDistances.CopyTo(state.NeckJointDistances);
         state.LowerNeckAngle = RotationAngle.FromSteps(72);
         state.UpperNeckAngle = RotationAngle.FromSteps(80);
-        state.NeckAngleDelta = 256;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows1And2;
         ExplodeMotherBrainTube(tube);
     }
@@ -538,7 +538,7 @@ internal sealed class MotherBrainFakeDeath
         state.DroolGenerationEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-        state.NeckAngleDelta = 1280;
+        state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
         state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingShakeHead;
         state.PhaseTimer = 23;
     }

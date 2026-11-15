@@ -242,7 +242,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-            _state.NeckAngleDelta = 1280;
+            _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects;
             _state.PhaseTimer = 32;
         }

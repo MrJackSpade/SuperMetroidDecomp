@@ -34,7 +34,7 @@ internal static class BabyMetroidGradualAcceleration
         int target,
         SignedEightEight velocity,
         int divisor,
-        int wrongWayOffScreenSpeed,
+        SignedEightEight wrongWayOffScreenSpeed,
         Func<bool> isVaguelyOffScreen)
     {
         Ensure.NotNull(isVaguelyOffScreen);
@@ -52,7 +52,7 @@ internal static class BabyMetroidGradualAcceleration
                 if (isVaguelyOffScreen())
                 {
                     run.StartFresh();
-                    run.Raise(wrongWayOffScreenSpeed + 1);
+                    run.Raise(wrongWayOffScreenSpeed.InTwoHundredFiftySixthsOfPixel + 1);
                 }
                 run.StartFresh();
                 run.Raise(ReversalStep);
@@ -69,7 +69,7 @@ internal static class BabyMetroidGradualAcceleration
                 if (isVaguelyOffScreen())
                 {
                     run.StartFresh();
-                    run.Lower(wrongWayOffScreenSpeed);
+                    run.Lower(wrongWayOffScreenSpeed.InTwoHundredFiftySixthsOfPixel);
                 }
                 run.StartFresh();
                 run.Lower(ReversalStep);

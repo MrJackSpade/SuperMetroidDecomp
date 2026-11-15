@@ -1,26 +1,21 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Baby Metroid's route from the ceiling to Samus: each leg's waypoint and steering.</summary>
+/// <summary>The Baby Metroid's route from the ceiling to Samus: its legs in the order the Baby flies them.</summary>
 internal static class BabyMetroidRoute
 {
-    /// <summary>Combines an authored waypoint with its movement step and whether it is the final leg.</summary>
-    private static BabyMetroidRouteLeg BuildLeg(int index) => new(
-        BabyMetroidRouteDefinitions.Waypoints[index],
-        BabyMetroidRouteDefinitions.AccelerationDivisor,
-        index < BabyMetroidRouteDefinitions.FirstExtraEightLeg
-            ? BabyMetroidRouteMovement.GradualAccelerationExtraSixteen
-            : BabyMetroidRouteMovement.GradualAccelerationExtraEight,
-        EndsWithLatchOntoSamus: index + 1 == BabyMetroidRouteDefinitions.LegCount);
+    /// <summary>The leg the Baby starts the route on once it reaches the ceiling.</summary>
+    internal static BabyMetroidRouteLeg FirstLeg => BabyMetroidRouteDefinitions.Legs[0];
 
-    /// <summary>Returns the authored route leg <paramref name="leg"/>, counted from zero.</summary>
-    internal static BabyMetroidRouteLeg GetLeg(int leg) =>
-        (uint)leg < BabyMetroidRouteDefinitions.LegCount
-            ? BuildLeg(leg)
-            : throw new InvalidDataException($"Baby route leg {leg} is not one of the {BabyMetroidRouteDefinitions.LegCount} authored legs.");
-
-    /// <summary>Resolves a movement step to its wrong-way horizontal speed addition.</summary>
-    internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovement movement) =>
-        BabyMetroidRouteDefinitions.WrongWayOffScreenXSpeeds.TryGetValue(movement, out int speed)
-            ? speed
-            : throw new InvalidDataException($"Baby route names unknown movement {movement}.");
+    /// <summary>The leg the Baby flies after <paramref name="leg"/>, or null when <paramref name="leg"/> is the last.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="leg"/> is not one of the route's legs.</exception>
+    internal static BabyMetroidRouteLeg? LegAfter(BabyMetroidRouteLeg leg)
+    {
+        IReadOnlyList<BabyMetroidRouteLeg> legs = BabyMetroidRouteDefinitions.Legs;
+        for (int place = 0; place < legs.Count; place++)
+        {
+            if (legs[place] == leg)
+                return place + 1 < legs.Count ? legs[place + 1] : null;
+        }
+        throw new InvalidDataException($"Baby route leg {leg} is not one of the route's legs.");
+    }
 }

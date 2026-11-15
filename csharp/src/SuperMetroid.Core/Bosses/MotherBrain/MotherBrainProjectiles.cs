@@ -543,7 +543,7 @@ internal sealed class MotherBrainProjectiles
                 if (MotherBrainOnionRingOverlapsBaby(ring, baby))
                 {
                     state.PendingBabyCryCount++;
-                    _ = baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
+                    baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
                     // The ring writes the Baby slot's Enemy.health from this projectile
                     // pass; it must not wait for the Baby's next AI turn to publish it.
                     RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(

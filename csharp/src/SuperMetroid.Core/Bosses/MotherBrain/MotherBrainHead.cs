@@ -140,7 +140,7 @@ internal sealed class MotherBrainHead
         // The neck draw emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same drawing precedence.
         int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.FlashTimer);
-        Offset16<RoomPixels> neckShake = MotherBrainBehavior.MotherBrainShakeOffsets[shakeIndex];
+        Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
         Position16<RoomPixels>[] segments = state.NeckJoints;
         for (int index = segments.Length - 1; index >= 0; index--)
         {
@@ -170,6 +170,12 @@ internal sealed class MotherBrainHead
             { Shading = frame.Shading, RotRows = _motherBrainEncounter.ShownCorpseRows });
     }
 
+    /// <summary>
+    /// The neck turn from which her drool is the dying drool: a neck turning half a step an update or faster drools it, a
+    /// slower one drools the ordinary drool.
+    /// </summary>
+    private static readonly RotationAngle DyingDroolNeckTurn = RotationAngle.FromSteps(0, 128);
+
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
@@ -185,7 +191,7 @@ internal sealed class MotherBrainHead
             shake = head.FlashTimer != 0 ? head.FlashTimer : head.ShakeTimer;
         }
 
-        return MotherBrainBehavior.MotherBrainShakeOffsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(shake)];
+        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(shake)];
     }
 
     /// <summary>Moves neck segments toward the head and updates their attachment to Samus's position.</summary>
@@ -202,7 +208,7 @@ internal sealed class MotherBrainHead
                 ref upperAngle,
                 ref lowerMovement,
                 ref upperMovement,
-                state.NeckAngleDelta,
+                state.NeckTurnPerUpdate,
                 state.Head.Position.Y.Whole,
                 samus.Position.Y.Whole);
             state.LowerNeckAngle = lowerAngle;
@@ -476,7 +482,7 @@ internal sealed class MotherBrainHead
         if (drool is null)
             return;
 
-        RoomEnemyProjectileKind kind = state.NeckAngleDelta < 128
+        RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < DyingDroolNeckTurn
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: default);

@@ -1,35 +1,25 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>
-/// Compiled gameplay route and movement-step identities used by the Baby Metroid after it
-/// releases Mother Brain. These values control physical targets and acceleration; they
-/// are engine definitions rather than editable sprite or animation data.
-/// </summary>
+/// <summary>The Baby Metroid's route from the ceiling to Samus after it releases Mother Brain (#1952).</summary>
 internal static class BabyMetroidRouteDefinitions
 {
-    /// <summary>Number of authored route legs.</summary>
-    internal const int LegCount = 8;
-
-    /// <summary>
-    /// The eight authored waypoints. Each leg steers to its waypoint with the acceleration divisor
-    /// <see cref="AccelerationDivisor"/>; the first five legs use the wrong-way extra-16 step and the final
-    /// three the extra-8 step. Reaching the last waypoint ends the route.
-    /// </summary>
-    internal static readonly Position16<RoomPixels>[] Waypoints =
-    [
-        new(160, 120), new(304, 122), new(192, 64), new(192, 112),
-        new(224, 128), new(205, 144), new(204, 160), new(203, 176),
-    ];
-    /// <summary>The gradual-acceleration divisor every route leg uses.</summary>
+    /// <summary>What every route leg's gradual acceleration divides the remaining distance by: sixteen, its gentlest pull.</summary>
     internal const int AccelerationDivisor = 16;
 
-    /// <summary>First route leg that switches from the extra-16 to extra-8 wrong-way correction.</summary>
-    internal const int FirstExtraEightLeg = 5;
-
-    /// <summary>The wrong-way horizontal speed addition of each movement step.</summary>
-    internal static readonly Dictionary<BabyMetroidRouteMovement, int> WrongWayOffScreenXSpeeds = new()
-    {
-        [BabyMetroidRouteMovement.GradualAccelerationExtraEight] = 8,
-        [BabyMetroidRouteMovement.GradualAccelerationExtraSixteen] = 16,
-    };
+    /// <summary>
+    /// The route's legs, in the order the Baby flies them: each steers to its waypoint and reverses off screen with its
+    /// own wrong-way speed. The first five reverse by a sixteenth of a pixel an update and the last three, closing on
+    /// Samus, by a thirty-second. Reaching the last waypoint ends the route.
+    /// </summary>
+    internal static IReadOnlyList<BabyMetroidRouteLeg> Legs { get; } =
+    [
+        new(new(160, 120), SignedEightEight.FromParts(0, 16)),
+        new(new(304, 122), SignedEightEight.FromParts(0, 16)),
+        new(new(192, 64), SignedEightEight.FromParts(0, 16)),
+        new(new(192, 112), SignedEightEight.FromParts(0, 16)),
+        new(new(224, 128), SignedEightEight.FromParts(0, 16)),
+        new(new(205, 144), SignedEightEight.FromParts(0, 8)),
+        new(new(204, 160), SignedEightEight.FromParts(0, 8)),
+        new(new(203, 176), SignedEightEight.FromParts(0, 8)),
+    ];
 }

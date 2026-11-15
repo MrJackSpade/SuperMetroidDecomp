@@ -216,7 +216,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer:
             case MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor:
             case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
-                RunMotherBrainPhaseTwoAscent(
+                RunMotherBrainRiseAndLaterPhases(
                     state,
                     samus,
                     sharedProjectiles);
@@ -226,10 +226,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Mother Brain body has no behaviour for phase {state.Phase}.");
         }
     }
-
-    /// <summary>Four authored jitter offsets selected by the low shake-state bits.</summary>
-    internal static readonly Offset16<RoomPixels>[] MotherBrainShakeOffsets =
-        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     /// <summary>Advances MotherBrainBody's typed animation.</summary>
     internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
@@ -509,8 +505,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Colours.ShowRoomFlash(frame);
     }
 
-    /// <summary>Dispatches the phase-two ascent without collapsing same-frame fallthroughs.</summary>
-    private void RunMotherBrainPhaseTwoAscent(
+    /// <summary>
+    /// Runs every phase from her rise out of the fake death on: the rise itself, the second phase with the Baby
+    /// Metroid's rescue, the third phase and her death, without collapsing same-frame fallthroughs.
+    /// </summary>
+    private void RunMotherBrainRiseAndLaterPhases(
         MotherBrainEnemyState state,
         SamusState? samus,
         SamusBombProjectileSystem? sharedProjectiles = null)
@@ -680,7 +679,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics:
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain phase-two has no behaviour for phase {state.Phase}.");
+                    $"Mother Brain's rise and later phases have no behaviour for phase {state.Phase}.");
         }
     }
     /// <summary>Six authored drool spawn offsets from the brain's center.</summary>

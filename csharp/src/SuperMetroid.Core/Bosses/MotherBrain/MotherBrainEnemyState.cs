@@ -132,8 +132,11 @@ public sealed class MotherBrainEnemyState
     public RotationAngle LowerNeckAngle { get; internal set; }
     /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places joints 3 and 4.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
-    /// <summary>Neck angular speed in 256ths of an angle unit, added or subtracted by both neck motion steps each enabled update; every producer writes a positive speed of at most 2304.</summary>
-    public int NeckAngleDelta { get; internal set; }
+    /// <summary>
+    /// How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>), forward or
+    /// back as each angle's movement says.
+    /// </summary>
+    public RotationAngle NeckTurnPerUpdate { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
     /// <summary>How the lower neck moves: not at all, bobbing down and up, or a one-way lower or raise; reaching a limit changes it.</summary>

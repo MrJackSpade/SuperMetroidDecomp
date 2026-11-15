@@ -1054,18 +1054,18 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks eight painful-walk delay, neck, and pause rows against ROM and the sequence's stage behavior.</summary>
-    private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
+    internal static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
     {
         for (int stage = 0; stage < 8; stage++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalking.AnimationDelay(stage), "stream 3 native stagger animation delay");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalking.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalking.NeckTurn(stage).RawValue, "stream 3 native stagger neck angle delta");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalking.PauseTimer(stage), "stream 3 native stagger pause timer");
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.AnimationDelay(invalid), "stream 3 stagger delay bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.NeckTurn(invalid), "stream 3 stagger neck bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.PauseTimer(invalid), "stream 3 stagger timer bounds");
         }
         foreach (int stage in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })

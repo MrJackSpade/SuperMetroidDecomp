@@ -60,7 +60,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         SoundQueueCount = 6;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
-        _state.NeckAngleDelta = 64;
+        _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
@@ -81,7 +81,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // The rainbow setup resets the neutral phase-two head animation and selects the
         // ordinary 2/4 neck geometry before beginning its first 256-count wait.
         _state.SetHeadAnimation(MotherBrainHeadSegment.NeutralPhase2);
-        _state.NeckAngleDelta = 64;
+        _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
@@ -279,7 +279,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.NeckLoweredSamusCooldown;
         _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-        _state.NeckAngleDelta = 1280; // The Japanese and North American value; the European release uses 1792.
+        _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast; // The Japanese and North American turn; the European release turns seven steps an update.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowStartFiring;
         _state.PhaseTimer = 16; // The Japanese and North American value; the European release uses 12.
         return true;

@@ -142,7 +142,7 @@ internal static class MotherBrainEncodingDomainsVerification
         MotherBrainNeckMovement lowerMovement = MotherBrainNeckMovement.BobDown;
         MotherBrainNeckMovement upperMovement = MotherBrainNeckMovement.None;
         MotherBrainNeckKinematics.StepAngles(ref lower, ref upper, ref lowerMovement, ref upperMovement,
-            angleDelta: 1280, brainY: 100, samusY: 100);
+            turn: RotationAngle.FromRaw(1280), brainY: 100, samusY: 100);
         AssertEqual(((100 - 1280) % WordRange + WordRange) % WordRange, lower.RawValue,
             "lower neck bobbing down wraps through a full turn");
         AssertEqual(MotherBrainNeckMovement.BobDown, lowerMovement, "a wrapped lower angle is above the bob floor");
@@ -154,7 +154,7 @@ internal static class MotherBrainEncodingDomainsVerification
         lowerMovement = MotherBrainNeckMovement.None;
         upperMovement = MotherBrainNeckMovement.BobUp;
         MotherBrainNeckKinematics.StepAngles(ref lower, ref upper, ref lowerMovement, ref upperMovement,
-            angleDelta: 1000, brainY: 100, samusY: 100);
+            turn: RotationAngle.FromRaw(1000), brainY: 100, samusY: 100);
         int target = NativeAdd(64000, 2048);
         int candidate = NativeAdd(65000, 1000);
         AssertEqual(candidate >= target ? target : candidate, upper.RawValue,

@@ -22,9 +22,6 @@ internal static class ShitroidFlightDefinitions
     /// </summary>
     internal const int DriftDivisor = 16;
 
-    /// <summary>
-    /// The extra speed a reversal adds while the Shitroid is off screen, in 256ths of a pixel an update: four pixels an
-    /// update.
-    /// </summary>
-    internal const int OffScreenReversalKick = 1024;
+    /// <summary>The extra speed a reversal adds while the Shitroid is off screen: four pixels an update.</summary>
+    internal static readonly SignedEightEight OffScreenReversalKick = SignedEightEight.FromPixels(4);
 }

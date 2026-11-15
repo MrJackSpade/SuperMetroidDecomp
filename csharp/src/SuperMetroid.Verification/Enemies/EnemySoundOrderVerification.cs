@@ -74,8 +74,8 @@ internal static class EnemySoundOrderVerification
         link.Position = link.Position.WithWhole(new(0x0100, 0x0100));
         link.BlocksSamusProjectiles = true;
         link.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-        SamusProjectile shot = shots.Slots[0];
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
         shot.Damage = 1;
         shot.Direction = SamusProjectileDirection.Right;
@@ -88,7 +88,7 @@ internal static class EnemySoundOrderVerification
             "the rejected shot queues the dud sound at once, at normal priority");
 
         enemies.Audio.BeginFrame();
-        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Slots[1]);
+        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Shots[1]);
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Low) }, enemies.Audio.SoundRequests,
             "a protected body part's dud queues the same sound at low priority");
         Console.WriteLine("  Dud sounds: an indestructible projectile's dud is queued at once at normal priority; a body part's at low.");

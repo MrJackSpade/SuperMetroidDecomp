@@ -74,7 +74,7 @@ internal static class WrapShotsVerification
                 ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                 shared.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
-                var shot = projectiles.Slots[0];
+                var shot = projectiles.Shots[0];
                 string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)
                 {

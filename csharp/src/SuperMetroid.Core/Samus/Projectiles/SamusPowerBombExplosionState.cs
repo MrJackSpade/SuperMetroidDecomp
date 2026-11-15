@@ -89,7 +89,7 @@ public sealed class SamusPowerBombExplosionState
     private int _crystalFlashAfterglowStepsRemaining;
 
     /// <summary>
-    /// Implements the morph ball's early power-bomb lock before a projectile slot is initialized.
+    /// Implements the morph ball's early power-bomb lock before a Power Bomb takes its place.
     /// </summary>
     public void Arm()
     {

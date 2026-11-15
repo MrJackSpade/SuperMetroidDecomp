@@ -24,12 +24,12 @@ internal sealed class SamusProjectileSlotObservation
     internal SamusProjectileSlotObservation(SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
-        int count = projectiles.Slots.Count;
+        int count = projectiles.Shots.Count;
         _occupied = new bool[count];
         _explosion = new bool[count];
         for (int index = 0; index < count; index++)
         {
-            SamusProjectile slot = projectiles.Slots[index];
+            SamusProjectile slot = projectiles.Shots[index];
             _occupied[index] = IsOccupied(slot);
             _explosion[index] = IsLiveExplosion(slot);
         }
@@ -44,7 +44,7 @@ internal sealed class SamusProjectileSlotObservation
         RequireSameSlots(projectiles);
         for (int index = 0; index < _occupied.Length; index++)
         {
-            if (!_occupied[index] && IsOccupied(projectiles.Slots[index]))
+            if (!_occupied[index] && IsOccupied(projectiles.Shots[index]))
                 return index;
         }
         return null;
@@ -56,7 +56,7 @@ internal sealed class SamusProjectileSlotObservation
         RequireSameSlots(projectiles);
         for (int index = 0; index < _explosion.Length; index++)
         {
-            if (!_explosion[index] && IsLiveExplosion(projectiles.Slots[index]))
+            if (!_explosion[index] && IsLiveExplosion(projectiles.Shots[index]))
                 return true;
         }
         return false;
@@ -66,10 +66,10 @@ internal sealed class SamusProjectileSlotObservation
     private void RequireSameSlots(SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
-        if (projectiles.Slots.Count != _occupied.Length)
+        if (projectiles.Shots.Count != _occupied.Length)
             throw new InvalidOperationException(
                 $"Projectile observation captured {_occupied.Length} slots but the system has " +
-                $"{projectiles.Slots.Count}.");
+                $"{projectiles.Shots.Count}.");
     }
 
     /// <summary>Uses the slot's occupancy, rather than the active flag, as the allocation marker.</summary>

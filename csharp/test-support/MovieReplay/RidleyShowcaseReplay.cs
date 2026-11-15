@@ -683,7 +683,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // the gameplay comparison holds none of them.
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer.RawValue, NativeSnapshotMemory.ProjectileCooldown);
                 Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
-                Check("ProjectileCounter", runtime.Projectiles.SlotTable.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
+                Check("ProjectileCounter", runtime.Projectiles.Pool.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
                 Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
@@ -714,7 +714,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
 
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            foreach (var projectile in runtime.Projectiles.Slots.Take(5))
+            foreach (var projectile in runtime.Projectiles.Shots.Take(5))
             {
                 int index = projectile.SlotTableOffset;
                 string owner = $"Projectile {projectile.Place}";
@@ -742,29 +742,16 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     projectile.IsSpent != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(recordedDirection))
                     mismatches.Add($"{owner} Direction: native={recordedDirection:X4} port={projectile.Direction} spent={projectile.IsSpent}");
                 Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), NativeSnapshotMemory.ProjectileInstruction + index);
-                ushort callback = projectile.FrameBehavior switch
-                {
-                    SamusProjectileFrameBehavior.None => NativeSnapshotMemory.ProjectileEmptyCallback,
-                    SamusProjectileFrameBehavior.NoWaveBeam => SamusBeamFrameBehaviorCodes.NoWave,
-                    SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail => SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail,
-                    SamusProjectileFrameBehavior.WaveBeamFourFrameTrail => SamusBeamFrameBehaviorCodes.WaveFourFrameTrail,
-                    SamusProjectileFrameBehavior.Missile => NativeSnapshotMemory.ProjectileMissileCallback,
-                    SamusProjectileFrameBehavior.SuperMissile => NativeSnapshotMemory.ProjectileSuperMissileCallback,
-                    SamusProjectileFrameBehavior.SuperMissileLink => NativeSnapshotMemory.ProjectileSuperMissileLinkCallback,
-                    SamusProjectileFrameBehavior.HyperBeam or
-                        SamusProjectileFrameBehavior.IceCombo or
-                        SamusProjectileFrameBehavior.IceComboOutward or
-                        SamusProjectileFrameBehavior.WaveCombo or
-                        SamusProjectileFrameBehavior.SpazerCombo or
-                        SamusProjectileFrameBehavior.PlasmaCombo or
-                        SamusProjectileFrameBehavior.SpazerComboFalling or
-                        SamusProjectileFrameBehavior.ShinesparkEcho or
-                        SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite or
-                        SamusProjectileFrameBehavior.ChainsawPowerBomb or
-                        SamusProjectileFrameBehavior.ChargedChainsawRunsSamusState or
-                        SamusProjectileFrameBehavior.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
-                    _ => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
-                };
+                SamusShotBehavior? behavior = projectile.Behavior;
+                ushort callback =
+                    behavior is null ? NativeSnapshotMemory.ProjectileEmptyCallback
+                    : behavior == SamusShotBehaviors.Beam ? SamusBeamFrameBehaviorCodes.NoWave
+                    : behavior == SamusShotBehaviors.WaveBeamThreeUpdateTrail ? SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail
+                    : behavior == SamusShotBehaviors.WaveBeamFourUpdateTrail ? SamusBeamFrameBehaviorCodes.WaveFourFrameTrail
+                    : behavior == SamusShotBehaviors.Missile ? NativeSnapshotMemory.ProjectileMissileCallback
+                    : behavior == SamusShotBehaviors.SuperMissile ? NativeSnapshotMemory.ProjectileSuperMissileCallback
+                    : behavior == SamusShotBehaviors.SuperMissileLink ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback
+                    : throw new InvalidDataException($"Movie projectile behaviour {behavior.GetType().Name} needs a native identity mapping");
                 Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
                 Check(owner + " FrameHold", unchecked(projectile.FrameHold.RawValue), NativeSnapshotMemory.ProjectileFrameHold + index);
                 // Only missiles keep state in the variable word that this movie reaches: their ignition, and a Super
@@ -779,7 +766,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 }
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
-                if (projectile.FrameBehavior != SamusProjectileFrameBehavior.SuperMissileLink)
+                if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
                     Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
                 // reading it, and the callback mapping above rejects them in this movie.

@@ -43,7 +43,7 @@ internal static class MetroidDeathDropsVerification
         metroid.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
-        var shot = runtime.Projectiles.Slots[0];
+        var shot = runtime.Projectiles.Shots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; shot.IsSpent = alreadyMarked;
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);

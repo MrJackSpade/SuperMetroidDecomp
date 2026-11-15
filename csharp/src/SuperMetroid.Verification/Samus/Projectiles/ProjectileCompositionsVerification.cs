@@ -117,9 +117,9 @@ internal static class ProjectileCompositionsVerification
         foreach (ushort type in new ushort[] { 0, 0x10, 0x100, 0x200, 0x300, 0x500, 0x700, 0x800 })
         {
             SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var bombs = new SamusBombProjectileSystem();
-            var shot = shots.Slots[0];
+            var shot = shots.Shots[0];
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = id;
             shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
             shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
@@ -212,7 +212,7 @@ internal static class ProjectileCompositionsVerification
             }
             else
             {
-                var slot = runtime.Projectiles.Slots[0];
+                var slot = runtime.Projectiles.Shots[0];
                 slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Playback = ProjectileFixturePlaybacks.Active; slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }

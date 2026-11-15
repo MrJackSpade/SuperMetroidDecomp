@@ -239,7 +239,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         // A ninja pirate reacts to a beam or missile by its kind, not its picture, so the invisible Murder Beam counts.
         SamusProjectile? projectile = PirateFlinchFromHighestShot.Shot(
-            samusProjectiles.Slots, shot => shot.HasEnemyCollisionPayload);
+            samusProjectiles.Shots, shot => shot.HasEnemyCollisionPayload);
         if (projectile is null ||
             CoordinateAxis.Distance(projectile.Position.X.Whole, slot.Position.X.Whole) >=
                 NinjaPirateFlinchDistance ||

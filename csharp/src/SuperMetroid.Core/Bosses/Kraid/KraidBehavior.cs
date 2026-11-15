@@ -156,8 +156,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Ensure.NotNull(projectiles);
         Ensure.NotNull(bombs);
         return KraidShotPassReach.Tested(
-            projectiles.SlotTable.ProjectileCounter,
-            [.. projectiles.Slots.Select(KraidPassProjectile.Shot)],
+            projectiles.Pool.ProjectileCounter,
+            [.. projectiles.Shots.Select(KraidPassProjectile.Shot)],
             KraidPassProjectile.Bomb(bombs.FirstBomb));
     }
 

@@ -34,7 +34,7 @@ public static class ChargeFlarePictures
             : throw new ArgumentOutOfRangeException(nameof(picture), picture, $"Charge-flare {component} shows no such picture.");
 
     /// <summary>The sprite source instance that tells the flare's three components' draws apart.</summary>
-    internal static int DrawSlot(ChargeFlareComponent component) => component switch
+    internal static int SourceInstance(ChargeFlareComponent component) => component switch
     {
         ChargeFlareComponent.MainFlare => 0,
         ChargeFlareComponent.SlowSparks => 1,

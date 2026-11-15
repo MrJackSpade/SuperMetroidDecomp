@@ -46,7 +46,7 @@ internal static class KraidReportedCollisionsVerification
             for (int frame = 0; frame < 24; frame++)
             {
                 game.Step(frame == 0 ? ControllerButton.X : 0);
-                foreach (var shot in runtime.Projectiles.Slots.Where(p => p.IsActive))
+                foreach (var shot in runtime.Projectiles.Shots.Where(p => p.IsActive))
                 {
                     spawned = true;
                     marked |= shot.IsSpent;
@@ -55,7 +55,7 @@ internal static class KraidReportedCollisionsVerification
             }
             AssertEqual(true, spawned, "Production firing spawned Spazer");
             AssertEqual(true, marked, "Head collision marks Spazer for removal");
-            AssertEqual(false, runtime.Projectiles.Slots.Any(p => p.IsActive), "Impacted Spazer is removed");
+            AssertEqual(false, runtime.Projectiles.Shots.Any(p => p.IsActive), "Impacted Spazer is removed");
             AssertEqual(1000, body.Health, "Uncharged Spazer does not damage Kraid");
         });
         runtime.Projectiles.Reset();
@@ -107,11 +107,11 @@ internal static class KraidReportedCollisionsVerification
             state.DisplayedHeadFrame = null;
             runtime.Enemies.KraidBehavior.Rise.RunKraidRisePhase(body, state, samus);
             AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadPlayback, "Rise selects native next head cursor");
-            var shot = runtime.Projectiles.Slots[0];
+            var shot = runtime.Projectiles.Shots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false); shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
-            runtime.Projectiles.SlotTable.ProjectileCounter = 1;
+            runtime.Projectiles.Pool.ProjectileCounter = 1;
             runtime.Enemies.ResolveKraidProjectileHits(runtime.Projectiles, runtime.BombProjectiles);
             AssertEqual(true, shot.IsSpent,
                 "Initial closed head blocks shots before the first head animation executes");

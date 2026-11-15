@@ -17,7 +17,7 @@ internal static class ProjectileTrailParticlesVerification
     /// </summary>
     internal static void VerifyProjectileTrailParticles()
     {
-        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         // A charged power shot, part way through its animation, in the first direction that names a placement list.
         SamusProjectile shot = Enum.GetValues<SamusProjectileDirection>()
             .Select(direction => new SamusProjectile(0)

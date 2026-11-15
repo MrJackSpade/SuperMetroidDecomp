@@ -15,7 +15,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Samus's ordinary projectile slots (see <see cref="ProjectileSlotTable"/> for their slot order).
+/// Samus's ordinary shots in their places (see <see cref="SamusShotPool"/> for the place order).
 /// </summary>
 /// <remarks>
 /// This class deliberately holds the game's own fields rather than a desktop particle
@@ -23,9 +23,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// their own seam. Keeping those seams separate prevents a convenient stand-in sprite from
 /// replacing the actual projectile lifecycle.
 ///
-/// The implemented producer covers ordinary and charged plain power beams. The shared slot
+/// The implemented producer covers ordinary and charged plain power beams. The shared shot
 /// model and animation are intentionally general enough for the remaining beam
-/// and missile families, but unsupported producers are rejected before allocating a slot.
+/// and missile families, but unsupported producers are rejected before taking a place.
 /// </remarks>
 [RoomLifetime]
 public sealed class SamusProjectileSystem
@@ -34,13 +34,13 @@ public sealed class SamusProjectileSystem
     internal BeamChargeState Charge { get; }
 
     /// <summary>Holds the five ordinary projectile places and the shot count.</summary>
-    internal ProjectileSlotTable SlotTable { get; }
+    internal SamusShotPool Pool { get; }
 
     /// <summary>Collects impact-driven earthquake requests from projectile and terrain reactions.</summary>
     internal ProjectileEarthquakes Earthquakes { get; }
 
-    /// <summary>Manages the special beam window that alters projectile handling.</summary>
-    internal ChainsawPowerBombFrameBehavior Chainsaw { get; }
+    /// <summary>The Power Bomb fuse the Chainsaw shot runs over itself.</summary>
+    internal ChainsawFuse Chainsaw { get; }
 
     /// <summary>Queues the sound selected for projectile contact with terrain or enemies.</summary>
     internal ProjectileImpactAudio ImpactAudio { get; }
@@ -88,7 +88,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     internal PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission { get; }
 
-    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes into these slots at.</summary>
+    /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes into these places at.</summary>
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
 
     /// <summary>Creates one room's five projectile places, its trails and the owners that run them.</summary>
@@ -104,18 +104,18 @@ public sealed class SamusProjectileSystem
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
         DrainedCrashDepartures = overreads.DrainedCrashDepartures;
-        SlotTable = new ProjectileSlotTable(muzzleCarry);
+        Pool = new SamusShotPool(muzzleCarry);
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio(AudioRequests);
-        Animation = new ProjectileAnimation(Charge, SlotTable);
+        Animation = new ProjectileAnimation(Charge, Pool);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
-        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
+        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, Pool, TerrainCollision, overreads.UnauthoredBeamFiring);
         Trails = new ProjectileTrails();
-        Chainsaw = new ChainsawPowerBombFrameBehavior(Animation, overreads.ChainsawFuseShift);
-        Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
-        Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
-        Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
-        Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
+        Chainsaw = new ChainsawFuse(Animation, overreads.ChainsawFuseShift);
+        Shinespark = new ShinesparkEchoProjectile(Animation, Pool);
+        Combos = new BeamCombos(Animation, Charge, Pool, Trails, overreads.SpaceTimeOverwrite);
+        Firing = new BeamFiring(Animation, Charge, Combos, Pool, TerrainCollision, overreads.UnauthoredBeamFiring);
+        Motion = new ProjectileMotion(Animation, Pool, TerrainCollision, Trails);
     }
 
     /// <summary>
@@ -125,8 +125,8 @@ public sealed class SamusProjectileSystem
     internal void TakeOverFrom(RoomHandOver handOver)
     {
         Ensure.NotNull(handOver);
-        for (int place = 0; place < SlotCount; place++)
-            SlotTable.MuzzleCarry.Keep(place, handOver.ShotHorizontalFraction(place));
+        for (int place = 0; place < PlaceCount; place++)
+            Pool.MuzzleCarry.Keep(place, handOver.ShotHorizontalFraction(place));
     }
 
     /// <summary>
@@ -134,13 +134,13 @@ public sealed class SamusProjectileSystem
     /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>).
     /// </summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        Ensure.NotNull(handOver).LeaveShots(Enumerable.Range(0, SlotCount).Select(SlotTable.SubpixelKeptOnClear));
+        Ensure.NotNull(handOver).LeaveShots(Enumerable.Range(0, PlaceCount).Select(Pool.SubpixelKeptOnClear));
 
-    /// <summary>How many ordinary shots Samus can have out at once; bombs have their own slots.</summary>
-    public const int SlotCount = 5;
+    /// <summary>How many places Samus's shot pool has: how many ordinary shots she can have out at once; bombs have their own places.</summary>
+    public const int PlaceCount = 5;
 
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
-    public IReadOnlyList<SamusProjectile> Slots => SlotTable.Slots;
+    public IReadOnlyList<SamusProjectile> Shots => Pool.Shots;
 
     /// <summary>The most recent charged-shot colour step result.</summary>
     public SamusBeamChargeGlowStep LastBeamChargeGlowStep
@@ -307,7 +307,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs the power-beam HUD producer and then handles all allocated ordinary slots: <see cref="FireFromHud"/>, then
+    /// Runs the power-beam HUD producer and then handles every shot: <see cref="FireFromHud"/>, then
     /// <see cref="HandleShots"/>.
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
@@ -315,7 +315,7 @@ public sealed class SamusProjectileSystem
     /// <param name="buttons">The buttons Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
-    /// Bomb-slot owner carrying the shared projectile cooldown. The runtime steps that
+    /// Samus's bombs, carrying the shared projectile cooldown. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as the game does.
     /// </param>
@@ -334,7 +334,7 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The buttons Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
-    /// <param name="sharedProjectiles">Bomb-slot owner carrying the shared projectile cooldown, which a successful shot replaces.</param>
+    /// <param name="sharedProjectiles">Samus's bombs, carrying the shared projectile cooldown, which a successful shot replaces.</param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; the shots are handled whether or not it runs.</param>
     public void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled)
     {
@@ -417,133 +417,31 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment and the X-ray freeze.</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
-    /// <param name="sharedProjectiles">Bomb-slot owner carrying the shared cooldown and the power bomb the shots read.</param>
+    /// <param name="sharedProjectiles">Samus's bombs, carrying the shared cooldown and the power bomb the shots read.</param>
     public void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         Ensure.NotNull(sharedProjectiles);
 
-        bool collisionStartedExplosion = false;
-        bool projectileDeleted = false;
 
         // Bombs were handled by the companion class first; the shots run in update order here because a delete cue
         // changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
-        // before each slot, not only at entry.
-        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
+        // before each shot, not only at entry. A shot with no animation is never updated, so its behaviour never runs;
+        // an explosion has no behaviour and only plays its animation.
+        foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (slot.Playback is null)
+            if (shot.Playback is null)
                 continue;
 
-            if (slot.FrameBehavior == SamusProjectileFrameBehavior.ShinesparkEcho)
-            {
-                Shinespark.StepShinesparkEcho(samus, slot, cameraPosition);
-                projectileDeleted |= !slot.IsActive;
-            }
-            else if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or
-                SamusProjectileFrameBehavior.IceComboOutward or SamusProjectileFrameBehavior.WaveCombo or
-                SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling or
-                SamusProjectileFrameBehavior.PlasmaCombo)
-            {
-                SoundEffectId? comboSound = null;
-                if (slot.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward)
-                    comboSound = Combos.StepIceCombo(samus, slot, sharedProjectiles, cameraPosition);
-                else if (slot.FrameBehavior == SamusProjectileFrameBehavior.WaveCombo)
-                    comboSound = Combos.StepWaveCombo(samus, slot, sharedProjectiles);
-                else if (slot.FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo)
-                    Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, cameraPosition);
-                else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, cameraPosition.Y);
-                projectileDeleted |= !slot.IsActive;
-                if (comboSound is SoundEffectId sound)
-                    AudioRequests.QueueSound(sound, SoundRequestPriority.Normal);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.NoWaveBeam)
-            {
-                collisionStartedExplosion |= Motion.RunNoWaveBeamFrameBehavior(
-                    terrain.Level,
-                    slot,
-                    cameraPosition,
-                    terrain.RoomObjects);
-            }
-            else if (slot.FrameBehavior is
-                SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail or
-                SamusProjectileFrameBehavior.WaveBeamFourFrameTrail)
-            {
-                Motion.RunWaveBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.RoomObjects);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.HyperBeam)
-            {
-                Motion.RunHyperBeamFrameBehavior(terrain.Level, slot, cameraPosition, terrain.RoomObjects);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.Missile)
-            {
-                collisionStartedExplosion |= Motion.RunMissileFrameBehavior(
-                    terrain.Level,
-                    samus,
-                    slot,
-                    cameraPosition,
-                    sharedProjectiles,
-                    terrain.RoomObjects);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SuperMissile)
-            {
-                collisionStartedExplosion |= Motion.RunSuperMissileFrameBehavior(
-                    terrain.Level,
-                    samus,
-                    slot,
-                    cameraPosition,
-                    sharedProjectiles,
-                    terrain.RoomObjects);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SuperMissileLink)
-            {
-                Motion.RunSuperMissileLinkFrameBehavior(slot);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite)
-            {
-                Combos.RunSpaceTimeProgressionOverwrite(terrain.Progression, slot);
-            }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.ChainsawPowerBomb)
-            {
-                Chainsaw.RunPowerBombFrameBehavior(
-                    terrain.Level,
-                    slot,
-                    sharedProjectiles,
-                    terrain.RoomObjects);
-                projectileDeleted |= !slot.IsActive;
-            }
-            else if (slot.FrameBehavior ==
-                SamusProjectileFrameBehavior.ChargedChainsawRunsSamusState)
-            {
-                // The charged Chainsaw shot's frame behaviour is not game code: the game runs Samus's
-                // changing state as its frame behaviour (UnauthoredBeamFrameBehaviors). The model cannot
-                // run changing data, so it fails at the frame behaviour's selection instead of silently
-                // substituting Wave motion.
-                throw new NotSupportedException(
-                    "A charged Chainsaw shot's frame behaviour is read from Samus's changing state and runs whatever " +
-                    "that state holds; reproducing that needs full memory and processor emulation, which is outside " +
-                    "the emulation scope limit (#1500).");
-            }
-            else if (slot.FrameBehavior ==
-                SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
-            {
-                // Safe left-facing Murder Beam has no animation and never
-                // enters the projectile update. Other directions retain an animation;
-                // its frame behaviour then starts in an unrelated part of the game and the
-                // game stops making forward progress. Keep that unsafe execution
-                // explicit instead of silently substituting ordinary beam motion.
-                throw new NotSupportedException(
-                    "An unsafe Murder Beam shot's frame behaviour starts in the middle of an unrelated part of the " +
-                    "game; reproducing that needs full memory and processor emulation, which is outside the emulation " +
-                    "scope limit (#1500). Only the safe left-facing shot, which has no animation, flies.");
-            }
+            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, sharedProjectiles));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
-            if (slot.Playback is not null)
-                projectileDeleted |= Animation.AdvanceProjectileAnimation(slot);
+            if (shot.Playback is not null)
+                _ = Animation.AdvanceProjectileAnimation(shot);
         }
     }
 
@@ -631,18 +529,18 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
-            if (!slot.IsActive ||
-                slot.Type.Family.IsBombOrExplosion)
+            if (!shot.IsActive ||
+                shot.Type.Family.IsBombOrExplosion)
                 continue;
 
             // Unlike the bomb/explosion pass, the game's live projectile drawing does not
             // cull by world X. The sprite is published wherever it lies and the display clips it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
-            if (slot.Sprite is not null)
-                ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.Place),
-                    slot, cameraPosition, artwork);
+            if (shot.Sprite is not null)
+                ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, shot.Place),
+                    shot, cameraPosition, artwork);
         }
     }
 
@@ -675,16 +573,16 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
 
-        foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
+        foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
-            SamusProjectileFamily family = slot.Type.Family;
-            if (!slot.IsActive || family is not (
+            SamusProjectileFamily family = shot.Type.Family;
+            if (!shot.IsActive || family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slot.Place),
-                slot, cameraPosition, artwork);
+            ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, shot.Place),
+                shot, cameraPosition, artwork);
         }
     }
 
@@ -716,9 +614,9 @@ public sealed class SamusProjectileSystem
             samus.Shinespark.ResetProjectileEchoStorage();
         }
         Combos.OrbitTurnPerUpdate = TrigonometryAngle.Zero;
-        SlotTable.ClearAll();
+        Pool.ClearAll();
         Trails.Clear();
-        SlotTable.ProjectileCounter = 0;
+        Pool.ProjectileCounter = 0;
         Firing.ProjectileInvincibilityTimer = 0;
         LastFrameResult = default;
     }

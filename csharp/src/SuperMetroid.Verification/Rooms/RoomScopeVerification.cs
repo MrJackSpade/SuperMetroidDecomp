@@ -44,7 +44,7 @@ internal static class RoomScopeVerification
         EnemyProjectile sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));
-        SamusProjectile sourceShot = source.Projectiles.SlotTable.Slots[2];
+        SamusProjectile sourceShot = source.Projectiles.Pool.Shots[2];
         sourceShot.Damage = 1;
         sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
 
@@ -77,8 +77,8 @@ internal static class RoomScopeVerification
             !ReferenceEquals(source.BombProjectiles, destination.BombProjectiles) &&
             !ReferenceEquals(source.BombProjectiles.PowerBombExplosion, destination.BombProjectiles.PowerBombExplosion),
             "the destination builds its own projectile and bomb systems");
-        VerificationAssertions.AssertTrue(destination.Projectiles.Slots.All(slot => !slot.IsActive) &&
-            destination.BombProjectiles.Bombs.All(slot => !slot.IsActive) && destination.Projectiles.SlotTable.ProjectileCounter == 0 &&
+        VerificationAssertions.AssertTrue(destination.Projectiles.Shots.All(slot => !slot.IsActive) &&
+            destination.BombProjectiles.Bombs.All(slot => !slot.IsActive) && destination.Projectiles.Pool.ProjectileCounter == 0 &&
             destination.BombProjectiles.BombCounter == 0,
             "the destination's projectile pools are empty");
         VerificationAssertions.AssertTrue(ReferenceEquals(source.Projectiles.Charge, destination.Projectiles.Charge) &&
@@ -116,9 +116,9 @@ internal static class RoomScopeVerification
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
         VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
             "an enemy projectile slot's velocity survives the load");
-        VerificationAssertions.AssertEqual(0x4321, destination.Projectiles.SlotTable.MuzzleCarry.Kept(2),
+        VerificationAssertions.AssertEqual(0x4321, destination.Projectiles.Pool.MuzzleCarry.Kept(2),
             "a shot place keeps for its next projectile the horizontal sub-pixel position of the outgoing room's shot in it (RoomHandOver, LeftMuzzleSubpixelCarry)");
-        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.Zero, destination.Projectiles.SlotTable.Slots[2].Position,
+        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.Zero, destination.Projectiles.Pool.Shots[2].Position,
             "nothing else of the outgoing shot reaches the next room: the place reads as at rest at the origin");
         VerificationAssertions.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
         VerificationAssertions.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");

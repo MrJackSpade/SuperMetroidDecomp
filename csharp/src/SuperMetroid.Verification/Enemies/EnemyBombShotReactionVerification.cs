@@ -46,7 +46,7 @@ internal static class EnemyBombShotReactionVerification
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
-                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
             AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: null, onlyEnemy: slot),
@@ -100,7 +100,7 @@ internal static class EnemyBombShotReactionVerification
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
-                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
 
             enemies.Audio.BeginFrame();
             AssertEqual(hit ? 1 : 0, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: null, onlyEnemy: slot),

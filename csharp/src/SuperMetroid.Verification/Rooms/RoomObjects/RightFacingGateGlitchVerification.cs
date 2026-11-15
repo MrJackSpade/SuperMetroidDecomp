@@ -147,7 +147,7 @@ internal static class RightFacingGateGlitchVerification
                         throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");
                     if (gatePlace.Behaviour is DownwardGateObject { Triggered: true })
                     {
-                        SamusProjectile shot = shots.Slots[0];
+                        SamusProjectile shot = shots.Shots[0];
                         columnActivations.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                         break;
                     }
@@ -282,7 +282,7 @@ internal static class RightFacingGateGlitchVerification
             openFrame = frame;
             // The switch consumes the projectile type in the same frame but, as on the
             // cartridge, slot zero retains the impact coordinates used by this trace.
-            SamusProjectile shot = runtime.Projectiles.Slots[0];
+            SamusProjectile shot = runtime.Projectiles.Shots[0];
             shotPosition = shot.Position.Whole;
             break;
         }

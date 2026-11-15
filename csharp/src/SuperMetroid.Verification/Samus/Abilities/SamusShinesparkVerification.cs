@@ -40,7 +40,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 /// <summary>A fresh shot pool for a spark fixture, whose count admits the crash's echoes and whose shots carry them.</summary>
 static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem Shots() =>
     new(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads,
-        new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.SlotCount));
+        new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount));
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
 internal static void VerifySamusStoredShineAndShinespark()
@@ -369,8 +369,8 @@ internal static void VerifySamusStoredShineAndShinespark()
     // execute `$90:D4D2` until the following alpha projectile pass.
     AssertEqual(2, horizontal.Shinespark.ReleasedCrashEchoCount,
         "empty projectile capacity admits both departing crash echoes");
-    AssertTrue(ReferenceEquals(horizontalShots.Slots[3], horizontal.Shinespark.FirstReleasedEcho.Shot) &&
-        ReferenceEquals(horizontalShots.Slots[4], horizontal.Shinespark.SecondReleasedEcho.Shot),
+    AssertTrue(ReferenceEquals(horizontalShots.Shots[3], horizontal.Shinespark.FirstReleasedEcho.Shot) &&
+        ReferenceEquals(horizontalShots.Shots[4], horizontal.Shinespark.SecondReleasedEcho.Shot),
         "the echoes take the shot pool's last two places, the first echo the one before the last");
     AssertEqual(0x00, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoAngle.RawValue,
         "horizontal-right first departing echo uses ROM table angle zero");
@@ -421,7 +421,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(0, horizontal.Shinespark.ReleasedCrashEchoCount,
         "departing crash echoes delete themselves outside the 256-pixel viewport");
     AssertEqual(0, horizontalCompatibility.CrashOrbitTravel.Travel, "a first echo that leaves the screen leaves no travel");
-    AssertEqual(0, horizontalShots.SlotTable.ProjectileCounter, "each echo that leaves the screen clears its shot");
+    AssertEqual(0, horizontalShots.Pool.ProjectileCounter, "each echo that leaves the screen clears its shot");
 
     // Repeat only the state-machine spine for native projectile-capacity edges. A count of
     // four releases only the second echo; five releases neither.
@@ -431,7 +431,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         SuperMetroid.Core.Samus.SamusCompatibility compatibility)
     {
         var fixtureShots = Shots();
-        fixtureShots.SlotTable.ProjectileCounter = projectileCounter;
+        fixtureShots.Pool.ProjectileCounter = projectileCounter;
         var fixture = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,

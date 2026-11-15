@@ -33,7 +33,7 @@ internal static class IntroProjectileArtworkVerification
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {
             projectiles.Reset();
-            var shot = projectiles.Slots[0];
+            var shot = projectiles.Shots[0];
             shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
             AssertEqual(sheet.Frame(ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite))),

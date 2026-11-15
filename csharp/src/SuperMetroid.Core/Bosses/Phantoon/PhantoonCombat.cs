@@ -297,7 +297,7 @@ internal sealed class PhantoonCombat
             return 0;
         }
 
-        foreach (SamusProjectile projectile in projectiles.Slots)
+        foreach (SamusProjectile projectile in projectiles.Shots)
         {
             if (!projectile.HasEnemyCollisionPayload)
                 continue;

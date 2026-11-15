@@ -41,9 +41,9 @@ internal static class OverlappingEnemyShotsVerification
             enemy.Frame = EnemyFrameId.BeetomCrawlingLeftLoopFirst; // Shots reach only an enemy showing a frame.
             interactive.Add(enemy);
         }
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
-        var shot = shots.Slots[0];
+        var shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         shot.Damage = 100;
         shot.Direction = SamusProjectileDirection.Right;
@@ -51,7 +51,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.Radius = new(4, 4);
         shot.Playback = ProjectileFixturePlaybacks.Active;
         shot.FrameHold = WrappingCountdown.Start(1);
-        shot.FrameBehavior = SamusProjectileFrameBehavior.Missile;
+        shot.Behavior = SamusShotBehaviors.Missile;
 
         AssertEqual(3, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "one missile reaches all three overlapping Beetoms in the same pass");

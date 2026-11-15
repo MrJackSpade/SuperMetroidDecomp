@@ -56,10 +56,10 @@ internal static class BeamCallbackTablesVerification
             if (initializeOnly)
             {
                 projectiles.Firing.TryFireBeam(room, samus, ControllerButton.X, shared, null, charged);
-                AssertTrue(!projectiles.Slots[0].Type.IsNone || projectiles.Slots[0].InstructionPointer != 0,
+                AssertTrue(!projectiles.Shots[0].Type.IsNone || projectiles.Shots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
-                AssertEqual((SamusBeamFrameBehaviors.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType)).FrameBehavior ?? throw new InvalidOperationException("Verification requires SamusBeamFrameBehaviors.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beam....")),
-                    projectiles.Slots[0].FrameBehavior,
+                AssertEqual(SamusBeamFrameBehaviors.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType)),
+                    projectiles.Shots[0].Behavior,
                     $"charged={charged} beam {beamType:X1} initializer installs compiled callback");
                 continue;
             }
@@ -76,12 +76,12 @@ internal static class BeamCallbackTablesVerification
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the
             // lowest live slot after the release frame.
-            SamusProjectile fired = projectiles.Slots.First(slot => slot.IsActive);
-            SamusBeamFrameBehaviorDefinition expected =
+            SamusProjectile fired = projectiles.Shots.First(slot => slot.IsActive);
+            SamusShotBehavior expected =
                 SamusBeamFrameBehaviors.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType));
             AssertEqual(
-                (expected.FrameBehavior ?? throw new InvalidOperationException("Verification requires expected.FrameBehavior.")),
-                fired.FrameBehavior,
+                expected,
+                fired.Behavior,
                 $"charged={charged} beam {beamType:X1} installs compiled callback");
         }
         Console.WriteLine(

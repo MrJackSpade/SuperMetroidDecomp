@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The fuse transition, independent of which projectile array half owns the slot.</summary>
+/// <summary>The fuse transition, the same whether a Power Bomb or a Chainsaw shot runs it.</summary>
 public static class SamusPowerBombFuse
 {
     /// <summary>

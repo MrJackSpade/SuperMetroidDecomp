@@ -42,7 +42,7 @@ public sealed class HyperBeamColourEffectState
     {
         // Allocation clears the effect's colour step and auxiliary timer, installs timer
         // one, then calls the object's no-op setup. This specialized state has no
-        // reusable slot fields to clear, but preserves every observable field and delay.
+        // reusable fields to clear, but preserves every observable field and delay.
         IsActive = true;
         FrameHold = 1;
         CurrentFrameIndex = null;

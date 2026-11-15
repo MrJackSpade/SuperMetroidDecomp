@@ -36,9 +36,9 @@ internal static class BeamSpeedRowsVerification
                 EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(combination) };
             var projectiles = CreateProjectileFixture();
             projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture());
-            AssertTrue(projectiles.Slots[0].IsActive && projectiles.Slots.Skip(1).All(slot => !slot.IsActive),
+            AssertTrue(projectiles.Shots[0].IsActive && projectiles.Shots.Skip(1).All(slot => !slot.IsActive),
                 "speed-row fixture allocates projectile");
-            var shot = projectiles.Slots[0];
+            var shot = projectiles.Shots[0];
             int speed = direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400;
             int x = direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0;
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
@@ -118,7 +118,7 @@ internal static class BeamSpeedRowsVerification
                 {
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
-                    var fired = projectiles.Slots[0];
+                    var fired = projectiles.Shots[0];
                     x = unchecked(SixteenSixteenWords.Compose(fired.Position.X.Whole, fired.Position.X.Fraction) - (uint)SixteenSixteen.FromEightEight(vx));
                     y = unchecked(SixteenSixteenWords.Compose(fired.Position.Y.Whole, fired.Position.Y.Fraction) - (uint)SixteenSixteen.FromEightEight(vy));
                 }
@@ -132,7 +132,7 @@ internal static class BeamSpeedRowsVerification
                 }
                 x = unchecked(x + (uint)SixteenSixteen.FromEightEight(vx));
                 y = unchecked(y + (uint)SixteenSixteen.FromEightEight(vy));
-                var owner = projectiles.Slots[0];
+                var owner = projectiles.Shots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
                 AssertEqual((short)vx, owner.Velocity.X.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration X across ignition and movement");
                 AssertEqual((short)vy, owner.Velocity.Y.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration Y across ignition and movement");

@@ -923,7 +923,7 @@ internal sealed class RoomLoader
         var bombs = new SamusBombProjectileSystem();
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         projectiles.TakeOverFrom(_room.HandOver);
         bombs.BindAudioRequests(_audioRequests);
         projectiles.BindAudioRequests(_audioRequests);

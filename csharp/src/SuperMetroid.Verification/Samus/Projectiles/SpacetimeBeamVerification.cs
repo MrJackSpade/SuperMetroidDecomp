@@ -87,7 +87,7 @@ internal static class SpacetimeBeamVerification
         SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), shared);
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
-        AssertEqual(0x9137, projectiles.Slots[0].InstructionPointer,
+        AssertEqual(0x9137, projectiles.Shots[0].InstructionPointer,
             "native frame-zero next animation record");
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
@@ -147,7 +147,7 @@ internal static class SpacetimeBeamVerification
         int situations = 0;
         foreach (SamusProjectileSegment program in SamusOverreadDecoding.SpaceTimeShotPrograms())
         for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
-        for (int slot = 0; slot < SamusProjectileSystem.SlotCount; slot++)
+        for (int slot = 0; slot < SamusProjectileSystem.PlaceCount; slot++)
         {
             var cursor = new SamusProjectileSegmentBeat(program, position);
             byte?[] native = SpacetimeCopyOracle.ProgressionSlice(cartridge, SamusProjectileProgramAddresses.Address(cursor), slot);

@@ -65,15 +65,15 @@ internal static class MurderBeamVerification
         AssertTrue(fired.QueuedSoundEffect is null,
             "Murder Beam's adjacent sound-table entry is zero");
 
-        SamusProjectile shot = projectiles.Slots[0];
+        SamusProjectile shot = projectiles.Shots[0];
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type, "Murder Beam retains charged all-beams type");
         AssertEqual(200, shot.Damage, "Murder Beam uses the native 200-damage record");
         AssertEqual(SamusProjectileDirection.Left, shot.Direction,
             "safe Murder Beam faces left");
         AssertEqual((ushort)116, shot.Position.X.Whole, "Murder Beam native muzzle X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "Murder Beam native muzzle Y");
-        AssertEqual(SamusProjectileFrameBehavior.MurderBeamMisalignedExecution,
-            shot.FrameBehavior, "Murder Beam retains its overread callback identity");
+        AssertEqual(SamusShotBehaviors.MurderBeam,
+            shot.Behavior, "Murder Beam retains its overread callback identity");
         AssertEqual(0, shot.InstructionPointer,
             "safe left-facing data record selects no animation list");
         AssertEqual((ushort)0, shot.Radius.X, "safe Murder Beam X radius");
@@ -83,7 +83,7 @@ internal static class MurderBeamVerification
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");
-        AssertEqual(1, projectiles.SlotTable.ProjectileCounter,
+        AssertEqual(1, projectiles.Pool.ProjectileCounter,
             "Murder Beam retains its ordinary projectile allocation");
 
         for (int frame = 0; frame < 16; frame++)
@@ -241,7 +241,7 @@ internal static class MurderBeamVerification
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), projectiles.Slots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), projectiles.Shots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].Type,
             "missile auto-cancel alternative produces Murder Beam");
     }
 

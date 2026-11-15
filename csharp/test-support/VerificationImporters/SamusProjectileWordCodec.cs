@@ -111,7 +111,7 @@ internal static class SamusProjectileWordCodec
     public static int? DecodeMissileLinkSlot(int word)
     {
         int offset = word & LowByteMask;
-        return offset % 2 == 0 && offset / 2 < SamusProjectileSystem.SlotCount ? offset / 2 : null;
+        return offset % 2 == 0 && offset / 2 < SamusProjectileSystem.PlaceCount ? offset / 2 : null;
     }
 
     /// <summary>The number of directions a direction word names.</summary>

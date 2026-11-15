@@ -99,7 +99,7 @@ internal static class EnemyHitBurstVerification
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
-            shots.Slots[0].Type = SamusProjectileType.None;
+            shots.Shots[0].Type = SamusProjectileType.None;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: null, onlyEnemy: slot), $"{kind} bomb: the bomb hits the enemy");
             AssertEqual(kind == "immune" ? 1000 : 1000 - 30, slot.Health, $"{kind} bomb: the enemy's health after the bomb");
             RoomSpriteObject[] bursts = Bursts(enemies);
@@ -304,7 +304,7 @@ internal static class EnemyHitBurstVerification
     private static RoomSpriteObject SpawnDud(RoomEnemySystem enemies)
     {
         (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
-        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Slots[0]);
+        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Shots[0]);
         return enemies.SpriteObjects.Live.Last();
     }
 
@@ -328,8 +328,8 @@ internal static class EnemyHitBurstVerification
     /// <summary>One uncharged beam of <paramref name="beam"/> at <see cref="Place"/>, flying right.</summary>
     private static (SamusProjectileSystem Shots, SamusBombProjectileSystem Bombs) ShotAt(SamusBeamCombination beam)
     {
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-        SamusProjectile shot = shots.Slots[0];
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(beam, charged: false);
         shot.Damage = 20;
         shot.Direction = SamusProjectileDirection.Right;

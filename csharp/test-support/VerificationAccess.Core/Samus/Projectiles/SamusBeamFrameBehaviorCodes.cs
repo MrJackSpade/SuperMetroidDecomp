@@ -58,26 +58,40 @@ internal static class SamusBeamFrameBehaviorCodes
     /// </summary>
     public const ushort MurderBeamMisalignedExecution = 0xa4aa;
 
-    /// <summary>The bank-$90 word that selects <paramref name="callback"/>.</summary>
-    internal static ushort Of(SamusBeamFrameBehaviorChoice callback) => callback switch
-    {
-        SamusBeamFrameBehaviorChoice.NoWave => NoWave,
-        SamusBeamFrameBehaviorChoice.WaveThreeFrameTrail => WaveThreeFrameTrail,
-        SamusBeamFrameBehaviorChoice.WaveFourFrameTrail => WaveFourFrameTrail,
-        SamusBeamFrameBehaviorChoice.UnchargedSpazerPlasmaRunsUnconnectedRegion => UnchargedSpazerPlasmaUnconnectedRegionWord,
-        SamusBeamFrameBehaviorChoice.SpaceTimeProgressionOverwrite => SpaceTimeProgressionOverwrite,
-        SamusBeamFrameBehaviorChoice.ChainsawPowerBomb => ChainsawPowerBomb,
-        SamusBeamFrameBehaviorChoice.ChargedChainsawRunsSamusState => ChargedChainsawSamusStateWord,
-        SamusBeamFrameBehaviorChoice.UnchargedAllBeamsRunsLiveState => UnchargedAllBeamsLiveStateWord,
-        SamusBeamFrameBehaviorChoice.ChargedSpazerPlasmaRunsLiveState => ChargedSpazerPlasmaLiveStateWord,
-        SamusBeamFrameBehaviorChoice.MurderBeamMisalignedExecution => MurderBeamMisalignedExecution,
-        _ => throw new ArgumentOutOfRangeException(nameof(callback), callback, "Undefined beam callback."),
-    };
+    /// <summary>
+    /// The bank-$90 word each beam shot behaviour a fire handler table selects stands for (#1923); the uncharged all-beams
+    /// and charged Spazer-Plasma shots run the same live state from different words, so the two words are told apart
+    /// by the behaviour each table position selects.
+    /// </summary>
+    private static readonly IReadOnlyList<(SamusShotBehavior Behavior, ushort Word)> Words =
+    [
+        (SamusShotBehaviors.Beam, NoWave),
+        (SamusShotBehaviors.WaveBeamThreeUpdateTrail, WaveThreeFrameTrail),
+        (SamusShotBehaviors.WaveBeamFourUpdateTrail, WaveFourFrameTrail),
+        (SamusShotBehaviors.UnchargedSpazerPlasma, UnchargedSpazerPlasmaUnconnectedRegionWord),
+        (SamusShotBehaviors.Spacetime, SpaceTimeProgressionOverwrite),
+        (SamusShotBehaviors.ChainsawPowerBomb, ChainsawPowerBomb),
+        (SamusShotBehaviors.ChargedChainsaw, ChargedChainsawSamusStateWord),
+        (SamusShotBehaviors.UnchargedAllBeams, UnchargedAllBeamsLiveStateWord),
+        (SamusShotBehaviors.ChargedSpazerPlasma, ChargedSpazerPlasmaLiveStateWord),
+        (SamusShotBehaviors.MurderBeam, MurderBeamMisalignedExecution),
+    ];
 
-    /// <summary>A callback definition by its bank-$90 word.</summary>
-    extension(SamusBeamFrameBehaviorDefinition definition)
+    /// <summary>The bank-$90 word that selects <paramref name="behavior"/>.</summary>
+    internal static ushort Of(SamusShotBehavior behavior)
     {
-        /// <summary>The bank-$90 word the fire handler table holds for the definition.</summary>
-        internal ushort NativePointer => Of(definition.Choice);
+        foreach ((SamusShotBehavior candidate, ushort word) in Words)
+        {
+            if (ReferenceEquals(candidate, behavior))
+                return word;
+        }
+        throw new ArgumentOutOfRangeException(nameof(behavior), behavior.GetType().Name, "No fire handler table selects this behaviour.");
+    }
+
+    /// <summary>A beam shot behaviour by its bank-$90 word.</summary>
+    extension(SamusShotBehavior behavior)
+    {
+        /// <summary>The bank-$90 word the fire handler table holds for the behaviour.</summary>
+        internal ushort NativePointer => Of(behavior);
     }
 }

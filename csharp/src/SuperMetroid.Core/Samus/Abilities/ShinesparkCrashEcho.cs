@@ -18,7 +18,7 @@ public sealed class ShinesparkCrashEcho
 
     /// <summary>Where the echo is shown, or none once no shot carries it.</summary>
     public Position16<RoomPixels>? ShownPosition =>
-        Shot is { FrameBehavior: SamusProjectileFrameBehavior.ShinesparkEcho } ? _position : null;
+        Shot is { Behavior: ShinesparkEchoFlight } ? _position : null;
 
     /// <summary>Whether <paramref name="shot"/> is the shot that carries this echo.</summary>
     /// <param name="shot">A shot running the echo's update.</param>

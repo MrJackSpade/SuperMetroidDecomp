@@ -50,12 +50,12 @@ internal static class BeamImpactSoundVerification
             runtime.StepFrame(0);
 
         runtime.StepFrame(ControllerButton.X);
-        AssertTrue(!runtime.Projectiles.Slots[0].Type.IsNone, "the shot is live");
+        AssertTrue(!runtime.Projectiles.Shots[0].Type.IsNone, "the shot is live");
         for (int frame = 0; frame < 120; frame++)
         {
-            bool exploding = runtime.Projectiles.Slots[0].Type.IsFamily(SamusProjectileFamily.BeamExplosion);
+            bool exploding = runtime.Projectiles.Shots[0].Type.IsFamily(SamusProjectileFamily.BeamExplosion);
             runtime.StepFrame(0);
-            if (!exploding && runtime.Projectiles.Slots[0].Type.IsFamily(SamusProjectileFamily.BeamExplosion))
+            if (!exploding && runtime.Projectiles.Shots[0].Type.IsFamily(SamusProjectileFamily.BeamExplosion))
             {
                 AssertTrue(runtime.AudioRequests.SoundRequests.Contains(
                         new SoundRequest(EnemySound.BeamImpact, SoundRequestPriority.Normal)),

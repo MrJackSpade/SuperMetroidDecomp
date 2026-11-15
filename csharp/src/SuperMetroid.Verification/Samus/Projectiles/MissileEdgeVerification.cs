@@ -42,7 +42,7 @@ internal static class MissileEdgeVerification
                 projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
                 if (frame == 0) AssertEqual(4, samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
-                var shot = projectiles.Slots[0];
+                var shot = projectiles.Shots[0];
                 ushort[] expected = native[new MissileEdgeNative(edge, frame)];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
                     unchecked((ushort)shot.Velocity.X.InTwoHundredFiftySixthsOfPixel), unchecked((ushort)shot.Velocity.Y.InTwoHundredFiftySixthsOfPixel), checked((ushort)shot.InstructionPointer)];

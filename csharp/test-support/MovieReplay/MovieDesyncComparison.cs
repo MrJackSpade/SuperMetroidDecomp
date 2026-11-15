@@ -54,7 +54,7 @@ internal static class MovieDesyncComparison
         Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.Player.LastAerialSamusMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
-            Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Slots
+            Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Shots
                 .Where(slot => !slot.Type.IsNone)
                 .Select(slot => $"{slot.Place}:{slot.Type}@{slot.Position.X.Whole:X4}.{slot.Position.X.Fraction:X4}/{slot.Position.Y.Whole:X4} r{slot.Radius.X:X}/{slot.Radius.Y:X} v{slot.Velocity.X.InTwoHundredFiftySixthsOfPixel:X4} d{slot.Direction}{(slot.IsSpent ? " spent" : "")}")));
             Console.WriteLine("  sproj native " + string.Join(" ", Enumerable.Range(0, 5)

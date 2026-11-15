@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <summary>The state of a Boulder.</summary>
 public sealed class BoulderEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal BoulderEnemyState(BoulderAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoulderSegment> Playback { get; set; }
 
     /// <summary>The action the Boulder runs each update.</summary>
-    public BoulderAction? Action { get; internal set; }
+    public BoulderAction Action { get; internal set; }
 
     /// <summary>
     /// The largest travel clock: its larger cap.
@@ -72,8 +75,8 @@ public sealed class BoulderEnemyState
     /// height.
     /// </summary>
     public Offset16<RoomPixels> TriggerReach { get; internal set; }
-    /// <summary>Extra downward collision reach during rolling, subtracted from the position afterward; only its Y is meaningful. Initially two pixels, then zero once the full Y position stops changing.</summary>
-    public Offset16<RoomPixels> VerticalCompensation { get; internal set; }
+    /// <summary>Extra downward collision reach during rolling, in pixels, subtracted from the Y position afterward. Initially two pixels, then zero once the full Y position stops changing.</summary>
+    public int VerticalCompensation { get; internal set; }
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
     public FixedCoordinate PreviousY { get; internal set; }
     /// <summary>

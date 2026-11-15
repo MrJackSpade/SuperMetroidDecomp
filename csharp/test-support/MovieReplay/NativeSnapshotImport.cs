@@ -381,7 +381,7 @@ internal static class NativeSnapshotImport
                 pipe.RespawnDelay = unchecked((short)words.D);
                 bool strong = runtime.Enemies.SlotTable.Slots[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
                     == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
-                pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
+                pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so Core keeps the installed animation alone (#1810) and a record whose two differ fails.
                 ushort installed = W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);

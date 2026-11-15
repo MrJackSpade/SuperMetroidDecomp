@@ -134,7 +134,7 @@ internal sealed class TorizoAttacks
         /// Carries out one cue of a Torizo projectile's animation, returning where a conditional cue continues the play from
         /// <paramref name="pastCue"/>, the place just past it, or null to run on.
         /// </summary>
-        private AnimationContinuation<TorizoProjectileSegment>? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue,
+        private AnimationContinuation<TorizoProjectileSegment>? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState samus, TorizoProjectileCue cue,
             AnimationPlayback<TorizoProjectileSegment> pastCue)
         {
             switch (cue)
@@ -183,7 +183,7 @@ internal sealed class TorizoAttacks
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
                     SetGoldenTorizoSuperMissileVelocity(
                         projectile,
-                        samus ?? throw new InvalidOperationException("Golden Torizo super-missile aiming requires the active Samus actor."),
+                        samus,
                         awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
                     return null;
                 case TorizoProjectileCue.SetRadius setRadius:

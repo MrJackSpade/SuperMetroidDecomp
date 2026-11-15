@@ -7,20 +7,23 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 public sealed class BrinstarPipeBugState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal BrinstarPipeBugState(PipeBugAction action) => Action = action;
+
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }
 
     /// <summary>The current action, one of the Brinstar actions.</summary>
-    public PipeBugAction? Action { get; internal set; }
+    public PipeBugAction Action { get; internal set; }
 
     /// <summary>The whole-pixel spawn position the bug returns to after leaving the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>
-    /// The highest point of the bug's emergence, sixteen pixels above its spawn point; only Y is meaningful. The bug keeps
-    /// rising while it is still below this point.
+    /// The room Y of the highest point of the bug's emergence, sixteen pixels above its spawn point. The bug keeps rising
+    /// while it is still below this point.
     /// </summary>
-    public Position16<RoomPixels> EmergenceTop { get; internal set; }
+    public int EmergenceTopY { get; internal set; }
 
     /// <summary>
     /// Whether the bug flies left, set from Samus's side of the bug every update it waits with Samus in its vertical band.

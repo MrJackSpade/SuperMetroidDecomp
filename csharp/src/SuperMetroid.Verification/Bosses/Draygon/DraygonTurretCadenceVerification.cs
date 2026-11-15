@@ -92,7 +92,7 @@ internal static class DraygonTurretCadenceVerification
         // test. A later hit on the zero-health body reinstalls the drift function.
         boss.Body.Health = 0;
         boss.Phase = DraygonPhase.DyingWaitForEvirs;
-        runtime.Enemies.DraygonBehavior.Combat.ResolveDraygonReaction(boss.Body, runtime.Player.Samus);
+        runtime.Enemies.DraygonBehavior.Combat.ResolveDraygonReaction(boss.Body, runtime.Player.IntroducedSamus);
         AssertEqual(DraygonPhase.Dying, boss.Phase,
             "a hit on the dead body restarts the drift to the death spot");
         Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop; dead-body hits restart the death drift.");

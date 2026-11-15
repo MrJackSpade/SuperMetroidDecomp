@@ -5,11 +5,14 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <summary>The state of a Baby Turtle.</summary>
 public sealed class BabyTurtleEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal BabyTurtleEnemyState(BabyTurtleAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MamaTurtleSegment> Playback { get; set; }
 
     /// <summary>Gets the Baby Turtle's current action.</summary>
-    public BabyTurtleAction? Action { get; internal set; }
+    public BabyTurtleAction Action { get; internal set; }
 
     /// <summary>
     /// The child's spawn point: its spawn X, which the crawl turns around 48 pixels from, and the top of its spawn

@@ -31,9 +31,9 @@ internal static class CacatacMovementDefinitionsVerification
                 slot.Position = slot.Position.WithWholeX(spawnX);
                 initialize(slot);
                 CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));
-                AssertEqual(unchecked((ushort)(spawnX - native)), state.LeftPatrolLimit.X,
+                AssertEqual(unchecked((ushort)(spawnX - native)), state.LeftPatrolX,
                     $"Cacatac minimum X {spawnX:X4}/{distanceIndex}");
-                AssertEqual(unchecked((ushort)(spawnX + native)), state.RightPatrolLimit.X,
+                AssertEqual(unchecked((ushort)(spawnX + native)), state.RightPatrolX,
                     $"Cacatac maximum X {spawnX:X4}/{distanceIndex}");
             }
         }

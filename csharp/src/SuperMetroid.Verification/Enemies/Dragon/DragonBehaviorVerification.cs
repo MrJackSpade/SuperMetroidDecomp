@@ -22,7 +22,7 @@ internal static class DragonBehaviorVerification
         foreach (DragonSegment selector in Enum.GetValues<DragonSegment>())
         {
             DragonSegment program = selector;
-            (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(selector);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, DragonPartState state) = Install(selector);
             ushort[] poses = DragonAnimationsConstants.Spritemaps(program).ToArray();
             switch (selector)
             {
@@ -43,7 +43,7 @@ internal static class DragonBehaviorVerification
                     break;
             }
             bool attacks = selector is DragonSegment.AttackingFacingLeft or DragonSegment.AttackingFacingRight;
-            AssertEqual(attacks, state.AnimationFinished, $"Dragon {program} attack-completion cue");
+            AssertEqual(attacks, state is DragonEnemyState { AnimationFinished: true }, $"Dragon {program} attack-completion cue");
         }
         Console.WriteLine("  Dragon behavior: both idles, both wing loops and both attacks with their completion cue pass.");
         VerifyDragonsAttackingTogether();
@@ -91,10 +91,11 @@ internal static class DragonBehaviorVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight ? (ushort)1 : (ushort)0);
         enemies.DragonBehavior.InitializeDragon(slot);
-        DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
+        DragonPartState state = enemies.DragonPartStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
         state.ReinstallRequested = true;
         state.RequestedAnimation = selector;
-        state.AnimationFinished = false;
+        if (state is DragonEnemyState body)
+            body.AnimationFinished = false;
         DragonBehavior.StartDragonAnimation(slot, state);
         return new InstallResult(enemies, slot, state);
     }

@@ -122,9 +122,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardSpawnSettings settings = slot.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
 
-        var state = new YardEnemyState
+        var state = new YardEnemyState(YardMovement.AwaitingAnimationCue)
         {
-            Movement = YardMovement.HoldingStill,
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
@@ -194,7 +193,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Yard has no behaviour for movement {state.Movement?.ToString() ?? "none"}.");
+                    $"Yard has no behaviour for movement {state.Movement}.");
         }
     }
 
@@ -290,7 +289,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardMovement.CrawlingUpsideRightMovingDown or
             YardMovement.CrawlingUpsideLeftMovingUp;
         YardTurnDefinition turn = YardTurns.ForMovement(
-            state.Movement ?? throw new InvalidOperationException("A turning Yard has no movement."),
+            state.Movement,
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
@@ -663,8 +662,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
                 return false;
-            if (c.Samus is null)
-                throw new InvalidOperationException("Yard beam launch requires the active Samus actor.");
             ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
             return true;
         },

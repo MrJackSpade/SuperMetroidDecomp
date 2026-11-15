@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>The state of one Norfair Rio, parent or flame follower.</summary>
 public sealed class NorfairRioEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NorfairRioEnemyState(NorfairRioAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NorfairRioSegment> Playback { get; set; }
 
@@ -14,16 +17,16 @@ public sealed class NorfairRioEnemyState
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>
-    /// The flame follower's placement relative to its parent; only Y is meaningful (-16 through 12 pixels). Private
-    /// animation cues publish it, and its sign selects the follower's ascending or descending flames.
+    /// The flame follower's vertical placement relative to its parent, -16 through 12 pixels. Private animation cues
+    /// publish it, and its sign selects the follower's ascending or descending flames.
     /// </summary>
-    public Offset16<RoomPixels> FollowerOffset { get; internal set; }
+    public int FollowerYOffset { get; internal set; }
 
     /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour the parent and its flame follower both run.</summary>
-    public NorfairRioAction? Action { get; internal set; }
+    public NorfairRioAction Action { get; internal set; }
 
     /// <summary>Whether this is the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
     public bool IsFollower { get; internal set; }

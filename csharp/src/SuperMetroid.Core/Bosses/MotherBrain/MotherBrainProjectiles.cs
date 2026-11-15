@@ -266,7 +266,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Moves the bomb.</summary>
         private void BounceMotherBrainBomb(
             EnemyProjectile bomb,
-            SamusBombProjectileSystem? samusBombs)
+            SamusBombProjectileSystem samusBombs)
         {
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
                 "Mother Brain bomb ran without its multipart encounter state.");
@@ -301,9 +301,9 @@ internal sealed class MotherBrainProjectiles
         private bool TryDestroyMotherBrainBombWithSamusBomb(
             EnemyProjectile bomb,
             MotherBrainEnemyState state,
-            SamusBombProjectileSystem? samusBombs)
+            SamusBombProjectileSystem samusBombs)
         {
-            if (samusBombs is null || samusBombs.BombCounter == 0)
+            if (samusBombs.BombCounter == 0)
                 return false;
 
             foreach (SamusBomb samusBomb in samusBombs.Bombs)
@@ -512,7 +512,7 @@ internal sealed class MotherBrainProjectiles
         /// </summary>
         internal void FlyMotherBrainOnionRing(
             EnemyProjectile ring,
-            SamusState? samus,
+            SamusState samus,
             int cameraX)
         {
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
@@ -556,7 +556,7 @@ internal sealed class MotherBrainProjectiles
 
             // This private collision path intentionally ignores Samus's current invincibility
             // timer. It writes a fresh 96 only after applying suit-divided damage.
-            if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
+            if (MotherBrainOnionRingOverlapsSamus(ring, samus))
             {
                 Position16<RoomPixels> ringPosition = ring.Position.Whole;
                 SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
@@ -857,7 +857,7 @@ internal sealed class MotherBrainProjectiles
     {
         if (CoordinateAxis.AsSigned(turret.Position.Y.Whole) < 0 ||
             CoordinateAxis.AsSigned(turret.Position.Y.Whole + 16 - camera.Y) < 0 ||
-            CoordinateAxis.Wrap(turret.Position.Y.Whole + 16 - camera.Y) >= 256)
+            CoordinateAxis.Wrap(turret.Position.Y.Whole + 16 - camera.Y) >= EnemyView.Extent)
         {
             return false;
         }
@@ -884,10 +884,9 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Advances the rainbow impact effect through its timed lifetime.</summary>
     internal static void AdvanceMotherBrainRainbowExplosion(
         EnemyProjectile projectile,
-        SamusState? samus)
+        SamusState samus)
     {
-        SamusState target = samus ?? throw new InvalidOperationException(
-            "Mother Brain rainbow explosion requires the live Samus actor.");
+        SamusState target = samus;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
     }
 }

@@ -4,31 +4,20 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>A Ki-Hunter body's state: its patrol, swoop, wingless hops and whether it still has its wings.</summary>
 public sealed class KiHunterBodyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal KiHunterBodyState(KiHunterAction action) => Action = action;
+
     /// <summary>The animation the body plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
     /// <summary>Main-AI step.</summary>
-    public KiHunterAction? Action { get; internal set; }
+    public KiHunterAction Action { get; internal set; }
 
-    /// <summary>
-    /// The swoop target: Samus's room position when the swoop begins, around which the dive's ellipse is centred. Only
-    /// the X axis is stored and meaningful.
-    /// </summary>
-    public Position16<RoomPixels> SwoopTarget
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
+    /// <summary>The swoop target: Samus's room X when the swoop begins, around which the dive's ellipse is centred.</summary>
+    public int SwoopTargetX { get; internal set; }
 
-    /// <summary>
-    /// The swoop origin: the body's room position when the swoop begins, from which the dive's ellipse hangs. Only the Y
-    /// axis is stored and meaningful.
-    /// </summary>
-    public Position16<RoomPixels> SwoopOrigin
-    {
-        get;
-        internal set => field = new(0, value.Y);
-    }
+    /// <summary>The swoop origin: the body's room Y when the swoop begins, from which the dive's ellipse hangs.</summary>
+    public int SwoopOriginY { get; internal set; }
 
     /// <summary>
     /// The swoop angle at which the swoop's swipe animation starts: a sixteenth of a turn short of a full turn for a
@@ -57,11 +46,11 @@ public sealed class KiHunterBodyState
     /// <summary>The change in the swoop's turning speed each update: an eighth of a step, toward increasing angles for a rightward swoop and decreasing ones for a leftward one.</summary>
     public AngularSpeed AngularAcceleration { get; internal set; }
 
-    /// <summary>The upper patrol boundary, sixteen pixels above the spawn Y. Only the Y axis is stored and meaningful.</summary>
-    public Position16<RoomPixels> UpperPatrol { get; internal set; }
+    /// <summary>The upper patrol boundary's room Y, sixteen pixels above the spawn Y.</summary>
+    public int UpperPatrolY { get; internal set; }
 
-    /// <summary>The lower patrol boundary, sixteen pixels below the spawn Y. Only the Y axis is stored and meaningful.</summary>
-    public Position16<RoomPixels> LowerPatrol { get; internal set; }
+    /// <summary>The lower patrol boundary's room Y, sixteen pixels below the spawn Y.</summary>
+    public int LowerPatrolY { get; internal set; }
 
     /// <summary>The body's initial room position retained from initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }

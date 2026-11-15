@@ -428,6 +428,7 @@ using static SuperMetroid.Verification.Frontend.Pause.UnpauseReserveBlackoutVeri
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseStationLockReleaseVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseRemappedShoulderVerification;
 using static SuperMetroid.Verification.Enemies.VerticalOffScreenDeletionVerification;
+using static SuperMetroid.Verification.Enemies.EnemyViewVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpDustVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpSpinExitVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.WallProbeBombBlockVerification;
@@ -1007,6 +1008,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPowerBombDeathRadius), () => VerifyPowerBombDeathRadius()),
         new(nameof(VerifyRespawnedEnemyContact), () => VerifyRespawnedEnemyContact()),
         new(nameof(VerifyVerticalOffScreenDeletion), () => VerifyVerticalOffScreenDeletion()),
+        new(nameof(VerifyEnemyView), () => VerifyEnemyView()),
         new(nameof(VerifyBotwoonPositionHistory), () => VerifyBotwoonPositionHistory()),
         new(nameof(VerifyDraygonTurretCadence), () => VerifyDraygonTurretCadence()),
         new(nameof(VerifyWallJumpSpinExit), () => VerifyWallJumpSpinExit()),

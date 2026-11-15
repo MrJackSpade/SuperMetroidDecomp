@@ -80,7 +80,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Draygon's body per-frame behaviour.</summary>
-    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounter)
+    private void RunDraygonBodyMain(RoomEnemySlot body, SamusState samus, int frameCounter)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
         switch (state.Phase)
@@ -125,7 +125,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Goop.FireDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
             case DraygonPhase.GoopRightRecovery:
-                Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Right);
+                Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Right, samus);
                 break;
             case DraygonPhase.GoopLeftSetup:
                 Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Left, samus, frameCounter);

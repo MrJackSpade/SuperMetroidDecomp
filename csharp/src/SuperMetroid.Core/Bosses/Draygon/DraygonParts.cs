@@ -110,7 +110,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Runs the no-op tail/arms main AI and the active eye step.</summary>
-    internal void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
+    internal void RunDraygonPartMain(RoomEnemySlot part, SamusState samus)
     {
         if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
             return;
@@ -148,7 +148,7 @@ internal sealed class DraygonParts
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
     /// part.
     /// </summary>
-    internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState? samus)
+    internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState samus)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
@@ -194,7 +194,7 @@ internal sealed class DraygonParts
     /// final store of the running part's position replaces it.
     /// </summary>
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
-    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState? samus, DraygonCue cue)
+    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState samus, DraygonCue cue)
     {
         switch (cue)
         {
@@ -257,7 +257,7 @@ internal sealed class DraygonParts
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Runs the eye direction partition.</summary>
-    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
+    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState samus, HorizontalDirection facing)
     {
         // Emission precedes the angle-change early return, so a stationary
         // target must not suppress the periodic particle. It shares the real pool.
@@ -266,9 +266,6 @@ internal sealed class DraygonParts
                 new(CoordinateAxis.Wrap(eye.Position.X.Whole + (facing == HorizontalDirection.Right
                     ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), CoordinateAxis.Wrap(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
-        if (samus is null)
-            return;
-
         Position16<RoomPixels> gaze = eye.Position.Whole +
             new Offset16<RoomPixels>(facing == HorizontalDirection.Right ? 24 : -24, -32);
         Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
@@ -314,11 +311,8 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
-    private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState? samus)
+    private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Draygon's tail-hit cue requires Samus state.");
-
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 

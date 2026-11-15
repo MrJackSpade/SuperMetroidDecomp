@@ -101,8 +101,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         switch (state.Phase)
         {
@@ -111,7 +111,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoPhase.Falling:
                 Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
-                Movement.ApplyTorizoGravity(torizo, state, TorizoMovement.RequireTorizoLevel(level));
+                Movement.ApplyTorizoGravity(torizo, state, level);
                 return;
 
             case TorizoPhase.WaitForHandTrigger:
@@ -134,7 +134,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoPhase.GoldenWaitForSamus:
                 // The wake-up step advances the animation only after Samus has entered the
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
-                if (samus is not null && samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
+                if (samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
                     samus.Position.X.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.X)
                 {
                     // The dormant statue holds until Samus steps in, then awakens.
@@ -157,12 +157,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunGoldenTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
         // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
         // decision, then runs the same main phases as Bomb Torizo.
-        if (samus?.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
+        if (samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
             state.CountSamusSpaceJumpFrame();
         else
             state.SamusSpaceJumpFrames = 0;
@@ -403,10 +403,10 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireTorizoLevel(inputs.Level), new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, inputs.Level, new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireTorizoLevel(inputs.Level), new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.FacelessTurningLeft, CollisionFacingLeft = TorizoAnimation.FacelessTurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, inputs.Level, new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.FacelessTurningLeft, CollisionFacingLeft = TorizoAnimation.FacelessTurningRight });
 
             case TorizoCue.Replay { Kind: TorizoReplayKind.WhileRising }:
                 return state.Velocity.Y.IsNegative ? TorizoAnimations.ReplayPhase(continuation) : null;
@@ -428,8 +428,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
             {
-                if (inputs.Samus is null)
-                    throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
                 bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.BombFirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
@@ -570,7 +568,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
             {
-                SamusState activeSamus = RequireGoldenTorizoSamus(inputs.Samus);
+                SamusState activeSamus = inputs.Samus;
                 bool chooseFirst = activeSamus.Missiles < TorizoDecisionDefinitions.GoldenFirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, activeSamus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
@@ -581,7 +579,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoMovement.RequireTorizoLevel(inputs.Level),
+                    inputs.Level,
                     walk.Velocity);
 
             case TorizoCue.ShowArtwork showArtwork:
@@ -597,11 +595,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The place holds no Torizo.</exception>
     private static ILitTorizo LitTorizo(RoomEnemySlot torizo) =>
         torizo.Entity as TorizoEntity ?? throw new InvalidOperationException($"Enemy slot {torizo.SlotIndex} starts a Torizo's fight but holds no Torizo.");
-
-    /// <summary>Requires the active Samus actor for distance and attack decisions in Golden Torizo's animation.</summary>
-    private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
-        samus ?? throw new InvalidOperationException(
-            "Golden Torizo attack selection requires the active Samus actor.");
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
     internal static void ApplyTorizoPosture(

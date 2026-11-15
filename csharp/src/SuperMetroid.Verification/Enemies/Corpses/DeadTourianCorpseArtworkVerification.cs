@@ -144,7 +144,7 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>A Zoomer, Ripper or Skree corpse variant as the character rot oracle stages it from installed art.</summary>
     private static CorpseStaging InitializeDeadTourianCorpseArtwork(ImportEnemyArtwork artwork, EnemyDefinitionId definition, int variant) =>
-        CorpseStaging.Tourian(Atlas(artwork), DeadTourianCorpseStagingDefinitions.Variants(DeadTourianBehavior.ProfileForDeadTourianCorpse(definition).Species)[variant]);
+        CorpseStaging.Tourian(Atlas(artwork), DeadTourianCorpseStagingDefinitions.Variants(DeadTourianBehavior.SpeciesOf(definition))[variant]);
 
     /// <summary>The installed corpse sheet, which the character rot oracle stages every Tourian corpse from.</summary>
     private static ReadOnlySpan<byte> Atlas(ImportEnemyArtwork artwork) =>

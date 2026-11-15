@@ -101,7 +101,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeKiHunter(RoomEnemySlot body)
     {
         _wingsOfBody.Place(body, _slotTable.ListedAfter(body, 1));
-        var state = new KiHunterBodyState();
+        var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
         body.SetSpeciesState(state);
 
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
@@ -109,10 +109,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HasLostWings = false;
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
-        state.Action = KiHunterAction.FlyingPatrol;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(KiHunterMotionDefinitions.PatrolStartVelocity);
-        state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise));
-        state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, KiHunterMotionDefinitions.PatrolDepth);
+        state.UpperPatrolY = CoordinateAxis.Wrap(body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise);
+        state.LowerPatrolY = CoordinateAxis.Wrap(state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth);
         state.SpawnPosition = body.Position.Whole;
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
@@ -131,13 +130,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         _bodyOfWings.Place(wings, _slotTable.ListedBefore(wings, 1));
         RoomEnemySlot body = GetKiHunterBody(wings);
         _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
-        var state = new KiHunterWingState();
+        var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
         wings.SetSpeciesState(state);
 
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
-        state.Action = KiHunterAction.FollowBody;
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
@@ -180,11 +178,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             case KiHunterAction.SelectAcidSpit:
                 SelectKiHunterAcidSpit(actor, state, samus);
                 return;
-            case KiHunterAction.FollowBody:
-            case KiHunterAction.DetachedWing:
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ki-Hunter body has no behaviour for action {state.Action}.");
         }
     }
 
@@ -193,24 +189,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.Action)
         {
-            case KiHunterAction.FollowBody:
+            case KiHunterWingAction.FollowBody:
                 FollowKiHunterBody(wings);
                 return;
-            case KiHunterAction.DetachedWing:
+            case KiHunterWingAction.Detached:
                 RunDetachedKiHunterWing(wings, state, level);
                 return;
-            case KiHunterAction.FlyingPatrol:
-            case KiHunterAction.Swooping:
-            case KiHunterAction.RecoveringFromSwoop:
-            case KiHunterAction.FallingAfterWingLoss:
-            case KiHunterAction.StartGroundJump:
-            case KiHunterAction.AnimatingOnGround:
-            case KiHunterAction.GroundJump:
-            case KiHunterAction.GroundWait:
-            case KiHunterAction.SelectAcidSpit:
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter wings have no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ki-Hunter wings have no behaviour for action {state.Action}.");
         }
     }
 
@@ -228,11 +215,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Velocity = state.Velocity.WithWholeY(-state.Velocity.Y.WholePixels);
         }
-        else if ((body.Position.Whole - state.UpperPatrol).Y < 0)
+        else if (CoordinateAxis.Precedes(body.Position.Y.Whole, state.UpperPatrolY))
         {
             state.Velocity = state.Velocity.WithWholeY(1);
         }
-        else if ((body.Position.Whole - state.LowerPatrol).Y >= 0)
+        else if (!CoordinateAxis.Precedes(body.Position.Y.Whole, state.LowerPatrolY))
         {
             state.Velocity = state.Velocity.WithWholeY(-1);
         }
@@ -261,8 +248,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopRadius = new Extent16<RoomPixels>(
             absoluteXDistance,
             CoordinateAxis.Wrap(samus.Position.Y.Whole - body.Position.Y.Whole));
-        state.SwoopTarget = new(samus.Position.X.Whole, 0);
-        state.SwoopOrigin = new(0, body.Position.Y.Whole);
+        state.SwoopTargetX = samus.Position.X.Whole;
+        state.SwoopOriginY = body.Position.Y.Whole;
         state.Action = KiHunterAction.Swooping;
 
         bool swoopLeft = signedXDistance < 0;
@@ -322,7 +309,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         TrigonometryAngle tableAngle = state.SwoopAngle.ToTrigonometryAngle();
         int targetX = CoordinateAxis.Wrap(
-            state.SwoopTarget.X +
+            state.SwoopTargetX +
             EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X));
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
@@ -334,7 +321,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
         int targetY = CoordinateAxis.Wrap(
-            state.SwoopOrigin.Y +
+            state.SwoopOriginY +
             EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y));
         SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
@@ -598,7 +585,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 bodyState.HasLostWings = true;
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
                 bodyState.Velocity = bodyState.Velocity.WithY(SignedSixteenSixteen.FromParts(1, 0));
-                if (wingState.Action != KiHunterAction.DetachedWing)
+                if (wingState.Action != KiHunterWingAction.Detached)
                     DetachKiHunterWings(wings, wingState);
             }
             return;
@@ -623,7 +610,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
         state.FallingArcOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.FallingArcOffsetAngle, radius);
         state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
-        state.Action = KiHunterAction.DetachedWing;
+        state.Action = KiHunterWingAction.Detached;
         state.WingMovement = KiHunterWingMovement.Orbit;
         state.OrbitCenter = state.SavedWingPosition;
         state.DetachedSpeedCurvePlace = state.DetachedSpeedReset;
@@ -708,7 +695,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             ? KiHunterSegment.WingsRight
             : KiHunterSegment.WingsLeft;
         RoomEnemySlot wings = GetKiHunterWings(body);
-        if (WingsInPlace(wings) is { Action: KiHunterAction.FollowBody } wingState)
+        if (WingsInPlace(wings) is { Action: KiHunterWingAction.FollowBody } wingState)
             StartKiHunterAnimation(wings, wingState, wingSegment);
         return movingRight
             ? KiHunterSegment.FlyingRight
@@ -741,7 +728,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? KiHunterSegment.FlyingRight
                 : KiHunterSegment.FlyingLeft);
         RoomEnemySlot wings = GetKiHunterWings(body);
-        if (WingsInPlace(wings) is { Action: KiHunterAction.FollowBody } wingState)
+        if (WingsInPlace(wings) is { Action: KiHunterWingAction.FollowBody } wingState)
         {
             StartKiHunterAnimation(
                 wings,

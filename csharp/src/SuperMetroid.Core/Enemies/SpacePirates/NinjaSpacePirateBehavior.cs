@@ -78,7 +78,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initializes the Ninja Space Pirate.</summary>
     internal static void InitializeNinjaSpacePirate(RoomEnemySlot slot)
     {
-        var state = new NinjaSpacePirateEnemyState();
+        var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.FollowingAnimation);
         slot.SetSpeciesState(state);
 
         NinjaSpacePirateSpawnSettings settings = slot.SpawnSettings<NinjaSpacePirateSpawnSettings>();
@@ -125,7 +125,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
-        state.Action = NinjaSpacePirateAction.FollowingAnimation;
         state.SpawnPosition = slot.Position.Whole;
     }
 
@@ -142,10 +141,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateAction.FollowingAnimation:
                 return;
             case NinjaSpacePirateAction.Initial:
-                RunNinjaPirateInitial(slot, state, RequireSamus(), samusProjectiles);
+                RunNinjaPirateInitial(slot, state, samus, samusProjectiles);
                 return;
             case NinjaSpacePirateAction.Active:
-                RunNinjaPirateActive(slot, state, RequireSamus(), samusProjectiles);
+                RunNinjaPirateActive(slot, state, samus, samusProjectiles);
                 return;
             case NinjaSpacePirateAction.SpinJumpLeftRising:
                 StepNinjaPirateSpinJump(slot, state, direction: HorizontalDirection.Left, vertical: VerticalDirection.Up);
@@ -163,7 +162,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 RunNinjaPirateReadyToDivekick(
                     slot,
                     state,
-                    RequireSamus(),
+                    samus,
                     samusProjectiles);
                 return;
             case NinjaSpacePirateAction.DivekickLeftJump:
@@ -186,11 +185,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ninja Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ninja Space Pirate has no behaviour for action {state.Action}.");
         }
-
-        SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
-            "Ninja Space Pirate decision AI requires the active Samus actor.");
     }
 
     /// <summary>Waits for Samus to approach, then selects the active animation facing her.</summary>
@@ -544,19 +540,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int direction = thrown == HorizontalDirection.Right ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound
-        // motion reverses direction and accelerates indefinitely until the 256x256 camera
-        // check deletes the claw. Y advances one pixel on both halves of the flight.
+        // motion reverses direction and accelerates indefinitely until the claw leaves the view, whose right and
+        // bottom edges are already outside. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
             direction * claw.StepAlongThrow());
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
 
-        int right = CoordinateAxis.Wrap(camera.X + 256);
-        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
-        bool offScreen = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.X.Whole, right) >= 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
-        if (offScreen)
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
     }
 

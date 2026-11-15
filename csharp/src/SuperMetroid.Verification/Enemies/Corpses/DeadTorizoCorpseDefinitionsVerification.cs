@@ -34,7 +34,6 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         foreach (int place in places)
         {
             DeadTorizoEnemyState state = enemies.DeadTorizos[place] ?? throw new InvalidOperationException($"The dead Torizo in slot {place} has no state.");
-            AssertTrue(ReferenceEquals(enemies.SlotTable.Slots[place], state.Slot), $"the dead Torizo in slot {place} owns its own state");
             CorpseRotScheduleChecks.AssertFreshSchedule(DeadTorizoCorpseDefinitions.RowCount, state.Rot, $"dead Torizo production in slot {place}");
         }
         AssertTrue(!ReferenceEquals(enemies.DeadTorizos[places[0]], enemies.DeadTorizos[places[1]]), "each dead Torizo has its own state");

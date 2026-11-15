@@ -39,10 +39,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         Action<int> setRandomNumber = _room.Random.Seed;
 
         slot.AnimationClock.Restart();
-        var state = new PolypEnemyState
+        var state = new PolypEnemyState(PolypAction.WaitingForSamus)
         {
             Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
-            Action = PolypAction.WaitingForSamus,
             CooldownTimer = 0,
         };
         slot.SetSpeciesState(state);
@@ -82,7 +81,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Polyp has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Polyp has no behaviour for action {state.Action}.");
         }
     }
 
@@ -172,7 +171,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Undefined {nameof(PolypRockMovement)} {phase}.");
         }
 
-        CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
+        EnemyView.DeleteOutside(projectile, camera);
     }
 
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>

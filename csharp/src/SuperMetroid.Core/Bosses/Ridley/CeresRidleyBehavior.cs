@@ -64,7 +64,7 @@ internal sealed class CeresRidleyBehavior
     /// </summary>
     internal void RunCeresRidleyMain(
         RoomEnemySlot slot,
-        SamusState? samus)
+        SamusState samus)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
         slot.Health = RestoredHealth;

@@ -190,7 +190,7 @@ internal sealed class NorfairRidleyCombat
     internal void TickNorfairRidleyWallSweep(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         RidleyWallSweepTarget wall)
     {
         RidleyFacing facing = state.FacingDirection;
@@ -199,11 +199,11 @@ internal sealed class NorfairRidleyCombat
             state,
             new Position16<RoomPixels>(
                 wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehindX(facing) : RidleyMovementTargets.WallAheadX(facing),
-                samus is null ? 352 : int.Min(samus.Position.Y.Whole, 352)),
+                int.Min(samus.Position.Y.Whole, 352)),
             ReadRidleyHealthMovementDivisor(state));
         state.TailWhipRequested = true;
 
-        if (samus is null || SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
+        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
         {
             BeginNorfairRidleyPogoAttack(state);
             return;
@@ -236,7 +236,7 @@ internal sealed class NorfairRidleyCombat
     internal void TickNorfairRidleyPogoMoveToSide(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 288) < 0)
         {
@@ -255,7 +255,7 @@ internal sealed class NorfairRidleyCombat
     internal void TickNorfairRidleyPogoMoveToHeight(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, slot.Position.Whole.WithY(288), divisor: 16);
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
@@ -272,10 +272,10 @@ internal sealed class NorfairRidleyCombat
     internal void TickNorfairRidleyPogoFall(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level)
+        SamusState samus,
+        RoomLevelData level)
     {
-        if (samus is not null && SamusMovementUsesRidleyGrab(samus) &&
+        if (SamusMovementUsesRidleyGrab(samus) &&
             RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
             // Every acceleration clamps Ridley's speed to a few pixels an update, so it always has a magnitude.
@@ -317,9 +317,9 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Rises after a pogo bounce or returns to attack selection.</summary>
     internal static void TickNorfairRidleyPogoRise(
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null || samus.Position.Y.Whole < 352 || NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+        if (samus.Position.Y.Whole < 352 || NorfairRidleyMovement.TickRidleyPhaseTimer(state))
         {
             state.TailAction = RidleyTailAction.Neutral;
             state.TailAngleDelta = 1;
@@ -363,9 +363,9 @@ internal sealed class NorfairRidleyCombat
     internal void TickNorfairRidleyGrabApproach(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null || !SamusMovementUsesRidleyGrab(samus))
+        if (!SamusMovementUsesRidleyGrab(samus))
         {
             HandleNorfairRidleyMissedLunge(slot, state);
             return;
@@ -500,10 +500,8 @@ internal sealed class NorfairRidleyCombat
     internal static int ReadRidleyHealthMovementDivisor(RidleyEnemyState state) => state.HealthBand.HoverDivisor;
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
-    internal static bool SamusMovementUsesRidleyGrab(SamusState? samus)
+    internal static bool SamusMovementUsesRidleyGrab(SamusState samus)
     {
-        if (samus is null)
-            return false;
         SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus);
         return RidleyGrabs.CanGrab(movement);
     }
@@ -614,7 +612,7 @@ internal sealed class NorfairRidleyCombat
     private static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromPixels(6);
 
     /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
-    internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
+    internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState samus)
     {
         if (state.Velocity.X.IsZero)
             state.Velocity = state.Velocity.WithX(RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) < 128 ? PogoRestartSpeed : -PogoRestartSpeed);
@@ -624,7 +622,7 @@ internal sealed class NorfairRidleyCombat
         else if (CoordinateAxis.Difference(slot.Position.X.Whole, state.MovementMaximum.X) >= 0) reverse = !negative;
         else
         {
-            bool headsTowardSamus = CoordinateAxis.Difference(slot.Position.X.Whole, samus?.Position.X.Whole ?? 0) < 0 != state.Velocity.X.IsNegative;
+            bool headsTowardSamus = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0 != state.Velocity.X.IsNegative;
             bool headsAway = RidleyRandomDefinitions.PogoBounceHeadsAwayFromSamus.IsTakenBy(_room.Random.Read());
             reverse = headsTowardSamus ? headsAway : !headsAway;
         }

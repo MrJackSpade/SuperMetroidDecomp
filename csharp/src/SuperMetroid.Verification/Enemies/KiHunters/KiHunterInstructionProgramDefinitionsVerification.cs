@@ -152,8 +152,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             state.SwoopAngle = RotationAngle.FromSteps(angle);
             state.AnimationChangeAngle = RotationAngle.FromSteps(swoopLeft ? 240 : 144);
             state.SwoopAnimationChanged = false;
-            state.SwoopTarget = body.Position.Whole;
-            state.SwoopOrigin = body.Position.Whole;
+            state.SwoopTargetX = body.Position.X.Whole;
+            state.SwoopOriginY = body.Position.Y.Whole;
             state.SwoopRadius = new Extent16<RoomPixels>(16, 16);
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             var frame = new ClockedEnemyAiFrame(

@@ -7,11 +7,14 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 public sealed class NorfairPipeBugState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NorfairPipeBugState(PipeBugAction action) => Action = action;
+
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }
 
     /// <summary>The current action, one of the Norfair actions.</summary>
-    public PipeBugAction? Action { get; internal set; }
+    public PipeBugAction Action { get; internal set; }
 
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
@@ -35,8 +38,8 @@ public sealed class NorfairPipeBugState
     /// <summary>The speed the bug flies at, the spawn settings' speed: added flying one way and negated flying the other.</summary>
     public EnemyLinearSpeed FlightSpeeds { get; internal set; }
 
-    /// <summary>The point at which the member's rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
-    public Position16<RoomPixels> RiseEnd { get; internal set; }
+    /// <summary>The room Y at which the member's rise ended. Its stagger moves are measured from it.</summary>
+    public int RiseEndY { get; internal set; }
 
     /// <summary>The formation count, 88 through 120, at which the member departs: its role's (#1840).</summary>
     public int StaggerTarget { get; internal set; }

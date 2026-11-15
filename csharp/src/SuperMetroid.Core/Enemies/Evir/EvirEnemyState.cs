@@ -7,11 +7,14 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// </summary>
 public sealed class EvirEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal EvirEnemyState(EvirAction action) => Action = action;
+
     /// <summary>The side the body faces; the arms and spit copy their body's facing when they position themselves.</summary>
     public EvirFacing Facing { get; internal set; }
 
     /// <summary>The per-update behaviour this actor runs.</summary>
-    public EvirAction? Action { get; internal set; }
+    public EvirAction Action { get; internal set; }
 
     /// <summary>
     /// The body's bobbing countdown, decremented every update and expiring when it steps below zero, which reverses

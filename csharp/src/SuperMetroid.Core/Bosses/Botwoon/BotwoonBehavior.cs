@@ -135,11 +135,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
-    private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState? samus)
+    private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Botwoon main AI requires the active Samus actor.");
-
         // A fatal hit does not delete Botwoon. He keeps following his current path until
         // the tail has crossed the next hole, then the synchronized head/body death begins.
         if (state.PendingDeath && state.ExitTransitionComplete)
@@ -1030,13 +1027,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         spit.StateOf<AngledFlightState>().Advance(spit);
 
-        if (CoordinateAxis.Difference(spit.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.AsSigned(camera.X + 256 - spit.Position.X.Whole) < 0 ||
-            CoordinateAxis.Difference(spit.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.AsSigned(camera.Y + 256 - spit.Position.Y.Whole) < 0)
-        {
-            spit.Delete();
-        }
+        EnemyView.DeleteOutside(spit, camera);
     }
 
     /// <summary>Queues one of Botwoon's sounds as Botwoon makes it, after the update's earlier requests.</summary>

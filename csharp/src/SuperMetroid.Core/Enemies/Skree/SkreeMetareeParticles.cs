@@ -31,16 +31,13 @@ internal static class SkreeMetareeParticles
         SpawnParticle(projectiles, source, burst.UpLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
     }
 
-    /// <summary>Flies a particle under gravity, removing it once it leaves the camera's square.</summary>
+    /// <summary>Flies a particle under gravity, removing it once it leaves the view, whose right and bottom edges are already outside.</summary>
     private static void Fly(EnemyProjectile projectile, Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + Gravity);
-        if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
-        {
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
-        }
     }
 
     /// <summary>

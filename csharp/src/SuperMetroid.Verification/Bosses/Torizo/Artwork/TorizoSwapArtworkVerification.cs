@@ -140,7 +140,7 @@ internal static class TorizoSwapArtworkVerification
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, EncounterArtwork torizo, TorizoArtworkLook look) =>
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(slot,
                 new TorizoEnemyState(isGolden: torizo == EncounterArtwork.GoldenTorizo),
-                new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
+                new TorizoCueInputs { Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(look),
                 TorizoAnimations.Start(TorizoAnimation.GoldenTorizoDormant)) is null,
             $"{torizo} artwork look {look} runs on");

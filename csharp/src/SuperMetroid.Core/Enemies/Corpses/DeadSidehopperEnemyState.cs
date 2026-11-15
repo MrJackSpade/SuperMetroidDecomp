@@ -11,23 +11,21 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures one corpse's silhouette and its own rot schedule, and starts its own rows.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, CorpseRotSchedule rot)
+    /// <summary>Captures one corpse's silhouette and its own rot schedule, and starts its own rows and its first action.</summary>
+    internal DeadSidehopperEnemyState(CorpseRotSchedule rot, DeadSidehopperAction action)
     {
-        Slot = slot;
+        Action = action;
         Rot = Ensure.NotNull(rot);
         Rows = new RottingCorpseRows(rot.Rows.Count);
     }
 
-    /// <summary>The enemy slot owning this corpse's position, collision properties and animation timing.</summary>
-    public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
     /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
     internal RottingCorpseRows Rows { get; }
 
     /// <summary>The current dead-sidehopper AI behaviour.</summary>
-    public DeadSidehopperAction? Action { get; internal set; }
+    public DeadSidehopperAction Action { get; internal set; }
 
     /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
     public int JumpPhase { get; internal set; }

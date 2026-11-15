@@ -56,7 +56,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         foreach (SkreeMetareeSegment animation in metareeAnimations)
         {
             var metareeSlot = NewSkreeMetareeAnimationSlot();
-            var metareeState = new MetareeEnemyState { InstalledAnimation = Different(metareeAnimations, animation) };
+            var metareeState = new MetareeEnemyState(MetareeAction.Idling) { InstalledAnimation = Different(metareeAnimations, animation) };
             MetareeBehavior.StartMetareeAnimation(metareeSlot, metareeState, animation);
             AssertSkreeMetareeHandoff(metareeSlot, metareeState.InstalledAnimation, animation, metareeState.Playback, $"Metaree {animation}");
 
@@ -69,7 +69,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         foreach (SkreeMetareeSegment animation in skreeAnimations)
         {
             var skreeSlot = NewSkreeMetareeAnimationSlot();
-            var skreeState = new SkreeEnemyState { InstalledAnimation = Different(skreeAnimations, animation) };
+            var skreeState = new SkreeEnemyState(SkreeAction.Idling) { InstalledAnimation = Different(skreeAnimations, animation) };
             SkreeBehavior.StartSkreeAnimation(skreeSlot, skreeState, animation);
             AssertSkreeMetareeHandoff(skreeSlot, skreeState.InstalledAnimation, animation, skreeState.Playback, $"Skree {animation}");
 

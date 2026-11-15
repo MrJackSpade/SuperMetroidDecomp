@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public sealed class DachoraEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal DachoraEnemyState(DachoraAction action) => Action = action;
+
     /// <summary>The glow cycle: the speed or shine glow frame shown next and the updates before it (#1544).</summary>
     private DachoraGlowCycle _glowCycle;
 
@@ -105,7 +108,7 @@ public sealed class DachoraEnemyState
     }
 
     /// <summary>The main-AI behaviour.</summary>
-    public DachoraAction? Action { get; internal set; }
+    public DachoraAction Action { get; internal set; }
 
     /// <summary>Whether the Dachora faces right; a wall or the ceiling turns it.</summary>
     public bool FacingRight { get; internal set; }

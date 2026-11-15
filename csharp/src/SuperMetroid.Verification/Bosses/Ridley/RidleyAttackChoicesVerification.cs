@@ -43,8 +43,8 @@ internal static class RidleyAttackChoicesVerification
 
         var actual = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var reference = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, GameplayAction, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyPhase;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> runReference = reference.RidleyBehavior.RunNorfairRidleyPhase;
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
         actual.VerificationServices().NextRandom = () => { advances++; return random; };
@@ -54,12 +54,12 @@ internal static class RidleyAttackChoicesVerification
         var low = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 352)) };
         var spinning = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
         // Explicit native branch cases, including spin priority over zero health,
-        // health thresholds, absent Samus, and Y immediately before the pogo zone.
+        // health thresholds, and Y immediately before the pogo zone.
         RidleyAttackChoicesCase[] cases =
         [
             new RidleyAttackChoicesCase(0, standing, 5), new RidleyAttackChoicesCase(0, spinning, 4), new RidleyAttackChoicesCase(1, standing, 0),
             new RidleyAttackChoicesCase(8999, standing, 0), new RidleyAttackChoicesCase(9000, standing, 0), new RidleyAttackChoicesCase(14399, low, 0),
-            new RidleyAttackChoicesCase(14400, standing, 2), new RidleyAttackChoicesCase(18000, low, 3), new RidleyAttackChoicesCase(18000, null, 0),
+            new RidleyAttackChoicesCase(14400, standing, 2), new RidleyAttackChoicesCase(18000, low, 3),
             new RidleyAttackChoicesCase(18000, spinning, 4),
         ];
         foreach (var sample in cases)
@@ -78,8 +78,8 @@ internal static class RidleyAttackChoicesVerification
                 slot.Health = sample.Health;
                 slot.Position = slot.Position.WithWhole(new(128, 352));
             }
-            runReference(reference.SlotTable.Slots[0], expected, sample.Samus, 0, null);
-            select(actual.SlotTable.Slots[0], state, sample.Samus, 0, null);
+            runReference(reference.SlotTable.Slots[0], expected, sample.Samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            select(actual.SlotTable.Slots[0], state, sample.Samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
             AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");

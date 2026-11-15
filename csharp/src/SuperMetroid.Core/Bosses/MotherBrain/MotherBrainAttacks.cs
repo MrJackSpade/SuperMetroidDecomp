@@ -88,14 +88,14 @@ internal sealed class MotherBrainAttacks
     /// <summary>Advances the between-attacks delay and chooses when another attack may start.</summary>
     internal void RunMotherBrainSecondPhaseThinking(
         MotherBrainEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles = null)
     {
         if (state.Head.Health == 0)
         {
             StartLiveMotherBrainRainbowBeam(
                 state,
-                RequireMotherBrainCombatSamus(samus),
+                samus,
                 sharedProjectiles);
             return;
         }
@@ -139,12 +139,12 @@ internal sealed class MotherBrainAttacks
     /// </summary>
     internal void RunMotherBrainSecondPhaseTryAttack(
         MotherBrainEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         switch (state.AttackPhase)
         {
             case MotherBrainAttackPhase.ChooseAttack:
-                ChooseMotherBrainSecondPhaseAttack(state, RequireMotherBrainCombatSamus(samus));
+                ChooseMotherBrainSecondPhaseAttack(state, samus);
                 return;
 
             case MotherBrainAttackPhase.Cooldown:
@@ -393,11 +393,6 @@ internal sealed class MotherBrainAttacks
         }
     }
 
-    /// <summary>Requires a live Samus state for combat-only phase logic.</summary>
-    internal static SamusState RequireMotherBrainCombatSamus(SamusState? samus) =>
-        samus ?? throw new InvalidOperationException(
-            "Mother Brain phase-two attack selection requires the active Samus actor.");
-
     /// <summary>
     /// Positions the head quickly for the laser. Both neck joints initially turn by two angle units
     /// per frame toward one of two authored target angles chosen from the head/Samus Y
@@ -446,7 +441,7 @@ internal sealed class MotherBrainAttacks
     /// </summary>
     internal void FinishMotherBrainLaserAttack(
         MotherBrainEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;

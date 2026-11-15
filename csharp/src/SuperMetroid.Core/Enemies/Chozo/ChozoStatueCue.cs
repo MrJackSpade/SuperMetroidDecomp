@@ -9,8 +9,8 @@ internal abstract record ChozoStatueCue
     }
 
     /// <summary>Clears spikes under the cue's footstep offset.</summary>
-    /// <param name="Offset">Where a <see cref="Footstep"/> cue probes for spikes, relative to the statue; only its X is meaningful.</param>
-    internal sealed record Footstep(Offset16<RoomPixels> Offset) : ChozoStatueCue;
+    /// <param name="OffsetX">How far right of the statue a <see cref="Footstep"/> cue probes for spikes, in pixels.</param>
+    internal sealed record Footstep(int OffsetX) : ChozoStatueCue;
 
     /// <summary>Moves the statue by the cue's carry step and carries Samus.</summary>
     /// <param name="Step">The facing and carry pose a <see cref="Move"/> cue moves by.</param>

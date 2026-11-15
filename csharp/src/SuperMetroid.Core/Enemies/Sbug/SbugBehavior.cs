@@ -39,13 +39,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
-        var state = new SbugEnemyState(slot)
+        var state = new SbugEnemyState(slot, SbugAction.WaitForSamus)
         {
             // Enemy extension arrays are cleared with the room before initialization: no loop
             // is requested or installed until the first direction is selected.
             RequestedAnimation = null,
             InstalledAnimation = null,
-            Action = SbugAction.WaitForSamus,
         };
         slot.SetSpeciesState(state);
 
@@ -149,7 +148,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Sbug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Sbug has no behaviour for action {state.Action}.");
         }
     }
 

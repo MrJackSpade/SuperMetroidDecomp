@@ -98,29 +98,26 @@ internal sealed class EnemyProcessingWindow
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
         !CoordinateAxis.Precedes(slot.Radius.X + slot.Position.X.Whole, camera.X) &&
-        !CoordinateAxis.Precedes(slot.Radius.X + camera.X + 256, slot.Position.X.Whole) &&
-        !CoordinateAxis.Precedes(slot.Position.Y.Whole + 8, camera.Y) &&
-        !CoordinateAxis.Precedes(camera.Y + 248, slot.Position.Y.Whole);
+        !CoordinateAxis.Precedes(slot.Radius.X + camera.X + EnemyView.Extent, slot.Position.X.Whole) &&
+        !CoordinateAxis.Precedes(slot.Position.Y.Whole + ProcessingWindowAboveView, camera.Y) &&
+        !CoordinateAxis.Precedes(camera.Y + EnemyView.Extent - ProcessingWindowAboveView, slot.Position.Y.Whole);
 
-    /// <summary>
-    /// The center lies within 256 pixels
-    /// right of and below the camera on both axes.
-    /// </summary>
+    /// <summary>How far above the view the processing window reaches, and so how far short of its bottom edge it stops.</summary>
+    private const int ProcessingWindowAboveView = 8;
+
+    /// <summary>Whether the enemy's centre lies in the view (<see cref="EnemyView.Contains"/>).</summary>
     internal static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
-        !CoordinateAxis.Precedes(slot.Position.X.Whole, camera.X) &&
-        !CoordinateAxis.Precedes(camera.X + 256, slot.Position.X.Whole) &&
-        !CoordinateAxis.Precedes(slot.Position.Y.Whole, camera.Y) &&
-        !CoordinateAxis.Precedes(camera.Y + 256, slot.Position.Y.Whole);
+        EnemyView.Contains(slot.Position.Whole, camera);
 
     /// <summary>
-    /// A negative X, a right edge
-    /// left of the camera, or a position at least 256 pixels right of the camera is off-screen.
+    /// A negative X, a right edge left of the camera, or a position at least the view's width right of the camera is
+    /// off-screen.
     /// </summary>
     internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, int cameraX)
     {
         if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
         int fromCamera = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - cameraX);
-        return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, 256 + slot.Radius.X);
+        return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, EnemyView.Extent + slot.Radius.X);
     }
 }

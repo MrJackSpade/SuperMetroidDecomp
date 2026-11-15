@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>The state of a Yard. Names follow what each value does.</summary>
 public sealed class YardEnemyState
 {
+    /// <summary>Starts the Yard in <paramref name="movement"/>.</summary>
+    internal YardEnemyState(YardMovement movement) => Movement = movement;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YardSegment> Playback { get; set; }
 
@@ -39,7 +42,7 @@ public sealed class YardEnemyState
     /// The Yard's movement step, which may lag a direction cue by one update and so is chosen independently of
     /// <see cref="Direction"/>.
     /// </summary>
-    public YardMovement? Movement { get; internal set; }
+    public YardMovement Movement { get; internal set; }
 
     /// <summary>
     /// The airborne Yard's velocity in pixels per update. Gravity adds an eighth of a pixel to its fall, its sideways

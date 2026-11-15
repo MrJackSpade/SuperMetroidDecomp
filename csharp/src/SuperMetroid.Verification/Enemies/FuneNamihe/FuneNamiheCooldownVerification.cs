@@ -43,7 +43,7 @@ internal static class FuneNamiheCooldownVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fune, slot.Definition);
-        var state = new FuneNamiheEnemyState
+        var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown)
         {
             ShowsActiveAnimation = false,
             FacingRight = false,

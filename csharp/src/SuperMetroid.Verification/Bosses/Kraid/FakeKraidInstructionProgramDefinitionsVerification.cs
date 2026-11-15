@@ -172,7 +172,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 0;
-            Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
+            Action<RoomEnemySlot, SamusState> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
             slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.MiniKraid, slot.Definition);

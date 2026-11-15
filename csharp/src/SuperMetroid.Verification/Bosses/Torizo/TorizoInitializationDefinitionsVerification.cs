@@ -28,8 +28,8 @@ internal static class TorizoInitializationDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            Action<RoomEnemySlot, SamusState?, GameplayAction> initializeWithInput = enemies.TorizoBehavior.Movement.InitializeTorizo;
-            void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
+            Action<RoomEnemySlot, SamusState, GameplayAction> initializeWithInput = enemies.TorizoBehavior.Movement.InitializeTorizo;
+            void initialize(RoomEnemySlot slot) => initializeWithInput(slot, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
             // Every combination of engine properties (#1472: the property word's low byte is species settings, not

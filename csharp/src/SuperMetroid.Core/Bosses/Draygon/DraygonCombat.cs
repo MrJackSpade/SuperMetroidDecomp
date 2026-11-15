@@ -83,7 +83,7 @@ internal sealed class DraygonCombat
     internal void ApplyDraygonHurt(
         RoomEnemySlot body,
         DraygonEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.FlashTimer);
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
@@ -95,7 +95,7 @@ internal sealed class DraygonCombat
         // A grapple connected to the turrets is the game's electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
         // eighth body frame before running the same fatal/nonfatal reaction as a shot.
-        if (samus is null || !DraygonGrab.IsDraygonGrappleConnected(samus) ||
+        if (!DraygonGrab.IsDraygonGrappleConnected(samus) ||
             !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))
             return;
 
@@ -117,7 +117,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
-    internal void ResolveDraygonReaction(RoomEnemySlot body, SamusState? samus)
+    internal void ResolveDraygonReaction(RoomEnemySlot body, SamusState samus)
     {
         DraygonEnemyState state = RequireCompleteDraygonState(body);
         if (body.Health != 0)
@@ -134,10 +134,10 @@ internal sealed class DraygonCombat
     /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
     /// arm and eye animations restart, the drift phase is restarted and Samus is released.
     /// </remarks>
-    private void BeginDraygonDeath(DraygonEnemyState state, SamusState? samus)
+    private void BeginDraygonDeath(DraygonEnemyState state, SamusState samus)
     {
         RoomEnemySlot body = state.Body;
-        samus?.Grapple.Phase = GrapplePhase.Dropped;
+        samus.Grapple.Phase = GrapplePhase.Dropped;
         _parts.StartDraygonAnimation(
             body,
             state.FacingRight
@@ -154,12 +154,9 @@ internal sealed class DraygonCombat
         // The death behaviour releases Samus unconditionally, even during an
         // unrelated movement owner. In particular, this can interrupt a shinespark.
         // Samus's grapple flags, the owner-release signal among them, are cleared after this.
-        if (samus is not null)
-        {
-            _grab.ReleaseSamusDuringEnemyMain(samus);
-            samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
-            samus.Grapple.Phase = GrapplePhase.Dropped;
-        }
+        _grab.ReleaseSamusDuringEnemyMain(samus);
+        samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
+        samus.Grapple.Phase = GrapplePhase.Dropped;
     }
 
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>

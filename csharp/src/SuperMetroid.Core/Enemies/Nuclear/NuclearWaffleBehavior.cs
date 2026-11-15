@@ -34,7 +34,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Nuclear Waffle.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
-        var state = new NuclearWaffleEnemyState();
+        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting);
         slot.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(slot, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
@@ -43,7 +43,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitRadius = settings.OrbitRadius;
         state.WaitingTimerReset = settings.WaitTime;
         state.WaitingTimer = state.WaitingTimerReset;
-        state.Action = NuclearWaffleAction.Waiting;
 
         NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
         state.SweepsForward = settings.Direction == NuclearWaffleSweepDirection.Forward;
@@ -82,7 +81,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Nuclear Waffle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Nuclear Waffle has no behaviour for action {state.Action}.");
         }
     }
 

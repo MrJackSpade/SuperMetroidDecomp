@@ -29,7 +29,7 @@ internal static class AlcoonFireballBehaviorVerification
         source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        var state = new AlcoonEnemyState();
+        var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
         source.SetSpeciesState(state);
         foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
         {

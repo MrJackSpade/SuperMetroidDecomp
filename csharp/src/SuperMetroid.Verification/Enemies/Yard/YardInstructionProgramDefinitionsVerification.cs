@@ -73,7 +73,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard = enemies.SlotTable.Slots[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.DefinitionId, default(RoomEnemyDefinition));
-        var state = new YardEnemyState() { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation) };
+        var state = new YardEnemyState(YardMovement.AwaitingAnimationCue) { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation) };
         yard.SetSpeciesState(state);
         return enemies;
     }

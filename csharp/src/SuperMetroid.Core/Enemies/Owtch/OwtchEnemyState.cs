@@ -46,16 +46,14 @@ public sealed class OwtchEnemyState
     public int UndergroundTimer { get; internal set; }
 
     /// <summary>
-    /// The left end of the patrol, the spawn X less the travel distance with
-    /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
-    /// difference.
+    /// The left end of the patrol, the spawn X less the travel distance with room-coordinate wraparound. Positions
+    /// compare with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> MinimumPosition { get; internal set; }
+    public int MinimumX { get; internal set; }
 
     /// <summary>
-    /// The right end of the patrol, the spawn X plus the travel distance with
-    /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
-    /// difference.
+    /// The right end of the patrol, the spawn X plus the travel distance with room-coordinate wraparound. Positions
+    /// compare with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> MaximumPosition { get; internal set; }
+    public int MaximumX { get; internal set; }
 }

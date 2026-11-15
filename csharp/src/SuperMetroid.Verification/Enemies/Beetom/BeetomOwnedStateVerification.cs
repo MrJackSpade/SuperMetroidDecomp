@@ -17,7 +17,7 @@ internal static class BeetomOwnedStateVerification
     /// </summary>
     internal static void VerifyBeetomOwnedState()
     {
-        var arc = new BeetomEnemyState(previous: null) { YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(8) };
+        var arc = new BeetomEnemyState(previous: null, BeetomAction.DecideAction) { YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(8) };
         arc.StepRisingSpeed(4);
         AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.FromMarks(4), false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step above the apex keeps rising");
         arc.StepRisingSpeed(4);

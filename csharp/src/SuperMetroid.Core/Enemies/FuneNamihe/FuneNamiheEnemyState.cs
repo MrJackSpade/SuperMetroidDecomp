@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <summary>The state of one Fune or Namihe, the two species that share this actor.</summary>
 public sealed class FuneNamiheEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal FuneNamiheEnemyState(FuneNamiheAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FuneNamiheSegment> Playback { get; set; }
 
@@ -14,7 +17,7 @@ public sealed class FuneNamiheEnemyState
     public bool FacingRight { get; internal set; }
 
     /// <summary>The waiting or spitting behaviour.</summary>
-    public FuneNamiheAction? Action { get; internal set; }
+    public FuneNamiheAction Action { get; internal set; }
 
     /// <summary>Strict vertical wake distance in pixels used only by Namihe, from the spawn settings.</summary>
     public int YProximity { get; internal set; }

@@ -293,8 +293,8 @@ internal sealed class KraidCombat
             samus.Position -= new Offset16<RoomPixels>(KraidContactDefinitions.BodyEjection, 0);
         Position16<RoomPixels> ejected = samus.Position.Whole -
             new Offset16<RoomPixels>(0, KraidContactDefinitions.BodyEjection);
-        samus.Position = samus.Position.WithWholeY((ejected - state.EjectionLimit).Y < 0
-            ? state.EjectionLimit.Y : ejected.Y);
+        samus.Position = samus.Position.WithWholeY(CoordinateAxis.Precedes(ejected.Y, state.EjectionLimitY)
+            ? state.EjectionLimitY : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(KraidContactDefinitions.ExtraX, KraidContactDefinitions.ExtraY));
         if (samus.InvincibilityTimer.IsZero)
             _collision.ResolveNormalEnemyTouch(body, samus);

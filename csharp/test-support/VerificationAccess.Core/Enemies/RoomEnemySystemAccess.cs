@@ -140,6 +140,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<HibashiEnemyState?> HibashiStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<HibashiEntity, HibashiEnemyState>())];
 
+        /// <summary>Typed Hibashi collision-part state for every physical slot a collision part occupies.</summary>
+        internal IReadOnlyList<HibashiCollisionPartState?> HibashiCollisionPartStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<HibashiEntity, HibashiCollisionPartState>())];
+
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ElevatorEntity, ElevatorEnemyState>())];
@@ -203,6 +207,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<NorfairLavaJumpingEnemyEntity, NorfairLavaJumpingEnemyState>())];
 
+        /// <summary>Typed Squeept follower state for every physical slot a follower occupies.</summary>
+        internal IReadOnlyList<NorfairLavaJumperFollowerState?> NorfairLavaJumperFollowerStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<NorfairLavaJumpingEnemyEntity, NorfairLavaJumperFollowerState>())];
+
         /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FirefleaEntity, FirefleaEnemyState>())];
@@ -262,8 +270,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<WallSpacePirateEntity, WallSpacePirateEnemyState>())];
 
         /// <summary>Magdollite extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MagdolliteEntity, MagdolliteEnemyState>())];
+        internal IReadOnlyList<MagdollitePartState?> MagdolliteStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MagdolliteEntity, MagdollitePartState>())];
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
@@ -290,7 +298,15 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonEnemyState>())];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>() as DragonEnemyState)];
+
+        /// <summary>Typed Dragon wing state for every physical slot a wing occupies.</summary>
+        internal IReadOnlyList<DragonWingState?> DragonWingStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>() as DragonWingState)];
+
+        /// <summary>Typed Dragon body or wing state for every physical slot either occupies.</summary>
+        internal IReadOnlyList<DragonPartState?> DragonPartStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>())];
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>

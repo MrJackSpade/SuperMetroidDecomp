@@ -29,7 +29,7 @@ internal sealed class RidleyBodyAnimation
     /// Plays Ridley's body animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
-    internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
+    internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState samus)
     {
         if (!slot.AnimationClock.Expire())
             return;
@@ -43,7 +43,7 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
-    internal RidleyBodySegment? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
+    internal RidleyBodySegment? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState samus, RidleyBodyCue cue)
     {
         switch (cue)
         {
@@ -52,11 +52,6 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
                 if (slot.DefinitionId == EnemyDefinitionId.Ridley)
                     return null;
-                if (samus is null)
-                {
-                    throw new InvalidOperationException(
-                        "Ceres Ridley fireball branch requires the active Samus actor.");
-                }
                 if (samus.Health >= 30)
                     return null;
                 // The fireball animation stores 8 in the Ridley timer before it continues elsewhere,
@@ -89,11 +84,6 @@ internal sealed class RidleyBodyAnimation
                 state.FacingDirection = RidleyFacing.Right;
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.AimFireball }:
-                if (samus is null)
-                {
-                    throw new InvalidOperationException(
-                        "Ceres Ridley fireball aim requires the active Samus actor.");
-                }
                 _ridleyProjectiles.CalculateRidleyFireballVelocity(slot, samus);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithAfterburn }:

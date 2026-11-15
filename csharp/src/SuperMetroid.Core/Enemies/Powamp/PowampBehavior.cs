@@ -75,7 +75,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        var state = new PowampBodyState { RefusesContact = settings.GrappleTravelDistance != 0 };
+        var state = new PowampBodyState(PowampAction.DeflatedResting) { RefusesContact = settings.GrappleTravelDistance != 0 };
         slot.SetSpeciesState(state);
         // The body's balloon is the enemy its room lists before it, whatever occupies that place.
         // Reject malformed populations instead of accidentally
@@ -83,7 +83,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         _balloons.Place(slot, _slotTable.ListedBefore(slot, 1));
         RequirePowampBalloon(slot);
         state.ActionTimer = PowampRestFrames;
-        state.Action = PowampAction.DeflatedResting;
         state.Playback = StartPowampAnimation(slot, PowampSegment.BodySlow);
     }
 
@@ -100,16 +99,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunPowampInflating(slot, state, balloon);
                 return;
             case PowampAction.InflatedRiseToTargetHeight:
-                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
+                RunPowampRise(slot, state, balloon, level, hold: PowampHold.Free);
                 return;
             case PowampAction.InflatedFinishWiggle:
-                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
+                RunPowampFinishWiggle(slot, state, balloon, level, hold: PowampHold.Free);
                 return;
             case PowampAction.GrappledRiseToTargetHeight:
-                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
+                RunPowampRise(slot, state, balloon, level, hold: PowampHold.Grappled);
                 return;
             case PowampAction.GrappledFinishWiggle:
-                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
+                RunPowampFinishWiggle(slot, state, balloon, level, hold: PowampHold.Grappled);
                 return;
             case PowampAction.GrappledResting:
                 RunPowampGrappledResting(slot, state, balloon);
@@ -118,7 +117,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunPowampDeflating(slot, state, balloon);
                 return;
             case PowampAction.DeflatedSinking:
-                RunPowampSinking(slot, state, balloon, RequirePowampLevel(level));
+                RunPowampSinking(slot, state, balloon, level);
                 return;
             case PowampAction.FatalDamage:
                 BeginPowampDeathSequence(slot, state, balloon);
@@ -128,7 +127,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Powamp body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Powamp body has no behaviour for action {state.Action}.");
         }
     }
 
@@ -303,8 +302,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (inflation.Sequence == PowampBalloonSequence.Sinking)
         {
             // A balloon sunk halfway restarts inflating from halfway, and one sunk deflated restarts inflating from
-            // deflated; one still full keeps sinking. A sinking balloon that has not shown its first pose is refused, as
-            // the game would read past its restart table.
+            // deflated; one still full keeps sinking. A sinking balloon that has not shown its first pose is refused:
+            // it has no pose to restart from.
             if (inflation.PosesShown == 0)
                 throw new InvalidDataException("Powamp death saw a sinking balloon that had shown none of its poses.");
             if (PowampMotionDefinitions.SunkBalloonRestarts.TryGetValue(inflation.Pose, out PowampSegment restart))
@@ -465,9 +464,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException($"Powamp balloon started body animation {segment}.");
     }
 
-    /// <summary>Rejects a rise or sink without room collision data.</summary>
-    private static RoomLevelData RequirePowampLevel(RoomLevelData level) =>
-        level ?? throw new InvalidOperationException("Powamp movement requires room level data.");
 
     /// <summary>Requires the balloon the body found when it was placed to be its initialized balloon half.</summary>
     private PowampBalloon RequirePowampBalloon(RoomEnemySlot body)

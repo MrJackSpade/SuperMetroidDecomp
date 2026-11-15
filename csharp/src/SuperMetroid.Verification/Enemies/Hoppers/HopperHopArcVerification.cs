@@ -37,7 +37,7 @@ internal static class HopperHopArcVerification
             slot.Bind(EnemyDefinitionId.Sidehopper, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(64, 48));
             slot.Radius = new(8, 8);
-            var state = new HopperEnemyState
+            var state = new HopperEnemyState(HopperAction.ChooseHopSize)
             {
                 Action = HopperAction.Jumping,
                 Falling = falling,

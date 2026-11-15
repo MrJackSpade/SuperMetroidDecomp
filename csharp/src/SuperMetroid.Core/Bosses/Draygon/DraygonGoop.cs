@@ -33,7 +33,7 @@ internal sealed class DraygonGoop
     internal void SetupDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         // Only the rightward setup fires a wall turret; the leftward setup omits it.
@@ -63,14 +63,11 @@ internal sealed class DraygonGoop
     internal void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
         HorizontalDirection direction,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
-        if (samus is null)
-            throw new InvalidOperationException("Draygon cannot position a goop pass without Samus.");
-
         if (CoordinateAxis.Distance(state.Body.Position.X.Whole, samus.Position.X.Whole) < 208)
         {
             state.Phase = direction == HorizontalDirection.Right
@@ -86,13 +83,13 @@ internal sealed class DraygonGoop
     internal void FireDraygonGoop(
         DraygonEnemyState state,
         HorizontalDirection direction,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         // The right-facing shot runs the turret's step; the left-facing one does not.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        if (samus?.XSpeedDivisor != 0)
+        if (samus.XSpeedDivisor != 0)
         {
             state.Phase = DraygonPhase.TryGrabSamus;
             return;
@@ -138,11 +135,11 @@ internal sealed class DraygonGoop
     internal void ExitDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
-        SamusState? samus = null)
+        SamusState samus)
     {
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         // Only the leftward recovery rechecks whether Samus became gooped after firing.
-        if (direction != HorizontalDirection.Right && samus?.XSpeedDivisor != 0)
+        if (direction != HorizontalDirection.Right && samus.XSpeedDivisor != 0)
         {
             state.Phase = DraygonPhase.TryGrabSamus;
             return;

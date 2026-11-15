@@ -11,7 +11,7 @@ internal static class CrawlerFallingGravityVerification
     /// </summary>
     internal static void VerifyCrawlerFallingGravity()
     {
-        var state = new CrawlerEnemyState();
+        var state = new CrawlerEnemyState(CrawlerAction.Settling);
         for (int update = 1; update <= 8; update++)
         {
             state.ApplyFallingGravity();

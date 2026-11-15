@@ -71,8 +71,8 @@ internal static class CacatacBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
         CacatacBehavior.InitializeCacatac(slot);
         CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
-        AssertEqual(new Position16<RoomPixels>(unchecked((ushort)(8 - 16)), 112), state.LeftPatrolLimit, "Cacatac left limit wraps below the room's left edge");
-        AssertEqual(new Position16<RoomPixels>(24, 112), state.RightPatrolLimit, "Cacatac right limit is one block right of spawn");
+        AssertEqual((int)unchecked((ushort)(8 - 16)), state.LeftPatrolX, "Cacatac left limit wraps below the room's left edge");
+        AssertEqual(24, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
 
         state.Speed = oneAndAHalfPixels;
         slot.Position = slot.Position.WithFractionX(checked(halfPixel));
@@ -82,9 +82,9 @@ internal static class CacatacBehaviorVerification
         AssertEqual(CacatacAction.MovingLeft, state.Action, "Cacatac keeps its leftward patrol");
 
         // One pixel right of the wrapped limit: the step lands half a pixel past it and turns.
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolLimit.X + 1)));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolX + 1)));
         enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
-        AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolLimit.X - 1)), checked(halfPixel)), slot.Position.X,
+        AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolX - 1)), checked(halfPixel)), slot.Position.X,
             "Cacatac steps past its wrapped left limit");
         AssertEqual(CacatacDirection.Right, state.Direction, "Cacatac turns right once past its wrapped left limit");
         AssertEqual(CacatacAction.MovingRight, state.Action, "Cacatac patrols right after the turn");

@@ -7,19 +7,17 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures the selected corpse variant's reaction profile and its own rot schedule for one slot, and starts its own rows.</summary>
-    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
+    /// <summary>Captures the corpse's species and its own rot schedule, and starts its own rows and its first phase.</summary>
+    internal DeadTourianCorpseEnemyState(DeadTourianCorpseSpecies species, CorpseRotSchedule rot, DeadTourianCorpsePhase phase)
     {
-        Slot = slot;
+        Phase = phase;
         Rot = Ensure.NotNull(rot);
         Rows = new RottingCorpseRows(rot.Rows.Count);
-        Profile = profile;
+        Species = species;
     }
 
-    /// <summary>Owning room slot; state is registered for this slot until room reset.</summary>
-    public RoomEnemySlot Slot { get; }
     /// <summary>The phase main AI runs.</summary>
-    public DeadTourianCorpsePhase? Phase { get; internal set; }
+    public DeadTourianCorpsePhase Phase { get; internal set; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotSchedule Rot { get; }
     /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
@@ -30,8 +28,8 @@ public sealed class DeadTourianCorpseEnemyState
     /// </summary>
     public int PreRotDelayCounter { get; internal set; }
 
-    /// <summary>Assembly-internal reaction profile and row layout of this corpse's species.</summary>
-    internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
+    /// <summary>The species whose corpse it is.</summary>
+    internal DeadTourianCorpseSpecies Species { get; }
 
     /// <summary>Counts one pre-rot AI call.</summary>
     internal void CountPreRotDelayCall() => PreRotDelayCounter++;

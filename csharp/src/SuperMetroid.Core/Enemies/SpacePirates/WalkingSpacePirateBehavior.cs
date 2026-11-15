@@ -109,7 +109,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Initializes the walking Space Pirate.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
-        var state = new WalkingSpacePirateEnemyState();
+        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.FollowingAnimation);
         slot.SetSpeciesState(state);
 
         // The facing option alone selects the initial facing. The slow-laser option is an
@@ -120,7 +120,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
-        state.Action = WalkingSpacePirateAction.FollowingAnimation;
 
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
@@ -143,29 +142,23 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 break;
 
             case WalkingSpacePirateAction.WalkingLeft:
-                RunWalkingSpacePirateLeft(slot, state, RequireSamus(), RequireLevel());
+                RunWalkingSpacePirateLeft(slot, state, samus, level);
                 break;
 
             case WalkingSpacePirateAction.WalkingRight:
-                RunWalkingSpacePirateRight(slot, state, RequireSamus(), RequireLevel());
+                RunWalkingSpacePirateRight(slot, state, samus, level);
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Walking Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Walking Space Pirate has no behaviour for action {state.Action}.");
         }
 
         // The slow-laser option enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace an animation selected just above.
         if (((slot.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
-                WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None) &&
-            samus is not null)
+                WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None))
             TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
-
-        SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
-            "Walking Space Pirate movement requires the active Samus position.");
-        RoomLevelData RequireLevel() => level ?? throw new InvalidOperationException(
-            "Walking Space Pirate movement requires room collision data.");
     }
 
     /// <summary>Runs the asymmetric left walk.</summary>
@@ -438,13 +431,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             ? CoordinateAxis.Wrap(projectile.Position.X.Whole + pixels)
             : CoordinateAxis.Wrap(projectile.Position.X.Whole - pixels));
 
-        int right = CoordinateAxis.Wrap(camera.X + 256);
-        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
-        bool offScreen = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.X.Whole, right) >= 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
-        if (offScreen)
+        if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
     }
 
@@ -561,7 +548,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             };
             c.Projectile.Direction = reflected;
             c.Projectile.IsSpent = false;
-            c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
+            c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
                 c.Projectile);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;

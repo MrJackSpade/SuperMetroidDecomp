@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Flies;
 /// <summary>The state of one Mellow, Mella or Memu.</summary>
 public sealed class FlyEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal FlyEnemyState(FlyAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FlySegment> Playback { get; set; }
 
@@ -23,7 +26,7 @@ public sealed class FlyEnemyState
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>The current circling, attacking or retreating behaviour.</summary>
-    public FlyAction? Action { get; internal set; }
+    public FlyAction Action { get; internal set; }
 
     /// <summary>One circling update's phase advance: sixteen 256ths of a turn one way or the other, wrapping after a full turn.</summary>
     /// <param name="clockwise">Whether the fly circles clockwise.</param>

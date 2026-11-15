@@ -116,7 +116,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // The head's spawn settings name the speed it and its arm rise and sink at; the arm reads the head's.
-        var state = new MagdolliteHeadState { Speed = HeadRise(slot).Speed };
+        var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting) { Speed = HeadRise(slot).Speed };
         slot.SetSpeciesState<MagdollitePartState>(state);
         state.InstalledAnimation = null;
         state.HeadWaitsForBodyLanding = false;
@@ -127,13 +127,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? MagdolliteSegment.LeftIdle
             : MagdolliteSegment.RightIdle;
         StartMagdolliteAnimation(slot, state);
-        state.Action = MagdolliteHeadAction.Waiting;
     }
 
     /// <summary>Hides the rising body 32 pixels below its origin until the head triggers an attack.</summary>
     private static void InitializeMagdolliteBody(RoomEnemySlot slot)
     {
-        var state = new MagdolliteBodyState();
+        var state = new MagdolliteBodyState(MagdolliteBodyAction.Dormant);
         slot.SetSpeciesState<MagdollitePartState>(state);
         state.Origin = slot.Position.Whole;
         state.InstalledAnimation = null;
@@ -142,14 +141,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredAnimation = MagdolliteRise.Phase(0).BodyAnimation;
         StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
-        state.Action = MagdolliteBodyAction.Dormant;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Hides the projectile-throwing overlay below its origin and starts its pillar-cap animation.</summary>
     private static void InitializeMagdolliteOverlay(RoomEnemySlot slot)
     {
-        var state = new MagdolliteOverlayState();
+        var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
         slot.SetSpeciesState<MagdollitePartState>(state);
         state.Origin = slot.Position.Whole;
         state.InstalledAnimation = null;
@@ -157,7 +155,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredAnimation = MagdolliteSegment.PillarCap;
         StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
-        state.Action = MagdolliteOverlayAction.WaitingForAttack;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
@@ -201,7 +198,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Magdollite head has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Magdollite head has no behaviour for action {state.Action}.");
         }
     }
 
@@ -223,7 +220,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Magdollite body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Magdollite body has no behaviour for action {state.Action}.");
         }
     }
 
@@ -247,7 +244,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Magdollite overlay has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Magdollite overlay has no behaviour for action {state.Action}.");
         }
     }
 

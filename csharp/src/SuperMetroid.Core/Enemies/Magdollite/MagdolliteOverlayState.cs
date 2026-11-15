@@ -6,14 +6,15 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 public sealed class MagdolliteOverlayState : MagdollitePartState
 {
-    /// <summary>Creates the overlay's state.</summary>
-    internal MagdolliteOverlayState()
+    /// <summary>Creates the overlay's state, starting in <paramref name="action"/>.</summary>
+    internal MagdolliteOverlayState(MagdolliteOverlayAction action)
         : base(MagdollitePart.TrackingOverlay)
     {
+        Action = action;
     }
 
     /// <summary>What the overlay is doing.</summary>
-    public MagdolliteOverlayAction? Action { get; internal set; }
+    public MagdolliteOverlayAction Action { get; internal set; }
 
     /// <summary>
     /// The cooldown before the head may attack again, counted down each overlay update: the throw animation restarts it

@@ -78,7 +78,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initializes the Ninja Space Pirate.</summary>
     internal static void InitializeNinjaSpacePirate(RoomEnemySlot slot)
     {
-        var state = new NinjaSpacePirateEnemyState();
+        var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.FollowingAnimation);
         slot.SetSpeciesState(state);
 
         NinjaSpacePirateSpawnSettings settings = slot.SpawnSettings<NinjaSpacePirateSpawnSettings>();
@@ -125,7 +125,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
-        state.Action = NinjaSpacePirateAction.FollowingAnimation;
         state.SpawnPosition = slot.Position.Whole;
     }
 
@@ -186,7 +185,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ninja Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ninja Space Pirate has no behaviour for action {state.Action}.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(

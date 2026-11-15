@@ -86,7 +86,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
-        var state = new LowerNorfairRioEnemyState { Playback = new(LowerNorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
+        var state = new LowerNorfairRioEnemyState(LowerNorfairRioAction.WaitForAttackOpportunity) { Playback = new(LowerNorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);
     }

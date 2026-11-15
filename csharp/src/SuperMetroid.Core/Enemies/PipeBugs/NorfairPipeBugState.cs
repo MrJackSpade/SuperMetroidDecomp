@@ -7,11 +7,14 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 public sealed class NorfairPipeBugState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NorfairPipeBugState(PipeBugAction action) => Action = action;
+
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }
 
     /// <summary>The current action, one of the Norfair actions.</summary>
-    public PipeBugAction? Action { get; internal set; }
+    public PipeBugAction Action { get; internal set; }
 
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }

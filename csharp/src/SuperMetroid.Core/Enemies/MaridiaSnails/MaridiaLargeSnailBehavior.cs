@@ -59,7 +59,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Initializes the Oum.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
-        var state = new MaridiaLargeSnailEnemyState
+        var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
         {
             RequestedAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
             InstalledAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
@@ -69,12 +69,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             SamusIsLeft = false,
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
-            Action = MaridiaLargeSnailAction.Idle,
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
-            BouncePhase = MaridiaLargeSnailBouncePhase.Falling,
         };
         slot.SetSpeciesState(state);
 
@@ -110,7 +108,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Maridia Large Snail has no behaviour for action {state.Action}.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -264,7 +262,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             default:
                 throw new InvalidDataException(
                     $"Maridia Large Snail has no behaviour for bounce phase " +
-                    $"{state.BouncePhase?.ToString() ?? "none"}.");
+                    $"{state.BouncePhase}.");
         }
     }
 

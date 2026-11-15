@@ -18,17 +18,10 @@ internal static class DragonNativeWords
         [DragonAction.Sinking] = 0xe749,
     });
 
-    /// <summary>The routine word of the wing's main AI, which returns at once: the wing takes no action.</summary>
-    internal const ushort WingWord = 0xe781;
-
-    /// <summary>The body action a recorded routine word names, or null for none or for the wing's.</summary>
-    internal static DragonAction? ActionAt(ushort word) =>
-        word is 0 or WingWord ? null : DragonActions.Decode(word, "recorded DragonAction");
-
     /// <summary>
     /// The cartridge's animation-table ordinal naming each <see cref="DragonSegment"/>: even ordinals face
     /// left, odd ordinals face right. The cartridge's all-ones installed ordinal is Core's
-    /// <see cref="DragonEnemyState.ReinstallRequested"/>, not an animation.
+    /// <see cref="DragonPartState.ReinstallRequested"/>, not an animation.
     /// </summary>
     internal static readonly NativeWordIdentities<DragonSegment> Animations = new(new Dictionary<DragonSegment, ushort>
     {

@@ -24,11 +24,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemySlot slot)
     {
-        var state = new ChootEnemyState();
+        var state = new ChootEnemyState(ChootAction.WaitingForSamus);
         slot.SetSpeciesState(state);
 
         SetChootAnimation(slot, state, ChootSegment.Idle);
-        state.Action = ChootAction.WaitingForSamus;
         state.SpawnPosition = slot.Position.Whole;
 
         ChootFallingPath fallingPath = slot.SpawnSettings<ChootSpawnSettings>().FallingPath;
@@ -66,7 +65,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Choot has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Choot has no behaviour for action {state.Action}.");
         }
     }
 

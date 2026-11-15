@@ -101,7 +101,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeKiHunter(RoomEnemySlot body)
     {
         _wingsOfBody.Place(body, _slotTable.ListedAfter(body, 1));
-        var state = new KiHunterBodyState();
+        var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
         body.SetSpeciesState(state);
 
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
@@ -109,7 +109,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HasLostWings = false;
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
-        state.Action = KiHunterAction.FlyingPatrol;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
         state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - 16));
         state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
@@ -131,13 +130,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         _bodyOfWings.Place(wings, _slotTable.ListedBefore(wings, 1));
         RoomEnemySlot body = GetKiHunterBody(wings);
         _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
-        var state = new KiHunterWingState();
+        var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
         wings.SetSpeciesState(state);
 
         wings.Processing = wings.Processing.With(EnemyProcessing.Animates);
         StartKiHunterAnimation(wings, state, KiHunterSegment.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
-        state.Action = KiHunterWingAction.FollowBody;
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
@@ -182,7 +180,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ki-Hunter body has no behaviour for action {state.Action}.");
         }
     }
 
@@ -199,7 +197,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter wings have no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Ki-Hunter wings have no behaviour for action {state.Action}.");
         }
     }
 

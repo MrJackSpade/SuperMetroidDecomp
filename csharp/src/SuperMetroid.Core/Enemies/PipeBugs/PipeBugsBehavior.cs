@@ -58,11 +58,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Brinstar Pipe Bug.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
-        var state = new BrinstarPipeBugState();
+        var state = new BrinstarPipeBugState(PipeBugAction.BrinstarWaitUntilOnScreen);
         slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
         state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
-        state.Action = PipeBugAction.BrinstarWaitUntilOnScreen;
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.InstalledAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.InstalledAnimation), AnimationPlace.StartOfAnimation);
@@ -79,7 +78,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth != 0)
             _formations.Place(slot, NorfairPipeBugFormation.LedBy(_slotTable, slot));
         _ = _norfairPlaces.Add(slot);
-        var state = new NorfairPipeBugState();
+        var state = new NorfairPipeBugState(PipeBugAction.NorfairWaitForFormation);
         slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
@@ -87,13 +86,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FlightSpeeds = new EnemyLinearSpeed(flightSpeed);
         state.FormationCounter = 0;
         state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
-        state.Action = PipeBugAction.NorfairWaitForFormation;
     }
 
     /// <summary>Initializes the yellow Brinstar Pipe Bug.</summary>
     internal static void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
-        var state = new YellowPipeBugState();
+        var state = new YellowPipeBugState(PipeBugAction.YellowWaitForSamus);
         slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
@@ -104,7 +102,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The spawn settings name the speed the bug flies at.
         state.FlightSpeed = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
-        state.Action = PipeBugAction.YellowWaitForSamus;
         state.ArcCompleted = false;
     }
 
@@ -157,7 +154,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.YellowArcRight:
             default:
                 throw new InvalidDataException(
-                    $"Brinstar Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Brinstar Pipe Bug has no behaviour for action {state.Action}.");
         }
     }
 
@@ -229,7 +226,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.YellowArcRight:
             default:
                 throw new InvalidDataException(
-                    $"Norfair Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Norfair Pipe Bug has no behaviour for action {state.Action}.");
         }
     }
 
@@ -279,7 +276,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.NorfairWaitForStagger:
             default:
                 throw new InvalidDataException(
-                    $"Yellow Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Yellow Pipe Bug has no behaviour for action {state.Action}.");
         }
     }
 

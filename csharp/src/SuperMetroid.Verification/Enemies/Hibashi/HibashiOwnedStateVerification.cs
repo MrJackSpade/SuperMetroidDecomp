@@ -27,12 +27,11 @@ internal static class HibashiOwnedStateVerification
         enemies.HibashiBehavior.InitializeHibashi(hitbox);
 
         HibashiEnemyState graphicsState = enemies.HibashiStates[0] ?? throw new InvalidOperationException("The graphics part has no state.");
-        HibashiEnemyState hitboxState = enemies.HibashiStates[1] ?? throw new InvalidOperationException("The collision part has no state.");
-        AssertTrue(!graphicsState.IsCollisionPart && hitboxState.IsCollisionPart, "parameter two selects the collision part");
+        AssertTrue(enemies.HibashiCollisionPartStates[0] is null && enemies.HibashiCollisionPartStates[1] is not null && enemies.HibashiStates[1] is null,
+            "parameter two selects the collision part, which keeps only its animation");
         AssertEqual(ushort.MaxValue, graphicsState.InactiveTimerReset, "the reset keeps parameter one's full word");
         AssertEqual((ushort)0x0120, graphicsState.SpawnHeight.Y, "the graphics part keeps its spawn height");
         AssertEqual(HibashiAction.Inactive, graphicsState.Action, "the graphics part starts inactive");
-        AssertEqual(null, hitboxState.Action, "the collision part runs no state machine");
         Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");
     }
 

@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public sealed class DeadTorizoEnemyState
 {
-    /// <summary>Captures the corpse's own rot schedule.</summary>
-    internal DeadTorizoEnemyState(CorpseRotSchedule rot)
+    /// <summary>Captures the corpse's own rot schedule and its first phase.</summary>
+    internal DeadTorizoEnemyState(CorpseRotSchedule rot, DeadTorizoPhase phase)
     {
+        Phase = phase;
         Rot = Ensure.NotNull(rot);
     }
 
@@ -28,7 +29,7 @@ public sealed class DeadTorizoEnemyState
     public int ProcessCallCount { get; internal set; }
 
     /// <summary>The corpse phase.</summary>
-    internal DeadTorizoPhase? Phase { get; set; }
+    internal DeadTorizoPhase Phase { get; set; }
 
     /// <summary>Signed 1/256-pixel velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

@@ -69,11 +69,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState samus, GameplayAction controllerInput)
     {
-        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
+        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         slot.SetSpeciesState(state);
 
         state.ActionTimer = 0;
-        state.Action = null;
         state.Falling = false;
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMashCount;
@@ -94,7 +93,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
-        state.Action = BeetomAction.DecideAction;
     }
 
     /// <summary>Runs a Beetom's per-frame behaviour through all of its actions.</summary>
@@ -194,7 +192,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
-                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action}.");
         }
     }
 

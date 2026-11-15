@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>A Ki-Hunter's wings' state: following the body, then, once detached, their orbit and falling arc.</summary>
 public sealed class KiHunterWingState
 {
+    /// <summary>Starts the wings in <paramref name="action"/>.</summary>
+    internal KiHunterWingState(KiHunterWingAction action) => Action = action;
+
     /// <summary>The animation the wings play and where they stand in it (#1600).</summary>
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
     /// <summary>Main-AI step: following the body, or detached.</summary>
-    public KiHunterWingAction? Action { get; internal set; }
+    public KiHunterWingAction Action { get; internal set; }
 
     /// <summary>
     /// The detached wings' place along the shared quadratic speed curve: reset to <see cref="DetachedSpeedReset"/> at each
@@ -34,8 +37,11 @@ public sealed class KiHunterWingState
     /// </summary>
     public RotationAngle WingArcAngle { get; internal set; }
 
-    /// <summary>The detached wings' movement, alternating between non-colliding and collision-bearing arcs.</summary>
-    public KiHunterWingMovement? WingMovement { get; internal set; }
+    /// <summary>
+    /// The detached wings' movement, alternating between non-colliding and collision-bearing arcs; detached wings start
+    /// with the orbit.
+    /// </summary>
+    public KiHunterWingMovement WingMovement { get; internal set; } = KiHunterWingMovement.Orbit;
 
     /// <summary>
     /// The reset place along the speed curve, computed at detachment by stepping a mark and a half at a time until the

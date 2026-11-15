@@ -9,11 +9,14 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NuclearWaffleEnemyState(NuclearWaffleAction action) => Action = action;
+
     /// <summary>Where the body's typed animation (#641) resumes.</summary>
     internal AnimationPlayback<NuclearWaffleSegment> Playback { get; set; }
 
     /// <summary>The current waiting or sweeping behaviour.</summary>
-    public NuclearWaffleAction? Action { get; internal set; }
+    public NuclearWaffleAction Action { get; internal set; }
 
     /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a negative value and reloaded from the population reset.</summary>
     public int WaitingTimer { get; internal set; }

@@ -56,19 +56,17 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Initializes the wall Space Pirate.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
     {
-        var state = new WallSpacePirateEnemyState();
-        slot.SetSpeciesState(state);
-
         WallSpacePirateOptions flags = slot.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
         bool startsOnRight = (flags & WallSpacePirateOptions.StartsOnRightWall) != WallSpacePirateOptions.None;
         bool slowJump = (flags & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None;
+        var state = new WallSpacePirateEnemyState(startsOnRight
+            ? WallSpacePirateAction.ClimbingRightWall
+            : WallSpacePirateAction.ClimbingLeftWall);
+        slot.SetSpeciesState(state);
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(startsOnRight
             ? WallSpacePirateSegment.MovingDownRightWall
             : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
-        state.Action = startsOnRight
-            ? WallSpacePirateAction.ClimbingRightWall
-            : WallSpacePirateAction.ClimbingLeftWall;
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
         // The Japanese and North American release measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
@@ -123,7 +121,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Wall Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Wall Space Pirate has no behaviour for action {state.Action}.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(

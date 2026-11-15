@@ -3,14 +3,15 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <summary>A Magdollite's rising body's state, the arm that grows out of the lava: what it is doing and how far it has grown.</summary>
 public sealed class MagdolliteBodyState : MagdollitePartState
 {
-    /// <summary>Creates the body's state.</summary>
-    internal MagdolliteBodyState()
+    /// <summary>Creates the body's state, starting in <paramref name="action"/>.</summary>
+    internal MagdolliteBodyState(MagdolliteBodyAction action)
         : base(MagdollitePart.RisingBody)
     {
+        Action = action;
     }
 
     /// <summary>What the arm is doing.</summary>
-    public MagdolliteBodyAction? Action { get; internal set; }
+    public MagdolliteBodyAction Action { get; internal set; }
 
     /// <summary>
     /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset from the nine

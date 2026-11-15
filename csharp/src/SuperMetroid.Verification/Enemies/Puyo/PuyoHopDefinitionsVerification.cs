@@ -17,7 +17,7 @@ internal static class PuyoHopDefinitionsVerification
     internal static void VerifyCompiledPuyoHops(CartridgeImportAddressSpace rom)
     {
         Action<PuyoEnemyState> calculate = PuyoBehavior.CalculateInitialPuyoHopSpeed;
-        var state = new PuyoEnemyState();
+        var state = new PuyoEnemyState(PuyoAction.Grounded);
         foreach (PuyoHopType hopType in Enum.GetValues<PuyoHopType>())
         {
             int index = PuyoNativeWords.HopRecordOffsets.Word(hopType);

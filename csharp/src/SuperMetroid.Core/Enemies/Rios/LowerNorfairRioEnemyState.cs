@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal LowerNorfairRioEnemyState(LowerNorfairRioAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<LowerNorfairRioSegment> Playback { get; set; }
 
@@ -26,7 +29,7 @@ public sealed class LowerNorfairRioEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The current behaviour, shared by parent and flame follower dispatch.</summary>
-    public LowerNorfairRioAction? Action { get; internal set; }
+    public LowerNorfairRioAction Action { get; internal set; }
 
     /// <summary>Whether this is the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
     public bool IsFollower { get; internal set; }

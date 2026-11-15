@@ -83,7 +83,7 @@ internal static class CorpseRotDrawingVerification
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.CorpseTorizo);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
+        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Rotting);
         var authored = new AuthoredRot(DeadTorizoCorpseDefinitions.RowCount);
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStationary);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.SandHeapFrame);
@@ -148,8 +148,8 @@ internal static class CorpseRotDrawingVerification
     private static void VerifyCorpsesOfOneKindRotApart()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var rotting = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
-        var intact = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var rotting = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision);
+        var intact = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision);
         while (rotting.Rot.Step(rotting.Rows.MoveRow, _ => { }))
         {
         }

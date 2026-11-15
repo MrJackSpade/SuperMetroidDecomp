@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>The state of an Etecoon.</summary>
 public sealed class EtecoonEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal EtecoonEnemyState(EtecoonAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<EtecoonSegment> Playback { get; set; }
 
@@ -25,7 +28,7 @@ public sealed class EtecoonEnemyState
     internal const int TeachingHopsPerLesson = 4;
 
     /// <summary>The main-AI behaviour.</summary>
-    public EtecoonAction? Action { get; internal set; }
+    public EtecoonAction Action { get; internal set; }
 
     /// <summary>The authored route it takes after its first landing.</summary>
     public EtecoonRoute Route { get; internal set; }

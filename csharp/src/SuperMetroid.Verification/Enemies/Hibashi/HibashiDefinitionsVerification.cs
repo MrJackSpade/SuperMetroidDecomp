@@ -124,7 +124,7 @@ internal static class HibashiDefinitionsVerification
         AssertTrue(programHitbox.Contact.HasAny(EnemyContact.IgnoresSamus),
             "Hibashi finished program disables collision actor");
         HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
-        HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
+        HibashiCollisionPartState hitboxState = programSystem.HibashiCollisionPartStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
         AnimationPlayback<HibashiSegment> graphicsAsleep = graphicsState.Playback;
         AnimationPlayback<HibashiSegment> hitboxAsleep = hitboxState.Playback;
         EnemyInstructionRunner.Process(graphicsArguments);

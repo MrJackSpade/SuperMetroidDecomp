@@ -9,11 +9,14 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// </summary>
 public sealed class KzanEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal KzanEnemyState(KzanAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KzanSegment> Playback { get; set; }
 
     /// <summary>The current AI behaviour.</summary>
-    public KzanAction? Action { get; internal set; }
+    public KzanAction Action { get; internal set; }
 
     /// <summary>
     /// Top-position wait in actor updates; decremented with a wrap below zero to 65535, so an initial zero does not expire

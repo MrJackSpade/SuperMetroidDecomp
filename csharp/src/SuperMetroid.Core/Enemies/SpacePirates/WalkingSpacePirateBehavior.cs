@@ -109,7 +109,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Initializes the walking Space Pirate.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
-        var state = new WalkingSpacePirateEnemyState();
+        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.FollowingAnimation);
         slot.SetSpeciesState(state);
 
         // The facing option alone selects the initial facing. The slow-laser option is an
@@ -120,7 +120,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
-        state.Action = WalkingSpacePirateAction.FollowingAnimation;
 
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
@@ -152,7 +151,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
             default:
                 throw new InvalidDataException(
-                    $"Walking Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Walking Space Pirate has no behaviour for action {state.Action}.");
         }
 
         // The slow-laser option enables the retail flinch detector after normal AI.

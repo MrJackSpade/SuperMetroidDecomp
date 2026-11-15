@@ -30,7 +30,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            var state = new MaridiaLargeSnailEnemyState()
+            var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
             {
                 RequestedAnimation = animation,
                 InstalledAnimation = animation == MaridiaLargeSnailSegment.FacingRightIdle

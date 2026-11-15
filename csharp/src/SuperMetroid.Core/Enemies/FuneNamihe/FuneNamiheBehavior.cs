@@ -64,19 +64,16 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
-        FuneNamiheEnemyState state = new()
+        bool isNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe;
+        FuneNamiheEnemyState state = new(isNamihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown)
         {
             ShowsActiveAnimation = false,
-            Action = FuneNamiheAction.FuneWaitForCooldown,
-            IsNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe,
+            IsNamihe = isNamihe,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
             FacingRight = settings.Facing == HorizontalDirection.Right,
         };
-
-        if (state.IsNamihe)
-            state.Action = FuneNamiheAction.NamiheWaitForSamus;
 
         slot.SetSpeciesState(state);
         StartFuneNamiheAnimation(slot, state);
@@ -127,7 +124,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Fune/Namihe has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Fune/Namihe has no behaviour for action {state.Action}.");
         }
     }
 

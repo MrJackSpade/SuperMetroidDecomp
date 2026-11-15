@@ -140,6 +140,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<HibashiEnemyState?> HibashiStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<HibashiEntity, HibashiEnemyState>())];
 
+        /// <summary>Typed Hibashi collision-part state for every physical slot a collision part occupies.</summary>
+        internal IReadOnlyList<HibashiCollisionPartState?> HibashiCollisionPartStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<HibashiEntity, HibashiCollisionPartState>())];
+
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ElevatorEntity, ElevatorEnemyState>())];
@@ -292,7 +296,15 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonEnemyState>())];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>() as DragonEnemyState)];
+
+        /// <summary>Typed Dragon wing state for every physical slot a wing occupies.</summary>
+        internal IReadOnlyList<DragonWingState?> DragonWingStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>() as DragonWingState)];
+
+        /// <summary>Typed Dragon body or wing state for every physical slot either occupies.</summary>
+        internal IReadOnlyList<DragonPartState?> DragonPartStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>())];
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>

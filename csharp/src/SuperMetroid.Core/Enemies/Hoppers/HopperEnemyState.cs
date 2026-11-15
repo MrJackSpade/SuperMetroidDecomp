@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 public sealed class HopperEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal HopperEnemyState(HopperAction action) => Action = action;
+
     /// <summary>The current hopper AI step, advanced one setup stage per AI call.</summary>
-    public HopperAction? Action { get; internal set; }
+    public HopperAction Action { get; internal set; }
 
     /// <summary>
     /// The whole-mark place along the quadratic speed curve of the current vertical step. It moves back by

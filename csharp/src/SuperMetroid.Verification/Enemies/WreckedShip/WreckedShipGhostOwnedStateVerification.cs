@@ -10,7 +10,7 @@ internal static class WreckedShipGhostOwnedStateVerification
     /// </summary>
     internal static void VerifyWreckedShipGhostOwnedState()
     {
-        var state = new WreckedShipGhostEnemyState
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
         {
             Action = WreckedShipGhostAction.BobbingWhileVisible,
             PhaseTimer = 120,

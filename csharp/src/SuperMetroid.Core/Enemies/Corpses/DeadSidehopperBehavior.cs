@@ -90,9 +90,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Position = slot.Position.WithWhole(DeadSidehopperVictimDefinitions.StartPosition);
         slot.Radius = slot.Radius.WithY(21);
 
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot, DeadSidehopperAction.AliveWaitForCamera);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
-        state.Action = DeadSidehopperAction.AliveWaitForCamera;
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = 0;
         slot.Shading = state.Shading;
@@ -102,17 +101,16 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the already-dead Tourian layout.</summary>
     private static void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot, DeadSidehopperAction.WaitForSamusCollision);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperInitiallyDead);
         state.DrainStage = null;
         slot.Shading = state.Shading;
-        state.Action = DeadSidehopperAction.WaitForSamusCollision;
     }
 
-    /// <summary>Allocates slot state with the corpse's own rot schedule and its own rows.</summary>
-    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemySlot slot)
+    /// <summary>Allocates slot state with the corpse's own rot schedule, its own rows and its first action.</summary>
+    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemySlot slot, DeadSidehopperAction action)
     {
-        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action);
         slot.SetSpeciesState(state);
         return state;
     }
@@ -199,7 +197,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             default:
                 throw new InvalidDataException(
-                    $"Dead sidehopper has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Dead sidehopper has no behaviour for action {state.Action}.");
         }
     }
 

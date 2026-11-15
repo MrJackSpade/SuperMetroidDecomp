@@ -28,10 +28,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemySlot slot)
     {
-        var state = new FlyEnemyState
+        var state = new FlyEnemyState(FlyAction.ClockwiseCircle)
         {
             Angle = RotationAngle.Zero,
-            Action = FlyAction.ClockwiseCircle,
         };
         slot.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
@@ -67,7 +66,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Fly has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Fly has no behaviour for action {state.Action}.");
         }
     }
 

@@ -81,7 +81,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             crawlSpeed = settings.CrawlSpeed;
         }
 
-        var state = new CrawlerEnemyState
+        // The crawler settles for its first update before it crawls.
+        var state = new CrawlerEnemyState(CrawlerAction.Settling)
         {
             TakesDefaultSpeedOnLanding = crawlSpeed is null,
             SurfaceFamily = animationFamily,
@@ -93,8 +94,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.StepOnNextUpdate();
-        // The crawler settles for its first update before it crawls.
-        state.Action = CrawlerAction.Settling;
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
     }
@@ -131,9 +130,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its initializer has no speed for.");
 
         CrawlerSurfaceOrientation orientation = settings.Orientation;
-        var state = new CrawlerEnemyState
+        var state = new CrawlerEnemyState(CrawlerAction.HZoomerSettling)
         {
-            Action = CrawlerAction.HZoomerSettling,
             SurfaceFamily = CrawlerAnimationFamily.HZoomer,
             Surface = orientation,
         };
@@ -174,7 +172,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerAction.CrawlingHorizontally:
             default:
                 throw new InvalidDataException(
-                    $"HZoomer has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"HZoomer has no behaviour for action {state.Action}.");
         }
     }
 
@@ -311,7 +309,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerAction.HZoomerCrawlingHorizontally:
             default:
                 throw new InvalidDataException(
-                    $"Crawler has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Crawler has no behaviour for action {state.Action}.");
         }
     }
 

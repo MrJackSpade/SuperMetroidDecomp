@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>The state of one Norfair Rio, parent or flame follower.</summary>
 public sealed class NorfairRioEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NorfairRioEnemyState(NorfairRioAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NorfairRioSegment> Playback { get; set; }
 
@@ -23,7 +26,7 @@ public sealed class NorfairRioEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour shared by parent and flame-follower dispatch.</summary>
-    public NorfairRioAction? Action { get; internal set; }
+    public NorfairRioAction Action { get; internal set; }
 
     /// <summary>Whether this is the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
     public bool IsFollower { get; internal set; }

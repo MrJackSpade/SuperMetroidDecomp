@@ -94,7 +94,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
-        var state = new NorfairRioEnemyState { Playback = new(NorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
+        var state = new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity) { Playback = new(NorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewNorfairRioInstructionSystemResult(enemies, slot, state);
     }

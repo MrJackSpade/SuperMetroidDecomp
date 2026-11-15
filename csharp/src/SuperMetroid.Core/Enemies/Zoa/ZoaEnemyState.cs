@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// </summary>
 public sealed class ZoaEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal ZoaEnemyState(ZoaAction action) => Action = action;
+
     /// <summary>
     /// Whole-pixel population position captured at initialization and restored when a launch ends offscreen. Only the
     /// whole pixels are reset: the subpixel fractions accumulated in flight survive.
@@ -26,7 +29,7 @@ public sealed class ZoaEnemyState
     /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen
     /// return to wait.
     /// </summary>
-    public ZoaAction? Action { get; internal set; }
+    public ZoaAction Action { get; internal set; }
 
     /// <summary>The launch's speed in pixels per frame: at rest, then each speed the shooting animation's cues select.</summary>
     public SignedSixteenSixteen LaunchSpeed { get; internal set; }

@@ -10,14 +10,18 @@ public sealed class SbugEnemyState
     /// <summary>The Sbug's slot, whose population parameters the state reads.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Creates the state for an Sbug's slot.</summary>
-    internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
+    /// <summary>Creates the state for an Sbug's slot, starting in <paramref name="action"/>.</summary>
+    internal SbugEnemyState(RoomEnemySlot slot, SbugAction action)
+    {
+        _slot = slot;
+        Action = action;
+    }
 
     /// <summary>The long lifetime of a straight move, used only by moving forward then waiting.</summary>
     public WrappingCountdown StraightMovementTimer { get; internal set; }
 
     /// <summary>The current AI behaviour.</summary>
-    public SbugAction? Action { get; internal set; }
+    public SbugAction Action { get; internal set; }
 
     /// <summary>
     /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The game

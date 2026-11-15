@@ -47,7 +47,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
-        var state = new EscapeEtecoonEnemyState();
+        EscapeEtecoonInitialization initialization =
+            EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
+        var state = new EscapeEtecoonEnemyState(initialization.Action);
         slot.SetSpeciesState(state);
 
         // The critters-escaped event means the animals already escaped on an earlier visit. Code
@@ -65,10 +67,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.Restart();
         // The initializer selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
 
-        EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         slot.Position = slot.Position.WithWhole(initialization.Position);
-        state.Action = initialization.Action;
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
         state.Velocity = initialization.Velocity;
     }
@@ -121,7 +120,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             default:
-                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Escape Etecoon has no behaviour for action {state.Action}.");
         }
     }
 

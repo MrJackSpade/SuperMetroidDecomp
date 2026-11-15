@@ -93,7 +93,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
-        var state = new EtecoonEnemyState();
+        var state = new EtecoonEnemyState(EtecoonAction.WaitingForSamus);
         state.InstallSpawnSettings(slot.SpawnSettings<EtecoonSpawnSettings>());
         slot.SetSpeciesState(state);
 
@@ -102,7 +102,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(slot, EtecoonAnimations.StartingWith(EtecoonSegment.Initial));
-        state.Action = EtecoonAction.WaitingForSamus;
         state.AwaitingSamus = true;
     }
 
@@ -189,7 +188,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Etecoon has no behaviour for action {state.Action}.");
         }
     }
 

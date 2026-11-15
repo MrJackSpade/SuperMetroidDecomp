@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 public sealed class SkulteraEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal SkulteraEnemyState(SkulteraAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SkulteraSegment> Playback { get; set; }
 
     /// <summary>The swimming or turning behaviour dispatched by main AI.</summary>
-    public SkulteraAction? Action { get; internal set; }
+    public SkulteraAction Action { get; internal set; }
 
     /// <summary>Signed 1/65536-room-pixel displacement per swimming update to the right, from the positive half of the population's linear speed row.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }

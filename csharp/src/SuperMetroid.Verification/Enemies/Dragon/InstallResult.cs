@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 /// <param name="Enemies">The enemies.</param>
 /// <param name="Slot">The slot.</param>
 /// <param name="State">The state.</param>
-internal readonly record struct InstallResult(RoomEnemySystem Enemies, RoomEnemySlot Slot, DragonEnemyState State);
+internal readonly record struct InstallResult(RoomEnemySystem Enemies, RoomEnemySlot Slot, DragonPartState State);

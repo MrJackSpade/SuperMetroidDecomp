@@ -77,13 +77,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
-        var state = new BoulderEnemyState();
+        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         slot.SetSpeciesState(state);
 
         state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.ImpactsSoFar = 0;
-        state.Action = BoulderAction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
@@ -152,7 +151,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boulder has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Boulder has no behaviour for action {state.Action}.");
         }
     }
 

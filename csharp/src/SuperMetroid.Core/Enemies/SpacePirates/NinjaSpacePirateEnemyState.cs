@@ -6,11 +6,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NinjaSpacePirateEnemyState(NinjaSpacePirateAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NinjaSpacePirateSegment> Playback { get; set; }
 
     /// <summary>Movement/decision action.</summary>
-    public NinjaSpacePirateAction? Action { get; internal set; }
+    public NinjaSpacePirateAction Action { get; internal set; }
 
     /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateSegment ActiveAnimation { get; set; }

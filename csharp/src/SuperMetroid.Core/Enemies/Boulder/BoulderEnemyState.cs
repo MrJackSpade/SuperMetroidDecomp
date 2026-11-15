@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <summary>The state of a Boulder.</summary>
 public sealed class BoulderEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal BoulderEnemyState(BoulderAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoulderSegment> Playback { get; set; }
 
     /// <summary>The action the Boulder runs each update.</summary>
-    public BoulderAction? Action { get; internal set; }
+    public BoulderAction Action { get; internal set; }
 
     /// <summary>
     /// The largest travel clock: its larger cap.

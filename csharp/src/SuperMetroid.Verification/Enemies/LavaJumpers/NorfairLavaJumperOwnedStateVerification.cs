@@ -14,7 +14,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
     /// </summary>
     internal static void VerifyNorfairLavaJumperOwnedState()
     {
-        var gravity = new NorfairLavaJumpingEnemyState { YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-20) };
+        var gravity = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump) { YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-20) };
         gravity.ApplyGravity(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(56));
         AssertEqual(36, gravity.YVelocity.InTwoHundredFiftySixthsOfPixel, "gravity carries the velocity through zero");
 

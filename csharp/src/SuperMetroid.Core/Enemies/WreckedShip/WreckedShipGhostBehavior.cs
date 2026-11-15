@@ -39,10 +39,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.AnimationClock.Restart();
 
-        var state = new WreckedShipGhostEnemyState
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
         {
             Playback = new(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),
-            Action = WreckedShipGhostAction.InitialInvisibleDelay,
             PhaseTimer = WreckedShipGhostInitialDelay,
         };
 
@@ -88,7 +87,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Wrecked Ship ghost has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Wrecked Ship ghost has no behaviour for action {state.Action}.");
         }
     }
 

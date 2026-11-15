@@ -78,14 +78,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData level)
     {
-        var state = new AlcoonEnemyState();
+        var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
         slot.SetSpeciesState(state);
 
         state.StepCounter = 0;
         state.SpawnPosition = slot.Position.Whole;
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = new(AlcoonAnimations.StartingWith(AlcoonSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
-        state.Action = AlcoonAction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
 
         // The initializer really executes every half-pixel-accelerated ascent
@@ -144,7 +143,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Alcoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Alcoon has no behaviour for action {state.Action}.");
         }
     }
 

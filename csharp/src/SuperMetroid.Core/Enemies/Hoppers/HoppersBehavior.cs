@@ -70,13 +70,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Random.Seed(HopperRandomSeed);
         _room.Random.Generate();
 
-        var state = new HopperEnemyState
+        var state = new HopperEnemyState(HopperAction.ChooseHopSize)
         {
             Falling = false,
             ReadyToHop = false,
             Kind = kind,
             UpsideDown = slot.SpawnSettings<HopperSpawnSettings>().Mounting == HopperMounting.Ceiling,
-            Action = HopperAction.ChooseHopSize,
         };
         slot.SetSpeciesState(state);
 
@@ -137,7 +136,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Hopper has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Hopper has no behaviour for action {state.Action}.");
         }
     }
 

@@ -16,7 +16,7 @@ internal static class PuyoOwnedStateVerification
     internal static void VerifyPuyoOwnedState()
     {
         static QuadraticSpeedCurvePlace Place(int twoHundredFiftySixths) => QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(twoHundredFiftySixths);
-        var hop = new PuyoEnemyState { YSpeedCurvePlace = Place(0x0200) };
+        var hop = new PuyoEnemyState(PuyoAction.Grounded) { YSpeedCurvePlace = Place(0x0200) };
         hop.StepAirbornePlace(Place(0x0200));
         AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a rising step landing on zero keeps rising");
         hop.StepAirbornePlace(Place(0x0200));

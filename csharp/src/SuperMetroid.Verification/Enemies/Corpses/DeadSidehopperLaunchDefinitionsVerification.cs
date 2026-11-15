@@ -19,7 +19,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
-        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay);
         for (ushort phase = 0; phase < 4; phase++)
         {
             ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));

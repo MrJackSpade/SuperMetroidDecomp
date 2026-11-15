@@ -45,11 +45,12 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Initializes the Lower Norfair Rio.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
     {
-        var state = new LowerNorfairRioEnemyState
+        bool isFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
+        var state = new LowerNorfairRioEnemyState(isFollower ? LowerNorfairRioAction.FollowParent : LowerNorfairRioAction.WaitForAttackOpportunity)
         {
             AnimationSignal = false,
             FollowerVisible = false,
-            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower,
+            IsFollower = isFollower,
         };
         slot.SetSpeciesState(state);
 
@@ -59,13 +60,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             ValidateLowerNorfairRioParent(slot);
             state.InstalledAnimation = LowerNorfairRioSegment.Flames;
             state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation);
-            state.Action = LowerNorfairRioAction.FollowParent;
             return;
         }
 
         state.InstalledAnimation = LowerNorfairRioSegment.Idle;
         state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
-        state.Action = LowerNorfairRioAction.WaitForAttackOpportunity;
     }
 
     /// <summary>
@@ -182,7 +181,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Lower Norfair Rio has no behaviour for action {state.Action}.");
         }
     }
 

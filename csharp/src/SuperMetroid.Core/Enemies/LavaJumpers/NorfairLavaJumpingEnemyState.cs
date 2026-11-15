@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// <summary>The state of a jumping Squeept, the parent its cosmetic follower (<see cref="NorfairLavaJumperFollowerState"/>) follows.</summary>
 public sealed class NorfairLavaJumpingEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction action) => Action = action;
+
     /// <summary>
     /// Whether the jump animation has finished. The flip animation's cue sets this handshake after the
     /// jump animation reaches the frame where main AI may begin the final falling phase.
@@ -29,7 +32,7 @@ public sealed class NorfairLavaJumpingEnemyState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>The jump's phase.</summary>
-    public NorfairLavaJumpingEnemyAction? Action { get; internal set; }
+    public NorfairLavaJumpingEnemyAction Action { get; internal set; }
 
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>
     /// <param name="gravity">The 1/256-pixel gravity step.</param>

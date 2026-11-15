@@ -58,18 +58,19 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes a closed body from its spawn facing, or offsets a beam mount and resets the room-global beam.</summary>
     internal void InitializeMorphBallEye(RoomEnemySlot slot)
     {
-        var state = new MorphBallEyeEnemyState();
+        MorphBallEyeSpawnSettings settings = slot.SpawnSettings<MorphBallEyeSpawnSettings>();
+        var state = new MorphBallEyeEnemyState(settings.Part == MorphBallEyePart.BeamMount
+            ? MorphBallEyeAction.ShowingMount
+            : MorphBallEyeAction.WaitForSamus);
         slot.SetSpeciesState(state);
 
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.Restart();
 
-        MorphBallEyeSpawnSettings settings = slot.SpawnSettings<MorphBallEyeSpawnSettings>();
         if (settings.Part != MorphBallEyePart.BeamMount)
         {
             // The placement's facing is fixed by its mounting, not a live facing test.
-            state.Action = MorphBallEyeAction.WaitForSamus;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightClosed
                 : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
@@ -83,7 +84,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
-        state.Action = MorphBallEyeAction.ShowingMount;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
         // A mount clears any beam when the room loads, so a prior room's reveal never
@@ -131,7 +131,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Morph-ball eye has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Morph-ball eye has no behaviour for action {state.Action}.");
         }
     }
 

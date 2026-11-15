@@ -50,11 +50,10 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Spark.</summary>
     internal static void InitializeSpark(RoomEnemySlot slot)
     {
-        var state = new SparkEnemyState();
+        SparkMovementDefinition definition = slot.SpawnSettings<SparkSpawnSettings>().Start;
+        var state = new SparkEnemyState(definition.Action);
         slot.SetSpeciesState(state);
 
-        SparkMovementDefinition definition = slot.SpawnSettings<SparkSpawnSettings>().Start;
-        state.Action = definition.Action;
         state.BaseActionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseActionTime;
         SetSparkActionTimer(state, additionalTime: 0);
 
@@ -98,10 +97,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetSparkActionTimer(state, additionalTime: 0);
                 return;
 
-            case null:
             default:
                 throw new InvalidDataException(
-                    $"Spark has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Spark has no behaviour for action {state.Action}.");
         }
     }
 

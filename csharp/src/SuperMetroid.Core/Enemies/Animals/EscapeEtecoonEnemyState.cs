@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>The state of the escape Etecoon.</summary>
 public sealed class EscapeEtecoonEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal EscapeEtecoonEnemyState(EscapeEtecoonAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<EscapeEtecoonSegment> Playback { get; set; }
 
@@ -15,5 +18,5 @@ public sealed class EscapeEtecoonEnemyState
     public EightEightVector<RoomPixels> Velocity { get; set; }
 
     /// <summary>What the Etecoon is doing.</summary>
-    public EscapeEtecoonAction? Action { get; set; }
+    public EscapeEtecoonAction Action { get; set; }
 }

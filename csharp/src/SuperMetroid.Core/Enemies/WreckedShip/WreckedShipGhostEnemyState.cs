@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// <summary>The state of the Wrecked Ship ghost, with its extra values.</summary>
 public sealed class WreckedShipGhostEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal WreckedShipGhostEnemyState(WreckedShipGhostAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WreckedShipGhostSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public WreckedShipGhostAction? Action { get; internal set; }
+    public WreckedShipGhostAction Action { get; internal set; }
 
     /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Action"/>.</summary>
     public int PhaseTimer { get; internal set; }

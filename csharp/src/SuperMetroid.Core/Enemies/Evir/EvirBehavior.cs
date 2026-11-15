@@ -82,7 +82,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             BodyState: body?.RequireSpeciesState<EvirEnemyState>(),
             Spit: isArms ? null : _slotTable.ListedAfter(slot, 2),
             FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 2)));
-        var state = new EvirEnemyState();
+        var state = new EvirEnemyState(EvirAction.HandleBodyOrArms);
         slot.SetSpeciesState(state);
 
         if (isArms)
@@ -103,7 +103,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.MovingDown = false;
         state.InstalledAnimation = null;
-        state.Action = EvirAction.HandleBodyOrArms;
     }
 
     /// <summary>
@@ -147,13 +146,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The room lists each Evir's spit two places after its body, behind the arms.
         RoomEnemySlot spitBody = RequireEvirPart(slot, _slotTable.ListedBefore(slot, 2), EnemyDefinitionId.Evir, "projectile body", initializing: true);
-        var state = new EvirEnemyState
+        var state = new EvirEnemyState(EvirAction.ProjectileIdle)
         {
             RequestedAnimation = EvirSegment.ProjectileNormal,
             InstalledAnimation = null,
             Regenerating = false,
             InFlight = false,
-            Action = EvirAction.ProjectileIdle,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         _partners.Place(slot, new EvirPartners(

@@ -92,7 +92,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            var state = new CrawlerEnemyState { SurfaceFamily = surfaceFamily };
+            var state = new CrawlerEnemyState(CrawlerAction.Settling) { SurfaceFamily = surfaceFamily };
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);

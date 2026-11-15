@@ -55,7 +55,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             return;
         }
 
-        var state = new NorfairLavaJumpingEnemyState
+        var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump)
         {
             AnimationFinished = false,
             InstalledAnimation = null,
@@ -66,7 +66,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         // arc. Subpositions are deliberately not saved or cleared by the retail jump.
         state.SpawnPosition = slot.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
-        state.Action = NorfairLavaJumpingEnemyAction.BeginJump;
     }
 
     /// <summary>Whether <paramref name="slot"/>'s placement makes it a follower, the cosmetic second half of the parent listed before it.</summary>
@@ -146,7 +145,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair lava-jumping enemy has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Norfair lava-jumping enemy has no behaviour for action {state.Action}.");
         }
     }
 

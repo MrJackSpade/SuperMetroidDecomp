@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal WallSpacePirateEnemyState(WallSpacePirateAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WallSpacePirateSegment> Playback { get; set; }
 
@@ -14,7 +17,7 @@ public sealed class WallSpacePirateEnemyState
     /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing animations
     /// advance.
     /// </summary>
-    public WallSpacePirateAction? Action { get; internal set; }
+    public WallSpacePirateAction Action { get; internal set; }
 
     /// <summary>
     /// Binary direction; starts downward, reverses on a blocked vertical move, and is reselected from whether the

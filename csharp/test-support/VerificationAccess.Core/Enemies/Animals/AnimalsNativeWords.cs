@@ -33,9 +33,9 @@ internal static class AnimalsNativeWords
         [EscapeEtecoonAction.ExpressingGratitude] = 0x807b,
     });
 
-    /// <summary>The escape Etecoon action a recorded routine word names, or null for none.</summary>
-    internal static EscapeEtecoonAction? EscapeEtecoonActionAt(ushort word) =>
-        word is 0 ? null : EscapeEtecoonActions.Decode(word, "recorded EscapeEtecoonAction");
+    /// <summary>The escape Etecoon action a recorded routine word names.</summary>
+    internal static EscapeEtecoonAction EscapeEtecoonActionAt(ushort word) =>
+        EscapeEtecoonActions.Decode(word, "recorded EscapeEtecoonAction");
 
     /// <summary>The routine word naming each <see cref="EtecoonAction"/>.</summary>
     internal static readonly NativeWordIdentities<EtecoonAction> EtecoonActions = new(new Dictionary<EtecoonAction, ushort>

@@ -53,10 +53,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         AnimationPlayback<DeadTorizoSegment> playback = EnemyAnimationPlayback.Start(slot, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
 
-        slot.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
+        slot.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
         {
             Playback = playback,
-            Phase = DeadTorizoPhase.Wait,
             Velocity = new(default, SignedEightEight.FromParts(0, 8)),
         });
     }
@@ -75,7 +74,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTorizoRotting(slot);
         }
 
-        switch (state.Phase ?? throw new InvalidDataException("Dead Torizo has no corpse phase."))
+        switch (state.Phase)
         {
             case DeadTorizoPhase.Wait:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)

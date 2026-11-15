@@ -40,11 +40,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
     {
-        var state = new RioEnemyState
+        var state = new RioEnemyState(RioAction.WaitingForSamus)
         {
             AnimationFinished = false,
             InstalledAnimation = null,
-            Action = RioAction.WaitingForSamus,
         };
         slot.SetSpeciesState(state);
 
@@ -195,7 +194,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Rio has no behaviour for action {state.Action}.");
         }
     }
 

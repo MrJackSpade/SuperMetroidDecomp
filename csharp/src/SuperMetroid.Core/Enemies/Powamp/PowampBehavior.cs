@@ -75,7 +75,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        var state = new PowampBodyState { RefusesContact = settings.GrappleTravelDistance != 0 };
+        var state = new PowampBodyState(PowampAction.DeflatedResting) { RefusesContact = settings.GrappleTravelDistance != 0 };
         slot.SetSpeciesState(state);
         // The body's balloon is the enemy its room lists before it, whatever occupies that place.
         // Reject malformed populations instead of accidentally
@@ -83,7 +83,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         _balloons.Place(slot, _slotTable.ListedBefore(slot, 1));
         RequirePowampBalloon(slot);
         state.ActionTimer = PowampRestFrames;
-        state.Action = PowampAction.DeflatedResting;
         state.Playback = StartPowampAnimation(slot, PowampSegment.BodySlow);
     }
 
@@ -128,7 +127,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Powamp body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Powamp body has no behaviour for action {state.Action}.");
         }
     }
 

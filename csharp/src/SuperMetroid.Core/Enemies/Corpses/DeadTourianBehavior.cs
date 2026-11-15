@@ -56,11 +56,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Dead {species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(species, new CorpseRotSchedule(definition.RowCount));
+        var state = new DeadTourianCorpseEnemyState(species, new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
         slot.SetSpeciesState(state);
 
         slot.Shading = TourianCorpseShades.InDrainedColours;
-        state.Phase = DeadTourianCorpsePhase.Waiting;
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(slot, definition.InitialAnimation);
     }
 
@@ -89,7 +88,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Dead {state.Species} has no behaviour for phase {state.Phase?.ToString() ?? "none"}.");
+                    $"Dead {state.Species} has no behaviour for phase {state.Phase}.");
         }
     }
 

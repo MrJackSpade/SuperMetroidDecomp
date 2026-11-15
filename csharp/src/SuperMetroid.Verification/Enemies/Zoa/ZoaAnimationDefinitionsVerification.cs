@@ -48,7 +48,7 @@ internal static class ZoaAnimationDefinitionsVerification
         foreach (ZoaSegment selector in Enum.GetValues<ZoaSegment>())
         {
             var slot = NewZoaAnimationSlot();
-            var state = new ZoaEnemyState()
+            var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
             {
                 RequestedAnimation = selector,
                 InstalledAnimation = selector == ZoaSegment.FacingLeftShooting

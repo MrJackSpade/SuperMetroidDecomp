@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 public sealed class CacatacEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal CacatacEnemyState(CacatacAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CacatacSegment> Playback { get; set; }
 
@@ -19,7 +22,7 @@ public sealed class CacatacEnemyState
     public CacatacDirection Direction { get; internal set; }
 
     /// <summary>The current behaviour.</summary>
-    public CacatacAction? Action { get; internal set; }
+    public CacatacAction Action { get; internal set; }
 
     /// <summary>
     /// Left patrol limit; only X is meaningful. Leftward patrol turns right once the whole X position lies strictly

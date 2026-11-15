@@ -47,11 +47,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
-        var state = new NorfairRioEnemyState
+        bool isFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
+        var state = new NorfairRioEnemyState(isFollower ? NorfairRioAction.FollowParent : NorfairRioAction.WaitForAttackOpportunity)
         {
             AnimationSignal = false,
             FollowerOffset = Offset16<RoomPixels>.Zero,
-            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower,
+            IsFollower = isFollower,
         };
         slot.SetSpeciesState(state);
 
@@ -62,13 +63,11 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             _parentStates.Place(slot, GetPrecedingNorfairRioSlot(slot).RequireSpeciesState<NorfairRioEnemyState>());
             state.InstalledAnimation = NorfairRioSegment.FlamesAscending;
             state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation);
-            state.Action = NorfairRioAction.FollowParent;
             return;
         }
 
         state.InstalledAnimation = NorfairRioSegment.Idle;
         state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
-        state.Action = NorfairRioAction.WaitForAttackOpportunity;
     }
 
     /// <summary>
@@ -182,7 +181,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Norfair Rio has no behaviour for action {state.Action}.");
         }
     }
 

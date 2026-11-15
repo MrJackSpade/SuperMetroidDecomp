@@ -58,7 +58,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void VerifyDragonReinstallRequest()
     {
         RoomEnemySlot slot = NewDragonAnimationSlot(0);
-        DragonEnemyState state = NewDragonAnimationState();
+        DragonPartState state = NewDragonAnimationState();
         state.RequestedAnimation = DragonSegment.AttackingFacingLeft;
         state.InstalledAnimation = DragonSegment.AttackingFacingLeft;
         DragonBehavior.StartDragonAnimation(slot, state);
@@ -77,7 +77,7 @@ internal static class DragonAnimationDefinitionsVerification
         {
             DragonSegment requested = Selector(index);
             var slot = NewDragonAnimationSlot(0);
-            DragonEnemyState state = NewDragonAnimationState();
+            DragonPartState state = NewDragonAnimationState();
             state.RequestedAnimation = requested;
             state.ReinstallRequested = true;
             DragonBehavior.StartDragonAnimation(slot, state);
@@ -104,7 +104,7 @@ internal static class DragonAnimationDefinitionsVerification
         enemies.DragonBehavior.InitializeDragon(body);
         enemies.DragonBehavior.InitializeDragon(wing);
         DragonEnemyState bodyState = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
-        DragonEnemyState wingState = (enemies.DragonStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[1]."));
+        DragonWingState wingState = (enemies.DragonWingStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonWingStates[1]."));
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
@@ -148,12 +148,12 @@ internal static class DragonAnimationDefinitionsVerification
         new RoomEnemySlot(index, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
-    private static DragonEnemyState NewDragonAnimationState() => new();
+    private static DragonWingState NewDragonAnimationState() => new();
 
     /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(
         RoomEnemySlot slot,
-        DragonEnemyState state,
+        DragonPartState state,
         DragonSegment expected,
         string context,
         ushort expectedFrameHold = 1)

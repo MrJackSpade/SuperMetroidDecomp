@@ -45,11 +45,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
     internal static void InitializeKzanTop(RoomEnemySlot slot)
     {
-        var state = new KzanEnemyState();
+        var state = new KzanEnemyState(KzanAction.WaitingToFall);
         slot.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(slot, KzanAnimations.StartingWith(KzanSegment.Idle));
-        state.Action = KzanAction.WaitingToFall;
 
         // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,
         // the fastest the fall reaches.
@@ -120,7 +119,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Kzan has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Kzan has no behaviour for action {state.Action}.");
         }
     }
 

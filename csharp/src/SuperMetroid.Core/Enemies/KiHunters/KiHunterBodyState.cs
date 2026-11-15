@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>A Ki-Hunter body's state: its patrol, swoop, wingless hops and whether it still has its wings.</summary>
 public sealed class KiHunterBodyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal KiHunterBodyState(KiHunterAction action) => Action = action;
+
     /// <summary>The animation the body plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
     /// <summary>Main-AI step.</summary>
-    public KiHunterAction? Action { get; internal set; }
+    public KiHunterAction Action { get; internal set; }
 
     /// <summary>
     /// The swoop target: Samus's room position when the swoop begins, around which the dive's ellipse is centred. Only

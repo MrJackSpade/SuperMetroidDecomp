@@ -128,9 +128,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemySlot baby in babies)
             _mamaOfBaby.Place(baby, slot);
 
-        var state = new MamaTurtleEnemyState
+        var state = new MamaTurtleEnemyState(MamaTurtleAction.Initial)
         {
-            Action = MamaTurtleAction.Initial,
             Asleep = true,
         };
         slot.SetSpeciesState(state);
@@ -147,11 +146,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Baby Turtle.</summary>
     internal static void InitializeBabyTurtle(RoomEnemySlot slot)
     {
-        var state = new BabyTurtleEnemyState
+        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
             SpawnTopCenter = new Position16<RoomPixels>(
                 slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)),
-            Action = BabyTurtleAction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(slot.SpawnSettings<TurtleSpawnSettings>().Speed, 0),
         };
         slot.SetSpeciesState(state);
@@ -203,7 +201,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mama Turtle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Mama Turtle has no behaviour for action {state.Action}.");
         }
     }
 
@@ -548,7 +546,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Baby Turtle has no behaviour for action {state.Action}.");
         }
     }
 

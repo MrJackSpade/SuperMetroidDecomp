@@ -62,17 +62,17 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var travel = new Offset16<RoomPixels>(settings.TravelDistance, 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
-        var state = new CacatacEnemyState
+        CacatacAction action = direction switch
+        {
+            CacatacDirection.Left => CacatacAction.MovingLeft,
+            CacatacDirection.Right => CacatacAction.MovingRight,
+            CacatacDirection.InitialStop => CacatacAction.Stopped,
+            _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
+        };
+        var state = new CacatacEnemyState(action)
         {
             Speed = settings.Speed,
             Direction = direction,
-            Action = direction switch
-            {
-                CacatacDirection.Left => CacatacAction.MovingLeft,
-                CacatacDirection.Right => CacatacAction.MovingRight,
-                CacatacDirection.InitialStop => CacatacAction.Stopped,
-                _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
-            },
             RightPatrolLimit = spawn + travel,
             LeftPatrolLimit = spawn - travel,
             UpsideUp = upsideUp,
@@ -98,7 +98,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Cacatac has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Cacatac has no behaviour for action {state.Action}.");
         }
     }
 

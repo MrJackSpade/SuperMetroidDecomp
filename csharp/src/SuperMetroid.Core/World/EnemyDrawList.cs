@@ -82,8 +82,8 @@ internal sealed class EnemyDrawList
             if (slot.DefinitionId == EnemyDefinitionId.None)
                 continue;
 
-            // The draw offset is zero for ordinary room-population entries; the addition
-            // precedes the camera subtraction and wraps at sixteen bits.
+            // The draw offset is zero for enemies the room places; the offset is added
+            // before the camera is taken away, and the sum wraps as room positions do.
             Position16<ScreenPixels> origin = (slot.Position.Whole + slot.DrawOffset).ToScreen(camera);
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming

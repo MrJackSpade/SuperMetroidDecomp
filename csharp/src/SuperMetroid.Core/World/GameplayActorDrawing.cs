@@ -333,7 +333,7 @@ internal sealed class GameplayActorDrawing
 
             // The frame draws Samus first and immediately draws her projectiles. This is
             // deliberately after the grapple beam too in the composite pass;
-            // all live beam art still receives later sprite indices than Samus's body.
+            // every live beam picture is still drawn after Samus's body.
             room.Projectiles.DrawLiveProjectiles(
                 _sprites,
                 _room.Camera.PixelPosition,
@@ -392,8 +392,8 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
             // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid sprite (plus the arena-door
-            // overlay) after every ordinary enemy layer; it is their only producer. Keeping this after layer seven
-            // preserves the Baby's actual sprite position instead of inventing a Baby slot.
+            // overlay) after every ordinary enemy layer; it is their only producer. Keeping this after the frontmost
+            // enemies preserves the Baby's actual position instead of inventing an enemy for the Baby.
             room.Enemies.Ceres.DrawCeresRidleyBabyAndDoorOverEnemies(
                 _sprites,
                 _room.Camera.PixelPosition);

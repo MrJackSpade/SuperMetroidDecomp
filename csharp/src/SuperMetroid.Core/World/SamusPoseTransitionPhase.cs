@@ -277,7 +277,7 @@ internal sealed class SamusPoseTransitionPhase
     {
         bool animationTransitionApplied = alreadyApplied;
         // The ceiling collision replaces the ordinary input target with the current pose
-        // on ceiling collision. Apply the ball's deferred EFDF vertical
+        // on ceiling collision. Apply the ball's deferred vertical
         // stop and consume this same-pose transition so history still shifts
         // and an input-phase aim/turn selection cannot override it. Higher-priority
         // animation and hurt interruptions above retain their priority.
@@ -326,9 +326,9 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseId? prospectiveRunningPose =
                 _player.ProspectiveSamusPose is { } prospective
                     ? prospective.ProspectivePose
-                    // The input phase writes the same prospective-pose slot for a
-                    // table match and a no-input fallback. A decelerating run
-                    // retains its running pose and must still take EADE's real
+                    // The input phase chooses the same prospective pose for a
+                    // matched input transition and a no-input fallback. A decelerating run
+                    // retains its running pose and must still take the running wall check's real
                     // one-pixel forward move; omitting it shortens release drift.
                     : _player.ProspectiveSamusFallbackPose;
             _player.ProspectiveSamusWallCollisionPose =
@@ -441,9 +441,8 @@ internal sealed class SamusPoseTransitionPhase
         // and must leave the pose alone; treating every non-collision as falling
         // made rising Kamers repeatedly alternate falling and landing. For admitted
         // standing (including landing art), running, and stable crouching types,
-        // the table's first entry
-        // selects the first airborne family and the falling check chooses falling art.
-        // The ground and jumping turn types contain the no-pose-change entry in that literal table;
+        // losing the floor selects the first airborne family and the falling check chooses falling art.
+        // The ground and jumping turns change no pose when they lose the floor;
         // they finish their turn transition, then the destination pose detects the missing floor.
         if (!animationTransitionApplied &&
             _player.LastGroundedSamusMovement is
@@ -795,8 +794,8 @@ internal sealed class SamusPoseTransitionPhase
                     turnSourcePose,
                     turnTargetPose):
                 // Every standing turn on the ground—including the aimed turns
-                // and moonwalk records—continues consulting the standing transition table.
-                // That table can interrupt the art with either same-facing
+                // and the moonwalk turns—continues taking the standing pose's input transitions.
+                // Those can interrupt the art with either same-facing
                 // spin or neutral jump. Preserve newly pressed Shoot as well:
                 // the normal-jump initializer owns the simultaneous
                 // Jump+Fire bridge when the selected body is SamusMovementType.NormalJumping.
@@ -949,8 +948,8 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } boostFallback &&
                  boostFallback != frame.PoseAtFrameStart)
         {
-            // Releasing every boost chord reaches definition entry two, the neutral jump poses:
-            // the same initializer as the table's held-Jump exit.
+            // Releasing every boost chord reaches the neutral jump poses:
+            // the same initializer as its held-Jump input transition.
             SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                 samus,
                 boostFallback,

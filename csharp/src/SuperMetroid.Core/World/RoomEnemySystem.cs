@@ -604,7 +604,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
     /// <summary>
     /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, with the door-transition gates
-    /// clear, without loading a population or binding memory, graphics, random-number, or gameplay services.
+    /// clear, without loading a population or binding artwork, random-number, or gameplay services.
     /// </summary>
     /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
     /// <param name="compatibility">
@@ -969,9 +969,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // still runs main AI.
                 if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
                 {
-                    // Rinka's termination tail clears/replaces the current actor record.
-                    // The active-index array was frozen before AI, so skip the remainder
-                    // of this stale entry exactly as its own death call does.
+                    // A Rinka's termination clears or replaces the enemy in this place.
+                    // The pass's list of active enemies was fixed before AI, so skip the rest
+                    // of this departed enemy's turn exactly as its own death does.
                     var frozen = slot.Entity as IEnemyFrozenAi;
                     if (frozen?.PreemptFrozenTurn() == true)
                         continue;

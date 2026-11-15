@@ -25,30 +25,30 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class SuperMetroidGame
 {
-    /// <summary>The owner of FrontendSession's moved members.</summary>
+    /// <summary>The state and owners every phase runs against (<see cref="FrontendSession"/>).</summary>
     internal FrontendSession Session { get; }
-    /// <summary>The owner of MenuGamePhases's moved members.</summary>
+    /// <summary>The menu phases (<see cref="MenuGamePhases"/>).</summary>
     private MenuGamePhases MenuPhases => field ??= new MenuGamePhases(Session);
 
-    /// <summary>The owner of LoadingGamePhases's moved members.</summary>
+    /// <summary>The game-loading phases (<see cref="LoadingGamePhases"/>).</summary>
     private LoadingGamePhases LoadingPhases => field ??= new LoadingGamePhases(Session);
 
-    /// <summary>The owner of GameplayGamePhases's moved members.</summary>
+    /// <summary>The gameplay phases (<see cref="GameplayGamePhases"/>).</summary>
     private GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(Session);
 
-    /// <summary>The owner of PauseGamePhases's moved members.</summary>
+    /// <summary>The pause-menu phases (<see cref="PauseGamePhases"/>).</summary>
     private PauseGamePhases PausePhases => field ??= new PauseGamePhases(Session);
 
-    /// <summary>The owner of DeathGamePhases's moved members.</summary>
+    /// <summary>The death-sequence phases (<see cref="DeathGamePhases"/>).</summary>
     private DeathGamePhases DeathPhases => field ??= new DeathGamePhases(Session);
 
-    /// <summary>The owner of DoorGamePhases's moved members.</summary>
+    /// <summary>The door phases (<see cref="DoorGamePhases"/>).</summary>
     private DoorGamePhases DoorPhases => field ??= new DoorGamePhases(Session);
 
-    /// <summary>The owner of CinematicGamePhases's moved members.</summary>
+    /// <summary>The cinematic phases (<see cref="CinematicGamePhases"/>).</summary>
     private CinematicGamePhases CinematicPhases => field ??= new CinematicGamePhases(Session);
 
-    /// <summary>The owner of AttractGamePhases's moved members.</summary>
+    /// <summary>The attract-demo phases (<see cref="AttractGamePhases"/>).</summary>
     private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
     /// <summary>

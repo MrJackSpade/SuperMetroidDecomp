@@ -46,11 +46,11 @@ internal sealed class RoomObjectPopulationLoader
         _noobTube = dependencies.NoobTube;
     }
     /// <summary>
-    /// Allocates one decoded room population exactly once, in increasing source-record
-    /// order. Each record is allocated before its setup runs, as the game's room-object spawn
+    /// Places one room-object population exactly once, in its placements' order. Each
+    /// placement takes its place before its setup runs, as the game's room-object spawn
     /// does. A setup may immediately delete its place;
-    /// the next record can consequently reuse that same highest place. Retail
-    /// loads require decoded records; no population or definition is read from game data.
+    /// the next placement can consequently reuse that same highest place. Retail
+    /// loads require installed placements; no population or definition is decoded during play.
     /// </summary>
     public int LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
     {
@@ -74,10 +74,10 @@ internal sealed class RoomObjectPopulationLoader
             Position16<RoomBlocks> block;
             try
             {
-                // A room-object spawn allocates the ID first and converts the two unsigned
-                // coordinates with the room-width multiplier without checking logical
-                // dimensions. The bounded allocation preserves that ordering for
-                // the two shipped off-room door records, whose column past the room's width is the block that many
+                // A room-object spawn takes its place first and finds its block as its row times
+                // the room's width plus its column, without checking the room's
+                // dimensions. The bounded placement preserves that ordering for
+                // the two shipped off-room door objects, whose column past the room's width is the block that many
                 // columns into the following rows; setups that genuinely require authored terrain still
                 // validate when they consume the block.
                 block = room.Level.ObjectBlock(placed.Block);

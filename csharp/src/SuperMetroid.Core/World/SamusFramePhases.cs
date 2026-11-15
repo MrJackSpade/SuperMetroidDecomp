@@ -177,7 +177,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs Samus's movement-type table for a pose stored without
+    /// Runs Samus's movement for a pose stored without
     /// initializing it: the cached movement type, not the pose, selects the mover.
     /// </summary>
     private void StepUninitializedPoseMovement(ISamusRoomObjects roomObjects)
@@ -306,7 +306,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap
         // before movement. A newly placed bomb therefore counts 60 -> 59 and
-        // selects its first art record in the placement frame itself.
+        // shows its first frame in the placement frame itself.
         // The door fade's enemy and draw pass does not run the normal input phase.
         // In particular its draw-only zero input must not release a held charge.
         // X-ray's freeze leaves the normal input mode installed, so the normal input phase
@@ -610,7 +610,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 else if (samus.InitializedPose != samus.Pose)
                 {
                     // The drained-pose controllers store a drained pose without
-                    // initializing it, and the movement table keeps running the cached
+                    // initializing it, and the movement keeps running for the cached
                     // movement type. An airborne Samus therefore keeps her jump
                     // physics in the drained pose until a real initializer runs.
                     StepUninitializedPoseMovement(room.RoomObjects);
@@ -694,7 +694,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // its hold and finishes below; the drained-fall cue ends the spark itself.
         // The rainbow-beam lock is the movement lock itself: once restoring Samus's control reinstalls
         // the normal movement mode during enemy AI, this same frame's movement phase runs the knockback
-        // pose's knockback movement, as the movement table does.
+        // pose's knockback movement, as the pose's own movement does.
         // The controller-held standing/crouching phases last only while Samus keeps a
         // drained body: a pose the movement installs (a wall jump out of a drained
         // spin) returns her to the ordinary movement and input. So does the landing of a drained fall that an
@@ -730,16 +730,16 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
     /// <summary>
     /// Runs the movement her pose owns, or an elevator ride's: none while time is frozen or for the special movement type,
-    /// and otherwise the pose's normal movement-table entry.
+    /// and otherwise the pose's normal movement.
     /// </summary>
     private void RunPoseOwnedMovement(SamusState samus, RoomScope room)
     {
-        // The movement phase returns before the movement table and echo update while time is
+        // The movement phase returns before the pose's movement and the echo update while time is
         // frozen. X-ray setup freezes time in the input phase, so a running Samus stops on
         // the activation frame before her pose changes.
         if (_freeze.TimeIsFrozen)
             return;
-        // The special movement type also has a normal movement-table entry.
+        // The special movement type also has a normal movement.
         // It only clears the momentum-transition selector. This path is reachable
         // when the hit's expiry ends a freshly started shinespark
         // while retaining its shinespark windup body and colouring (Shinespark Suit).
@@ -749,7 +749,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// Runs the pose's normal movement-table entry. Every pose the retail producers reach has a branch; any
+    /// Runs the pose's normal movement. Every pose the retail producers reach has a branch; any
     /// other pose is corrupt state.
     /// </summary>
     private void RunPoseMovement(SamusState samus, ISamusRoomObjects roomObjects, RoomScope room)
@@ -1094,7 +1094,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        // The movement table selects strictly by the pose definition's
+        // The movement is selected strictly by the pose definition's
         // movement type. Y direction is data consumed by the selected
         // movement, never a replacement step. In particular, crouched
         // left-to-right turn can retain downward direction while its type remains
@@ -1137,9 +1137,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        // The knockback movement type's normal movement-table entry is this one. Active
+        // The knockback movement type's normal movement is this one. Active
         // knockback and Ceres ejection were intercepted above; this branch
-        // is their authentic one-frame normal movement tail before 
+        // is their authentic one-frame normal movement tail before the pose transition
         // installs the input/no-input target chosen during the input phase.
         SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
@@ -1207,13 +1207,13 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The empty movement mode also skips periodic damage and the energy checks.
         frame.SampleMovementType(SamusPoseMetadata.ReadMovementType(samus));
 
-        // Direction bits already use the transition table's canonical layout. Input
+        // The held directions are already the buttons the input transitions match. Input
         // matching belongs to the input phase, before the movement phase moves the CURRENT pose;
         // the winning pose is not installed until after animation below.
-        // The front-view poses get one special input rule: a
-        // nonzero elevator status returns immediately, before the transition table
-        // is even read. The power suit's front pose's transitions otherwise overlap other poses'
-        // data and can appear to select nonsense transitions after several frames, so
+        // The front-view poses get one special input rule: while an elevator
+        // rides, the input phase returns immediately, before their input transitions
+        // are even matched. The power suit's front pose's input transitions were never authored and
+        // can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
         SamusControlMode mode = new(samus.Control.Mode.Input, SelectedMovementMode(frame, samus));

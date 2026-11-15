@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Runtime;
 public static class GameplayDisplayCapture
 {
     /// <summary>
-    /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
+    /// Captures the full currently modeled gameplay composition, including the HUD band above the room,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
     /// </summary>
     public static LayeredScene Capture(GameplayDisplayFrame frame)
@@ -145,7 +145,7 @@ public static class GameplayDisplayCapture
 
     /// <summary>
     /// The HUD the frame boundary latched, its own layer drawn straight after the room (#1466): gameplay's HUD band shows its
-    /// pictures with their colour zero opaque, in front of everything the band holds.
+    /// pictures opaque, their background included, in front of everything the band holds.
     /// </summary>
     private static HudLayer Hud(GameplayDisplayLatch latched) => new(latched.PicturedHud
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),

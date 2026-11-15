@@ -34,7 +34,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="FxOverlay">The room effect's effect overlay plane this frame boundary latched, which its pictures are resolved from; null before the first room.</param>
 /// <param name="Hud">The HUD's images this frame boundary latched, which the pause screen keeps (#1466).</param>
 /// <param name="PicturedHud">
-/// <paramref name="Hud"/>'s images as their pictures in the room's effect overlay sheet, which the frame's HUD layer draws (#1466); null
+/// <paramref name="Hud"/>'s images as their pictures in the HUD's own sheet, which the frame's HUD layer draws (#1466); null
 /// until the frame boundary that latched them resolves them, and before the first room.
 /// </param>
 public sealed record GameplayDisplayLatch(

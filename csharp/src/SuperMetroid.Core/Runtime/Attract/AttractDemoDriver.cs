@@ -183,8 +183,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 _room.LoadedCamera.Scrolls.SetLogicalState(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
-                // The shared land-sky loader has already selected the same vertical
-                // background page layout. Require that owner rather than writing a dummy mirror.
+                // Loading the Landing Site has already set up its scrolling sky, which the
+                // demo shows as it is. Require it rather than setting up a second sky.
                 if (_room.ScrollingSky is null)
                     throw new InvalidDataException("Landing Site demo requires the scrolling sky's background owner.");
                 break;

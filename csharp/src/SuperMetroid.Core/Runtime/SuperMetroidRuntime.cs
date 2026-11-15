@@ -543,7 +543,7 @@ internal sealed class SuperMetroidRuntime
         if (Room.Camera is not null && !MessageBox.IsActive)
             LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
 
-        // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
+        // The power bomb blast belongs to the outer frame, not Samus's input phase. A statue carry
         // takes over her movement while the already-spawned blast continues normally.
         // Its cleanup resumes Samus's sounds, which can queue them before Samus's frame.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
@@ -557,7 +557,7 @@ internal sealed class SuperMetroidRuntime
         // (EffectPhaseRandomOrder) and before the game state's own work. Several room and
         // enemy behaviours only sample the random number instead of advancing it themselves;
         // the falling-tile room is the first visibly obvious example: without this draw,
-        // every ceiling fragment selects the same X table entry forever. Keep this
+        // every ceiling fragment falls at the same place forever. Keep this
         // unconditional and at the start of the update; advancing only at a consumer would
         // change the shared sequence.
         System.NextRandom();

@@ -24,7 +24,7 @@ internal sealed class RoomMainRoutines
     /// <summary>Defeated bosses and the random number sampled by room-main behaviours.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds the room, enemy, picture, and memory owners used by room-main behaviours.</summary>
+    /// <summary>Binds the room, enemy, picture, and Samus owners used by room-main behaviours.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;

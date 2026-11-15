@@ -64,7 +64,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
         _hitboxes.Place(slot, _slotTable.ListedAfter(slot, 1));
         state.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Graphics), AnimationPlace.StartOfAnimation);
-        state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
+        state.SpawnY = slot.Position.Y.Whole;
 
         // The visible part must never participate through its definition's radius.
         // Its following part receives the dynamic radius from animation cues.
@@ -137,7 +137,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         hitbox.Position = hitbox.Position.WithWrappedWholeY(
-            state.SpawnHeight.Y - step.YOffset);
+            state.SpawnY - step.YOffset);
         hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
         if (step.Width == HibashiStepWidth.Restored)
             hitbox.Radius = hitbox.Radius.WithX(8);
@@ -151,7 +151,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ActivityFinished = true;
         hitbox.Radius = new(0, 0);
-        graphics.Position = graphics.Position.WithWholeY(state.SpawnHeight.Y);
+        graphics.Position = graphics.Position.WithWholeY(state.SpawnY);
         graphics.Presence = graphics.Presence.With(EnemyPresence.Hidden);
         hitbox.Contact = hitbox.Contact.With(EnemyContact.IgnoresSamus);
     }

@@ -20,10 +20,10 @@ public sealed class BrinstarPipeBugState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>
-    /// The highest point of the bug's emergence, sixteen pixels above its spawn point; only Y is meaningful. The bug keeps
-    /// rising while it is still below this point.
+    /// The room Y of the highest point of the bug's emergence, sixteen pixels above its spawn point. The bug keeps rising
+    /// while it is still below this point.
     /// </summary>
-    public Position16<RoomPixels> EmergenceTop { get; internal set; }
+    public int EmergenceTopY { get; internal set; }
 
     /// <summary>
     /// Whether the bug flies left, set from Samus's side of the bug every update it waits with Samus in its vertical band.

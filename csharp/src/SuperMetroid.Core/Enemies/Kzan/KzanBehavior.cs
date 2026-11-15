@@ -57,9 +57,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The spawn settings name the fall distance in pixels and the top wait countdown.
         // A zero countdown deliberately wraps to -1 on its first decrement rather than
         // triggering immediately.
-        var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
-        state.RisingTarget = spawn;
+        int spawnY = slot.Position.Y.Whole;
+        state.FallingTargetY = CoordinateAxis.Wrap(spawnY + slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
+        state.RisingTargetY = spawnY;
         state.FallWaitTimerResetValue = slot.SpawnSettings<KzanSpawnSettings>().FallWait;
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
     }
@@ -141,16 +141,16 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState samus)
     {
-        state.PreviousPosition = slot.Position.Whole;
+        state.PreviousY = slot.Position.Y.Whole;
         slot.Position = slot.Position.AdvanceY(state.FallingSpeed);
 
         // The comparison checks only whether the wrapped difference is negative, which the spatial difference
         // keeps: coordinates near the room's edge retain the same game behavior.
-        if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
+        if (!CoordinateAxis.Precedes(slot.Position.Y.Whole, state.FallingTargetY))
         {
             state.RiseWaitTimer = KzanRiseWaitFrames;
             state.Action = KzanAction.WaitingToRise;
-            slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
+            slot.Position = slot.Position.WithWholeY(state.FallingTargetY);
             _audio.QueueEnemySound(KzanLandingSound, priority: SoundRequestPriority.Normal);
         }
 
@@ -175,14 +175,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState samus)
     {
-        state.PreviousPosition = slot.Position.Whole;
+        state.PreviousY = slot.Position.Y.Whole;
 
         // The Japanese and North American release rises by exactly half a pixel per update.
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(KzanRisingStep));
-        if ((slot.Position.Whole - state.RisingTarget).Y < 0)
+        if (CoordinateAxis.Precedes(slot.Position.Y.Whole, state.RisingTargetY))
         {
             state.Action = KzanAction.WaitingToFall;
-            slot.Position = slot.Position.WithWholeY(state.RisingTarget.Y);
+            slot.Position = slot.Position.WithWholeY(state.RisingTargetY);
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
@@ -225,7 +225,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!IsKzanTouchingSamusFromBelow(slot, samus))
             return;
 
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, (slot.Position.Whole - state.PreviousPosition).Y);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.Difference(slot.Position.Y.Whole, state.PreviousY));
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>

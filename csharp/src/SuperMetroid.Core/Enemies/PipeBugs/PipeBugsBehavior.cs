@@ -61,7 +61,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BrinstarPipeBugState(PipeBugAction.BrinstarWaitUntilOnScreen);
         slot.SetSpeciesState(state);
         state.SpawnPosition = slot.Position.Whole;
-        state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
+        state.EmergenceTopY = CoordinateAxis.Wrap(state.SpawnPosition.Y - BrinstarPipeBugEmergenceHeight);
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.InstalledAnimation = PipeBugAnimationChoices.Rising(IsStrong(slot), HorizontalDirection.Left);
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.InstalledAnimation), AnimationPlace.StartOfAnimation);
@@ -310,7 +310,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         slot.Position = slot.Position.WithY(PipeBugEmergenceRise.Risen(slot.Position.Y));
-        if ((state.EmergenceTop - slot.Position.Whole).Y < 0 ||
+        if (CoordinateAxis.Precedes(state.EmergenceTopY, slot.Position.Y.Whole) ||
             slot.Position.Y.Whole >= samus.Position.Y.Whole)
         {
             return;
@@ -416,7 +416,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Action = state.PostRiseAction
             ?? throw new InvalidOperationException("A Norfair Pipe Bug finished rising without a post-rise action from its formation.");
-        state.RiseEnd = slot.Position.Whole;
+        state.RiseEndY = slot.Position.Y.Whole;
         state.Playback = StartPipeBugAnimation(slot,
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0
                 ? PipeBugSegment.GametRisingRight
@@ -436,14 +436,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             axis: Axis.Vertical,
             signedOffset < 0 ? -OnePixelPerFrame : OnePixelPerFrame);
-        Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
-        int distancePastTarget = (slot.Position.Whole - target).Y;
+        int targetY = CoordinateAxis.Wrap(state.RiseEndY + signedOffset);
+        int distancePastTarget = CoordinateAxis.Difference(slot.Position.Y.Whole, targetY);
         bool reached = signedOffset < 0
             ? distancePastTarget < 0
             : distancePastTarget >= 0;
         if (!reached)
             return;
-        slot.Position = slot.Position.WithY(new(target.Y, 0));
+        slot.Position = slot.Position.WithY(new(targetY, 0));
         state.Action = PipeBugAction.NorfairWaitForStagger;
     }
 

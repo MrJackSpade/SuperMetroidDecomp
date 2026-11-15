@@ -19,8 +19,8 @@ public sealed class FlyEnemyState
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Samus's whole room-pixel height captured when the attack begins; only Y is meaningful. It determines the turnaround rather than tracking Samus's later movement.</summary>
-    public Position16<RoomPixels> TargetHeight { get; internal set; }
+    /// <summary>Samus's whole room-pixel Y captured when the attack begins. It determines the turnaround rather than tracking Samus's later movement.</summary>
+    public int TargetY { get; internal set; }
 
     /// <summary>The circular flight's phase, advanced sixteen 256ths of a turn per circling update and wrapping after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }

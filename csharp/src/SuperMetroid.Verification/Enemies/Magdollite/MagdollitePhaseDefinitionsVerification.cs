@@ -68,7 +68,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             bodyState.Action = MagdolliteBodyAction.Rising;
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhase = phaseIndex;
-            bodyState.RiseDisplacement = new(0, phaseIndex < 8
+            bodyState.RiseDisplacementY = (phaseIndex < 8
                 ? checked((short)-phase.DistanceThreshold)
                 : (short)0);
             body.Position = body.Position.WithWholeY(0x0300);
@@ -99,7 +99,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         {
             bodyState.Action = MagdolliteBodyAction.Falling;
             bodyState.BodyPhase = priorPhase + 1;
-            bodyState.RiseDisplacement = new(0, -1);
+            bodyState.RiseDisplacementY = -1;
             body.Position = body.Position.WithWholeY(0x0300);
             fall(body, bodyState);
             AssertEqual(priorPhase, bodyState.BodyPhase,

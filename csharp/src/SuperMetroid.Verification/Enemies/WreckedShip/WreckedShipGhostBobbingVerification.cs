@@ -37,7 +37,7 @@ internal static class WreckedShipGhostBobbingVerification
             {
                 Action = WreckedShipGhostAction.BobbingWhileVisible,
                 PhaseTimer = 120,
-                BobbingOrigin = new(0, originY),
+                BobbingOriginY = originY,
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };
             slot.SetSpeciesState(state);

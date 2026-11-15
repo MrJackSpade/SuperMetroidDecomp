@@ -15,7 +15,7 @@ internal static class WreckedShipGhostOwnedStateVerification
             Action = WreckedShipGhostAction.BobbingWhileVisible,
             PhaseTimer = 120,
             NextFlickerStep = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count,
-            BobbingOrigin = new(0, 96),
+            BobbingOriginY = 96,
         };
         AssertThrows<ArgumentOutOfRangeException>(() => state.NextFlickerStep = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count + 1,
             "the next flicker step rejects a position beyond the flicker's end");

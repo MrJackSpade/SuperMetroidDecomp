@@ -107,7 +107,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
-        state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
+        state.TargetY = samus.Position.Y.Whole;
         state.Action = FlyAction.AttackSamus;
     }
 
@@ -118,8 +118,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RetreatTimer++;
 
         bool crossedTarget = state.Velocity.Y.IsNegative
-            ? slot.Position.Y.Whole < state.TargetHeight.Y
-            : slot.Position.Y.Whole >= state.TargetHeight.Y;
+            ? slot.Position.Y.Whole < state.TargetY
+            : slot.Position.Y.Whole >= state.TargetY;
         if (!crossedTarget)
             return;
 

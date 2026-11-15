@@ -321,7 +321,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             magdolliteBody.Action = MagdolliteNativeWords.MagdolliteBodyActions.Decode(words.F, "recorded MagdolliteBodyAction");
             magdolliteBody.BodyPhase = words.B / 2;
-            magdolliteBody.RiseDisplacement = new(0, unchecked((short)words.E));
+            magdolliteBody.RiseDisplacementY = unchecked((short)words.E);
         }
         if (slot.SpeciesState<MagdollitePartState>() is MagdolliteOverlayState magdolliteOverlay)
         {
@@ -338,8 +338,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
         {
             kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
-            kiHunterBodyRecord.SwoopTarget = new(words.B, 0);
-            kiHunterBodyRecord.SwoopOrigin = new(0, words.C);
+            kiHunterBodyRecord.SwoopTargetX = words.B;
+            kiHunterBodyRecord.SwoopOriginY = words.C;
             kiHunterBodyRecord.AnimationChangeAngle = RotationAngle.FromSteps(words.E);
             kiHunterBodyRecord.SwoopAngle = RotationAngle.WrappedSteps(words.F);
         }
@@ -463,8 +463,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             kzanRecord.Action = KzanNativeWords.KzanActions.Decode(words.A, "recorded KzanAction");
             kzanRecord.FallWaitTimer = WrappingCountdown.Start(words.B);
-            kzanRecord.RisingTarget = new(0, words.C);
-            kzanRecord.FallingTarget = new(0, words.D);
+            kzanRecord.RisingTargetY = words.C;
+            kzanRecord.FallingTargetY = words.D;
         }
         if (slot.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
@@ -560,7 +560,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.PlatformStates[index] is { } platform)
         {
-            platform.RestingHeight = new Position16<RoomPixels>(0, words.A);
+            platform.RestingY = words.A;
             platform.Speed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
                 SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D), "platform speed");
             platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platform.MaximumYSpeedCurvePlace.WholeMarks, "platform acceleration index"));
@@ -635,7 +635,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
-            escape.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(words.A), default);
+            escape.Velocity = new SignedEightEight(words.A);
             escape.Action = AnimalsNativeWords.EscapeEtecoonActionAt(words.F);
         }
         if (slot.DefinitionId == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
@@ -686,7 +686,7 @@ internal static class NativeEnemyFamilyStateImport
             hibashi.Action = HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
             hibashi.InactiveTimer = unchecked((short)words.B);
             hibashi.ActivityFinished = words.C != 0;
-            hibashi.SpawnHeight = new Position16<RoomPixels>(0, words.D);
+            hibashi.SpawnY = words.D;
         }
         if (enemies.AlcoonStates[index] is { } alcoon)
         {
@@ -731,7 +731,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             fly.RetreatTimer = unchecked((short)words.A);
             fly.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            fly.TargetHeight = new Position16<RoomPixels>(0, words.D);
+            fly.TargetY = words.D;
             // The phase word is an even byte offset into the 256-entry table, nine bits wide.
             fly.Angle = words.E % 2 == 0
                 ? RotationAngle.FromSteps(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
@@ -748,7 +748,7 @@ internal static class NativeEnemyFamilyStateImport
             dragon.Action = DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
         }
         if (enemies.ElevatorStates[index] is { } elevator)
-            elevator.RestingHeight = new Position16<RoomPixels>(0, words.A);
+            elevator.RestingY = words.A;
         if (enemies.FuneNamiheStates[index] is { } funeNamihe)
         {
             funeNamihe.Action = FuneNamiheNativeWords.FuneNamiheActions.Decode(words.B, "recorded FuneNamiheAction");

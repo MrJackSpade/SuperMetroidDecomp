@@ -233,7 +233,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.Action = WreckedShipGhostAction.BobbingWhileVisible;
-        state.BobbingOrigin = new(0, slot.Position.Y.Whole);
+        state.BobbingOriginY = slot.Position.Y.Whole;
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
         state.NextFlickerStep = 0;
         state.VerticalVelocity = WreckedShipGhostInitialVerticalVelocity;
@@ -252,7 +252,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         slot.Position = slot.Position.AdvanceY(state.VerticalVelocity);
 
-        SignedSixteenSixteen acceleration = (slot.Position.Whole - state.BobbingOrigin).Y < 0
+        SignedSixteenSixteen acceleration = CoordinateAxis.Precedes(slot.Position.Y.Whole, state.BobbingOriginY)
             ? WreckedShipGhostVerticalAcceleration
             : -WreckedShipGhostVerticalAcceleration;
         state.VerticalVelocity += acceleration;

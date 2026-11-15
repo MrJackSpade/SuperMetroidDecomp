@@ -28,14 +28,13 @@ public sealed class WreckedShipGhostEnemyState
     }
 
     /// <summary>
-    /// The position about which the visible ghost oscillates; only its Y is meaningful. Positions
-    /// compare with it by the wrapped spatial difference.
+    /// The room Y about which the visible ghost oscillates. Positions compare with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> BobbingOrigin { get; internal set; }
+    public int BobbingOriginY { get; internal set; }
 
     /// <summary>
     /// The visible ghost's signed 1/65536-pixel vertical speed in pixels
-    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the fraction's overflow and wraparound.
+    /// per update, accelerating toward <see cref="BobbingOriginY"/> with the fraction's overflow and wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 

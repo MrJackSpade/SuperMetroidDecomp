@@ -213,7 +213,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 ProcessChozoStatueFootstep(
                     statue,
                     RequireChozoLevel(level),
-                    footstep.Offset);
+                    footstep.OffsetX);
                 return null;
 
             case ChozoStatueCue.Move move:
@@ -264,21 +264,21 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ProcessChozoStatueFootstep(
         RoomEnemySlot statue,
         RoomLevelData level,
-        Offset16<RoomPixels> footstepOffset)
+        int footstepOffsetX)
     {
         Position16<RoomPixels> probe = new(
-            CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28));
+            CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28));
         Position16<RoomBlocks> footstep = level.GridBlock(probe.ToRoomBlock());
         Position16<RoomBlocks> below = footstep + new Offset16<RoomBlocks>(0, 1);
         if (!level.Size.Contains(below) || level.GetCollisionBlock(below).CollisionType != RoomCollisionType.SpikeBlock)
             return;
 
         RequestChozoObject(ChozoStatueRoomObject.PlugCrumbleUnderFootstep, footstep);
-        SpawnWreckedShipChozoFootstep(statue, footstepOffset);
+        SpawnWreckedShipChozoFootstep(statue, footstepOffsetX);
     }
 
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
-    internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, Offset16<RoomPixels> footstepOffset)
+    internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, int footstepOffsetX)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -290,7 +290,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileBehavior.Still,
             graphics: default);
         projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustSegment.Footsteps));
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
     }
 
     /// <summary>Restores Samus controls, closes and opens the room's screens behind her and queues the slope access's closing.</summary>

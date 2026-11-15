@@ -17,10 +17,10 @@ public sealed class NorfairRioEnemyState
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>
-    /// The flame follower's placement relative to its parent; only Y is meaningful (-16 through 12 pixels). Private
-    /// animation cues publish it, and its sign selects the follower's ascending or descending flames.
+    /// The flame follower's vertical placement relative to its parent, -16 through 12 pixels. Private animation cues
+    /// publish it, and its sign selects the follower's ascending or descending flames.
     /// </summary>
-    public Offset16<RoomPixels> FollowerOffset { get; internal set; }
+    public int FollowerYOffset { get; internal set; }
 
     /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

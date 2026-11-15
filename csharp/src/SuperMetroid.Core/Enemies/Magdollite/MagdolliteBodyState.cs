@@ -21,10 +21,10 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     public int BodyPhase { get; internal set; }
 
     /// <summary>
-    /// The arm's whole-pixel displacement from where it started rising; only Y is meaningful, negative while the arm is
-    /// above that point.
+    /// The arm's whole-pixel vertical displacement from where it started rising, negative while the arm is above that
+    /// point.
     /// </summary>
-    public Offset16<RoomPixels> RiseDisplacement { get; internal set; }
+    public int RiseDisplacementY { get; internal set; }
 
     /// <summary>Whether the arm has finished growing, set by the arm at maximum or Samus-relative height and cleared by the overlay when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }

@@ -38,8 +38,8 @@ public sealed class NorfairPipeBugState
     /// <summary>The speed the bug flies at, the spawn settings' speed: added flying one way and negated flying the other.</summary>
     public EnemyLinearSpeed FlightSpeeds { get; internal set; }
 
-    /// <summary>The point at which the member's rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
-    public Position16<RoomPixels> RiseEnd { get; internal set; }
+    /// <summary>The room Y at which the member's rise ended. Its stagger moves are measured from it.</summary>
+    public int RiseEndY { get; internal set; }
 
     /// <summary>The formation count, 88 through 120, at which the member departs: its role's (#1840).</summary>
     public int StaggerTarget { get; internal set; }

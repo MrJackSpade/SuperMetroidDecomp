@@ -60,8 +60,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         bool upsideUp = settings.Mounting == CacatacMounting.Floor;
         slot.Frame = EnemyFrameId.Empty;
 
-        var travel = new Offset16<RoomPixels>(settings.TravelDistance, 0);
-        Position16<RoomPixels> spawn = slot.Position.Whole;
+        int spawnX = slot.Position.X.Whole;
         CacatacAction action = direction switch
         {
             CacatacDirection.Left => CacatacAction.MovingLeft,
@@ -73,8 +72,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Speed = settings.Speed,
             Direction = direction,
-            RightPatrolLimit = spawn + travel,
-            LeftPatrolLimit = spawn - travel,
+            RightPatrolX = CoordinateAxis.Wrap(spawnX + settings.TravelDistance),
+            LeftPatrolX = CoordinateAxis.Wrap(spawnX - settings.TravelDistance),
             UpsideUp = upsideUp,
         };
         slot.SetSpeciesState(state);
@@ -115,14 +114,14 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (direction != HorizontalDirection.Right)
         {
-            if ((slot.Position.Whole - state.LeftPatrolLimit).X >= 0)
+            if (!CoordinateAxis.Precedes(slot.Position.X.Whole, state.LeftPatrolX))
                 return;
             state.Action = CacatacAction.MovingRight;
             state.Direction = CacatacDirection.Right;
             return;
         }
 
-        if ((slot.Position.Whole - state.RightPatrolLimit).X < 0)
+        if (CoordinateAxis.Precedes(slot.Position.X.Whole, state.RightPatrolX))
             return;
         state.Action = CacatacAction.MovingLeft;
         state.Direction = CacatacDirection.Left;

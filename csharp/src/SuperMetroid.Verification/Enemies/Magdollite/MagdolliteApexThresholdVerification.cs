@@ -68,15 +68,15 @@ internal static class MagdolliteApexThresholdVerification
             var state = enemies.MagdolliteStates[1] as MagdolliteBodyState ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Action = MagdolliteBodyAction.Rising;
             state.BodyPhase = 1;
-            state.RiseDisplacement = Offset16<RoomPixels>.Zero;
+            state.RiseDisplacementY = 0;
             body.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
 
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(new FixedCoordinate(670, onePixel / 2), body.Position.Y, "Magdollite arm's first rise leaves half a pixel");
-            AssertEqual(new Offset16<RoomPixels>(0, -2), state.RiseDisplacement, "Magdollite arm's first rise is two whole pixels");
+            AssertEqual(-2, state.RiseDisplacementY, "Magdollite arm's first rise is two whole pixels");
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(new FixedCoordinate(669, 0), body.Position.Y, "Magdollite arm's second rise carries the half pixel");
-            AssertEqual(new Offset16<RoomPixels>(0, -3), state.RiseDisplacement, "Magdollite arm's rise displacement counts whole-pixel moves");
+            AssertEqual(-3, state.RiseDisplacementY, "Magdollite arm's rise displacement counts whole-pixel moves");
             AssertEqual(1, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
         }
 
@@ -101,7 +101,7 @@ internal static class MagdolliteApexThresholdVerification
             state.Action = MagdolliteBodyAction.Rising;
             state.BodyPhase = 7;
             body.Position = body.Position.WithWholeY(0x02a0);
-            state.RiseDisplacement = new(0, -MagdollitePhaseDefinitions.MaximumRise);
+            state.RiseDisplacementY = -MagdollitePhaseDefinitions.MaximumRise;
 
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             string context = $"Magdollite body in slot {body.SlotIndex}";

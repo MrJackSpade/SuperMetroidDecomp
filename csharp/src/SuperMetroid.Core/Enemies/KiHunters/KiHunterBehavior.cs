@@ -110,8 +110,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
-        state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - 16));
-        state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
+        state.UpperPatrolY = CoordinateAxis.Wrap(body.Position.Y.Whole - 16);
+        state.LowerPatrolY = CoordinateAxis.Wrap(state.UpperPatrolY + 32);
         state.SpawnPosition = body.Position.Whole;
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
@@ -215,11 +215,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Velocity = state.Velocity.WithWholeY(-state.Velocity.Y.WholePixels);
         }
-        else if ((body.Position.Whole - state.UpperPatrol).Y < 0)
+        else if (CoordinateAxis.Precedes(body.Position.Y.Whole, state.UpperPatrolY))
         {
             state.Velocity = state.Velocity.WithWholeY(1);
         }
-        else if ((body.Position.Whole - state.LowerPatrol).Y >= 0)
+        else if (!CoordinateAxis.Precedes(body.Position.Y.Whole, state.LowerPatrolY))
         {
             state.Velocity = state.Velocity.WithWholeY(-1);
         }
@@ -248,8 +248,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopRadius = new Extent16<RoomPixels>(
             absoluteXDistance,
             CoordinateAxis.Wrap(samus.Position.Y.Whole - body.Position.Y.Whole));
-        state.SwoopTarget = new(samus.Position.X.Whole, 0);
-        state.SwoopOrigin = new(0, body.Position.Y.Whole);
+        state.SwoopTargetX = samus.Position.X.Whole;
+        state.SwoopOriginY = body.Position.Y.Whole;
         state.Action = KiHunterAction.Swooping;
 
         bool swoopLeft = signedXDistance < 0;
@@ -309,7 +309,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         TrigonometryAngle tableAngle = state.SwoopAngle.ToTrigonometryAngle();
         int targetX = CoordinateAxis.Wrap(
-            state.SwoopTarget.X +
+            state.SwoopTargetX +
             EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X));
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
@@ -321,7 +321,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
         int targetY = CoordinateAxis.Wrap(
-            state.SwoopOrigin.Y +
+            state.SwoopOriginY +
             EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y));
         SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))

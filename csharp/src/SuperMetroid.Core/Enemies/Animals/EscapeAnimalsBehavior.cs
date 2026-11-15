@@ -133,14 +133,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The stored speed is signed and in 1/256 pixels; the slope-ignoring horizontal mover receives signed
         // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
         // branch in the retail game and must not turn an animal around in open space.
-        SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
+        SignedSixteenSixteen horizontalDisplacement = state.Velocity.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             slot.AnimationClock.StepOnNextUpdate();
-            state.Velocity = state.Velocity.ReversedX();
+            state.Velocity = state.Velocity.Negated();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonSegment.RunningForEscape
-                : state.Velocity.X.IsNegative
+                : state.Velocity.IsNegative
                     ? EscapeEtecoonSegment.RunningLeftLowTide
                     : EscapeEtecoonSegment.RunningRightLowTide), AnimationPlace.StartOfAnimation);
         }

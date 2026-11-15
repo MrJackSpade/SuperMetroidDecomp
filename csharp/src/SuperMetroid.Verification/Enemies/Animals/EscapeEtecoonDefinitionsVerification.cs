@@ -40,7 +40,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
                 $"escape Etecoon role {role} instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
-                initialization.Velocity.X.RawValue,
+                initialization.Velocity.RawValue,
                 $"escape Etecoon role {role} speed");
         }
 

@@ -25,31 +25,22 @@ public sealed class KzanEnemyState
     public WrappingCountdown FallWaitTimer { get; internal set; }
 
     /// <summary>
-    /// The top's original position, where upward motion stops before restarting the wait; only its Y is meaningful.
-    /// Positions compare with it by the wrapped spatial difference.
+    /// The top's original room Y, where upward motion stops before restarting the wait. Positions compare with it by the
+    /// wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> RisingTarget
-    {
-        get;
-        internal set => field = new(0, value.Y);
-    }
+    public int RisingTargetY { get; internal set; }
 
     /// <summary>
-    /// The lowest position of the fall, the spawn Y plus the spawn settings' fall distance with
-    /// room-coordinate wraparound; only its Y is meaningful. Positions compare with it by the wrapped spatial
-    /// difference.
+    /// The lowest room Y of the fall, the spawn Y plus the spawn settings' fall distance with room-coordinate
+    /// wraparound. Positions compare with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> FallingTarget
-    {
-        get;
-        internal set => field = new(0, value.Y);
-    }
+    public int FallingTargetY { get; internal set; }
 
     /// <summary>Reload value for the top wait in actor updates, 0 through 255, from the spawn's fall wait.</summary>
     public int FallWaitTimerResetValue { get; internal set; }
 
-    /// <summary>The top's position saved before a falling or rising update; only its Y is read, and the accepted whole-pixel movement since it determines rider displacement.</summary>
-    public Position16<RoomPixels> PreviousPosition { get; internal set; }
+    /// <summary>The top's room Y saved before a falling or rising update; the accepted whole-pixel movement since it determines rider displacement.</summary>
+    public int PreviousY { get; internal set; }
 
     /// <summary>
     /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by one

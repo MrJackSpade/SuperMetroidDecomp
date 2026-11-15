@@ -22,8 +22,8 @@ public sealed class HibashiEnemyState
     /// <summary>Animation-to-AI handshake: cleared when an eruption starts, set by the finishing cue after the hitbox is disabled, and awaited by active AI.</summary>
     public bool ActivityFinished { get; internal set; }
 
-    /// <summary>The graphics part's room Y captured at initialization; only Y is meaningful. Activity frames place the collision part relative to it and the finishing cue restores the art owner to it.</summary>
-    public Position16<RoomPixels> SpawnHeight { get; internal set; }
+    /// <summary>The graphics part's room Y captured at initialization. Activity frames place the collision part relative to it and the finishing cue restores the art owner to it.</summary>
+    public int SpawnY { get; internal set; }
 
     /// <summary>The inactive countdown's restart value, its spawn inactive time.</summary>
     public int InactiveTimerReset { get; internal set; }

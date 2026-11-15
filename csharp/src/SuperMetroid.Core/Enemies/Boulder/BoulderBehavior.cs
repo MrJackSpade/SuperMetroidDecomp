@@ -124,7 +124,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
 
-        state.VerticalCompensation = new Offset16<RoomPixels>(0, RollingGroundReach);
+        state.VerticalCompensation = RollingGroundReach;
     }
 
     /// <summary>Runs the Boulder's current action: waiting for Samus, falling, rebounding, rolling or resting.</summary>
@@ -259,9 +259,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen verticalDisplacement =
             state.TravelSpeedAccumulator.Speed.Positive +
-            SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation.Y);
+            SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation);
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
-        slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
+        slot.Position = slot.Position.WithWhole(slot.Position.Whole - new Offset16<RoomPixels>(0, state.VerticalCompensation));
 
         SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
@@ -283,7 +283,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 RollingTravelSpeedStep,
                 MaximumRollingTravelSpeed);
             if (slot.Position.Y == state.PreviousY)
-                state.VerticalCompensation = Offset16<RoomPixels>.Zero;
+                state.VerticalCompensation = 0;
         }
 
         state.PreviousY = slot.Position.Y;

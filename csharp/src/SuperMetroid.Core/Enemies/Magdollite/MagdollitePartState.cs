@@ -30,8 +30,8 @@ public abstract class MagdollitePartState
     public bool AnimationBusy { get; internal set; }
 
     /// <summary>
-    /// The part's whole-pixel spawn position, captured before its initializer moves it; only Y is meaningful. The head
-    /// and arm return to its height, and the head's sink and surface cues are measured from it.
+    /// The part's whole-pixel spawn room Y, captured before its initializer moves it. The head and arm return to it, and
+    /// the head's sink and surface cues are measured from it.
     /// </summary>
-    public Position16<RoomPixels> Origin { get; internal set; }
+    public int OriginY { get; internal set; }
 }

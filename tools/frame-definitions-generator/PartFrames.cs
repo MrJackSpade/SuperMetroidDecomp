@@ -126,9 +126,9 @@ internal sealed record PartFrameConfiguration(
                 ["ShutterGrowing"] = ["GrowingTenPixels", "GrowingTwentyPixels", "GrowingThirtyPixels", "FortyPixels"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // Each crawler starts in its family's surface program and takes its later surfaces from its surface family:
-        // Sciser, Zero and Viola their own, the shared crawlers the shared family their rooms' entries name; the orange
-        // Zoomer chooses only among its own.
+        // Each crawler starts in its family's surface program and takes its later surfaces from its species' own family:
+        // Sciser, Zero and Viola their own, the shared crawlers the shared family; the orange Zoomer chooses only among
+        // its own.
         new("CrawlersBehavior", null, null, "CrawlerAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
@@ -141,13 +141,7 @@ internal sealed record PartFrameConfiguration(
                 ["MZoomer"] = CrawlerFamily("Shared"),
                 ["HZoomer"] = CrawlerFamily("HZoomer"),
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
-            [
-                new("Zeela", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
-                new("Sova", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
-                new("Zoomer", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
-                new("MZoomer", "CrawlerSpawnSettings", "SurfaceFamily", ["Shared"]),
-            ]),
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // A Brinstar pipe bug runs the weak or the strong programs its room's kind selects; Gamet and Geega their own.
         new("PipeBugsBehavior", null, null, "PipeBugAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
@@ -204,18 +198,14 @@ internal sealed record PartFrameConfiguration(
                 ["SidehopperTourian"] = HopperVariant("LargeSidehopper"),
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // A Fune or Namihe runs the idle and active programs its placements' variant selects, facing either way.
+        // A Fune or Namihe runs its own species' idle and active programs, facing either way.
         new("FuneNamiheBehavior", null, null, "FuneNamiheAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["Fune"] = ["FuneIdleLeft", "FuneActiveLeft", "FuneIdleRight", "FuneActiveRight"],
                 ["Namihe"] = ["NamiheIdleLeft", "NamiheActiveLeft", "NamiheIdleRight", "NamiheActiveRight"],
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
-            [
-                new("Fune", "FuneNamiheSpawnSettings", "Variant", ["Fune"]),
-                new("Namihe", "FuneNamiheSpawnSettings", "Variant", ["Namihe"]),
-            ]),
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Kamer runs the suspensor platform's programs and the Tripper its own, as the platform initializer chooses by
         // definition; only the Tripper's shot and bomb reactions pin its frozen frames.
         new("PlatformsBehavior", null, null, "PlatformAnimations", null, [],

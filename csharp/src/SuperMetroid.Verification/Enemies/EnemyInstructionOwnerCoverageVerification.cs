@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -71,8 +72,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
             unresolved.AddRange(outcome.Unresolved);
         }
 
-        AssertEqual(149, definitions.Length,
-            "owner audit enumerates every named retail enemy definition a room places or code spawns");
+        AssertEqual(153, definitions.Length,
+            "owner audit enumerates every named retail enemy definition a room places or code spawns, the five Ceres doors and walls included");
         AssertTrue(translated.Count > 100,
             "owner audit recognizes the translated retail initializer surface");
         AssertTrue(owned.Count > 90,
@@ -133,12 +134,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
             enemies.VerificationServices().ReadRandom = () => 0;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            // The placement's settings are recorded before the entity is bound, as a room load records them, so a species
+            // that places several actors (the Ceres doors and walls) creates the one the placement names (#1953, #1999).
+            slot.SetSpawnSettings(population.SpawnSettings);
             slot.Bind(definitionPointer, slot.Definition);
             slot.Bind(slot.DefinitionId, definition);
             slot.Radius = new(definition.Radius.X, definition.Radius.Y);
             slot.Health = definition.Health;
             slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-            slot.SetSpawnSettings(population.SpawnSettings);
             slot.Contact = population.Contact;
             slot.Processing = population.Processing;
             slot.Presence = population.Presence;
@@ -209,15 +212,19 @@ internal static class EnemyInstructionOwnerCoverageVerification
         [0xceff, 0xd57f, 0xd8bf, 0xdb3f, 0xdbff, 0xedbf, 0xf03f, 0xf153, 0xf393, 0xf3d3, 0xf4d3, 0xf513, 0xf553, 0xf5d3];
 
     /// <summary>
-    /// Extracts the species of the distinct bank-$A0 enemy headers named in the pinned symbol inventory. A header no
-    /// room places and no code spawns (<see cref="UnplacedEnemyHeaders"/>) is cartridge inventory with no species, and is
-    /// not one.
+    /// Extracts the species of the distinct bank-$A0 enemy headers named in the pinned symbol inventory, and of the header
+    /// every Ceres door and wall shares, which the inventory labels as other data rather than as an enemy definition
+    /// (#1999). A header no room places and no code spawns (<see cref="UnplacedEnemyHeaders"/>) is cartridge inventory
+    /// with no species, and is not one. The inventory also names the header the cartridge leaves in a killed enemy's place
+    /// while it waits to respawn (<see cref="EnemyHeaderWords.AwaitingRespawnHeader"/>): the port holds that place as
+    /// awaiting respawn, with no enemy and no definition, so the audit recognises it as that placeholder and requires the
+    /// inventory to name it. Every other header names a species or the audit fails.
     /// </summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()
     {
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        return File.ReadLines(symbolPath)
+        HashSet<ushort> namedHeaders = File.ReadLines(symbolPath)
             .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Where(fields => fields.Length == 2 &&
                 fields[0].StartsWith("0xa0", StringComparison.Ordinal) &&
@@ -226,15 +233,29 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 fields[0].AsSpan(4),
                 NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture))
+            .ToHashSet();
+        AssertTrue(namedHeaders.Remove(EnemyHeaderWords.AwaitingRespawnHeader),
+            "the symbol inventory names the awaiting-respawn placeholder, which the audit holds as no enemy definition");
+        IEnumerable<ushort> sharedHeaders = EnemyHeaderWords.SharedHeaders.Keys.Select(EnemyDefinitionIds.HeaderPointer);
+        return namedHeaders
+            .Union(sharedHeaders)
             .Where(header => !UnplacedEnemyHeaders.Contains(header))
-            // A header several actors share names each of them (#1989).
-            .SelectMany(header => SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.SharedHeaders.Keys
-                    .Where(actor => EnemyDefinitionIds.HeaderPointer(actor) == header).ToArray() is { Length: > 0 } actors
-                ? actors
-                : [EnemyDefinitionIds.FromHeaderPointer(header)])
+            .SelectMany(DefinitionsPlacedBy)
             .Distinct()
             .Order()
             .ToArray();
+    }
+
+    /// <summary>
+    /// The definitions a placement of <paramref name="header"/> places: every actor sharing it (#1989), whose placement's
+    /// first parameter selects among them, or the one species it names.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The header is not shared and names no species.</exception>
+    private static EnemyDefinitionId[] DefinitionsPlacedBy(ushort header)
+    {
+        EnemyDefinitionId[] sharing =
+            [.. EnemyHeaderWords.SharedHeaders.Keys.Where(actor => EnemyDefinitionIds.HeaderPointer(actor) == header)];
+        return sharing.Length > 0 ? sharing : [EnemyDefinitionIds.FromHeaderPointer(header)];
     }
 
     /// <summary>Groups native population records from all retail room states by enemy definition.</summary>

@@ -9,1996 +9,1996 @@ public enum EnemyProjectileFrameId
 {
     /// <summary>The empty projectile frame, which draws nothing.</summary>
     Blank,
-    /// <summary><c>skree_debris</c>, a composition.</summary>
+    /// <summary>The Skree debris, one composed picture.</summary>
     SkreeDebris,
-    /// <summary><c>metaree_debris</c>, a composition.</summary>
+    /// <summary>The Metaree debris, one composed picture.</summary>
     MetareeDebris,
-    /// <summary><c>draygon_goop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Draygon goop.</summary>
     DraygonGoopFirst,
-    /// <summary><c>draygon_goop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Draygon goop.</summary>
     DraygonGoopSecond,
-    /// <summary><c>draygon_goop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Draygon goop.</summary>
     DraygonGoopThird,
-    /// <summary><c>draygon_goop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Draygon goop.</summary>
     DraygonGoopFourth,
-    /// <summary><c>draygon_goop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Draygon goop.</summary>
     DraygonGoopFifth,
-    /// <summary><c>draygon_goop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Draygon goop.</summary>
     DraygonGoopSixth,
-    /// <summary><c>draygon_goop_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Draygon goop shot.</summary>
     DraygonGoopShotFirst,
-    /// <summary><c>draygon_goop_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Draygon goop shot.</summary>
     DraygonGoopShotSecond,
-    /// <summary><c>draygon_wall_turret_bloom_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomFirst,
-    /// <summary><c>draygon_wall_turret_bloom_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomSecond,
-    /// <summary><c>draygon_wall_turret_bloom_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomThird,
-    /// <summary><c>draygon_wall_turret_bloom_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomFourth,
-    /// <summary><c>draygon_wall_turret_bloom_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomFifth,
-    /// <summary><c>draygon_wall_turret_bloom_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomSixth,
-    /// <summary><c>draygon_wall_turret_bloom_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomSeventh,
-    /// <summary><c>draygon_wall_turret_bloom_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomEighth,
-    /// <summary><c>draygon_wall_turret_bloom_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomNinth,
-    /// <summary><c>draygon_wall_turret_bloom_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomTenth,
-    /// <summary><c>draygon_wall_turret_bloom_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomEleventh,
-    /// <summary><c>draygon_wall_turret_bloom_twelfth</c>, an installed animation frame.</summary>
+    /// <summary>The twelfth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomTwelfth,
-    /// <summary><c>draygon_wall_turret_bloom_thirteenth</c>, an installed animation frame.</summary>
+    /// <summary>The thirteenth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomThirteenth,
-    /// <summary><c>draygon_wall_turret_bloom_fourteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fourteenth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomFourteenth,
-    /// <summary><c>draygon_wall_turret_bloom_fifteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fifteenth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomFifteenth,
-    /// <summary><c>draygon_wall_turret_bloom_sixteenth</c>, an installed animation frame.</summary>
+    /// <summary>The sixteenth frame of the Draygon wall turret bloom.</summary>
     DraygonWallTurretBloomSixteenth,
-    /// <summary><c>draygon_wall_turret_flight_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Draygon wall turret flight.</summary>
     DraygonWallTurretFlightFirst,
-    /// <summary><c>draygon_wall_turret_flight_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Draygon wall turret flight.</summary>
     DraygonWallTurretFlightSecond,
-    /// <summary><c>draygon_wall_turret_flight_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Draygon wall turret flight.</summary>
     DraygonWallTurretFlightThird,
-    /// <summary><c>crocomire_mouth_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Crocomire mouth.</summary>
     CrocomireMouthFirst,
-    /// <summary><c>crocomire_mouth_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Crocomire mouth.</summary>
     CrocomireMouthSecond,
-    /// <summary><c>crocomire_mouth_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Crocomire mouth.</summary>
     CrocomireMouthThird,
-    /// <summary><c>crocomire_mouth_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Crocomire mouth.</summary>
     CrocomireMouthFourth,
-    /// <summary><c>crocomire_mouth_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Crocomire mouth.</summary>
     CrocomireMouthFifth,
-    /// <summary><c>crocomire_mouth_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Crocomire mouth.</summary>
     CrocomireMouthSixth,
-    /// <summary><c>crocomire_bridge_fragment</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Crocomire bridge fragment.</summary>
     CrocomireBridgeFragment,
-    /// <summary><c>crocomire_spike_wall_piece</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Crocomire spike wall piece.</summary>
     CrocomireSpikeWallPiece,
-    /// <summary><c>crocomire_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Crocomire shot.</summary>
     CrocomireShotFirst,
-    /// <summary><c>crocomire_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Crocomire shot.</summary>
     CrocomireShotSecond,
-    /// <summary><c>crocomire_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Crocomire shot.</summary>
     CrocomireShotThird,
-    /// <summary><c>crocomire_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Crocomire shot.</summary>
     CrocomireShotFourth,
-    /// <summary><c>crocomire_shot_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Crocomire shot.</summary>
     CrocomireShotFifth,
-    /// <summary><c>ceres_ridley_launch_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ceres Ridley launch.</summary>
     CeresRidleyLaunchFirst,
-    /// <summary><c>ceres_ridley_launch_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ceres Ridley launch.</summary>
     CeresRidleyLaunchSecond,
-    /// <summary><c>ceres_ridley_flight_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ceres Ridley flight.</summary>
     CeresRidleyFlightFirst,
-    /// <summary><c>ceres_ridley_flight_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ceres Ridley flight.</summary>
     CeresRidleyFlightSecond,
-    /// <summary><c>ceres_ridley_flight_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ceres Ridley flight.</summary>
     CeresRidleyFlightThird,
-    /// <summary><c>ceres_ridley_flight_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ceres Ridley flight.</summary>
     CeresRidleyFlightFourth,
-    /// <summary><c>ceres_ridley_afterburn_final_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ceres Ridley afterburn final.</summary>
     CeresRidleyAfterburnFinalFirst,
-    /// <summary><c>ceres_ridley_afterburn_final_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ceres Ridley afterburn final.</summary>
     CeresRidleyAfterburnFinalSecond,
-    /// <summary><c>ceres_ridley_afterburn_final_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ceres Ridley afterburn final.</summary>
     CeresRidleyAfterburnFinalThird,
-    /// <summary><c>ceres_ridley_afterburn_final_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ceres Ridley afterburn final.</summary>
     CeresRidleyAfterburnFinalFourth,
-    /// <summary><c>ceres_ridley_afterburn_final_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ceres Ridley afterburn final.</summary>
     CeresRidleyAfterburnFinalFifth,
-    /// <summary><c>ceres_ridley_horizontal_center_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ceres Ridley horizontal center.</summary>
     CeresRidleyHorizontalCenterFirst,
-    /// <summary><c>ceres_ridley_horizontal_center_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ceres Ridley horizontal center.</summary>
     CeresRidleyHorizontalCenterSecond,
-    /// <summary><c>ceres_ridley_horizontal_center_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ceres Ridley horizontal center.</summary>
     CeresRidleyHorizontalCenterThird,
-    /// <summary><c>ceres_ridley_horizontal_center_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ceres Ridley horizontal center.</summary>
     CeresRidleyHorizontalCenterFourth,
-    /// <summary><c>ceres_ridley_horizontal_center_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ceres Ridley horizontal center.</summary>
     CeresRidleyHorizontalCenterFifth,
-    /// <summary><c>ceres_ridley_vertical_center_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ceres Ridley vertical center.</summary>
     CeresRidleyVerticalCenterFirst,
-    /// <summary><c>ceres_ridley_vertical_center_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ceres Ridley vertical center.</summary>
     CeresRidleyVerticalCenterSecond,
-    /// <summary><c>ceres_ridley_vertical_center_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ceres Ridley vertical center.</summary>
     CeresRidleyVerticalCenterThird,
-    /// <summary><c>ceres_ridley_vertical_center_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ceres Ridley vertical center.</summary>
     CeresRidleyVerticalCenterFourth,
-    /// <summary><c>ceres_ridley_vertical_center_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ceres Ridley vertical center.</summary>
     CeresRidleyVerticalCenterFifth,
-    /// <summary><c>ceres_ridley_directional_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ceres Ridley directional.</summary>
     CeresRidleyDirectionalFirst,
-    /// <summary><c>ceres_ridley_directional_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ceres Ridley directional.</summary>
     CeresRidleyDirectionalSecond,
-    /// <summary><c>ceres_ridley_directional_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ceres Ridley directional.</summary>
     CeresRidleyDirectionalThird,
-    /// <summary><c>ceres_ridley_directional_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ceres Ridley directional.</summary>
     CeresRidleyDirectionalFourth,
-    /// <summary><c>ceres_ridley_directional_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ceres Ridley directional.</summary>
     CeresRidleyDirectionalFifth,
-    /// <summary><c>ceres_falling_debris_light</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Ceres falling debris light.</summary>
     CeresFallingDebrisLight,
-    /// <summary><c>ceres_falling_debris_dark</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Ceres falling debris dark.</summary>
     CeresFallingDebrisDark,
-    /// <summary><c>phantoon_destroyable_idle_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Phantoon destroyable idle.</summary>
     PhantoonDestroyableIdleFirst,
-    /// <summary><c>phantoon_destroyable_idle_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Phantoon destroyable idle.</summary>
     PhantoonDestroyableIdleSecond,
-    /// <summary><c>phantoon_destroyable_idle_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon destroyable idle.</summary>
     PhantoonDestroyableIdleThird,
-    /// <summary><c>phantoon_destroyable_idle_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Phantoon destroyable idle.</summary>
     PhantoonDestroyableIdleFifth,
-    /// <summary><c>phantoon_casual_bouncing_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Phantoon casual bouncing.</summary>
     PhantoonCasualBouncingFirst,
-    /// <summary><c>phantoon_casual_bouncing_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Phantoon casual bouncing.</summary>
     PhantoonCasualBouncingSecond,
-    /// <summary><c>phantoon_casual_bouncing_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon casual bouncing.</summary>
     PhantoonCasualBouncingThird,
-    /// <summary><c>phantoon_casual_bouncing_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Phantoon casual bouncing.</summary>
     PhantoonCasualBouncingFifth,
-    /// <summary><c>phantoon_casual_bouncing_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Phantoon casual bouncing.</summary>
     PhantoonCasualBouncingSixth,
-    /// <summary><c>phantoon_casual_resting_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon casual resting.</summary>
     PhantoonCasualRestingThird,
-    /// <summary><c>phantoon_casual_resting_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Phantoon casual resting.</summary>
     PhantoonCasualRestingFourth,
-    /// <summary><c>phantoon_casual_resting_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Phantoon casual resting.</summary>
     PhantoonCasualRestingFifth,
-    /// <summary><c>phantoon_casual_resting_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Phantoon casual resting.</summary>
     PhantoonCasualRestingSixth,
-    /// <summary><c>phantoon_dying_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Phantoon dying.</summary>
     PhantoonDyingFirst,
-    /// <summary><c>phantoon_dying_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Phantoon dying.</summary>
     PhantoonDyingSecond,
-    /// <summary><c>phantoon_dying_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon dying.</summary>
     PhantoonDyingThird,
-    /// <summary><c>phantoon_dying_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Phantoon dying.</summary>
     PhantoonDyingFourth,
-    /// <summary><c>phantoon_rain_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Phantoon rain impact.</summary>
     PhantoonRainImpactFirst,
-    /// <summary><c>phantoon_rain_impact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Phantoon rain impact.</summary>
     PhantoonRainImpactFourth,
-    /// <summary><c>phantoon_rain_impact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Phantoon rain impact.</summary>
     PhantoonRainImpactFifth,
-    /// <summary><c>phantoon_casual_falling_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon casual falling.</summary>
     PhantoonCasualFallingThird,
-    /// <summary><c>phantoon_casual_falling_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Phantoon casual falling.</summary>
     PhantoonCasualFallingFourth,
-    /// <summary><c>phantoon_casual_falling_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Phantoon casual falling.</summary>
     PhantoonCasualFallingFifth,
-    /// <summary><c>phantoon_casual_falling_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Phantoon casual falling.</summary>
     PhantoonCasualFallingSixth,
-    /// <summary><c>phantoon_starting_flame_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Phantoon starting flame.</summary>
     PhantoonStartingFlameFirst,
-    /// <summary><c>phantoon_starting_flame_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Phantoon starting flame.</summary>
     PhantoonStartingFlameSecond,
-    /// <summary><c>phantoon_starting_flame_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon starting flame.</summary>
     PhantoonStartingFlameThird,
-    /// <summary><c>phantoon_destroyable_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Phantoon destroyable shot.</summary>
     PhantoonDestroyableShotFirst,
-    /// <summary><c>phantoon_destroyable_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Phantoon destroyable shot.</summary>
     PhantoonDestroyableShotSecond,
-    /// <summary><c>phantoon_destroyable_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Phantoon destroyable shot.</summary>
     PhantoonDestroyableShotThird,
-    /// <summary><c>phantoon_destroyable_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Phantoon destroyable shot.</summary>
     PhantoonDestroyableShotFourth,
-    /// <summary><c>kraid_rock</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Kraid rock.</summary>
     KraidRock,
-    /// <summary><c>kraid_rock_rising_right_pose</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Kraid rock rising right pose.</summary>
     KraidRockRisingRightPose,
-    /// <summary><c>kraid_rock_burst_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Kraid rock burst.</summary>
     KraidRockBurstFirst,
-    /// <summary><c>kraid_rock_burst_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Kraid rock burst.</summary>
     KraidRockBurstSecond,
-    /// <summary><c>kraid_rock_burst_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Kraid rock burst.</summary>
     KraidRockBurstThird,
-    /// <summary><c>kraid_rock_burst_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Kraid rock burst.</summary>
     KraidRockBurstFourth,
-    /// <summary><c>kraid_rock_burst_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Kraid rock burst.</summary>
     KraidRockBurstFifth,
-    /// <summary><c>fake_kraid_spit</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Fake Kraid spit.</summary>
     FakeKraidSpit,
-    /// <summary><c>fake_kraid_spike_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Fake Kraid spike left.</summary>
     FakeKraidSpikeLeft,
-    /// <summary><c>fake_kraid_spike_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Fake Kraid spike right.</summary>
     FakeKraidSpikeRight,
-    /// <summary><c>alcoon_fireball_initial_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Alcoon fireball initial.</summary>
     AlcoonFireballInitialFirst,
-    /// <summary><c>alcoon_fireball_initial_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Alcoon fireball initial.</summary>
     AlcoonFireballInitialSecond,
-    /// <summary><c>alcoon_fireball_initial_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Alcoon fireball initial.</summary>
     AlcoonFireballInitialThird,
-    /// <summary><c>alcoon_fireball_initial_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Alcoon fireball initial.</summary>
     AlcoonFireballInitialFourth,
-    /// <summary><c>space_pirate_laser_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftFirst,
-    /// <summary><c>space_pirate_laser_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftSecond,
-    /// <summary><c>space_pirate_laser_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftThird,
-    /// <summary><c>space_pirate_laser_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftFourth,
-    /// <summary><c>space_pirate_laser_left_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftFifth,
-    /// <summary><c>space_pirate_laser_left_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftSixth,
-    /// <summary><c>space_pirate_laser_left_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftSeventh,
-    /// <summary><c>space_pirate_laser_left_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftEighth,
-    /// <summary><c>space_pirate_laser_left_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftNinth,
-    /// <summary><c>space_pirate_laser_left_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftTenth,
-    /// <summary><c>space_pirate_laser_left_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the Space Pirate laser left.</summary>
     SpacePirateLaserLeftEleventh,
-    /// <summary><c>space_pirate_laser_left_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Space Pirate laser left loop.</summary>
     SpacePirateLaserLeftLoopFirst,
-    /// <summary><c>space_pirate_laser_left_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Space Pirate laser left loop.</summary>
     SpacePirateLaserLeftLoopSecond,
-    /// <summary><c>space_pirate_laser_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightFirst,
-    /// <summary><c>space_pirate_laser_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightSecond,
-    /// <summary><c>space_pirate_laser_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightThird,
-    /// <summary><c>space_pirate_laser_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightFourth,
-    /// <summary><c>space_pirate_laser_right_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightFifth,
-    /// <summary><c>space_pirate_laser_right_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightSixth,
-    /// <summary><c>space_pirate_laser_right_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightSeventh,
-    /// <summary><c>space_pirate_laser_right_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightEighth,
-    /// <summary><c>space_pirate_laser_right_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightNinth,
-    /// <summary><c>space_pirate_laser_right_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightTenth,
-    /// <summary><c>space_pirate_laser_right_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the Space Pirate laser right.</summary>
     SpacePirateLaserRightEleventh,
-    /// <summary><c>space_pirate_laser_right_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Space Pirate laser right loop.</summary>
     SpacePirateLaserRightLoopFirst,
-    /// <summary><c>space_pirate_laser_right_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Space Pirate laser right loop.</summary>
     SpacePirateLaserRightLoopSecond,
-    /// <summary><c>space_pirate_claw_left_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopFirst,
-    /// <summary><c>space_pirate_claw_left_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopSecond,
-    /// <summary><c>space_pirate_claw_left_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopThird,
-    /// <summary><c>space_pirate_claw_left_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopFourth,
-    /// <summary><c>space_pirate_claw_left_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopFifth,
-    /// <summary><c>space_pirate_claw_left_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopSixth,
-    /// <summary><c>space_pirate_claw_left_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopSeventh,
-    /// <summary><c>space_pirate_claw_left_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Space Pirate claw left loop.</summary>
     SpacePirateClawLeftLoopEighth,
-    /// <summary><c>space_pirate_claw_right_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopFirst,
-    /// <summary><c>space_pirate_claw_right_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopSecond,
-    /// <summary><c>space_pirate_claw_right_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopThird,
-    /// <summary><c>space_pirate_claw_right_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopFourth,
-    /// <summary><c>space_pirate_claw_right_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopFifth,
-    /// <summary><c>space_pirate_claw_right_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopSixth,
-    /// <summary><c>space_pirate_claw_right_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopSeventh,
-    /// <summary><c>space_pirate_claw_right_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Space Pirate claw right loop.</summary>
     SpacePirateClawRightLoopEighth,
-    /// <summary><c>gunship_dust_right_inner_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopFirst,
-    /// <summary><c>gunship_dust_right_inner_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopSecond,
-    /// <summary><c>gunship_dust_right_inner_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopThird,
-    /// <summary><c>gunship_dust_right_inner_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopFourth,
-    /// <summary><c>gunship_dust_right_inner_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopFifth,
-    /// <summary><c>gunship_dust_right_inner_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopSixth,
-    /// <summary><c>gunship_dust_right_inner_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopSeventh,
-    /// <summary><c>gunship_dust_right_inner_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the gunship dust right inner loop.</summary>
     GunshipDustRightInnerLoopEighth,
-    /// <summary><c>gunship_dust_right_middle_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopFirst,
-    /// <summary><c>gunship_dust_right_middle_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopSecond,
-    /// <summary><c>gunship_dust_right_middle_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopThird,
-    /// <summary><c>gunship_dust_right_middle_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopFourth,
-    /// <summary><c>gunship_dust_right_middle_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopFifth,
-    /// <summary><c>gunship_dust_right_middle_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopSixth,
-    /// <summary><c>gunship_dust_right_middle_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopSeventh,
-    /// <summary><c>gunship_dust_right_middle_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the gunship dust right middle loop.</summary>
     GunshipDustRightMiddleLoopEighth,
-    /// <summary><c>gunship_dust_right_outer_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopFirst,
-    /// <summary><c>gunship_dust_right_outer_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopSecond,
-    /// <summary><c>gunship_dust_right_outer_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopThird,
-    /// <summary><c>gunship_dust_right_outer_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopFourth,
-    /// <summary><c>gunship_dust_right_outer_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopFifth,
-    /// <summary><c>gunship_dust_right_outer_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopSixth,
-    /// <summary><c>gunship_dust_right_outer_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the gunship dust right outer loop.</summary>
     GunshipDustRightOuterLoopSeventh,
-    /// <summary><c>gunship_dust_left_inner_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopFirst,
-    /// <summary><c>gunship_dust_left_inner_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopSecond,
-    /// <summary><c>gunship_dust_left_inner_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopThird,
-    /// <summary><c>gunship_dust_left_inner_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopFourth,
-    /// <summary><c>gunship_dust_left_inner_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopFifth,
-    /// <summary><c>gunship_dust_left_inner_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopSixth,
-    /// <summary><c>gunship_dust_left_inner_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopSeventh,
-    /// <summary><c>gunship_dust_left_inner_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the gunship dust left inner loop.</summary>
     GunshipDustLeftInnerLoopEighth,
-    /// <summary><c>gunship_dust_left_middle_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopFirst,
-    /// <summary><c>gunship_dust_left_middle_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopSecond,
-    /// <summary><c>gunship_dust_left_middle_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopThird,
-    /// <summary><c>gunship_dust_left_middle_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopFourth,
-    /// <summary><c>gunship_dust_left_middle_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopFifth,
-    /// <summary><c>gunship_dust_left_middle_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopSixth,
-    /// <summary><c>gunship_dust_left_middle_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopSeventh,
-    /// <summary><c>gunship_dust_left_middle_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the gunship dust left middle loop.</summary>
     GunshipDustLeftMiddleLoopEighth,
-    /// <summary><c>gunship_dust_left_outer_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopFirst,
-    /// <summary><c>gunship_dust_left_outer_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopSecond,
-    /// <summary><c>gunship_dust_left_outer_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopThird,
-    /// <summary><c>gunship_dust_left_outer_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopFourth,
-    /// <summary><c>gunship_dust_left_outer_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopFifth,
-    /// <summary><c>gunship_dust_left_outer_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopSixth,
-    /// <summary><c>gunship_dust_left_outer_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the gunship dust left outer loop.</summary>
     GunshipDustLeftOuterLoopSeventh,
-    /// <summary><c>torizo_explosion_low_health_initial_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo explosion low health initial loop.</summary>
     TorizoExplosionLowHealthInitialLoopFirst,
-    /// <summary><c>torizo_explosion_low_health_initial_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo explosion low health initial loop.</summary>
     TorizoExplosionLowHealthInitialLoopSecond,
-    /// <summary><c>torizo_explosion_low_health_initial_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo explosion low health initial loop.</summary>
     TorizoExplosionLowHealthInitialLoopThird,
-    /// <summary><c>torizo_explosion_low_health_initial_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo explosion low health initial loop.</summary>
     TorizoExplosionLowHealthInitialLoopFourth,
-    /// <summary><c>torizo_explosion_low_health_initial_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo explosion low health initial loop.</summary>
     TorizoExplosionLowHealthInitialLoopFifth,
-    /// <summary><c>torizo_explosion_death_initial_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo explosion death initial loop.</summary>
     TorizoExplosionDeathInitialLoopFirst,
-    /// <summary><c>torizo_explosion_death_initial_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo explosion death initial loop.</summary>
     TorizoExplosionDeathInitialLoopSecond,
-    /// <summary><c>torizo_explosion_death_initial_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo explosion death initial loop.</summary>
     TorizoExplosionDeathInitialLoopThird,
-    /// <summary><c>torizo_explosion_death_initial_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo explosion death initial loop.</summary>
     TorizoExplosionDeathInitialLoopFourth,
-    /// <summary><c>torizo_explosion_death_initial_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo explosion death initial loop.</summary>
     TorizoExplosionDeathInitialLoopFifth,
-    /// <summary><c>torizo_explosion_death_initial_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Torizo explosion death initial loop.</summary>
     TorizoExplosionDeathInitialLoopSixth,
-    /// <summary><c>torizo_explosion_death_smoke_setup_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo explosion death smoke setup loop.</summary>
     TorizoExplosionDeathSmokeSetupLoopFirst,
-    /// <summary><c>torizo_explosion_death_smoke_setup_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo explosion death smoke setup loop.</summary>
     TorizoExplosionDeathSmokeSetupLoopSecond,
-    /// <summary><c>torizo_explosion_death_smoke_setup_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo explosion death smoke setup loop.</summary>
     TorizoExplosionDeathSmokeSetupLoopThird,
-    /// <summary><c>torizo_explosion_death_smoke_setup_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo explosion death smoke setup loop.</summary>
     TorizoExplosionDeathSmokeSetupLoopFourth,
-    /// <summary><c>torizo_drool_four_frame_delay</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo drool four frame delay.</summary>
     TorizoDroolFourFrameDelay,
-    /// <summary><c>torizo_drool_two_frame_delay</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo drool two frame delay.</summary>
     TorizoDroolTwoFrameDelay,
-    /// <summary><c>torizo_drool_no_delay</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo drool no delay.</summary>
     TorizoDroolNoDelay,
-    /// <summary><c>torizo_drool_falling_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo drool falling loop.</summary>
     TorizoDroolFallingLoop,
-    /// <summary><c>torizo_drool_floor_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo drool floor impact.</summary>
     TorizoDroolFloorImpactFirst,
-    /// <summary><c>torizo_drool_floor_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo drool floor impact.</summary>
     TorizoDroolFloorImpactSecond,
-    /// <summary><c>torizo_drool_floor_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo drool floor impact.</summary>
     TorizoDroolFloorImpactThird,
-    /// <summary><c>torizo_explosive_swipe_initial_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo explosive swipe initial.</summary>
     TorizoExplosiveSwipeInitialFirst,
-    /// <summary><c>torizo_explosive_swipe_initial_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo explosive swipe initial.</summary>
     TorizoExplosiveSwipeInitialSecond,
-    /// <summary><c>torizo_explosive_swipe_initial_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo explosive swipe initial.</summary>
     TorizoExplosiveSwipeInitialThird,
-    /// <summary><c>torizo_explosive_swipe_initial_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo explosive swipe initial.</summary>
     TorizoExplosiveSwipeInitialFourth,
-    /// <summary><c>torizo_explosive_swipe_initial_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo explosive swipe initial.</summary>
     TorizoExplosiveSwipeInitialFifth,
-    /// <summary><c>bomb_torizo_first_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo first statue fragment.</summary>
     BombTorizoFirstStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_first_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo first statue fragment.</summary>
     BombTorizoFirstStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_second_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo second statue fragment.</summary>
     BombTorizoSecondStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_second_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo second statue fragment.</summary>
     BombTorizoSecondStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_third_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo third statue fragment.</summary>
     BombTorizoThirdStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_third_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo third statue fragment.</summary>
     BombTorizoThirdStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_fourth_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo fourth statue fragment.</summary>
     BombTorizoFourthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_fourth_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo fourth statue fragment.</summary>
     BombTorizoFourthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_fifth_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo fifth statue fragment.</summary>
     BombTorizoFifthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_fifth_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo fifth statue fragment.</summary>
     BombTorizoFifthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_sixth_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo sixth statue fragment.</summary>
     BombTorizoSixthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_sixth_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo sixth statue fragment.</summary>
     BombTorizoSixthStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_seventh_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo seventh statue fragment.</summary>
     BombTorizoSeventhStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_seventh_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo seventh statue fragment.</summary>
     BombTorizoSeventhStatueFragmentSecond,
-    /// <summary><c>bomb_torizo_eighth_statue_fragment_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Bomb Torizo eighth statue fragment.</summary>
     BombTorizoEighthStatueFragmentFirst,
-    /// <summary><c>bomb_torizo_eighth_statue_fragment_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Bomb Torizo eighth statue fragment.</summary>
     BombTorizoEighthStatueFragmentSecond,
-    /// <summary><c>torizo_chozo_orb_moving_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo Chozo orb moving left.</summary>
     TorizoChozoOrbMovingLeft,
-    /// <summary><c>torizo_chozo_orb_moving_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo Chozo orb moving right.</summary>
     TorizoChozoOrbMovingRight,
-    /// <summary><c>torizo_chozo_orb_wall_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo Chozo orb wall impact.</summary>
     TorizoChozoOrbWallImpactFirst,
-    /// <summary><c>torizo_chozo_orb_wall_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo Chozo orb wall impact.</summary>
     TorizoChozoOrbWallImpactSecond,
-    /// <summary><c>torizo_chozo_orb_wall_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo Chozo orb wall impact.</summary>
     TorizoChozoOrbWallImpactThird,
-    /// <summary><c>torizo_chozo_orb_wall_impact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo Chozo orb wall impact.</summary>
     TorizoChozoOrbWallImpactFourth,
-    /// <summary><c>torizo_chozo_orb_wall_impact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo Chozo orb wall impact.</summary>
     TorizoChozoOrbWallImpactFifth,
-    /// <summary><c>torizo_chozo_orb_floor_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo Chozo orb floor impact.</summary>
     TorizoChozoOrbFloorImpactFirst,
-    /// <summary><c>torizo_chozo_orb_floor_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo Chozo orb floor impact.</summary>
     TorizoChozoOrbFloorImpactSecond,
-    /// <summary><c>torizo_chozo_orb_floor_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo Chozo orb floor impact.</summary>
     TorizoChozoOrbFloorImpactThird,
-    /// <summary><c>torizo_chozo_orb_floor_impact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo Chozo orb floor impact.</summary>
     TorizoChozoOrbFloorImpactFourth,
-    /// <summary><c>torizo_chozo_orb_floor_impact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo Chozo orb floor impact.</summary>
     TorizoChozoOrbFloorImpactFifth,
-    /// <summary><c>torizo_chozo_orb_floor_impact_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Torizo Chozo orb floor impact.</summary>
     TorizoChozoOrbFloorImpactSixth,
-    /// <summary><c>torizo_chozo_orb_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo Chozo orb shot.</summary>
     TorizoChozoOrbShotFirst,
-    /// <summary><c>torizo_chozo_orb_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo Chozo orb shot.</summary>
     TorizoChozoOrbShotSecond,
-    /// <summary><c>torizo_chozo_orb_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo Chozo orb shot.</summary>
     TorizoChozoOrbShotThird,
-    /// <summary><c>torizo_chozo_orb_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo Chozo orb shot.</summary>
     TorizoChozoOrbShotFourth,
-    /// <summary><c>torizo_chozo_orb_shot_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo Chozo orb shot.</summary>
     TorizoChozoOrbShotFifth,
-    /// <summary><c>torizo_sonic_boom_fired_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo sonic boom fired left.</summary>
     TorizoSonicBoomFiredLeftFirst,
-    /// <summary><c>torizo_sonic_boom_fired_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo sonic boom fired left.</summary>
     TorizoSonicBoomFiredLeftSecond,
-    /// <summary><c>torizo_sonic_boom_moving_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo sonic boom moving left.</summary>
     TorizoSonicBoomMovingLeft,
-    /// <summary><c>torizo_sonic_boom_fired_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo sonic boom fired right.</summary>
     TorizoSonicBoomFiredRightFirst,
-    /// <summary><c>torizo_sonic_boom_fired_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo sonic boom fired right.</summary>
     TorizoSonicBoomFiredRightSecond,
-    /// <summary><c>torizo_sonic_boom_moving_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Torizo sonic boom moving right.</summary>
     TorizoSonicBoomMovingRight,
-    /// <summary><c>torizo_sonic_boom_wall_impact_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo sonic boom wall impact loop.</summary>
     TorizoSonicBoomWallImpactLoopFirst,
-    /// <summary><c>torizo_sonic_boom_wall_impact_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo sonic boom wall impact loop.</summary>
     TorizoSonicBoomWallImpactLoopSecond,
-    /// <summary><c>torizo_sonic_boom_wall_impact_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo sonic boom wall impact loop.</summary>
     TorizoSonicBoomWallImpactLoopThird,
-    /// <summary><c>torizo_sonic_boom_wall_impact_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo sonic boom wall impact loop.</summary>
     TorizoSonicBoomWallImpactLoopFourth,
-    /// <summary><c>torizo_sonic_boom_wall_impact_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Torizo sonic boom wall impact loop.</summary>
     TorizoSonicBoomWallImpactLoopFifth,
-    /// <summary><c>chozo_tourian_dust_footsteps_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Chozo Tourian dust footsteps.</summary>
     ChozoTourianDustFootstepsFirst,
-    /// <summary><c>chozo_tourian_dust_footsteps_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Chozo Tourian dust footsteps.</summary>
     ChozoTourianDustFootstepsSecond,
-    /// <summary><c>chozo_tourian_dust_footsteps_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Chozo Tourian dust footsteps.</summary>
     ChozoTourianDustFootstepsThird,
-    /// <summary><c>chozo_tourian_dust_footsteps_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Chozo Tourian dust footsteps.</summary>
     ChozoTourianDustFootstepsFourth,
-    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Chozo Tourian dust Tourian descent dust.</summary>
     ChozoTourianDustTourianDescentDustFirst,
-    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Chozo Tourian dust Tourian descent dust.</summary>
     ChozoTourianDustTourianDescentDustSecond,
-    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Chozo Tourian dust Tourian descent dust.</summary>
     ChozoTourianDustTourianDescentDustThird,
-    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Chozo Tourian dust Tourian descent dust.</summary>
     ChozoTourianDustTourianDescentDustFourth,
-    /// <summary><c>torizo_landing_dust_right_foot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo landing dust right foot.</summary>
     TorizoLandingDustRightFootFirst,
-    /// <summary><c>torizo_landing_dust_right_foot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo landing dust right foot.</summary>
     TorizoLandingDustRightFootSecond,
-    /// <summary><c>torizo_landing_dust_right_foot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo landing dust right foot.</summary>
     TorizoLandingDustRightFootThird,
-    /// <summary><c>torizo_landing_dust_right_foot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo landing dust right foot.</summary>
     TorizoLandingDustRightFootFourth,
-    /// <summary><c>torizo_landing_dust_left_foot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Torizo landing dust left foot.</summary>
     TorizoLandingDustLeftFootFirst,
-    /// <summary><c>torizo_landing_dust_left_foot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Torizo landing dust left foot.</summary>
     TorizoLandingDustLeftFootSecond,
-    /// <summary><c>torizo_landing_dust_left_foot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Torizo landing dust left foot.</summary>
     TorizoLandingDustLeftFootThird,
-    /// <summary><c>torizo_landing_dust_left_foot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Torizo landing dust left foot.</summary>
     TorizoLandingDustLeftFootFourth,
-    /// <summary><c>golden_torizo_egg_bouncing_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Golden Torizo egg bouncing left.</summary>
     GoldenTorizoEggBouncingLeft,
-    /// <summary><c>golden_torizo_egg_bouncing_left_hatching_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo egg bouncing left hatching.</summary>
     GoldenTorizoEggBouncingLeftHatchingFirst,
-    /// <summary><c>golden_torizo_egg_bouncing_left_hatching_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo egg bouncing left hatching.</summary>
     GoldenTorizoEggBouncingLeftHatchingSecond,
-    /// <summary><c>golden_torizo_egg_bouncing_left_hatching_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo egg bouncing left hatching.</summary>
     GoldenTorizoEggBouncingLeftHatchingThird,
-    /// <summary><c>golden_torizo_egg_bouncing_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Golden Torizo egg bouncing right.</summary>
     GoldenTorizoEggBouncingRight,
-    /// <summary><c>golden_torizo_egg_bouncing_right_hatching_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo egg bouncing right hatching.</summary>
     GoldenTorizoEggBouncingRightHatchingFirst,
-    /// <summary><c>golden_torizo_egg_bouncing_right_hatching_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo egg bouncing right hatching.</summary>
     GoldenTorizoEggBouncingRightHatchingSecond,
-    /// <summary><c>golden_torizo_egg_bouncing_right_hatching_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo egg bouncing right hatching.</summary>
     GoldenTorizoEggBouncingRightHatchingThird,
-    /// <summary><c>golden_torizo_egg_hatched_left_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo egg hatched left loop.</summary>
     GoldenTorizoEggHatchedLeftLoopFirst,
-    /// <summary><c>golden_torizo_egg_hatched_left_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo egg hatched left loop.</summary>
     GoldenTorizoEggHatchedLeftLoopSecond,
-    /// <summary><c>golden_torizo_egg_hatched_left_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo egg hatched left loop.</summary>
     GoldenTorizoEggHatchedLeftLoopThird,
-    /// <summary><c>golden_torizo_egg_hatched_left_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo egg hatched left loop.</summary>
     GoldenTorizoEggHatchedLeftLoopFourth,
-    /// <summary><c>golden_torizo_egg_hatched_right_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo egg hatched right loop.</summary>
     GoldenTorizoEggHatchedRightLoopFirst,
-    /// <summary><c>golden_torizo_egg_hatched_right_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo egg hatched right loop.</summary>
     GoldenTorizoEggHatchedRightLoopSecond,
-    /// <summary><c>golden_torizo_egg_hatched_right_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo egg hatched right loop.</summary>
     GoldenTorizoEggHatchedRightLoopThird,
-    /// <summary><c>golden_torizo_egg_hatched_right_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo egg hatched right loop.</summary>
     GoldenTorizoEggHatchedRightLoopFourth,
-    /// <summary><c>golden_torizo_egg_break_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo egg break left.</summary>
     GoldenTorizoEggBreakLeftFirst,
-    /// <summary><c>golden_torizo_egg_break_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo egg break left.</summary>
     GoldenTorizoEggBreakLeftSecond,
-    /// <summary><c>golden_torizo_egg_break_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo egg break left.</summary>
     GoldenTorizoEggBreakLeftThird,
-    /// <summary><c>golden_torizo_egg_break_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo egg break left.</summary>
     GoldenTorizoEggBreakLeftFourth,
-    /// <summary><c>golden_torizo_egg_break_left_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo egg break left.</summary>
     GoldenTorizoEggBreakLeftFifth,
-    /// <summary><c>golden_torizo_egg_break_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo egg break right.</summary>
     GoldenTorizoEggBreakRightFirst,
-    /// <summary><c>golden_torizo_egg_break_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo egg break right.</summary>
     GoldenTorizoEggBreakRightSecond,
-    /// <summary><c>golden_torizo_egg_break_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo egg break right.</summary>
     GoldenTorizoEggBreakRightThird,
-    /// <summary><c>golden_torizo_egg_break_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo egg break right.</summary>
     GoldenTorizoEggBreakRightFourth,
-    /// <summary><c>golden_torizo_egg_break_right_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo egg break right.</summary>
     GoldenTorizoEggBreakRightFifth,
-    /// <summary><c>golden_torizo_super_missile_right_initial</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Golden Torizo Super Missile right initial.</summary>
     GoldenTorizoSuperMissileRightInitial,
-    /// <summary><c>golden_torizo_super_missile_right_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopFirst,
-    /// <summary><c>golden_torizo_super_missile_right_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopSecond,
-    /// <summary><c>golden_torizo_super_missile_right_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopThird,
-    /// <summary><c>golden_torizo_super_missile_right_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopFourth,
-    /// <summary><c>golden_torizo_super_missile_right_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopFifth,
-    /// <summary><c>golden_torizo_super_missile_right_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopSixth,
-    /// <summary><c>golden_torizo_super_missile_right_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopSeventh,
-    /// <summary><c>golden_torizo_super_missile_right_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Golden Torizo Super Missile right loop.</summary>
     GoldenTorizoSuperMissileRightLoopEighth,
-    /// <summary><c>golden_torizo_super_missile_left_initial</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Golden Torizo Super Missile left initial.</summary>
     GoldenTorizoSuperMissileLeftInitial,
-    /// <summary><c>golden_torizo_super_missile_left_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopFirst,
-    /// <summary><c>golden_torizo_super_missile_left_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopSecond,
-    /// <summary><c>golden_torizo_super_missile_left_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopThird,
-    /// <summary><c>golden_torizo_super_missile_left_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopFourth,
-    /// <summary><c>golden_torizo_super_missile_left_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopFifth,
-    /// <summary><c>golden_torizo_super_missile_left_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopSixth,
-    /// <summary><c>golden_torizo_super_missile_left_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopSeventh,
-    /// <summary><c>golden_torizo_super_missile_left_loop_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Golden Torizo Super Missile left loop.</summary>
     GoldenTorizoSuperMissileLeftLoopEighth,
-    /// <summary><c>golden_torizo_super_missile_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo Super Missile impact.</summary>
     GoldenTorizoSuperMissileImpactFirst,
-    /// <summary><c>golden_torizo_super_missile_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo Super Missile impact.</summary>
     GoldenTorizoSuperMissileImpactSecond,
-    /// <summary><c>golden_torizo_super_missile_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo Super Missile impact.</summary>
     GoldenTorizoSuperMissileImpactThird,
-    /// <summary><c>golden_torizo_super_missile_impact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo Super Missile impact.</summary>
     GoldenTorizoSuperMissileImpactFourth,
-    /// <summary><c>golden_torizo_super_missile_impact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo Super Missile impact.</summary>
     GoldenTorizoSuperMissileImpactFifth,
-    /// <summary><c>golden_torizo_super_missile_impact_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Golden Torizo Super Missile impact.</summary>
     GoldenTorizoSuperMissileImpactSixth,
-    /// <summary><c>golden_torizo_eye_beam_wall_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo eye beam wall impact.</summary>
     GoldenTorizoEyeBeamWallImpactFirst,
-    /// <summary><c>golden_torizo_eye_beam_wall_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo eye beam wall impact.</summary>
     GoldenTorizoEyeBeamWallImpactSecond,
-    /// <summary><c>golden_torizo_eye_beam_wall_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo eye beam wall impact.</summary>
     GoldenTorizoEyeBeamWallImpactThird,
-    /// <summary><c>golden_torizo_eye_beam_wall_impact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo eye beam wall impact.</summary>
     GoldenTorizoEyeBeamWallImpactFourth,
-    /// <summary><c>golden_torizo_eye_beam_wall_impact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo eye beam wall impact.</summary>
     GoldenTorizoEyeBeamWallImpactFifth,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopFirst,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopSecond,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopThird,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopFourth,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopFifth,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopSixth,
-    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Golden Torizo eye beam floor impact loop.</summary>
     GoldenTorizoEyeBeamFloorImpactLoopSeventh,
-    /// <summary><c>golden_torizo_eye_beam_normal_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Golden Torizo eye beam normal.</summary>
     GoldenTorizoEyeBeamNormalFirst,
-    /// <summary><c>golden_torizo_eye_beam_normal_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Golden Torizo eye beam normal.</summary>
     GoldenTorizoEyeBeamNormalSecond,
-    /// <summary><c>golden_torizo_eye_beam_normal_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Golden Torizo eye beam normal.</summary>
     GoldenTorizoEyeBeamNormalThird,
-    /// <summary><c>golden_torizo_eye_beam_normal_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Golden Torizo eye beam normal.</summary>
     GoldenTorizoEyeBeamNormalFourth,
-    /// <summary><c>golden_torizo_eye_beam_normal_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Golden Torizo eye beam normal.</summary>
     GoldenTorizoEyeBeamNormalFifth,
-    /// <summary><c>old_tourian_escape_wall_explosion_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the old Tourian escape wall explosion.</summary>
     OldTourianEscapeWallExplosionFirst,
-    /// <summary><c>old_tourian_escape_wall_explosion_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the old Tourian escape wall explosion.</summary>
     OldTourianEscapeWallExplosionSecond,
-    /// <summary><c>old_tourian_escape_wall_explosion_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the old Tourian escape wall explosion.</summary>
     OldTourianEscapeWallExplosionThird,
-    /// <summary><c>old_tourian_escape_wall_explosion_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the old Tourian escape wall explosion.</summary>
     OldTourianEscapeWallExplosionFourth,
-    /// <summary><c>old_tourian_escape_wall_explosion_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the old Tourian escape wall explosion.</summary>
     OldTourianEscapeWallExplosionFifth,
-    /// <summary><c>old_tourian_escape_wall_explosion_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the old Tourian escape wall explosion.</summary>
     OldTourianEscapeWallExplosionSixth,
-    /// <summary><c>dragon_fireball_rising_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Dragon fireball rising left.</summary>
     DragonFireballRisingLeftFirst,
-    /// <summary><c>dragon_fireball_rising_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Dragon fireball rising left.</summary>
     DragonFireballRisingLeftSecond,
-    /// <summary><c>dragon_fireball_rising_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Dragon fireball rising right.</summary>
     DragonFireballRisingRightFirst,
-    /// <summary><c>dragon_fireball_rising_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Dragon fireball rising right.</summary>
     DragonFireballRisingRightSecond,
-    /// <summary><c>dragon_fireball_falling_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Dragon fireball falling left.</summary>
     DragonFireballFallingLeftFirst,
-    /// <summary><c>dragon_fireball_falling_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Dragon fireball falling left.</summary>
     DragonFireballFallingLeftSecond,
-    /// <summary><c>dragon_fireball_falling_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Dragon fireball falling right.</summary>
     DragonFireballFallingRightFirst,
-    /// <summary><c>dragon_fireball_falling_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Dragon fireball falling right.</summary>
     DragonFireballFallingRightSecond,
-    /// <summary><c>eye_door_initial_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the eye door initial.</summary>
     EyeDoorInitialFirst,
-    /// <summary><c>eye_door_initial_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the eye door initial.</summary>
     EyeDoorInitialSecond,
-    /// <summary><c>eye_door_initial_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the eye door initial.</summary>
     EyeDoorInitialThird,
-    /// <summary><c>eye_door_flying_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the eye door flying loop.</summary>
     EyeDoorFlyingLoop,
-    /// <summary><c>eye_door_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the eye door impact.</summary>
     EyeDoorImpactFirst,
-    /// <summary><c>eye_door_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the eye door impact.</summary>
     EyeDoorImpactSecond,
-    /// <summary><c>eye_door_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the eye door impact.</summary>
     EyeDoorImpactThird,
-    /// <summary><c>eye_door_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the eye door shot.</summary>
     EyeDoorShotFirst,
-    /// <summary><c>eye_door_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the eye door shot.</summary>
     EyeDoorShotSecond,
-    /// <summary><c>eye_door_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the eye door shot.</summary>
     EyeDoorShotThird,
-    /// <summary><c>eye_door_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the eye door shot.</summary>
     EyeDoorShotFourth,
-    /// <summary><c>eye_door_sweat_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the eye door sweat falling.</summary>
     EyeDoorSweatFalling,
-    /// <summary><c>eye_door_sweat_hit_floor_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the eye door sweat hit floor.</summary>
     EyeDoorSweatHitFloorFirst,
-    /// <summary><c>eye_door_sweat_hit_floor_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the eye door sweat hit floor.</summary>
     EyeDoorSweatHitFloorSecond,
-    /// <summary><c>eye_door_sweat_hit_floor_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the eye door sweat hit floor.</summary>
     EyeDoorSweatHitFloorThird,
-    /// <summary><c>tourian_statue_splash_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Tourian statue splash.</summary>
     TourianStatueSplashFirst,
-    /// <summary><c>tourian_statue_splash_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Tourian statue splash.</summary>
     TourianStatueSplashSecond,
-    /// <summary><c>tourian_statue_splash_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Tourian statue splash.</summary>
     TourianStatueSplashThird,
-    /// <summary><c>tourian_statue_splash_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Tourian statue splash.</summary>
     TourianStatueSplashFourth,
-    /// <summary><c>tourian_statue_eye_glow_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowFirst,
-    /// <summary><c>tourian_statue_eye_glow_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowSecond,
-    /// <summary><c>tourian_statue_eye_glow_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowThird,
-    /// <summary><c>tourian_statue_eye_glow_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowFourth,
-    /// <summary><c>tourian_statue_eye_glow_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowFifth,
-    /// <summary><c>tourian_statue_eye_glow_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowSixth,
-    /// <summary><c>tourian_statue_eye_glow_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowSeventh,
-    /// <summary><c>tourian_statue_eye_glow_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowEighth,
-    /// <summary><c>tourian_statue_eye_glow_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowNinth,
-    /// <summary><c>tourian_statue_eye_glow_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the Tourian statue eye glow.</summary>
     TourianStatueEyeGlowTenth,
-    /// <summary><c>tourian_statue_particle_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Tourian statue particle.</summary>
     TourianStatueParticleFirst,
-    /// <summary><c>tourian_statue_particle_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Tourian statue particle.</summary>
     TourianStatueParticleSecond,
-    /// <summary><c>tourian_statue_particle_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Tourian statue particle.</summary>
     TourianStatueParticleThird,
-    /// <summary><c>tourian_statue_particle_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Tourian statue particle.</summary>
     TourianStatueParticleFourth,
-    /// <summary><c>tourian_statue_tail_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Tourian statue tail.</summary>
     TourianStatueTailFirst,
-    /// <summary><c>tourian_statue_tail_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Tourian statue tail.</summary>
     TourianStatueTailSecond,
-    /// <summary><c>tourian_statue_tail_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Tourian statue tail.</summary>
     TourianStatueTailThird,
-    /// <summary><c>tourian_statue_tail_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Tourian statue tail.</summary>
     TourianStatueTailFourth,
-    /// <summary><c>tourian_statue_soul_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Tourian statue soul.</summary>
     TourianStatueSoulFirst,
-    /// <summary><c>tourian_statue_soul_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Tourian statue soul.</summary>
     TourianStatueSoulSecond,
-    /// <summary><c>tourian_statue_base_decoration</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Tourian statue base decoration.</summary>
     TourianStatueBaseDecoration,
-    /// <summary><c>tourian_statue_base_decoration_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Tourian statue base decoration loop.</summary>
     TourianStatueBaseDecorationLoop,
-    /// <summary><c>tourian_statue_ridley</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Tourian statue Ridley.</summary>
     TourianStatueRidley,
-    /// <summary><c>tourian_statue_phantoon</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Tourian statue Phantoon.</summary>
     TourianStatuePhantoon,
-    /// <summary><c>nuclear_waffle_initial_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialFirst,
-    /// <summary><c>nuclear_waffle_initial_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialSecond,
-    /// <summary><c>nuclear_waffle_initial_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialThird,
-    /// <summary><c>nuclear_waffle_initial_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialFourth,
-    /// <summary><c>nuclear_waffle_initial_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialFifth,
-    /// <summary><c>nuclear_waffle_initial_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialSixth,
-    /// <summary><c>nuclear_waffle_initial_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialSeventh,
-    /// <summary><c>nuclear_waffle_initial_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialEighth,
-    /// <summary><c>nuclear_waffle_initial_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialNinth,
-    /// <summary><c>nuclear_waffle_initial_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialTenth,
-    /// <summary><c>nuclear_waffle_initial_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialEleventh,
-    /// <summary><c>nuclear_waffle_initial_twelfth</c>, an installed animation frame.</summary>
+    /// <summary>The twelfth frame of the Nuclear Waffle initial.</summary>
     NuclearWaffleInitialTwelfth,
-    /// <summary><c>polyp_rock_initial</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Polyp rock initial.</summary>
     PolypRockInitial,
-    /// <summary><c>shaktool_front_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Shaktool front.</summary>
     ShaktoolFrontFirst,
-    /// <summary><c>shaktool_front_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Shaktool front.</summary>
     ShaktoolFrontSecond,
-    /// <summary><c>shaktool_front_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Shaktool front loop.</summary>
     ShaktoolFrontLoop,
-    /// <summary><c>shaktool_middle_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Shaktool middle.</summary>
     ShaktoolMiddleFirst,
-    /// <summary><c>shaktool_middle_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Shaktool middle.</summary>
     ShaktoolMiddleSecond,
-    /// <summary><c>shaktool_middle_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Shaktool middle loop.</summary>
     ShaktoolMiddleLoop,
-    /// <summary><c>shaktool_back</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Shaktool back.</summary>
     ShaktoolBack,
-    /// <summary><c>shaktool_back_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Shaktool back loop.</summary>
     ShaktoolBackLoop,
-    /// <summary><c>mother_brain_turret_pose_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseFirst,
-    /// <summary><c>mother_brain_turret_pose_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseSecond,
-    /// <summary><c>mother_brain_turret_pose_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseThird,
-    /// <summary><c>mother_brain_turret_pose_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseFourth,
-    /// <summary><c>mother_brain_turret_pose_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseFifth,
-    /// <summary><c>mother_brain_turret_pose_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseSixth,
-    /// <summary><c>mother_brain_turret_pose_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseSeventh,
-    /// <summary><c>mother_brain_turret_pose_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseEighth,
-    /// <summary><c>mother_brain_turret_bullet_pose_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseFirst,
-    /// <summary><c>mother_brain_turret_bullet_pose_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseSecond,
-    /// <summary><c>mother_brain_turret_bullet_pose_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseThird,
-    /// <summary><c>mother_brain_turret_bullet_pose_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseFourth,
-    /// <summary><c>mother_brain_turret_bullet_pose_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseFifth,
-    /// <summary><c>mother_brain_turret_bullet_pose_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseSixth,
-    /// <summary><c>mother_brain_turret_bullet_pose_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseSeventh,
-    /// <summary><c>mother_brain_turret_bullet_pose_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain turret bullet pose.</summary>
     MotherBrainTurretBulletPoseEighth,
-    /// <summary><c>mother_brain_turret_bullet_impact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain turret bullet impact.</summary>
     MotherBrainTurretBulletImpactFirst,
-    /// <summary><c>mother_brain_turret_bullet_impact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain turret bullet impact.</summary>
     MotherBrainTurretBulletImpactSecond,
-    /// <summary><c>mother_brain_turret_bullet_impact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain turret bullet impact.</summary>
     MotherBrainTurretBulletImpactThird,
-    /// <summary><c>mother_brain_turret_bullet_impact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain turret bullet impact.</summary>
     MotherBrainTurretBulletImpactFourth,
-    /// <summary><c>mother_brain_turret_bullet_impact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain turret bullet impact.</summary>
     MotherBrainTurretBulletImpactFifth,
-    /// <summary><c>mother_brain_blue_ring_onion_ring_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain blue ring onion ring.</summary>
     MotherBrainBlueRingOnionRingFirst,
-    /// <summary><c>mother_brain_blue_ring_onion_ring_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain blue ring onion ring.</summary>
     MotherBrainBlueRingOnionRingSecond,
-    /// <summary><c>mother_brain_blue_ring_onion_ring_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain blue ring onion ring.</summary>
     MotherBrainBlueRingOnionRingThird,
-    /// <summary><c>mother_brain_blue_ring_onion_ring_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain blue ring onion ring.</summary>
     MotherBrainBlueRingOnionRingFourth,
-    /// <summary><c>mother_brain_blue_ring_onion_ring_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain blue ring onion ring.</summary>
     MotherBrainBlueRingOnionRingFifth,
-    /// <summary><c>mother_brain_blue_ring_onion_ring_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain blue ring onion ring.</summary>
     MotherBrainBlueRingOnionRingSixth,
-    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain blue ring impact onion ring hit.</summary>
     MotherBrainBlueRingImpactOnionRingHitFirst,
-    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain blue ring impact onion ring hit.</summary>
     MotherBrainBlueRingImpactOnionRingHitSecond,
-    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain blue ring impact onion ring hit.</summary>
     MotherBrainBlueRingImpactOnionRingHitThird,
-    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain blue ring impact onion ring hit.</summary>
     MotherBrainBlueRingImpactOnionRingHitFourth,
-    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain blue ring impact onion ring hit.</summary>
     MotherBrainBlueRingImpactOnionRingHitFifth,
-    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain blue ring impact onion ring hit.</summary>
     MotherBrainBlueRingImpactOnionRingHitSixth,
-    /// <summary><c>mother_brain_bomb_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain Bomb.</summary>
     MotherBrainBombFirst,
-    /// <summary><c>mother_brain_bomb_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain Bomb.</summary>
     MotherBrainBombSecond,
-    /// <summary><c>mother_brain_bomb_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain Bomb.</summary>
     MotherBrainBombThird,
-    /// <summary><c>mother_brain_bomb_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain Bomb.</summary>
     MotherBrainBombFourth,
-    /// <summary><c>mother_brain_bomb_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain Bomb.</summary>
     MotherBrainBombFifth,
-    /// <summary><c>mother_brain_bomb_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain Bomb.</summary>
     MotherBrainBombSixth,
-    /// <summary><c>mother_brain_bomb_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain Bomb.</summary>
     MotherBrainBombSeventh,
-    /// <summary><c>mother_brain_bomb_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain Bomb.</summary>
     MotherBrainBombEighth,
-    /// <summary><c>mother_brain_bomb_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the Mother Brain Bomb.</summary>
     MotherBrainBombNinth,
-    /// <summary><c>mother_brain_hand_beam_first_stage_first_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage first phase.</summary>
     MotherBrainHandBeamFirstStageFirstPhase,
-    /// <summary><c>mother_brain_hand_beam_first_stage_second_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage second phase.</summary>
     MotherBrainHandBeamFirstStageSecondPhase,
-    /// <summary><c>mother_brain_hand_beam_first_stage_third_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage third phase.</summary>
     MotherBrainHandBeamFirstStageThirdPhase,
-    /// <summary><c>mother_brain_hand_beam_first_stage_fourth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage fourth phase.</summary>
     MotherBrainHandBeamFirstStageFourthPhase,
-    /// <summary><c>mother_brain_hand_beam_first_stage_fifth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage fifth phase.</summary>
     MotherBrainHandBeamFirstStageFifthPhase,
-    /// <summary><c>mother_brain_hand_beam_first_stage_sixth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage sixth phase.</summary>
     MotherBrainHandBeamFirstStageSixthPhase,
-    /// <summary><c>mother_brain_hand_beam_first_stage_seventh_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam first stage seventh phase.</summary>
     MotherBrainHandBeamFirstStageSeventhPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_first_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage first phase.</summary>
     MotherBrainHandBeamSecondStageFirstPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_second_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage second phase.</summary>
     MotherBrainHandBeamSecondStageSecondPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_third_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage third phase.</summary>
     MotherBrainHandBeamSecondStageThirdPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_fourth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage fourth phase.</summary>
     MotherBrainHandBeamSecondStageFourthPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_fifth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage fifth phase.</summary>
     MotherBrainHandBeamSecondStageFifthPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_sixth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage sixth phase.</summary>
     MotherBrainHandBeamSecondStageSixthPhase,
-    /// <summary><c>mother_brain_hand_beam_second_stage_seventh_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam second stage seventh phase.</summary>
     MotherBrainHandBeamSecondStageSeventhPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_first_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage first phase.</summary>
     MotherBrainHandBeamThirdStageFirstPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_second_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage second phase.</summary>
     MotherBrainHandBeamThirdStageSecondPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_third_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage third phase.</summary>
     MotherBrainHandBeamThirdStageThirdPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_fourth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage fourth phase.</summary>
     MotherBrainHandBeamThirdStageFourthPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_fifth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage fifth phase.</summary>
     MotherBrainHandBeamThirdStageFifthPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_sixth_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage sixth phase.</summary>
     MotherBrainHandBeamThirdStageSixthPhase,
-    /// <summary><c>mother_brain_hand_beam_third_stage_seventh_phase</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain hand beam third stage seventh phase.</summary>
     MotherBrainHandBeamThirdStageSeventhPhase,
-    /// <summary><c>mother_brain_rainbow_beam_charging_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain rainbow beam charging.</summary>
     MotherBrainRainbowBeamChargingFirst,
-    /// <summary><c>mother_brain_rainbow_beam_charging_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain rainbow beam charging.</summary>
     MotherBrainRainbowBeamChargingSecond,
-    /// <summary><c>mother_brain_rainbow_beam_charging_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain rainbow beam charging.</summary>
     MotherBrainRainbowBeamChargingThird,
-    /// <summary><c>mother_brain_rainbow_beam_charging_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain rainbow beam charging.</summary>
     MotherBrainRainbowBeamChargingFourth,
-    /// <summary><c>mother_brain_rainbow_beam_charging_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain rainbow beam charging.</summary>
     MotherBrainRainbowBeamChargingFifth,
-    /// <summary><c>mother_brain_rainbow_beam_charging_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain rainbow beam charging.</summary>
     MotherBrainRainbowBeamChargingSixth,
-    /// <summary><c>mother_brain_drool_attached_drool_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain drool attached drool.</summary>
     MotherBrainDroolAttachedDroolFirst,
-    /// <summary><c>mother_brain_drool_attached_drool_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain drool attached drool.</summary>
     MotherBrainDroolAttachedDroolSecond,
-    /// <summary><c>mother_brain_drool_attached_drool_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain drool attached drool.</summary>
     MotherBrainDroolAttachedDroolThird,
-    /// <summary><c>mother_brain_drool_attached_drool_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain drool attached drool.</summary>
     MotherBrainDroolAttachedDroolFourth,
-    /// <summary><c>mother_brain_drool_attached_drool_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain drool attached drool.</summary>
     MotherBrainDroolAttachedDroolFifth,
-    /// <summary><c>mother_brain_drool_released</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain drool released.</summary>
     MotherBrainDroolReleased,
-    /// <summary><c>mother_brain_drool_hit_floor_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain drool hit floor.</summary>
     MotherBrainDroolHitFloorFirst,
-    /// <summary><c>mother_brain_drool_hit_floor_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain drool hit floor.</summary>
     MotherBrainDroolHitFloorSecond,
-    /// <summary><c>mother_brain_drool_hit_floor_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain drool hit floor.</summary>
     MotherBrainDroolHitFloorThird,
-    /// <summary><c>mother_brain_drool_hit_floor_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain drool hit floor.</summary>
     MotherBrainDroolHitFloorFourth,
-    /// <summary><c>mother_brain_escape_door_particle_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleFirst,
-    /// <summary><c>mother_brain_escape_door_particle_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleSecond,
-    /// <summary><c>mother_brain_escape_door_particle_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleThird,
-    /// <summary><c>mother_brain_escape_door_particle_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleFourth,
-    /// <summary><c>mother_brain_escape_door_particle_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleFifth,
-    /// <summary><c>mother_brain_escape_door_particle_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleSixth,
-    /// <summary><c>mother_brain_escape_door_particle_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleSeventh,
-    /// <summary><c>mother_brain_escape_door_particle_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain escape door particle.</summary>
     MotherBrainEscapeDoorParticleEighth,
-    /// <summary><c>mother_brain_purple_breath_big_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigFirst,
-    /// <summary><c>mother_brain_purple_breath_big_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigSecond,
-    /// <summary><c>mother_brain_purple_breath_big_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigThird,
-    /// <summary><c>mother_brain_purple_breath_big_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigFourth,
-    /// <summary><c>mother_brain_purple_breath_big_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigFifth,
-    /// <summary><c>mother_brain_purple_breath_big_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigSixth,
-    /// <summary><c>mother_brain_purple_breath_big_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigSeventh,
-    /// <summary><c>mother_brain_purple_breath_big_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain purple breath big.</summary>
     MotherBrainPurpleBreathBigEighth,
-    /// <summary><c>mother_brain_purple_breath_small_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallFirst,
-    /// <summary><c>mother_brain_purple_breath_small_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallSecond,
-    /// <summary><c>mother_brain_purple_breath_small_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallThird,
-    /// <summary><c>mother_brain_purple_breath_small_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallFourth,
-    /// <summary><c>mother_brain_purple_breath_small_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallFifth,
-    /// <summary><c>mother_brain_purple_breath_small_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallSixth,
-    /// <summary><c>mother_brain_purple_breath_small_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallSeventh,
-    /// <summary><c>mother_brain_purple_breath_small_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain purple breath small.</summary>
     MotherBrainPurpleBreathSmallEighth,
-    /// <summary><c>mother_brain_escape_subtitle</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain escape subtitle.</summary>
     MotherBrainEscapeSubtitle,
-    /// <summary><c>mother_brain_top_tube_top_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain top tube top right.</summary>
     MotherBrainTopTubeTopRight,
-    /// <summary><c>mother_brain_top_tube_top_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain top tube top left.</summary>
     MotherBrainTopTubeTopLeft,
-    /// <summary><c>mother_brain_top_tube_top_middle_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain top tube top middle left.</summary>
     MotherBrainTopTubeTopMiddleLeft,
-    /// <summary><c>mother_brain_top_tube_top_middle_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Mother Brain top tube top middle right.</summary>
     MotherBrainTopTubeTopMiddleRight,
-    /// <summary><c>mother_brain_glass_shard_flying_up_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_up_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_up_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpThird,
-    /// <summary><c>mother_brain_glass_shard_flying_up_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_up_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying up.</summary>
     MotherBrainGlassShardFlyingUpEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightThird,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_up_right_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying up right.</summary>
     MotherBrainGlassShardFlyingUpRightEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightThird,
-    /// <summary><c>mother_brain_glass_shard_flying_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_right_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_right_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_right_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_right_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying right.</summary>
     MotherBrainGlassShardFlyingRightEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightThird,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_down_right_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying down right.</summary>
     MotherBrainGlassShardFlyingDownRightEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_down_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_down_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownThird,
-    /// <summary><c>mother_brain_glass_shard_flying_down_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_down_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying down.</summary>
     MotherBrainGlassShardFlyingDownEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftThird,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_down_left_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying down left.</summary>
     MotherBrainGlassShardFlyingDownLeftEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftThird,
-    /// <summary><c>mother_brain_glass_shard_flying_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_left_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_left_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_left_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_left_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying left.</summary>
     MotherBrainGlassShardFlyingLeftEighth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftFirst,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftSecond,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftThird,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftFourth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftFifth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftSixth,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftSeventh,
-    /// <summary><c>mother_brain_glass_shard_flying_up_left_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the Mother Brain glass shard flying up left.</summary>
     MotherBrainGlassShardFlyingUpLeftEighth,
-    /// <summary><c>mother_brain_glass_sparkle_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Mother Brain glass sparkle.</summary>
     MotherBrainGlassSparkleFirst,
-    /// <summary><c>mother_brain_glass_sparkle_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Mother Brain glass sparkle.</summary>
     MotherBrainGlassSparkleSecond,
-    /// <summary><c>mother_brain_glass_sparkle_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Mother Brain glass sparkle.</summary>
     MotherBrainGlassSparkleThird,
-    /// <summary><c>mother_brain_glass_sparkle_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Mother Brain glass sparkle.</summary>
     MotherBrainGlassSparkleFourth,
-    /// <summary><c>ki_hunter_acid_spit_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftFirst,
-    /// <summary><c>ki_hunter_acid_spit_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftSecond,
-    /// <summary><c>ki_hunter_acid_spit_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftThird,
-    /// <summary><c>ki_hunter_acid_spit_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftFourth,
-    /// <summary><c>ki_hunter_acid_spit_left_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftFifth,
-    /// <summary><c>ki_hunter_acid_spit_left_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftSixth,
-    /// <summary><c>ki_hunter_acid_spit_left_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Ki-Hunter acid spit left.</summary>
     KiHunterAcidSpitLeftSeventh,
-    /// <summary><c>ki_hunter_acid_spit_hit_floor_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ki-Hunter acid spit hit floor.</summary>
     KiHunterAcidSpitHitFloorFirst,
-    /// <summary><c>ki_hunter_acid_spit_hit_floor_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ki-Hunter acid spit hit floor.</summary>
     KiHunterAcidSpitHitFloorSecond,
-    /// <summary><c>ki_hunter_acid_spit_hit_floor_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ki-Hunter acid spit hit floor.</summary>
     KiHunterAcidSpitHitFloorThird,
-    /// <summary><c>ki_hunter_acid_spit_hit_floor_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ki-Hunter acid spit hit floor.</summary>
     KiHunterAcidSpitHitFloorFourth,
-    /// <summary><c>ki_hunter_acid_spit_hit_floor_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ki-Hunter acid spit hit floor.</summary>
     KiHunterAcidSpitHitFloorFifth,
-    /// <summary><c>ki_hunter_acid_spit_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightFirst,
-    /// <summary><c>ki_hunter_acid_spit_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightSecond,
-    /// <summary><c>ki_hunter_acid_spit_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightThird,
-    /// <summary><c>ki_hunter_acid_spit_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightFourth,
-    /// <summary><c>ki_hunter_acid_spit_right_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightFifth,
-    /// <summary><c>ki_hunter_acid_spit_right_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightSixth,
-    /// <summary><c>ki_hunter_acid_spit_right_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightSeventh,
-    /// <summary><c>kago_bug_landed_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Kago bug landed.</summary>
     KagoBugLandedFirst,
-    /// <summary><c>kago_bug_landed_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Kago bug landed.</summary>
     KagoBugLandedSecond,
-    /// <summary><c>kago_bug_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Kago bug falling.</summary>
     KagoBugFalling,
-    /// <summary><c>kago_bug_jump_start_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Kago bug jump start.</summary>
     KagoBugJumpStartFirst,
-    /// <summary><c>kago_bug_jump_start_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Kago bug jump start.</summary>
     KagoBugJumpStartSecond,
-    /// <summary><c>kago_bug_jump_loop</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Kago bug jump loop.</summary>
     KagoBugJumpLoop,
-    /// <summary><c>kago_bug_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Kago bug shot.</summary>
     KagoBugShotFirst,
-    /// <summary><c>kago_bug_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Kago bug shot.</summary>
     KagoBugShotSecond,
-    /// <summary><c>kago_bug_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Kago bug shot.</summary>
     KagoBugShotThird,
-    /// <summary><c>kago_bug_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Kago bug shot.</summary>
     KagoBugShotFourth,
-    /// <summary><c>kago_bug_shot_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Kago bug shot.</summary>
     KagoBugShotFifth,
-    /// <summary><c>powamp_spike_initial_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Powamp spike initial.</summary>
     PowampSpikeInitialFirst,
-    /// <summary><c>powamp_spike_initial_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Powamp spike initial.</summary>
     PowampSpikeInitialSecond,
-    /// <summary><c>powamp_spike_initial_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Powamp spike initial.</summary>
     PowampSpikeInitialThird,
-    /// <summary><c>work_robot_laser_initial_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Work Robot laser initial.</summary>
     WorkRobotLaserInitialFirst,
-    /// <summary><c>work_robot_laser_initial_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Work Robot laser initial.</summary>
     WorkRobotLaserInitialSecond,
-    /// <summary><c>work_robot_laser_initial_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Work Robot laser initial.</summary>
     WorkRobotLaserInitialThird,
-    /// <summary><c>work_robot_laser_loop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Work Robot laser loop.</summary>
     WorkRobotLaserLoopFirst,
-    /// <summary><c>work_robot_laser_loop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Work Robot laser loop.</summary>
     WorkRobotLaserLoopSecond,
-    /// <summary><c>work_robot_laser_loop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Work Robot laser loop.</summary>
     WorkRobotLaserLoopThird,
-    /// <summary><c>work_robot_laser_loop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Work Robot laser loop.</summary>
     WorkRobotLaserLoopFourth,
-    /// <summary><c>noob_tube_crack_spreading_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the n00b tube crack spreading.</summary>
     NoobTubeCrackSpreadingFirst,
-    /// <summary><c>noob_tube_crack_spreading_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the n00b tube crack spreading.</summary>
     NoobTubeCrackSpreadingSecond,
-    /// <summary><c>noob_tube_crack_spreading_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the n00b tube crack spreading.</summary>
     NoobTubeCrackSpreadingThird,
-    /// <summary><c>noob_tube_crack_spreading_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the n00b tube crack spreading.</summary>
     NoobTubeCrackSpreadingFourth,
-    /// <summary><c>noob_tube_crack_spreading_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the n00b tube crack spreading.</summary>
     NoobTubeCrackSpreadingFifth,
-    /// <summary><c>noob_tube_crack_spreading_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the n00b tube crack spreading.</summary>
     NoobTubeCrackSpreadingSixth,
-    /// <summary><c>noob_tube_crack_shattering_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringFirst,
-    /// <summary><c>noob_tube_crack_shattering_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringSecond,
-    /// <summary><c>noob_tube_crack_shattering_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringThird,
-    /// <summary><c>noob_tube_crack_shattering_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringFourth,
-    /// <summary><c>noob_tube_crack_shattering_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringFifth,
-    /// <summary><c>noob_tube_crack_shattering_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringSixth,
-    /// <summary><c>noob_tube_crack_shattering_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringSeventh,
-    /// <summary><c>noob_tube_crack_shattering_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringEighth,
-    /// <summary><c>noob_tube_crack_shattering_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringNinth,
-    /// <summary><c>noob_tube_crack_shattering_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the n00b tube crack shattering.</summary>
     NoobTubeCrackShatteringTenth,
-    /// <summary><c>noob_tube_crack_falling_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingFirst,
-    /// <summary><c>noob_tube_crack_falling_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingSecond,
-    /// <summary><c>noob_tube_crack_falling_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingThird,
-    /// <summary><c>noob_tube_crack_falling_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingFourth,
-    /// <summary><c>noob_tube_crack_falling_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingFifth,
-    /// <summary><c>noob_tube_crack_falling_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingSixth,
-    /// <summary><c>noob_tube_crack_falling_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingSeventh,
-    /// <summary><c>noob_tube_crack_falling_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingEighth,
-    /// <summary><c>noob_tube_crack_falling_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingNinth,
-    /// <summary><c>noob_tube_crack_falling_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingTenth,
-    /// <summary><c>noob_tube_crack_falling_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingEleventh,
-    /// <summary><c>noob_tube_crack_falling_twelfth</c>, an installed animation frame.</summary>
+    /// <summary>The twelfth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingTwelfth,
-    /// <summary><c>noob_tube_crack_falling_thirteenth</c>, an installed animation frame.</summary>
+    /// <summary>The thirteenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingThirteenth,
-    /// <summary><c>noob_tube_crack_falling_fourteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fourteenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingFourteenth,
-    /// <summary><c>noob_tube_crack_falling_fifteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fifteenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingFifteenth,
-    /// <summary><c>noob_tube_crack_falling_sixteenth</c>, an installed animation frame.</summary>
+    /// <summary>The sixteenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingSixteenth,
-    /// <summary><c>noob_tube_crack_falling_seventeenth</c>, an installed animation frame.</summary>
+    /// <summary>The seventeenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingSeventeenth,
-    /// <summary><c>noob_tube_crack_falling_eighteenth</c>, an installed animation frame.</summary>
+    /// <summary>The eighteenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingEighteenth,
-    /// <summary><c>noob_tube_crack_falling_nineteenth</c>, an installed animation frame.</summary>
+    /// <summary>The nineteenth frame of the n00b tube crack falling.</summary>
     NoobTubeCrackFallingNineteenth,
-    /// <summary><c>noob_tube_crack_fallen_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the n00b tube crack fallen.</summary>
     NoobTubeCrackFallenFirst,
-    /// <summary><c>noob_tube_crack_fallen_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the n00b tube crack fallen.</summary>
     NoobTubeCrackFallenSecond,
-    /// <summary><c>noob_tube_shard_down_outward_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outward flying.</summary>
     NoobTubeShardDownOutwardFlying,
-    /// <summary><c>noob_tube_shard_down_outward_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outward flying mirrored.</summary>
     NoobTubeShardDownOutwardFlyingMirrored,
-    /// <summary><c>noob_tube_shard_down_outward_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outward falling.</summary>
     NoobTubeShardDownOutwardFalling,
-    /// <summary><c>noob_tube_shard_down_outward_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outward falling mirrored.</summary>
     NoobTubeShardDownOutwardFallingMirrored,
-    /// <summary><c>noob_tube_shard_up_outward_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up outward flying.</summary>
     NoobTubeShardUpOutwardFlying,
-    /// <summary><c>noob_tube_shard_up_outward_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up outward flying mirrored.</summary>
     NoobTubeShardUpOutwardFlyingMirrored,
-    /// <summary><c>noob_tube_shard_up_outward_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up outward falling.</summary>
     NoobTubeShardUpOutwardFalling,
-    /// <summary><c>noob_tube_shard_up_outward_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up outward falling mirrored.</summary>
     NoobTubeShardUpOutwardFallingMirrored,
-    /// <summary><c>noob_tube_shard_up_steep_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up steep flying.</summary>
     NoobTubeShardUpSteepFlying,
-    /// <summary><c>noob_tube_shard_up_steep_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up steep flying mirrored.</summary>
     NoobTubeShardUpSteepFlyingMirrored,
-    /// <summary><c>noob_tube_shard_up_steep_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up steep falling.</summary>
     NoobTubeShardUpSteepFalling,
-    /// <summary><c>noob_tube_shard_up_steep_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up steep falling mirrored.</summary>
     NoobTubeShardUpSteepFallingMirrored,
-    /// <summary><c>noob_tube_shard_up_diagonal_inner_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal inner flying.</summary>
     NoobTubeShardUpDiagonalInnerFlying,
-    /// <summary><c>noob_tube_shard_up_diagonal_inner_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal inner flying mirrored.</summary>
     NoobTubeShardUpDiagonalInnerFlyingMirrored,
-    /// <summary><c>noob_tube_shard_up_diagonal_inner_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal inner falling.</summary>
     NoobTubeShardUpDiagonalInnerFalling,
-    /// <summary><c>noob_tube_shard_up_diagonal_inner_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal inner falling mirrored.</summary>
     NoobTubeShardUpDiagonalInnerFallingMirrored,
-    /// <summary><c>noob_tube_shard_up_diagonal_outer_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal outer flying.</summary>
     NoobTubeShardUpDiagonalOuterFlying,
-    /// <summary><c>noob_tube_shard_up_diagonal_outer_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal outer flying mirrored.</summary>
     NoobTubeShardUpDiagonalOuterFlyingMirrored,
-    /// <summary><c>noob_tube_shard_up_diagonal_outer_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal outer falling.</summary>
     NoobTubeShardUpDiagonalOuterFalling,
-    /// <summary><c>noob_tube_shard_up_diagonal_outer_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up diagonal outer falling mirrored.</summary>
     NoobTubeShardUpDiagonalOuterFallingMirrored,
-    /// <summary><c>noob_tube_shard_down_diagonal_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down diagonal flying.</summary>
     NoobTubeShardDownDiagonalFlying,
-    /// <summary><c>noob_tube_shard_down_diagonal_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down diagonal flying mirrored.</summary>
     NoobTubeShardDownDiagonalFlyingMirrored,
-    /// <summary><c>noob_tube_shard_down_diagonal_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down diagonal falling.</summary>
     NoobTubeShardDownDiagonalFalling,
-    /// <summary><c>noob_tube_shard_down_diagonal_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down diagonal falling mirrored.</summary>
     NoobTubeShardDownDiagonalFallingMirrored,
-    /// <summary><c>noob_tube_shard_down_outer_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outer flying.</summary>
     NoobTubeShardDownOuterFlying,
-    /// <summary><c>noob_tube_shard_down_outer_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outer flying mirrored.</summary>
     NoobTubeShardDownOuterFlyingMirrored,
-    /// <summary><c>noob_tube_shard_down_outer_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outer falling.</summary>
     NoobTubeShardDownOuterFalling,
-    /// <summary><c>noob_tube_shard_down_outer_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down outer falling mirrored.</summary>
     NoobTubeShardDownOuterFallingMirrored,
-    /// <summary><c>noob_tube_shard_outward_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard outward flying.</summary>
     NoobTubeShardOutwardFlying,
-    /// <summary><c>noob_tube_shard_outward_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard outward flying mirrored.</summary>
     NoobTubeShardOutwardFlyingMirrored,
-    /// <summary><c>noob_tube_shard_outward_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard outward falling.</summary>
     NoobTubeShardOutwardFalling,
-    /// <summary><c>noob_tube_shard_outward_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard outward falling mirrored.</summary>
     NoobTubeShardOutwardFallingMirrored,
-    /// <summary><c>noob_tube_shard_up_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up flying.</summary>
     NoobTubeShardUpFlying,
-    /// <summary><c>noob_tube_shard_up_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard up falling.</summary>
     NoobTubeShardUpFalling,
-    /// <summary><c>noob_tube_shard_down_inner_flying</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down inner flying.</summary>
     NoobTubeShardDownInnerFlying,
-    /// <summary><c>noob_tube_shard_down_inner_flying_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down inner flying mirrored.</summary>
     NoobTubeShardDownInnerFlyingMirrored,
-    /// <summary><c>noob_tube_shard_down_inner_falling</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down inner falling.</summary>
     NoobTubeShardDownInnerFalling,
-    /// <summary><c>noob_tube_shard_down_inner_falling_mirrored</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the n00b tube shard down inner falling mirrored.</summary>
     NoobTubeShardDownInnerFallingMirrored,
-    /// <summary><c>noob_tube_bubble_rising_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the n00b tube bubble rising.</summary>
     NoobTubeBubbleRisingFirst,
-    /// <summary><c>noob_tube_bubble_rising_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the n00b tube bubble rising.</summary>
     NoobTubeBubbleRisingSecond,
-    /// <summary><c>noob_tube_bubble_rising_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the n00b tube bubble rising.</summary>
     NoobTubeBubbleRisingThird,
-    /// <summary><c>noob_tube_bubble_rising_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the n00b tube bubble rising.</summary>
     NoobTubeBubbleRisingFourth,
-    /// <summary><c>noob_tube_bubble_falling_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingFirst,
-    /// <summary><c>noob_tube_bubble_falling_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingSecond,
-    /// <summary><c>noob_tube_bubble_falling_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingThird,
-    /// <summary><c>noob_tube_bubble_falling_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingFourth,
-    /// <summary><c>noob_tube_bubble_falling_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingFifth,
-    /// <summary><c>noob_tube_bubble_falling_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingSixth,
-    /// <summary><c>noob_tube_bubble_falling_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingSeventh,
-    /// <summary><c>noob_tube_bubble_falling_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingEighth,
-    /// <summary><c>noob_tube_bubble_falling_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingNinth,
-    /// <summary><c>noob_tube_bubble_falling_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingTenth,
-    /// <summary><c>noob_tube_bubble_falling_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the n00b tube bubble falling.</summary>
     NoobTubeBubbleFallingEleventh,
-    /// <summary><c>cacatac_spike_left_facing_up</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike left facing up.</summary>
     CacatacSpikeLeftFacingUp,
-    /// <summary><c>cacatac_spike_up_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike up left.</summary>
     CacatacSpikeUpLeft,
-    /// <summary><c>cacatac_spike_up</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike up.</summary>
     CacatacSpikeUp,
-    /// <summary><c>cacatac_spike_up_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike up right.</summary>
     CacatacSpikeUpRight,
-    /// <summary><c>cacatac_spike_right_facing_up</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike right facing up.</summary>
     CacatacSpikeRightFacingUp,
-    /// <summary><c>cacatac_spike_left_facing_down</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike left facing down.</summary>
     CacatacSpikeLeftFacingDown,
-    /// <summary><c>cacatac_spike_down_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike down left.</summary>
     CacatacSpikeDownLeft,
-    /// <summary><c>cacatac_spike_down</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike down.</summary>
     CacatacSpikeDown,
-    /// <summary><c>cacatac_spike_down_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike down right.</summary>
     CacatacSpikeDownRight,
-    /// <summary><c>cacatac_spike_right_facing_down</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Cacatac spike right facing down.</summary>
     CacatacSpikeRightFacingDown,
-    /// <summary><c>spore_spawn_spawner_closed</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Spore Spawn spawner closed.</summary>
     SporeSpawnSpawnerClosed,
-    /// <summary><c>spore_spawn_spawner_release_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Spore Spawn spawner release.</summary>
     SporeSpawnSpawnerReleaseFirst,
-    /// <summary><c>spore_spawn_spawner_release_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Spore Spawn spawner release.</summary>
     SporeSpawnSpawnerReleaseSecond,
-    /// <summary><c>spore_spawn_spawner_release_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Spore Spawn spawner release.</summary>
     SporeSpawnSpawnerReleaseThird,
-    /// <summary><c>spore_spawn_spawner_release_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Spore Spawn spawner release.</summary>
     SporeSpawnSpawnerReleaseFourth,
-    /// <summary><c>spore_spawn_spawner_release_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Spore Spawn spawner release.</summary>
     SporeSpawnSpawnerReleaseFifth,
-    /// <summary><c>spore_spawn_spore_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Spore Spawn Spore.</summary>
     SporeSpawnSporeFirst,
-    /// <summary><c>spore_spawn_spore_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Spore Spawn Spore.</summary>
     SporeSpawnSporeSecond,
-    /// <summary><c>spore_spawn_spore_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Spore Spawn Spore.</summary>
     SporeSpawnSporeThird,
-    /// <summary><c>spore_spawn_stalk</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Spore Spawn stalk.</summary>
     SporeSpawnStalk,
-    /// <summary><c>spore_spawn_spore_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotFirst,
-    /// <summary><c>spore_spawn_spore_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotSecond,
-    /// <summary><c>spore_spawn_spore_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotThird,
-    /// <summary><c>spore_spawn_spore_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotFourth,
-    /// <summary><c>spore_spawn_spore_shot_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotFifth,
-    /// <summary><c>spore_spawn_spore_shot_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotSixth,
-    /// <summary><c>spore_spawn_spore_shot_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the Spore Spawn Spore shot.</summary>
     SporeSpawnSporeShotSeventh,
-    /// <summary><c>fune_namihe_fireball_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Fune Namihe fireball left.</summary>
     FuneNamiheFireballLeftFirst,
-    /// <summary><c>fune_namihe_fireball_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Fune Namihe fireball left.</summary>
     FuneNamiheFireballLeftSecond,
-    /// <summary><c>fune_namihe_fireball_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Fune Namihe fireball left.</summary>
     FuneNamiheFireballLeftThird,
-    /// <summary><c>fune_namihe_fireball_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Fune Namihe fireball right.</summary>
     FuneNamiheFireballRightFirst,
-    /// <summary><c>fune_namihe_fireball_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Fune Namihe fireball right.</summary>
     FuneNamiheFireballRightSecond,
-    /// <summary><c>fune_namihe_fireball_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Fune Namihe fireball right.</summary>
     FuneNamiheFireballRightThird,
-    /// <summary><c>magdollite_lava_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Magdollite lava left.</summary>
     MagdolliteLavaLeft,
-    /// <summary><c>magdollite_lava_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Magdollite lava right.</summary>
     MagdolliteLavaRight,
-    /// <summary><c>misc_dust_elbow_charge_particle_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust elbow charge particle.</summary>
     MiscDustElbowChargeParticleFirst,
-    /// <summary><c>misc_dust_elbow_charge_particle_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust elbow charge particle.</summary>
     MiscDustElbowChargeParticleSecond,
-    /// <summary><c>misc_dust_elbow_charge_particle_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust elbow charge particle.</summary>
     MiscDustElbowChargeParticleThird,
-    /// <summary><c>misc_dust_elbow_charge_particle_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust elbow charge particle.</summary>
     MiscDustElbowChargeParticleFourth,
-    /// <summary><c>misc_dust_elbow_charge_particle_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust elbow charge particle.</summary>
     MiscDustElbowChargeParticleFifth,
-    /// <summary><c>misc_dust_elbow_charge_particle_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust elbow charge particle.</summary>
     MiscDustElbowChargeParticleSixth,
-    /// <summary><c>misc_dust_elbow_charge_energy_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergyFirst,
-    /// <summary><c>misc_dust_elbow_charge_energy_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergySecond,
-    /// <summary><c>misc_dust_elbow_charge_energy_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergyThird,
-    /// <summary><c>misc_dust_elbow_charge_energy_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergyFourth,
-    /// <summary><c>misc_dust_elbow_charge_energy_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergyFifth,
-    /// <summary><c>misc_dust_elbow_charge_energy_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergySixth,
-    /// <summary><c>misc_dust_elbow_charge_energy_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the misc dust elbow charge energy.</summary>
     MiscDustElbowChargeEnergySeventh,
-    /// <summary><c>misc_dust_small_explosion_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust small explosion.</summary>
     MiscDustSmallExplosionFirst,
-    /// <summary><c>misc_dust_small_explosion_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust small explosion.</summary>
     MiscDustSmallExplosionSecond,
-    /// <summary><c>misc_dust_small_explosion_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust small explosion.</summary>
     MiscDustSmallExplosionThird,
-    /// <summary><c>misc_dust_small_explosion_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust small explosion.</summary>
     MiscDustSmallExplosionFourth,
-    /// <summary><c>misc_dust_small_explosion_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust small explosion.</summary>
     MiscDustSmallExplosionFifth,
-    /// <summary><c>misc_dust_small_explosion_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust small explosion.</summary>
     MiscDustSmallExplosionSixth,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust rainbow beam explosion.</summary>
     MiscDustRainbowBeamExplosionFirst,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust rainbow beam explosion.</summary>
     MiscDustRainbowBeamExplosionSecond,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust rainbow beam explosion.</summary>
     MiscDustRainbowBeamExplosionThird,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust rainbow beam explosion.</summary>
     MiscDustRainbowBeamExplosionFourth,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust rainbow beam explosion.</summary>
     MiscDustRainbowBeamExplosionFifth,
-    /// <summary><c>misc_dust_dud_shot_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust dud shot.</summary>
     MiscDustDudShotFirst,
-    /// <summary><c>misc_dust_dud_shot_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust dud shot.</summary>
     MiscDustDudShotSecond,
-    /// <summary><c>misc_dust_dud_shot_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust dud shot.</summary>
     MiscDustDudShotThird,
-    /// <summary><c>misc_dust_dud_shot_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust dud shot.</summary>
     MiscDustDudShotFourth,
-    /// <summary><c>misc_dust_dud_shot_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust dud shot.</summary>
     MiscDustDudShotFifth,
-    /// <summary><c>misc_dust_dud_shot_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust dud shot.</summary>
     MiscDustDudShotSixth,
-    /// <summary><c>misc_dust_small_dust_cloud_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust small dust cloud.</summary>
     MiscDustSmallDustCloudFirst,
-    /// <summary><c>misc_dust_small_dust_cloud_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust small dust cloud.</summary>
     MiscDustSmallDustCloudSecond,
-    /// <summary><c>misc_dust_small_dust_cloud_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust small dust cloud.</summary>
     MiscDustSmallDustCloudThird,
-    /// <summary><c>misc_dust_small_dust_cloud_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust small dust cloud.</summary>
     MiscDustSmallDustCloudFourth,
-    /// <summary><c>misc_dust_small_dust_cloud_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust small dust cloud.</summary>
     MiscDustSmallDustCloudFifth,
-    /// <summary><c>misc_dust_corpse_dust_cloud_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust corpse dust cloud.</summary>
     MiscDustCorpseDustCloudFirst,
-    /// <summary><c>misc_dust_corpse_dust_cloud_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust corpse dust cloud.</summary>
     MiscDustCorpseDustCloudSecond,
-    /// <summary><c>misc_dust_corpse_dust_cloud_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust corpse dust cloud.</summary>
     MiscDustCorpseDustCloudThird,
-    /// <summary><c>misc_dust_corpse_dust_cloud_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust corpse dust cloud.</summary>
     MiscDustCorpseDustCloudFourth,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust eye door sweat drop.</summary>
     MiscDustEyeDoorSweatDropFirst,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust eye door sweat drop.</summary>
     MiscDustEyeDoorSweatDropSecond,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust eye door sweat drop.</summary>
     MiscDustEyeDoorSweatDropThird,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust eye door sweat drop.</summary>
     MiscDustEyeDoorSweatDropFourth,
-    /// <summary><c>misc_dust_smoke_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust smoke.</summary>
     MiscDustSmokeFirst,
-    /// <summary><c>misc_dust_smoke_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust smoke.</summary>
     MiscDustSmokeSecond,
-    /// <summary><c>misc_dust_smoke_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust smoke.</summary>
     MiscDustSmokeThird,
-    /// <summary><c>misc_dust_smoke_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust smoke.</summary>
     MiscDustSmokeFourth,
-    /// <summary><c>misc_dust_big_explosion_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust big explosion.</summary>
     MiscDustBigExplosionFirst,
-    /// <summary><c>misc_dust_big_explosion_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust big explosion.</summary>
     MiscDustBigExplosionSecond,
-    /// <summary><c>misc_dust_big_explosion_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust big explosion.</summary>
     MiscDustBigExplosionThird,
-    /// <summary><c>misc_dust_big_explosion_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust big explosion.</summary>
     MiscDustBigExplosionFourth,
-    /// <summary><c>misc_dust_big_explosion_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust big explosion.</summary>
     MiscDustBigExplosionFifth,
-    /// <summary><c>misc_dust_big_explosion_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust big explosion.</summary>
     MiscDustBigExplosionSixth,
-    /// <summary><c>misc_dust_rock_particles_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesFirst,
-    /// <summary><c>misc_dust_rock_particles_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesSecond,
-    /// <summary><c>misc_dust_rock_particles_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesThird,
-    /// <summary><c>misc_dust_rock_particles_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesFourth,
-    /// <summary><c>misc_dust_rock_particles_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesFifth,
-    /// <summary><c>misc_dust_rock_particles_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesSixth,
-    /// <summary><c>misc_dust_rock_particles_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesSeventh,
-    /// <summary><c>misc_dust_rock_particles_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesEighth,
-    /// <summary><c>misc_dust_rock_particles_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesNinth,
-    /// <summary><c>misc_dust_rock_particles_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesTenth,
-    /// <summary><c>misc_dust_rock_particles_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesEleventh,
-    /// <summary><c>misc_dust_rock_particles_twelfth</c>, an installed animation frame.</summary>
+    /// <summary>The twelfth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesTwelfth,
-    /// <summary><c>misc_dust_rock_particles_thirteenth</c>, an installed animation frame.</summary>
+    /// <summary>The thirteenth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesThirteenth,
-    /// <summary><c>misc_dust_rock_particles_fourteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fourteenth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesFourteenth,
-    /// <summary><c>misc_dust_rock_particles_fifteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fifteenth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesFifteenth,
-    /// <summary><c>misc_dust_rock_particles_sixteenth</c>, an installed animation frame.</summary>
+    /// <summary>The sixteenth frame of the misc dust rock particles.</summary>
     MiscDustRockParticlesSixteenth,
-    /// <summary><c>misc_dust_short_big_dust_cloud_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust short big dust cloud.</summary>
     MiscDustShortBigDustCloudFirst,
-    /// <summary><c>misc_dust_short_big_dust_cloud_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust short big dust cloud.</summary>
     MiscDustShortBigDustCloudSecond,
-    /// <summary><c>misc_dust_short_big_dust_cloud_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust short big dust cloud.</summary>
     MiscDustShortBigDustCloudThird,
-    /// <summary><c>misc_dust_short_big_dust_cloud_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust short big dust cloud.</summary>
     MiscDustShortBigDustCloudFourth,
-    /// <summary><c>misc_dust_big_dust_cloud_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudFirst,
-    /// <summary><c>misc_dust_big_dust_cloud_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudSecond,
-    /// <summary><c>misc_dust_big_dust_cloud_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudThird,
-    /// <summary><c>misc_dust_big_dust_cloud_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudFourth,
-    /// <summary><c>misc_dust_big_dust_cloud_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudFifth,
-    /// <summary><c>misc_dust_big_dust_cloud_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudSixth,
-    /// <summary><c>misc_dust_big_dust_cloud_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudSeventh,
-    /// <summary><c>misc_dust_big_dust_cloud_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the misc dust big dust cloud.</summary>
     MiscDustBigDustCloudEighth,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesFirst,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesSecond,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesThird,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesFourth,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesFifth,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesSixth,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesSeventh,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesEighth,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the misc dust Draygon breath bubbles.</summary>
     MiscDustDraygonBreathBubblesNinth,
-    /// <summary><c>downward_gate_moving</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate moving.</summary>
     DownwardGateMoving,
-    /// <summary><c>downward_gate_third_moving_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate third moving step.</summary>
     DownwardGateThirdMovingStep,
-    /// <summary><c>downward_gate_fourth_moving_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate fourth moving step.</summary>
     DownwardGateFourthMovingStep,
-    /// <summary><c>downward_gate_fifth_moving_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate fifth moving step.</summary>
     DownwardGateFifthMovingStep,
-    /// <summary><c>downward_gate_closed</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate closed.</summary>
     DownwardGateClosed,
-    /// <summary><c>downward_gate_third_closed_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate third closed step.</summary>
     DownwardGateThirdClosedStep,
-    /// <summary><c>downward_gate_fourth_closed_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate fourth closed step.</summary>
     DownwardGateFourthClosedStep,
-    /// <summary><c>downward_gate_fifth_closed_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate fifth closed step.</summary>
     DownwardGateFifthClosedStep,
-    /// <summary><c>downward_gate_sixth_closed_step</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the downward gate sixth closed step.</summary>
     DownwardGateSixthClosedStep,
-    /// <summary><c>save_station_electricity_start_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the save station electricity start.</summary>
     SaveStationElectricityStartFirst,
-    /// <summary><c>save_station_electricity_start_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the save station electricity start.</summary>
     SaveStationElectricityStartSecond,
-    /// <summary><c>save_station_electricity_start_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the save station electricity start.</summary>
     SaveStationElectricityStartThird,
-    /// <summary><c>save_station_electricity_start_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the save station electricity start.</summary>
     SaveStationElectricityStartFourth,
-    /// <summary><c>save_station_electricity_start_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the save station electricity start.</summary>
     SaveStationElectricityStartFifth,
-    /// <summary><c>save_station_electricity_start_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the save station electricity start.</summary>
     SaveStationElectricityStartSixth,
-    /// <summary><c>save_station_electricity_start_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the save station electricity start.</summary>
     SaveStationElectricityStartSeventh,
-    /// <summary><c>save_station_electricity_start_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the save station electricity start.</summary>
     SaveStationElectricityStartEighth,
-    /// <summary><c>botwoon_body_up_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body up left.</summary>
     BotwoonBodyUpLeftFirst,
-    /// <summary><c>botwoon_body_up_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body up left.</summary>
     BotwoonBodyUpLeftSecond,
-    /// <summary><c>botwoon_body_up_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body up left.</summary>
     BotwoonBodyUpLeftThird,
-    /// <summary><c>botwoon_body_up_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body up left.</summary>
     BotwoonBodyUpLeftFourth,
-    /// <summary><c>botwoon_body_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body left.</summary>
     BotwoonBodyLeftFirst,
-    /// <summary><c>botwoon_body_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body left.</summary>
     BotwoonBodyLeftSecond,
-    /// <summary><c>botwoon_body_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body left.</summary>
     BotwoonBodyLeftThird,
-    /// <summary><c>botwoon_body_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body left.</summary>
     BotwoonBodyLeftFourth,
-    /// <summary><c>botwoon_body_down_left_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body down left.</summary>
     BotwoonBodyDownLeftFirst,
-    /// <summary><c>botwoon_body_down_left_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body down left.</summary>
     BotwoonBodyDownLeftSecond,
-    /// <summary><c>botwoon_body_down_left_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body down left.</summary>
     BotwoonBodyDownLeftThird,
-    /// <summary><c>botwoon_body_down_left_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body down left.</summary>
     BotwoonBodyDownLeftFourth,
-    /// <summary><c>botwoon_body_down_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body down.</summary>
     BotwoonBodyDownFirst,
-    /// <summary><c>botwoon_body_down_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body down.</summary>
     BotwoonBodyDownSecond,
-    /// <summary><c>botwoon_body_down_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body down.</summary>
     BotwoonBodyDownThird,
-    /// <summary><c>botwoon_body_down_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body down.</summary>
     BotwoonBodyDownFourth,
-    /// <summary><c>botwoon_body_down_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body down right.</summary>
     BotwoonBodyDownRightFirst,
-    /// <summary><c>botwoon_body_down_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body down right.</summary>
     BotwoonBodyDownRightSecond,
-    /// <summary><c>botwoon_body_down_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body down right.</summary>
     BotwoonBodyDownRightThird,
-    /// <summary><c>botwoon_body_down_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body down right.</summary>
     BotwoonBodyDownRightFourth,
-    /// <summary><c>botwoon_body_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body right.</summary>
     BotwoonBodyRightFirst,
-    /// <summary><c>botwoon_body_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body right.</summary>
     BotwoonBodyRightSecond,
-    /// <summary><c>botwoon_body_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body right.</summary>
     BotwoonBodyRightThird,
-    /// <summary><c>botwoon_body_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body right.</summary>
     BotwoonBodyRightFourth,
-    /// <summary><c>botwoon_body_up_right_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body up right.</summary>
     BotwoonBodyUpRightFirst,
-    /// <summary><c>botwoon_body_up_right_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body up right.</summary>
     BotwoonBodyUpRightSecond,
-    /// <summary><c>botwoon_body_up_right_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body up right.</summary>
     BotwoonBodyUpRightThird,
-    /// <summary><c>botwoon_body_up_right_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body up right.</summary>
     BotwoonBodyUpRightFourth,
-    /// <summary><c>botwoon_body_up_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon body up.</summary>
     BotwoonBodyUpFirst,
-    /// <summary><c>botwoon_body_up_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon body up.</summary>
     BotwoonBodyUpSecond,
-    /// <summary><c>botwoon_body_up_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon body up.</summary>
     BotwoonBodyUpThird,
-    /// <summary><c>botwoon_body_up_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon body up.</summary>
     BotwoonBodyUpFourth,
-    /// <summary><c>botwoon_tail_up</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail up.</summary>
     BotwoonTailUp,
-    /// <summary><c>botwoon_tail_up_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail up left.</summary>
     BotwoonTailUpLeft,
-    /// <summary><c>botwoon_tail_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail left.</summary>
     BotwoonTailLeft,
-    /// <summary><c>botwoon_tail_down_left</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail down left.</summary>
     BotwoonTailDownLeft,
-    /// <summary><c>botwoon_tail_down</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail down.</summary>
     BotwoonTailDown,
-    /// <summary><c>botwoon_tail_down_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail down right.</summary>
     BotwoonTailDownRight,
-    /// <summary><c>botwoon_tail_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail right.</summary>
     BotwoonTailRight,
-    /// <summary><c>botwoon_tail_up_right</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon tail up right.</summary>
     BotwoonTailUpRight,
-    /// <summary><c>botwoon_hidden_up</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Botwoon hidden up.</summary>
     BotwoonHiddenUp,
-    /// <summary><c>botwoon_spit_up_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the Botwoon spit up.</summary>
     BotwoonSpitUpFirst,
-    /// <summary><c>botwoon_spit_up_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the Botwoon spit up.</summary>
     BotwoonSpitUpSecond,
-    /// <summary><c>botwoon_spit_up_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the Botwoon spit up.</summary>
     BotwoonSpitUpThird,
-    /// <summary><c>botwoon_spit_up_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the Botwoon spit up.</summary>
     BotwoonSpitUpFourth,
-    /// <summary><c>botwoon_spit_up_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the Botwoon spit up.</summary>
     BotwoonSpitUpFifth,
-    /// <summary><c>yapping_maw_facing_down</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Yapping Maw facing down.</summary>
     YappingMawFacingDown,
-    /// <summary><c>yapping_maw_facing_up</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the Yapping Maw facing up.</summary>
     YappingMawFacingUp,
-    /// <summary><c>enemy_death_respawn_tail</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the enemy death respawn tail.</summary>
     EnemyDeathRespawnTail,
-    /// <summary><c>enemy_death_big_explosion</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the enemy death big explosion.</summary>
     EnemyDeathBigExplosion,
-    /// <summary><c>enemy_death_mini_kraid_explosion</c>, an installed animation frame.</summary>
+    /// <summary>The frame of the enemy death Mini Kraid explosion.</summary>
     EnemyDeathMiniKraidExplosion,
-    /// <summary><c>enemy_death_normal_explosion_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy death normal explosion.</summary>
     EnemyDeathNormalExplosionFirst,
-    /// <summary><c>enemy_death_normal_explosion_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy death normal explosion.</summary>
     EnemyDeathNormalExplosionSecond,
-    /// <summary><c>enemy_death_normal_explosion_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the enemy death normal explosion.</summary>
     EnemyDeathNormalExplosionThird,
-    /// <summary><c>enemy_death_normal_explosion_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the enemy death normal explosion.</summary>
     EnemyDeathNormalExplosionFourth,
-    /// <summary><c>enemy_death_normal_explosion_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the enemy death normal explosion.</summary>
     EnemyDeathNormalExplosionFifth,
-    /// <summary><c>enemy_death_normal_explosion_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the enemy death normal explosion.</summary>
     EnemyDeathNormalExplosionSixth,
-    /// <summary><c>enemy_death_small_explosion_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy death small explosion.</summary>
     EnemyDeathSmallExplosionFirst,
-    /// <summary><c>enemy_death_small_explosion_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy death small explosion.</summary>
     EnemyDeathSmallExplosionSecond,
-    /// <summary><c>enemy_death_small_explosion_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the enemy death small explosion.</summary>
     EnemyDeathSmallExplosionThird,
-    /// <summary><c>enemy_death_small_explosion_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the enemy death small explosion.</summary>
     EnemyDeathSmallExplosionFourth,
-    /// <summary><c>enemy_death_small_explosion_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the enemy death small explosion.</summary>
     EnemyDeathSmallExplosionFifth,
-    /// <summary><c>enemy_death_small_explosion_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the enemy death small explosion.</summary>
     EnemyDeathSmallExplosionSixth,
-    /// <summary><c>enemy_pickup_small_energy_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy pickup small energy.</summary>
     EnemyPickupSmallEnergyFirst,
-    /// <summary><c>enemy_pickup_small_energy_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy pickup small energy.</summary>
     EnemyPickupSmallEnergySecond,
-    /// <summary><c>enemy_pickup_small_energy_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the enemy pickup small energy.</summary>
     EnemyPickupSmallEnergyThird,
-    /// <summary><c>enemy_pickup_small_energy_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the enemy pickup small energy.</summary>
     EnemyPickupSmallEnergyFourth,
-    /// <summary><c>enemy_pickup_big_energy_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy pickup big energy.</summary>
     EnemyPickupBigEnergyFirst,
-    /// <summary><c>enemy_pickup_big_energy_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy pickup big energy.</summary>
     EnemyPickupBigEnergySecond,
-    /// <summary><c>enemy_pickup_big_energy_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the enemy pickup big energy.</summary>
     EnemyPickupBigEnergyThird,
-    /// <summary><c>enemy_pickup_big_energy_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the enemy pickup big energy.</summary>
     EnemyPickupBigEnergyFourth,
-    /// <summary><c>enemy_pickup_missiles_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy pickup Missiles.</summary>
     EnemyPickupMissilesFirst,
-    /// <summary><c>enemy_pickup_missiles_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy pickup Missiles.</summary>
     EnemyPickupMissilesSecond,
-    /// <summary><c>enemy_pickup_super_missiles_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy pickup Super Missiles.</summary>
     EnemyPickupSuperMissilesFirst,
-    /// <summary><c>enemy_pickup_super_missiles_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy pickup Super Missiles.</summary>
     EnemyPickupSuperMissilesSecond,
-    /// <summary><c>enemy_pickup_power_bombs_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy pickup Power Bombs.</summary>
     EnemyPickupPowerBombsFirst,
-    /// <summary><c>enemy_pickup_power_bombs_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy pickup Power Bombs.</summary>
     EnemyPickupPowerBombsSecond,
-    /// <summary><c>enemy_pickup_power_bombs_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the enemy pickup Power Bombs.</summary>
     EnemyPickupPowerBombsThird,
-    /// <summary><c>enemy_pickup_power_bombs_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the enemy pickup Power Bombs.</summary>
     EnemyPickupPowerBombsFourth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactFirst,
-    /// <summary><c>enemy_death_killed_by_samus_contact_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactSecond,
-    /// <summary><c>enemy_death_killed_by_samus_contact_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactThird,
-    /// <summary><c>enemy_death_killed_by_samus_contact_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactFourth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactFifth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactSixth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactSeventh,
-    /// <summary><c>enemy_death_killed_by_samus_contact_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactEighth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactNinth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactTenth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactEleventh,
-    /// <summary><c>enemy_death_killed_by_samus_contact_twelfth</c>, an installed animation frame.</summary>
+    /// <summary>The twelfth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactTwelfth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_thirteenth</c>, an installed animation frame.</summary>
+    /// <summary>The thirteenth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactThirteenth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_fourteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fourteenth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactFourteenth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_fifteenth</c>, an installed animation frame.</summary>
+    /// <summary>The fifteenth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactFifteenth,
-    /// <summary><c>enemy_death_killed_by_samus_contact_sixteenth</c>, an installed animation frame.</summary>
+    /// <summary>The sixteenth frame of the enemy death killed by Samus contact.</summary>
     EnemyDeathKilledBySamusContactSixteenth,
-    /// <summary><c>falling_spark_falling_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the falling spark falling.</summary>
     FallingSparkFallingFirst,
-    /// <summary><c>falling_spark_falling_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the falling spark falling.</summary>
     FallingSparkFallingSecond,
-    /// <summary><c>falling_spark_falling_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the falling spark falling.</summary>
     FallingSparkFallingThird,
-    /// <summary><c>falling_spark_hit_floor_first</c>, an installed animation frame.</summary>
+    /// <summary>The first frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorFirst,
-    /// <summary><c>falling_spark_hit_floor_second</c>, an installed animation frame.</summary>
+    /// <summary>The second frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorSecond,
-    /// <summary><c>falling_spark_hit_floor_third</c>, an installed animation frame.</summary>
+    /// <summary>The third frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorThird,
-    /// <summary><c>falling_spark_hit_floor_fourth</c>, an installed animation frame.</summary>
+    /// <summary>The fourth frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorFourth,
-    /// <summary><c>falling_spark_hit_floor_fifth</c>, an installed animation frame.</summary>
+    /// <summary>The fifth frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorFifth,
-    /// <summary><c>falling_spark_hit_floor_sixth</c>, an installed animation frame.</summary>
+    /// <summary>The sixth frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorSixth,
-    /// <summary><c>falling_spark_hit_floor_seventh</c>, an installed animation frame.</summary>
+    /// <summary>The seventh frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorSeventh,
-    /// <summary><c>falling_spark_hit_floor_eighth</c>, an installed animation frame.</summary>
+    /// <summary>The eighth frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorEighth,
-    /// <summary><c>falling_spark_hit_floor_ninth</c>, an installed animation frame.</summary>
+    /// <summary>The ninth frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorNinth,
-    /// <summary><c>falling_spark_hit_floor_tenth</c>, an installed animation frame.</summary>
+    /// <summary>The tenth frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorTenth,
-    /// <summary><c>falling_spark_hit_floor_eleventh</c>, an installed animation frame.</summary>
+    /// <summary>The eleventh frame of the falling spark hit floor.</summary>
     FallingSparkHitFloorEleventh,
-    /// <summary><c>ceres_elevator_pad_first</c>, a composition.</summary>
+    /// <summary>The Ceres elevator pad first, one composed picture.</summary>
     CeresElevatorPadFirst,
-    /// <summary><c>ceres_elevator_pad_second</c>, a composition.</summary>
+    /// <summary>The Ceres elevator pad second, one composed picture.</summary>
     CeresElevatorPadSecond,
-    /// <summary><c>ceres_elevator_platform</c>, a composition.</summary>
+    /// <summary>The Ceres elevator platform, one composed picture.</summary>
     CeresElevatorPlatform,
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal enum OldTourianWallExplosionCue
 {
     /// <summary>Stops the explosion's movement.</summary>
-    ClearFrameBehavior,
+    StopMoving,
 
     /// <summary>Scatters the explosion about the wall.</summary>
     Scatter,

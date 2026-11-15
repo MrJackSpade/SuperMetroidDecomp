@@ -12,9 +12,13 @@ internal static class MotherBrainEffectCueRules
     private static readonly Dictionary<NativeEnemyProjectileInstruction, NativeCueCommand<MotherBrainEffectCue>> Commands = new()
     {
         [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.Delete)),
-        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.ClearFrameBehavior)),
-        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetFrameBehavior>(2, (operands, cue, at) =>
-            VerificationAssertions.AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.StopMoving)),
+        // The effects set one routine by list: the released drool's fall.
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.Signal>(2, (operands, cue, at) =>
+        {
+            VerificationAssertions.AssertEqual(MotherBrainEffectCueKind.ReleaseDrool, cue.Kind, $"{at}: cue");
+            VerificationAssertions.AssertEqual<Enum?>(MotherBrainProjectileMotion.DroolFalling, EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+        }),
         [NativeEnemyProjectileInstruction.XYRadiusInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetRadius>(2, (operands, cue, at) =>
             VerificationAssertions.AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii")),
         [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.DrawFromSharedSheet)),

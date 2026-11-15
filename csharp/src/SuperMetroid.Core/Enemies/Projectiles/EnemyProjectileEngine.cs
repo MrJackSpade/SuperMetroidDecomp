@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
-/// place and its definition setup, the per-frame pass (frame behaviours, then each animation), the animation runner,
+/// place and its definition setup, the per-frame pass (motions, then each animation), the animation runner,
 /// both draw-priority passes and the Samus collision passes. Each projectile runs through the behaviour its spawner bound
 /// to it (<see cref="EnemyProjectileBehavior"/>, #1760); the engine names no species.
 /// <para>
@@ -33,12 +33,6 @@ internal sealed class EnemyProjectileEngine
         {
             case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }:
                 projectile.Delete();
-                break;
-            case EnemyProjectileCommonCue.SetFrameBehavior setFrameBehavior:
-                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
-                break;
-            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ClearFrameBehavior }:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case EnemyProjectileCommonCue.Scatter scatter:
                 Scatter(projectile, scatter.Spread);
@@ -163,7 +157,7 @@ internal sealed class EnemyProjectileEngine
                 {
                     // Every shot animation without a typed reaction of its own is the shared delete animation.
                     enemyProjectile.StartAnimation(BehaviorOf(enemyProjectile).ShotAnimation());
-                    enemyProjectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                    enemyProjectile.HoldStill();
 
                     // A shot that destroys a projectile strips its behaviours and keeps only its damage: it no
                     // longer blocks shots or outlasts touching Samus, and it harms her on contact, whatever its
@@ -179,7 +173,7 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>One projectile pass: every live projectile's frame behaviour, then its animation.</summary>
+    /// <summary>One projectile pass: every live projectile's motion, then its animation.</summary>
     /// <param name="level">The room's blocks, which moving projectiles collide with.</param>
     /// <param name="samus">Samus, for behaviours and cues that act on her; null in fixtures without her.</param>
     /// <param name="camera">The camera, for behaviours and cues that test the screen.</param>
@@ -197,7 +191,7 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(level);
 
         // The pass runs the places from the last down, reading each place when it reaches it rather than a pass-start
-        // snapshot. The distinction is observable whenever a frame behaviour or animation cue spawns another projectile:
+        // snapshot. The distinction is observable whenever a motion or animation cue spawns another projectile:
         // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
         // pass, and one spawned above it waits for the next.
         for (int place = _places.Length - 1; place >= 0; place--)
@@ -206,9 +200,9 @@ internal sealed class EnemyProjectileEngine
             if (!projectile.IsActive)
                 continue;
 
-            BehaviorOf(projectile).RunFrameBehavior(
-                new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, shortCounter, frameCounter, samusBombs));
-            // The animation that runs next is that of whatever projectile the place holds after the frame behaviour, live
+            BehaviorOf(projectile).RunMotion(
+                new EnemyProjectileMotionContext(projectile, level, samus, camera, shortCounter, frameCounter, samusBombs));
+            // The animation that runs next is that of whatever projectile the place holds after the motion, live
             // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
@@ -312,6 +306,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectile projectile = _places[place];
 
             if (!projectile.IsActive ||
+                projectile.IsHidden ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
                 continue;
@@ -350,7 +345,7 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     /// <param name="projectile">The freshly spawned projectile.</param>
     /// <param name="kind">What the projectile is, which names its definition.</param>
-    /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760).</param>
+    /// <param name="behavior">What the projectile's kind does, bound to it for its life (#1760), which starts its motion (#1843).</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     internal static void InitializeEnemyProjectileFromDefinition(
         EnemyProjectile projectile,
@@ -359,9 +354,7 @@ internal sealed class EnemyProjectileEngine
         SpriteGraphics graphics)
     {
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-        projectile.Kind = kind;
-        projectile.Behavior = Ensure.NotNull(behavior);
-        projectile.FrameBehavior = definition.FrameBehavior;
+        projectile.Bind(kind, behavior);
         // The spawn starts the animation timer at one, so the first step runs on the first pass. The spawner then starts
         // the animation it chooses.
         projectile.FrameHold = WrappingCountdown.Start(1);

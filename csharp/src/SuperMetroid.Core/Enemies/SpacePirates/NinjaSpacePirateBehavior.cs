@@ -536,7 +536,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
             ? SpacePirateProjectileSegment.ClawRight
             : SpacePirateProjectileSegment.ClawLeft));
-        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
     }
 
@@ -626,30 +625,32 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>A Ninja Pirate's claw (#1760): its spawner starts its animation, which installs its throw left or right.</summary>
     internal static readonly EnemyProjectileBehavior Claw = new ClawBehavior();
 
-    /// <summary>A thrown claw: it flies out and back in its throw's direction, as its animation's cues install.</summary>
-    private sealed class ClawBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<SpacePirateProjectileCue>
+    /// <summary>A thrown claw: it flies out and back in its throw's direction, once its animation throws it.</summary>
+    private sealed class ClawBehavior : EnemyProjectileBehavior<PirateClawMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        private protected override void Move(EnemyProjectileMotionContext context, PirateClawMotion motion)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.PirateClawThrownLeft)
+            switch (motion)
             {
-                FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Left);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.PirateClawThrownRight)
-            {
-                FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Right);
-            }
-            else
-            {
-                base.Move(context);
+                case PirateClawMotion.ThrownLeft:
+                    FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Left);
+                    break;
+                case PirateClawMotion.ThrownRight:
+                    FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Right);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(PirateClawMotion)} {motion}.");
             }
         }
 
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue) =>
-            WalkingSpacePirateBehavior.ApplySpacePirateProjectileCue(context, cue);
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
+        {
+            if (cue.Kind != SpacePirateProjectileCueKind.ThrowClaw)
+                throw new InvalidOperationException($"A claw's animation published {cue}.");
+            context.Projectile.StartMotion(cue.Direction == HorizontalDirection.Right ? PirateClawMotion.ThrownRight : PirateClawMotion.ThrownLeft);
+        }
     }
 
     /// <summary>Runs the ninja Space Pirate's main AI.</summary>

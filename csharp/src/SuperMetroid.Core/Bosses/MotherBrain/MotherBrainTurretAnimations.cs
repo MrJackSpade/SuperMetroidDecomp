@@ -36,7 +36,7 @@ internal static class MotherBrainTurretAnimations
     private static Beat[] BulletImpact() =>
     [
         new Beat.Event(MotherBrainTurretCue.DrawFromSharedSheet),
-        new Beat.Event(MotherBrainTurretCue.ClearFrameBehavior),
+        new Beat.Event(MotherBrainTurretCue.StopMoving),
         .. Enumerable.Range(0, ImpactPhaseCount).Select(phase =>
             new Beat.Frame(new(MotherBrainTurretSegment.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
         new Beat.Event(MotherBrainTurretCue.Delete),

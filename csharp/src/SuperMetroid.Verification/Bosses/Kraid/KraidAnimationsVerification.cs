@@ -265,7 +265,7 @@ internal static class KraidAnimationsVerification
                     AssertEqual(native.Timer, rock.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.FrameBehavior is { } frameBehavior)
-                    AssertEqual(EnemyProjectileFrameBehaviorAccess.FromWord(frameBehavior), rock.FrameBehavior, $"{at}: pre-instruction");
+                    AssertEqual(EnemyProjectileMotionAccess.FromWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockSegment.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }

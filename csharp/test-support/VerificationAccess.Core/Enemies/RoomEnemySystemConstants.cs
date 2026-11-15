@@ -9,12 +9,6 @@ internal static class RoomEnemySystemConstants
     public const int BlueBrinstarFaceBlockPaletteTable = 0xa8e7cc;
     /// <summary>Bank-$AA instruction pointer at $B879 used on Bomb Torizo initialization.</summary>
     public const ushort BombTorizoInitialInstruction = 0xb879;
-    /// <summary>Pre-instruction selected for the Cacatac spike enemy projectile.</summary>
-    public const EnemyProjectileFrameBehavior CacatacSpikeFrameBehavior = EnemyProjectileFrameBehavior.CacatacSpikeFlight;
-    /// <summary>Initial leftward Ki Hunter acid pre-instruction pointer.</summary>
-    public const EnemyProjectileFrameBehavior KiHunterAcidInitialLeftFrameBehavior = EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft;
-    /// <summary>Initial rightward Ki Hunter acid pre-instruction pointer.</summary>
-    public const EnemyProjectileFrameBehavior KiHunterAcidInitialRightFrameBehavior = EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight;
     /// <summary>Normal Ninja Pirate OBJ palette slot value before its alternate coloring.</summary>
     public const ushort NinjaPiratePaletteNormal = 0x0200;
     /// <summary>Sound effect queued for the Ninja Pirate's claw kick or dive.</summary>
@@ -27,12 +21,6 @@ internal static class RoomEnemySystemConstants
         internal static int BlueBrinstarFaceBlockPaletteTable => RoomEnemySystemConstants.BlueBrinstarFaceBlockPaletteTable;
         /// <inheritdoc cref="RoomEnemySystemConstants.BombTorizoInitialInstruction"/>
         internal static ushort BombTorizoInitialInstruction => RoomEnemySystemConstants.BombTorizoInitialInstruction;
-        /// <inheritdoc cref="RoomEnemySystemConstants.CacatacSpikeFrameBehavior"/>
-        internal static EnemyProjectileFrameBehavior CacatacSpikeFrameBehavior => RoomEnemySystemConstants.CacatacSpikeFrameBehavior;
-        /// <inheritdoc cref="RoomEnemySystemConstants.KiHunterAcidInitialLeftFrameBehavior"/>
-        internal static EnemyProjectileFrameBehavior KiHunterAcidInitialLeftFrameBehavior => RoomEnemySystemConstants.KiHunterAcidInitialLeftFrameBehavior;
-        /// <inheritdoc cref="RoomEnemySystemConstants.KiHunterAcidInitialRightFrameBehavior"/>
-        internal static EnemyProjectileFrameBehavior KiHunterAcidInitialRightFrameBehavior => RoomEnemySystemConstants.KiHunterAcidInitialRightFrameBehavior;
         /// <inheritdoc cref="RoomEnemySystemConstants.NinjaPiratePaletteNormal"/>
         internal static ushort NinjaPiratePaletteNormal => RoomEnemySystemConstants.NinjaPiratePaletteNormal;
         /// <inheritdoc cref="RoomEnemySystemConstants.NinjaPirateSoundClawKickOrDive"/>

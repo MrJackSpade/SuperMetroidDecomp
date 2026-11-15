@@ -36,13 +36,13 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         PlatformProgramCase[] cases =
         [
             new(true, true, PlatformHorizontalMovement.Left,
-                PlatformSegment.KamerHeadingLeft),
+                PlatformSegment.SuspensorPlatformHeadingLeft),
             new(true, true, PlatformHorizontalMovement.Right,
-                PlatformSegment.KamerHeadingRight),
+                PlatformSegment.SuspensorPlatformHeadingRight),
             new(true, false, PlatformHorizontalMovement.Left,
-                PlatformSegment.KamerHeadingLeft),
+                PlatformSegment.SuspensorPlatformHeadingLeft),
             new(true, false, PlatformHorizontalMovement.Right,
-                PlatformSegment.KamerHeadingRight),
+                PlatformSegment.SuspensorPlatformHeadingRight),
             new(false, true, PlatformHorizontalMovement.Left,
                 PlatformSegment.TripperMovingLeft),
             new(false, true, PlatformHorizontalMovement.Right,
@@ -58,7 +58,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(testCase.IsKamer
-                ? EnemyDefinitionId.Kamer2
+                ? EnemyDefinitionId.SuspensorPlatform
                 : EnemyDefinitionId.Tripper, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
@@ -69,8 +69,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformSegment expectedInitial = testCase.IsKamer
                 ? testCase.Direction == PlatformHorizontalMovement.Left
-                    ? PlatformSegment.KamerHeadingLeft
-                    : PlatformSegment.KamerHeadingRight
+                    ? PlatformSegment.SuspensorPlatformHeadingLeft
+                    : PlatformSegment.SuspensorPlatformHeadingRight
                 : testCase.Direction == PlatformHorizontalMovement.Left
                     ? PlatformSegment.TripperStillMovingLeft
                     : PlatformSegment.TripperStillMovingRight;

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// projectile behaviour (#1801): the release's cues spawn more of the effects it spawns, at the water surface it holds.
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior
+internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
     /// <summary>Live room randomness.</summary>
     private readonly EnemyRoomBinding _room;
@@ -27,6 +27,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior
 
     /// <summary>Binds the unlock effects to the current room's projectile, audio, FX and statue owners.</summary>
     internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, TourianEntranceStatueBehavior statue)
+        : base(StartingMotions)
     {
         _room = room;
         _projectiles = projectiles;
@@ -162,26 +163,35 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior
     /// </summary>
     internal EnemyProjectileBehavior Effects => this;
 
-    /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
-    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
-    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+    /// <summary>A splash holds at the water, a particle falls and a soul rises from their spawn; the dust, the eye glows and the tails hold still.</summary>
+    private static readonly Dictionary<RoomEnemyProjectileKind, TourianStatueEffectMotion?> StartingMotions = new()
     {
-        EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-        if (motion == EnemyProjectileFrameBehavior.TourianStatueSplashMotion)
+        [RoomEnemyProjectileKind.TourianStatueSplash] = TourianStatueEffectMotion.SplashHolding,
+        [RoomEnemyProjectileKind.TourianStatueParticle] = TourianStatueEffectMotion.ParticleFalling,
+        [RoomEnemyProjectileKind.TourianStatueSoul] = TourianStatueEffectMotion.SoulRising,
+        [RoomEnemyProjectileKind.TourianStatueEyeGlow] = null,
+        [RoomEnemyProjectileKind.TourianStatueTail] = null,
+        [RoomEnemyProjectileKind.TourianStatueDescentDust] = null,
+    };
+
+    /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    /// <param name="motion">The effect's motion.</param>
+    private protected override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
+    {
+        switch (motion)
         {
-            HoldTourianStatueSplash(context.Projectile);
-        }
-        else if (motion == EnemyProjectileFrameBehavior.TourianStatueParticleMotion)
-        {
-            DropTourianStatueParticle(context.Projectile);
-        }
-        else if (motion == EnemyProjectileFrameBehavior.TourianStatueSoulMotion)
-        {
-            RaiseTourianStatueSoul(context.Projectile);
-        }
-        else
-        {
-            base.Move(context);
+            case TourianStatueEffectMotion.SplashHolding:
+                HoldTourianStatueSplash(context.Projectile);
+                break;
+            case TourianStatueEffectMotion.ParticleFalling:
+                DropTourianStatueParticle(context.Projectile);
+                break;
+            case TourianStatueEffectMotion.SoulRising:
+                RaiseTourianStatueSoul(context.Projectile);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(TourianStatueEffectMotion)} {motion}.");
         }
     }
 

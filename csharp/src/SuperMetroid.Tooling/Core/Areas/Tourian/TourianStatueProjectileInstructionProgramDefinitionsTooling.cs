@@ -76,7 +76,7 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTool
         layout.Pose(SoulHold); layout.Pose(SoulHold); layout.Goto(D.Soul);
         layout.Pose(DecorationInitialHold);
         layout.Word((ushort)EnemyProjectileInstruction.FrameBehaviorInY);
-        layout.Word(EnemyProjectileFrameBehaviorWords.Word(EnemyProjectileFrameBehavior.TourianStatueRevealFollow));
+        layout.Word(EnemyProjectileMotionWords.Word(TourianStatueDecorationMotion.FollowingReveal));
         for (int actor = 0; actor < 3; actor++)
         {
             ushort loop = layout.Cursor;

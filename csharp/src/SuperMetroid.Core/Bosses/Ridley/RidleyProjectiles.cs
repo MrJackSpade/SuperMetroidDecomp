@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// flights and cues spawn the rest of the chain this spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProjectileCues<RidleyFireballCue>
+internal sealed class RidleyProjectiles : EnemyProjectileBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
     /// <summary>Provides Samus's current area when selecting Ridley projectile damage.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -26,6 +26,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
 
     /// <summary>Binds the shared Ceres and Lower Norfair fireball chain to encounter state and projectile slots.</summary>
     internal RidleyProjectiles(EnemyDeathsAndDrops deathsAndDrops, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
+        : base(StartingMotions)
     {
         _deathsAndDrops = deathsAndDrops;
         _projectiles = projectiles;
@@ -225,41 +226,52 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
 
     /// <summary>
     /// Ridley's fireballs, the afterburn centres they leave and the directional afterburns those spawn (#1760): their
-    /// spawners start their animations, and each kind's definition names its flight.
+    /// spawners start their animations, and each kind starts its own flight.
     /// </summary>
     internal EnemyProjectileBehavior Fireballs => this;
+
+    /// <summary>A fireball and the directional afterburns fly from their spawn; the afterburn centres hold still.</summary>
+    private static readonly Dictionary<RoomEnemyProjectileKind, RidleyFireballMotion?> StartingMotions = new()
+    {
+        [RoomEnemyProjectileKind.CeresRidleyFireball] = RidleyFireballMotion.FireballFlying,
+        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight] = RidleyFireballMotion.HorizontalAfterburnFlying,
+        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft] = RidleyFireballMotion.HorizontalAfterburnFlying,
+        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp] = RidleyFireballMotion.VerticalAfterburnFlying,
+        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown] = RidleyFireballMotion.VerticalAfterburnFlying,
+        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter] = null,
+        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter] = null,
+    };
 
     /// <summary>
     /// Moves a fireball, afterburn centre or directional afterburn: the fireball's flight and both afterburn flights.
     /// </summary>
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    /// <param name="motion">The motion the projectile holds.</param>
     /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
-    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+    private protected override void Move(EnemyProjectileMotionContext context, RidleyFireballMotion motion)
     {
         EnemyProjectile projectile = context.Projectile;
-        EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
-        if (motion == EnemyProjectileFrameBehavior.RidleyFireballFlight)
+        switch (motion)
         {
-            FlyFireball(projectile, context.Level);
-        }
-        else if (motion == EnemyProjectileFrameBehavior.HorizontalAfterburnFlight)
-        {
-            // The horizontal afterburn first uses the raw 1/256-pixel horizontal adder, not the room-collision
-            // helper. Only the perpendicular vertical move may end this afterburn.
-            projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
-                BeginAfterburnFinalAnimation(projectile);
-        }
-        else if (motion == EnemyProjectileFrameBehavior.VerticalAfterburnFlight)
-        {
-            // The vertical afterburn is the transposed path: unrestricted vertical travel followed
-            // by a horizontal room-collision test.
-            projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
-                BeginAfterburnFinalAnimation(projectile);
-        }
-        else
-        {
-            base.Move(context);
+            case RidleyFireballMotion.FireballFlying:
+                FlyFireball(projectile, context.Level);
+                break;
+            case RidleyFireballMotion.HorizontalAfterburnFlying:
+                // The horizontal afterburn first uses the raw 1/256-pixel horizontal adder, not the room-collision
+                // helper. Only the perpendicular vertical move may end this afterburn.
+                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
+                if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
+                    BeginAfterburnFinalAnimation(projectile);
+                break;
+            case RidleyFireballMotion.VerticalAfterburnFlying:
+                // The vertical afterburn is the transposed path: unrestricted vertical travel followed
+                // by a horizontal room-collision test.
+                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+                if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
+                    BeginAfterburnFinalAnimation(projectile);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(RidleyFireballMotion)} {motion}.");
         }
     }
 
@@ -273,11 +285,11 @@ internal sealed class RidleyProjectiles : EnemyProjectileBehavior, IEnemyProject
         EnemyProjectile projectile = context.Projectile;
         switch (cue)
         {
-            case RidleyFireballCue.ClearFrameBehavior:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+            case RidleyFireballCue.StopMoving:
+                projectile.HoldStill();
                 return;
             case RidleyFireballCue.BeginFlight:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.RidleyFireballFlight;
+                projectile.StartMotion(RidleyFireballMotion.FireballFlying);
                 return;
             case RidleyFireballCue.SpawnHorizontalAfterburns:
                 SpawnAfterburnPair(projectile, axis: Axis.Horizontal);

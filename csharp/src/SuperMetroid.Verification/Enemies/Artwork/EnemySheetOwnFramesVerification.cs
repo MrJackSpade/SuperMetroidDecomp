@@ -157,10 +157,10 @@ internal static class EnemySheetOwnFramesVerification
         return new("Tripper and Kamer", PlatformAnimations.Segments.Frames.ToHashSet().Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.Kamer2] = Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
-                    PlatformAnimationDefinitions.Animations.Where(entry => entry.Key.Kamer).Select(entry => entry.Value)),
+                [EnemyDefinitionId.SuspensorPlatform] = Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
+                    PlatformAnimationDefinitions.Animations.Where(entry => entry.Key.SuspensorPlatform).Select(entry => entry.Value)),
                 [EnemyDefinitionId.Tripper] = With(Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
-                    PlatformAnimationDefinitions.Animations.Where(entry => !entry.Key.Kamer).Select(entry => entry.Value)), frozen),
+                    PlatformAnimationDefinitions.Animations.Where(entry => !entry.Key.SuspensorPlatform).Select(entry => entry.Value)), frozen),
             });
     }
 

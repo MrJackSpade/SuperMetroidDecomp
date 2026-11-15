@@ -64,60 +64,69 @@ internal sealed class TorizoAttacks
         EnemyDeathsAndDrops deathsAndDrops,
         TorizoEncounterAccess access,
         Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
+        : EnemyProjectileBehavior<TorizoProjectileMotion>(StartingMotions, shot), IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue>
     {
+        /// <summary>The sonic booms, eye beam, orbs, eggs and held super missile move from their spawn; the rest hold still until their animations start them.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, TorizoProjectileMotion?> StartingMotions = new()
+        {
+            [RoomEnemyProjectileKind.BombTorizoSonicBoom] = TorizoProjectileMotion.SonicBoomFlying,
+            [RoomEnemyProjectileKind.GoldenTorizoSonicBoom] = TorizoProjectileMotion.SonicBoomFlying,
+            [RoomEnemyProjectileKind.GoldenTorizoEyeBeam] = TorizoProjectileMotion.EyeBeamFlying,
+            [RoomEnemyProjectileKind.BombTorizoChozoOrb] = TorizoProjectileMotion.BombOrbFalling,
+            [RoomEnemyProjectileKind.GoldenTorizoChozoOrb] = TorizoProjectileMotion.GoldenOrbBouncing,
+            [RoomEnemyProjectileKind.GoldenTorizoEgg] = TorizoProjectileMotion.EggBouncing,
+            [RoomEnemyProjectileKind.GoldenTorizoSuperMissile] = TorizoProjectileMotion.SuperMissileHeld,
+            [RoomEnemyProjectileKind.BombTorizoLowHealthDrool] = null,
+            [RoomEnemyProjectileKind.BombTorizoInitialDrool] = null,
+            [RoomEnemyProjectileKind.BombTorizoExplosiveSwipe] = null,
+            [RoomEnemyProjectileKind.BombTorizoLowHealthExplosion] = null,
+            [RoomEnemyProjectileKind.BombTorizoDeathExplosion] = null,
+            [RoomEnemyProjectileKind.BombTorizoStatueBreaking] = null,
+            [RoomEnemyProjectileKind.BombTorizoRightFootDust] = null,
+            [RoomEnemyProjectileKind.BombTorizoLeftFootDust] = null,
+        };
+
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        private protected override void Move(EnemyProjectileMotionContext context, TorizoProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
-            EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.BombTorizoStatueFragmentFall)
+            switch (motion)
             {
-                RunBombTorizoStatueBreakingFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.BombTorizoOrbFall)
-            {
-                RunBombTorizoChozoOrbFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoOrbBounce)
-            {
-                RunGoldenTorizoChozoOrbFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.TorizoSonicBoomFlight)
-            {
-                RunBombTorizoSonicBoomFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.BombTorizoDroolFall)
-            {
-                RunBombTorizoDroolFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoEggBounce)
-            {
-                RunGoldenTorizoEggFrameBehavior(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoEggCharge)
-            {
-                RunGoldenTorizoEggHorizontalCharge(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoEggDrop)
-            {
-                RunGoldenTorizoEggFall(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileHeld)
-            {
-                RunGoldenTorizoSuperMissileFrameBehavior(projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoSuperMissileThrown)
-            {
-                RunGoldenTorizoSuperMissileFlight(projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.GoldenTorizoEyeBeamFlight)
-            {
-                RunGoldenTorizoEyeBeamFrameBehavior(projectile, context.Level);
-            }
-            else
-            {
-                base.Move(context);
+                case TorizoProjectileMotion.StatueFragmentFalling:
+                    RunBombTorizoStatueBreakingFrameBehavior(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.BombOrbFalling:
+                    RunBombTorizoChozoOrbFrameBehavior(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.GoldenOrbBouncing:
+                    RunGoldenTorizoChozoOrbFrameBehavior(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.SonicBoomFlying:
+                    RunBombTorizoSonicBoomFrameBehavior(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.DroolFalling:
+                    RunBombTorizoDroolFrameBehavior(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.EggBouncing:
+                    RunGoldenTorizoEggFrameBehavior(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.EggCharging:
+                    RunGoldenTorizoEggHorizontalCharge(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.EggDropping:
+                    RunGoldenTorizoEggFall(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.SuperMissileHeld:
+                    RunGoldenTorizoSuperMissileFrameBehavior(projectile);
+                    break;
+                case TorizoProjectileMotion.SuperMissileThrown:
+                    RunGoldenTorizoSuperMissileFlight(projectile, context.Level);
+                    break;
+                case TorizoProjectileMotion.EyeBeamFlying:
+                    RunGoldenTorizoEyeBeamFrameBehavior(projectile, context.Level);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileMotion)} {motion}.");
             }
         }
 
@@ -135,11 +144,20 @@ internal sealed class TorizoAttacks
         {
             switch (cue)
             {
-                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ClearFrameBehavior }:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopMoving }:
+                    projectile.HoldStill();
                     return null;
-                case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
-                    projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StartDroolFall }:
+                    projectile.StartMotion(TorizoProjectileMotion.DroolFalling);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StartFragmentFall }:
+                    projectile.StartMotion(TorizoProjectileMotion.StatueFragmentFalling);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StartEggCharge }:
+                    projectile.StartMotion(TorizoProjectileMotion.EggCharging);
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ThrowSuperMissile }:
+                    projectile.StartMotion(TorizoProjectileMotion.SuperMissileThrown);
                     return null;
                 case TorizoProjectileCue.SetProperties setProperties:
                     EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
@@ -264,8 +282,7 @@ internal sealed class TorizoAttacks
                 return;
             }
 
-            projectile.FrameBehavior =
-                EnemyProjectileFrameBehavior.Stationary;
+            projectile.HoldStill();
         }
     }
 
@@ -749,8 +766,7 @@ internal sealed class TorizoAttacks
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.FrameBehavior =
-                EnemyProjectileFrameBehavior.GoldenTorizoEggDrop;
+            projectile.StartMotion(TorizoProjectileMotion.EggDropping);
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
             return;
         }

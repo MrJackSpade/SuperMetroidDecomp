@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and Kamer's vertically moving and still platform loops (#641). Each
+/// The Tripper's and the suspensor platform's vertically moving and still platform loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="PlatformCue"/> naming what it does.
 /// </summary>
 internal static class PlatformAnimations
@@ -15,18 +15,18 @@ internal static class PlatformAnimations
     internal static AnimationSegments<PlatformSegment, EnemyFrameId, PlatformCue> Segments { get; } = new(
         new Dictionary<PlatformSegment, AnimationBeat<EnemyFrameId, PlatformCue>[]>
     {
-        [P.KamerHeadingLeft] =
+        [P.SuspensorPlatformHeadingLeft] =
         [
             Cue(new(K.MoveLeft)),
         ],
-        [P.KamerLoop] =
+        [P.SuspensorPlatformLoop] =
         [
-            Show(EnemyFrameId.KamerLoopFirst, 10),
-            Show(EnemyFrameId.KamerLoopSecond, 10),
-            Show(EnemyFrameId.KamerLoopThird, 10),
-            Show(EnemyFrameId.KamerLoopFourth, 10),
+            Show(EnemyFrameId.SuspensorPlatformFirst, 10),
+            Show(EnemyFrameId.SuspensorPlatformSecond, 10),
+            Show(EnemyFrameId.SuspensorPlatformThird, 10),
+            Show(EnemyFrameId.SuspensorPlatformFourth, 10),
         ],
-        [P.KamerHeadingRight] =
+        [P.SuspensorPlatformHeadingRight] =
         [
             Cue(new(K.MoveRight)),
         ],
@@ -79,9 +79,9 @@ internal static class PlatformAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
-        [P.KamerHeadingLeft] = new([new(P.KamerHeadingLeft, 0, 1, 1), new(P.KamerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.KamerLoop] = new([new(P.KamerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.KamerHeadingRight] = new([new(P.KamerHeadingRight, 0, 1, 1), new(P.KamerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformHeadingLeft] = new([new(P.SuspensorPlatformHeadingLeft, 0, 1, 1), new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SuspensorPlatformLoop] = new([new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SuspensorPlatformHeadingRight] = new([new(P.SuspensorPlatformHeadingRight, 0, 1, 1), new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.TripperMovingLeft] = new([new(P.TripperMovingLeft, 0, 1, 1), new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.TripperMovingLeftLoop] = new([new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TripperMovingRight] = new([new(P.TripperMovingRight, 0, 1, 1), new(P.TripperMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),

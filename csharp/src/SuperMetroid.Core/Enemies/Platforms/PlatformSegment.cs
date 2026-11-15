@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and Kamer's vertically moving and still platform loops (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Tripper's and the suspensor platform's vertically moving and still platform loops (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="PlatformAnimations"/>.
 /// </summary>
 internal enum PlatformSegment
 {
-    /// <summary>The Kamer heading left, moving or still: it moves left and plays its loop (#1842).</summary>
-    KamerHeadingLeft,
-    /// <summary>The Kamer's loop, the same whichever way it heads and whether it moves or stays still (#1842).</summary>
-    KamerLoop,
-    /// <summary>The Kamer heading right, moving or still: it moves right and plays its loop (#1842).</summary>
-    KamerHeadingRight,
+    /// <summary>The suspensor platform heading left, moving or still: it moves left and plays its loop (#1842).</summary>
+    SuspensorPlatformHeadingLeft,
+    /// <summary>The suspensor platform's loop, the same whichever way it heads and whether it moves or stays still (#1842).</summary>
+    SuspensorPlatformLoop,
+    /// <summary>The suspensor platform heading right, moving or still: it moves right and plays its loop (#1842).</summary>
+    SuspensorPlatformHeadingRight,
     /// <summary>The Tripper moving left animation.</summary>
     TripperMovingLeft,
     /// <summary>The loop.</summary>

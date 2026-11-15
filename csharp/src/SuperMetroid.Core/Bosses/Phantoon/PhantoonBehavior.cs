@@ -382,13 +382,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
     }
 
-    /// <summary>Initial flame behaviour that holds position before orbit activation.</summary>
-    internal const EnemyProjectileFrameBehavior PhantoonStartingFlameWaitingFrameBehavior =
-        EnemyProjectileFrameBehavior.PhantoonIntroFlameWaiting;
-    /// <summary>Activated flame behaviour that advances its orbit around the body.</summary>
-    internal const EnemyProjectileFrameBehavior PhantoonStartingFlameOrbitFrameBehavior =
-        EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit;
-
     /// <summary>Runs PhantoonBody's main AI.</summary>
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {

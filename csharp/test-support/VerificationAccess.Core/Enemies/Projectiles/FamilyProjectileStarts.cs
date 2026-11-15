@@ -190,7 +190,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.DownwardGateMoving => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Closed),
         RoomEnemyProjectileKind.NoobTubeCrack => new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Crack),
-        RoomEnemyProjectileKind.NoobTubeShard => new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Shard0),
+        RoomEnemyProjectileKind.NoobTubeShard => new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.ShardDownOutward),
         RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.ReleasedAirBubble),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
             new MiscDustProjectileAnimation(MiscDustProjectileSegment.RainbowBeamExplosion),

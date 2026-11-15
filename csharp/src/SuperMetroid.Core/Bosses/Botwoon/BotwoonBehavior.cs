@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// segments and spit (#1801): it is their projectile behaviour, since a segment is a piece of Botwoon run from his state.
 /// </summary>
 [RoomLifetime]
-internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, IEnemyEntityFactory
+internal sealed class BotwoonBehavior : EnemyProjectileBehavior<BotwoonProjectileMotion>, IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
@@ -43,6 +43,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
 
     /// <summary>Binds Botwoon's head, body, colours, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
+        : base(StartingMotions)
     {
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
@@ -801,25 +802,32 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
     internal EnemyProjectileBehavior BodyAndSpit => this;
 
+    /// <summary>A body segment and a spit move from their spawn.</summary>
+    private static readonly Dictionary<RoomEnemyProjectileKind, BotwoonProjectileMotion?> StartingMotions = new()
+    {
+        [RoomEnemyProjectileKind.BotwoonBody] = BotwoonProjectileMotion.BodySegment,
+        [RoomEnemyProjectileKind.BotwoonSpit] = BotwoonProjectileMotion.SpitFlying,
+    };
+
     /// <summary>
     /// Moves a body segment, oriented and coloured with his hurt and run through its death, or a spit flying until it
     /// leaves the camera.
     /// </summary>
+    /// <param name="context">The projectile and what its pass hands every motion.</param>
+    /// <param name="motion">The motion the projectile holds.</param>
     /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
-    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+    private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
     {
-        EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-        if (motion == EnemyProjectileFrameBehavior.BotwoonBodySegment)
+        switch (motion)
         {
-            RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
-        }
-        else if (motion == EnemyProjectileFrameBehavior.BotwoonSpitFlight)
-        {
-            RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
-        }
-        else
-        {
-            base.Move(context);
+            case BotwoonProjectileMotion.BodySegment:
+                RunBotwoonBodyFrameBehavior(context.Projectile, context.ShortCounter);
+                break;
+            case BotwoonProjectileMotion.SpitFlying:
+                RunBotwoonSpitFrameBehavior(context.Projectile, context.Camera);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(BotwoonProjectileMotion)} {motion}.");
         }
     }
 

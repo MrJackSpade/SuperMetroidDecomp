@@ -11,7 +11,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Bull),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETankWhenAreaBossDead), [
-            new(EnemyDefinitionId.Kamer2),
+            new(EnemyDefinitionId.SuspensorPlatform),
             new(EnemyDefinitionId.Skultera),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMainShaftDefault), [

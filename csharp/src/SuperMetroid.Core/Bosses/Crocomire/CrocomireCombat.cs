@@ -69,31 +69,35 @@ internal sealed class CrocomireCombat
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,
         Func<EnemyProjectileAnimation>? shot = null)
-        : EnemyProjectileBehavior(shot: shot), IEnemyProjectileCues<CrocomireProjectileCue>
+        : EnemyProjectileBehavior<CrocomireProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<CrocomireProjectileCue>
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        /// <summary>The mouth shot aims, and the bridge fragments and spike-wall pieces fall, from their spawn.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, CrocomireProjectileMotion?> StartingMotions = new()
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.CrocomireShotAiming)
+            [RoomEnemyProjectileKind.CrocomireProjectile] = CrocomireProjectileMotion.ShotAiming,
+            [RoomEnemyProjectileKind.CrocomireBridgeCrumbling] = CrocomireProjectileMotion.BridgeFragmentFalling,
+            [RoomEnemyProjectileKind.CrocomireSpikeWallPieces] = CrocomireProjectileMotion.SpikeWallCollapsing,
+        };
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        {
+            switch (motion)
             {
-                StartCrocomireProjectileFlight(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.CrocomireShotFlight)
-            {
-                RunCrocomireProjectileFlight(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.CrocomireSpikeWallCollapse)
-            {
-                RunCrocomireSpikeWallPiece(context.Projectile);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.CrocomireBridgeFragmentFall)
-            {
-                RunCrocomireBridgeFragment(context.Projectile, context.Level);
-            }
-            else
-            {
-                base.Move(context);
+                case CrocomireProjectileMotion.ShotAiming:
+                    StartCrocomireProjectileFlight(context.Projectile, context.Level);
+                    break;
+                case CrocomireProjectileMotion.ShotFlying:
+                    RunCrocomireProjectileFlight(context.Projectile, context.Level);
+                    break;
+                case CrocomireProjectileMotion.SpikeWallCollapsing:
+                    RunCrocomireSpikeWallPiece(context.Projectile);
+                    break;
+                case CrocomireProjectileMotion.BridgeFragmentFalling:
+                    RunCrocomireBridgeFragment(context.Projectile, context.Level);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileMotion)} {motion}.");
             }
         }
 
@@ -129,8 +133,7 @@ internal sealed class CrocomireCombat
                 ? access.TenthShotGradient.Gradient
                 : CrocomireVolley.AuthoredGradient(shot);
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
-            projectile.FrameBehavior =
-                EnemyProjectileFrameBehavior.CrocomireShotFlight;
+            projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }
 
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>

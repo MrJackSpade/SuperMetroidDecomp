@@ -19,7 +19,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
         {
             [OldTourianWallExplosionSegment.Start] =
             [
-                new Beat.Event(OldTourianWallExplosionCue.ClearFrameBehavior),
+                new Beat.Event(OldTourianWallExplosionCue.StopMoving),
             ],
             [OldTourianWallExplosionSegment.Burst] =
             [

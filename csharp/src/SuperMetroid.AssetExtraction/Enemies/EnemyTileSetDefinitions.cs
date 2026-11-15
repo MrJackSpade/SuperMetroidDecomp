@@ -48,7 +48,7 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.Sciser] = 1024,
         [EnemyDefinitionId.Zero] = 1024,
         [EnemyDefinitionId.Tripper] = 1024,
-        [EnemyDefinitionId.Kamer2] = 1024,
+        [EnemyDefinitionId.SuspensorPlatform] = 1024,
         [EnemyDefinitionId.Sbug] = 512,
         [EnemyDefinitionId.Mochtroid] = 1024,
         [EnemyDefinitionId.Sidehopper] = 1024,

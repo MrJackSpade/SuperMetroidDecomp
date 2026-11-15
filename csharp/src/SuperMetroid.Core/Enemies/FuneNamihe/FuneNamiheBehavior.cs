@@ -175,7 +175,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally in 1/256-pixel steps until it leaves the camera.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.FuneNamiheFireballFlight,
         context => RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera));
 
     /// <summary>Runs FuneNamihe's main AI.</summary>
@@ -191,10 +190,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue) => ApplyFuneNamiheCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
-
-    /// <summary>Shared projectile movement behaviour installed for both Fune and Namihe fireballs.</summary>
-    private const EnemyProjectileFrameBehavior NamiFuneFireballFrameBehavior =
-        EnemyProjectileFrameBehavior.FuneNamiheFireballFlight;
 
     /// <summary>
     /// Runs the shared projectile initializer. The fireball flies at the source placement's launch speed in its
@@ -215,7 +210,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             Fireball,
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left));
-        projectile.FrameBehavior = NamiFuneFireballFrameBehavior;
 
         projectile.Position = source.Position;
 

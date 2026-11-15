@@ -393,7 +393,7 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
                 or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
                 or EnemyDefinitionId.Fireflea or EnemyDefinitionId.Skultera or EnemyDefinitionId.Elevator or EnemyDefinitionId.Sciser
-                or EnemyDefinitionId.Zero or EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or EnemyDefinitionId.Sbug
+                or EnemyDefinitionId.Zero or EnemyDefinitionId.Tripper or EnemyDefinitionId.SuspensorPlatform or EnemyDefinitionId.Sbug
                 or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
                 or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
                 or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Skree

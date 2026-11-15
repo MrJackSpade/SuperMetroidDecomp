@@ -10,8 +10,8 @@ internal static class SpacePirateProjectileCueRules
     /// <summary>Each command the lists use and the cue it becomes; both carry the movement routine as a word operand.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, SpacePirateProjectileCueKind> Commands = new()
     {
-        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = SpacePirateProjectileCueKind.StartMoving,
-        [NativeEnemyProjectileInstruction.FrameBehaviorInY_ExecuteY] = SpacePirateProjectileCueKind.StartMovingNow,
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY] = SpacePirateProjectileCueKind.ThrowClaw,
+        [NativeEnemyProjectileInstruction.FrameBehaviorInY_ExecuteY] = SpacePirateProjectileCueKind.FireLaser,
     };
 
     /// <summary>The oracle rules for the laser and claw programs.</summary>
@@ -20,6 +20,10 @@ internal static class SpacePirateProjectileCueRules
         (word, operands, cue, at) =>
         {
             VerificationAssertions.AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue");
-            VerificationAssertions.AssertEqual(cue.Movement, EnemyProjectileFrameBehaviorAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
+            bool right = cue.Direction == HorizontalDirection.Right;
+            Enum started = cue.Kind == SpacePirateProjectileCueKind.FireLaser
+                ? right ? PirateLaserMotion.FlyingRight : PirateLaserMotion.FlyingLeft
+                : right ? PirateClawMotion.ThrownRight : PirateClawMotion.ThrownLeft;
+            VerificationAssertions.AssertEqual<Enum?>(started, EnemyProjectileMotionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
         });
 }

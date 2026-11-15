@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
-/// <summary>One cue of the eye door's projectile animations: what it does, with the values it acts on.</summary>
+/// <summary>One cue of the eye door's shot and sweat animations: what it does.</summary>
 /// <param name="Kind">What the cue does.</param>
-/// <param name="FrameBehavior">The movement behaviour the cue installs.</param>
-internal readonly record struct EyeDoorProjectileCue(EyeDoorProjectileCueKind Kind, EnemyProjectileFrameBehavior FrameBehavior = default);
+internal readonly record struct EyeDoorProjectileCue(EyeDoorProjectileCueKind Kind);

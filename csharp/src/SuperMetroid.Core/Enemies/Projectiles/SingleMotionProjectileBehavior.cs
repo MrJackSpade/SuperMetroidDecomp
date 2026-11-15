@@ -1,37 +1,29 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// A kind of enemy projectile that moves itself under one frame behaviour of its own (#1760), besides holding still. A
-/// family whose animations publish cues of its own derives from it to handle them.
+/// A kind of enemy projectile that moves itself one way (#1760, #1843): it starts moving, or holds still until its
+/// spawner or a cue starts it, and moves by its one motion until a shot, a cue or its deletion stops it. A family whose
+/// animations publish cues of its own derives from it to handle them.
 /// </summary>
-internal class SingleMotionProjectileBehavior : EnemyProjectileBehavior
+internal class SingleMotionProjectileBehavior : EnemyProjectileBehavior<SingleMotion>
 {
-    /// <summary>The kind's one frame behaviour.</summary>
-    private readonly EnemyProjectileFrameBehavior _motion;
+    /// <summary>Moves the projectile one pass by the kind's one motion.</summary>
+    private readonly Action<EnemyProjectileMotionContext> _move;
 
-    /// <summary>Moves the projectile one pass under <see cref="_motion"/>.</summary>
-    private readonly Action<EnemyProjectileFrameBehaviorContext> _move;
-
-    /// <summary>A kind that moves under <paramref name="motion"/> by <paramref name="move"/>.</summary>
-    /// <param name="motion">The kind's one frame behaviour.</param>
-    /// <param name="move">Moves the projectile one pass under that frame behaviour.</param>
+    /// <summary>A kind that moves by <paramref name="move"/>.</summary>
+    /// <param name="move">Moves the projectile one pass by the kind's one motion.</param>
+    /// <param name="initial">The kind's one motion when the projectile moves from its spawn, or null when it holds still until started.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
     internal SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior motion,
-        Action<EnemyProjectileFrameBehaviorContext> move,
+        Action<EnemyProjectileMotionContext> move,
+        SingleMotion? initial = SingleMotion.Moving,
         Func<EnemyProjectileAnimation>? shot = null)
-        : base(shot)
-    {
-        _motion = motion;
-        _move = Ensure.NotNull(move);
-    }
+        : base(initial, shot) => _move = Ensure.NotNull(move);
+
+    /// <summary>Starts <paramref name="projectile"/> moving by its kind's one motion.</summary>
+    /// <param name="projectile">A projectile this behaviour is bound to.</param>
+    internal static void StartMoving(EnemyProjectile projectile) => Ensure.NotNull(projectile).StartMotion(SingleMotion.Moving);
 
     /// <inheritdoc/>
-    private protected sealed override void Move(EnemyProjectileFrameBehaviorContext context)
-    {
-        if (context.Projectile.FrameBehavior == _motion)
-            _move(context);
-        else
-            base.Move(context);
-    }
+    private protected sealed override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => _move(context);
 }

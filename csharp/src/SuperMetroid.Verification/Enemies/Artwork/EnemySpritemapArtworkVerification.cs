@@ -591,7 +591,7 @@ internal static class EnemySpritemapArtworkVerification
                     : definition == EnemyDefinitionId.Rinka
                         ? RinkaVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.Tripper or
-                        EnemyDefinitionId.Kamer2
+                        EnemyDefinitionId.SuspensorPlatform
                         ? TripperKamerVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.ShutterGrowing or
                         EnemyDefinitionId.ShutterShootable or

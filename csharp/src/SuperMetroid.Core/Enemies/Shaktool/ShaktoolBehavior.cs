@@ -483,23 +483,38 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// enemy-projectile place, the front circle's, stays live.
     /// </summary>
     /// <param name="projectiles">The enemy projectiles, whose first place the trailing circles follow.</param>
-    private sealed class AttackCircleBehavior(EnemyProjectileEngine projectiles) : EnemyProjectileBehavior
+    private sealed class AttackCircleBehavior(EnemyProjectileEngine projectiles)
+        : EnemyProjectileBehavior<ShaktoolCircleMotion>(StartingMotions), IEnemyProjectileCues<ShaktoolCircleCue>
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        /// <summary>The front circle leads from its spawn; the trailing ones hold still until their animations start them.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, ShaktoolCircleMotion?> StartingMotions = new()
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.ShaktoolFrontCircleFlight)
+            [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = ShaktoolCircleMotion.Leading,
+            [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = null,
+            [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = null,
+        };
+
+        /// <summary>Carries out a trailing circle's animation cue: it starts following the front circle.</summary>
+        public void RunCue(EnemyProjectileCueContext context, ShaktoolCircleCue cue)
+        {
+            if (cue != ShaktoolCircleCue.StartTrailing)
+                throw new InvalidOperationException($"Undefined {nameof(ShaktoolCircleCue)} {cue}.");
+            context.Projectile.StartMotion(ShaktoolCircleMotion.Trailing);
+        }
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, ShaktoolCircleMotion motion)
+        {
+            switch (motion)
             {
-                RunShaktoolFrontCircleFrameBehavior(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)
-            {
-                RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
-            }
-            else
-            {
-                base.Move(context);
+                case ShaktoolCircleMotion.Leading:
+                    RunShaktoolFrontCircleFrameBehavior(context.Projectile, context.Level);
+                    break;
+                case ShaktoolCircleMotion.Trailing:
+                    RunShaktoolLinkedCircleFrameBehavior(context.Projectile, context.Level);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(ShaktoolCircleMotion)} {motion}.");
             }
         }
 

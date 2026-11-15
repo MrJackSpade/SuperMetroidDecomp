@@ -1,77 +1,76 @@
-using SuperMetroid.Core.Enemies.NoobTube;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The n00b tube's crack, glass shard and released-air bubble animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
-/// Generated from the verified animations; see <see cref="NoobTubeProjectileAnimations"/>.
+/// Each shard has the animation its spawn enters, its flight out of the tube and its swaying fall, each flickering it at
+/// its column and mirrored across the tube, or hiding it.
 /// </summary>
 internal enum NoobTubeProjectileSegment
 {
-    /// <summary>Enemy projectile animation: noob tube crack, part 0.</summary>
+    /// <summary>The crack spreading across the glass, shattering and its pieces falling.</summary>
     Crack,
-    /// <summary>The animation's repeating part.</summary>
-    CrackLoop,
-    /// <summary>Enemy projectile animation: n00b tube shard 0, part 0.</summary>
-    Shard0,
-    /// <summary>The animation's repeating part.</summary>
-    Shard0Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard0Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 1, part 0.</summary>
-    Shard1,
-    /// <summary>The animation's repeating part.</summary>
-    Shard1Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard1Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 2, part 0.</summary>
-    Shard2,
-    /// <summary>The animation's repeating part.</summary>
-    Shard2Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard2Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 3, part 0.</summary>
-    Shard3,
-    /// <summary>The animation's repeating part.</summary>
-    Shard3Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard3Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 4, part 0.</summary>
-    Shard4,
-    /// <summary>The animation's repeating part.</summary>
-    Shard4Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard4Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 5, part 0.</summary>
-    Shard5,
-    /// <summary>The animation's repeating part.</summary>
-    Shard5Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard5Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 6, part 0.</summary>
-    Shard6,
-    /// <summary>The animation's repeating part.</summary>
-    Shard6Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard6Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 7, part 0.</summary>
-    Shard7,
-    /// <summary>The animation's repeating part.</summary>
-    Shard7Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard7Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 8, part 0.</summary>
-    Shard8,
-    /// <summary>The animation's repeating part.</summary>
-    Shard8Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard8Loop2,
-    /// <summary>Enemy projectile animation: n00b tube shard 9, part 0.</summary>
-    Shard9,
-    /// <summary>The animation's repeating part.</summary>
-    Shard9Loop,
-    /// <summary>The animation's repeating part.</summary>
-    Shard9Loop2,
-    /// <summary>Enemy projectile animation: noob tube released air bubbles.</summary>
+    /// <summary>The fallen crack's last pieces, after which it is deleted.</summary>
+    CrackFallen,
+    /// <summary>The shard that flies outward and down: the animation its spawn enters, which flies it.</summary>
+    ShardDownOutward,
+    /// <summary>The shard that flies outward and down, flying out of the tube.</summary>
+    ShardDownOutwardFlying,
+    /// <summary>The shard that flies outward and down, swaying as it falls.</summary>
+    ShardDownOutwardFalling,
+    /// <summary>The shard that flies outward and up: the animation its spawn enters, which flies it.</summary>
+    ShardUpOutward,
+    /// <summary>The shard that flies outward and up, flying out of the tube.</summary>
+    ShardUpOutwardFlying,
+    /// <summary>The shard that flies outward and up, swaying as it falls.</summary>
+    ShardUpOutwardFalling,
+    /// <summary>The shard that flies steeply up: the animation its spawn enters, which flies it.</summary>
+    ShardUpSteep,
+    /// <summary>The shard that flies steeply up, flying out of the tube.</summary>
+    ShardUpSteepFlying,
+    /// <summary>The shard that flies steeply up, swaying as it falls.</summary>
+    ShardUpSteepFalling,
+    /// <summary>The shard that flies diagonally up from nearer the crack: the animation its spawn enters, which flies it.</summary>
+    ShardUpDiagonalInner,
+    /// <summary>The shard that flies diagonally up from nearer the crack, flying out of the tube.</summary>
+    ShardUpDiagonalInnerFlying,
+    /// <summary>The shard that flies diagonally up from nearer the crack, swaying as it falls.</summary>
+    ShardUpDiagonalInnerFalling,
+    /// <summary>The shard that flies diagonally up from farther along the tube: the animation its spawn enters, which flies it.</summary>
+    ShardUpDiagonalOuter,
+    /// <summary>The shard that flies diagonally up from farther along the tube, flying out of the tube.</summary>
+    ShardUpDiagonalOuterFlying,
+    /// <summary>The shard that flies diagonally up from farther along the tube, swaying as it falls.</summary>
+    ShardUpDiagonalOuterFalling,
+    /// <summary>The shard that flies diagonally down: the animation its spawn enters, which flies it.</summary>
+    ShardDownDiagonal,
+    /// <summary>The shard that flies diagonally down, flying out of the tube.</summary>
+    ShardDownDiagonalFlying,
+    /// <summary>The shard that flies diagonally down, swaying as it falls.</summary>
+    ShardDownDiagonalFalling,
+    /// <summary>The shard that drops nearly straight down from farther along the tube: the animation its spawn enters, which flies it.</summary>
+    ShardDownOuter,
+    /// <summary>The shard that drops nearly straight down from farther along the tube, flying out of the tube.</summary>
+    ShardDownOuterFlying,
+    /// <summary>The shard that drops nearly straight down from farther along the tube, swaying as it falls.</summary>
+    ShardDownOuterFalling,
+    /// <summary>The shard that flies outward, almost level: the animation its spawn enters, which flies it.</summary>
+    ShardOutward,
+    /// <summary>The shard that flies outward, almost level, flying out of the tube.</summary>
+    ShardOutwardFlying,
+    /// <summary>The shard that flies outward, almost level, swaying as it falls.</summary>
+    ShardOutwardFalling,
+    /// <summary>The shard that flies straight up from the crack and has no mirror image: the animation its spawn enters, which flies it.</summary>
+    ShardUp,
+    /// <summary>The shard that flies straight up from the crack and has no mirror image, flying out of the tube.</summary>
+    ShardUpFlying,
+    /// <summary>The shard that flies straight up from the crack and has no mirror image, swaying as it falls.</summary>
+    ShardUpFalling,
+    /// <summary>The shard that drops nearly straight down from nearer the crack: the animation its spawn enters, which flies it.</summary>
+    ShardDownInner,
+    /// <summary>The shard that drops nearly straight down from nearer the crack, flying out of the tube.</summary>
+    ShardDownInnerFlying,
+    /// <summary>The shard that drops nearly straight down from nearer the crack, swaying as it falls.</summary>
+    ShardDownInnerFalling,
+    /// <summary>A released-air bubble rising out of the tube, then swaying as it falls.</summary>
     ReleasedAirBubble,
 }

@@ -14,7 +14,7 @@ internal static class SkreeMetareeParticles
 
     /// <summary>A Skree's or Metaree's burst particle (#1760): it flies under gravity until it leaves the camera.</summary>
     internal static EnemyProjectileBehavior Behavior { get; } = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.SkreeParticleFlight, context => Fly(context.Projectile, context.Camera));
+        context => Fly(context.Projectile, context.Camera));
 
     /// <summary>
     /// Spawns the four particles of <paramref name="burst"/> into <paramref name="projectiles"/>, six pixels either side of

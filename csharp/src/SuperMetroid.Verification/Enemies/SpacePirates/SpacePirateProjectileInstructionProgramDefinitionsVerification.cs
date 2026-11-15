@@ -47,17 +47,17 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             SpacePirateProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
 
         foreach ((bool movingRight, ushort program, ushort loop,
-                  EnemyProjectileFrameBehavior movement, ushort expectedX) in new[]
+                  Enum movement, ushort expectedX) in new[]
                  {
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop,
-                         EnemyProjectileFrameBehavior.LaserFlightLeft,
+                         PirateLaserMotion.FlyingLeft,
                          124),
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(true,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop,
-                         EnemyProjectileFrameBehavior.LaserFlightRight,
+                         PirateLaserMotion.FlyingRight,
                          132),
                  })
         {
@@ -68,13 +68,13 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual(EnemyProjectileFrameBehavior.Stationary, laser.FrameBehavior,
+            AssertEqual<Enum?>(null, laser.Motion,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.Position.X.Whole,
                 "three laser muzzle frames remain stationary");
             RunForcedTick(enemies, laser);
-            AssertEqual(movement, laser.FrameBehavior,
+            AssertEqual<Enum?>(movement, laser.Motion,
                 "laser program installs its facing movement callback");
             AssertEqual(expectedX, laser.Position.X.Whole,
                 "laser callback executes immediately on installation");
@@ -83,16 +83,16 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 "laser completes its authored frames and loops");
         }
 
-        foreach ((ushort direction, ushort program, ushort loop, EnemyProjectileFrameBehavior movement) in new[]
+        foreach ((ushort direction, ushort program, ushort loop, Enum movement) in new[]
                  {
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(0,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop,
-                         EnemyProjectileFrameBehavior.PirateClawThrownLeft),
+                         PirateClawMotion.ThrownLeft),
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(1,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop,
-                         EnemyProjectileFrameBehavior.PirateClawThrownRight),
+                         PirateClawMotion.ThrownRight),
                  })
         {
             RoomEnemySystem enemies = NewSystem();
@@ -104,7 +104,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             AssertEqual(program, NativePointer(claw),
                 "real Ninja Pirate claw producer selects its facing program");
             RunForcedTick(enemies, claw);
-            AssertEqual(movement, claw.FrameBehavior,
+            AssertEqual<Enum?>(movement, claw.Motion,
                 "claw program installs its facing movement callback");
             RunForcedTicks(enemies, claw, 8);
             AssertEqual(unchecked((ushort)(loop + 4)), NativePointer(claw),

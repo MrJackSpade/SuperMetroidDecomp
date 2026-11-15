@@ -379,23 +379,29 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly EnemyProjectileBehavior SpitAndSpikes = new SpitAndSpikeBehavior();
 
     /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
-    private sealed class SpitAndSpikeBehavior : EnemyProjectileBehavior
+    private sealed class SpitAndSpikeBehavior() : EnemyProjectileBehavior<FakeKraidProjectileMotion>(StartingMotions)
     {
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        /// <summary>The spit and the spikes fly from their spawn.</summary>
+        private static readonly Dictionary<RoomEnemyProjectileKind, FakeKraidProjectileMotion?> StartingMotions = new()
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.FakeKraidSpitFlight)
+            [RoomEnemyProjectileKind.FakeKraidSpit] = FakeKraidProjectileMotion.SpitFlying,
+            [RoomEnemyProjectileKind.FakeKraidSpikeLeft] = FakeKraidProjectileMotion.SpikeFlying,
+            [RoomEnemyProjectileKind.FakeKraidSpikeRight] = FakeKraidProjectileMotion.SpikeFlying,
+        };
+
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileMotionContext context, FakeKraidProjectileMotion motion)
+        {
+            switch (motion)
             {
-                RunFakeKraidSpitFrameBehavior(context.Projectile, context.Level);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.FakeKraidSpikeFlight)
-            {
-                RunFakeKraidSpikeFrameBehavior(context.Projectile, context.Level);
-            }
-            else
-            {
-                base.Move(context);
+                case FakeKraidProjectileMotion.SpitFlying:
+                    RunFakeKraidSpitFrameBehavior(context.Projectile, context.Level);
+                    break;
+                case FakeKraidProjectileMotion.SpikeFlying:
+                    RunFakeKraidSpikeFrameBehavior(context.Projectile, context.Level);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(FakeKraidProjectileMotion)} {motion}.");
             }
         }
     }

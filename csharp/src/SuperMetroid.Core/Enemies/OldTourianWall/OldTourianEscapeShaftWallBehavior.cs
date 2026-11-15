@@ -65,8 +65,8 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
-                case OldTourianWallExplosionCue.ClearFrameBehavior:
-                    projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+                case OldTourianWallExplosionCue.StopMoving:
+                    projectile.HoldStill();
                     break;
                 case OldTourianWallExplosionCue.Scatter:
                     projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter);

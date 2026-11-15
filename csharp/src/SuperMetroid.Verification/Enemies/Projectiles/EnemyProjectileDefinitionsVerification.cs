@@ -41,6 +41,7 @@ internal static class EnemyProjectileDefinitionsVerification
         AssertEqual(122, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
+        Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
@@ -57,7 +58,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Delete();
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
-            AssertEqual(definition.FrameBehavior, projectile.FrameBehavior,
+            AssertEqual(startingMotions[kind], projectile.Motion,
                 $"{kind} production pre-instruction");
             // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
             bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
@@ -498,6 +499,16 @@ internal static class EnemyProjectileDefinitionsVerification
     }
 
     /// <summary>
+    /// The motion a production spawn of <paramref name="kind"/> starts with (#1843): the one its native record's
+    /// pre-instruction stands for, except the Pirates' and Mother Brain's laser and a wall turret's shot, whose spawners
+    /// hold them still past their record's flight until their animations start it.
+    /// </summary>
+    private static Enum? ProductionStartingMotion(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind) =>
+        kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
+            ? null
+            : EnemyProjectileMotionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | EnemyProjectileNativeWords.Kinds.Word(kind)) + 2));
+
+    /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
     /// and returns the record bytes, which the runtime must then never reread.
     /// </summary>
@@ -513,8 +524,6 @@ internal static class EnemyProjectileDefinitionsVerification
                 forbidden.Add(address + index);
 
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            AssertEqual(definition.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2)),
-                $"{kind} pre-instruction");
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.
             ushort radiusWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6);

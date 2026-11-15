@@ -10,10 +10,6 @@ internal abstract record DownwardGateProjectileCue
     {
     }
 
-    /// <summary>Installs a movement behaviour.</summary>
-    /// <param name="FrameBehavior">The movement behaviour the cue installs.</param>
-    internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : DownwardGateProjectileCue;
-
     /// <summary>Sets the gate's signed 1/256-pixel Y velocity.</summary>
     /// <param name="YVelocity">The vertical velocity a <see cref="SetYVelocity"/> cue installs.</param>
     internal sealed record SetYVelocity(SignedEightEight YVelocity) : DownwardGateProjectileCue;

@@ -71,7 +71,7 @@ internal static class TourianStatueProjectileAnimations
         [P.BaseDecoration] =
         [
             Show(EnemyProjectileFrameId.TourianStatueBaseDecoration, 128),
-            Cue(new TourianStatueProjectileCue.StartMoving(Movement: EnemyProjectileFrameBehavior.TourianStatueRevealFollow)),
+            Cue(new TourianStatueProjectileCue.Signal(K.FollowReveal)),
         ],
         [P.BaseDecorationLoop] =
         [

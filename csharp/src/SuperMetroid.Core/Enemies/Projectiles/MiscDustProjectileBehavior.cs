@@ -4,23 +4,15 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// The miscellaneous dust clouds and explosions (#1760): each holds where it was raised while its animation plays and
 /// leaves once outside the camera. Their spawners start the animation they choose.
 /// </summary>
-internal sealed class MiscDustProjectileBehavior : EnemyProjectileBehavior
+internal sealed class MiscDustProjectileBehavior : SingleMotionProjectileBehavior
 {
     /// <summary>The one dust behaviour; it keeps no state.</summary>
     internal static MiscDustProjectileBehavior Instance { get; } = new();
 
     /// <summary>Use <see cref="Instance"/>.</summary>
     private MiscDustProjectileBehavior()
+        : base(context => CullMiscDustOutsideCamera(context.Projectile, context.Camera))
     {
-    }
-
-    /// <inheritdoc/>
-    private protected override void Move(EnemyProjectileFrameBehaviorContext context)
-    {
-        if (context.Projectile.FrameBehavior == EnemyProjectileFrameBehavior.DustCameraCull)
-            CullMiscDustOutsideCamera(context.Projectile, context.Camera);
-        else
-            base.Move(context);
     }
 
     /// <summary>Runs the strict 256x256 camera cull for dust/explosion actors.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>
 /// The eye door projectile's flight, impact and shot animations (#641). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EyeDoorProjectileCue"/> with the values it acts on.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EyeDoorProjectileCue"/>.
 /// </summary>
 internal static class EyeDoorProjectileAnimations
 {
@@ -22,7 +22,7 @@ internal static class EyeDoorProjectileAnimations
             Show(EnemyProjectileFrameId.EyeDoorInitialSecond, 3),
             Show(EnemyProjectileFrameId.EyeDoorInitialThird, 2),
             Cue(new(K.AimAtSamus)),
-            Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.EyeDoorShotFlight)),
+            Cue(new(K.StartFlight)),
         ],
         [P.FlyingLoop] =
         [
@@ -30,7 +30,7 @@ internal static class EyeDoorProjectileAnimations
         ],
         [P.Impact] =
         [
-            Cue(new(K.ClearFrameBehavior)),
+            Cue(new(K.StopMoving)),
             Show(EnemyProjectileFrameId.EyeDoorImpactFirst, 2),
             Show(EnemyProjectileFrameId.EyeDoorImpactSecond, 3),
             Show(EnemyProjectileFrameId.EyeDoorImpactThird, 4),

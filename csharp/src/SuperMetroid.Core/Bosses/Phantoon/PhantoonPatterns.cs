@@ -707,8 +707,7 @@ internal sealed class PhantoonPatterns
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling));
-        flame.FrameBehavior =
-            EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
+        flame.StartMotion(PhantoonFlameMotion.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -731,8 +730,7 @@ internal sealed class PhantoonPatterns
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
         };
         flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-        flame.FrameBehavior =
-            EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit;
+        flame.StartMotion(PhantoonFlameMotion.RageOrbiting);
         return true;
     }
 
@@ -746,8 +744,7 @@ internal sealed class PhantoonPatterns
             return false;
         flame.State = new PhantoonOrbitingFlameState(start);
         flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
-        flame.FrameBehavior =
-            EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit;
+        flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
         return true;
     }
 
@@ -763,8 +760,7 @@ internal sealed class PhantoonPatterns
         flame.State = new PhantoonRainFlameState(fallDelay);
         flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
         flame.Position = flame.Position.WithWholeY(40);
-        flame.FrameBehavior =
-            EnemyProjectileFrameBehavior.PhantoonFlameRainFall;
+        flame.StartMotion(PhantoonFlameMotion.RainFalling);
         return true;
     }
 

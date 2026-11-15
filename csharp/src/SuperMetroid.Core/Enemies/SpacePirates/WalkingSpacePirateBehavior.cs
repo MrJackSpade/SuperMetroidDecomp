@@ -420,9 +420,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             ? SpacePirateProjectileSegment.LaserRight
             : SpacePirateProjectileSegment.LaserLeft));
 
-        // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
-        // muzzle frames are stationary until the animation installs the flight and runs it at once.
-        projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+        // The laser holds still through its three two-frame muzzle frames until its animation fires it, running its flight
+        // at once.
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
         // The initializer replaces the projectile definition's properties with the enemy's damage and the
@@ -459,10 +458,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>The direction a laser mover flies.</summary>
-    private static HorizontalDirection LaserFlightDirection(EnemyProjectileFrameBehavior movement) =>
-        movement == EnemyProjectileFrameBehavior.LaserFlightRight ? HorizontalDirection.Right
-        : movement == EnemyProjectileFrameBehavior.LaserFlightLeft ? HorizontalDirection.Left
-        : throw new InvalidOperationException($"{movement} is not a laser flight.");
 
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
@@ -476,42 +471,42 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     internal static readonly EnemyProjectileBehavior Laser = new LaserBehavior();
 
-    /// <summary>A laser: it flies left or right until it leaves the camera, as its animation's cues install.</summary>
-    private sealed class LaserBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<SpacePirateProjectileCue>
+    /// <summary>A laser: it flies left or right until it leaves the camera, once its animation fires it.</summary>
+    private sealed class LaserBehavior : EnemyProjectileBehavior<PirateLaserMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        private protected override void Move(EnemyProjectileMotionContext context, PirateLaserMotion motion)
         {
-            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
-            if (motion == EnemyProjectileFrameBehavior.LaserFlightLeft)
+            switch (motion)
             {
-                FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Left);
-            }
-            else if (motion == EnemyProjectileFrameBehavior.LaserFlightRight)
-            {
-                FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Right);
-            }
-            else
-            {
-                base.Move(context);
+                case PirateLaserMotion.FlyingLeft:
+                    FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Left);
+                    break;
+                case PirateLaserMotion.FlyingRight:
+                    FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Right);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(PirateLaserMotion)} {motion}.");
             }
         }
 
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue) => ApplySpacePirateProjectileCue(context, cue);
-    }
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
+        {
+            if (cue.Kind != SpacePirateProjectileCueKind.FireLaser)
+                throw new InvalidOperationException($"A laser's animation published {cue}.");
+            Fire(context.Projectile, context.Camera, cue.Direction);
+        }
 
-    /// <summary>
-    /// Carries out a cue of the Pirates' laser and claw animations: it installs the movement the cue names, and the
-    /// start-moving-now cue runs a laser's installed flight at once.
-    /// </summary>
-    internal static void ApplySpacePirateProjectileCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
-    {
-        context.Projectile.FrameBehavior = cue.Movement;
-        // The start-moving cue leaves the segment where it was, so the common animation dispatches the installed
-        // movement once at once: the laser moves on the update it starts and may leave the screen then.
-        if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
-            FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));
+        /// <summary>
+        /// Fires the laser <paramref name="direction"/>: it flies that way from now on, and its first flight runs at once,
+        /// so the laser moves on the update it fires and may leave the screen then.
+        /// </summary>
+        private static void Fire(EnemyProjectile projectile, Position16<RoomPixels> camera, HorizontalDirection direction)
+        {
+            projectile.StartMotion(direction == HorizontalDirection.Right ? PirateLaserMotion.FlyingRight : PirateLaserMotion.FlyingLeft);
+            FlyPirateLaser(projectile, camera, direction);
+        }
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>

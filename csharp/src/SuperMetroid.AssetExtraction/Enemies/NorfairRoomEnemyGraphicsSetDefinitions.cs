@@ -84,7 +84,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocFarming), [
             new(EnemyDefinitionId.Gamet),
             new(EnemyDefinitionId.GRipper),
-            new(EnemyDefinitionId.Kamer2),
+            new(EnemyDefinitionId.SuspensorPlatform),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WorstRoomInTheGame), [
             new(EnemyDefinitionId.Namihe),
@@ -164,7 +164,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocJump), [
             new(EnemyDefinitionId.Mella),
             new(EnemyDefinitionId.GRipper),
-            new(EnemyDefinitionId.Kamer2),
+            new(EnemyDefinitionId.SuspensorPlatform),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FrogSave), [
         ]),

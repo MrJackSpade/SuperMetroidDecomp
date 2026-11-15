@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>What a cue of the eye door's projectile animations does: aim the flight at Samus, stop or delete the projectile, or install a movement behaviour.</summary>
+/// <summary>What a cue of the eye door's shot and sweat animations does: aim the shot at Samus, start its flight, stop the projectile or delete it.</summary>
 internal enum EyeDoorProjectileCueKind
 {
-    /// <summary>Aims the projectile's flight at Samus.</summary>
+    /// <summary>Aims the shot's flight at Samus.</summary>
     AimAtSamus,
     /// <summary>Stops the projectile's movement.</summary>
-    ClearFrameBehavior,
+    StopMoving,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Installs a movement behaviour.</summary>
-    SetFrameBehavior,
+    /// <summary>Starts the shot flying along its aim.</summary>
+    StartFlight,
 }

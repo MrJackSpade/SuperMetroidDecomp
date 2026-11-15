@@ -134,11 +134,11 @@ internal sealed class DownwardGateBehavior
             case DownwardGateProjectileCue.SetYVelocity setYVelocity:
                 projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity);
                 break;
-            case DownwardGateProjectileCue.SetFrameBehavior setFrameBehavior:
-                projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
+            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StartSliding }:
+                SingleMotionProjectileBehavior.StartMoving(projectile);
                 break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.ClearFrameBehavior }:
-                projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
+            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StopSliding }:
+                projectile.HoldStill();
                 break;
             case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.Delete }:
                 projectile.Delete();
@@ -151,10 +151,12 @@ internal sealed class DownwardGateBehavior
     /// <summary>A downward gate, moving or closed (#1760).</summary>
     internal static readonly EnemyProjectileBehavior Gate = new GateBehavior();
 
-    /// <summary>A downward gate: it slides down by its velocity once its animation sets it moving, and handles its animation's cues.</summary>
+    /// <summary>
+    /// A downward gate: it slides by its vertical velocity, down while moving and up while closed, from when its animation
+    /// starts it sliding until the animation stops it, and handles its animation's cues.
+    /// </summary>
     private sealed class GateBehavior() : SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.DownwardGateDescent,
-        context => RunDownwardGateProjectileMovement(context.Projectile)), IEnemyProjectileCues<DownwardGateProjectileCue>
+        context => RunDownwardGateProjectileMovement(context.Projectile), initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
     {
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, DownwardGateProjectileCue cue) => ApplyDownwardGateCue(context.Projectile, cue);

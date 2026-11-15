@@ -116,7 +116,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
     internal static readonly EnemyProjectileBehavior Rock = new SingleMotionProjectileBehavior(
-        EnemyProjectileFrameBehavior.PolypRockFlight,
         context => RunPolypRockFrameBehavior(context.Projectile, context.Camera));
 
     /// <summary>Advances Polyp's typed animation.</summary>
@@ -131,9 +130,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
-    /// <summary>Projectile frame behaviour installed on each launched rock.</summary>
-    private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
-        EnemyProjectileFrameBehavior.PolypRockFlight;
     /// <summary>Each rock frame moves its place along the quadratic speed curve by two marks.</summary>
     private static readonly QuadraticSpeedCurvePlace PolypRockGravityStep = QuadraticSpeedCurvePlace.FromMarks(2);
     /// <summary>Falling rocks stop accelerating at mark 64.</summary>
@@ -158,7 +154,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             Rock,
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.Initial));
-        projectile.FrameBehavior = PolypRockFrameBehavior;
         projectile.State = new PolypRockState(QuadraticSpeedCurvePlace.FromMarks(initialYSpeed));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;

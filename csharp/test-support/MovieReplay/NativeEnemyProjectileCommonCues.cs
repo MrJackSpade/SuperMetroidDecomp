@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.Assertions;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -14,9 +13,6 @@ internal static class NativeEnemyProjectileCommonCues
     private static readonly Dictionary<ushort, NativeCueCommand<EnemyProjectileCommonCue>> Commands = new()
     {
         [(ushort)NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Signal(EnemyProjectileCommonCueKind.Delete)),
-        [(ushort)NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.SetFrameBehavior>(2, (operands, cue, at) =>
-            VerificationAssertions.AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
-        [(ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Signal(EnemyProjectileCommonCueKind.ClearFrameBehavior)),
         [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.Scatter>(4, (operands, cue, at) =>
         {
             // The scatter's operands pack each axis's range mask in the low byte and its center in the high byte; each

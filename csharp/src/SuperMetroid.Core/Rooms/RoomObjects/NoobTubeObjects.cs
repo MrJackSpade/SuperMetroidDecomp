@@ -56,15 +56,15 @@ internal sealed class NoobTubeObjects
     internal void UnlockSamus() => RequireNoobTubeSamus().Control.Unlock();
 
     /// <summary>Spawns the crack projectile at the tube.</summary>
-    internal void SpawnCrack(RoomObjectPlace place) => SpawnNoobTubeProjectile(place, NoobTubeProjectileDefinition.Crack, piece: null);
+    internal void SpawnCrack(RoomObjectPlace place) => SpawnNoobTubeProjectile(place, NoobTubeDebrisDefinitions.Crack);
 
-    /// <summary>Spawns the ten glass shards and then the six released-air bubbles, each naming its place in the burst.</summary>
+    /// <summary>Spawns the ten glass shards and then the six released-air bubbles, in the order they burst.</summary>
     internal void SpawnShardsAndBubbles(RoomObjectPlace place)
     {
-        for (int shard = 0; shard < NoobTubeObjectDefinitions.ShardCount; shard++)
-            SpawnNoobTubeProjectile(place, NoobTubeProjectileDefinition.Shard, shard);
-        for (int bubble = 0; bubble < NoobTubeObjectDefinitions.BubbleCount; bubble++)
-            SpawnNoobTubeProjectile(place, NoobTubeProjectileDefinition.ReleasedAirBubble, bubble);
+        foreach (NoobTubePiece shard in NoobTubeDebrisDefinitions.Shards)
+            SpawnNoobTubeProjectile(place, shard);
+        foreach (NoobTubePiece bubble in NoobTubeDebrisDefinitions.Bubbles)
+            SpawnNoobTubeProjectile(place, bubble);
     }
 
     /// <summary>Starts the break earthquake.</summary>
@@ -94,8 +94,8 @@ internal sealed class NoobTubeObjects
             "N00b tube has no active Samus actor.");
 
     /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
-    private void SpawnNoobTubeProjectile(RoomObjectPlace place, NoobTubeProjectileDefinition definition, int? piece) =>
+    private void SpawnNoobTubeProjectile(RoomObjectPlace place, NoobTubePiece piece) =>
         (_enemies ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
-            new NoobTubeProjectileRequest(definition, piece, place.Block));
+            new NoobTubeProjectileRequest(piece, place.Block));
 }

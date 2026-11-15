@@ -30,8 +30,8 @@ public sealed class ZebetiteEnemyState
         internal set => field = Ensure.BetweenInclusive(0, PersistentProgress.ZebetiteCount, value);
     }
 
-    /// <summary>The generation's form, including whether it requests a linked second half.</summary>
-    public ZebetiteGenerationFlags GenerationFlags { get; internal set; }
+    /// <summary>The generation's form: a split pair's primary half requests a linked second half.</summary>
+    public ZebetiteBarrierForm Form { get; internal set; }
 
     /// <summary>This half's health animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<ZebetiteSegment> Playback { get; set; } = ZebetiteAnimations.Starting(default);

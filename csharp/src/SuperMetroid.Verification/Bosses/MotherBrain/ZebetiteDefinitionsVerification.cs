@@ -29,12 +29,12 @@ internal static class ZebetiteDefinitionsVerification
                 Zebetites.Generation(generation);
             ushort[] actual =
             [
-                MotherBrainNativeWords.GenerationFlagsWord(definition.GenerationFlags),
-                checked((ushort)definition.YRadius),
-                ZebetiteEntry(definition.Animation),
-                checked((ushort)definition.XPosition),
-                checked((ushort)definition.PrimaryYPosition),
-                checked((ushort)definition.LinkedYPosition),
+                MotherBrainNativeWords.BarrierFormWord(definition.Form),
+                checked((ushort)definition.HalfHeight),
+                ZebetiteEntry(ZebetiteAnimations.HealthAnimation(definition.Form, 1000)),
+                checked((ushort)definition.X),
+                checked((ushort)Zebetites.YPosition(definition, linkedHalf: false)),
+                checked((ushort)Zebetites.YPosition(definition, linkedHalf: true)),
             ];
             for (int field = 0; field < actual.Length; field++)
             {
@@ -49,16 +49,17 @@ internal static class ZebetiteDefinitionsVerification
             "Zebetite generation past active table");
 
         ushort[] healthSamples = [1000, 800, 799, 600, 599, 400, 399, 200, 199, 0];
-        foreach (bool linkedPair in new[] { false, true })
+        foreach (ZebetiteBarrierForm form in Enum.GetValues<ZebetiteBarrierForm>())
         foreach (ushort health in healthSamples)
         {
             int tier = health < 200 ? 4 :
                 health < 400 ? 3 :
                 health < 600 ? 2 :
                 health < 800 ? 1 : 0;
+            bool linkedPair = form == ZebetiteBarrierForm.SplitPair;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
-                ZebetiteEntry(ZebetiteAnimations.HealthAnimation(linkedPair, health)),
+                ZebetiteEntry(ZebetiteAnimations.HealthAnimation(form, health)),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
 
@@ -101,13 +102,13 @@ internal static class ZebetiteDefinitionsVerification
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
-            AssertEqual(expected.GenerationFlags, state.GenerationFlags,
-                $"production Zebetite generation {generation} flags");
-            AssertEqual(expected.YRadius, slot.Radius.Y,
+            AssertEqual(expected.Form, state.Form,
+                $"production Zebetite generation {generation} form");
+            AssertEqual(expected.HalfHeight, slot.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual(ZebetiteAnimations.Starting(expected.Animation), state.Playback,
+            AssertEqual(ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(expected.Form, 1000)), state.Playback,
                 $"production Zebetite generation {generation} program");
-            AssertEqual(expected.XPosition, slot.Position.X.Whole,
+            AssertEqual(expected.X, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
             AssertEqual(Zebetites.YPosition(expected, linkedHalf), slot.Position.Y.Whole,
                 $"production Zebetite generation {generation} Y");
@@ -116,9 +117,7 @@ internal static class ZebetiteDefinitionsVerification
             {
                 slot.Health = health;
                 ZebetiteBehavior.SelectZebetiteHealthAnimation(slot, state);
-                AssertEqual(ZebetiteAnimations.HealthAnimation(
-                        (expected.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
-                        health),
+                AssertEqual(ZebetiteAnimations.HealthAnimation(expected.Form, health),
                     state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
                     $"production Zebetite generation {generation} health {health}");
             }

@@ -4,41 +4,30 @@ using static SuperMetroid.Core.Bosses.MotherBrain.ZebetiteDefinitions;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Tourian's Zebetites: each active generation's barriers, the population entry of each half, and where each half stands.</summary>
+/// <summary>Tourian's Zebetites: each active generation's barriers, the placement each half spawns from, and where each half stands.</summary>
 internal static class Zebetites
 {
-    /// <summary>
-    /// Four alternating large/split barriers, spaced twelve blocks
-    /// leftward from X=824. Large barriers have half-height24 at Y=111; split
-    /// halves have half-height8 at equal forty-pixel offsets from that center.
-    /// </summary>
-    internal static ZebetiteGenerationDefinition Generation(int generation)
-    {
-        if ((uint)generation >= PersistentProgress.ZebetiteCount)
-        {
-            throw new InvalidDataException(
-                $"Zebetite generation {generation} exceeds its four active generations.");
-        }
+    /// <summary>The barrier generation that stands once <paramref name="destroyed"/> Zebetites have been destroyed.</summary>
+    /// <exception cref="InvalidDataException">Every barrier has been destroyed, or the count is negative.</exception>
+    internal static ZebetiteGenerationDefinition Generation(int destroyed) =>
+        (uint)destroyed < PersistentProgress.ZebetiteCount
+            ? Generations[destroyed]
+            : throw new InvalidDataException($"Zebetite generation {destroyed} exceeds its four active generations.");
 
-        // Alternating single barriers and split pairs share a horizontal centerline.
-        bool linkedPair = (generation & 1) != 0;
-        int separation = linkedPair ? 40 : 0;
-        return new(
-            linkedPair ? ZebetiteGenerationFlags.LinkedPair : ZebetiteGenerationFlags.None,
-            linkedPair ? 8 : 24,
-            ZebetiteAnimations.HealthAnimation(linkedPair, 1000),
-            824 - generation * 192,
-            111 - separation,
-            111 + separation);
-    }
-
-    /// <summary>Returns the exact embedded population entry of the primary or linked half.</summary>
+    /// <summary>The placement the primary or linked half spawns from.</summary>
     internal static RoomEnemyPlacement SpawnPopulation(ZebetiteHalf half) =>
         SpawnPopulations.TryGetValue(half, out RoomEnemyPlacement placement)
             ? placement
             : throw new InvalidOperationException($"Undefined {nameof(ZebetiteHalf)} {half}.");
 
-    /// <summary>Returns the Y coordinate of a generation's primary or linked physical half.</summary>
-    internal static int YPosition(ZebetiteGenerationDefinition generation, bool linkedHalf) =>
-        linkedHalf ? generation.LinkedYPosition : generation.PrimaryYPosition;
+    /// <summary>
+    /// The room pixel row a generation's half stands on: a single barrier on the centre line, a split pair's primary half
+    /// above it and its linked half below it.
+    /// </summary>
+    internal static int YPosition(ZebetiteGenerationDefinition generation, bool linkedHalf) => generation.Form switch
+    {
+        ZebetiteBarrierForm.Single => generation.CentreY,
+        ZebetiteBarrierForm.SplitPair => linkedHalf ? generation.CentreY + SplitHalfOffset : generation.CentreY - SplitHalfOffset,
+        _ => throw new InvalidDataException($"Undefined {nameof(ZebetiteBarrierForm)} {generation.Form}."),
+    };
 }

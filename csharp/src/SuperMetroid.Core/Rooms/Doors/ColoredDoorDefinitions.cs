@@ -1,17 +1,14 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The coloured caps' authored data (#1554): how many hits each colour takes, the counter a Super Missile leaves on a red
-/// cap, and each colour and facing's sequences. Every cap plays the same shape; the yellow downward cap waits on its
+/// The coloured caps' authored data (#1554): how many hits each colour takes and each colour and facing's sequences. A
+/// Super Missile opens any cap it may hit at once, whatever hits the cap has taken (#1907). Every cap plays the same shape; the yellow downward cap waits on its
 /// closed image twice, the yellow left cap opens slowly and lingers open, and the red cap sounds each hit.
 /// </summary>
 internal static class ColoredDoorDefinitions
 {
     /// <summary>The sound each hit on a red cap makes as its flash starts.</summary>
     internal static readonly SoundEffectId RedHitSound = RoomSound.MissileDoorHit;
-
-    /// <summary>The hit count a Super Missile leaves on a red cap: the hit it then counts passes any threshold.</summary>
-    internal const int RedSuperMissileHitCounter = 119;
 
     /// <summary>The hits each colour's cap takes before it opens.</summary>
     internal static IReadOnlyDictionary<ColoredDoorColor, int> HitThresholds { get; } = new Dictionary<ColoredDoorColor, int>

@@ -24,8 +24,8 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Closed;
 
     /// <summary>
-    /// The hits counted toward the threshold. It only counts up, by one a hit or to one short of the threshold on a
-    /// Super Missile, and the eye is destroyed once it reaches the threshold.
+    /// The hits counted toward the threshold. It only counts up, by one a hit or straight to the threshold on a Super
+    /// Missile, and the eye is destroyed once it reaches the threshold.
     /// </summary>
     internal int HitCounter { get; private set; }
 
@@ -60,16 +60,12 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
         if (!TakesShots || place.ProjectileHit is not { Family: var family })
             return false;
         place.ProjectileHit = null;
-        if (family == SamusProjectileFamily.SuperMissile)
-        {
-            HitCounter = EyeDoorSequenceDefinitions.SuperMissileHitCounter;
-        }
-        else if (family != SamusProjectileFamily.Missile)
+        if (family is not (SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Missile))
         {
             context.RoomObjects.EyeDoors.QueueRejectedShotSound();
             return false;
         }
-        Hit(place, context);
+        Hit(place, context, destroysAtOnce: family == SamusProjectileFamily.SuperMissile);
         return true;
     }
 
@@ -180,13 +176,13 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
     /// A missile hit: it sounds and smokes, then counts; short of the threshold the eye flinches, and at it the eye is
     /// destroyed.
     /// </summary>
-    private void Hit(RoomObjectPlace place, RoomObjectStepContext context)
+    private void Hit(RoomObjectPlace place, RoomObjectStepContext context, bool destroysAtOnce)
     {
         EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
         context.QueueSound(EyeDoorSequenceDefinitions.HitSound, EyeDoorSequenceDefinitions.HitSoundPriority);
         eyes.SpawnTwoSmoke(place, Orientation);
         eyes.SpawnTwoSmoke(place, Orientation);
-        HitCounter++;
+        HitCounter = destroysAtOnce ? EyeDoorSequenceDefinitions.HitThreshold : HitCounter + 1;
         if (HitCounter < EyeDoorSequenceDefinitions.HitThreshold)
         {
             Phase = EyeDoorEyePhase.Flinching;

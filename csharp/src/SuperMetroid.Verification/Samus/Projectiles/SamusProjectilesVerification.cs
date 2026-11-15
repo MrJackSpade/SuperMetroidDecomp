@@ -1321,6 +1321,23 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0, reopenedDoorObjects.ColoredDoors.Count,
         "persisted colored-door conversion deletes resident actor after draw");
 
+    // #1907: one Super Missile opens a red cap at once, though missiles take five hits.
+    var superMissileWords = new RoomTerrainBlock[16 * 16];
+    superMissileWords[residentDoorBlock] = RoomTerrainBlock.Of(288, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData superMissileDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(superMissileWords, new RoomBlockBehavior[superMissileWords.Length], new RoomBlockAppearance[superMissileWords.Length]), RoomLevelData.NothingBeyondGrid());
+    var superMissileDoorSystem = new SharedGameState(new SharedRandom());
+    var superMissileDoorObjects = RoomObjectFixtures.Unbound();
+    AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref superMissileDoorObjects, new RoomObjectRoom(superMissileDoorLevel, superMissileDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        "the red cap loads for the Super Missile hit");
+    superMissileDoorObjects.Step(superMissileDoorLevel);
+    AssertTrue(superMissileDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
+        "the red cap takes the Super Missile");
+    superMissileDoorObjects.Step(superMissileDoorLevel);
+    ColoredDoorObjectSnapshot superMissileOpened = superMissileDoorObjects.ColoredDoors.Single();
+    AssertEqual(ColoredDoorPhase.Opening, superMissileOpened.Phase, "one Super Missile opens the red cap");
+    AssertEqual(5, superMissileOpened.HitCounter, "the Super Missile brings the red cap's count straight to its five hits");
+    AssertTrue(superMissileDoorSystem.HasOpenedDoorBit(residentDoorArgument), "the Super Missile opens the red door for good");
+
     // Reproduce the generic grey-door graph with relocatable fixture pointers. This is
     // intentionally not a direct call to an event setter: the regression starts at a
     // bank-$8F population record, follows the header/list operands, publishes hits through

@@ -13,11 +13,8 @@ internal static class EyeDoorSequenceDefinitions
     /// <summary>How crowded the sound queue may be for the hit sound to join it.</summary>
     internal static readonly SoundRequestPriority HitSoundPriority = SoundRequestPriority.Normal;
 
-    /// <summary>The hits the eye takes before the door opens.</summary>
+    /// <summary>The missile hits the eye takes before the door opens; a Super Missile destroys it at once (#1907).</summary>
     internal const int HitThreshold = 3;
-
-    /// <summary>The hit count a Super Missile leaves: the hit it then counts passes the threshold.</summary>
-    internal const int SuperMissileHitCounter = 119;
 
     /// <summary>How many times the destroyed eye flashes to the blue cap before it turns into it.</summary>
     internal const int OpeningFlashes = 10;

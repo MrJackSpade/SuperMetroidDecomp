@@ -784,8 +784,9 @@ public sealed class SamusBombProjectileSystem
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
         // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
-        // or above the room holds a coordinate near 65535, so its far edge is first held to the last room coordinate a
-        // block can be read at; the room's own clip then leaves that edge before the near one and the blast reaches nothing.
+        // or above the room holds a coordinate near 65535, and its far edge would pass 65535, which PixelToBlock rejects,
+        // so that edge is first held to the last room coordinate a block can be read at; the room's own clip then leaves
+        // that edge before the near one.
         int left = RoomGridConversions.PixelToBlock(Math.Max(0, explosion.X - horizontalRadius));
         int right = Math.Min(
             level.Size.X - 1,
@@ -1041,8 +1042,8 @@ public sealed class SamusBombProjectileSystem
     internal bool AdvanceProjectileAnimation(
         SamusBombProjectileSlot slot)
     {
-        // The animation timer is a decrement wrapping at 65536. A legitimate initialized timer is always at
-        // least one, but preserving wrap gives corrupt-state inspection the same behavior.
+        // Every frame holds the bomb for at least one update: placement starts the count at one and a frame of no
+        // duration is rejected below, so the count reaches zero here and never passes it.
         slot.FrameHold = slot.FrameHold.Decrement().Remaining;
         if (!slot.FrameHold.IsZero)
             return false;

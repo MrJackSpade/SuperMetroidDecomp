@@ -196,9 +196,9 @@ public sealed class SamusState
     public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();
 
     /// <summary>
-    /// The X-speed divisor, 0 through 65535, as Samus's own view of <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>:
-    /// the one stored value is both a movement-speed divisor and the no-FX animation delay buffer, and its setter
-    /// rejects values outside that range.
+    /// The X-speed divisor, 0 through <see cref="SamusHorizontalSpeedState.LargestSpeedDivisor"/>, as Samus's own view of
+    /// <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>: the one stored value is both a movement-speed divisor and the
+    /// no-FX animation delay buffer, and its setter rejects values outside that range.
     /// </summary>
     [IntegerQuantity("right-shift applied to horizontal speed, zero when undivided")]
     public int XSpeedDivisor

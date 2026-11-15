@@ -16,6 +16,16 @@ internal static class PowerBombBoundaryVerification
             new BotwoonRadiusOpcode(1,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(3,2), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(3,2)]);
         Check(0, 0, 16, [new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(1,0)]);
         Check(32, 32, 0, [new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2)]);
+        // #1920: a blast just above and just left of the room, whose far edges pass 65535, is held to the room's last
+        // readable coordinate instead of being rejected.
+        foreach (ushort type in new ushort[] { 0x0300, 0x800d })
+        {
+            SamusProjectileType projectile = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
+            SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(32, 65530), PowerBombRadius.FromWholePixels(16),
+                [], null, projectile);
+            SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(65530, 32), PowerBombRadius.FromWholePixels(16),
+                [], null, projectile);
+        }
 
         void Check(ushort x, ushort y, int radiusPixels, BotwoonRadiusOpcode[] expected)
         {

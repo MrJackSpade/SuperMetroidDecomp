@@ -146,8 +146,8 @@ internal sealed class SamusPresentation
             samus.AnimationFrameTimer = WrappingCountdown.Start(4);
         }
 
-        // The decrement wraps at 65536. A timer accidentally initialized to zero becomes 65535; the negative test then
-        // advances just like an ordinary 1 -> 0 expiration.
+        // A held frame (SamusAnimationHold) leaves its expired timer at zero. Its next decrement wraps to 65535, which
+        // the negative test reads as expired, so the hold costs exactly one more update before the following frame.
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;

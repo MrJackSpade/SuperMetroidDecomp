@@ -812,8 +812,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Ends the liquid's per-line motion effects: no later pass moves the liquid, queues its ambient sound or
-    /// (for lava/acid) swaps the halves of the shared random number. Effects without per-line liquid motion are
+    /// Ends the liquid's wave: no later update's liquid wave moves the liquid, queues its ambient sound or
+    /// (for lava/acid) swaps the halves of the shared random number. Effects without a liquid wave are
     /// unaffected.
     /// </summary>
     public void StopLiquidMotion() => LiquidMotionStopped = true;

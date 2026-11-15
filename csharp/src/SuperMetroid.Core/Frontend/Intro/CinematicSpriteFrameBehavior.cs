@@ -41,7 +41,7 @@ internal enum CinematicSpriteFrameBehavior
     CeresSmallAsteroid,
     /// <summary>The purple space vortex drifting.</summary>
     CeresPurpleSpaceVortex,
-    /// <summary>The behaviour the stationary vortex's initializer installs, which does nothing.</summary>
+    /// <summary>The behaviour the stationary vortex starts with, which does nothing.</summary>
     CeresStationaryVortexNoOp,
     /// <summary>The Ceres explosion spawner's repeating explosions.</summary>
     CeresExplosionSpawnerRepeating,

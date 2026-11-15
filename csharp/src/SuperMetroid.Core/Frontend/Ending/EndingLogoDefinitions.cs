@@ -23,7 +23,7 @@ internal static class EndingLogoDefinitions
         [EndingLogoActorKind.UpperS, EndingLogoActorKind.LowerS, EndingLogoActorKind.UpperCircle, EndingLogoActorKind.LowerCircle];
     /// <summary>The logo scene sets both camera coordinates to 256; the actors draw at their world centers minus it.</summary>
     public static Offset16<ScreenPixels> Camera => new(256, 256);
-    /// <summary>The S halves' initializers set their motion step to eight.</summary>
+    /// <summary>The S halves start with a motion step of eight.</summary>
     public const int InitialSpeed = 8;
     /// <summary>The approaching S halves accelerate by two pixels per call.</summary>
     public const int Acceleration = 2;

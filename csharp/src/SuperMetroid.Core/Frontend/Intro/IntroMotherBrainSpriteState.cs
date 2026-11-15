@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The definition's initializer fixes the actor at (56,111) in her own colouring,
+/// The actor starts at (56,111) in her own colouring,
 /// in front of the scene. Its animation cycles four authored frames at
 /// sixteen frames apiece. The actor also retains the hit counter, eight-frame colour
 /// flash, and the 128-frame exploding state and the room picture's shake.

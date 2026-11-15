@@ -209,7 +209,7 @@ internal sealed class IntroCinematicObjectSystem
         if (narrationAnimation is not null && narrationCharacterIndex > narrationAnimation.Length)
         {
             throw new InvalidDataException(
-                $"Saved narration cursor {narrationCharacterIndex} exceeds the rebound {narrationPage} program.");
+                $"Saved narration cursor {narrationCharacterIndex} exceeds the rebound {narrationPage} narration.");
         }
     }
 

@@ -37,7 +37,7 @@ public sealed class HudState
     /// <summary>The installed HUD layout the values are placed by.</summary>
     internal GameplayHudPresentation? Presentation { get; private set; }
 
-    /// <summary>Suppresses minimap updates after a boss initializer.</summary>
+    /// <summary>Suppresses minimap updates once a boss has set up its fight.</summary>
     public bool MinimapDisabled { get; internal set; }
 
     /// <summary>Hides the minimap's fifteen cells and disables updates.</summary>

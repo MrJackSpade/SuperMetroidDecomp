@@ -273,7 +273,7 @@ internal sealed class IntroBabyDiscoveryState
             case CinematicSpriteCueKind.StartZebesExplosion:
             case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The Metroid egg programs publish no {cue} cue.");
+                throw new InvalidOperationException($"The Metroid egg's animations raise no {cue} cue.");
         }
     }
 

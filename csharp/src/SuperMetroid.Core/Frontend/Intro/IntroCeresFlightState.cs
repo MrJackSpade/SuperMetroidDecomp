@@ -278,7 +278,7 @@ internal sealed class IntroCeresFlightState
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply behaviour identity,
-        // initializer results and the physical motion applied by StepRearViewActors.
+        // each actor's start and the physical motion applied by StepRearViewActors.
         // Each actor starts at its role's installed placement (#1596).
         CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
             "The Ceres approach's rear view requires the installed actor placements.");

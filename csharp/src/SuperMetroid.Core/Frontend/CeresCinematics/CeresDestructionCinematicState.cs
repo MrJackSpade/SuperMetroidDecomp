@@ -676,7 +676,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             definition.Animation);
         actor.InstallFrameBehavior(definition.FrameBehavior);
 
-        // The initializer writes its stagger directly to the frame hold. The loop countdown is a different count, used
+        // The explosion's start writes its stagger directly to the frame hold. The loop countdown is a different count, used
         // by the animation's counted loops; using it here would make all five blasts appear immediately despite distinct
         // delays.
         actor.DelayFirstStep(placement.DelayFrames);

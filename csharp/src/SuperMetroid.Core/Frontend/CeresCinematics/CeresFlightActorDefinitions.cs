@@ -35,21 +35,21 @@ internal static class CeresFlightActorDefinitions
         WrapX: false);
 
     /// <summary>The large asteroids of the Ceres explosion.
-    /// Its initializer colours it in the space objects' colours; its motion adds 1/4 pixel, wrapping X past 511;
+    /// It is coloured in the space objects' colours; its motion adds 1/4 pixel, wrapping X past 511;
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresLargeAsteroids, CinematicSpriteSegment.CeresLargeAsteroid,
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(4), true);
 
     /// <summary>The space station under attack.
-    /// Its initializer colours it in the station's colours; its motion adds 1/16 pixel, wrapping X past 511;
+    /// It is coloured in the station's colours; its motion adds 1/16 pixel, wrapping X past 511;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpriteFrameBehavior.CeresUnderAttack, CinematicSpriteSegment.CeresUnderAttack,
             CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(1), true);
 
     /// <summary>The small asteroids around Ceres.
-    /// Its initializer colours it in the space objects' colours; its motion adds 1/32 pixel, wrapping X past 511;
+    /// It is coloured in the space objects' colours; its motion adds 1/32 pixel, wrapping X past 511;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresSmallAsteroid, CinematicSpriteSegment.CeresSmallAsteroid,
@@ -63,7 +63,7 @@ internal static class CeresFlightActorDefinitions
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, VortexHorizontalDelta, false);
 
     /// <summary>The stars around Ceres, the rear view's variant.
-    /// It is coloured in the space objects' colours and drifts with the vortex instead of rushing like the opening stars. The definition and animation alias FrontStars.</summary>
+    /// It is coloured in the space objects' colours and drifts with the vortex instead of rushing like the opening stars. It shares FrontStars' definition and animation.</summary>
     internal static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActiveFrameBehavior = CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex,

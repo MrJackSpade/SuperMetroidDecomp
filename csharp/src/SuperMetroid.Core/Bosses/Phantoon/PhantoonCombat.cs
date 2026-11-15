@@ -71,7 +71,7 @@ internal sealed class PhantoonCombat
     internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops, _encounter,
         PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
 
-    /// <summary>A Phantoon flame: every flame's frame behaviour, from the intro's wait and orbit to the rage and spiral, and the flame animations' cues.</summary>
+    /// <summary>A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame animations' cues.</summary>
     /// <param name="room">The loaded room, whose definitions name the flames' drops.</param>
     /// <param name="audio">The enemy sound queue the rain flames' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
@@ -143,7 +143,7 @@ internal sealed class PhantoonCombat
         private void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
         {
             PhantoonEnemyState? state = encounter.Phantoon;
-            if (state is null || !state.BodyState.StartingFlamesActive)
+            if (state is null || !state.StartingFlames.Orbiting)
                 return;
             flame.StartMotion(PhantoonFlameMotion.IntroOrbiting);
             PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
@@ -329,7 +329,7 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShot == EnemyReaction.Ignore ||
-                state.BodyState.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
+                state.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
                     PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
                     PhantoonPhase.Dead or null)
             {
@@ -348,7 +348,7 @@ internal sealed class PhantoonCombat
 
             // The extended-hitbox walker marks the projectile before Phantoon's hitbox reaction.
             // That reaction's damage helper does not convert it into an explosion:
-            // the projectile's frame behaviour owns the following-frame deletion, while
+            // the projectile's own update owns the following-frame deletion, while
             // penetrating Plasma retains its type, direction, and animation.
             projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(projectile,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
@@ -405,7 +405,7 @@ internal sealed class PhantoonCombat
         if (body.Health == 0)
         {
             _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
-            state.TentaclesState.RearmHurtFlash();
+            state.Round.RearmHurtFlash();
             body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
             BeginPhantoonDeathSequence(state);
             return;
@@ -416,7 +416,7 @@ internal sealed class PhantoonCombat
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
-        PhantoonPhase? phase = state.BodyState.Phase;
+        PhantoonPhase? phase = state.Phase;
         bool vulnerableWindow = phase is
             PhantoonPhase.EyeTracksSamus or
             PhantoonPhase.TrackSamusDuringFlameRain;
@@ -434,15 +434,15 @@ internal sealed class PhantoonCombat
             }
 
             // The round's damage wraps when a sum passes its counter's range, as the game's does.
-            state.TentaclesState.RoundDamage = WrappingCounter.AddCount(
-                state.TentaclesState.RoundDamage, damage);
-            if (state.TentaclesState.RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
+            state.Round.Damage = WrappingCounter.AddCount(
+                state.Round.Damage, damage);
+            if (state.Round.Damage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
-                    state.BodyState.PhaseTimer = 1;
+                    state.PhaseTimer = 1;
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutWhileSwooping);
-                state.TentaclesState.RearmHurtFlash();
+                state.Round.RearmHurtFlash();
                 return;
             }
 
@@ -451,19 +451,19 @@ internal sealed class PhantoonCombat
                 // A vulnerable hit draws a random number the game keeps but nothing reads; the draw itself advances the
                 // shared random sequence.
                 _ = _room.Random.Next(PhantoonRandomDefinitions.ShotPattern);
-                state.TentaclesState.RearmHurtFlash();
-                if (!state.TentaclesState.SwoopRequested)
+                state.Round.RearmHurtFlash();
+                if (!state.Swoop.Requested)
                 {
-                    state.TentaclesState.SwoopRequested = true;
-                    if (state.BodyState.PhaseTimer >= 16)
-                        state.BodyState.PhaseTimer = 16;
+                    state.Swoop.Requested = true;
+                    if (state.PhaseTimer >= 16)
+                        state.PhaseTimer = 16;
                 }
                 return;
             }
         }
 
         // A valid damaging shot outside the three reaction states still re-arms the flash.
-        state.TentaclesState.RearmHurtFlash();
+        state.Round.RearmHurtFlash();
     }
 
     /// <summary>Closes the eye and ends the vulnerable interval after a damaging hit.</summary>
@@ -472,30 +472,30 @@ internal sealed class PhantoonCombat
         PhantoonEnemyState state,
         PhantoonPhase fadeOut)
     {
-        state.BodyState.Phase = fadeOut;
-        state.BodyState.PhaseTimer = 0;
+        state.Phase = fadeOut;
+        state.PhaseTimer = 0;
         RoomEnemySlot eye = state.Eye;
-        state.TentaclesState.SwoopRequested = false;
-        state.TentaclesState.RoundDamage = 0;
+        state.Swoop.Requested = false;
+        state.Round.Damage = 0;
         state.Translucent = true;
         PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
         PhantoonPresentation.StartPhantoonAnimation(state, eye, PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
-        state.EyeState.FadeComplete = false;
-        state.TentaclesState.RearmHurtFlash();
+        state.BodyFade.Complete = false;
+        state.Round.RearmHurtFlash();
     }
 
     /// <summary>Switches from combat to the fatal swoop and death phases.</summary>
     private static void BeginPhantoonDeathSequence(
         PhantoonEnemyState state)
     {
-        state.BodyState.Phase = state.BodyState.Phase is
+        state.Phase = state.Phase is
             PhantoonPhase.Swooping or
             PhantoonPhase.FadeOutWhileSwooping
                 ? PhantoonPhase.FinishFatalSwoop
                 : PhantoonPhase.DyingFadeInOut;
-        state.EyeState.FigureEightReversed = false;
-        state.EyeState.FadeComplete = false;
+        state.FigureEight.Reversed = false;
+        state.BodyFade.Complete = false;
         state.BodyWave.InitializeDeathScroll(state.BodyOrigin.X);
         state.Translucent = true;
     }

@@ -5,7 +5,7 @@ public static class PhantoonWaveDefinitions
 {
     /// <summary>
     /// The phase a wave's setup seeds: two before the cycle's start, so the first advance lands two short of twice the
-    /// mouth's phase step. Only an advanced phase's position within one <see cref="PhaseCycle"/> is ever read.
+    /// wave's phase step. Only an advanced phase's position within one <see cref="PhaseCycle"/> is ever read.
     /// </summary>
     public const int InitialPhase = -2;
 

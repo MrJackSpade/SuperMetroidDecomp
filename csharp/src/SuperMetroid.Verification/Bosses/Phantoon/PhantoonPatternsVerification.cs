@@ -33,14 +33,14 @@ internal static class PhantoonPatternsVerification
             var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
             enemies.PhantoonBehavior.Combat.Phantoon = state;
-            state.BodyState.PhaseTimer = 1;
-            state.EyeState.FigureEightReversed = true;
+            state.PhaseTimer = 1;
+            state.FigureEight.Reversed = true;
             new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.BodyState.PathCursor, "Real rain cursor handoff");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathCursor, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
-            AssertEqual(false, state.EyeState.FigureEightReversed, "Real rain direction reset");
-            AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.BodyState.Phase, "Real rain phase handoff");
+            AssertEqual(false, state.FigureEight.Reversed, "Real rain direction reset");
+            AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
             var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().FallDelay).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
@@ -87,12 +87,12 @@ internal static class PhantoonPatternsVerification
             shotRandom = (ushort)raw;
             shotBody.Health = 1000;
             shotBody.AiStates = EnemyAiStates.Hurt;
-            shotState.BodyState.Phase = PhantoonPhase.EyeTracksSamus;
-            shotState.BodyState.PhaseTimer = 60;
-            shotState.TentaclesState.SwoopRequested = false;
-            shotState.TentaclesState.RoundDamage = 0;
+            shotState.Phase = PhantoonPhase.EyeTracksSamus;
+            shotState.PhaseTimer = 60;
+            shotState.Swoop.Requested = false;
+            shotState.Round.Damage = 0;
             shot(shotBody, shotState, 0x100, 1);
-            AssertEqual(16, shotState.BodyState.PhaseTimer, "Real shot window shortening preserved");
+            AssertEqual(16, shotState.PhaseTimer, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 8 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");

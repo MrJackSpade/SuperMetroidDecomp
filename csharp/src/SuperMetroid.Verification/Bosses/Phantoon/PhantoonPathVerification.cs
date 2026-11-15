@@ -21,19 +21,18 @@ internal static class PhantoonPathVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = enemies.SlotTable.Slots[0];
         var eye = enemies.SlotTable.Slots[1];
-        Action<RoomEnemySlot, PhantoonBodyState, PhantoonEyeState> step = PhantoonPatterns.StepPhantoonFigureEight;
-        var bodyWords = new PhantoonBodyState();
-        var eyeWords = new PhantoonEyeState();
+        Action<RoomEnemySlot, PhantoonFigureEightState> step = PhantoonPatterns.StepPhantoonFigureEight;
+        var figureEight = new PhantoonFigureEightState();
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool reverse in new[] { false, true })
         for (int speed = 0; speed < 8; speed++)
         for (int index = 0; index < 534; index++)
         {
-            bodyWords.PathCursor = (ushort)index;
-            bodyWords.FigureEightSpeed = SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000);
-            bodyWords.FigureEightStage = PhantoonFigureEightStage.Surging;
+            figureEight.PathCursor = (ushort)index;
+            figureEight.Speed = SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000);
+            figureEight.Stage = PhantoonFigureEightStage.Surging;
             body.Position = new(new(origin, 0x1234), new(origin, 0x5678));
-            eyeWords.FigureEightReversed = reverse;
+            figureEight.Reversed = reverse;
             // Fast-stage +/-0.0625 leaves the whole word unchanged, except the
             // native reverse cap clamps -7 to -6. Independently tested speed logic
             // supplies the step count; the path oracle reads only original bytes.
@@ -47,11 +46,11 @@ internal static class PhantoonPathVerification
                 y += reverse ? -dy : dy;
                 cursor = (cursor + (reverse ? 533 : 1)) % 534;
             }
-            step(body, bodyWords, eyeWords);
+            step(body, figureEight);
             AssertEqual(unchecked((ushort)x), body.Position.X.Whole, "Real Phantoon exact world X across path steps");
             AssertEqual(unchecked((ushort)y), body.Position.Y.Whole, "Real Phantoon exact world Y across path steps");
-            AssertEqual((ushort)cursor, bodyWords.PathCursor, "Real Phantoon path cursor wraps at both ends");
-            AssertEqual(unchecked((ushort)(reverse ? -count : count)), bodyWords.FigureEightSpeed.UnsignedWholePixels, "Real Phantoon whole speed determining path steps");
+            AssertEqual((ushort)cursor, figureEight.PathCursor, "Real Phantoon path cursor wraps at both ends");
+            AssertEqual(unchecked((ushort)(reverse ? -count : count)), figureEight.Speed.UnsignedWholePixels, "Real Phantoon whole speed determining path steps");
             AssertEqual((ushort)0x1234, body.Position.X.Fraction, "Discrete path leaves fractional X intact");
             AssertEqual((ushort)0x5678, body.Position.Y.Fraction, "Discrete path leaves fractional Y intact");
         }

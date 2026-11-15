@@ -23,49 +23,49 @@ internal sealed class PhantoonPresentation
         PhantoonEnemyState state,
         int denominator)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.EyeState.FadeComplete)
+        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.Complete)
             return;
 
-        state.EyeState.FadeDenominator = denominator;
-        int numerator = state.EyeState.FadeNumerator;
+        state.BodyFade.Denominator = denominator;
+        int numerator = state.BodyFade.Numerator;
         if (denominator + 1 < numerator)
         {
-            state.EyeState.FadeNumerator = 0;
-            state.EyeState.FadeComplete = true;
+            state.BodyFade.Numerator = 0;
+            state.BodyFade.Complete = true;
             state.Colours.CompleteFade();
             return;
         }
 
         // The fade's step is the import's shade of it, toward his health band's colours (#1512).
         state.Colours.Fade(PhantoonBodyLook.Health(HealthBand(body)), denominator, numerator);
-        state.EyeState.FadeNumerator = numerator + 1;
+        state.BodyFade.Numerator = numerator + 1;
     }
 
     /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
-        PhantoonMouthState mouth,
+        PhantoonWaveState wave,
         int delta,
         int maximum)
     {
-        if (mouth.WaveAmplitudeShrinking)
+        if (wave.AmplitudeShrinking)
         {
-            if (mouth.WaveAmplitude < delta)
+            if (wave.Amplitude < delta)
             {
-                mouth.WaveAmplitude = 0;
+                wave.Amplitude = 0;
                 return true;
             }
-            mouth.WaveAmplitude -= delta;
+            wave.Amplitude -= delta;
             return false;
         }
 
-        mouth.WaveAmplitude += delta;
-        if (mouth.WaveAmplitude >= maximum)
-            mouth.WaveAmplitude = maximum;
+        wave.Amplitude += delta;
+        if (wave.Amplitude >= maximum)
+            wave.Amplitude = maximum;
         return false;
     }
 
     /// <summary>Counts the body phase timer down and reports its expiry: reaching zero or running past it.</summary>
-    internal static bool TickPhantoonPhaseTimer(PhantoonBodyState body) => --body.PhaseTimer <= 0;
+    internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state) => --state.PhaseTimer <= 0;
 
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));

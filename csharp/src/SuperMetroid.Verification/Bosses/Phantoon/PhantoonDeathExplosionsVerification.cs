@@ -35,8 +35,8 @@ internal static class PhantoonDeathExplosionsVerification
             enemies.PhantoonBehavior.Combat.Phantoon = state;
             Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
-            state.BodyState.PhaseTimer = 15;
-            state.BodyState.Phase = PhantoonPhase.DyingExplosions;
+            state.PhaseTimer = 15;
+            state.Phase = PhantoonPhase.DyingExplosions;
             if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
@@ -53,13 +53,13 @@ internal static class PhantoonDeathExplosionsVerification
                     if (++index == 13) { index = 5; passes++; }
                 }
                 step(body, state);
-                AssertEqual((ushort)timer, state.BodyState.PhaseTimer, "Exact death explosion frame timer");
-                AssertEqual((ushort)index, state.TentaclesState.ExplosionIndex, "Exact death record cursor and repeat");
-                AssertEqual((ushort)passes, state.BodyState.ExplosionPass, "Exact death repeat counter");
+                AssertEqual((ushort)timer, state.PhaseTimer, "Exact death explosion frame timer");
+                AssertEqual((ushort)index, state.Death.NextExplosion, "Exact death record cursor and repeat");
+                AssertEqual((ushort)passes, state.Death.ExplosionPasses, "Exact death repeat counter");
                 // A due explosion takes the emptied pool's one place; a full pool leaves the schedule as it is.
                 if (!full)
                     AssertEqual(due ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive), "Exact death request frame");
-                AssertEqual((passes == 3 ? PhantoonPhase.BeginFinalWavyDeath : PhantoonPhase.DyingExplosions), state.BodyState.Phase, "Exact final death phase handoff");
+                AssertEqual((passes == 3 ? PhantoonPhase.BeginFinalWavyDeath : PhantoonPhase.DyingExplosions), state.Phase, "Exact final death phase handoff");
                 if (due)
                 {
                     AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), enemies.Audio.LatestSound, "Death sound choice survives pool exhaustion");

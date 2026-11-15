@@ -55,7 +55,7 @@ internal sealed class PhantoonDeath
         PhantoonPatterns.PointPhantoonEyeAtSamus(body, state, samus);
         PhantoonPatterns.MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.DeathHeight);
         if (body.Position.X.Whole is >= 96 and < 160)
-            state.BodyState.Phase = PhantoonPhase.DyingFadeInOut;
+            state.Phase = PhantoonPhase.DyingFadeInOut;
     }
 
     /// <summary>Alternates five fade-outs and five fade-ins.</summary>
@@ -63,22 +63,22 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.EyeState.DyingFadeCycles))
+        if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.Death.FadeCycles))
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         else
             _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
 
-        if (!state.EyeState.FadeComplete)
+        if (!state.BodyFade.Complete)
             return;
-        state.EyeState.FadeComplete = false;
-        state.EyeState.DyingFadeCycles = WrappingCounter.IncrementCount(state.EyeState.DyingFadeCycles);
-        if (state.EyeState.DyingFadeCycles < 10)
+        state.BodyFade.Complete = false;
+        state.Death.FadeCycles = WrappingCounter.IncrementCount(state.Death.FadeCycles);
+        if (state.Death.FadeCycles < 10)
             return;
 
-        state.BodyState.Phase = PhantoonPhase.DyingExplosions;
-        state.BodyState.PhaseTimer = 15;
-        state.TentaclesState.ExplosionIndex = 0;
-        state.BodyState.ExplosionPass = 0;
+        state.Phase = PhantoonPhase.DyingExplosions;
+        state.PhaseTimer = 15;
+        state.Death.NextExplosion = 0;
+        state.Death.ExplosionPasses = 0;
     }
 
     /// <summary>Runs the literal 13-entry-then-5..12-twice explosion schedule.</summary>
@@ -86,11 +86,11 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.TentaclesState.ExplosionIndex);
-        state.BodyState.PhaseTimer = explosion.Delay;
+        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.Death.NextExplosion);
+        state.PhaseTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         _projectiles.SpawnRoomGraphicsDustExplosion(position, explosion.Type);
@@ -98,14 +98,14 @@ internal sealed class PhantoonDeath
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
-        state.TentaclesState.ExplosionIndex = WrappingCounter.IncrementCount(state.TentaclesState.ExplosionIndex);
-        if (state.TentaclesState.ExplosionIndex < PhantoonDeathExplosionDefinitions.Count)
+        state.Death.NextExplosion = WrappingCounter.IncrementCount(state.Death.NextExplosion);
+        if (state.Death.NextExplosion < PhantoonDeathExplosionDefinitions.Count)
             return;
 
-        state.TentaclesState.ExplosionIndex = PhantoonDeathExplosionDefinitions.RepeatStart;
-        state.BodyState.ExplosionPass = WrappingCounter.IncrementCount(state.BodyState.ExplosionPass);
-        if (state.BodyState.ExplosionPass >= PhantoonDeathExplosionDefinitions.PassCount)
-            state.BodyState.Phase = PhantoonPhase.BeginFinalWavyDeath;
+        state.Death.NextExplosion = PhantoonDeathExplosionDefinitions.RepeatStart;
+        state.Death.ExplosionPasses = WrappingCounter.IncrementCount(state.Death.ExplosionPasses);
+        if (state.Death.ExplosionPasses >= PhantoonDeathExplosionDefinitions.PassCount)
+            state.Phase = PhantoonPhase.BeginFinalWavyDeath;
     }
 
     /// <summary>Starts the distorted background and pixelation stages after the fatal swoop.</summary>
@@ -114,13 +114,13 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         RoomEnemySlot mouth = state.Mouth;
-        state.MouthState.WaveAmplitude = 0;
-        state.MouthState.WaveAmplitudeShrinking = false;
-        state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
+        state.Wave.Amplitude = 0;
+        state.Wave.AmplitudeShrinking = false;
+        state.Wave.PhaseStep = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);
-        state.BodyState.Phase = PhantoonPhase.DyingFadeOut;
-        state.EyeState.DeathPixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
-        state.EyeState.DeathPixelationFinished = false;
+        state.Phase = PhantoonPhase.DyingFadeOut;
+        state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
+        state.Death.PixelationFinished = false;
         state.PixelationBlockSize = PhantoonDeathDefinitions.InitialPixelationSize;
 
         // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
@@ -145,31 +145,31 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         PhantoonPresentation.AdvancePhantoonWaveAmplitude(
-            state.MouthState,
+            state.Wave,
             PhantoonBehavior.PhantoonDeathWaveDelta,
             PhantoonBehavior.PhantoonDeathWaveMaximum);
 
-        PhantoonEyeState eyePart = state.EyeState;
-        if (!eyePart.DeathPixelationFinished)
+        PhantoonDeathState death = state.Death;
+        if (!death.PixelationFinished)
         {
             if (!PhantoonCadenceDefinitions.DeathPixelationGrowsEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
                 return;
 
-            if (eyePart.DeathPixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
+            if (death.PixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
             {
-                eyePart.DeathPixelationFinished = true;
-                eyePart.FadeComplete = false;
+                death.PixelationFinished = true;
+                state.BodyFade.Complete = false;
                 return;
             }
 
-            eyePart.DeathPixelationSize++;
-            state.PixelationBlockSize = eyePart.DeathPixelationSize;
+            death.PixelationSize++;
+            state.PixelationBlockSize = death.PixelationSize;
             return;
         }
 
         _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
-        if (state.EyeState.FadeComplete)
-            state.BodyState.Phase = PhantoonPhase.AlmostDead;
+        if (state.BodyFade.Complete)
+            state.Phase = PhantoonPhase.AlmostDead;
     }
 
 
@@ -179,12 +179,12 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         state.PixelationBlockSize = 1;
-        state.EyeState.WaveLength = null;
+        state.Wave.Length = null;
         state.Translucent = false;
-        state.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
-        state.BodyState.Phase = PhantoonPhase.Dead;
-        state.BodyState.PhaseTimer = 60;
-        state.EyeState.FadeComplete = false;
+        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
+        state.Phase = PhantoonPhase.Dead;
+        state.PhaseTimer = 60;
+        state.BodyFade.Complete = false;
         body.Position = body.Position.WithWhole(new(384, 128));
 
         _presentation.RequireBossBody().Clear();
@@ -195,16 +195,16 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (state.BodyState.PhaseTimer != 0)
+        if (state.PhaseTimer != 0)
         {
-            state.BodyState.PhaseTimer--;
+            state.PhaseTimer--;
             return;
         }
         if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
             return;
 
-        state.EyeState.FadeDenominator = 12;
-        if (!AdvanceWreckedShipPowerOn(state, state.EyeState))
+        state.BodyFade.Denominator = 12;
+        if (!AdvanceWreckedShipPowerOn(state))
             return;
 
         // The death drops scatter sixteen room-graphics pickups over the visible boss arena.
@@ -241,18 +241,19 @@ internal sealed class PhantoonDeath
     /// toward its powered colour, which the room shows as the import's shade of each step.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
-    internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state, PhantoonEyeState eye)
+    internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
     {
-        int denominator = eye.FadeDenominator;
-        int numerator = eye.FadeNumerator;
+        PhantoonBodyFadeProgress fade = state.BodyFade;
+        int denominator = fade.Denominator;
+        int numerator = fade.Numerator;
         if (denominator + 1 < numerator)
         {
-            eye.FadeNumerator = 0;
+            fade.Numerator = 0;
             state.Colours.CompletePowerOn();
             return true;
         }
         state.Colours.PowerOn(numerator);
-        eye.FadeNumerator = numerator + 1;
+        fade.Numerator = numerator + 1;
         return false;
     }
 }

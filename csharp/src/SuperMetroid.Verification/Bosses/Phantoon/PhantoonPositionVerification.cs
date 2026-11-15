@@ -27,10 +27,10 @@ internal static class PhantoonPositionVerification
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
         capEnemies.PhantoonBehavior.Combat.Phantoon = capState;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
-        capState.TentaclesState.SwoopVelocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
+        capState.Swoop.Velocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
         PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
-        AssertEqual((ushort)0xf800, capState.TentaclesState.SwoopVelocity.X.RawValue, "Native NTSC negative swoop X cap");
-        AssertEqual((ushort)0xfa00, capState.TentaclesState.SwoopVelocity.Y.RawValue, "Native NTSC negative swoop Y cap");
+        AssertEqual((ushort)0xf800, capState.Swoop.Velocity.X.RawValue, "Native NTSC negative swoop X cap");
+        AssertEqual((ushort)0xfa00, capState.Swoop.Velocity.Y.RawValue, "Native NTSC negative swoop Y cap");
         AssertEqual((ushort)120, capBody.Position.X.Whole, "Native capped swoop X displacement");
         AssertEqual((ushort)122, capBody.Position.Y.Whole, "Native capped swoop Y displacement");
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
@@ -42,11 +42,11 @@ internal static class PhantoonPositionVerification
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
             var state = boundary.Enemies.PhantoonBehavior.Combat.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
-            boundaryState.BodyState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
-            boundaryState.EyeState.ClosedTimer = timer;
+            boundaryState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
+            boundaryState.Round.EyeClosedTimer = timer;
             boundary.StepFrame(0);
             AssertEqual(timer == 2 ? PhantoonPhase.MoveInFigureEightThenOpenEye : (PhantoonPhase?)null,
-                boundaryState.BodyState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
+                boundaryState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
@@ -54,7 +54,7 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
-        AssertEqual(120, loaded.BodyState.PhaseTimer,
+        AssertEqual(120, loaded.PhaseTimer,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
@@ -79,7 +79,7 @@ internal static class PhantoonPositionVerification
             AssertEqual(GameplaySceneView.LayerRowAtScreenTop(displayedY), layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
             // $A7:CEA6 anchors the BG2 image's (40,40) origin to the body. Assert the
             // rendered anchor against the physical body, not merely two copied fields.
-            if (phantoon.EyeState.WaveLength is null)
+            if (phantoon.Wave.Length is null)
             {
                 AssertEqual(displayedBodyX, unchecked((ushort)(40 - layer.View.BackgroundScroll.X)),
                     "Phantoon displayed BG2 anchor shares the collision body's horizontal position");

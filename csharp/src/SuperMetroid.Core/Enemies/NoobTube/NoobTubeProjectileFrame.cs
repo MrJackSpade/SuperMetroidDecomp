@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Rooms.RoomObjects;
+namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>What one beat of a n00b tube piece's animation shows.</summary>
 /// <param name="Shown">The frame the piece shows.</param>

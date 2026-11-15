@@ -27,6 +27,42 @@ internal static class EndingShootingStarFieldVerification
         StepStar(1, new(3, 128), Origin, "a star nearer the left than the sprite offset returns to the origin");
     }
 
+    /// <summary>The animation period the cartridge gives every still star, in updates.</summary>
+    private const int CartridgeStillStarPeriod = 3840;
+
+    /// <summary>
+    /// #1983: every still star's flight, from the origin until it leaves the field and returns, is shorter than the
+    /// cartridge's period for it, so that period never elapsed and the star showed its first visible frame for the whole
+    /// flight, as the still star does; it starts its second flight at once, still at that frame.
+    /// </summary>
+    internal static void VerifyEndingStillShootingStars()
+    {
+        int still = 0;
+        for (int index = 0; index < EndingShootingStarDefinitions.Count; index++)
+        {
+            if (EndingShootingStarDefinitions.Stars[index].Period is not null)
+                continue;
+            still++;
+            var stars = new EndingShootingStars();
+            AssertTrue(!stars.stars[index].Delayed, $"still star {index} flies from the start");
+            int updates = 0;
+            bool returned = false;
+            while (!returned && updates < CartridgeStillStarPeriod)
+            {
+                stars.Step();
+                updates++;
+                EndingShootingStar star = stars.stars[index];
+                returned = star.Timer == EndingShootingStarDefinitions.InitialTimer;
+                AssertTrue(star.AnimationFrame <= 1, $"still star {index} shows no frame past its first, update {updates}");
+                if (updates > EndingShootingStarDefinitions.InitialTimer && !returned)
+                    AssertEqual(1, star.AnimationFrame, $"still star {index} shows its first visible frame after its lead-in, update {updates}");
+            }
+            AssertTrue(returned, $"still star {index} returns to the origin within the cartridge's {CartridgeStillStarPeriod}-update period");
+            AssertEqual(0, stars.stars[index].AnimationFrame, $"still star {index} restarts its lead-in when it returns");
+        }
+        AssertEqual(12, still, "the post-credits sky holds twelve still stars");
+    }
+
     /// <summary>Places star <paramref name="index"/> at rest at <paramref name="start"/>, steps the stars once and checks where it is.</summary>
     private static void StepStar(int index, Position16<ScreenPixels> start, Position16<ScreenPixels> expected, string context)
     {

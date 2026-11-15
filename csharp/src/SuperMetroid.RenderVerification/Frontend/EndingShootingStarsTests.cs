@@ -27,7 +27,9 @@ internal static class EndingShootingStarsTests
             var definition = EndingShootingStarDefinitions.Stars[index];
             Require(definition.Acceleration.X.RawValue == Word(0x8be9cf + index * 8), "Native X acceleration");
             Require(definition.Acceleration.Y.RawValue == Word(0x8be9d1 + index * 8), "Native Y acceleration");
-            Require(definition.Period == Word(0x8be9d3 + index * 8), "Native animation period");
+            // A still star's cartridge period, 3840 updates, outlasts every flight, so its picture never advances (#1983).
+            Require(definition.Period is { } period ? period == Word(0x8be9d3 + index * 8) : Word(0x8be9d3 + index * 8) == 3840,
+                "Native animation period");
             Require(definition.Delay == Word(0x8be9d5 + index * 8), "Native start delay");
         }
         for (int frame = 0; frame < EndingShootingStarDefinitions.FrameCount; frame++)

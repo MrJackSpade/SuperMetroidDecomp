@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using static SuperMetroid.Core.Frontend.Ending.EndingShootingStarDefinition;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -7,7 +8,7 @@ internal static class EndingShootingStarDefinitions
 {
     /// <summary>The colouring every star draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.ShootingStars;
-    /// <summary>The shooting-star setup creates forty records.</summary>
+    /// <summary>The shooting-star setup creates forty stars.</summary>
     internal const int Count = 40;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>
     internal const int Origin = 128;
@@ -25,50 +26,50 @@ internal static class EndingShootingStarDefinitions
     internal const int FieldFarEdge = ScreenGeometry.ScreenWidthPixels - 1;
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
     internal static Offset16<ScreenPixels> SpriteCenter => Offset16<ScreenPixels>.Of(SpriteOffset, SpriteOffset);
-    /// <summary>The shooting stars: X/Y acceleration, animation period, initial delay.</summary>
+    /// <summary>The shooting stars: X/Y acceleration, animation period (none for a still star), initial delay.</summary>
     private static readonly EndingShootingStarDefinition[] stars = [
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, -16), 6, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(12, -1), 6, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(13, -10), 6, 6),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(8, -16), 6, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, -14), 6, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, -8), 6, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, -1), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(1, -2), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(0, -3), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, -5), 32, 4),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(15, 16), 6, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 9), 8, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(12, 8), 6, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, 4), 6, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(8, 12), 8, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 8), 8, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 4), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 1), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-13, 13), 4, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-14, 8), 4, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-7, 14), 6, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-5, 16), 4, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-4, 5), 32, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-2, 3), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-2, 4), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-3, 1), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-12, 2), 4, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-6, 5), 32, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-3, 8), 32, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-14, -9), 4, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -12), 4, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-6, -14), 6, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-12, -16), 4, 8),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -4), 32, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-3, -6), 32, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-7, -8), 32, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-2, -3), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-4, -4), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -2), 3840, 0),
-        new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -4), 3840, 0)
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, -16), 6, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(12, -1), 6, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(13, -10), 6, 6),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(8, -16), 6, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, -14), 6, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, -8), 6, 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, -1), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(1, -2), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(0, -3), 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, -5), 32, 4),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(15, 16), 6, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 9), 8, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(12, 8), 6, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, 4), 6, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(8, 12), 8, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 8), 8, 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 4), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(2, 1), 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-13, 13), 4, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-14, 8), 4, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-7, 14), 6, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-5, 16), 4, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-4, 5), 32, 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-2, 3), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-2, 4), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-3, 1), 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-12, 2), 4, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-6, 5), 32, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-3, 8), 32, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-14, -9), 4, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -12), 4, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-6, -14), 6, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-12, -16), 4, 8),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -4), 32, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-3, -6), 32, 0),
+        Animated(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-7, -8), 32, 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-2, -3), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-4, -4), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -2), 0),
+        Still(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -4), 0)
     ];
-    /// <summary>Exposes the forty star records in order for initialization and motion updates.</summary>
+    /// <summary>The forty stars in order, for their setup and their flights.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Stars => stars;
     /// <summary>The animation frames a shooting star shows.</summary>
     internal const int FrameCount = 20;

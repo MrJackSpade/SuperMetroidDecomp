@@ -1273,6 +1273,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCeresEscapeHandoff), () => VerifyCeresEscapeHandoff()),
         new(nameof(VerifyCeresDestructionCinematic), () => VerifyCeresDestructionCinematic()),
         new(nameof(VerifyEndingShootingStarField), () => VerifyEndingShootingStarField()),
+        new(nameof(VerifyEndingStillShootingStars), () => VerifyEndingStillShootingStars()),
         new(nameof(VerifyMapAnimationLimits), () => VerifyMapAnimationLimits()),
         new(nameof(VerifyAttractDemoLoadWaits), () => VerifyAttractDemoLoadWaits()),
         new(nameof(VerifyChargeBeamClosedScreen), () => VerifyChargeBeamClosedScreen()),

@@ -17,12 +17,6 @@ internal static class GunshipDustNativeListAddresses
         GunshipDustSegment.LeftInner => 0xa211,
         GunshipDustSegment.LeftMiddle => 0xa23b,
         GunshipDustSegment.LeftOuter => 0xa265,
-        GunshipDustSegment.RightInnerLoop or
-            GunshipDustSegment.RightMiddleLoop or
-            GunshipDustSegment.RightOuterLoop or
-            GunshipDustSegment.LeftInnerLoop or
-            GunshipDustSegment.LeftMiddleLoop or
-            GunshipDustSegment.LeftOuterLoop => throw new ArgumentOutOfRangeException(nameof(program), program, "Not a spawned gunship dust program."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Not a spawned gunship dust program."),
     };
 

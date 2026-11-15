@@ -266,23 +266,17 @@ internal sealed class TorizoCombat
         if (enemy.DefinitionId is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
             return null;
 
-        foreach (GoldenTorizoCollisionComponent component in
-                 TorizoCollision.ComponentsAt(enemy.Frame))
+        // The body's rectangles lie about Torizo's origin; the probe compares coordinates by their difference, so a
+        // rectangle edge computed past either end of the room compares as the wrapped coordinate would.
+        Position16<RoomPixels> origin = enemy.Position.Whole;
+        IReadOnlyList<EnemyCollisionHitbox> rectangles = TorizoCollision.HitboxesAt(enemy.Frame).Rectangles;
+        for (int index = 0; index < rectangles.Count; index++)
         {
-            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            IReadOnlyList<EnemyCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
-            for (int index = 0; index < rectangles.Count; index++)
-            {
-                EnemyCollisionHitbox hitbox = rectangles[index];
-                if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
-                    continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
-            }
+            EnemyCollisionHitbox hitbox = rectangles[index];
+            if (!probe.Overlaps(origin.X + hitbox.Left, origin.Y + hitbox.Top, origin.X + hitbox.Right, origin.Y + hitbox.Bottom))
+                continue;
+            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
+            return true;
         }
         return false;
     }

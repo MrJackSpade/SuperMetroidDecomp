@@ -97,11 +97,11 @@ internal static class EnemyDefinitionBoundaryVerification
     }
 
     /// <summary>
-    /// Checks Torizo's physical components and hitbox lists against bank AA. The cartridge names each
-    /// component's list by address; only this oracle knows those addresses. Every compiled component must
-    /// hold the list the ROM names (the same rectangles, and reactions that encode to the ROM's callback
-    /// words), every component naming one address must hold one list instance, and each mirrored
-    /// right-facing frame must hold the right-facing counterpart the ROM pairs with its left-facing list.
+    /// Checks Torizo's body hitboxes against bank AA (#1943). The cartridge lists each frame's components, each naming a
+    /// hitbox list by address; only this oracle knows those addresses. Exactly the components whose lists hold rectangles
+    /// are a frame's body: there is at most one, at Torizo's origin, and the compiled frame must hold the list it names
+    /// (the same rectangles, and reactions that encode to the ROM's callback words); a frame whose components all name
+    /// empty lists has no rectangles. Every frame naming one address must hold one list instance.
     /// </summary>
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
@@ -112,43 +112,28 @@ internal static class EnemyDefinitionBoundaryVerification
         var seenLists = new Dictionary<int, TorizoHitboxList>();
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {
-            ReadOnlySpan<GoldenTorizoCollisionComponent> components = TorizoCollision.ComponentsAt(frame);
-            AssertEqual(rom.ReadCartridgeWordFixedBank(bank | frame), components.Length, "Torizo component count");
-            for (int i = 0; i < components.Length; i++)
+            TorizoHitboxList hitboxes = TorizoCollision.HitboxesAt(frame);
+            int count = rom.ReadCartridgeWordFixedBank(bank | frame);
+            bool body = false;
+            for (int i = 0; i < count; i++)
             {
                 int address = bank | (frame + 2 + i * 8);
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address)), components[i].Offset.X, "Torizo physical X");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 2)), components[i].Offset.Y, "Torizo physical Y");
                 int list = bank | rom.ReadCartridgeWordFixedBank(address + 6);
-                TorizoHitboxList hitboxes = components[i].Hitboxes;
-                AssertNativeTorizoHitboxList(rom, list, hitboxes, $"Torizo frame {frame:X4} component {i}");
+                if (rom.ReadCartridgeWordFixedBank(list) == 0)
+                    continue;
+                AssertTrue(!body, $"Torizo frame {frame:X4} has one body component");
+                body = true;
+                AssertEqual(0, unchecked((short)rom.ReadCartridgeWordFixedBank(address)), $"Torizo frame {frame:X4} body X");
+                AssertEqual(0, unchecked((short)rom.ReadCartridgeWordFixedBank(address + 2)), $"Torizo frame {frame:X4} body Y");
+                AssertNativeTorizoHitboxList(rom, list, hitboxes, $"Torizo frame {frame:X4} body");
                 if (seenLists.TryGetValue(list, out TorizoHitboxList? shared))
                     AssertTrue(ReferenceEquals(shared, hitboxes),
-                        $"Torizo frame {frame:X4} component {i} shares the list every component naming {list:X6} holds");
+                        $"Torizo frame {frame:X4} shares the list every frame naming {list:X6} holds");
                 else
                     seenLists.Add(list, hitboxes);
             }
-        }
-
-        // The cartridge lays each left-facing list's right-facing counterpart a fixed distance after it, except the
-        // shared empty list, which both facings name directly. The compiled pairing must be exactly the ROM's.
-        const int RightFacingListDistanceBytes = 350;
-        ushort right = TorizoCollisionDefinitions.RightStart;
-        for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
-        {
-            ushort left = TorizoCollisionDefinitions.FramePointers
-                .Skip(2).ElementAt(index);
-            GoldenTorizoCollisionComponent[] leftComponents = TorizoCollisionConstants.LeftFacing(index);
-            for (int i = 0; i < leftComponents.Length; i++)
-            {
-                int leftList = bank | rom.ReadCartridgeWordFixedBank(bank | (left + 2 + i * 8 + 6));
-                int rightList = bank | rom.ReadCartridgeWordFixedBank(bank | (right + 2 + i * 8 + 6));
-                AssertTrue(rightList == leftList || rightList == leftList + RightFacingListDistanceBytes,
-                    $"Torizo right-facing frame {right:X4} component {i} names its left list's counterpart");
-                AssertTrue(ReferenceEquals(seenLists[rightList], leftComponents[i].Hitboxes.RightFacing),
-                    $"Torizo left-facing frame {left:X4} component {i} pairs with the right-facing list the ROM names");
-            }
-            right = TorizoCollisionDefinitions.Next(right, leftComponents.Length);
+            if (!body)
+                AssertTrue(ReferenceEquals(TorizoCollisionDefinitions.Empty, hitboxes), $"Torizo frame {frame:X4} has no hitboxes");
         }
     }
 

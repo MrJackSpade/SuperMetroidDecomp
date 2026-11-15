@@ -12,12 +12,17 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>
 internal static class YardAirborneVerification
 {
-    /// <summary>Confirms the per-frame Samus distance includes native pixel bias and fractional camera movement.</summary>
+    /// <summary>
+    /// Confirms the runtime's scrolling records the camera's measure of Samus's sideways movement, with its added pixel and
+    /// fraction, in the runtime's Yard kick camera measure (#1962).
+    /// </summary>
     internal static void VerifyYardRuntimeDistancePublication()
     {
         var runtime = CreateRetailRuntimeFixture();
@@ -26,16 +31,66 @@ internal static class YardAirborneVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
-        AssertEqual(SignedSixteenSixteen.FromWholePixels(1), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
-            "stationary native distance includes one pixel for the next Yard kick");
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(1), runtime.YardKickDistance.HorizontalDistancePlusOne,
+            "a stationary Samus's measure includes one pixel for the next Yard kick");
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
-        AssertEqual(SignedSixteenSixteen.FromParts(1, 57344), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
-            "Yard receives full fractional camera checkpoint displacement");
+        AssertEqual(SignedSixteenSixteen.FromParts(1, 57344), runtime.YardKickDistance.HorizontalDistancePlusOne,
+            "the Yard kick receives the camera's full fractional measure from its previous tracking point");
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
-        AssertEqual(SignedSixteenSixteen.FromParts(0, 57344), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
-            "native integer-only direction test allows biased distance below one pixel");
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 57344), runtime.YardKickDistance.HorizontalDistancePlusOne,
+            "the whole-pixel direction test leaves a measure below one pixel");
+    }
+
+    /// <summary>
+    /// Confirms a kicked Yard in a room the runtime loads flies off with the camera measure the runtime's scrolling recorded
+    /// before the load (#1962): the room loader hands the runtime's measure to the room's Yards, a door load keeps it, and the
+    /// kick takes it, fraction and all, as its sideways speed and its whole pixels for its upward speed.
+    /// </summary>
+    internal static void VerifyYardKickTakesTheCameraDistance()
+    {
+        var runtime = CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.StepFrame(0);
+        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
+        runtime.StepFrame(0);
+        SignedSixteenSixteen measured = SignedSixteenSixteen.FromParts(1, 57344);
+        AssertEqual(measured, runtime.YardKickDistance.HorizontalDistancePlusOne, "the scrolling recorded the camera's measure");
+
+        SelectedRoom aqueduct = runtime.RoomLoader.LoadSelectedRoom(RoomDefinitions.Aqueduct);
+        runtime.RoomLoader.LoadRoom(MaridiaDoorDefinitions.CrabShaftToAqueduct, aqueduct, new Position16<RoomPixels>(0, 0),
+            RoomViewportLoadMode.StreamThroughDoor);
+        AssertEqual(measured, runtime.YardKickDistance.HorizontalDistancePlusOne, "the door load keeps the camera's measure");
+
+        RoomEnemySystem enemies = runtime.Room.LoadedScope.Enemies;
+        int yard = Enumerable.Range(0, enemies.YardStates.Count).First(place => enemies.YardStates[place] is not null);
+        RoomEnemySlot actor = enemies.SlotTable.Slots[yard];
+        YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
+        SamusState samus = runtime.Player.IntroducedSamus;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        // One enemy pass over the Yard, with the camera on it, makes it an enemy the touch pass reaches, as the room's
+        // contact check does; the scrolling, which would record a new measure, does not run.
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with
+        {
+            Camera = new(unchecked((ushort)(actor.Position.X.Whole - 128)), unchecked((ushort)(actor.Position.Y.Whole - 112))),
+            TimeIsFrozen = false,
+            Samus = samus,
+        });
+        state.Movement = YardMovement.Airborne;
+        state.Behavior = YardBehavior.NormalCrawling;
+        samus.Position = samus.Position.WithWhole(actor.Position.Whole);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData, actor),
+            "the touch reaches the loaded room's Yard");
+        AssertEqual(YardBehavior.Kicked, state.Behavior, "the touch kicks the Yard");
+        AssertEqual(measured, state.AirborneVelocity.X, "the kicked Yard flies right at the camera's measure, fraction and all");
+        AssertEqual(YardKicks.ForHorizontalSpeed(measured.UnsignedWholePixels), state.AirborneVelocity.Y,
+            "the kicked Yard rises at the speed the measure's whole pixels select");
     }
 
     /// <summary>Checks dropped, kicked, and beam-launched motion across signed carry and vertical speed caps.</summary>

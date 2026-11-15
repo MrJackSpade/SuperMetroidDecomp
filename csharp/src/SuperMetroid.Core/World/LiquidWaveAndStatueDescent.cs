@@ -42,7 +42,7 @@ internal sealed class LiquidWaveAndStatueDescent
     }
 
     /// <summary>Whether this update advances the liquid wave and the statues: false while a door transition has stopped them.</summary>
-    internal bool RunsThisUpdate => _order.RunsEffectWork;
+    internal bool RunsThisUpdate => _order.RunsLiquidWaveAndStatueDescent;
 
     /// <summary>
     /// Advances the liquid wave and the statues in their fixed order, before the update's random number is drawn, unless a

@@ -114,6 +114,9 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The runtime's shared fade step count, handed to every room's enemies.</summary>
     public required SharedFadeStepCount FadeStepCount { get; init; }
 
+    /// <summary>The runtime's camera measure a kicked Yard flies off with, handed to every room's enemies.</summary>
+    public required YardKickTrackingDistance YardKickDistance { get; init; }
+
 
 
 

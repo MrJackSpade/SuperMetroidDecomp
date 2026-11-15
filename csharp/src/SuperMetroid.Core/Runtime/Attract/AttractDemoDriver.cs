@@ -115,7 +115,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             SuperMissiles = scene.SuperMissiles, MaxSuperMissiles = scene.SuperMissiles,
             PowerBombs = scene.PowerBombs, MaxPowerBombs = scene.PowerBombs,
         };
-        _artwork.BindSamusPalettePresentation();
+        _artwork.BindSamusArtwork();
         ApplyAttractSamusSetup(scene.SamusSetup);
         _player.Samus.PreviousHealthForHurtCheck = _player.Samus.Health;
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,
@@ -128,8 +128,9 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         var room = _roomLoader.LoadSelectedRoom(scene.Room);
         _roomLoader.LoadRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
-        // The scene's room setup acts on the demo room the load just built.
-        ApplyAttractRoomSetup(scene.RoomSetup, _room.LoadedScope.Enemies);
+        // The scene's room setup acts on the demo room the load just built; a scene without one leaves the room as loaded.
+        if (scene.RoomSetup is { } roomSetup)
+            ApplyAttractRoomSetup(roomSetup, _room.LoadedScope.Enemies);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.Samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
@@ -178,14 +179,12 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         switch (roomSetup)
         {
-            case AttractDemoRoomSetup.NoOp:
-                break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
                 _room.LoadedCamera.Scrolls.SetLogicalState(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
-                // The shared land-sky loader has already selected the same vertical
-                // background page layout. Require that owner rather than writing a dummy mirror.
+                // Loading the Landing Site has already set up its scrolling sky, which the
+                // demo shows as it is. Require it rather than setting up a second sky.
                 if (_room.ScrollingSky is null)
                     throw new InvalidDataException("Landing Site demo requires the scrolling sky's background owner.");
                 break;

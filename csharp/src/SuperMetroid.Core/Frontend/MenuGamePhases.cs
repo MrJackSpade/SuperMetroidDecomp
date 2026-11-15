@@ -128,7 +128,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                     // Loading sends the opening-cinematic startup route written by the Spacetime Beam
                     // to the intro while the already-loaded Samus inventory remains
                     // live. Retain that inventory for Ceres setup, but do not restore
-                    // the corrupted progression planes into the fresh run.
+                    // the corrupted progression into the fresh run.
                     session.RetainSpacetimeRestart(selectedSlot);
                     if (session.Assists.SkipOpeningCinematic)
                     {

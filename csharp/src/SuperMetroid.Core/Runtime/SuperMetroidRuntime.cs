@@ -126,6 +126,12 @@ internal sealed class SuperMetroidRuntime
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
 
     /// <summary>
+    /// How far the camera last measured Samus moving sideways, plus one pixel, which a kicked Yard flies off with; created
+    /// with the runtime, recorded by the update's scrolling and handed to every room's enemies.
+    /// </summary>
+    internal YardKickTrackingDistance YardKickDistance { get; } = new();
+
+    /// <summary>
     /// The step count every gradual fade shares, created with the runtime and handed to the owners whose fades count on it:
     /// the door transition's fades, the death and time-up fades of <see cref="FadeOut"/>, and every room's enemies, whose
     /// Kraid backdrop and Torizo body fades count on it too. It outlives every room.
@@ -229,7 +235,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, FramesBeyondAnimation = SamusOverreads.FramesBeyondAnimation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -439,7 +445,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
     /// <param name="controller1Input">The host's controller buttons, normalized through the action bindings when the frame boundary latches player input; attract playback publishes its independent scripted buttons later.</param>
     /// <param name="request">The state policy, audio calls and the host's work after the frame boundary.</param>
-    public RuntimeFrameResult StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
+    public void StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
         Assists.GrantLoadoutToNewSamus();
@@ -447,7 +453,7 @@ internal sealed class SuperMetroidRuntime
             AmmoLoanGuard.Begin(Assists.Current.AmmoNeverRunsOut, Player.Samus);
         try
         {
-            return StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
+            StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
         }
         finally
         {
@@ -464,7 +470,7 @@ internal sealed class SuperMetroidRuntime
     /// Advances one frame boundary and the corresponding gameplay update while the
     /// frame-exit ammo guard remains active through callbacks.
     /// </summary>
-    private RuntimeFrameResult StepFrameGuarded(
+    private void StepFrameGuarded(
         ControllerButton controller1Input,
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard)
@@ -475,7 +481,10 @@ internal sealed class SuperMetroidRuntime
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
-            return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
+        {
+            StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
+            return;
+        }
         BeginAcceptedGameplayFrame(controller1Input, frameRequest);
         RunLiquidWaveAndStatueDescent();
         AdvanceMainLoopRandom();
@@ -496,8 +505,11 @@ internal sealed class SuperMetroidRuntime
             context.Tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
         }
         if (SuspendTailForMessageBox(context))
-            return Snapshot(infiniteAmmoGuard);
-        return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard);
+        {
+            ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+            return;
+        }
+        FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard);
     }
 
     /// <summary>Points the cross-owner routing at this frame's room owners and Samus, then applies pending Chozo statue room objects.</summary>
@@ -531,7 +543,7 @@ internal sealed class SuperMetroidRuntime
         if (Room.Camera is not null && !MessageBox.IsActive)
             LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
 
-        // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
+        // The power bomb blast belongs to the outer frame, not Samus's input phase. A statue carry
         // takes over her movement while the already-spawned blast continues normally.
         // Its cleanup resumes Samus's sounds, which can queue them before Samus's frame.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
@@ -545,7 +557,7 @@ internal sealed class SuperMetroidRuntime
         // (EffectPhaseRandomOrder) and before the game state's own work. Several room and
         // enemy behaviours only sample the random number instead of advancing it themselves;
         // the falling-tile room is the first visibly obvious example: without this draw,
-        // every ceiling fragment selects the same X table entry forever. Keep this
+        // every ceiling fragment falls at the same place forever. Keep this
         // unconditional and at the start of the update; advancing only at a consumer would
         // change the shared sequence.
         System.NextRandom();
@@ -726,7 +738,7 @@ internal sealed class SuperMetroidRuntime
     /// The remainder of a main-gameplay update after the room objects' step. A frame whose room-object
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
-    internal RuntimeFrameResult FinishGameplayFrame(
+    internal void FinishGameplayFrame(
         SuspendedGameplayFrameTail? frameTail,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard)
@@ -758,7 +770,7 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers();
-        return Snapshot(infiniteAmmoGuard);
+        ApplyEndOfUpdateAssists(infiniteAmmoGuard);
     }
 
     /// <summary>Resolves enemy-projectile hits on Samus and her projectiles, then ordinary power-bomb hits.</summary>
@@ -856,11 +868,10 @@ internal sealed class SuperMetroidRuntime
                         DownScroller: roomGeometry.DownScroller),
                     Freeze.TimeIsFrozen);
             }
-            // The camera writes the same distance-plus-one values consumed by Yard
-            // kick setup. Publish the camera calculation itself, including its
-            // integer-only direction check and previous scrolling checkpoint. A second
-            // frame-end absolute delta loses both the bias and checkpoint timing.
-            samus.HorizontalDistanceMovedPlusOne = camera.Speed.X;
+            // A kicked Yard flies off with the camera's own measure of Samus's movement (YardKickTrackingDistance),
+            // including its whole-pixel direction check, its added pixel and its previous tracking point. A second
+            // frame-end absolute delta loses both the added pixel and the tracking point's timing.
+            YardKickDistance.Record(camera.Speed.X);
             samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
 
             // The main scrolling invokes the mutable global
@@ -891,7 +902,7 @@ internal sealed class SuperMetroidRuntime
             // The stationary lock's movement mode does not run Samus's
             // colour effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
-            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
+            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusColourEffects.Hold : SamusColourEffects.Advance);
     }
 
     /// <summary>Counts the escape timer down and draws it, unless the gunship's movement mode owns the frame.</summary>
@@ -1010,8 +1021,8 @@ internal sealed class SuperMetroidRuntime
         System.UpdateHeldInput(timerReset, PhysicalController1.Current, PhysicalController1.NewlyPressed);
     }
 
-    /// <summary>Applies the assists' end-of-update floors before publishing the runtime result.</summary>
-    internal RuntimeFrameResult Snapshot(
+    /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
+    internal void ApplyEndOfUpdateAssists(
         AmmoLoanGuard infiniteAmmoGuard)
     {
         // Every damage source applies its normal amount first. The assist intervenes
@@ -1021,8 +1032,6 @@ internal sealed class SuperMetroidRuntime
             samus.Health = 1;
 
         infiniteAmmoGuard.Complete(Player.Samus);
-
-        return new RuntimeFrameResult();
     }
 
     /// <summary>
@@ -1129,7 +1138,7 @@ internal sealed class SuperMetroidRuntime
     /// One update of an open message box. Its completion returns into the suspended
     /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
-    internal RuntimeFrameResult StepMessageBoxFrame(
+    internal void StepMessageBoxFrame(
         ControllerButton controller1Input,
         RuntimeFramePolicy policy,
         AmmoLoanGuard infiniteAmmoGuard)
@@ -1148,7 +1157,10 @@ internal sealed class SuperMetroidRuntime
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;
         if (MessageBox.IsActive)
-            return Snapshot(infiniteAmmoGuard);
+        {
+            ApplyEndOfUpdateAssists(infiniteAmmoGuard);
+            return;
+        }
 
         MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope);
         // The room objects' step returns once the box and its item's step finish; the
@@ -1156,8 +1168,9 @@ internal sealed class SuperMetroidRuntime
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard);
+            FinishGameplayFrame(tail, policy, infiniteAmmoGuard);
+            return;
         }
-        return Snapshot(infiniteAmmoGuard);
+        ApplyEndOfUpdateAssists(infiniteAmmoGuard);
     }
 }

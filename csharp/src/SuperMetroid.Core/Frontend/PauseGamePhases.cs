@@ -84,7 +84,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void RunRestoringGameplayFromPause(ControllerButton controllerInput)
     {
         // Unpausing restores gameplay's layers, colours,
-        // hooks, per-line effects and block animations on a blank display. Pause graphics live in a
+        // hooks, room effects and block animations on a blank display. Pause graphics live in a
         // separate display image here, so discarding it restores the untouched runtime
         // image without rebuilding it.
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??

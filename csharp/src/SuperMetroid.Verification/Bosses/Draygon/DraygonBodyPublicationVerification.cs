@@ -34,7 +34,7 @@ internal static class DraygonBodyPublicationVerification
         foreach (Position16<RoomPixels> body in new Position16<RoomPixels>[] { new(256, 160), new(352, 288) })
         {
             draygon.Body.Position = draygon.Body.Position.WithWhole(body);
-            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
+            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
             // His body lies in the room at his body's position, moved by his body graphics' displacement (#1617).
             var expected = new Position16<RoomPixels>(
                 unchecked((ushort)(body.X + DraygonBackgroundData.HorizontalOrigin + draygon.BodyPictureShift.X)),

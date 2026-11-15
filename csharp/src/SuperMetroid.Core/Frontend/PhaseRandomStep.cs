@@ -6,8 +6,11 @@ internal enum PhaseRandomStep
     /// <summary>The generator is reseeded at power-on, then advances once: the reset state runs after the first advance.</summary>
     Reseed,
 
-    /// <summary>The per-line effects run first (lava swaps the generator's live state), then the generator advances.</summary>
-    NonGameplayLineEffectsThenAdvance,
+    /// <summary>
+    /// The room liquid's wave and the Tourian statues' descent advance first (a lava or acid wave swaps the halves of the
+    /// random number), then the generator advances.
+    /// </summary>
+    LiquidWaveAndStatueDescentThenAdvance,
 
     /// <summary>
     /// The generator advances once before the phase runs, except on an update that finishes a step waiting out a frame of

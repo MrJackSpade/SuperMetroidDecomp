@@ -24,7 +24,10 @@ internal static class YardKickVerification
         foreach (ushort whole in new ushort[] { 0, 1, 2, 15, 16, 32 })
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
+            var kickDistance = new SuperMetroid.Core.Compatibility.YardKickTrackingDistance();
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()),
+                RoomEnemyCompatibilityFixtures.ForNewRoom(new SuperMetroid.Core.Compatibility.SharedFadeStepCount(), new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), kickDistance),
+                definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
@@ -33,12 +36,12 @@ internal static class YardKickVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus });
             // Seed the airborne touch-admission case. The real contact dispatcher
-            // must install the kick and consume the published distance words.
+            // must install the kick and consume the camera measure it was handed.
             (state ?? throw new InvalidOperationException("Verification requires state.")).Movement = YardMovement.Airborne;
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
-            samus.HorizontalDistanceMovedPlusOne = SixteenSixteenWords.ToDisplacement(unchecked((int)(SixteenSixteenWords.FromWhole(whole) | fraction)));
+            kickDistance.Record(SixteenSixteenWords.ToDisplacement(unchecked((int)(SixteenSixteenWords.FromWhole(whole) | fraction))));
             AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor),
                 "Yard kick enters through native contact dispatcher");
             bool left = pose == SamusPoseId.FacingLeftNormalPose;

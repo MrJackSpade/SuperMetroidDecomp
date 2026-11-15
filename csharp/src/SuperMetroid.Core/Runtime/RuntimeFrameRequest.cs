@@ -15,7 +15,7 @@ public sealed record RuntimeFrameRequest
     public RuntimeFrameAudio Audio { get; init; } = RuntimeFrameAudio.Deferred;
 
     /// <summary>
-    /// Host work immediately after the ordinary frame boundary and before the per-line effects and main-loop owners;
+    /// Host work immediately after the ordinary frame boundary and before the liquid wave, statue descent and main-loop owners;
     /// the suspended message-box frame path does not run it.
     /// </summary>
     public Action AfterFrameBoundary { get; init; } = static () => { };

@@ -124,9 +124,10 @@ internal static class YardDirectionDefinitionsVerification
                 Pose = facing == 0
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose,
-                HorizontalDistanceMovedPlusOne = SignedSixteenSixteen.FromParts(1, 32768),
             };
-            YardEnemyBehavior.KickYardIntoAir(slot, state, samus);
+            var kickDistance = new SuperMetroid.Core.Compatibility.YardKickTrackingDistance();
+            kickDistance.Record(SignedSixteenSixteen.FromParts(1, 32768));
+            YardEnemyBehavior.KickYardIntoAir(slot, state, samus, kickDistance);
             AssertYardAirborneLists(state, expected,
                 $"Yard contact kick facing {facing}");
 

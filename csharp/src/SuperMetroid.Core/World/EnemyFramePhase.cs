@@ -70,7 +70,7 @@ internal sealed class EnemyFramePhase
         }
     }
 
-    /// <summary>Runs the enemy pass after Samus's input phase and projectiles, then applies enemy-authored colour, scroll, escape, per-line effect, and player handoffs before movement.</summary>
+    /// <summary>Runs the enemy pass after Samus's input phase and projectiles, then applies enemy-authored colour, scroll, escape, room effect, and player handoffs before movement.</summary>
     /// <param name="processingList">
     /// True in main gameplay, whose frame start already built the processing list. Door-transition
     /// enemy passes build the list immediately before the enemy pass instead.

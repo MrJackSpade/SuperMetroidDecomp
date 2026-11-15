@@ -9,7 +9,7 @@ public enum DoorTransitionPhase
     WaitForSoundQueues,
     /// <summary>Fade the source room out while the HUD keeps its colours.</summary>
     FadeOutSourceRoom,
-    /// <summary>Stop the room's per-line effects and give the screen to the door transition's display.</summary>
+    /// <summary>Stop the room liquid's wave and the statues' descent and give the screen to the door transition's display.</summary>
     BeginDoorDisplay,
     /// <summary>Move the source camera one pixel per update to the required screen boundary.</summary>
     AlignSourceCamera,

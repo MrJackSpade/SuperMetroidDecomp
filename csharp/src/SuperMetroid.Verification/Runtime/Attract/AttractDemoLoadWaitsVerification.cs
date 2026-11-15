@@ -5,7 +5,7 @@ namespace SuperMetroid.Verification.Runtime.Attract;
 
 /// <summary>
 /// Checks the attract demo schedule's loading waits (#1627): before a scene's runtime exists the schedule holds no wait
-/// count and awaits the scene; a begun scene counts its enemy-transfer waits down to the last; a reset, a title request
+/// count and awaits the scene; a begun scene counts its enemy-setup waits down to the last; a reset, a title request
 /// or the next scene await a scene again.
 /// </summary>
 internal static class AttractDemoLoadWaitsVerification
@@ -19,9 +19,9 @@ internal static class AttractDemoLoadWaitsVerification
         AttractDemoScene scene = schedule.NextScene ?? throw new InvalidOperationException("The first set has a first scene.");
         schedule.Begin(scene);
         AssertTrue(!schedule.AwaitsScene, "a begun scene no longer awaits its runtime");
-        for (int wait = 1; wait < AttractDemoDefinitions.EnemyGraphicsLoadFrames; wait++)
-            AssertTrue(!schedule.CountLoadFrame(), $"enemy-transfer wait {wait} is not the last");
-        AssertTrue(schedule.CountLoadFrame(), "the last enemy-transfer wait ends the loading");
+        for (int wait = 1; wait < GameLoadingDefinitions.EnemySetupWaits; wait++)
+            AssertTrue(!schedule.CountLoadFrame(), $"enemy-setup wait {wait} is not the last");
+        AssertTrue(schedule.CountLoadFrame(), "the last enemy-setup wait ends the loading");
         AssertTrue(!schedule.AwaitsScene, "a loaded scene does not await another");
         schedule.LoadNextScene();
         AssertTrue(schedule.AwaitsScene, "the next scene awaits its runtime");

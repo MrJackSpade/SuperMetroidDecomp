@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <remarks>
 /// Room construction remains in <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestination"/>;
 /// this owner restores the observable stages that surround it. How the transition counts frames is
-/// <see cref="DoorTransitionFrameCounting"/>'s, where its per-line effects stop is
+/// <see cref="DoorTransitionFrameCounting"/>'s, where its liquid wave and statue descent stop is
 /// <see cref="EffectPhaseRandomOrder"/>'s, how many updates it spends before the door's scroll starts is
 /// <see cref="DoorDestinationSetupWait"/>'s, and how far loading has progressed on each scroll update is
 /// <see cref="IRoomLoadProgress"/>'s.
@@ -153,7 +153,7 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.BeginDoorDisplay:
                 // The door was captured by Begin; this update keeps its own frame, after
-                // which the per-line effects stop and the door's display takes over the screen.
+                // which the liquid wave and statue descent stop and the door's display takes over the screen.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
                 runtime.EffectPhaseOrder.StopForDoorLoading();

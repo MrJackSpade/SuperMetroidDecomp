@@ -8,7 +8,12 @@
 #    until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
 # 3. Regenerates the architecture and module inventories.
 # 4. When anything changed: builds the solution once with tools/build.ps1, commits as "Cleanup: ..." and pushes with
-#    a plain fast-forward push. A failed build pushes nothing; its full output is kept with the run.
+#    a plain fast-forward push.
+# The owner's ruling (2026-11-15): the cleanup never fails over what it does, and would rather commit broken code. A
+# fix it cannot apply, a failed prune or inventory step, steps that do not settle or undo each other, and a failed
+# build are each recorded as a problem; the run goes on and commits and pushes what it has, naming every problem and
+# unfixed site in the commit body and the result. Only a clone, restore, tool build, workspace load or push failure,
+# where there is nothing to commit or no way to deliver it, fails the run.
 #
 # Writes the outcome to -Result as JSON: result nothing, pushed or rejected (exit 0), or failed (nonzero exit).
 param(
@@ -170,12 +175,18 @@ try {
     $reviewPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
     $staleReviews = [Collections.Generic.List[string]]::new()
     $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $problems = [Collections.Generic.List[string]]::new()
+    $unfixed = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
     $tree = Get-TreeId
     $null = $seen.Add($tree)
     $unchangedInARow = 0
     $maxSteps = $MaxRounds * $StepKinds.Count
     for ($step = 1; $unchangedInARow -lt $StepKinds.Count; $step++) {
-        if ($step -gt $maxSteps) { throw "The fix and prune steps did not settle within $maxSteps steps." }
+        if ($step -gt $maxSteps) {
+            $problems.Add("The fix and prune steps did not settle within $maxSteps steps; the run keeps the tree it has.")
+            Write-Output "problem: $($problems[-1])"
+            break
+        }
         $kind = $StepKinds[($step - 1) % $StepKinds.Count]
         if ($kind -eq 'fix') {
             Write-Step "step $step`: code fixes ($($fixedRules -join ', '))"
@@ -188,6 +199,8 @@ try {
             if ($summary.ProjectsWithCompilerErrors.Count -gt 0) {
                 Write-Output "projects with compiler errors, whose files were left alone: $($summary.ProjectsWithCompilerErrors -join ', ')"
             }
+            foreach ($site in $summary.Unfixed) { $null = $unfixed.Add($site) }
+            foreach ($problem in $summary.Problems) { $problems.Add("Code fixes, step ${step}: $problem") }
         }
         elseif ($kind -eq 'prune') {
             Write-Step "step $step`: reachability prune of dead code"
@@ -199,7 +212,11 @@ try {
             $exit = $LASTEXITCODE
             $output | ForEach-Object { "$_" }
             Write-Output "--- reachability prune exit $exit"
-            if ($exit -ne 0) { throw "The reachability prune failed (exit $exit)." }
+            if ($exit -ne 0) {
+                # The prune validates every edit before writing any, so a failed prune leaves the tree as it was.
+                $problems.Add("The reachability prune failed (exit $exit) at step $step; see the log.")
+                Write-Output "problem: $($problems[-1])"
+            }
             $output | ForEach-Object { "$_" } | Where-Object { $_ -match '^(Removed|Moved|Relocated|Deleted)\b' } | ForEach-Object { $prunedSummaries.Add($_) }
             Get-Content -LiteralPath $retired | Where-Object { $_ } | ForEach-Object { $retiredFields.Add($_) }
         }
@@ -209,7 +226,10 @@ try {
             $exit = $LASTEXITCODE
             $output | ForEach-Object { "$_" }
             Write-Output "--- stale review prune exit $exit"
-            if ($exit -ne 0) { throw "The stale review prune failed (exit $exit)." }
+            if ($exit -ne 0) {
+                $problems.Add("The stale review prune failed (exit $exit) at step $step; see the log.")
+                Write-Output "problem: $($problems[-1])"
+            }
             $output | ForEach-Object { "$_" } | Where-Object { $_.StartsWith($StaleReviewLine) } |
                 ForEach-Object { $staleReviews.Add($_.Substring($StaleReviewLine.Length)) }
         }
@@ -229,13 +249,24 @@ try {
             else { $null = $reviewPaths.Add($path) }
         }
         Write-Output "changed $($paths.Count) files"
-        if (-not $seen.Add($next)) { throw "Step $step returned the tree to an earlier state ($next): the fixes and the prunes undo each other." }
         $tree = $next
+        if (-not $seen.Add($next)) {
+            $problems.Add("Step $step returned the tree to an earlier state ($next): the fixes and the prunes undo each other; the run keeps that tree.")
+            Write-Output "problem: $($problems[-1])"
+            break
+        }
         $unchangedInARow = 0
     }
 
     Write-Step 'inventories (ArchitectureAudit --write)'
-    Invoke-Checked 'inventories' { dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution $solution --write }
+    $inventoryOutput = & dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution $solution --write 2>&1
+    $inventoryExit = $LASTEXITCODE
+    $inventoryOutput | ForEach-Object { "$_" }
+    Write-Output "--- inventories exit $inventoryExit"
+    if ($inventoryExit -ne 0) {
+        $problems.Add("The inventories were not regenerated (exit $inventoryExit); see the log.")
+        Write-Output "problem: $($problems[-1])"
+    }
     $final = Get-TreeId
     $inventoryPaths = @(Get-ChangedPaths $tree $final)
 
@@ -251,9 +282,8 @@ try {
     Write-Step 'build (tools/build.ps1, the whole solution)'
     $build = Invoke-Build 'build' 'build.log' @($solution)
     if ($build.Exit -ne 0) {
-        $message = "The cleaned tree does not build; nothing was pushed. Build output: $($build.Log)"
-        Save-Result @{ result = 'failed'; tip = $Tip; message = $message; buildLog = $build.Log }
-        throw $message
+        $problems.Add("The cleaned tree does not build (it is committed and pushed anyway); build output: $($build.Log)")
+        Write-Output "problem: $($problems[-1])"
     }
     $built = Get-TreeId
     if ($built -ne $final) {
@@ -267,8 +297,8 @@ try {
     if ($prunedPaths.Count -gt 0) { $parts.Add("dead code pruned in $($prunedPaths.Count) files") }
     if ($staleReviews.Count -gt 0) { $parts.Add("stale architecture reviews removed $($staleReviews.Count)") }
     if ($inventoryPaths.Count -gt 0) { $parts.Add('inventories regenerated') }
-    if ($parts.Count -eq 0) { throw "The tree changed in $($changed.Count) files, but no step accounts for it: $($changed -join ', ')" }
-    $subject = "Cleanup: $($parts -join '; ')"
+    if ($parts.Count -eq 0) { $parts.Add("$($changed.Count) files changed that no step accounts for") }
+    $subject = if ($build.Exit -ne 0) { "Cleanup (does not build): $($parts -join '; ')" } else { "Cleanup: $($parts -join '; ')" }
     $body = [Collections.Generic.List[string]]::new()
     $body.Add("The asynchronous cleanup of $Tip (tools/cleanup/README.md).")
     $body.Add('')
@@ -294,7 +324,15 @@ try {
         $staleReviews | ForEach-Object { $body.Add("  $_") }
     }
     if ($inventoryPaths.Count -gt 0) { $body.Add("Inventories regenerated: $($inventoryPaths -join ', ')") }
-    $body.Add("Built with tools/build.ps1 $solution.")
+    if ($unfixed.Count -gt 0) {
+        $body.Add("Sites no fixer could fix ($($unfixed.Count)):")
+        $unfixed | ForEach-Object { $body.Add("  $(($_ -split "`n")[0])") }
+    }
+    if ($problems.Count -gt 0) {
+        $body.Add("Problems the run carried on past ($($problems.Count)):")
+        $problems | ForEach-Object { $body.Add("  $(($_ -split "`n")[0])") }
+    }
+    $body.Add($(if ($build.Exit -ne 0) { "Does not build with tools/build.ps1 $solution; see the problems above." } else { "Built with tools/build.ps1 $solution." }))
     $messageFile = Join-Path $Artifacts 'commit-message.txt'
     [IO.File]::WriteAllText($messageFile, "$subject`n`n$($body -join "`n")`n", [Text.UTF8Encoding]::new($false))
 
@@ -314,7 +352,7 @@ try {
     $push | ForEach-Object { Write-Output $_ }
     Write-Output "--- push exit $exit after $($pushed.Attempt) attempt(s)"
     if ($exit -eq 0) {
-        Save-Result @{ result = 'pushed'; tip = $Tip; commit = $commit; message = $subject }
+        Save-Result @{ result = 'pushed'; tip = $Tip; commit = $commit; message = $subject; problems = @($problems); unfixed = $unfixed.Count }
         exit 0
     }
     # A stale tip is reported as rejected with "fetch first" or "non-fast-forward"; anything else is a failure.

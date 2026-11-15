@@ -1,8 +1,8 @@
 # Confirms the code-fix runner on its fixtures (tools/cleanup/README.md, "Fixtures").
 #
 # Each tools/cleanup/fixtures/<rule> directory holds input/ (a small project, Fixture.csproj, with the violating code)
-# and expected/ (every file the project must hold after the fix). For each fixture, or only the rules named, the
-# check:
+# and expected/ (every file the project must hold after the fix). A directory named <rule>.<case> is a further case
+# of <rule>, run for that rule. For each fixture, or only the fixtures named, the check:
 #   1. copies input/ into a new temporary directory, with the repository's csharp/.editorconfig beside it and a
 #      Directory.Build.props that imports csharp/Directory.Build.props and names the repository's analyzer and
 #      code-fix assemblies (CleanupAnalyzer, CleanupCodeFixes) for the fixture's own <Analyzer> items;
@@ -66,7 +66,7 @@ function Test-Fixture([string]$Name) {
     & dotnet restore $project -v:q | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "Restoring fixture $Name failed (exit $LASTEXITCODE)." }
     $summary = "$copy.summary.json"
-    & dotnet run (Join-Path $PSScriptRoot 'CodeFixRunner.cs') -- $project $summary $Name | Out-Host
+    & dotnet run (Join-Path $PSScriptRoot 'CodeFixRunner.cs') -- $project $summary $Name.Split('.')[0] | Out-Host
     if ($LASTEXITCODE -ne 0) {
         $failures.Add("the runner failed (exit $LASTEXITCODE)")
         return @{ Failures = $failures; Copy = $copy }

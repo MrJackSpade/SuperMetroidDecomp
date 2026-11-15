@@ -113,6 +113,12 @@ function Invoke-CleanupRun($Config, $State) {
             Save-ServiceState $State
             Write-CleanupStatus $paths 'idle' 'pushed' $outcome.message $tip $log $outcome.commit
             Write-LogLine $paths.ServiceLog "pushed $($outcome.commit) on $tip`: $($outcome.message)"
+            if (@($outcome.problems).Count -gt 0 -or [int]$outcome.unfixed -gt 0) {
+                # The run committed through its problems (the owner's ruling, 2026-11-15); the owner still hears of them.
+                Send-CleanupNotification $paths 'SuperMetroidDecomp cleanup pushed with problems' (
+                    "At $($tip.Substring(0, 10)): $(@($outcome.problems).Count) problem(s), $([int]$outcome.unfixed) unfixed site(s). " +
+                    "Commit $($outcome.commit). Log: $log")
+            }
             return 'pushed'
         }
         'rejected' {

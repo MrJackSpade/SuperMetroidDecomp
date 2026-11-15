@@ -50,13 +50,18 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
      finding), through the attribute's own syntax reference, and keeps every other byte of the file. It validates
      every edit before writing any and writes nothing if one fails. The next code-fix step removes a using the
      attribute alone needed.
-   - A step that returns the tree to an earlier state fails the run (the steps undo each other); so does a run that
-     needs more than 6 rounds of the three steps.
+   - A step that returns the tree to an earlier state (the steps undo each other), or a run that needs more than 6
+     rounds of the three steps, stops the loop: the run keeps the tree it has and records a problem. A failed prune
+     (which writes nothing) is recorded as a problem and the loop goes on.
 3. **Inventories:** `dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write`.
+   A failure is recorded as a problem and the run goes on.
 4. **Nothing changed:** the run ends quietly. A change outside `csharp/` and `docs/` fails the run.
-5. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. A failed build pushes nothing; its full
-   output is kept as `logs\<run>\build.log`, STATUS says so and a notification is raised. A build failure is never
-   fixed by judgment. The build changes no file; a tree it changed fails the run.
+5. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. The owner's ruling (2026-11-15): the
+   cleanup would rather commit broken code than fail. A failed build is recorded as a problem and the tree is
+   committed and pushed anyway, as `Cleanup (does not build): ...`; its full output is kept as
+   `logs\<run>\build.log`. Every problem and unfixed site is listed in the commit body and the result, and a pushed
+   run with any of them raises a notification. A build failure is never fixed by judgment. The build changes no file;
+   a tree it changed fails the run.
 6. **Commit** as `Cleanup: <rule, what, count; ...>` (stale reviews as `stale architecture reviews removed <count>`),
    with the files, the prune's own summary and every removed review in the body, under
    the owner's identity from the main checkout and with no assistant attribution (the clone runs the repository's
@@ -98,9 +103,10 @@ the usings the other fixes leave unnecessary. Roslyn's code-style fixers are the
 fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076 and IDE0077 is byte-identical to
 `dotnet format style --diagnostics ... --severity info`. The repository's fixers are in
 `SuperMetroid.EnsureAnalyzer.CodeFixes`, which every project references as an analyzer; the runner loads them from the
-projects' Debug references, which `run.ps1` builds first. A fixer resolves every finding without changing behaviour:
-a finding it offers no fix for, or cannot resolve without a choice, fails the run, naming the site, and is never
-skipped. A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
+projects' Debug references, which `run.ps1` builds first. A fixer resolves every finding without changing behaviour.
+The owner's ruling (2026-11-15): the cleanup never fails over a fix, and would rather commit broken code. A finding
+a fixer offers no fix for, refuses, throws on, or fixes in a way the runner cannot apply is recorded with the reason
+(the summary's `Unfixed` list, the log and the commit body) and the run goes on. A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any
@@ -114,8 +120,8 @@ A compiler warning in the group (CS0162, CS0168, CS0169, CS0219, CS0414) has no 
 while it binds. The runner reads it from the compilation's own diagnostics, with the rule enabled in the per-file
 options like any other, and applies the repository's fixer for it. Such a rule is also absent from `WarningsAsErrors`
 in `csharp/Directory.Build.props`; since the compiler computes it during binding anyway, `none` saves the build its
-reporting, not its analysis. A project that compiled when the run started and has compiler errors after a pass fails
-the run, naming them.
+reporting, not its analysis. A project that compiled when the run started and has compiler errors after a pass is
+recorded as a problem, naming them; its files are left alone from then on and the run goes on.
 
 Roslyn skips an analyzer only when every rule it reports is off. A repository analyzer that reported a moved rule
 beside one that stays an error would still run in every build, so a moved rule gets an analyzer of its own: SME6391 is
@@ -144,13 +150,14 @@ file from one project and would remove usings another project needs. Disagreeing
 commit body.
 
 The runner repeats its analysis until a pass finds nothing (one rule per file per pass, since other spans go stale
-once a file changes). A file that returns to an earlier text fails the run, and so do more than 20 passes.
+once a file changes). A file that returns to an earlier text, or more than 20 passes, stops the loop: the run keeps
+the tree it has and records a problem.
 
 A fix may change several files, such as IDE0032 deleting a field in one part of a partial type and rewriting its
 property in another. The runner accepts it when every file it changes is compiled by analyzed projects that have no
 compiler errors (otherwise its findings are kept and counted), and when no other fix in the same pass touched one of
 those files (otherwise it waits for the next pass, since its spans would be stale). Every project compiling one of
-its files must still compile afterwards, or the run fails naming the fix. The cycle and pass checks cover every
+its files that no longer compiles afterwards is recorded as a problem naming the fix, and the fix is kept. The cycle and pass checks cover every
 changed file, and the summary lists them all.
 
 A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,

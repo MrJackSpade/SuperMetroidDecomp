@@ -104,37 +104,37 @@ namespace SuperMetroid.Core.World;
 [RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 {
-    /// <summary>The <see cref="EnemyDrawList"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The enemies' draw phase: the live enemies the enemy pass queues to draw, and the frames each one shows.</summary>
     internal EnemyDrawList Drawing { get; }
 
-    /// <summary>The <see cref="EnemyAnimationPlayer"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Advances each animating enemy's animation and shows the frames the bosses show on their bodies.</summary>
     internal EnemyAnimationPlayer AnimationPlayer { get; }
 
-    /// <summary>The <see cref="EnemyPopulationLoader"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Places the room's enemy population in the room's enemy places when the room loads, with its kill quota.</summary>
     internal EnemyPopulationLoader PopulationLoader { get; }
 
-    /// <summary>The <see cref="EnemyProcessingWindow"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Chooses the enemies the enemy pass runs this update: those near enough the screen, in their places' order.</summary>
     internal EnemyProcessingWindow ProcessingWindow { get; }
 
     /// <summary>Puts populations into slots and runs their AI.</summary>
     internal EnemyLifecycle Lifecycle { get; }
 
-    /// <summary>The <see cref="GunshipBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Samus's gunship: its landing, save prompt, boarding and exit, and its lift-offs after Ceres and the escape.</summary>
     internal GunshipBehavior GunshipBehavior { get; }
 
-    /// <summary>The <see cref="SamusScrollCap"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Caps how fast the camera follows Samus while Draygon or a Yapping Maw carries her.</summary>
     internal SamusScrollCap ScrollCap { get; }
 
-    /// <summary>The <see cref="EnemyRoomFx"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The room's liquid, which Ridley and the Chozo statue raise or lower.</summary>
     internal EnemyRoomFx RoomFx { get; }
 
-    /// <summary>The <see cref="EnemyRoomStatus"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>What the room's enemies tell the rest of the game: the kills, the boss present, the Fireflea darkness and whether a door transition holds them.</summary>
     internal EnemyRoomStatus RoomStatus { get; }
 
-    /// <summary>The <see cref="RidleyProjectiles"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Ridley's fireballs and the afterburn that trails them, in Ceres and Norfair, which Mother Brain's afterburn reuses.</summary>
     internal RidleyProjectiles RidleyProjectiles { get; }
 
-    /// <summary>The <see cref="RidleyEncounter"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Ridley's fight in Ceres and Lower Norfair, and what his Ceres getaway hands on to the escape.</summary>
     internal RidleyEncounter RidleyEncounter { get; }
     /// <summary>Coordinates Ridley's multipart tail through the shared slot and projectile services.</summary>
     internal RidleyTail RidleyTail { get; }
@@ -143,301 +143,301 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Owns Mother Brain's room encounter and its cutscene state.</summary>
     internal MotherBrainEncounter MotherBrainEncounter { get; }
 
-    /// <summary>The <see cref="EnemyCollision"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
-    /// <summary>The <see cref="EnemyDeathsAndDrops"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
     internal EnemyDeathsAndDrops DeathsAndDrops { get; }
 
-    /// <summary>The <see cref="EnemyFrameContext"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>What the current enemy pass reads: the random number, the frame counter, Samus's shots and colours, the power bomb and whether time is frozen.</summary>
     internal EnemyFrameContext FrameContext { get; }
 
-    /// <summary>The <see cref="EnemyPresentation"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>How the room's enemies look: the room's appearance, the boss body layer and the shading each draw shows.</summary>
     internal EnemyPresentation Presentation { get; }
 
-    /// <summary>The <see cref="EnemySlotTable"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The room's enemy places, in their order, and how far the population and later spawns have filled them.</summary>
     internal EnemySlotTable SlotTable { get; }
 
-    /// <summary>The <see cref="ZoaBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Zoas, which hide until Samus comes near, rise to her height and dart across the room.</summary>
     internal ZoaBehavior ZoaBehavior { get; }
 
-    /// <summary>The <see cref="ZebetiteBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Zebetites barring the way to Mother Brain, which Samus's missiles wear down.</summary>
     internal ZebetiteBehavior ZebetiteBehavior { get; }
 
     /// <summary>The room camera's distance mode, which Kraid and Crocomire request (#1874).</summary>
     internal RoomCameraDistance CameraDistance { get; } = new();
 
-    /// <summary>The <see cref="YardEnemyBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Yards, Maridia's shelled crawlers that curl into a ball Samus can kick.</summary>
     internal YardEnemyBehavior YardBehavior { get; }
 
-    /// <summary>The <see cref="YappingMawBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Yapping Maws, mouths on stalks that bite at Samus and carry her.</summary>
     internal YappingMawBehavior YappingMawBehavior { get; }
 
-    /// <summary>The <see cref="WreckedShipGhostBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Covern ghosts that flicker in and out in the Wrecked Ship.</summary>
     internal WreckedShipGhostBehavior WreckedShipGhostBehavior { get; }
 
-    /// <summary>The <see cref="WorkRobotBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Wrecked Ship's work robots, which patrol and fire lasers.</summary>
     internal WorkRobotBehavior WorkRobotBehavior { get; }
 
-    /// <summary>The <see cref="WaverBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Wavers, flyers that weave up and down as they cross the room.</summary>
     internal WaverBehavior WaverBehavior { get; }
 
-    /// <summary>The <see cref="WallSpacePirateBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The space pirates that cling to walls, climb and fire at Samus.</summary>
     internal WallSpacePirateBehavior WallSpacePirateBehavior { get; }
 
-    /// <summary>The <see cref="WalkingSpacePirateBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The space pirates that walk the floors and fire at Samus.</summary>
     internal WalkingSpacePirateBehavior WalkingSpacePirateBehavior { get; }
 
-    /// <summary>The <see cref="TourianUnlockBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Tourian statues' unlock effects: the eyes' glows, the released souls and particles, their splashes and the descent's dust.</summary>
     internal TourianUnlockBehavior TourianUnlockBehavior { get; }
 
-    /// <summary>The <see cref="TourianEntranceStatueBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Tourian entrance statue scene: its decorations, which follow the statue down, and its look as each boss statue releases.</summary>
     internal TourianEntranceStatueBehavior TourianEntranceStatueBehavior { get; }
 
-    /// <summary>The <see cref="SporeSpawnBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Spore Spawn, Brinstar's mini-boss, which swings its core and releases spores.</summary>
     internal SporeSpawnBehavior SporeSpawnBehavior { get; }
 
-    /// <summary>The <see cref="SparkBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Wrecked Ship's sparks, which flicker on and off and drop falling sparks.</summary>
     internal SparkBehavior SparkBehavior { get; }
 
-    /// <summary>The <see cref="SkulteraBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Skulteras, skull-faced fish that swim back and forth in Maridia.</summary>
     internal SkulteraBehavior SkulteraBehavior { get; }
 
-    /// <summary>The <see cref="SkreeBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Skrees, which hang from ceilings, dive at Samus and burst on the ground.</summary>
     internal SkreeBehavior SkreeBehavior { get; }
 
-    /// <summary>The <see cref="ShuttersBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The shutters, the gates that rise, fall or grow out of the walls on their own.</summary>
     internal ShuttersBehavior ShuttersBehavior { get; }
 
-    /// <summary>The <see cref="ShitroidBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Baby Metroid in Mother Brain's fight, which drains her and gives Samus its life.</summary>
     internal ShitroidBehavior ShitroidBehavior { get; }
 
-    /// <summary>The <see cref="ShaktoolBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Shaktool, the Maridia digger that clears the sand from its tunnel.</summary>
     internal ShaktoolBehavior ShaktoolBehavior { get; }
 
-    /// <summary>The <see cref="SbugBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Sbugs, small bugs that wake when Samus comes near and dart about her.</summary>
     internal SbugBehavior SbugBehavior { get; }
 
-    /// <summary>The <see cref="RipperBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Rippers, armoured flyers that cross the room and turn at walls, the jet-powered ones among them.</summary>
     internal RipperBehavior RipperBehavior { get; }
 
-    /// <summary>The <see cref="RioBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Rios, Brinstar's flyers that swoop at Samus from the ceiling.</summary>
     internal RioBehavior RioBehavior { get; }
 
-    /// <summary>The <see cref="RinkaBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Rinkas, the rings that spawn in Tourian and fly at Samus.</summary>
     internal RinkaBehavior RinkaBehavior { get; }
 
-    /// <summary>The <see cref="RidleyBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Ridley, fought in Ceres station and in Lower Norfair.</summary>
     internal RidleyBehavior RidleyBehavior { get; }
 
-    /// <summary>The <see cref="PuyoBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Puyos, Norfair's small blobs that hop along floors and ceilings.</summary>
     internal PuyoBehavior PuyoBehavior { get; }
 
-    /// <summary>The <see cref="PrePhantoonRoomBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The room before Phantoon's, whose setup holds one enemy-projectile place empty for its first updates.</summary>
     internal PrePhantoonRoomBehavior PrePhantoonRoomBehavior { get; }
 
-    /// <summary>The <see cref="PowampBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Powamps, Maridia's balloon creatures that inflate and shoot spikes.</summary>
     internal PowampBehavior PowampBehavior { get; }
 
-    /// <summary>The <see cref="PolypBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Polyps, which throw rocks out of Norfair's lava.</summary>
     internal PolypBehavior PolypBehavior { get; }
 
-    /// <summary>The <see cref="PlatformsBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Trippers and suspensor platforms Samus rides.</summary>
     internal PlatformsBehavior PlatformsBehavior { get; }
 
-    /// <summary>The <see cref="PipeBugsBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The pipe bugs, the Zebs, Zebbos, Gamets and Geegas that stream out of pipes at Samus.</summary>
     internal PipeBugsBehavior PipeBugsBehavior { get; }
 
-    /// <summary>The <see cref="PhantoonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Phantoon, the Wrecked Ship's boss.</summary>
     internal PhantoonBehavior PhantoonBehavior { get; }
 
-    /// <summary>The <see cref="OwtchBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Owtches, spiky creatures that crawl over Maridia's sand.</summary>
     internal OwtchBehavior OwtchBehavior { get; }
 
-    /// <summary>The <see cref="OldTourianEscapeShaftWallBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The wall of old Tourian's escape shaft, which the escape blows open.</summary>
     internal OldTourianEscapeShaftWallBehavior OldTourianEscapeShaftWallBehavior { get; }
 
-    /// <summary>The <see cref="NuclearWaffleBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Nuclear Waffles, Lower Norfair's chains of fire that sweep an arc.</summary>
     internal NuclearWaffleBehavior NuclearWaffleBehavior { get; }
 
-    /// <summary>The <see cref="NorfairRioBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Norfair's Rios, which swoop at Samus from the ceiling.</summary>
     internal NorfairRioBehavior NorfairRioBehavior { get; }
 
-    /// <summary>The <see cref="NorfairLavaJumpingEnemyBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The enemies that leap out of Norfair's lava and fall back in.</summary>
     internal NorfairLavaJumpingEnemyBehavior NorfairLavaJumpingEnemyBehavior { get; }
 
-    /// <summary>The <see cref="NoobTubeBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
     internal NoobTubeBehavior NoobTubeBehavior { get; }
 
-    /// <summary>The <see cref="NinjaSpacePirateBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The ninja space pirates, which leap across their rooms and throw their claws.</summary>
     internal NinjaSpacePirateBehavior NinjaSpacePirateBehavior { get; }
 
-    /// <summary>The <see cref="MultiviolaBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Multiviolas, Norfair's fireballs that bounce around their rooms.</summary>
     internal MultiviolaBehavior MultiviolaBehavior { get; }
 
-    /// <summary>The <see cref="MotherBrainBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Mother Brain, the final boss.</summary>
     internal MotherBrainBehavior MotherBrainBehavior { get; }
 
-    /// <summary>The <see cref="MorphBallEyeBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The wall-mounted eyes that track Samus and shine their beam on her.</summary>
     internal MorphBallEyeBehavior MorphBallEyeBehavior { get; }
 
-    /// <summary>The <see cref="MochtroidBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Mochtroids, Maridia's Metroid look-alikes.</summary>
     internal MochtroidBehavior MochtroidBehavior { get; }
 
-    /// <summary>The <see cref="MetroidBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Metroids of Tourian, which latch on to Samus and drain her energy.</summary>
     internal MetroidBehavior MetroidBehavior { get; }
 
-    /// <summary>The <see cref="MetareeBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Metarees, which drop from ceilings and drill into the floor.</summary>
     internal MetareeBehavior MetareeBehavior { get; }
 
-    /// <summary>The <see cref="MaridiaLargeSnailBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Maridia's large snails, which crawl over the room's surfaces.</summary>
     internal MaridiaLargeSnailBehavior MaridiaLargeSnailBehavior { get; }
 
-    /// <summary>The <see cref="MamaTurtleBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Maridia's mama turtle and her babies.</summary>
     internal MamaTurtleBehavior MamaTurtleBehavior { get; }
 
-    /// <summary>The <see cref="MagdolliteBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Magdollites, which rise out of Lower Norfair's lava and throw fire.</summary>
     internal MagdolliteBehavior MagdolliteBehavior { get; }
 
-    /// <summary>The <see cref="LowerNorfairRioBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Lower Norfair's Rios, which swoop at Samus from the ceiling.</summary>
     internal LowerNorfairRioBehavior LowerNorfairRioBehavior { get; }
 
-    /// <summary>The <see cref="KzanBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Kzans, spiked crushers that drop and rise again, carrying Samus on top.</summary>
     internal KzanBehavior KzanBehavior { get; }
 
-    /// <summary>The <see cref="KraidBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Kraid, Brinstar's boss.</summary>
     internal KraidBehavior KraidBehavior { get; }
 
-    /// <summary>The <see cref="KiHunterBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Ki-Hunters, winged insects that swoop at Samus, spit acid and fight on once their wings are shot off.</summary>
     internal KiHunterBehavior KiHunterBehavior { get; }
 
-    /// <summary>The <see cref="KagoBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Kagos, hives that release swarms of bugs when shot.</summary>
     internal KagoBehavior KagoBehavior { get; }
 
-    /// <summary>The <see cref="HoppersBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Sidehoppers and Dessgeegas, which hop along floors, walls and ceilings.</summary>
     internal HoppersBehavior HoppersBehavior { get; }
 
-    /// <summary>The <see cref="HibashiBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Hibashis, Norfair's pillars of fire that erupt from the floor.</summary>
     internal HibashiBehavior HibashiBehavior { get; }
 
-    /// <summary>The <see cref="GrappleBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The grapple beam's grip on enemies: which enemy its tip latches on to, and what a grappled enemy does.</summary>
     internal GrappleBehavior GrappleBehavior { get; }
 
-    /// <summary>The <see cref="FuneNamiheBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Funes and Namihes, heads in Norfair's walls that spit fireballs.</summary>
     internal FuneNamiheBehavior FuneNamiheBehavior { get; }
 
-    /// <summary>The <see cref="FliesBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Mellows, Mellas and Memus, swarms of flies that circle and dive at Samus.</summary>
     internal FliesBehavior FliesBehavior { get; }
 
-    /// <summary>The <see cref="FirefleaBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Firefleas of Lower Norfair, whose deaths darken the room.</summary>
     internal FirefleaBehavior FirefleaBehavior { get; }
 
-    /// <summary>The <see cref="FallingSparksBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The sparks that fall from the Wrecked Ship's sparks and skitter along the floor.</summary>
     internal FallingSparksBehavior FallingSparksBehavior { get; }
 
-    /// <summary>The <see cref="FakeKraidBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Mini-Kraid, the small Kraid in the room before Kraid's.</summary>
     internal FakeKraidBehavior FakeKraidBehavior { get; }
 
-    /// <summary>The <see cref="EyeDoorBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The eyes guarding some doors, which fire at Samus until she destroys them.</summary>
     internal EyeDoorBehavior EyeDoorBehavior { get; }
 
-    /// <summary>The <see cref="EvirBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Evirs, Maridia's shrimp that throw their arms at Samus.</summary>
     internal EvirBehavior EvirBehavior { get; }
 
-    /// <summary>The <see cref="EtecoonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Etecoons, the friendly animals that show Samus the wall jump.</summary>
     internal EtecoonBehavior EtecoonBehavior { get; }
 
-    /// <summary>The <see cref="EscapeExplosionsBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The explosions that go off around Samus during the escape.</summary>
     internal EscapeExplosionsBehavior EscapeExplosionsBehavior { get; }
 
-    /// <summary>The <see cref="EscapeAnimalsBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Dachora and Etecoons escaping Zebes, and the wall Samus can free them through.</summary>
     internal EscapeAnimalsBehavior EscapeAnimalsBehavior { get; }
 
-    /// <summary>The <see cref="ElevatorBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The elevators that carry Samus between areas.</summary>
     internal ElevatorBehavior ElevatorBehavior { get; }
 
-    /// <summary>The <see cref="DraygonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Draygon, Maridia's boss, with the turrets on its room's walls.</summary>
     internal DraygonBehavior DraygonBehavior { get; }
 
-    /// <summary>The <see cref="DragonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Dragons, which rise out of Norfair's lava and spit fireballs.</summary>
     internal DragonBehavior DragonBehavior { get; }
 
-    /// <summary>The <see cref="DownwardGateBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The gates that close downward over a passage and the gates already closed.</summary>
     internal DownwardGateBehavior DownwardGateBehavior { get; }
 
-    /// <summary>The <see cref="DeadTourianBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The drained corpses lying in Tourian, which crumble away when disturbed.</summary>
     internal DeadTourianBehavior DeadTourianBehavior { get; }
 
-    /// <summary>The <see cref="DeadTorizoBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The drained Torizo lying in Tourian, which crumbles away when disturbed.</summary>
     internal DeadTorizoBehavior DeadTorizoBehavior { get; }
 
-    /// <summary>The <see cref="DeadSidehopperBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The giant Sidehopper the Baby Metroid drains in Tourian, and the corpse it leaves.</summary>
     internal DeadSidehopperBehavior DeadSidehopperBehavior { get; }
 
-    /// <summary>The <see cref="DachoraBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Dachora, the friendly animal that shows Samus the shinespark.</summary>
     internal DachoraBehavior DachoraBehavior { get; }
 
-    /// <summary>The <see cref="CrocomireBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Crocomire, Norfair's boss.</summary>
     internal CrocomireBehavior CrocomireBehavior { get; }
 
-    /// <summary>The <see cref="CrawlersBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Geemers, Zeelas and Sovas that crawl around the room's surfaces.</summary>
     internal CrawlersBehavior CrawlersBehavior { get; }
 
-    /// <summary>The <see cref="ChozoStatueBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Chozo statues that come to life: the one that carries Samus and the one that drains the acid.</summary>
     internal ChozoStatueBehavior ChozoStatueBehavior { get; }
 
-    /// <summary>The <see cref="ChootBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Choots, Maridia's flat fish that leap when Samus comes near and glide back down.</summary>
     internal ChootBehavior ChootBehavior { get; }
 
-    /// <summary>The <see cref="CeresSteamBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The steam that vents from Ceres station's walls.</summary>
     internal CeresSteamBehavior CeresSteamBehavior { get; }
 
-    /// <summary>The <see cref="Areas.Ceres.CeresFallingTiles"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles { get; }
 
-    /// <summary>The <see cref="Enemies.SaveStation.SaveStationElectricity"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The electricity a save station shows while it saves.</summary>
     internal SaveStationElectricity SaveStationElectricity { get; }
 
-    /// <summary>The <see cref="CeresRidleyBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Ridley in Ceres station: his fight over the Baby Metroid and his getaway.</summary>
     internal CeresRidleyBehavior CeresRidleyBehavior { get; }
 
-    /// <summary>The <see cref="CeresDoorBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Ceres station's doors and walls, and the quake that shakes them during the escape.</summary>
     internal CeresDoorBehavior CeresDoorBehavior { get; }
 
-    /// <summary>The <see cref="CacatacBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Cacatacs, Maridia's cacti that shoot spikes.</summary>
     internal CacatacBehavior CacatacBehavior { get; }
 
-    /// <summary>The <see cref="BullBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Bulls, floating creatures that drift after Samus and recoil from shots.</summary>
     internal BullBehavior BullBehavior { get; }
 
-    /// <summary>The <see cref="BoyonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Boyons, Norfair's jelly blobs that bounce in place.</summary>
     internal BoyonBehavior BoyonBehavior { get; }
 
-    /// <summary>The <see cref="BoulderBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The boulders that roll and bounce down at Samus.</summary>
     internal BoulderBehavior BoulderBehavior { get; }
 
-    /// <summary>The <see cref="BotwoonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>Botwoon, Maridia's mini-boss, with its body and spit.</summary>
     internal BotwoonBehavior BotwoonBehavior { get; }
 
-    /// <summary>The <see cref="TorizoBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Torizos, Bomb Torizo and Golden Torizo.</summary>
     internal TorizoBehavior TorizoBehavior { get; }
 
-    /// <summary>The <see cref="BlueBrinstarFaceBlockBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The face blocks in Blue Brinstar and their turning animation.</summary>
     internal BlueBrinstarFaceBlockBehavior BlueBrinstarFaceBlockBehavior { get; }
 
-    /// <summary>The <see cref="BeetomBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Beetoms, which leap at Samus, latch on and drain her energy.</summary>
     internal BeetomBehavior BeetomBehavior { get; }
 
-    /// <summary>The <see cref="BabyMetroidCutsceneBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Baby Metroid's meeting with Samus in Tourian, where it latches on and lets her go.</summary>
     internal BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior { get; }
 
-    /// <summary>The <see cref="AtomicBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Atomics, the Wrecked Ship's spinning atoms that drift after Samus.</summary>
     internal AtomicBehavior AtomicBehavior { get; }
 
-    /// <summary>The <see cref="AlcoonBehavior"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The Alcoons, Norfair's lizards that leap out at Samus and spit fireballs.</summary>
     internal AlcoonBehavior AlcoonBehavior { get; }
 
-    /// <summary>The <see cref="RoomEarthquake"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The room's earthquake, which every enemy, room object and effect that shakes the room starts or sustains.</summary>
     internal RoomEarthquake Earthquake { get; }
 
     /// <summary>The enemies' collision, for the shared responses to resolve at use.</summary>
@@ -482,13 +482,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </summary>
     internal PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; }
 
-    /// <summary>The <see cref="EnemyProjectileEngine"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The room's enemy projectiles: their eighteen places, their spawns, their motion and their touches on Samus.</summary>
     internal EnemyProjectileEngine Projectiles { get; }
 
-    /// <summary>The <see cref="EnemyAudioQueue"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>The sound and music requests the room's enemies queue, and the music their room starts when it loads.</summary>
     internal EnemyAudioQueue Audio { get; }
 
-    /// <summary>The <see cref="EnemyTerrain"/> owner of this RoomEnemySystem.</summary>
+    /// <summary>How enemies move against the room's terrain: steps over flat ground and slopes, the solid ahead, and the blocks they break.</summary>
     internal EnemyTerrain Terrain { get; }
 
     /// <summary>Post-AI collision snapshots for the room's active enemies.</summary>
@@ -661,7 +661,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
-        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable);
+        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable, Room);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);
@@ -935,8 +935,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     hooks.ResolveBeforeOrdinaryHits(frame);
                 Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
                     frame.Samus, slot, frame.Camera);
-                // The input phase already updated the bomb slots. The enemy pass checks
-                // them before this actor's touch and AI, so escape starts now.
+                // Samus's input phase has already moved her bombs. The enemy pass checks
+                // them before this enemy's touch and AI, so an escape a bomb starts begins this update.
                 Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot, frame.Camera);
                 if (slot.IsFree)
                     continue;

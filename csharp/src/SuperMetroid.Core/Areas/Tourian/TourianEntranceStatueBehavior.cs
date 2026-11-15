@@ -21,6 +21,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy slots, whose statues show the scene's look.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The room's services, whose statue room tells the decorations how far the statue has sunk.</summary>
+    private readonly EnemyRoomBinding _room;
 
     /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
     private PictureShade? _eyeGlow;
@@ -34,11 +36,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The released statues drawn in the room's background: their blacked-out eyes and greys, in the order shown.</summary>
     private readonly List<PictureShade> _roomLooks = [];
 
-    /// <summary>Binds projectile allocation and the room's slots to the statue species.</summary>
-    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable)
+    /// <summary>Binds projectile allocation, the room's slots and the room's services to the statue species.</summary>
+    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyRoomBinding room)
     {
         _projectiles = projectiles;
         _slotTable = slotTable;
+        _room = room;
     }
 
     /// <summary>
@@ -118,8 +121,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// The statues' shared animation state, set and cleared by the statue animations, the descent and the decorations:
-    /// how far the statue has sunk and whether its sinking has finished among it.
+    /// The statues' shared animation state, set and cleared by the statue animations, the descent and the decorations,
+    /// whether the statue's sinking has finished among it.
     /// </summary>
     public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
@@ -173,11 +176,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>The statue's base decoration, Ridley and Phantoon (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior Decorations => field ??= new DecorationBehavior(TourianEntranceStatueAnimation);
+    internal EnemyProjectileBehavior Decorations => field ??= new DecorationBehavior(TourianEntranceStatueAnimation, _room);
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
-    /// <param name="statue">The statues' shared animation state: the statue's descent, which the decoration follows.</param>
-    private sealed class DecorationBehavior(TourianStatueAnimation statue)
+    /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
+    /// <param name="room">The room's services, whose statue room says how far the statue has sunk.</param>
+    private sealed class DecorationBehavior(TourianStatueAnimation statue, EnemyRoomBinding room)
         : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
     {
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
@@ -199,7 +203,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             }
         }
 
-        /// <summary>Tracks the background statue's vertical displacement and publishes the base decoration's completion latch.</summary>
+        /// <summary>Follows the statue down as it sinks and, for the base decoration, marks the sinking finished once the statues rest.</summary>
         private void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
         {
             if (projectile.Motion is TourianStatueDecorationMotion.FollowingReveal &&
@@ -214,7 +218,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             // The statue base adds the camera Y position and subtracts the reveal effect's camera Y plus displacement.
             // The camera terms cancel here; ordinary sprite drawing subtracts the camera once.
             // This keeps the statue's sprite pictures attached to the descending background statue artwork.
-            projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - statue.VerticalOffset);
+            projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - room.Services.TourianStatueRoom.StatueOffset);
         }
     }
 }

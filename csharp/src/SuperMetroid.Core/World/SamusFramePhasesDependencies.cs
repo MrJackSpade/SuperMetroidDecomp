@@ -8,43 +8,35 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="SamusFramePhases"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record SamusFramePhasesDependencies
 {
-    /// <summary>Artwork.</summary>
+    /// <summary>The installed artwork Samus's death steps show.</summary>
     public required RuntimeArtwork Artwork { get; init; }
-    /// <summary>Attract demo.</summary>
+    /// <summary>The attract demo's input, which replaces the player's while the demo plays Samus.</summary>
     public required IAttractSamusInput AttractDemo { get; init; }
-
 
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }
 
-
-
-    /// <summary>Freeze.</summary>
+    /// <summary>Whether gameplay time is frozen, which holds Samus's movement and animation.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>Game time.</summary>
+    /// <summary>The game's clock, whose elapsed updates a shinespark reads while it moves Samus.</summary>
     public required GameTimeState GameTime { get; init; }
 
-    /// <summary>The frame clock.</summary>
+    /// <summary>The game's frame counters, which time enemies, animations and blinking.</summary>
     public required FrameClock Clock { get; init; }
 
-    /// <summary>Options.</summary>
+    /// <summary>The in-game options, whose controls Samus's pose changes read.</summary>
     public required GameplayOptions Options { get; init; }
 
     /// <summary>The runtime's assists; a shinespark reads whether Samus cannot die.</summary>
     public required ActiveAssists Assists { get; init; }
 
-    /// <summary>Player.</summary>
+    /// <summary>Samus, her input and movement modes and what her update keeps.</summary>
     public required SamusFrameState Player { get; init; }
 
-
-
-    /// <summary>Room.</summary>
+    /// <summary>The loaded room, whose level, camera and room objects Samus moves through.</summary>
     public required ActiveRoomState Room { get; init; }
 
-
-    /// <summary>System.</summary>
+    /// <summary>The session's shared game state, which Samus's movement and shots consult.</summary>
     public required SharedGameState System { get; init; }
-
-
 }

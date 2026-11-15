@@ -17,13 +17,10 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>The HUD whose rows the effect overlay plane shows.</summary>
     public required HudState Hud { get; init; }
 
-    /// <summary>Background scroll.</summary>
+    /// <summary>Where the layers stand, which the shown frame captures.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-
-
-
-    /// <summary>Display.</summary>
+    /// <summary>What the gameplay display shows, which the shown frame latches.</summary>
     public required GameplayDisplayState Display { get; init; }
 
     /// <summary>Sprite frame the frame boundary makes visible.</summary>
@@ -35,23 +32,18 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>The shown layers the accepted frame latches.</summary>
     public required GameplayScreenLayers ScreenLayers { get; init; }
 
-
     /// <summary>Sprite frame the main loop finalized.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
-
-    /// <summary>Player.</summary>
+    /// <summary>Samus, whose look the shown frame captures.</summary>
     public required SamusFrameState Player { get; init; }
 
     /// <summary>Active room, door, and scrolling sky.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Suit pickup.</summary>
+    /// <summary>The suit transformation, whose colour the shown frame latches.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 
-
-
-    /// <summary>Xray.</summary>
+    /// <summary>What the X-ray scope reveals, built as the shown frame shows it.</summary>
     public required XrayReveal Xray { get; init; }
-
 }

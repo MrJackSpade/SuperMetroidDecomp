@@ -11,21 +11,11 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     public TourianStatueAnimation Animation => statue.TourianEntranceStatueAnimation;
 
     /// <inheritdoc/>
-    public int VerticalOffset
-    {
-        get => statue.TourianEntranceStatueAnimation.VerticalOffset;
-        set => statue.TourianEntranceStatueAnimation.VerticalOffset = value;
-    }
-
-    /// <inheritdoc/>
     public bool Finished
     {
         get => statue.TourianEntranceStatueAnimation.Finished;
         set => statue.TourianEntranceStatueAnimation.Finished = value;
     }
-
-    /// <inheritdoc/>
-    public Position16<RoomPixels> WaterSurface { get => unlock.TourianStatueWaterSurface; set => unlock.TourianStatueWaterSurface = value; }
 
     /// <inheritdoc/>
     public void SpawnEyeGlow(TourianStatueEye eye) => unlock.SpawnTourianEyeGlow(eye);

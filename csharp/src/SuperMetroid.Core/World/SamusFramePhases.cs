@@ -365,8 +365,8 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             // The bomb half above has already decremented the shared projectile cooldown. Her standing form's step then
             // runs the HUD producer, which fires and queues its sound, before the game handles any projectile: the
             // bombs, then the shots (#1620). Passing the live camera position also gives the projectile deletion check
-            // its exact off-screen deletion window. The Spacetime beam's malformed frame-behaviour entry writes straight into
-            // Samus's progression owners during this pass, so later consumers this frame, and saves, observe them.
+            // its exact off-screen deletion window. A Spacetime beam shot changes Samus's items and progress during this
+            // pass, so the rest of this update, and a save, see the change.
             var shotTerrain = new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects, Progression = _system };
             room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _playerActions.Current, ControllerNewInput = _playerActions.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
             _ = room.BombProjectiles.HandleBombs(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, overlap: BombJumpOverlapPublication.Deferred);
@@ -1098,8 +1098,8 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // movement type. Y direction is data consumed by the selected
         // movement, never a replacement step. In particular, crouched
         // left-to-right turn can retain downward direction while its type remains
-        // turning on the ground; treating it as turning while jumping sent it into the aerial turn's movement
-        // and produced the live replay crash from issue 58.
+        // turning on the ground; treating it as turning while jumping would send it into the aerial turn's
+        // movement.
         SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementType(samus);
         if (turnMovementType == SamusMovementType.TurningOnGround ||
             (turnMovementType == SamusMovementType.TurningWhileJumping &&
@@ -1217,9 +1217,9 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // suppressing only their application would be too late and observably wrong.
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
         SamusControlMode mode = new(samus.Control.Mode.Input, SelectedMovementMode(frame, samus));
-        // Sound queues persist across the whole game, but this typed control
-        // publication is scoped to one frame of Samus's control. It opened before the per-line
-        // effect pass, ahead of the landing sounds during collision.
+        // Sound queues persist across the whole game, but this control publication covers one update of
+        // Samus's control. It opens before her movement and collision, so it is in place for the landing
+        // sounds her collision plays.
         frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, SamusPoseMetadata.ReadMovementType(samus));
         if (frame.XrayOwnsPoseInput)
         {
@@ -1252,9 +1252,9 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         _player.ProspectiveSamusWallCollisionPose = null;
 
         // Zero input and an unmatched nonzero table chord both reach the input fallback; a matched
-        // same-pose transition does not. Writes the prospective pose slot in the input phase and
-        // commits it after movement and animation, so the selection is captured here.
-        // A retained pose still selects a transition slot whose change runs later.
+        // same-pose transition does not. The input phase chooses Samus's prospective pose, which takes effect
+        // after movement and animation, so the choice is captured here.
+        // A retained pose still chooses a pose transition whose change runs later.
         if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
         {
             _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
@@ -1331,9 +1331,9 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
 
         // Normal gameplay advances animation during the movement phase, before the
         // pose transitions, drawing, and next frame's picture selection.
-        // Animation sees the same held input as movement. Ordinary Dash uses B
-        // both to accumulate the running delay and to intercept the running animation's
-        // cue; passing a reconstructed input later would skew art.
+        // Animation sees the same held input as movement. The dash action both
+        // builds up the running delay and holds the running animation at its
+        // cue; passing a reconstructed input later would show the wrong frames.
         if (frame.Mode.Movement == SamusMovementMode.Fatal)
         {
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(

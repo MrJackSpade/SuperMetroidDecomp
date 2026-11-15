@@ -19,13 +19,16 @@ namespace SuperMetroid.Core.World;
 public sealed class TourianStatueSequence
 {
 
-    /// <summary>Holds statue busy/released bits, effect spawning, vertical offset, and descent earthquake state.</summary>
+    /// <summary>
+    /// The room's enemies: the statues' shared animation state (which statues animate, which one is releasing, whether all
+    /// have released), the unlock's effects and the room's earthquake the descent shakes.
+    /// </summary>
     private readonly RoomEnemySystem _enemies;
     /// <summary>Supplies equipped items to colour effects started during the release animation.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
+    /// <summary>Publishes the earthquake sound of the statues' descent.</summary>
     private readonly RoomFxOverlayState _roomFxOverlay;
     /// <summary>Creates the colour effect selected by a statue animation cue.</summary>
     private readonly ColourEffectSystem _roomColourEffects;
@@ -89,7 +92,10 @@ public sealed class TourianStatueSequence
         /// <summary>Ends the animation, deleting the object.</summary>
         internal void Stop() => Playback = null;
     }
-    /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches the room-object update order and busy-bit ownership.</summary>
+    /// <summary>
+    /// The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in each update and so the
+    /// order in which a waiting statue can claim the one release that plays at a time.
+    /// </summary>
     internal readonly List<StatueBlockAnimation> objects = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
@@ -141,7 +147,6 @@ public sealed class TourianStatueSequence
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
             Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
-            _enemies.TourianStatue.VerticalOffset = VerticalOffset;
             roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();
         }
@@ -153,9 +158,8 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Spawns the four statue objects in order. Spawns take places
-    /// and the room objects' steps run in the same update order, so spawn order also
-    /// preserves execution order and which statue can acquire the shared busy bit.
+    /// Spawns the four statue animations in order. They run in the order they were spawned, so the spawn order also
+    /// decides which waiting statue claims the one release that plays at a time.
     /// </summary>
     internal void SpawnAnimatedObjects()
     {
@@ -258,12 +262,13 @@ public sealed class TourianStatueSequence
         }
     }
 
-    /// <summary>Including the authored delay and quarter-pixel descent.</summary>
+    /// <summary>
+    /// Runs the statues' descent for one update: once all four statues have released, the authored hold with its
+    /// earthquake, then the quarter-pixel descent that opens the way into Tourian when it reaches its distance.
+    /// </summary>
     public void StepDescent(RoomObjectSystem roomObjects)
     {
         if (!Enabled) return;
-        _enemies.TourianStatue.WaterSurface = new(0, CoordinateAxis.Wrap(_roomFxOverlay.Surface
-            ?? throw new InvalidOperationException("The Tourian statues' room effect names no water surface.")));
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked)) { EnableScrolling(); return; }
         if (_descentPhase == TourianStatueDescentPhase.AwaitingReleases)
         {
@@ -290,7 +295,6 @@ public sealed class TourianStatueSequence
         }
         if (_freeze.TimeIsFrozen) return;
         Descent += TourianStatueSequenceDefinitions.DescentStep;
-        _enemies.TourianStatue.VerticalOffset = VerticalOffset;
         // The statue's descent compares the whole position against its end value, which it first reaches
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)

@@ -12,24 +12,24 @@ internal sealed record MessageBoxFlowDependencies
     /// <summary>The runtime's audio requests, which the HUD update after a message box queues its selection sound into.</summary>
     public required GameplayAudioRequests AudioRequests { get; init; }
 
-    /// <summary>Freeze.</summary>
+    /// <summary>Whether gameplay time is frozen, which the HUD update after a message box reads.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
-    /// <summary>Hud.</summary>
+    /// <summary>The HUD, whose counters a closing message box refreshes.</summary>
     public required HudState Hud { get; init; }
 
-    /// <summary>Message box.</summary>
+    /// <summary>The message box, whose yes-or-no answer a save station and the gunship read.</summary>
     public required GameplayMessageBoxState MessageBox { get; init; }
 
-    /// <summary>Player.</summary>
+    /// <summary>Samus, whose items the HUD shows and whose suit a pickup changes.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The loaded room, whose level and camera the resumed room objects draw with.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Suit pickup.</summary>
+    /// <summary>The suit transformation a Varia or Gravity Suit pickup starts once its message closes.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 
-    /// <summary>System.</summary>
+    /// <summary>The session's shared game state, which records the saves the gunship and save stations make.</summary>
     public required SharedGameState System { get; init; }
 }

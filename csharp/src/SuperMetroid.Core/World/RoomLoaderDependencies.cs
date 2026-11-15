@@ -17,16 +17,11 @@ namespace SuperMetroid.Core.World;
     "outlives, as the room load initializes them in one pass; each member is one of those session owners.")]
 internal sealed record RoomLoaderDependencies
 {
-    /// <summary>Artwork.</summary>
+    /// <summary>The installed artwork the entered room draws and colours from.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
-
-    /// <summary>Background scroll.</summary>
+    /// <summary>Where the foreground and background layers stand, which a load places for the entered room.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
-
-
-
-
 
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }
@@ -34,10 +29,10 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The runtime's audio requests, which every room system and every Samus built here queue theirs into.</summary>
     public required GameplayAudioRequests AudioRequests { get; init; }
 
-    /// <summary>Display.</summary>
+    /// <summary>What the gameplay display shows, which a load sets up for the entered room.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Door transition.</summary>
+    /// <summary>The door transition, whose door setup a load runs once the room's objects exist.</summary>
     public required DoorTransitionRunner DoorTransition { get; init; }
 
     /// <summary>The enemy state and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
@@ -46,30 +41,28 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The session's installed boss artwork, which each room's bosses read.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
 
-    /// <summary>Enemy room effects.</summary>
+    /// <summary>The room effects the entered room's enemies request as they load.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
-    /// <summary>Escape effects.</summary>
+    /// <summary>The escapes' room effects, which a load sets up when Samus enters an escape room.</summary>
     public required EscapeRoomEffects EscapeEffects { get; init; }
 
-    /// <summary>Game time.</summary>
+    /// <summary>The game's clock, which loading a saved game restores.</summary>
     public required GameTimeState GameTime { get; init; }
 
-    /// <summary>Hud.</summary>
+    /// <summary>The HUD, whose values and minimap a load carries into the entered room.</summary>
     public required HudState Hud { get; init; }
 
-
-
-    /// <summary>The frame clock.</summary>
+    /// <summary>The game's frame counters, which time enemies, animations and blinking.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>How the door transition's scroll counts frames on the short frame counter.</summary>
     public required DoorTransitionFrameCounting DoorFrameCounting { get; init; }
 
-    /// <summary>Options.</summary>
+    /// <summary>The in-game options, which loading a saved game restores.</summary>
     public required GameplayOptions Options { get; init; }
 
-    /// <summary>Player.</summary>
+    /// <summary>Samus, whom a load places in the entered room and shows as she enters.</summary>
     public required SamusFrameState Player { get; init; }
 
     /// <summary>The host's installed room-object artwork each room's room-object system draws with.</summary>
@@ -78,7 +71,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The held beam charge, flare and charge colouring, which each room's projectile system shares.</summary>
     public required BeamChargeState BeamCharge { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The loaded room, which a load replaces with the room it builds.</summary>
     public required ActiveRoomState Room { get; init; }
 
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect overlay FX reads.</summary>
@@ -90,11 +83,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
     public required TourianStatueSequenceDependencies TourianStatueDependencies { get; init; }
 
-
-
-
-
-    /// <summary>System.</summary>
+    /// <summary>The session's shared game state: the events and defeated bosses that choose each room's state.</summary>
     public required SharedGameState System { get; init; }
 
     /// <summary>The runtime's assists, which grant the loadout and reset saved encounters on a load.</summary>
@@ -116,8 +105,4 @@ internal sealed record RoomLoaderDependencies
 
     /// <summary>The runtime's camera measure a kicked Yard flies off with, handed to every room's enemies.</summary>
     public required YardKickTrackingDistance YardKickDistance { get; init; }
-
-
-
-
 }

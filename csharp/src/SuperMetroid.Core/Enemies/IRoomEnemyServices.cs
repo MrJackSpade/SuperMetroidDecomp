@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The game-state services enemy AI calls during a room: the union of every child operation's
 /// service contract plus the RNG, events, defeated bosses and room-object presence the AI uses directly.
 /// </summary>
-public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices
+public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices, ITourianStatueRoomServices
 {
     /// <summary>The game RNG.</summary>
     IEnemyRandomNumbers Random { get; }

@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The Tourian statues' unlock effects (#1801, #1956): the projectile behaviour that spawns and moves the descending
-/// statue's dust, the eyes' glows, the released souls, the particles and their tails, and the splashes at the water surface
-/// it holds. The release's cues spawn more of the effects it spawns.
+/// statue's dust, the eyes' glows, the released souls, the particles and their tails, and the splashes at the room's water
+/// surface. The release's cues spawn more of the effects it spawns.
 /// </summary>
 [RoomLifetime]
 internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
-    /// <summary>Live room randomness.</summary>
+    /// <summary>The room's randomness and the statue room's water surface the particles splash through.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocator and initializer for statue, dust, particle, and splash projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -37,8 +37,8 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         _statue = statue;
     }
 
-    /// <summary>How far above the water surface a splash sits.</summary>
-    private static readonly Offset16<RoomPixels> SplashAboveSurface = new(0, -4);
+    /// <summary>How many pixels above the water surface a splash sits.</summary>
+    private const int SplashHeightAboveSurface = 4;
 
     /// <summary>The upward acceleration of a rising statue soul each update.</summary>
     private static readonly SignedEightEight SoulRiseAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
@@ -46,8 +46,17 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>The gravity a falling statue particle gains each update.</summary>
     private static readonly SignedEightEight ParticleGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
 
-    /// <summary>The water surface the unlocking particles cross and their splashes ride; only its Y axis is meaningful.</summary>
-    internal Position16<RoomPixels> TourianStatueWaterSurface { get; set; }
+    /// <summary>The room line of the statue room's water surface, which the particles cross and their splashes ride.</summary>
+    /// <exception cref="InvalidOperationException">The room's effect names no water surface.</exception>
+    private int WaterSurface => _room.Services.TourianStatueRoom.WaterSurface ??
+        throw new InvalidOperationException("The Tourian statues' room effect names no water surface.");
+
+    /// <summary>
+    /// Whether <paramref name="projectile"/> lies below the water surface: the signed distance from it down to the surface,
+    /// across the room's wrapping lines, is negative, so a particle thrown above the room's top lies above the water.
+    /// </summary>
+    private bool IsBelowWaterSurface(EnemyProjectile projectile) =>
+        CoordinateAxis.Difference(WaterSurface, projectile.Position.Y.Whole) < 0;
     /// <summary>The point the descending statue's dust puffs return to whenever they restart.</summary>
     private static readonly Position16<RoomPixels> TourianDescentDustAnchor = new(128, 188);
 
@@ -112,7 +121,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
-            projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
+            projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - SplashHeightAboveSurface);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(_room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - 32);
@@ -125,7 +134,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
     /// <summary>Holds a splash at the water surface.</summary>
     private void HoldTourianStatueSplash(EnemyProjectile projectile) =>
-        projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
+        projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - SplashHeightAboveSurface);
 
     /// <summary>Raises a soul, accelerating upward, and deletes it once it rises above the room's top.</summary>
     internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)
@@ -144,11 +153,10 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// </summary>
     internal void DropTourianStatueParticle(EnemyProjectile projectile)
     {
-        // A splash marks the update the particle crosses the surface in either direction: the wrapped
-        // signed distance from the particle down to the surface changes sign.
-        bool submergedBefore = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
+        // A splash marks the update the particle crosses the surface in either direction.
+        bool submergedBefore = IsBelowWaterSurface(projectile);
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
-        bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
+        bool submergedAfter = IsBelowWaterSurface(projectile);
         if (submergedBefore != submergedAfter)
             SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash);
         if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) >= TourianStatueParticleDefinitions.SunkDepth)

@@ -8,24 +8,19 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="DoorTransitionRunner"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record DoorTransitionRunnerDependencies
 {
-    /// <summary>Actor drawing.</summary>
+    /// <summary>Draws Samus and the room's actors during the door's waits and fades.</summary>
     public required GameplayActorDrawing ActorDrawing { get; init; }
 
-
-
-
-    /// <summary>Display.</summary>
+    /// <summary>What the gameplay display shows, carried across the transition.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-
-    /// <summary>Enemy phase.</summary>
+    /// <summary>The enemies' part of an update, which runs while Samus waits at the door.</summary>
     public required EnemyFramePhase EnemyPhase { get; init; }
 
     /// <summary>The liquid wave and statue descent the door transition's frames advance.</summary>
     public required LiquidWaveAndStatueDescent LiquidWaveAndStatueDescent { get; init; }
 
-
-    /// <summary>The frame clock.</summary>
+    /// <summary>The game's frame counters, which time enemies, animations and blinking.</summary>
     public required FrameClock Clock { get; init; }
 
     /// <summary>The accepted frame boundary.</summary>
@@ -34,15 +29,12 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }
 
-    /// <summary>Player.</summary>
+    /// <summary>Samus, held still and shown during the transition.</summary>
     public required SamusFrameState Player { get; init; }
 
-
-    /// <summary>Room.</summary>
+    /// <summary>The loaded room, which becomes the room the door leads to.</summary>
     public required ActiveRoomState Room { get; init; }
 
-
-    /// <summary>System.</summary>
+    /// <summary>The session's shared game state: the defeated bosses the door's setup reads and each update's random number.</summary>
     public required SharedGameState System { get; init; }
-
 }

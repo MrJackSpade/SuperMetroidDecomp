@@ -89,10 +89,8 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Implements the complete visibility test of Samus's display while she rides an elevator. The elevator's drawing returns on odd frames and calls the fatal/no-
-    /// animation body renderer on even frames, producing the deliberate 30 Hz elevator
-    /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
-    /// from being mistaken for the game-authored effect.
+    /// Whether Samus is drawn this update while she rides an elevator: every second update, so she flickers as the
+    /// elevator carries her. The flicker is the game's own, counted in updates, whatever the display's refresh.
     /// </summary>
     internal static bool ShouldDrawSamusOnElevator(int frameCounter) =>
         SamusCadenceDefinitions.ElevatorRideDrawnEverySecondUpdate.IsDue(frameCounter);
@@ -115,17 +113,9 @@ internal sealed class RoomMainRoutines
         int random = _system.RandomNumber;
         bool dark = CeresFallingDebrisDefinitions.Dark.IsSetIn(random);
         room.Enemies.CeresFallingTiles.Spawn(
-            CeresFallingDebrisX(CeresFallingDebrisDefinitions.Column.Of(random)),
+            CeresFallingDebrisDefinitions.ColumnX[CeresFallingDebrisDefinitions.Column.Of(random)],
             dark,
             new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisSegment.Dark : CeresFallingDebrisSegment.Light),
             CeresFallingDebrisVisualDefinitions.Graphics);
     }
-
-    /// <summary>
-    /// Sixteen debris columns, sixteen pixels apart from X 80 through 240, then
-    /// thirty-two pixels apart through 400.
-    /// </summary>
-    internal static int CeresFallingDebrisX(int column) => (uint)column < 16
-        ? CoordinateAxis.Wrap(column <= 10 ? 80 + 16 * column : 240 + 32 * (column - 10))
-        : throw new ArgumentOutOfRangeException(nameof(column));
 }

@@ -34,11 +34,18 @@ internal static class ProjectileTrailCoordinatesVerification
         Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
             list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
         int records = 0;
+        ushort[] orderedStarts = [.. starts.Values.Distinct().Order()];
         foreach ((ProjectileTrailPlacementList list, ProjectileTrailPlacement[] placements) in ProjectileTrailPlacementDefinitions.PlacementsByList)
+        {
             for (int frame = 0; frame < placements.Length; frame++, records++)
                 AssertEqual(NativePlacement(bus, starts[list] + frame * RecordByteCount), placements[frame],
                     $"{list} placement {frame} matches the cartridge");
-        AssertEqual(1660, records, "The eighty lists read 1660 placements up to the end of their runs of records");
+            // Each list holds only its own placements: none reaches where the next list begins (#1926).
+            if (orderedStarts.FirstOrDefault(start => start > starts[list]) is var next && next != 0)
+                AssertTrue(starts[list] + placements.Length * RecordByteCount <= next,
+                    $"{list}'s placements end before the next list begins");
+        }
+        AssertEqual(854, records, "The eighty lists hold 854 placements of their own");
 
         Dictionary<ushort, ProjectileTrailPlacementList> lists = starts.ToDictionary(pair => pair.Value, pair => pair.Key);
         int selections = 0;
@@ -46,7 +53,10 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
-            AssertEqual(NativeList(bus, lists, table, beams, direction.ToAimIndex()), ProjectileTrailPlacements.List(group, beams, direction),
+            // A Spazer and Plasma combination's row reads past its table into the next one's; the game authors it no
+            // trail, so it names none (#1926).
+            ProjectileTrailPlacementList? expected = beams.IsRetail ? NativeList(bus, lists, table, beams, direction.ToAimIndex()) : null;
+            AssertEqual(expected, ProjectileTrailPlacements.List(group, beams, direction),
                 $"{group} {beams} direction {direction} selects the list the cartridge's pointers name");
             selections++;
         }
@@ -168,8 +178,8 @@ internal static class ProjectileTrailCoordinatesVerification
 
     /// <summary>
     /// Whether a trail draws from frame <paramref name="frame"/> of the list at bank-$9B offset <paramref name="list"/>: the
-    /// direction entry names a placement list, and the frame lies within its placements (#1318, #1625). Every shot that
-    /// trails selects both programs within the selector tables (#1500).
+    /// direction entry names a placement list, and the frame lies within its own placements (#1318, #1625, #1926). Every
+    /// shot that trails selects both programs within the selector tables (#1500).
     /// </summary>
     private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, int frame) =>
         lists.TryGetValue(list, out ProjectileTrailPlacementList named) && frame < ProjectileTrailPlacementDefinitions.PlacementsByList[named].Length;

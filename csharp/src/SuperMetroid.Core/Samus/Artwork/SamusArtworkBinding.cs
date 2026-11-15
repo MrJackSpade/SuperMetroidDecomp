@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// rebinding reaches the Samus already playing. Each catalog is absent until the host installs it; a draw that needs an
 /// absent one fails, naming it.
 /// </summary>
+[ArchitectureReview("context-bag", "The installed Samus artwork a host binds as one value; every member is an immutable artwork catalog or its required read, not a service.")]
 public sealed class SamusArtworkBinding
 {
     /// <summary>Samus's installed body placements, death steps and presentation catalogs, or none before they are installed.</summary>

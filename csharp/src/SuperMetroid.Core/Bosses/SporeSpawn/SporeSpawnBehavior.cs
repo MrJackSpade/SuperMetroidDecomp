@@ -120,10 +120,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // His spores' colours, which he loads as he initializes, are the import's shade of them (#1512).
         body.Shading = state.Colours.Sprites;
 
-        // The projectile spawner searches the eighteen-slot pool downward. Four calls therefore
-        // occupy the pool's places 17..14, which the stalk update later reaches directly.
-        foreach (Offset16<RoomPixels> segment in SporeSpawnProjectileDefinitions.StalkSegments)
-            SpawnSporeSpawnStalk(body, segment);
+        // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
+        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(body, segment)).Reverse()];
 
         state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
         if (state.LoadedAsDefeated)
@@ -147,7 +145,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
     }
 
-    /// <summary>Dispatches Spore Spawn's per-frame behaviour.</summary>
+    /// <summary>Runs Spore Spawn's movement for one update.</summary>
     private void RunSporeSpawnMain(
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
@@ -180,7 +178,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spore Spawn's descent into the room.</summary>
-    private void RunSporeSpawnDescent(RoomEnemySlot body, SporeSpawnEnemyState state)
+    private static void RunSporeSpawnDescent(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
@@ -196,7 +194,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Spore Spawn's table-backed ellipse movement.</summary>
-    private void RunSporeSpawnMovement(RoomEnemySlot body, SporeSpawnEnemyState state)
+    private static void RunSporeSpawnMovement(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeX(
@@ -260,24 +258,30 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Updates the stalk segments by raw slot interpolation between the body and the ceiling.</summary>
-    private void UpdateSporeSpawnStalks(SporeSpawnEnemyState state)
+    /// <summary>Places his stalk's links between the ceiling and his body.</summary>
+    private static void UpdateSporeSpawnStalks(SporeSpawnEnemyState state)
     {
         RoomEnemySlot body = state.Body;
         WriteSporeSpawnStalkAxis(
+            state.StalkLinks,
             firstPosition: SporeSpawnDeathCenterX,
             anchor: state.StalkAnchor.X,
             end: body.Position.X.Whole,
             axis: Axis.Horizontal);
         WriteSporeSpawnStalkAxis(
+            state.StalkLinks,
             firstPosition: SporeSpawnCeilingY,
             anchor: state.StalkAnchor.Y,
             end: CoordinateAxis.Wrap(body.Position.Y.Whole - 40),
             axis: Axis.Vertical);
     }
 
-    /// <summary>Interpolates one axis of four physical stalk slots from the ceiling toward the body.</summary>
-    private void WriteSporeSpawnStalkAxis(
+    /// <summary>
+    /// Places one axis of the stalk's four links: the first at the ceiling, the others a quarter, a half and three
+    /// quarters of the way from the stalk's anchor toward his body.
+    /// </summary>
+    private static void WriteSporeSpawnStalkAxis(
+        IReadOnlyList<EnemyProjectile> links,
         int firstPosition,
         int anchor,
         int end,
@@ -299,11 +303,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Wrap(anchor + (negative ? -threeQuarters : threeQuarters)),
         };
 
-        // The boss writes projectile places 14,15,16,17 in this order even though
-        // its four initializer calls allocated them in reverse order.
         for (int segment = 0; segment < positions.Length; segment++)
         {
-            EnemyProjectile stalk = _projectiles.EnemyProjectiles[14 + segment];
+            EnemyProjectile stalk = links[segment];
             if (axis == Axis.Horizontal)
                 stalk.Position = stalk.Position.WithWholeX(positions[segment]);
             else
@@ -367,10 +369,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             switch (motion)
             {
                 case SporeSpawnProjectileMotion.SporeDrifting:
-                    RunSporeSpawnSporeFrameBehavior(context.Projectile);
+                    DriftSpore(context.Projectile);
                     break;
                 case SporeSpawnProjectileMotion.SpawnerReleasing:
-                    RunSporeSpawnSpawnerFrameBehavior(context.Projectile);
+                    ReleaseSpores(context.Projectile);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileMotion)} {motion}.");
@@ -427,8 +429,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
         }
 
-        /// <summary>Runs a spore emitter's per-frame behaviour.</summary>
-        private void RunSporeSpawnSpawnerFrameBehavior(EnemyProjectile spawner)
+        /// <summary>Releases spores from a ceiling spawner on its random cadence while Spore Spawn lets it.</summary>
+        private void ReleaseSpores(EnemyProjectile spawner)
         {
             SporeSpawnEnemyState state = encounter.SporeSpawn ?? throw new InvalidOperationException(
                 "A Spore Spawn ceiling emitter survived without its owning boss state.");
@@ -600,16 +602,26 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // The intangible property removes the dead body from the interactive-enemy list.
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-        // The clear walks the projectile slots downward from 13 to 0.
-        // Slots 14..17 are the stalk and deliberately survive for the death animation.
-        for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
-            _projectiles.EnemyProjectiles[projectileSlot].Delete();
+        DeleteProjectilesButStalk(state);
 
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.Death), AnimationPlace.StartOfAnimation);
         body.AnimationClock.StepOnNextUpdate();
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnObject(SporeSpawnCeilingMutation.Crumble);
+    }
+
+    /// <summary>
+    /// Deletes every enemy projectile but his stalk's links, as his death does: the stalk survives for the death animation
+    /// (#1932).
+    /// </summary>
+    internal void DeleteProjectilesButStalk(SporeSpawnEnemyState state)
+    {
+        foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
+        {
+            if (!state.StalkLinks.Contains(projectile))
+                projectile.Delete();
+        }
     }
 
     /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
@@ -715,12 +727,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn);
         }
     }
-    /// <summary>Spawns the stalk segment at <paramref name="segment"/> from his body and runs its initializer.</summary>
-    internal void SpawnSporeSpawnStalk(RoomEnemySlot body, Offset16<RoomPixels> segment)
+    /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
+    /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
+    internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemySlot body, Offset16<RoomPixels> segment)
     {
-        EnemyProjectile? stalk = _projectiles.AllocateEnemyProjectile();
-        if (stalk is null)
-            return;
+        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
+            "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             stalk,
@@ -729,6 +741,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(body));
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
+        return stalk;
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> and runs its initializer.</summary>
@@ -748,8 +761,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spawner.State = new SporeSpawnEmitterState();
     }
 
-    /// <summary>Runs a spore's per-frame drift.</summary>
-    internal static void RunSporeSpawnSporeFrameBehavior(EnemyProjectile spore)
+    /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
+    internal static void DriftSpore(EnemyProjectile spore)
     {
         SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
         Offset16<RoomPixels> movement = SporeSpawnProjectiles.DriftAt(drift.PathStep);

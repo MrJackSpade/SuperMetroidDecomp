@@ -44,13 +44,13 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
     private static (bool Woke, bool FacesRight) Wakes(int blockX, int samusX)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
-        slot.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
-        slot.Position = slot.Position.WithWhole(new(checked((ushort)blockX), RowY));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, RoomEnemyFrameFixtures.StandaloneSamus());
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
+        place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
+        place.Position = place.Position.WithWhole(new(checked((ushort)blockX), RowY));
+        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -58,7 +58,7 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)samusX), RowY)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(slot, state, samus);
+        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
         return (state.Activated, state.FacesRight);
     }
 

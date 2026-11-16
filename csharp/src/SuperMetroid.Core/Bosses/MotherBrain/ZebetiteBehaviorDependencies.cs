@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed record ZebetiteBehaviorDependencies
 {
-    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>
@@ -23,11 +23,11 @@ internal sealed record ZebetiteBehaviorDependencies
     /// <summary>Earthquake.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
+    /// <summary>Place table.</summary>
+    public required EnemyPlaces Places { get; init; }
 
-    /// <summary>Elevator behavior.</summary>
-    public required ElevatorBehavior ElevatorBehavior { get; init; }
+    /// <summary>Samus's passage through a door, during which a newly initialized Zebetite stays inert.</summary>
+    public required DoorPassage DoorPassage { get; init; }
 
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }

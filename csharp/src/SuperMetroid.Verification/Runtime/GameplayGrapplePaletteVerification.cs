@@ -31,7 +31,7 @@ internal static class GameplayGrapplePaletteVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
-        foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
+        foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
         var words = new RoomTerrainBlock[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");

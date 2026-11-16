@@ -32,7 +32,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Steps his hurt flash down and shows the colours of his health band or of the flash.</summary>
-    internal void RunKraidHurtColours(RoomEnemySlot body, KraidEnemyState state)
+    internal void RunKraidHurtColours(RoomEnemyPlace body, KraidEnemyState state)
     {
         if (body.Health == 0)
         {
@@ -54,14 +54,14 @@ internal sealed class KraidHead
     /// Shows Kraid's colours for his current health band, or the hurt flash on an odd hurt frame (#1512): his body and
     /// every sprite part take the band's shade, and his eyes the band's colours at once.
     /// </summary>
-    internal void UpdateKraidHealthColours(RoomEnemySlot body, KraidEnemyState state)
+    internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state)
     {
         KraidColourBand band = KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame)
             ? KraidColourBand.HurtFlash
             : KraidColourBand.Health(HealthBand(body, state));
         state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
         PictureShading parts = state.Colours.Parts;
-        foreach (RoomEnemySlot part in _parts.All)
+        foreach (RoomEnemyPlace part in _parts.All)
             part.Shading = parts;
     }
 
@@ -69,13 +69,13 @@ internal sealed class KraidHead
     internal ReadOnlySpan<RgbColor> BandEyes(KraidColourBand band) => _background.EyeColours.Of(band);
 
     /// <summary>The health band his colours start in, before any update: the band of his health as he initializes.</summary>
-    internal static KraidColourBand InitialBand(RoomEnemySlot body, KraidEnemyState state) => KraidColourBand.Health(HealthBand(body, state));
+    internal static KraidColourBand InitialBand(RoomEnemyPlace body, KraidEnemyState state) => KraidColourBand.Health(HealthBand(body, state));
 
     /// <summary>
     /// The health band Kraid's colours show: the highest of the eight bands whose threshold his health has reached,
     /// or the lowest band.
     /// </summary>
-    private static int HealthBand(RoomEnemySlot body, KraidEnemyState state)
+    private static int HealthBand(RoomEnemyPlace body, KraidEnemyState state)
     {
         // Band n starts at n + 1 eighths of his initial health.
         int band = KraidHealthThresholdDefinitions.EighthCount - 1;
@@ -85,7 +85,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
-    internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
+    internal void SetupKraidFirstPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
     {
         state.BodyState.Phase = KraidPhase.MainloopThinking;
         _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
@@ -95,7 +95,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Advances the open-mouth attack and its head animation timing.</summary>
-    internal void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
+    internal void RunKraidMouthOpenAttack(RoomEnemyPlace body, KraidEnemyState state)
     {
         if (AdvanceKraidHeadAnimation(state) == KraidHeadAnimationResult.AnimationEnded)
         {
@@ -230,7 +230,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Restores the eye colours after the reaction completes.</summary>
-    internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
+    internal void UnglowKraidEye(RoomEnemyPlace body, KraidEnemyState state)
     {
         // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
         bool unglowed = state.Colours.UnglowEyes(BandEyes(KraidColourBand.Health(HealthBand(body, state))));
@@ -243,7 +243,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Emits a mouth rock when a projectile slot is available.</summary>
-    internal void SpawnKraidSpitRock(RoomEnemySlot body)
+    internal void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
         EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)

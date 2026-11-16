@@ -80,11 +80,11 @@ internal static class FrozenGateGlitchVerification
         AssertEqual(level.BlockAt(FrozenGateBlockIndex), gate.Block,
             "Caterpillar retail downward gate block");
 
-        RoomEnemySlot[] zeros = runtime.Enemies.SlotTable.Slots
-            .Where(slot => slot.DefinitionId == EnemyDefinitionId.Zero)
+        RoomEnemyPlace[] zeros = runtime.Enemies.Places.InUpdateOrder
+            .Where(enemy => enemy.DefinitionId == EnemyDefinitionId.Zero)
             .ToArray();
         AssertEqual(3, zeros.Length, "Caterpillar retains its three retail Zero enemies");
-        RoomEnemySlot zero = zeros[0];
+        RoomEnemyPlace zero = zeros[0];
         AssertEqual((ushort)8, zero.Radius.X, "retail Zero horizontal collision radius");
         AssertEqual((ushort)8, zero.Radius.Y, "retail Zero vertical collision radius");
         AssertTrue(!zero.Contact.HasAny(EnemyContact.SolidToSamus),

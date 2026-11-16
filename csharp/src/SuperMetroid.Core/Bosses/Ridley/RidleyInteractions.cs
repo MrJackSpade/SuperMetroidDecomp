@@ -14,9 +14,9 @@ internal static class RidleyInteractions
     /// Puts Norfair Ridley in the health band his health has reached and shows its health shade. Norfair and Ceres show
     /// the same installed health shades, so editing them changes both encounters.
     /// </summary>
-    internal static void UpdateNorfairRidleyHealthBand(RoomEnemySlot slot, RidleyEnemyState state)
+    internal static void UpdateNorfairRidleyHealthBand(RoomEnemyPlace place, RidleyEnemyState state)
     {
-        state.HealthBand = NorfairRidleyHealthBand.Of(slot.Health);
+        state.HealthBand = NorfairRidleyHealthBand.Of(place.Health);
         if (state.HealthBand.HealthShade is { } shade)
             state.Colours.ShowHealth(shade);
     }
@@ -28,7 +28,7 @@ internal static class RidleyInteractions
     /// already consumed the previous gate value for this update's body collision.
     /// </summary>
     internal static void UpdateNorfairRidleyIntangibility(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         RidleyEnemyState state,
         Position16<RoomPixels> camera)
     {
@@ -78,7 +78,7 @@ internal static class RidleyInteractions
 
     /// <summary>The reaction of the first Ridley hitbox the probe overlaps, or null when the occupant is not Ridley.</summary>
     /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
-    internal static bool? FindRidleyHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId))

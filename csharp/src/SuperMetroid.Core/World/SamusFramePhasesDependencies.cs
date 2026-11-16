@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
@@ -39,4 +40,7 @@ internal sealed record SamusFramePhasesDependencies
 
     /// <summary>The session's shared game state, which Samus's movement and shots consult.</summary>
     public required SharedGameState System { get; init; }
+
+    /// <summary>Samus's passage through a door, during which her input handling and radius update do not run.</summary>
+    public required DoorPassage DoorPassage { get; init; }
 }

@@ -19,7 +19,7 @@ internal static class EnemySpritemapNativeDrawAccess
         /// <summary>Writes the installed frame at the native bank and word of <paramref name="draw"/> into <paramref name="oam"/>.</summary>
         internal void DrawEnemySpritemap(OamBuffer oam, NativeEnemySpritemapDraw draw)
         {
-            EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(draw.Bank, draw.Pointer)
+            EnemyFrameId frame = RoomEnemyPlaceFrameAccess.FrameAt(draw.Bank, draw.Pointer)
                 ?? throw new ArgumentOutOfRangeException(nameof(draw), draw, "A native draw of word zero shows no frame.");
             // The common empty frame is compiled definition data, not missing artwork.
             if (frame == EnemyFrameId.Empty)

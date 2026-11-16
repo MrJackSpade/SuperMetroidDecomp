@@ -16,17 +16,17 @@ internal static class FirefleaBehaviorVerification
     internal static void VerifyFirefleaBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
-        slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
-        FirefleaBehavior.InitializeFireflea(slot);
-        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
+        place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
+        FirefleaBehavior.InitializeFireflea(place);
+        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
             "Fireflea initializer animation");
-        slot.AnimationClock.StepOnNextUpdate();
+        place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Segments, FirefleaSegment.Loop, FirefleaFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Segments, FirefleaSegment.Loop)),
+            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Segments, FirefleaSegment.Loop)),
             "Fireflea runs its loop and returns through its goto");
         Console.WriteLine("  Fireflea behavior: the initializer starts and runs its loop.");
     }
@@ -45,18 +45,19 @@ internal static class FirefleaBehaviorVerification
         foreach ((ushort y, EnemySpeedSign expectedSpeedSign) in new VerifyFirefleaVerticalExtentsWrapCase[] { new VerifyFirefleaVerticalExtentsWrapCase(4, EnemySpeedSign.Negative), new VerifyFirefleaVerticalExtentsWrapCase(65531, EnemySpeedSign.Positive), new VerifyFirefleaVerticalExtentsWrapCase(12, EnemySpeedSign.Positive) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
-            slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
-            slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
-            slot.Position = slot.Position.WithWhole(new(128, 4));
-            FirefleaBehavior.InitializeFireflea(slot);
-            FirefleaEnemyState state = slot.RequireSpeciesState<FirefleaEnemyState>();
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
+            place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
+            place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
+            place.Position = place.Position.WithWhole(new(128, 4));
+            FirefleaBehavior.InitializeFireflea(place);
+            BobbingFirefleaState state = place.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
+                ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
             AssertEqual(65532, state.MinimumY, "the upper extent wraps past the room's top edge");
             AssertEqual(12, state.MaximumY, "the lower extent is the spawn Y plus the radius");
-            slot.Position = slot.Position.WithWholeY(y);
+            place.Position = place.Position.WithWholeY(y);
 
-            FirefleaBehavior.RunFirefleaMainAi(slot, frame);
+            FirefleaBehavior.RunFirefleaMainAi(place, frame);
 
             AssertEqual(expectedSpeedSign, state.SpeedSign, $"Fireflea at Y {y} keeps or reverses its speed");
         }

@@ -53,8 +53,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private FileSelectMapWindow? returnWindow;
     /// <summary>Remaining transition updates before load or return handoff.</summary>
     private int pendingFrames;
-    /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
-    private int brightness = DisplayBrightness.Full;
+    /// <summary>The screen's brightness: fully lit, and one level darker on every update of the exit fades, stopping at black.</summary>
+    private readonly ScreenFade fade = new(DisplayBrightness.Full);
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
 
@@ -180,13 +180,16 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 }
                 break;
             case FileSelectMapNavigationPhase.OptionsRequested:
-                if (brightness > 0) brightness--;
-                OptionsRequested = brightness == 0;
+                OptionsRequested = fade.Darken();
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
                 pendingFrames++;
                 if (pendingFrames <= FileSelectMapDefinitions.LoadPreludeFrames) break;
-                if (brightness > 0) { brightness--; break; }
+                if (!fade.IsBlack)
+                {
+                    _ = fade.Darken();
+                    break;
+                }
                 LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + DisplayBrightness.Full + FileSelectMapDefinitions.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
@@ -235,7 +238,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
             _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
         };
-        return new(scene.Paint, scene.Layers, brightness);
+        return new(scene.Paint, scene.Layers, fade.Level);
     }
 
     /// <summary>

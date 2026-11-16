@@ -36,13 +36,14 @@ internal static class RoomEnemyCompatibilityFixtures
         YardKickTrackingDistance yardKickDistance) => new()
     {
         PowerBombRadius = new PowerBombRadiusAfterKill(),
-        BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
-        BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
+        BullInheritance = new PlaceInheritance<BullEnemyState>(EnemyPlaceOrder.Capacity),
+        BeetomInheritance = new PlaceInheritance<BeetomEnemyState>(EnemyPlaceOrder.Capacity),
         PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
         EffectActorPlaces = new EffectActorPlaces(),
         FadeStepCount = fadeStepCount,
         UnauthoredBoostCadence = unauthoredBoostCadence,
-        KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
+        KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>(),
         YardKickDistance = yardKickDistance,
+        FallingSparkFloorProbe = new FallingSparkFloorProbe(),
     };
 }

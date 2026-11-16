@@ -61,7 +61,7 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
         player.Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
-        var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        var phantoon = new PhantoonEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());

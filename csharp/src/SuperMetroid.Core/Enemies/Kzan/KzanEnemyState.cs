@@ -36,7 +36,7 @@ public sealed class KzanEnemyState
     /// </summary>
     public int FallingTargetY { get; internal set; }
 
-    /// <summary>Reload value for the top wait in actor updates, 0 through 255, from the spawn's fall wait.</summary>
+    /// <summary>Reload value for the top wait in actor updates, from the spawn's fall wait.</summary>
     public int FallWaitTimerResetValue { get; internal set; }
 
     /// <summary>The top's room Y saved before a falling or rising update; the accepted whole-pixel movement since it determines rider displacement.</summary>

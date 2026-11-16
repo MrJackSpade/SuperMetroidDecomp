@@ -11,7 +11,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Composes Samus's body sheet (#1392, #1513, #1585): one whole picture for every pose and picture frame the game can
-/// draw, named by that pose and frame, and nothing else. The bodies are the ones <see cref="SamusShownFrames"/> gives:
+/// draw, named by that pose and frame, and nothing else. The bodies are the ones the installed
+/// <see cref="SamusShownFrames"/> give, as the import decided them from the frames her animation shows:
 /// each picture frame of each pose, the frames its own animation shows a picture on, which every frame the body shows
 /// draws. Each picture is composed of the cartridge's halves its own frame selects: the frame's top half, the chest cover
 /// the forward-facing Power Suit body shows, and its bottom half unless the pose's own movement type makes the top half
@@ -42,7 +43,7 @@ internal static class SamusBodySheetComposer
         var blank = new List<string>();
         var overlaid = new Dictionary<SpriteArtwork, SpriteArtwork>(ReferenceEqualityComparer.Instance);
         var colourings = new Dictionary<string, PictureShade[]>(StringComparer.Ordinal);
-        foreach (SheetBody body in Bodies(characters.Body, characters.Body.InstalledBody(inputs.FramesBeyondAnimation)))
+        foreach (SheetBody body in Bodies(characters.Body, characters.Body.InstalledBody(inputs.ShownFrames)))
         {
             if (body.Picture is not { } picture)
             {

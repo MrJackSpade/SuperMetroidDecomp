@@ -7,13 +7,14 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// </summary>
 public sealed class SbugEnemyState
 {
-    /// <summary>The Sbug's slot, whose population parameters the state reads.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Creates the state for an Sbug's slot, starting in <paramref name="action"/>.</summary>
-    internal SbugEnemyState(RoomEnemySlot slot, SbugAction action)
+    /// <summary>Creates the state of an Sbug placed with <paramref name="settings"/>, starting in <paramref name="action"/>.</summary>
+    internal SbugEnemyState(SbugSpawnSettings settings, SbugAction action)
     {
-        _slot = slot;
+        Ensure.NotNull(settings);
+        Speed = settings.Speed;
+        InitialAngle = settings.InitialAngle;
+        ActivationRadius = settings.ActivationRadius;
+        ActivationBehavior = settings.Behavior;
         Action = action;
     }
 
@@ -44,16 +45,16 @@ public sealed class SbugEnemyState
     public int MovementTimer { get; internal set; }
 
     /// <summary>The speed the heading's sine and cosine scale, as the Sbug's placement names it.</summary>
-    public int Speed => _slot.SpawnSettings<SbugSpawnSettings>().Speed;
+    public int Speed { get; }
 
     /// <summary>The heading the Sbug spawns on: zero points right, a quarter turn up, half a turn left.</summary>
-    public RotationAngle InitialAngle => _slot.SpawnSettings<SbugSpawnSettings>().InitialAngle;
+    public RotationAngle InitialAngle { get; }
 
     /// <summary>The pixel distance Samus must be within on both axes for activation.</summary>
-    public int ActivationRadius => _slot.SpawnSettings<SbugSpawnSettings>().ActivationRadius;
+    public int ActivationRadius { get; }
 
     /// <summary>How the Sbug moves once activated, as its placement names it.</summary>
-    public SbugActivationBehavior ActivationBehavior => _slot.SpawnSettings<SbugSpawnSettings>().Behavior;
+    public SbugActivationBehavior ActivationBehavior { get; }
 
     /// <summary>Spawn-computed unsigned 1/65536-pixel horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }

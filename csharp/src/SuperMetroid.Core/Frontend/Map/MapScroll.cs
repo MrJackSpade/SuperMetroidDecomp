@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// framing; how their screens differ is data (<see cref="MapFraming"/>).
 /// </summary>
 /// <remarks>
-/// The scroll is a map position the screen subtracts from what it draws, so a scroll left of or above the map's corner
-/// wraps as every map position does. The limits, the edges and the scroll stay within a few hundred pixels of the
-/// 512-by-256 map (the framing starts there and a step is taken only while an arrow allows it), so the arrows' tests read
-/// the scroll as its signed offset from the corner and compare plain differences.
+/// The scroll is the screen's top-left corner as a signed offset from the map's corner, which the screen subtracts from
+/// what it draws: negative where the screen lies left of or above the map. The limits, the edges and the scroll stay
+/// within a few hundred pixels of the 512-by-256 map (the framing starts there and a step is taken only while an arrow
+/// allows it), so the offset never wraps and the arrows' tests compare plain differences.
 /// </remarks>
 public sealed class MapScroll
 {
@@ -21,8 +21,8 @@ public sealed class MapScroll
     /// <summary>The scroll at <paramref name="scroll"/> on a screen framed by <paramref name="framing"/>.</summary>
     /// <param name="framing">How the screen frames the map.</param>
     /// <param name="limits">How far the map's revealed cells reach.</param>
-    /// <param name="scroll">The map position at the screen's top-left corner.</param>
-    public MapScroll(MapFraming framing, MapScrollLimits limits, Position16<MapPixels> scroll)
+    /// <param name="scroll">The screen's top-left corner as an offset from the map's corner.</param>
+    public MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
     {
         Framing = Ensure.NotNull(framing);
         Limits = limits;
@@ -35,8 +35,8 @@ public sealed class MapScroll
     /// <summary>How far the map's revealed cells reach.</summary>
     public MapScrollLimits Limits { get; }
 
-    /// <summary>The map position at the screen's top-left corner.</summary>
-    public Position16<MapPixels> Scroll { get; set; }
+    /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
+    public Offset16<MapPixels> Scroll { get; private set; }
 
     /// <summary>The direction of the accepted eight-update scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
     public MapScrollDirection Direction { get; private set; }
@@ -66,20 +66,19 @@ public sealed class MapScroll
             vertical -= MapFramingDefinitions.MarkerTopLine - markerLine;
             vertical = Math.Max(vertical, -MapFramingDefinitions.LowestMapTop);
         }
-        return new(framing, limits, Position16<MapPixels>.Wrapped(horizontal, vertical));
+        return new(framing, limits, new Offset16<MapPixels>(horizontal, vertical));
     }
 
     /// <summary>Whether another step in <paramref name="direction"/> fits the screen's edges, and its arrow shows.</summary>
     /// <param name="direction">The direction tested.</param>
     public bool CanScroll(MapScrollDirection direction)
     {
-        Offset16<MapPixels> scroll = Scroll - Position16<MapPixels>.Zero;
         return direction switch
         {
-            MapScrollDirection.Left => Limits.Left - scroll.X < Framing.LeftEdge,
-            MapScrollDirection.Right => Limits.Right - scroll.X >= Framing.RightEdge,
-            MapScrollDirection.Up => Limits.Top - scroll.Y < Framing.TopEdge,
-            MapScrollDirection.Down => Limits.Bottom - scroll.Y >= Framing.BottomEdge,
+            MapScrollDirection.Left => Limits.Left - Scroll.X < Framing.LeftEdge,
+            MapScrollDirection.Right => Limits.Right - Scroll.X >= Framing.RightEdge,
+            MapScrollDirection.Up => Limits.Top - Scroll.Y < Framing.TopEdge,
+            MapScrollDirection.Down => Limits.Bottom - Scroll.Y >= Framing.BottomEdge,
             MapScrollDirection.None => false,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined map scroll direction."),
         };

@@ -15,12 +15,12 @@ internal static class IntroBabyDiscoveryCollisionDefinitions
     internal const int SourceRows = 12;
     /// <summary>Ten empty rows precede the two authored terrain rows.</summary>
     internal const int ZeroRows = 10;
-    /// <summary>The eleventh source row's block in every column: a slope block showing block zero.</summary>
-    internal static readonly RoomTerrainBlock PenultimateRowBlock = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-    /// <summary>The final source row's block in every column: a solid block showing block zero.</summary>
-    internal static readonly RoomTerrainBlock FinalRowBlock = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    /// <summary>Every other block of the room: air showing block zero.</summary>
-    internal static readonly RoomTerrainBlock EmptyBlock = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
+    /// <summary>How the eleventh source row's block collides in every column: as a slope.</summary>
+    internal const RoomCollisionType PenultimateRowBlock = RoomCollisionType.Slope;
+    /// <summary>How the final source row's block collides in every column: as a solid block.</summary>
+    internal const RoomCollisionType FinalRowBlock = RoomCollisionType.SolidBlock;
+    /// <summary>How every other block of the room collides: as air.</summary>
+    internal const RoomCollisionType EmptyBlock = RoomCollisionType.Air;
 
     /// <summary>Room height, including four empty rows beyond the authored region.</summary>
     internal const int RoomRows = 16;

@@ -41,15 +41,15 @@ internal sealed class CeresRidleyBabyScene
     private static readonly SignedEightEight CeresBabyFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
 
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
-    internal static void TickCeresBaby(RoomEnemySlot slot, RidleyEnemyState state)
+    internal static void TickCeresBaby(RoomEnemyPlace place, RidleyEnemyState state)
     {
         switch (state.BabyAction)
         {
             case CeresBabyAction.CarriedInArms:
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This phase is also why the retrieval target begins coherent
-                // even though the Baby is not a separate RoomEnemySlot.
-                state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyArmsAnchor);
+                // even though the Baby is not a separate RoomEnemyPlace.
+                state.BabyPosition = state.BabyPosition.WithWhole(place.Position.Whole + CeresBabyArmsAnchor);
                 return;
 
             case CeresBabyAction.Drop:
@@ -73,7 +73,7 @@ internal sealed class CeresRidleyBabyScene
             case CeresBabyAction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the escape handoff.
-                state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyFeetAnchor);
+                state.BabyPosition = state.BabyPosition.WithWhole(place.Position.Whole + CeresBabyFeetAnchor);
                 return;
 
             case CeresBabyAction.Idle:
@@ -96,11 +96,11 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>Draws Ridley's tail and wings.</summary>
     internal void DrawRidleySupplementalSprites(
         SpriteFrameBuffer sprites,
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         Position16<RoomPixels> camera)
     {
-        RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        if ((slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
+        RidleyEnemyState state = _ridleyEncounter.RequireRidley(place);
+        if ((place.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
             !state.MovementAnimationEnabled)
             return;
 
@@ -138,7 +138,7 @@ internal sealed class CeresRidleyBabyScene
             : RidleySupplementalVisualDefinitions.WingBeatFacingRight;
         EnemyFrameId wingFrame = wingBeat[state.WingBeatStep];
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            slot.Position.Whole.RelativeToCamera(camera), state.TailAndWingsShading);
+            place.Position.Whole.RelativeToCamera(camera), state.TailAndWingsShading);
     }
 
     /// <summary>

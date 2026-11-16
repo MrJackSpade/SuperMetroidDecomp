@@ -17,7 +17,7 @@ internal static class MainGameLoopCarryVerification
     {
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         AssertEqual(1, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "no valid save: power-on adds a frame");
-        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
+        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot());
         saveRam.SetGameCompleted(false);
         AssertEqual(0, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "a valid save without the mark adds none");
         saveRam.SetGameCompleted(true);

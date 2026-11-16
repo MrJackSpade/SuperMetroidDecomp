@@ -18,30 +18,30 @@ internal static class EvirDeathFrameVerification
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
-        Action<RoomEnemySlot, SamusState> initialize = enemies.EvirBehavior.InitializeEvir;
-        Action<RoomEnemySlot> initializeProjectile = enemies.EvirBehavior.InitializeEvirProjectile;
+        Action<RoomEnemyPlace, SamusState> initialize = enemies.EvirBehavior.InitializeEvir;
+        Action<RoomEnemyPlace> initializeProjectile = enemies.EvirBehavior.InitializeEvirProjectile;
         for (int index = 6; index <= 8; index++)
         {
-            var slot = enemies.SlotTable.Slots[index];
-            slot.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, slot.Definition);
-            slot.Bind(slot.DefinitionId, RoomEnemyDefinitionLookup.Get(slot.DefinitionId));
-            slot.Position = slot.Position.WithWhole(new(128, 128));
-            slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
-            slot.Health = slot.Definition.Health;
-            slot.SpritemapPointer = 0x8b59;
-            slot.Contact = index == 6 ? EnemyContact.None : EnemyContact.IgnoresSamus;
-            slot.Processing = EnemyProcessing.None;
-            slot.Presence = EnemyPresence.None;
-            slot.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
+            var place = enemies.Places.InUpdateOrder[index];
+            place.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, place.Definition);
+            place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
+            place.Position = place.Position.WithWhole(new(128, 128));
+            place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);
+            place.Health = place.Definition.Health;
+            place.SpritemapPointer = 0x8b59;
+            place.Contact = index == 6 ? EnemyContact.None : EnemyContact.IgnoresSamus;
+            place.Processing = EnemyProcessing.None;
+            place.Presence = EnemyPresence.None;
+            place.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
             // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
-            if (index == 6) slot.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
-            if (index == 8) initializeProjectile(slot); else initialize(slot, samus);
+            if (index == 6) place.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
+            if (index == 8) initializeProjectile(place); else initialize(place, samus);
         }
-        var body = enemies.SlotTable.Slots[6];
-        var arms = enemies.SlotTable.Slots[7];
-        var projectile = enemies.SlotTable.Slots[8];
-        AssertEqual(EvirFacing.Right, (enemies.SlotTable.Slots[6].SpeciesState<EvirEnemyState>() ?? throw new InvalidOperationException("Verification requires slot 6's Evir state.")).Facing, "live Evir initially faces right");
-        // Contact kills the body after the real scheduler has selected all three slots.
+        var body = enemies.Places.InUpdateOrder[6];
+        var arms = enemies.Places.InUpdateOrder[7];
+        var projectile = enemies.Places.InUpdateOrder[8];
+        AssertEqual(EvirFacing.Right, (enemies.Places.InUpdateOrder[6].SpeciesState<EvirBodyState>() ?? throw new InvalidOperationException("Verification requires place 6's Evir state.")).Facing, "live Evir initially faces right");
+        // Contact kills the body after the real scheduler has selected all three places.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });

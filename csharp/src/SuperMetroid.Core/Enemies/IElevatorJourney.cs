@@ -20,11 +20,8 @@ internal interface IElevatorJourney
     /// <summary>Whether the elevator, not Samus's own movement, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }
 
-    /// <summary>The door-transition gate that suppresses actor movement.</summary>
-    bool ElevatorDoorTransitionActive { get; set; }
-
     /// <summary>Returns and clears the arriving elevator that placed Samus during the room load.</summary>
-    RoomEnemySlot? ConsumeElevatorArrivalPlacement();
+    RoomEnemyPlace? ConsumeElevatorArrivalPlacement();
 
     /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();

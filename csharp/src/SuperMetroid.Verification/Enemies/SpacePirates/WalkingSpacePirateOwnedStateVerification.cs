@@ -14,16 +14,16 @@ internal static class WalkingSpacePirateOwnedStateVerification
     internal static void VerifyWalkingSpacePirateOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-        slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWalking, 48);
-        WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.PirateGreyWalking, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
+        place.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWalking, 48);
+        WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place);
         WalkingSpacePirateEnemyState state = enemies.WalkingSpacePirateStates[0]
             ?? throw new InvalidOperationException("The walking Pirate has no state.");
-        AssertEqual(new Position16<RoomPixels>(0x0100 - 48, 0), state.LeftPost, "the left post lies the patrol radius left");
-        AssertEqual(new Position16<RoomPixels>(0x0100 + 48, 0), state.RightPost, "the right post lies the patrol radius right");
+        AssertEqual(0x0100 - 48, state.LeftPostX, "the left post lies the patrol radius left");
+        AssertEqual(0x0100 + 48, state.RightPostX, "the right post lies the patrol radius right");
         Console.WriteLine("Walking Space Pirate owned state: the patrol posts match.");
     }
 

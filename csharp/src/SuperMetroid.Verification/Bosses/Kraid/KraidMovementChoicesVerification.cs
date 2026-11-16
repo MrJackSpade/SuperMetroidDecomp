@@ -76,17 +76,17 @@ internal static class KraidMovementChoicesVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
-        var body = enemies.SlotTable.Slots[0];
+        var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
-        var foot = enemies.SlotTable.Slots[5];
+        var foot = enemies.Places.InUpdateOrder[5];
         var part = new KraidFootState();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Movement choice must not advance RNG.");
-        Action<RoomEnemySlot, RoomEnemySlot, KraidFootState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
+        Action<RoomEnemyPlace, RoomEnemyPlace, KraidFootState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.Position = body.Position.WithWholeX((ushort)raw);

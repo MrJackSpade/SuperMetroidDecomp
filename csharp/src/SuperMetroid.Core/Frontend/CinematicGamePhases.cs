@@ -32,7 +32,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     {
         // The time-up black-out runs no gameplay: it fades the whitened frame to black.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        if (session.StepScreenFadeOut() == 0)
+        if (session.StepScreenFadeOut())
             FinishTimeUpBlackOut();
     }
 
@@ -105,7 +105,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     {
         if (session.Runtime is null)
             throw new InvalidOperationException("Time-up black-out requires a gameplay runtime.");
-        session.screenFade.Clear();
+        session.screenFade.StepEvery(1);
         session.Runtime.FadeOut.End();
         session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
         session.Runtime.EscapeTimer.ClearStatus();
@@ -131,7 +131,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     /// </summary>
     private void BeginBlackDeathBlackOut()
     {
-        session.DeathFade.Start(0, 0);
+        session.DeathFade.Restart(0, 0);
         session.GameState = SuperMetroidGameState.DeathFinalBlackOut;
         session.display.PublishBlack();
     }

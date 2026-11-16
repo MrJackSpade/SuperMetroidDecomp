@@ -32,26 +32,26 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
+        Action<RoomEnemyPlace> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = definitions[index];
-            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
-            slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
-            slot.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
-            slot.Contact = EnemyContact.BlocksPlasmaBeam;
-            slot.Processing = EnemyProcessing.None;
-            slot.Presence = EnemyPresence.None;
-            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(slot);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
+            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
+            place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
+            place.Contact = EnemyContact.BlocksPlasmaBeam;
+            place.Processing = EnemyProcessing.None;
+            place.Presence = EnemyPresence.None;
+            place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
+            initialize(place);
 
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual(EnemyContact.BlocksPlasmaBeam | definition.Contact,
-                slot.Contact, $"Shaktool production contact {index}");
+                place.Contact, $"Shaktool production contact {index}");
             AssertEqual(definition.Processing,
-                slot.Processing, $"Shaktool production processing {index}");
+                place.Processing, $"Shaktool production processing {index}");
             AssertEqual(EnemyPresence.None,
-                slot.Presence, $"Shaktool production presence {index}");
+                place.Presence, $"Shaktool production presence {index}");
             AssertEqual(definition.Motion, state.Motion,
                 $"Shaktool production callback {index}");
             AssertEqual(definition.AngularVelocity, state.AngularVelocity,
@@ -60,7 +60,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production orbit angle {index}");
             AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(definition.InitialAnimation), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Shaktool production initial list {index}");
-            AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
+            AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue,
                 $"Shaktool production instruction timer {index}");
         }
 
@@ -68,7 +68,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
             (state ?? throw new InvalidOperationException("Verification requires state.")).Motion = ShaktoolSegmentMotion.Idle;
         // The reset cue carries out its reaction and the animation plays on: a cue's reaction continues nowhere else.
         enemies.ShaktoolBehavior.ApplyShaktoolCue(
-            enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
+            enemies.Places.InUpdateOrder[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
             new ShaktoolCue(ShaktoolCueKind.ResumeMotion));
         for (int index = 0; index < definitions.Length; index++)
         {
@@ -102,7 +102,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => checked((ushort)(definition.OwnerSlotDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
+            definition => checked((ushort)(definition.OwnerPlaceDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>

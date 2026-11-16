@@ -41,7 +41,7 @@ internal static class CeresEnginePaletteBindingVerification
         for (int step = 0; step <= CeresDestructionSceneDefinitions.InitialFrameWaits; step++)
             game.Step(0);
         CeresDestructionCinematicState scene = Scene(game);
-        scene.Phase = CeresDestructionPhase.FlyToZebesInitial;
+        scene.SkipToPhase(CeresDestructionPhase.FlyToZebesInitial);
         for (int frame = 0; frame < 4; frame++)
         {
             game.Step(0);

@@ -21,7 +21,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
                  { new VerifyYappingMawBodyProjectileBehaviorCase(0, YappingMawBodyProjectileSegment.FacingDown), new VerifyYappingMawBodyProjectileBehaviorCase(1, YappingMawBodyProjectileSegment.FacingUp) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot owner = enemies.SlotTable.Slots[0];
+            RoomEnemyPlace owner = enemies.Places.InUpdateOrder[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
             owner.Bind(owner.DefinitionId, default(RoomEnemyDefinition));
             owner.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);

@@ -12,7 +12,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WaverEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WaverEntity(this, place, common);
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -44,9 +44,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int WaverVerticalRadius = 4;
 
     /// <summary>Initializes the Waver.</summary>
-    internal static void InitializeWaver(RoomEnemySlot slot)
+    internal static void InitializeWaver(RoomEnemyPlace place)
     {
-        HorizontalDirection facing = slot.SpawnSettings<WaverSpawnSettings>().Facing;
+        HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
         SignedSixteenSixteen signedSpeed = facing == HorizontalDirection.Right
             ? WaverHorizontalSpeed
             : -WaverHorizontalSpeed;
@@ -58,24 +58,24 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             SpinFinished = false,
             RequestedAnimation = WaverAnimationChoices.Steady(facing),
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The initializer first installs the left steady animation and then asks for the spawn's facing. Only
         // right-facing spawns therefore change it; left-facing spawns ask for the installed one and keep it.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
-        SetWaverAnimation(slot, state);
+        SetWaverAnimation(place, state);
     }
 
     /// <summary>Runs the Waver's main AI.</summary>
     private void RunWaverMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WaverEnemyState state,
         RoomLevelData level)
     {
         SignedSixteenSixteen horizontalDisplacement = state.XVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 horizontalDisplacement))
         {
             // The wall reversal negates the velocity's whole and fraction parts and stores them back
@@ -84,14 +84,14 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             state.XVelocity = -horizontalDisplacement;
             // A wall turns Waver around and ends any spin.
             state.RequestedAnimation = WaverAnimationChoices.TurnedAround(state.RequestedAnimation);
-            SetWaverAnimation(slot, state);
+            SetWaverAnimation(place, state);
         }
         else
         {
             int verticalPixels = EnemyMath.CircleNegativeSinePixels(
                 state.Angle.ToTrigonometryAngle(),
                 WaverVerticalRadius);
-            if (_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(verticalPixels)))
+            if (_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(verticalPixels)))
             {
                 state.ReflectWave();
             }
@@ -106,7 +106,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Angle.ToTrigonometryAngle().StepsIntoHalfTurn == 56)
         {
             state.RequestedAnimation = WaverAnimationChoices.Spinning(state.RequestedAnimation);
-            SetWaverAnimation(slot, state);
+            SetWaverAnimation(place, state);
         }
 
         // The spin animation sets this flag after 32 animation frames. Main AI owns
@@ -115,30 +115,30 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.SpinFinished = false;
             state.RequestedAnimation = WaverAnimationChoices.SteadyWithSameFacing(state.RequestedAnimation);
-            SetWaverAnimation(slot, state);
+            SetWaverAnimation(place, state);
         }
     }
 
     /// <summary>Starts a changed facing or spin animation and restarts its frame timer.</summary>
-    internal static void SetWaverAnimation(RoomEnemySlot slot, WaverEnemyState state)
+    internal static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state)
     {
         WaverSegment requested = state.RequestedAnimation;
         if (requested == state.InstalledAnimation)
             return;
 
         state.InstalledAnimation = requested;
-        state.Playback = EnemyAnimationPlayback.Start(slot, WaverAnimations.StartingWith(requested));
+        state.Playback = EnemyAnimationPlayback.Start(place, WaverAnimations.StartingWith(requested));
     }
 
     /// <summary>Runs Waver's main AI.</summary>
-    internal void RunWaverMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunWaverMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunWaverMain(slot, slot.RequireSpeciesState<WaverEnemyState>(), frame.Level);
+        RunWaverMain(place, place.RequireSpeciesState<WaverEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, WaverAnimations.Segments,
+    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

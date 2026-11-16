@@ -15,7 +15,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PlatformsEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PlatformsEntity(this, place, common);
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -27,17 +27,17 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(RoomEnemySlot slot, PlatformCue cue)
+    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue)
     {
         switch (cue.Kind)
         {
             case PlatformCueKind.MoveLeft:
                 // The ordinary and duplicate move-left cues are equivalent: both publish leftward horizontal
                 // movement before the next frame.
-                SetPlatformHorizontalMovementFromCue(slot, PlatformHorizontalMovement.Left);
+                SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Left);
                 break;
             case PlatformCueKind.MoveRight:
-                SetPlatformHorizontalMovementFromCue(slot, PlatformHorizontalMovement.Right);
+                SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Right);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PlatformCueKind)} {cue.Kind}.");
@@ -50,16 +50,16 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.SuspensorPlatform;
 
     /// <summary>Runs the two entry points and common initializer.</summary>
-    internal static void InitializePlatform(RoomEnemySlot slot)
+    internal static void InitializePlatform(RoomEnemyPlace place)
     {
-        bool isSuspensorPlatform = slot.DefinitionId == EnemyDefinitionId.SuspensorPlatform;
+        bool isSuspensorPlatform = place.DefinitionId == EnemyDefinitionId.SuspensorPlatform;
         var state = new PlatformEnemyState();
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isSuspensorPlatform;
         // The platform moves left or right; any other movement is corrupt room data and is rejected rather than
         // normalized to rightward movement.
-        PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
+        PlatformSpawnSettings settings = place.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
@@ -72,14 +72,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
-        state.RestingY = CoordinateAxis.Wrap(slot.Position.Y.Whole + 1);
+        state.RestingY = CoordinateAxis.Wrap(place.Position.Y.Whole + 1);
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
     private void RunPlatformMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -87,14 +87,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every frame starts in the rising phase and changes to sinking only when the
         // exact asymmetric "Samus from below" test succeeds. This is also the solid-
         // platform riding gate; ordinary radius overlap would trigger from the sides.
-        state.YMovement = IsSamusRidingPlatform(slot, samus)
+        state.YMovement = IsSamusRidingPlatform(place, samus)
             ? PlatformVerticalMovement.Sinking
             : PlatformVerticalMovement.Rising;
 
         // The sinking carry measures the horizontal step from the position before it.
-        int preHorizontalX = slot.Position.X.Whole;
-        MovePlatformHorizontally(slot, state, level);
-        MovePlatformVertically(slot, state, samus, level, preHorizontalX);
+        int preHorizontalX = place.Position.X.Whole;
+        MovePlatformHorizontally(place, state, level);
+        MovePlatformVertically(place, state, samus, level, preHorizontalX);
 
         // Main AI resets acceleration after running the first frame in a newly
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
@@ -105,9 +105,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Exact wrapped-coordinate test of Samus riding the platform from above.</summary>
-    internal static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
+    internal static bool IsSamusRidingPlatform(RoomEnemyPlace place, SamusState samus)
     {
-        int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
+        int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - place.Position.X.Whole);
         if (CoordinateAxis.AsSigned(xDistance) < 0)
             xDistance = CoordinateAxis.Wrap(-xDistance);
 
@@ -116,25 +116,25 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (xDistance >= samus.Kinematics.Radius.X)
         {
             int remainder = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
-            if (remainder >= slot.Radius.X)
+            if (remainder >= place.Radius.X)
                 return false;
         }
 
         // The +3 bias requires Samus's center to remain above the enemy center. After taking
         // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        int yDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole);
+        int yDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - place.Position.Y.Whole);
         if (CoordinateAxis.AsSigned(yDifference) >= 0)
             return false;
         int yDistance = CoordinateAxis.Wrap(-yDifference);
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
         int yRemainder = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
-        return yRemainder <= slot.Radius.Y;
+        return yRemainder <= place.Radius.Y;
     }
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
     private void MovePlatformHorizontally(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
@@ -146,7 +146,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Platform X movement {state.XMovement} is neither left nor right."),
         };
         SignedSixteenSixteen displacement = movingLeft ? -state.Speed : state.Speed;
-        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
+        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
         // A wall collision reverses the horizontal direction and immediately installs the opposite
@@ -155,17 +155,17 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XMovement = movingLeft
             ? PlatformHorizontalMovement.Right
             : PlatformHorizontalMovement.Left;
-        InstallPlatformVerticallyStillForCurrentDirection(slot, state);
+        InstallPlatformVerticallyStillForCurrentDirection(place, state);
     }
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
-    /// <param name="slot">The platform's slot.</param>
+    /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried while riding.</param>
     /// <param name="level">The room's collision data.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -174,10 +174,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.YMovement)
         {
             case PlatformVerticalMovement.Rising:
-                RaisePlatform(slot, state, level);
+                RaisePlatform(place, state, level);
                 return;
             case PlatformVerticalMovement.Sinking:
-                SinkPlatform(slot, state, samus, level, preHorizontalX);
+                SinkPlatform(place, state, samus, level, preHorizontalX);
                 return;
             default:
                 throw new InvalidDataException(
@@ -187,37 +187,37 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Returns a depressed platform toward its spawn height with the one-pixel stop offset.</summary>
     private void RaisePlatform(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
         // The signed comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
-        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingY) < 0)
+        if (CoordinateAxis.Difference(place.Position.Y.Whole, state.RestingY) < 0)
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-            SetPlatformVerticallyStillAnimation(slot, state);
+            SetPlatformVerticallyStillAnimation(place, state);
             return;
         }
 
-        SetPlatformVerticallyMovingAnimation(slot, state);
+        SetPlatformVerticallyMovingAnimation(place, state);
         IncrementAndClampPlatformYSpeed(state);
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
-        if (!_terrain.MoveEnemyVertically(level, slot, displacement))
+        if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return;
 
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        SetPlatformVerticallyStillAnimation(slot, state);
+        SetPlatformVerticallyStillAnimation(place, state);
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
-    /// <param name="slot">The platform's slot.</param>
+    /// <param name="place">The platform's place.</param>
     /// <param name="state">The platform's state.</param>
     /// <param name="samus">Samus, carried by the platform's accepted movement.</param>
     /// <param name="level">The room's collision data.</param>
     /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void SinkPlatform(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -229,20 +229,20 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
-        int xDelta = CoordinateAxis.Wrap(slot.Position.X.Whole - preHorizontalX);
+        int xDelta = CoordinateAxis.Wrap(place.Position.X.Whole - preHorizontalX);
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
 
-        int preVerticalY = slot.Position.Y.Whole;
+        int preVerticalY = place.Position.Y.Whole;
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Positive;
-        if (_terrain.MoveEnemyVertically(level, slot, displacement))
+        if (_terrain.MoveEnemyVertically(level, place, displacement))
         {
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-            SetPlatformVerticallyStillAnimation(slot, state);
+            SetPlatformVerticallyStillAnimation(place, state);
         }
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        int yDelta = CoordinateAxis.Wrap(slot.Position.Y.Whole - preVerticalY);
+        int yDelta = CoordinateAxis.Wrap(place.Position.Y.Whole - preVerticalY);
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(yDelta));
     }
 
@@ -260,13 +260,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Installs moving art once per phase and always clears the still-art flag, whichever art it installed.</summary>
     private static void SetPlatformVerticallyMovingAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state)
     {
         if (!state.VerticallyMovingArtInstalled)
         {
             state.VerticallyMovingArtInstalled = true;
-            InstallPlatformVerticallyMovingForCurrentDirection(slot, state);
+            InstallPlatformVerticallyMovingForCurrentDirection(place, state);
         }
         // The direction cue runs after the already-installed branch target, so it executes even when
         // no new animation was needed this frame.
@@ -275,13 +275,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Installs stationary art once per phase and always clears the moving-art flag.</summary>
     private static void SetPlatformVerticallyStillAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state)
     {
         if (!state.VerticallyStillArtInstalled)
         {
             state.VerticallyStillArtInstalled = true;
-            InstallPlatformVerticallyStillForCurrentDirection(slot, state);
+            InstallPlatformVerticallyStillForCurrentDirection(place, state);
         }
         // As in the moving helper, the opposite flag is always cleared, whichever art was installed.
         state.VerticallyMovingArtInstalled = false;
@@ -289,34 +289,34 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Selects the moving animation from suspensor identity and current horizontal direction.</summary>
     internal static void InstallPlatformVerticallyMovingForCurrentDirection(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state)
     {
-        StartPlatformAnimation(slot, state, PlatformAnimationChoices.SelectAnimation(
+        StartPlatformAnimation(place, state, PlatformAnimationChoices.SelectAnimation(
             state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
     }
 
     /// <summary>Selects the stationary animation from suspensor identity and current horizontal direction.</summary>
     internal static void InstallPlatformVerticallyStillForCurrentDirection(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformEnemyState state)
     {
-        StartPlatformAnimation(slot, state, PlatformAnimationChoices.SelectAnimation(
+        StartPlatformAnimation(place, state, PlatformAnimationChoices.SelectAnimation(
             state.IsSuspensorPlatform, axis: Axis.Horizontal, state.XMovement));
     }
 
     /// <summary>Starts the selected animation with a one-tick frame timer.</summary>
-    private static void StartPlatformAnimation(RoomEnemySlot slot, PlatformEnemyState state, PlatformSegment segment)
+    private static void StartPlatformAnimation(RoomEnemyPlace place, PlatformEnemyState state, PlatformSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, PlatformAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.Start(place, PlatformAnimations.StartingWith(segment));
     }
 
     /// <summary>Runs the four equivalent movement cues.</summary>
     private static void SetPlatformHorizontalMovementFromCue(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PlatformHorizontalMovement movement)
     {
-        slot.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
+        place.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
     }
 
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
@@ -330,18 +330,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunPlatformsMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunPlatformMain(slot, slot.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
+        RunPlatformMain(place, place.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, PlatformAnimations.Segments,
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyPlatformCue(slot, cue);
+                ApplyPlatformCue(place, cue);
                 return null;
             });
 

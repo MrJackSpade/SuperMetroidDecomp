@@ -175,7 +175,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // `$8B:C100` saves area six/station zero through the ordinary `$81:8000` encoder.
     // Verify both redundant checksum directories, the decoded player/checkpoint data, and
     // the menu's subsequent ENERGY + HH:MM path against one shared save store.
-    saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
+    saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot
     {
         Health = 99,
         MaxHealth = 99,
@@ -184,7 +184,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         Progress = progress,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
     });
-    SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
+    SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Fresh Ceres SRAM slot failed its own checksums.");
     AssertEqual(99, saved.Health, "Ceres checkpoint saved health");
     AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
@@ -227,7 +227,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     copyMenu.Step(ControllerButton.A);
     AssertTrue(copyMenu.SavesChangedThisFrame, "copy reports the frame it changed the saves");
     AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
-    SuperMetroidSaveSlot copied = saveRam.ReadSlot(1)
+    SuperMetroidSaveSlot copied = saveRam.ReadSlot(SaveSlot.B)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
     AssertEqual(saved.Health, copied.Health, "file-select COPY preserves health");
     AssertEqual(saved.GameTimeMinutes, copied.GameTimeMinutes, "file-select COPY preserves time");
@@ -250,8 +250,8 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertTrue(clearMenu.SavesChangedThisFrame, "clear reports the frame it changed the saves");
     AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
-    AssertTrue(saveRam.ReadSlot(0) is null, "file-select CLEAR invalidates slot A checksums");
-    AssertTrue(saveRam.ReadSlot(1) is not null, "file-select CLEAR preserves other slots");
+    AssertTrue(saveRam.ReadSlot(SaveSlot.A) is null, "file-select CLEAR invalidates slot A checksums");
+    AssertTrue(saveRam.ReadSlot(SaveSlot.B) is not null, "file-select CLEAR preserves other slots");
 
     AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
     savedMenu.Step(ControllerButton.A);
@@ -270,11 +270,11 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(selectedHelmetFrame, savedMenu.SelectedHelmetFrame,
         "file-select fade retains turned Samus head instead of resetting before load");
 
-    saveRam.SelectSlot(2);
-    AssertEqual(2, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
+    saveRam.SelectSlot(SaveSlot.C);
+    AssertEqual(SaveSlot.C, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
     byte[] image = SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
     image[SuperMetroid.Diagnostics.Saves.SaveRamLayout.SlotOffset(1) + SuperMetroid.Diagnostics.Saves.SaveRamLayout.HealthOffset] ^= 1;
-    AssertTrue(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(1) is null,
+    AssertTrue(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(SaveSlot.B) is null,
         "SRAM payload corruption invalidates both directories");
 
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
@@ -321,13 +321,13 @@ internal static void VerifySavedGameLoadAppearance()
 
     var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-    saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
+    saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot
     {
         Health = 99,
         MaxHealth = 99,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
     });
-    SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
+    SuperMetroidSaveSlot slot = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
     var runtime = CreateRetailRuntimeFixture();

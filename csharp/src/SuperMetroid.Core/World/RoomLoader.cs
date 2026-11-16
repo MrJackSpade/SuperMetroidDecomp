@@ -180,6 +180,11 @@ internal sealed class RoomLoader
                 $"Fresh Ceres station targets {room.Area}, expected {AreaId.Ceres}.");
         }
 
+        // A new game loads Ceres before it sets Samus up (InitializeCeresStartSamus): the room loads with Samus as
+        // initialization leaves her, unless a restored Ceres-elevator save has already set her up, as the game holds her
+        // state through every load. Choosing the room has already read her as absent.
+        _player.Samus ??= InitializeSamus();
+
         return LoadRoom(
             door,
             room,
@@ -189,7 +194,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Restores an existing slot through the game's area/load-station tables and
+    /// Restores an existing save slot through the game's area/load-station tables and
     /// enters the normal playable state at the station-authored Samus coordinates.
     /// </summary>
     /// <remarks>
@@ -601,10 +606,10 @@ internal sealed class RoomLoader
             else if (completed)
             {
                 throw new InvalidDataException(
-                    $"The door scroll finished before the loader initialized the arriving elevator in slot {placement.Elevator.SlotIndex}.");
+                    $"The door scroll finished before the loader initialized the arriving elevator in place {placement.Elevator.Ordinal}.");
             }
         }
-        _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
+        _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, _room.Camera.PixelPosition);
         if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         _player.Samus.Position = state.SamusPosition;
@@ -804,11 +809,7 @@ internal sealed class RoomLoader
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
-        var carryOver = new RoomTransitionCarryOver(_room.Camera,
-            _room.Scope is { } gated
-                ? new EnemyDoorTransitionGates(gated.Enemies.RoomStatus.EnemyDoorTransitionActive,
-                    gated.Enemies.Elevator.ElevatorDoorTransitionActive)
-                : default);
+        var carryOver = new RoomTransitionCarryOver(_room.Camera);
         // The outgoing room's shots and enemy projectiles leave what the next room's start from (RoomHandOver).
         if (_room.Scope is { } outgoing)
         {
@@ -901,8 +902,9 @@ internal sealed class RoomLoader
         scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
             _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        if (_player.Samus is not null)
-            _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
+        // Every room loads with Samus: a new game's Ceres start has initialized her before its first room loads.
+        SamusState loadingSamus = _player.IntroducedSamus;
+        loadingSamus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
         // Loading reads the room's effect after room setup and before enemies. The chosen effect names two independent
         // lists, its overlay's effects and its colour effects. The colour effects must be created on every shared
@@ -912,7 +914,7 @@ internal sealed class RoomLoader
             _colourEffectSession,
             room.State.Fx,
             door,
-            _player.Samus?.EquippedItems ?? 0,
+            loadingSamus.EquippedItems,
             _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss));
         roomColourEffects.BindAudioRequests(_audioRequests);
         scope.ColourEffects = roomColourEffects;
@@ -922,11 +924,8 @@ internal sealed class RoomLoader
         // destination's projectiles and bombs are built new here, before Load/beam graphics, so no
         // stale index reaches into them; its room-object system is built with the population below.
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
-        if (_player.Samus is { } loadingSamus)
-        {
-            loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
-            loadingSamus.Shinespark.ResetProjectileEchoStorage();
-        }
+        loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
+        loadingSamus.Shinespark.ResetProjectileEchoStorage();
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.MapPresentation.PowerBombGlowColors);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
@@ -988,40 +987,50 @@ internal sealed class RoomLoader
         // Loading shows the entering beams' colours before it initializes enemies. Golden Torizo's code changes the
         // equipment during initialization and leaves those colours shown; the shots fired after it show the granted
         // beams' own pictures (#1586).
-        SamusProjectileSystem.ShowBeamShade(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
+        SamusProjectileSystem.ShowBeamShade(_player.Colours, loadingSamus.EquippedBeams);
 
-        // The destination's enemies load with the door-transition gates clear; their projectile places start from what
-        // the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the slots and the effect-actor places start
+        // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).
+        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the places and the effect-actor places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
         // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
         // and are handed on.
         var compatibility = new RoomEnemyCompatibility
         {
             PowerBombRadius = new PowerBombRadiusAfterKill(),
-            BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
-            BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
+            BullInheritance = new PlaceInheritance<BullEnemyState>(EnemyPlaceOrder.Capacity),
+            BeetomInheritance = new PlaceInheritance<BeetomEnemyState>(EnemyPlaceOrder.Capacity),
             PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
             EffectActorPlaces = new EffectActorPlaces(),
             FadeStepCount = _fadeStepCount,
             UnauthoredBoostCadence = _unauthoredBoostCadence,
-            KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),
+            KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>(),
             YardKickDistance = _yardKickDistance,
+            FallingSparkFloorProbe = new FallingSparkFloorProbe(),
         };
-        var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
-            room.Area, _bossArtwork, roomObjects.BreakableTerrain);
+        var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
+        {
+            Session = _enemySession,
+            Compatibility = compatibility,
+            Definitions = CompiledRoomEnemyDefinitions.Instance,
+            Services = areaServices,
+            Area = room.Area,
+            BossArtwork = _bossArtwork,
+            BreakableTerrain = roomObjects.BreakableTerrain,
+            RoomFx = roomFxOverlay,
+            DoorPassage = _doorTransition.Passage,
+        });
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which
         // leave with it.
-        _player.Samus?.Kinematics.ForgetUnloadedRoomEnemies();
+        loadingSamus.Kinematics.ForgetUnloadedRoomEnemies();
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             scope.Appearance)
         {
             Level = assets.LevelData,
-            Samus = _player.Samus,
+            Samus = loadingSamus,
             ControllerInput = _controller1.Current,
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
@@ -1050,8 +1059,6 @@ internal sealed class RoomLoader
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
         _enemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, roomColourEffects);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies);
-        // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
-        enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {

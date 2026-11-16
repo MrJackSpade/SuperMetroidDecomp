@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed record BabyMetroidCutsceneBehaviorDependencies
 {
-    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>
@@ -17,8 +17,8 @@ internal sealed record BabyMetroidCutsceneBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
+    /// <summary>Place table.</summary>
+    public required EnemyPlaces Places { get; init; }
 
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }

@@ -25,15 +25,15 @@ internal static class SkreeMetareeParticleBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SkreeMetareeParticleNativeListAddresses.Extent, "Skree/Metaree particle");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
+        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
-        foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleSegment program) in new VerifySkreeMetareeParticleBehaviorCase[]
+        foreach ((Action<RoomEnemyPlace> spawn, SkreeMetareeParticleSegment program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {
-                     new VerifySkreeMetareeParticleBehaviorCase(slot => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, slot, SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Skree),
-                     new VerifySkreeMetareeParticleBehaviorCase(slot => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, slot, SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Metaree),
+                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Skree),
+                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Metaree),
                  })
         {
             foreach (EnemyProjectile stale in enemies.Projectiles.EnemyProjectiles)

@@ -17,6 +17,10 @@ internal static class CeresDestructionCinematicStateAccess
         /// <summary>Number of cinematic actors still held in the actor list.</summary>
         internal int ActiveActorCount => self.actors.Count;
 
+        /// <summary>Puts the cinematic at <paramref name="phase"/>, for a check that starts at that step without running the updates that reach it.</summary>
+        internal void SkipToPhase(CeresDestructionPhase phase) =>
+            PrivateFrontendState.Set(self, nameof(CeresDestructionCinematicState.Phase), phase);
+
         /// <summary>
         /// Reads the floor cell the cartridge's map holds for the cinematic's current floor shot.
         /// </summary>

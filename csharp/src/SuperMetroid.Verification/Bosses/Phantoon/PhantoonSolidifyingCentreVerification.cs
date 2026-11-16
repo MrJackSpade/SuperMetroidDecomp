@@ -35,7 +35,7 @@ internal static class PhantoonSolidifyingCentreVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         body.Bind(body.DefinitionId, RoomEnemyDefinitionLookup.Get(body.DefinitionId));
         body.Position = body.Position.WithWhole(new(128, 96));

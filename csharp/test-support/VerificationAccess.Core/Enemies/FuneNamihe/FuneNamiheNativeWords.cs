@@ -9,14 +9,24 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal static class FuneNamiheNativeWords
 {
     /// <summary>
-    /// The routine words naming each <see cref="FuneNamiheAction"/>: Fune and Namihe spit while running one of two
-    /// routines that each return at once (#1814).
+    /// The routine words naming each <see cref="FuneAction"/>: a Fune spits while running one of two routines that each
+    /// return at once (#1814), which the Namihe shares.
     /// </summary>
-    internal static readonly NativeWordIdentities<FuneNamiheAction> FuneNamiheActions = new(new Dictionary<ushort, FuneNamiheAction>
+    internal static readonly NativeWordIdentities<FuneAction> FuneActions = new(new Dictionary<ushort, FuneAction>
     {
-        [0x9737] = FuneNamiheAction.FuneWaitForCooldown,
-        [0x975c] = FuneNamiheAction.NamiheWaitForSamus,
-        [0x978e] = FuneNamiheAction.Spitting,
-        [0x978f] = FuneNamiheAction.Spitting,
+        [0x9737] = FuneAction.WaitForCooldown,
+        [0x978e] = FuneAction.Spitting,
+        [0x978f] = FuneAction.Spitting,
+    });
+
+    /// <summary>
+    /// The routine words naming each <see cref="NamiheAction"/>: a Namihe spits while running one of two routines that
+    /// each return at once (#1814), which the Fune shares.
+    /// </summary>
+    internal static readonly NativeWordIdentities<NamiheAction> NamiheActions = new(new Dictionary<ushort, NamiheAction>
+    {
+        [0x975c] = NamiheAction.WaitForSamus,
+        [0x978e] = NamiheAction.Spitting,
+        [0x978f] = NamiheAction.Spitting,
     });
 }

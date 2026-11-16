@@ -21,9 +21,11 @@ internal static class SamusOverreadFormat
     /// decides, the Zebetite count it leaves and the startup route it saves, in place of the save image's flag numbering
     /// and the saved loading-state word (#1709); revision nineteen holds neither the Speed Booster's overrun colours nor the
     /// Chainsaw beam's colours, which are import data (#1693); revision twenty names each animation position's animation
-    /// under <c>animation</c> (#1624); revision twenty-one names each animation program's successor under <c>animationSuccessors</c> (#1758).
+    /// under <c>animation</c> (#1624); revision twenty-one names each animation program's successor under <c>animationSuccessors</c> (#1758);
+    /// revision twenty-two holds named outcomes in place of the programs' layout: the cue-value steps by the frame's name, what
+    /// each reachable frame past an animation reads, and where each named place lands in every other animation (#2048).
     /// </summary>
-    internal const int Version = 21;
+    internal const int Version = 22;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public readonly record struct SamusBodyFrame(SamusPoseId Pose, SamusAnimationFrame PictureFrame)
 {
     /// <summary>
-    /// The picture's name on the body sheet: its pose and the place its frame takes in the game's layout of the pose's
-    /// animation, as the installation names it.
+    /// The picture's name on the body sheet: its pose and its frame's name in the pose's animation, the segment and the frame
+    /// within it, as the installation names it (#2048).
     /// </summary>
-    public string Name => $"{Pose}.{SamusAnimationDelays.AnimationForPose(Pose).OffsetOf(PictureFrame).ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+    public string Name => $"{Pose}.{SamusAnimationDelays.AnimationForPose(Pose).NameOf(PictureFrame)}";
 }

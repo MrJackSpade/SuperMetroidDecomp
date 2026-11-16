@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -13,14 +14,16 @@ public sealed class SamusArtworkBinding
 {
     /// <summary>Binds the installed Samus artwork.</summary>
     /// <param name="body">Samus's installed body placements, death steps, arm-cannon cover and presentation catalogs.</param>
+    /// <param name="shownFrames">The installed frames her body can show in each pose and the picture frame each draws.</param>
     /// <param name="sheets">The installed pre-coloured sheets Samus, her particles, her death explosion and her grapple beam draw from.</param>
     /// <param name="grappleFlarePlacement">The installed grapple flare placements.</param>
     /// <param name="grappleSwingFrames">The installed pictures Samus's swing shows at each grapple angle.</param>
-    public SamusArtworkBinding(InstalledSamusBodyArtwork body, InstalledSpriteSheets sheets,
+    public SamusArtworkBinding(InstalledSamusBodyArtwork body, SamusShownFrames shownFrames, InstalledSpriteSheets sheets,
         ChargeFlarePlacements grappleFlarePlacement, InstalledGrappleSwingFrames grappleSwingFrames)
     {
         Body = body;
         ArmCannon = body.ArmCannon;
+        ShownFrames = shownFrames;
         Sheets = sheets;
         GrappleFlarePlacement = grappleFlarePlacement;
         GrappleSwingFrames = grappleSwingFrames;
@@ -28,6 +31,9 @@ public sealed class SamusArtworkBinding
 
     /// <summary>Samus's installed body placements, death steps and presentation catalogs.</summary>
     public InstalledSamusBodyArtwork Body { get; set => field = Ensure.NotNull(value); }
+
+    /// <summary>The installed frames her body can show in each pose and the picture frame each draws.</summary>
+    public SamusShownFrames ShownFrames { get; set => field = Ensure.NotNull(value); }
 
     /// <summary>The installed arm-cannon cover placements: the body artwork's, bound with it.</summary>
     public InstalledSamusArmCannonArtwork ArmCannon { get; set => field = Ensure.NotNull(value); }

@@ -8,5 +8,15 @@ internal static class GameOverMenuStateAccess
     {
         /// <summary>Currently displayed Baby Metroid pose; its resting pose before the animation starts.</summary>
         internal GameOverBabyFrame BabyFrame => self.BabyLook.Frame;
+
+        /// <summary>
+        /// Puts the menu at <paramref name="phase"/> with no display frame being waited out, for a check that starts at
+        /// that step without running the updates that reach it.
+        /// </summary>
+        internal void SkipToPhase(GameOverMenuPhase phase)
+        {
+            PrivateFrontendState.Set(self, nameof(GameOverMenuState.IsWaitingOutDisplayFrame), false);
+            PrivateFrontendState.Set(self, nameof(GameOverMenuState.Phase), phase);
+        }
     }
 }

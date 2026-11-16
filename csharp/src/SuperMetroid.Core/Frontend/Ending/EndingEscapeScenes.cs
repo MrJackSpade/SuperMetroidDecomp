@@ -47,7 +47,7 @@ internal sealed class EndingEscapeScenes
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
-        _stage.Brightness = 0;
+        _stage.Fade.Show(0);
         _artwork.PostCreditsText.Drop = 0;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
@@ -70,8 +70,8 @@ internal sealed class EndingEscapeScenes
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
-        _stage.Brightness = 0;
-        _stage.RestartFadeCadence();
+        _stage.Fade.Show(0);
+        _stage.StartFastFade();
         _stage.Phase = EndingCreditsPhase.FadeInTopAndBottomCloudEscape;
     }
 
@@ -192,7 +192,7 @@ internal sealed class EndingEscapeScenes
                 return;
 
             case CinematicSpriteCueKind.TransitionToCredits:
-                _stage.RestartFadeCadence();
+                _stage.StartFastFade();
                 _stage.Phase = EndingCreditsPhase.FadeOutToCredits;
                 return;
 

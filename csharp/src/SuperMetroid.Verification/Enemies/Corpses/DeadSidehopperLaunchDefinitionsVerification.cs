@@ -17,8 +17,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     internal static void VerifyDeadSidehopperLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
-        var slot = enemies.SlotTable.Slots[0];
+        Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
+        var place = enemies.Places.InUpdateOrder[0];
         var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay);
         for (ushort phase = 0; phase < 4; phase++)
         {
@@ -36,8 +36,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.JumpPhase = phase;
                 state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
-                slot.AnimationClock.HoldFor(9);
-                dispatch(slot, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
+                place.AnimationClock.HoldFor(9);
+                dispatch(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
                 int timer = raw - 1;
                 bool expired = timer < 0;
                 bool launch = expired && drainStage == 0;
@@ -48,7 +48,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                     state.Action, "Exact launch versus transformation handoff");
                 AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(launch ? DeadTourianSegment.SidehopperIdle : DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation),
                     state.Playback, "Launch restarts the alive-idle animation");
-                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.AnimationClock.Hold.RawValue, "Launch instruction timer");
+                AssertEqual(launch ? (ushort)1 : (ushort)9, place.AnimationClock.Hold.RawValue, "Launch instruction timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");
             }
         }

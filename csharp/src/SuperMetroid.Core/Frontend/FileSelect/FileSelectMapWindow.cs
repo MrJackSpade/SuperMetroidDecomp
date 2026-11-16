@@ -27,7 +27,7 @@ public sealed class FileSelectMapWindow
     /// <summary>The updates the edges still move on; the reveal completes on the last.</summary>
     private int movesLeft;
 
-    /// <summary>Starts the area-to-room reveal at the installed label of <paramref name="area"/>, with the area's compiled motion; editable labels move the rectangle's start, not its motion.</summary>
+    /// <summary>Starts the area-to-room reveal at the installed label of <paramref name="area"/>, with the area's authored reveal motion; editable labels move the rectangle's start, not its motion.</summary>
     /// <param name="area">One of the six Zebes areas.</param>
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
@@ -35,7 +35,7 @@ public sealed class FileSelectMapWindow
     public FileSelectMapWindow(AreaId area, WorldMapLabelPositions? labels = null)
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
-    /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
+    /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the authored motions.</summary>
     internal FileSelectMapWindow(AreaId area, FileSelectMapWindowMotion motion, WorldMapLabelPositions? labels = null)
     {
         if (!AreaIds.IsZebes(area))

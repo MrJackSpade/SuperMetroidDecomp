@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Death;
@@ -73,7 +74,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.DeathExplosionWhiteOut;
         else if (deathStep.Completed)
         {
-            session.DeathFade.Start(15, 1);
+            session.DeathFade.Restart(DisplayBrightness.Full, 1);
             session.GameState = SuperMetroidGameState.DeathFinalBlackOut;
         }
     }
@@ -83,8 +84,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);
-        session.SetDisplayBrightness(session.DeathFade.Darken());
-        if (session.DeathFade.Brightness == 0)
+        bool black = session.DeathFade.Darken();
+        session.SetDisplayBrightness(session.DeathFade.Level);
+        if (black)
         {
             session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;
             // The game-over menu runs no gameplay owner: every exit reloads the save file or

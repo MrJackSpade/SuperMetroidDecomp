@@ -39,7 +39,7 @@ internal sealed class TorizoMovement
     /// Golden definitions. The concrete definition selects the values, so the room's area
     /// cannot become a second authority for actor identity.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemySlot torizo, SamusState samus, GameplayAction controllerInput)
+    internal void InitializeTorizo(RoomEnemyPlace torizo, SamusState samus, GameplayAction controllerInput)
     {
         bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(isGolden)
@@ -101,7 +101,7 @@ internal sealed class TorizoMovement
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
     internal void RunBombTorizoActiveState(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
@@ -130,7 +130,7 @@ internal sealed class TorizoMovement
 
     /// <summary>Moves Bomb or Golden Torizo's body by the motion its animation started, or holds it still with none (#1931).</summary>
     internal void MoveBody(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
@@ -157,7 +157,7 @@ internal sealed class TorizoMovement
     /// rests; meeting it at rest, or meeting the ceiling, changes nothing.
     /// </summary>
     internal void ApplyTorizoGravity(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
@@ -177,7 +177,7 @@ internal sealed class TorizoMovement
 
     /// <summary>Advances a leap or fall across slopes; landing plays the animation it lands into and shakes the room.</summary>
     private void Leap(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
@@ -208,7 +208,7 @@ internal sealed class TorizoMovement
     /// faceless.
     /// </summary>
     private void Walk(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
@@ -234,7 +234,7 @@ internal sealed class TorizoMovement
     /// The animation a walking Torizo turns toward Samus with: a faceless Bomb Torizo's faceless turn, otherwise its
     /// definition's turn away from the way it faces.
     /// </summary>
-    private static TorizoAnimation TurnTowardSamus(RoomEnemySlot torizo, TorizoEnemyState state)
+    private static TorizoAnimation TurnTowardSamus(RoomEnemyPlace torizo, TorizoEnemyState state)
     {
         bool facesRight = TorizoFacing.FacesRight(torizo);
         if (TorizoBody.HasBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp))
@@ -244,8 +244,8 @@ internal sealed class TorizoMovement
     }
 
     /// <summary>Runs either Torizo's initialization AI.</summary>
-    internal void RunTorizoInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
+    internal void RunTorizoInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
     {
-        InitializeTorizo(slot, surroundings.IntroducedSamus, surroundings.ControllerInput);
+        InitializeTorizo(place, surroundings.IntroducedSamus, surroundings.ControllerInput);
     }
 }

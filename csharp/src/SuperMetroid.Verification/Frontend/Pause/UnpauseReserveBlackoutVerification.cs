@@ -44,7 +44,7 @@ internal static class UnpauseReserveBlackoutVerification
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
-        unpausing.Session.PauseBrightness = 0;
+        unpausing.Session.screenFade.Show(0);
         unpausing.GameState = SuperMetroidGameState.Unpausing;
         unpausing.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTanksAuto, unpausing.GameState,
@@ -54,7 +54,7 @@ internal static class UnpauseReserveBlackoutVerification
         // Once gameplay resumes the screen is still black; a pause darkens from there.
         var (pausing, _) = Create();
         pausing.GameState = SuperMetroidGameState.MainGameplay;
-        pausing.Session.PauseBrightness = 0;
+        pausing.Session.screenFade.Show(0);
         pausing.Step(0);
         pausing.Step(ControllerButton.Start);
         AssertEqual(SuperMetroidGameState.PausingDarkening, pausing.GameState, "Start pauses");

@@ -34,13 +34,13 @@ internal static class MetroidBombPlacementVerification
         var assets = LoadFixtureRoomAssets(room);
         var random = new SharedGameState(new SharedRandom());
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber });
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        var target = enemies.SlotTable.Slots[0];
+        var target = enemies.Places.InUpdateOrder[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         enemies.Collision.ResolveOrdinarySamusContact(samus, 0, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
@@ -116,8 +116,8 @@ internal static class MetroidBombPlacementVerification
         samus.PoseHistory.PreviousMovement =
             SamusMovementType.MorphBallGround;
         samus.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
-        var target = runtime.Enemies.SlotTable.Slots[0];
-        foreach (var other in runtime.Enemies.SlotTable.Slots.Skip(1)) other.Clear();
+        var target = runtime.Enemies.Places.InUpdateOrder[0];
+        foreach (var other in runtime.Enemies.Places.InUpdateOrder.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));
         runtime.PlayerActions.Latch(0);
         var state = runtime.Enemies.MetroidStates[0];

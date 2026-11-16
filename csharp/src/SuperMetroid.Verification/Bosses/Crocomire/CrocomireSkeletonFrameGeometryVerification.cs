@@ -34,7 +34,7 @@ internal static class CrocomireSkeletonFrameGeometryVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             AssertEqual(selected.Contains((ushort)pointer),
-                RoomEnemySlotFrameAccess.TryFrameAt(0xa4, (ushort)pointer) is { } frame && CrocomireSkeletonVisualDefinitions.IsFrame(frame),
+                RoomEnemyPlaceFrameAccess.TryFrameAt(0xa4, (ushort)pointer) is { } frame && CrocomireSkeletonVisualDefinitions.IsFrame(frame),
                 "exact skeleton membership including gaps and component interiors");
         }
     }

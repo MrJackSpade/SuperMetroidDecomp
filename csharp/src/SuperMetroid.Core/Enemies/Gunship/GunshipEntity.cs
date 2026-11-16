@@ -2,43 +2,43 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>One Gunship occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Gunship species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize()
+    public void Initialize(EnemySpawnSurroundings surroundings)
     {
-        switch (GunshipPartDefinitions.Parts[Slot.DefinitionId])
+        switch (GunshipPartDefinitions.Parts[Place.DefinitionId])
         {
             case GunshipPart.ShipTop:
-                species.InitializeGunshipTop(Slot);
+                species.InitializeGunshipTop(Place, surroundings.IntroducedSamus);
                 break;
             case GunshipPart.ShipBottomEntrance:
-                species.InitializeGunshipBottom(Slot);
+                species.InitializeGunshipBottom(Place, surroundings.IntroducedSamus);
                 break;
             default:
-                throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Gunship entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (GunshipPartDefinitions.Parts[Slot.DefinitionId])
+        switch (GunshipPartDefinitions.Parts[Place.DefinitionId])
         {
             case GunshipPart.ShipTop:
-                species.RunGunshipMainAi(Slot, frame);
+                species.RunGunshipMainAi(Place, frame);
                 break;
             // The ship's bottom and entrance take no action of their own; the top moves the ship.
             case GunshipPart.ShipBottomEntrance:
                 break;
             default:
-                throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Gunship entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceGunshipAnimation(Slot);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place);
 }

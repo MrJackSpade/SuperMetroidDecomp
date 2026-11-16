@@ -81,22 +81,22 @@ internal static class YappingMawExtensionVerification
     /// </summary>
     private static YappingMawEnemyState Advance(SignedSixteenSixteen start, int row, EnemySpeedSign sign)
     {
-        (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
+        (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) =
             YappingMawInstructionProgramDefinitionsVerification.NewInitializedYappingMaw(301);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
             new FrameCounters(0));
-        enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
-        enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
         AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, "setup begins the extension");
         AssertEqual(SignedSixteenSixteen.Zero, state.Extension, "setup starts the curl at zero");
 
         state.Extension = start;
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
         state.QuadraticSpeedSign = sign;
-        enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
         return state;
     }
 }

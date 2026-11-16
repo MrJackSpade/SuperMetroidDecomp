@@ -96,7 +96,7 @@ internal static class TitleSequenceRomDataVerification
             "title skip fade route");
         AssertTrue(skipPhases.Contains(TitleSequencePhase.TitleScreenFadeIn),
             "title skip rebuilds objects before fading back in");
-        AssertEqual(TitleSequenceDefinitions.Timing.MaximumBrightness, skipped.Brightness,
+        AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full, skipped.Brightness,
             "title skip returns at full brightness");
         for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames; idle++)
             skipped.Step(0);

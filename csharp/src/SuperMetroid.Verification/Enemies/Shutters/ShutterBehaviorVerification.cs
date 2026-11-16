@@ -24,42 +24,49 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyShutterBehavior()
     {
         VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterSegment.GrowingTenPixels,
-            (enemies, slot) =>
+            (enemies, place) =>
             {
-                slot.SetSpawnSettings(new GrowingShutterSpawnSettings(
+                place.SetSpawnSettings(new GrowingShutterSpawnSettings(
                     Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, ActivationWait: 0,
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
-                ShuttersBehavior.InitializeGrowingShutter(slot);
+                ShuttersBehavior.InitializeGrowingShutter(place);
             },
-            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
+            enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
             VerifyPose(definition, ShutterSegment.FortyPixels,
-                (enemies, slot) => ShuttersBehavior.InitializeVerticalShutter(slot),
-                enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
+                (enemies, place) =>
+                {
+                    ShuttersBehavior.InitializeVerticalShutter(place);
+                    VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
+                        ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
+                    AssertEqual(ShuttersBehavior.InitialAction(state.TriggerMode), state.Action,
+                        $"shutter {definition} starts in its trigger's initial action (#2075)");
+                },
+                enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
         }
 
         RoomEnemySystem kamerSystem = NewSystem();
-        RoomEnemySlot kamer = NewSlot(kamerSystem, EnemyDefinitionId.Kamer);
+        RoomEnemyPlace kamer = NewPlace(kamerSystem, EnemyDefinitionId.Kamer);
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
         ShuttersBehavior.InitializeVerticalShutter(kamer);
         AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.KamerPlatform), AnimationPlace.StartOfAnimation),
-            kamerSystem.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
+            kamerSystem.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterSegment.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Segments, ShutterSegment.KamerPlatform)),
             "Kamer platform loop and its goto");
         Console.WriteLine("  Shutter behavior: every shutter starts its pose and Kamer runs its platform loop.");
 
-        void VerifyPose(EnemyDefinitionId definition, ShutterSegment program, Action<RoomEnemySystem, RoomEnemySlot> initialize,
+        void VerifyPose(EnemyDefinitionId definition, ShutterSegment program, Action<RoomEnemySystem, RoomEnemyPlace> initialize,
             Func<RoomEnemySystem, AnimationPlayback<ShutterSegment>?> playback)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot slot = NewSlot(enemies, definition);
-            initialize(enemies, slot);
+            RoomEnemyPlace place = NewPlace(enemies, definition);
+            initialize(enemies, place);
             AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), playback(enemies), $"shutter {definition} initial animation");
             ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(slot, 3), $"shutter {definition} shows and holds its pose");
+                EnemyInstructionRunner.ShownFrames(place, 3), $"shutter {definition} shows and holds its pose");
         }
 
         RoomEnemySystem NewSystem()
@@ -70,28 +77,26 @@ internal static class ShutterBehaviorVerification
     }
 
     /// <summary>A slot of <paramref name="enemies"/> holding <paramref name="definition"/> with population words that select trigger mode one.</summary>
-    private static RoomEnemySlot NewSlot(RoomEnemySystem enemies, EnemyDefinitionId definition)
+    private static RoomEnemyPlace NewPlace(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(definition, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
-        return slot;
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(definition, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
+        return place;
     }
 
-    /// <summary>Checks native vertical shutter function selection and invalid trigger-mode rejection.</summary>
+    /// <summary>
+    /// Checks that each trigger mode's initial action is the native trigger table's entry for that mode, and invalid
+    /// trigger-mode rejection.
+    /// </summary>
     internal static void VerifyVerticalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
-        Func<VerticalShutterEnemyState, VerticalShutterAction> select = ShuttersBehavior.SelectInitialVerticalShutterAction;
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
         foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
-            state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
-            AssertEqual(ShuttersNativeWords.VerticalShutterActions.Decode(native, "vertical shutter initial action"), select(state),
+            AssertEqual(ShuttersNativeWords.VerticalShutterActions.Decode(native, "vertical shutter initial action"), ShuttersBehavior.InitialAction(mode),
                 "vertical shutter native initial function pointer");
-            AssertEqual(VerticalShutterAction.Initial, state.Action,
-                "vertical initial dispatch selects a function without installing it");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
             AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterShootable,
@@ -133,8 +138,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {
-        var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-        var state = new GrowingShutterEnemyState(slot, GrowingShutterAction.WaitToGrowUpForTimer);
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer);
         state.ActivationTimer = 2;
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
         AssertEqual(1, state.ActivationTimer, "the first call counts the wait down by one");
@@ -180,12 +184,12 @@ internal static class ShutterBehaviorVerification
         static void Confirm(byte primaryDirection, ushort spawnY, ushort expectedUpperY, ushort expectedLowerY)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
+            RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.ShutterShootable);
+            place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
+            place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(slot);
-            VerticalShutterEnemyState state = slot.SpeciesState<VerticalShutterEnemyState>()
+            ShuttersBehavior.InitializeVerticalShutter(place);
+            VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedUpperY), state.UpperEndpoint, $"{context}: upper endpoint");
@@ -205,7 +209,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyVerticalShutterVelocityWords()
     {
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
+        var state = new VerticalShutterEnemyState(VerticalShutterAction.WaitForTimer);
         SignedSixteenSixteen down = SignedSixteenSixteen.FromParts(-2, 40000);
         SignedSixteenSixteen up = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.DownVelocity = down;

@@ -41,7 +41,7 @@ public readonly record struct SpriteGraphics
     /// What <paramref name="spawner"/> hands the objects it spawns: its own spawned-object sheet, in the shading it shows
     /// its pictures in now.
     /// </summary>
-    internal static SpriteGraphics SpawnedBy(RoomEnemySlot spawner) =>
+    internal static SpriteGraphics SpawnedBy(RoomEnemyPlace spawner) =>
         new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).DefinitionId), spawner.Shading);
 
     /// <summary>The same sheet under <paramref name="shading"/>.</summary>

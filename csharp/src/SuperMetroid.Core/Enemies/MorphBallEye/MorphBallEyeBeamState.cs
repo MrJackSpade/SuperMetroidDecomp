@@ -11,7 +11,7 @@ public sealed class MorphBallEyeBeamState
     public MorphBallEyeBeamPhase Phase { get; internal set; }
 
     /// <summary>The eye body that cast the beam, whose position and aim the cone follows; none while no beam exists.</summary>
-    public RoomEnemySlot? Body { get; internal set; }
+    public RoomEnemyPlace? Body { get; internal set; }
 
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
@@ -47,10 +47,10 @@ public sealed class MorphBallEyeBeamState
         if (Phase == MorphBallEyeBeamPhase.Inactive)
             return null;
         // A live beam always has an eye with its state; losing either is a corrupt enemy population.
-        RoomEnemySlot body = Body
+        RoomEnemyPlace body = Body
             ?? throw new InvalidDataException($"Active Morph Ball eye beam in phase {Phase} has no eye body.");
         MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>()
-            ?? throw new InvalidDataException($"Active Morph Ball eye beam's body in enemy slot {body.SlotIndex} has no eye state.");
+            ?? throw new InvalidDataException($"Active Morph Ball eye beam's body in enemy place {body.Ordinal} has no eye state.");
         return new MorphBallEyeBeamCone(Phase, body.Position.Whole, eye.Angle, AngularWidth, Color);
     }
 

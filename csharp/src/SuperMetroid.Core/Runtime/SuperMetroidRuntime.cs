@@ -214,7 +214,7 @@ internal sealed class SuperMetroidRuntime
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
         {
-            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt,
+            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
             GrappleFlarePlacement = artwork.GrappleFlarePlacement, GrappleSwingFrames = artwork.GrappleSwingFrames,
             ProjectileFrameBindings = artwork.ProjectileFrameBindings, ChargeFlarePlacement = artwork.ChargeFlarePlacement,
             RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
@@ -238,7 +238,7 @@ internal sealed class SuperMetroidRuntime
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System, DoorPassage = DoorTransition.Passage });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
@@ -288,6 +288,7 @@ internal sealed class SuperMetroidRuntime
 
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
+        Bind(a => a.SamusShownFrames, value => Artwork.SamusShownFrames = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);
@@ -530,7 +531,7 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
+        EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, Room.LoadedScope.Enemies);
     }
 
     /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
@@ -648,7 +649,7 @@ internal sealed class SuperMetroidRuntime
         // Door destination drawing borrows this frame path, but the door's destination
         // fade does not run the colour effects. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (Room.LoadedScope.ColourEffects.ColourEffectsRun && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
+        if (Room.LoadedScope.ColourEffects.ColourEffectsRun && !DoorTransition.Passage.IsUnderWay &&
             Player.Samus?.Xray.AreColourEffectsSuspended != true)
         {
             Room.LoadedScope.ColourEffects.Step(new ColourEffectInputs { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, AreaMiniBossDefeated = Room.ActiveRoom is { } activeRoom &&
@@ -828,11 +829,11 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs the main scrolling, its scrolling-finished hook, background streaming and the minimap.</summary>
     private void RunMainScrolling(SamusState samus, ScrollBoundaryCamera camera, FixedPosition<RoomPixels> previousCameraPoint, bool deathOwnsSamus)
     {
-        // The door's destination fade runs enemy/draw owners but not the camera.
-        // Its shared gate is set for ordinary doors as well as elevators.
+        // The door's destination fade runs enemy/draw owners but not the camera, for ordinary doors as
+        // well as elevators.
         // Running the normal camera here consumes the upward scroll's +32 offset
         // before arrival resumes, exposing wrapped Samus art above the room.
-        if (!deathOwnsSamus && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive)
+        if (!deathOwnsSamus && !DoorTransition.Passage.IsUnderWay)
         {
             if (Room.LevelData is null)
                 throw new InvalidOperationException("Gameplay camera tracking requires active room level data.");

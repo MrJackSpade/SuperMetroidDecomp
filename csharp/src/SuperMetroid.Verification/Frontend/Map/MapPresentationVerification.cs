@@ -644,7 +644,7 @@ internal static class MapPresentationVerification
         AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        Position16<MapPixels> scroll = pause.MapScroll;
+        Offset16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
         _ = pause.Render();

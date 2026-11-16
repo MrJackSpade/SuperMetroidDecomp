@@ -10,7 +10,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChootEntity(slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ChootEntity(place, common);
 
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
     private const int ChootActivationDistance = 80;
@@ -22,21 +22,21 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly QuadraticSpeedCurvePlace ChootAscentStep = QuadraticSpeedCurvePlace.FromMarks(2);
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
-    internal static void InitializeChoot(RoomEnemySlot slot)
+    internal static void InitializeChoot(RoomEnemyPlace place)
     {
         var state = new ChootEnemyState(ChootAction.WaitingForSamus);
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
-        SetChootAnimation(slot, state, ChootSegment.Idle);
-        state.SpawnPosition = slot.Position.Whole;
+        SetChootAnimation(place, state, ChootSegment.Idle);
+        state.SpawnPosition = place.Position.Whole;
 
-        ChootFallingPath fallingPath = slot.SpawnSettings<ChootSpawnSettings>().FallingPath;
+        ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
         state.FallingPath = fallingPath;
         state.FallingPatternYDistance = ChootFalls.LoopYDistance(fallingPath);
 
         // The jump rises as far as its loops of the falling path fall: one to seven loops of under 256 pixels in every
         // retail room, so the height stays well within the room (#1620).
-        int jumpHeight = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance;
+        int jumpHeight = place.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance;
         state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(CoordinateAxis.Wrap(
             state.SpawnPosition.Y - jumpHeight));
@@ -45,23 +45,23 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>
     private static void RunChootMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
         switch (state.Action)
         {
             case ChootAction.WaitingForSamus:
-                WaitForChootActivation(slot, state, samus);
+                WaitForChootActivation(place, state, samus);
                 return;
             case ChootAction.PreparingJump:
-                PrepareChootJump(slot, state);
+                PrepareChootJump(place, state);
                 return;
             case ChootAction.Jumping:
-                RunChootJump(slot, state);
+                RunChootJump(place, state);
                 return;
             case ChootAction.Falling:
-                RunChootFall(slot, state);
+                RunChootFall(place, state);
                 return;
             default:
                 throw new InvalidDataException(
@@ -69,39 +69,36 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses wrapped signed horizontal distance to arm the jump delay when Samus enters range.</summary>
+    /// <summary>Arms the jump delay when Samus comes within the activation distance horizontally.</summary>
     private static void WaitForChootActivation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
-        // The distance is the magnitude of the wrapped signed difference, up to 32768, and the farthest one reads as
-        // negative in the game's signed comparison with the activation distance.
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
-        if (CoordinateAxis.Difference(distance, ChootActivationDistance) >= 0)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootActivationDistance)
             return;
 
-        state.JumpDelayTimer = slot.SpawnSettings<ChootSpawnSettings>().JumpDelay;
+        state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay;
         state.Action = ChootAction.PreparingJump;
     }
 
     /// <summary>Decrements the delay until it turns negative, then starts the jumping animation.</summary>
-    internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
+    internal static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
         if (--state.JumpDelayTimer >= 0)
             return;
 
-        SetChootAnimation(slot, state, ChootSegment.Jumping);
+        SetChootAnimation(place, state, ChootSegment.Jumping);
         state.Action = ChootAction.Jumping;
     }
 
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
-    internal static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
+    internal static void RunChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
         // Choot applies the curve's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
-        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(upwardDisplacement));
+        place.Position = place.Position.WithY(place.Position.Y.MovedBy(upwardDisplacement));
 
         state.YSpeedCurvePlace -= ChootAscentStep;
         if (!state.YSpeedCurvePlace.IsNegative)
@@ -109,17 +106,17 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The apex transition snaps only the whole positions to precalculated origins;
         // subpositions deliberately survive until the final spawn reset, just as in the game.
-        slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
+        place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
         // A population loop count of zero starts below zero, so the fall ends at the first loop's end as a count of one does.
-        state.FallingPatternLoopCounter = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
-        SetChootAnimation(slot, state, ChootSegment.Falling);
+        state.FallingPatternLoopCounter = place.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
+        SetChootAnimation(place, state, ChootSegment.Falling);
         state.Action = ChootAction.Falling;
     }
 
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
-    internal static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
+    internal static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
         Offset16<RoomPixels>? offset = ChootFalls.At(
             state.FallingPath ?? throw new InvalidDataException("A falling Choot has no falling pattern."),
@@ -135,13 +132,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
             // the idle animation, and rearms the same calculated ascent for the next activation.
             state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
-            SetChootAnimation(slot, state, ChootSegment.Idle);
+            place.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
+            SetChootAnimation(place, state, ChootSegment.Idle);
             state.Action = ChootAction.WaitingForSamus;
             return;
         }
 
-        slot.Position = slot.Position.WithWhole(state.FallingOrigin + pathOffset);
+        place.Position = place.Position.WithWhole(state.FallingOrigin + pathOffset);
         state.FallingPatternFrame++;
     }
 
@@ -168,36 +165,36 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Installs the idle, jumping, or falling animation and restarts its frame timers.</summary>
     private static void SetChootAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         ChootEnemyState state,
         ChootSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, ChootAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.Start(place, ChootAnimations.StartingWith(segment));
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, ChootAnimations.Segments,
+    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyChootCue(slot, cue) is { } target
+            (state, cue) => ApplyChootCue(place, cue) is { } target
                 ? new AnimationContinuation<ChootSegment>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
-    private static ChootSegment? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)
+    private static ChootSegment? ApplyChootCue(RoomEnemyPlace place, ChootCue cue)
     {
-        slot.Processing = cue.Kind switch
+        place.Processing = cue.Kind switch
         {
-            ChootCueKind.ProcessOffScreen => slot.Processing.With(EnemyProcessing.OffScreen),
-            ChootCueKind.StopProcessingOffScreen => slot.Processing.Without(EnemyProcessing.OffScreen),
+            ChootCueKind.ProcessOffScreen => place.Processing.With(EnemyProcessing.OffScreen),
+            ChootCueKind.StopProcessingOffScreen => place.Processing.Without(EnemyProcessing.OffScreen),
             _ => throw new InvalidOperationException($"Undefined {nameof(ChootCueKind)} {cue.Kind}."),
         };
         return null;
     }
 
     /// <summary>Runs Choot's main AI.</summary>
-    internal static void RunChootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal static void RunChootMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunChootMain(slot, slot.RequireSpeciesState<ChootEnemyState>(), frame.Samus);
+        RunChootMain(place, place.RequireSpeciesState<ChootEnemyState>(), frame.Samus);
     }
 }

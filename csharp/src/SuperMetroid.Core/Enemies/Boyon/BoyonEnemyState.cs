@@ -8,13 +8,13 @@ public sealed class BoyonEnemyState
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }
 
     /// <summary>
-    /// The multiplier its bounce curve is scaled by, from its spawn settings. The multiply takes it whole, so a
-    /// multiplier the multiply could not hold, above <see cref="BoyonSpeedDefinitions.LargestMultiplier"/>, is rejected.
+    /// The multiplier its bounce curve is scaled by, from its spawn settings: one or more, and no larger than
+    /// <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/>, up to which its arc is derived as the game derives it.
     /// </summary>
     public int SpeedMultiplier
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, BoyonSpeedDefinitions.LargestMultiplier, value);
+        internal set => field = Ensure.BetweenInclusive(1, BoyonSpeedDefinitions.LargestArcMultiplier, value);
     }
 
     /// <summary>

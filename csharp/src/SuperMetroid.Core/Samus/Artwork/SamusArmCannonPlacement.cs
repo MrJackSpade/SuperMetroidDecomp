@@ -11,21 +11,21 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 /// <remarks>
 /// The import pipeline decodes each pose's placement once (#1638). The installation holds the displacement of the
-/// animation frames the pose shows, which are the frames the cover is drawn at, wherever the import's data holds one; an
-/// animation frame without one has no installed placement.
+/// animation frames the pose shows, which are the frames the cover is drawn at, wherever the import's data holds one, each
+/// by its named frame of the pose's animation (#2048); an animation frame without one has no installed placement.
 /// </remarks>
 public sealed class SamusArmCannonPlacement
 {
     /// <summary>The displacement of each animation frame with one, by animation frame.</summary>
-    private readonly ImmutableSortedDictionary<int, Offset16<RoomPixels>> offsets;
+    private readonly ImmutableSortedDictionary<SamusAnimationFrame, Offset16<RoomPixels>> offsets;
 
     /// <summary>Creates a pose's placement.</summary>
     /// <param name="drawOrder">Whether the pose draws the cover, and before or after Samus's body.</param>
     /// <param name="firstDirection">The aim direction shown at animation frame zero, or at every frame when <paramref name="laterDirection"/> is null.</param>
     /// <param name="laterDirection">The aim direction shown at every animation frame after zero, or null when the pose shows one direction throughout.</param>
-    /// <param name="offsets">The cover's displacement from Samus at each animation frame with one, by animation frame.</param>
+    /// <param name="offsets">The cover's displacement from Samus at each animation frame with one, by frame of the pose's animation.</param>
     public SamusArmCannonPlacement(SamusArmCannonDrawOrder drawOrder, SamusProjectileDirection firstDirection,
-        SamusProjectileDirection? laterDirection, IReadOnlyDictionary<int, Offset16<RoomPixels>> offsets)
+        SamusProjectileDirection? laterDirection, IReadOnlyDictionary<SamusAnimationFrame, Offset16<RoomPixels>> offsets)
     {
         DrawOrder = drawOrder;
         FirstDirection = firstDirection;
@@ -43,19 +43,16 @@ public sealed class SamusArmCannonPlacement
     public SamusProjectileDirection? LaterDirection { get; }
 
     /// <summary>The cover's displacement at each animation frame with one, in animation-frame order.</summary>
-    public IReadOnlyDictionary<int, Offset16<RoomPixels>> Offsets => offsets;
+    public IReadOnlyDictionary<SamusAnimationFrame, Offset16<RoomPixels>> Offsets => offsets;
 
     /// <summary>The aim direction whose cover picture the pose shows at <paramref name="animationFrame"/>: the later one past its animation's first frame.</summary>
     public SamusProjectileDirection Direction(SamusAnimationFrame animationFrame) =>
         LaterDirection is { } later && animationFrame != SamusAnimationFrame.Start ? later : FirstDirection;
 
-    /// <summary>
-    /// The cover's displacement from Samus at <paramref name="animationFrame"/> of <paramref name="animation"/>, the pose's
-    /// animation: the installation holds each displacement at the place its frame takes in the game's layout of the animation.
-    /// </summary>
+    /// <summary>The cover's displacement from Samus at <paramref name="animationFrame"/> of the pose's animation.</summary>
     /// <exception cref="InvalidDataException">The animation frame has no installed displacement.</exception>
-    internal Offset16<RoomPixels> Offset(SamusPoseAnimation animation, SamusAnimationFrame animationFrame) =>
-        offsets.TryGetValue(Ensure.NotNull(animation).OffsetOf(animationFrame), out Offset16<RoomPixels> offset)
+    internal Offset16<RoomPixels> Offset(SamusAnimationFrame animationFrame) =>
+        offsets.TryGetValue(animationFrame, out Offset16<RoomPixels> offset)
             ? offset
             : throw new InvalidDataException($"Arm-cannon animation frame {animationFrame} has no installed placement.");
 }

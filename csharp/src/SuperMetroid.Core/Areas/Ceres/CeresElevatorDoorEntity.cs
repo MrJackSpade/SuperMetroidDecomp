@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// explosions, which publishes its destruction so the shaft starts to turn.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
-/// <param name="slot">The slot the door occupies.</param>
+/// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <summary>Initial countdown that ends the 49-update destruction when it passes zero.</summary>
     private const int RumbleDuration = 48;
@@ -24,8 +24,8 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// <inheritdoc/>
     public void Initialize()
     {
-        doors.Start(Slot, CeresDoorSegment.ElevatorDoor);
-        Slot.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
+        doors.Start(Place, CeresDoorSegment.ElevatorDoor);
+        Place.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
         // Only the elevator door shows the door's own look (#1406, #1538).
         doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
     }
@@ -33,7 +33,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        CeresElevatorDoorState state = Slot.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
         switch (state.Phase)
         {
             case CeresElevatorDoorPhase.Intact:
@@ -63,12 +63,12 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Slot, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 
     /// <summary>Runs one call of the 49-call destruction exactly.</summary>
     internal void Explode()
     {
-        CeresElevatorDoorState state = Slot.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
         // The counters are small counts that each run below zero only once before the call ends the destruction or
         // reloads them, so nothing reaches the counter's range.
         state.RumbleCallsLeft--;
@@ -76,7 +76,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         {
             // The 49th call takes zero to -1. The door hides, keeps cycling the glow and platform from the next call on,
             // and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
-            Slot.Presence = Slot.Presence.With(EnemyPresence.Hidden);
+            Place.Presence = Place.Presence.With(EnemyPresence.Hidden);
             state.Phase = CeresElevatorDoorPhase.Destroyed;
             if (doors.Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
                 doors.Escape.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
@@ -91,7 +91,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
         state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
 
-        Position16<RoomPixels> explosion = Slot.Position.Whole + offsets[state.LastExplosionPlace];
+        Position16<RoomPixels> explosion = Place.Position.Whole + offsets[state.LastExplosionPlace];
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
         MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())
@@ -111,7 +111,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// </summary>
     internal void CycleGlowAndPlatform()
     {
-        int frame = Slot.FrameCounter;
+        int frame = Place.FrameCounter;
 
         // The elevator platform's animation does not belong to either arrival
         // projectile. It survives their touchdown deletion because the elevator door

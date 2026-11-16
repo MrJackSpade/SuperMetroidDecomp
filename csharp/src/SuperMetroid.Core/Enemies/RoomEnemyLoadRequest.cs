@@ -29,7 +29,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public required RoomLevelData Level { get; init; }
 
     /// <inheritdoc />
-    public SamusState? Samus { get; init; }
+    public required SamusState Samus { get; init; }
 
     /// <inheritdoc />
     public GameplayAction ControllerInput { get; init; }

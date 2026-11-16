@@ -55,18 +55,17 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(forbidden.Contains,
             address => $"Installed Norfair Ridley palette read migrated ROM byte ${address:X6}.");
         (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
-        (RoomEnemySystem installed, RoomEnemySlot installedSlot,
+        (RoomEnemySystem installed, RoomEnemyPlace installedPlace,
             RidleyEnemyState installedState) = Create(guard, stock);
         // The reveal's terminator hands the battle liquid height to the room's liquid.
-        var installedLiquid = new RoomFxOverlayState();
+        RoomFxOverlayState installedLiquid = installed.RoomFx.FxOverlay;
         installedLiquid.BindAudioRequests(GameplayAudioRequests.Standalone());
-        installed.RoomFx.BindRoomFx(installedLiquid);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         for (int call = 0; call <= NorfairRidleyRevealDefinitions.RevealStepCount * 3; call++)
         {
             TickReference(nativeCgram, nativeState);
-            Tick(installed, installedSlot, installedState);
+            Tick(installed, installedPlace, installedState);
             AssertEqual(nativeState.FadeStep, installedState.FadeStep,
                 $"Norfair Ridley reveal call {call} row/terminator position");
             AssertEqual(nativeState.PhaseTimer, installedState.PhaseTimer,
@@ -145,14 +144,14 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             var enemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork.Bosses);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
-            RoomEnemySlot slot = enemy.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-            enemy.RidleyBehavior.Combat.InitializeNorfairRidley(slot);
+            RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Ridley, place.Definition);
+            enemy.RidleyBehavior.Combat.InitializeNorfairRidley(place);
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Phase = RidleyPhase.WaitBeforeLiftoff;
             state.PhaseTimer = 0;
-            return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, slot, state);
+            return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, place, state);
         }
 
         // The colours the production encounter shows over the seeded CGRAM image: the import's shades of the installed
@@ -170,9 +169,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         }
 
         // Executes one production arena-reveal callback.
-        static void Tick(RoomEnemySystem enemy, RoomEnemySlot slot, RidleyEnemyState state)
+        static void Tick(RoomEnemySystem enemy, RoomEnemyPlace place, RidleyEnemyState state)
         {
-            enemy.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal(slot, state);
+            enemy.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal(place, state);
         }
     }
 }

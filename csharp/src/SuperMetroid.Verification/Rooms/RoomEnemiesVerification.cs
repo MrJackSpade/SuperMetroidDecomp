@@ -155,10 +155,10 @@ internal static void VerifyRoomEnemyLoading()
             EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
 
-    AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
-    AssertEqual(enemies.SlotTable.Slots[1], enemies.SlotTable.FindFreeSlot(), "a spawn takes the slot after the population");
+    AssertEqual(1, enemies.Places.EnemyCount, "enemy population count");
+    AssertEqual(enemies.Places.InUpdateOrder[1], enemies.Places.FindFreePlace(), "a spawn takes the slot after the population");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
     AssertEqual<AreaBoss?>(AreaBoss.Kraid, enemies.RoomStatus.Boss, "a boss definition publishes the room's boss");
@@ -168,19 +168,19 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(2, SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(enemies.GraphicsSet).Records.Length, "terminated enemy graphics-set count");
     AssertEqual(specialDefinitionPointer, SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetMembers.MembersOf(enemies.GraphicsSet).Records.Span[1].DefinitionId, "the set's members stay in record order");
 
-    RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-    AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
-    AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
-    AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
-    AssertEqual(0x5a, slot.HurtFlashFrames, "definition hurt flash copied into the slot");
-    AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
-    AssertEqual(0, slot.FlashTimer, "room load clears flash timer");
-    AssertEqual(0, slot.InvincibilityTimer, "room load clears invincibility timer");
-    AssertEqual(0, slot.ShakeTimer, "room load clears shake timer");
-    AssertEqual(0x804f, slot.SpritemapPointer,
+    RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+    AssertEqual(0x0456, place.Position.X.Whole, "population X position");
+    AssertEqual(0x0789, place.Position.Y.Whole, "population Y position");
+    AssertEqual(PictureShading.Standard, place.Shading, "a loaded slot shows its sheet's standard colours");
+    AssertEqual(0x5a, place.HurtFlashFrames, "definition hurt flash copied into the slot");
+    AssertEqual(EnemyAiStates.None, place.AiStates, "room load clears AI handler bits");
+    AssertEqual(0, place.FlashTimer, "room load clears flash timer");
+    AssertEqual(0, place.InvincibilityTimer, "room load clears invincibility timer");
+    AssertEqual(0, place.ShakeTimer, "room load clears shake timer");
+    AssertEqual(0x804f, place.SpritemapPointer,
         "extended actor receives native extended-nothing map after initialization");
 
-    RoomEnemyDefinition definition = slot.Definition;
+    RoomEnemyDefinition definition = place.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(EnemyGrappleResponse.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
@@ -204,12 +204,12 @@ internal static void VerifyRoomEnemyLoading()
     EnemyTileSourceArtwork installedArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors });
     var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(installedArtwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999));
     var installedVram = new SnesVram();
-    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(installedVram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
-    AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
+    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(installedVram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    AssertEqual(place.Position.X.Whole, installedEnemies.Places.InUpdateOrder[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
-    AssertEqual(slot.Definition.Health, installedEnemies.SlotTable.Slots[0].Definition.Health,
+    AssertEqual(place.Definition.Health, installedEnemies.Places.InUpdateOrder[0].Definition.Health,
         "enemy tile overrides do not alter health");
-    AssertEqual(slot.Definition.Radius.X, installedEnemies.SlotTable.Slots[0].Definition.Radius.X,
+    AssertEqual(place.Definition.Radius.X, installedEnemies.Places.InUpdateOrder[0].Definition.Radius.X,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
         EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
@@ -229,11 +229,11 @@ internal static void VerifyRoomEnemyLoading()
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
 
-    AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
+    AssertEqual(0, enemies.Places.EnemyCount, "empty population clears enemy count");
     AssertTrue(enemies.Presentation.DrawnPopulation is null, "an empty population loads no enemy artwork");
-    AssertEqual(enemies.SlotTable.Slots[0], enemies.SlotTable.FindFreeSlot(), "an empty population leaves the first slot free");
+    AssertEqual(enemies.Places.InUpdateOrder[0], enemies.Places.FindFreePlace(), "an empty population leaves the first slot free");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
@@ -317,7 +317,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
 
     EnemyProjectile eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
@@ -438,8 +438,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 
     // The fixture's enemy draws from the installed artwork's sheets; its tiles and colours are not what it checks.
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
-    RoomEnemySlot ripper = enemies.SlotTable.Slots[0];
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
+    RoomEnemyPlace ripper = enemies.Places.InUpdateOrder[0];
     if (verifyXrayTimers)
     {
         if (nativeXrayTimerTrace is not null)
@@ -579,7 +579,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // Each armed shot is a fresh projectile in place 0, as every firing creates one (#1590).
     static SamusProjectile ArmProjectile(
         SamusProjectileSystem pool,
-        RoomEnemySlot target,
+        RoomEnemyPlace target,
         ushort type,
         ushort damage)
     {
@@ -675,7 +675,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Shown.Values.Single(),
         "Ceres elevator landed platform light floor frame");
@@ -729,7 +729,7 @@ internal static void VerifyCeresDoorBossBranch()
             return areaBossDefeated;
         } } });
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = samus });
-    RoomEnemySlot door = enemies.SlotTable.Slots[0];
+    RoomEnemyPlace door = enemies.Places.InUpdateOrder[0];
     door.AnimationClock.StepOnNextUpdate();
 
     for (int frame = 0; frame < 4; frame++)
@@ -848,9 +848,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentationFile.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
 
-    RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
+    RoomEnemyPlace ridley = enemies.Places.InUpdateOrder[0];
     RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
     // The colours the encounter shows are the import's shades of its installed colours, laid as its AI laid them (#1512).
@@ -1107,8 +1107,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley installs null dispatcher after battle");
     AssertTrue(ridley.Presence.HasAny(EnemyPresence.Hidden),
         "Ceres Ridley ordinary actor yields to getaway presentation");
-    RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
-        .Where(slot => slot.DefinitionId == EnemyDefinitionId.CeresGetawayChamberWall)
+    RoomEnemyPlace[] mode7Walls = enemies.Places.InUpdateOrder
+        .Where(place => place.DefinitionId == EnemyDefinitionId.CeresGetawayChamberWall)
         .ToArray();
     AssertTrue(mode7Walls.All(wall => wall.Presence.HasAny(EnemyPresence.Hidden)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,

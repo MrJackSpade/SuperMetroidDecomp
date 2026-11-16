@@ -30,7 +30,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var death = new CrocomireDeathState();
-        var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = () => 0x1234;
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;

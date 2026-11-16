@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroMotherBrainCollision
 {
     /// <summary>Combines the authored left collision contour with geometric ceiling, floor, center, and right-platform blocks.</summary>
-    private static RoomTerrainBlock Block(int row, int column)
+    private static RoomCollisionType Block(int row, int column)
     {
         if (row is CeilingRow or FloorRow) return Solid;
         if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - UpperTipRow])
@@ -26,12 +26,12 @@ internal static class IntroMotherBrainCollision
     }
 
     /// <summary>
-    /// Builds the flashback room's terrain, row-major and freshly for each flashback: the authored source rows, then
-    /// empty rows to the room's full height.
+    /// How each block of the flashback room collides, row-major and freshly for each flashback: the authored source rows,
+    /// then empty rows to the room's full height.
     /// </summary>
-    internal static RoomTerrainBlock[] CreateForeground()
+    internal static RoomCollisionType[] CreateCollision()
     {
-        var foreground = new RoomTerrainBlock[Columns * RoomRows];
+        var foreground = new RoomCollisionType[Columns * RoomRows];
         foreground.AsSpan().Fill(Empty);
         for (int row = 0; row < SourceRows; row++)
             for (int column = 0; column < Columns; column++)

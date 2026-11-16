@@ -11,7 +11,7 @@ internal static class NorfairRidleyMovement
 
     /// <summary>Accelerates both 1/256-pixel velocity axes toward a target using inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         RidleyEnemyState state,
         Position16<RoomPixels> target,
         int divisor,
@@ -22,12 +22,12 @@ internal static class NorfairRidleyMovement
         state.Velocity = new EightEightVector<RoomPixels>(
             AccelerateNorfairRidleyAxis(
                 state.Velocity.X,
-                slot.Position.X.Whole, target.X,
+                place.Position.X.Whole, target.X,
                 divisor,
                 reversalBoost),
             AccelerateNorfairRidleyAxis(
                 state.Velocity.Y,
-                slot.Position.Y.Whole, target.Y,
+                place.Position.Y.Whole, target.Y,
                 divisor,
                 reversalBoost));
     }

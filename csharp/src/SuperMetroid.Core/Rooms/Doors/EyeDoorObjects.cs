@@ -48,7 +48,9 @@ internal sealed class EyeDoorObjects
             ? part
             : throw new ArgumentOutOfRangeException(nameof(placed), placed, "Not an eye-door room object.");
         place.Become(component == EyeDoorComponent.Eye
-            ? new EyeDoorEyeObject(orientation)
+            ? new EyeDoorEyeObject(orientation, place.Argument is DoorBitArgument eye
+                ? eye.Door
+                : throw new InvalidDataException($"The eye door's eye at block {place.Block} names no door."))
             : new EyeDoorPartObject(orientation, component));
 
         SharedGameState system = _system;
@@ -88,10 +90,13 @@ internal sealed class EyeDoorObjects
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
-    /// <summary>The eye facing <paramref name="facing"/> fires its projectile and queues its sound.</summary>
-    internal void Shoot(RoomObjectPlace place, EyeDoorOrientation facing)
+    /// <summary>
+    /// The eye of <paramref name="door"/> facing <paramref name="facing"/> fires its attack, which bursts once the door
+    /// opens, and queues its sound.
+    /// </summary>
+    internal void Shoot(RoomObjectPlace place, EyeDoorOrientation facing, LockedDoor door)
     {
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Projectile, facing);
+        _enemies.SpawnEyeDoorAttack(new EyeDoorAttackRequest(facing, Ensure.NotNull(place).Block, door));
         _sounds.Queue(
             EyeDoorDefinitions.ProjectileSound,
             Priority: SoundRequestPriority.Normal);
@@ -149,16 +154,10 @@ internal sealed class EyeDoorObjects
         }
     }
 
-    /// <summary>Sends an eye-door projectile request with the eye's facing, source block and room argument to enemy services.</summary>
+    /// <summary>Sends an eye-door sweat or smoke request with the eye's facing and source block to enemy services.</summary>
     private void SpawnEyeDoorProjectile(
         RoomObjectPlace place,
         EyeDoorProjectileDefinition definition,
-        EyeDoorOrientation facing)
-    {
-        _enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
-            definition,
-            facing,
-            place.Block,
-            (place.Argument as DoorBitArgument)?.Door));
-    }
+        EyeDoorOrientation facing) =>
+        _enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(definition, facing, place.Block));
 }

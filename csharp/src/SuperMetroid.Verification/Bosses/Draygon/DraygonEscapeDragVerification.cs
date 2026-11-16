@@ -22,7 +22,7 @@ internal static class DraygonEscapeDragVerification
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
         samus.DraygonGrabbed.Release(samus);
 
-        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]) { Phase = DraygonPhase.CarrySamus };
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]) { Phase = DraygonPhase.CarrySamus };
         state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));
         enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
 

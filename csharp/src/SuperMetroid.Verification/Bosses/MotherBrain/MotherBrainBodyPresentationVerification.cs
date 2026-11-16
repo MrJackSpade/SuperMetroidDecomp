@@ -141,7 +141,7 @@ internal static class MotherBrainBodyPresentationVerification
     /// Whether the frame's finished picture shows nothing, so that it draws nothing (#1538); asked only of a frame with limbs.
     /// </param>
     /// <param name="context">Names the frame in a failure message.</param>
-    internal static void AssertBodyOam(Action<SpriteFrameBuffer> draw, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body, RoomEnemySystem enemies,
+    internal static void AssertBodyOam(Action<SpriteFrameBuffer> draw, EnemyExtendedVisualComponent[] authored, RoomEnemyPlace body, RoomEnemySystem enemies,
         Func<bool> pictureShowsNothing, string context)
     {
         if (authored.Length == 0 || pictureShowsNothing())

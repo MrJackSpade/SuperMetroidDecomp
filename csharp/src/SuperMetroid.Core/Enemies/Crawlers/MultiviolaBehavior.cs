@@ -12,7 +12,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MultiviolaEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MultiviolaEntity(this, place, common);
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
@@ -24,14 +24,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static void InitializeMultiviola(RoomEnemySlot slot)
+    internal static void InitializeMultiviola(RoomEnemyPlace place)
     {
         var state = new MultiviolaEnemyState
         {
-            Heading = slot.SpawnSettings<MultiviolaSpawnSettings>().Heading,
-            Speed = slot.SpawnSettings<MultiviolaSpawnSettings>().Speed,
+            Heading = place.SpawnSettings<MultiviolaSpawnSettings>().Heading,
+            Speed = place.SpawnSettings<MultiviolaSpawnSettings>().Speed,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call, so the speeds are already set when the room
@@ -42,7 +42,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Multiviola's main AI.</summary>
     private void RunMultiviolaMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
@@ -60,7 +60,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 horizontalDisplacement))
         {
             // Bounce off the wall. As in retail, vertical movement is skipped
@@ -74,7 +74,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             TurnLeftOrUp(state, Axis.Vertical);
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y;
-        if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
+        if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
             state.Heading = MultiviolaQuarterBounce.OffFloorOrCeiling(state.Heading);
     }
 
@@ -102,14 +102,14 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Multiviola's typed animation.</summary>
-    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, MultiviolaAnimations.Segments,
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 
     /// <summary>Runs Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunMultiviolaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(slot, slot.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);
+        RunMultiviolaMain(place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);
     }
 }

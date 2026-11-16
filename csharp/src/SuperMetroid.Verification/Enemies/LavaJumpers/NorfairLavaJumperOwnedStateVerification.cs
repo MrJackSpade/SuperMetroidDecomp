@@ -5,11 +5,11 @@ namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Squeept state the parts own: the gravity word's wrap and the follower reading its parent's velocity.</summary>
+/// <summary>Checks the Squeept state the parts own: gravity carrying the velocity through zero and the follower reading its parent's velocity.</summary>
 internal static class NorfairLavaJumperOwnedStateVerification
 {
     /// <summary>
-    /// Gravity wraps the velocity word from just below zero to a small positive velocity, and the follower shows only
+    /// Gravity carries the velocity from just below zero to a small positive velocity, and the follower shows only
     /// while its parent's owned velocity is negative.
     /// </summary>
     internal static void VerifyNorfairLavaJumperOwnedState()
@@ -20,12 +20,12 @@ internal static class NorfairLavaJumperOwnedStateVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
         parent.Health = 10;
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
-        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
@@ -39,7 +39,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumperFollowerMain(follower);
         AssertTrue(follower.Presence.HasAny(EnemyPresence.Hidden), "the follower hides while its parent falls");
-        Console.WriteLine("Norfair lava jumper owned state: the gravity wrap and the follower's parent velocity read match.");
+        Console.WriteLine("Norfair lava jumper owned state: gravity carrying the velocity through zero and the follower's parent velocity read match.");
     }
 
     /// <summary>Runs the focused Norfair lava jumper owned-state check.</summary>

@@ -36,6 +36,9 @@ internal sealed record GameplayArtwork
     /// <summary>Samus body pictures, colours and death colours.</summary>
     public required InstalledSamusBodyArtwork SamusBodyArt { get; init; }
 
+    /// <summary>The frames Samus's body can show in each pose and the picture frame each draws.</summary>
+    public required SuperMetroid.Core.Samus.Drawing.SamusShownFrames SamusShownFrames { get; init; }
+
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public required InstalledRoomArtwork RoomBlockSheets { get; init; }
 

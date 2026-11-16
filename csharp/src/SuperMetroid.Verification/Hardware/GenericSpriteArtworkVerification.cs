@@ -61,16 +61,17 @@ internal static class GenericSpriteArtworkVerification
         {
             CompareTitle(spritemaps.Sprites[frame.Sprite], frame.Sprite.ToString(),
                 SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSpriteColourings.Of(frame.Sprite), typed: false,
-                () => { title.ActiveSprite = frame.Sprite; title.ActiveCard = null; });
+                frame.Sprite, null);
         }
         foreach (TitleCardFrame frame in document.Cards)
         {
             CompareTitle(spritemaps.Cards[frame.Typed], frame.Typed.ToString(),
                 SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSpriteColourings.Of(frame.Typed), typed: true,
-                () => { title.ActiveSprite = null; title.ActiveCard = frame.Typed; });
+                null, frame.Typed);
         }
         // Draws one title composition at origins across the screen, against the cartridge's spritemap.
-        void CompareTitle(int spritemap, string composition, TitleSpriteColouring colouring, bool typed, Action show)
+        void CompareTitle(int spritemap, string composition, TitleSpriteColouring colouring, bool typed, TitleSprite? sprite,
+            TitleCardTyping? card)
         {
             foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
             // Origins on the screen's lines; a part below the last line no longer comes round at the top (#1587).
@@ -79,9 +80,7 @@ internal static class GenericSpriteArtworkVerification
                 // The colouring the title draws the composition in, whose sprite set the cartridge oracle takes as its
                 // palette bits; the sheet pictures each composition only as it is drawn (#1513).
                 int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
-                show();
-                title.ActiveOrigin = Offset16<ScreenPixels>.Wrapped(x, y);
-                title.ActiveColouring = colouring;
+                title.ShowComposition(sprite, card, Offset16<ScreenPixels>.Wrapped(x, y), colouring);
                 title.PrepareRenderSprites();
                 expected = new OamBuffer(); expected.BeginFrame();
                 DrawImportedSpritemap(reference, expected,
@@ -96,9 +95,7 @@ internal static class GenericSpriteArtworkVerification
                 titleCases++;
             }
         }
-        title.ActiveSprite = null;
-        title.ActiveCard = null;
-        title.Phase = TitleSequencePhase.TitleScreen;
+        title.ShowTitleScreenOnly();
         title.PrepareRenderSprites();
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,

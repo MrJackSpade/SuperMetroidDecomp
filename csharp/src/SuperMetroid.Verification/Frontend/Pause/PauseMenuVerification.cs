@@ -128,7 +128,7 @@ internal static class PauseMenuVerification
             drawnHud.Hud.Pictures[0].Picture), "pause retains and draws the gameplay HUD's top row on the HUD's layer");
         AssertEqual(124, pause.MapScroll.X,
             "downloaded pause map horizontal centering");
-        AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
+        AssertEqual(-24, pause.MapScroll.Y,
             "downloaded pause map vertical centering");
         // The display packet shows the marker's first pulse frame where Samus's map cell lies on the scrolled map.
         SpriteSheetFrame markerFrame = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.MapSprites)
@@ -253,8 +253,8 @@ internal static class PauseMenuVerification
 
         SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(samus, revealSystem, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship });
         var revealSaveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        revealSaveRam.SaveSlot(0, revealSnapshot);
-        SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
+        revealSaveRam.SaveSlot(SaveSlot.A, revealSnapshot);
+        SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(SaveSlot.A) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
         var restoredRevealSystem = new SharedGameState(new SharedRandom());
         restoredRevealSlot.ApplyTo(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), restoredRevealSystem);

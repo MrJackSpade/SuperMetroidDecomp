@@ -108,33 +108,13 @@ internal sealed class MotherBrainCombat
         _audio.QueueEnemySound(EnemySound.ShotMotherBrain, priority: SoundRequestPriority.Normal);
 
         // The flash step deliberately alternates odd/even flash parity when a second hit
-        // arrives during the existing flash. The common no-death damage helper then owns
+        // arrives during the existing flash. Common no-death normal-shot damage (#2255) then owns
         // health, hurt-AI, and the final authored hurt duration.
         head.FlashTimer = head.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.FlashTimer)
             ? 14
             : 13;
 
-        EnemyWeaponVulnerability vulnerability = EnemyCollision.ReadProjectileVulnerability(head, projectileType);
-        if (vulnerability.FreezesWithoutDamage)
-        {
-            head.FrozenTimer = 400;
-            head.AiStates = head.AiStates | EnemyAiStates.Frozen;
-            head.InvincibilityTimer = 10;
-            return;
-        }
-
-        int damage = vulnerability.DamageFrom(projectileDamage);
-        if (damage == 0)
-        {
-            _projectiles.CreateEnemyProjectileDudShot(projectile);
-            return;
-        }
-
-        head.FlashTimer = head.HurtFlashFrames + 8;
-        head.AiStates = head.AiStates | EnemyAiStates.Hurt;
-        head.Health = damage >= head.Health
-            ? 0
-            : head.Health - damage;
+        _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -192,34 +172,11 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        // The reaction ends in common no-death shot damage. In particular,
+        // The reaction ends in common no-death normal-shot damage (#2255). In particular,
         // charged beams use the separate charged vulnerability after the ordinary
-        // beam freeze check; Hyper would otherwise inherit Plasma's immunity.
-        EnemyCollision.NormalShotVulnerability vulnerability = EnemyCollision.ReadNormalShotVulnerability(head, projectileType);
-        if (vulnerability.FreezeImmediately)
-        {
-            head.FrozenTimer = 400;
-            head.AiStates = head.AiStates | EnemyAiStates.Frozen;
-            head.InvincibilityTimer = 10;
-            return;
-        }
-
-        int damage = vulnerability.DamageFrom(projectileDamage);
-        if (damage == 0)
-        {
-            _projectiles.CreateEnemyProjectileDudShot(projectile);
-            return;
-        }
-
-        head.FlashTimer = head.HurtFlashFrames + 8;
-        head.AiStates = head.AiStates | EnemyAiStates.Hurt;
-        // The shared no-death tail still grants Plasma's hit immunity.
-        // A surviving penetrating beam cannot damage this head again every frame.
-        if (projectileType.BeamCombination.HasPlasma)
-            head.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
-        head.Health = damage >= head.Health
-            ? 0
-            : head.Health - damage;
+        // beam freeze check; Hyper would otherwise inherit Plasma's immunity; and Plasma's
+        // hit immunity keeps a surviving penetrating beam from damaging the head every frame.
+        _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>

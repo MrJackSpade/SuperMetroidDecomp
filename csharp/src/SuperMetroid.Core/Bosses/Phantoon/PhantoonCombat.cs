@@ -350,34 +350,10 @@ internal sealed class PhantoonCombat
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
             int healthBefore = body.Health;
-            // Phantoon calls common normal-shot damage, including its charged-beam
-            // override. Special attack particles retain that bit; reading only the uncharged
-            // combination row made Wave Shield disappear without damaging the boss.
-            EnemyCollision.NormalShotVulnerability vulnerability =
-                EnemyCollision.ReadNormalShotVulnerability(body, projectileType);
-            if (vulnerability.FreezeImmediately)
-            {
-                body.FrozenTimer = 400;
-                body.AiStates |= EnemyAiStates.Frozen;
-                body.InvincibilityTimer = 10;
-            }
-            else
-            {
-                int damage = vulnerability.DamageFrom(projectileDamage);
-                if (damage != 0)
-                {
-                    body.FlashTimer = body.HurtFlashFrames + 8;
-                    body.AiStates |= EnemyAiStates.Hurt;
-                    // Plasma alone installs this clock; ordinary missiles retain
-                    // the timer behavior of the shared damage helper.
-                    if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
-                    body.Health = damage >= body.Health
-                        ? 0
-                        : body.Health - damage;
-                }
-            }
-
+            // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
+            // zero-damage shot's dud, and no death of its own; his own stage follows it. Special attack particles retain
+            // the charged bit; reading only the uncharged combination row made Wave Shield disappear without damaging him.
+            _ = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area);
             int appliedDamage = healthBefore - body.Health;
             ResolvePhantoonShotReaction(
                 body,

@@ -20,5 +20,5 @@ internal static class SamusProjectileRomDataTrailsConstants
     public const int ChargedOffsetFamilies = 0x9ba4cb;
 
     /// <summary>$9B:A4E3, the special beam attack trail selector table.</summary>
-    public const int SpazerSbaOffsetFamilies = 0x9ba4e3;
+    public const int SpazerSpecialAttackOffsetFamilies = 0x9ba4e3;
 }

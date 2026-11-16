@@ -277,16 +277,16 @@ public enum SamusProjectileSegment
     MissileExplosion,
     /// <summary>The Bomb explosion animation.</summary>
     BombExplosion,
-    /// <summary>The Plasma SBA animation.</summary>
-    PlasmaSBA,
+    /// <summary>The Plasma special attack animation.</summary>
+    PlasmaSpecialAttack,
     /// <summary>The Super Missile explosion animation.</summary>
     SuperMissileExplosion,
     /// <summary>The Shinespark echo up facing right animation.</summary>
     ShinesparkEchoUpFacingRight,
-    /// <summary>The Spazer SBA trail up facing right animation.</summary>
-    SpazerSBATrailUpFacingRight,
-    /// <summary>The Spazer SBA trail up facing right animation's repeating part.</summary>
-    SpazerSBATrailUpFacingRightLoop,
-    /// <summary>The Wave SBA animation.</summary>
-    WaveSBA,
+    /// <summary>The Spazer special attack trail up facing right animation.</summary>
+    SpazerSpecialAttackTrailUpFacingRight,
+    /// <summary>The Spazer special attack trail up facing right animation's repeating part.</summary>
+    SpazerSpecialAttackTrailUpFacingRightLoop,
+    /// <summary>The Wave special attack animation.</summary>
+    WaveSpecialAttack,
 }

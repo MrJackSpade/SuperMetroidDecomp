@@ -461,7 +461,7 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind == RoomEnemyProjectileKind.DraygonWallTurret)
             {
                 // A shot wall turret runs the shared misc-dust small explosion (#1292).
-                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.SmallExplosion },
+                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.SmallExplosion },
                     $"{kind} production shot starts the typed small explosion");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

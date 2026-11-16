@@ -36,11 +36,11 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// The shared misc-dust animation each of Mother Brain's death explosions shows: the small explosion, smoke and the big
     /// explosion.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, MiscDustProjectileSegment> Animations =
-        new Dictionary<MotherBrainDeathExplosionAnimation, MiscDustProjectileSegment>
+    internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, MiscDustAnimation> Animations =
+        new Dictionary<MotherBrainDeathExplosionAnimation, MiscDustAnimation>
         {
-            [MotherBrainDeathExplosionAnimation.SmallExplosion] = MiscDustProjectileSegment.SmallExplosion,
-            [MotherBrainDeathExplosionAnimation.Smoke] = MiscDustProjectileSegment.Smoke,
-            [MotherBrainDeathExplosionAnimation.BigExplosion] = MiscDustProjectileSegment.BigExplosion,
+            [MotherBrainDeathExplosionAnimation.SmallExplosion] = MiscDustAnimation.SmallExplosion,
+            [MotherBrainDeathExplosionAnimation.Smoke] = MiscDustAnimation.Smoke,
+            [MotherBrainDeathExplosionAnimation.BigExplosion] = MiscDustAnimation.BigExplosion,
         };
 }

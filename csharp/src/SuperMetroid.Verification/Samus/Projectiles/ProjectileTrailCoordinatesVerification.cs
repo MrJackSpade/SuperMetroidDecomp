@@ -155,7 +155,7 @@ internal static class ProjectileTrailCoordinatesVerification
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;
         }
-        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions or leave no trail, and reflected list starts leave none.");
+        Console.WriteLine($"Trail spawn: {cases} beam/charged/special attack/missile direction/frame/origin cases preserve all four native positions or leave no trail, and reflected list starts leave none.");
     }
 
     /// <summary>The bank-$9B selector table <paramref name="type"/> reads its family from.</summary>

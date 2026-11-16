@@ -65,13 +65,13 @@ internal enum SamusProjectileKind
     /// <summary>A morph ball bomb.</summary>
     Bomb,
     /// <summary>A particle of the Plasma special beam attack.</summary>
-    PlasmaSBA,
+    PlasmaSpecialAttack,
     /// <summary>A particle of the Wave special beam attack.</summary>
-    WaveSBA,
+    WaveSpecialAttack,
     /// <summary>A particle of the Spazer special beam attack.</summary>
-    SpazerSBA,
+    SpazerSpecialAttack,
     /// <summary>A trail of the Spazer special beam attack.</summary>
-    SpazerSBATrail,
+    SpazerSpecialAttackTrail,
     /// <summary>A shinespark echo.</summary>
     ShinesparkEcho,
 }

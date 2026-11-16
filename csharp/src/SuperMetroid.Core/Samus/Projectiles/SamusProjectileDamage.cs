@@ -13,8 +13,8 @@ internal static class SamusProjectileDamage
         SamusProjectileKind.SuperMissile or SamusProjectileKind.SuperMissileLink => 300,
         SamusProjectileKind.PowerBomb => 200,
         SamusProjectileKind.Bomb => 30,
-        SamusProjectileKind.PlasmaSBA or SamusProjectileKind.WaveSBA or SamusProjectileKind.SpazerSBA or
-            SamusProjectileKind.SpazerSBATrail => 300,
+        SamusProjectileKind.PlasmaSpecialAttack or SamusProjectileKind.WaveSpecialAttack or SamusProjectileKind.SpazerSpecialAttack or
+            SamusProjectileKind.SpazerSpecialAttackTrail => 300,
         SamusProjectileKind.ShinesparkEcho => ShinesparkEchoDamage,
         SamusProjectileKind.UnchargedPower or SamusProjectileKind.UnchargedSpazer or SamusProjectileKind.UnchargedSpazerIce or SamusProjectileKind.UnchargedSpazerIceWave or
             SamusProjectileKind.UnchargedPlasmaIceWave or SamusProjectileKind.UnchargedIce or SamusProjectileKind.UnchargedWave or SamusProjectileKind.UnchargedPlasma or

@@ -85,7 +85,7 @@ internal static class ProjectileDamageVerification
             samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam); samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
             AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Shots.Take(4))
-                AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
+                AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "special attack/ordinary Ice/Spazer trail damage");
         }
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {

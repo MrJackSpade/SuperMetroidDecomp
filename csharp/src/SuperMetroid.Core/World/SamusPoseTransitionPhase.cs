@@ -104,7 +104,7 @@ internal sealed class SamusPoseTransitionPhase
         // for every accepted route, including aim changes within a jump. The
         // earlier projectile epilogue cleared the previous update's handoff.
         if (samus.Pose != samus.PoseHistory.PreviousPose)
-            SamusAerialPoseTransitions.PublishNormalJumpPoseShotDirection(samus, _playerActions.NewlyPressed);
+            SamusAerialPoseTransitions.ArmNormalJumpTransitionShot(samus, _playerActions.NewlyPressed);
 
         // The pose history moves on after any chosen pose transition takes effect,
         // including a transition to the same pose. An update that chose no transition
@@ -679,7 +679,7 @@ internal sealed class SamusPoseTransitionPhase
                 when SamusPoseMetadata.IsSameFacingAerialAimFireOrForwardTransition(
                     source,
                     target):
-                SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, targetPose);
+                SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, targetPose);
                 return true;
             case (SamusPoseId.FacingRightNormalPose, SamusPoseId.MovingRightNormalPose):
                 SamusGroundedPoseTransitions.ApplyStandingRightToRunningRight(samus);
@@ -1097,7 +1097,7 @@ internal sealed class SamusPoseTransitionPhase
             // compact-radius expansion. Decelerating still folds momentum after
             // movement and rechecks the remaining base speed there.
             if (jumpFallback != samus.Pose)
-                SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, jumpFallback);
+                SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, jumpFallback);
             samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
                 frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
         }
@@ -1110,7 +1110,7 @@ internal sealed class SamusPoseTransitionPhase
             // A retained compact pose selects history/momentum work only;
             // pose initialization and animation restart require a change.
             if (aerialFallback != samus.Pose)
-                SamusAerialPoseTransitions.ApplyAerialAimTransition(samus,
+                SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus,
                     aerialFallback);
         }
     }

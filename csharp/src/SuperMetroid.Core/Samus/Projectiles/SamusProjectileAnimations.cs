@@ -1200,13 +1200,13 @@ internal static class SamusProjectileAnimations
             Show(P.BombExplosion, 3, 2),
             Show(P.BombExplosion, 4, 2),
         ],
-        [P.PlasmaSBA] =
+        [P.PlasmaSpecialAttack] =
         [
-            Show(P.PlasmaSBA, 0, 2),
-            Show(P.PlasmaSBA, 1, 2),
-            Show(P.PlasmaSBA, 2, 2),
-            Show(P.PlasmaSBA, 3, 2),
-            Show(P.PlasmaSBA, 4, 2),
+            Show(P.PlasmaSpecialAttack, 0, 2),
+            Show(P.PlasmaSpecialAttack, 1, 2),
+            Show(P.PlasmaSpecialAttack, 2, 2),
+            Show(P.PlasmaSpecialAttack, 3, 2),
+            Show(P.PlasmaSpecialAttack, 4, 2),
         ],
         [P.SuperMissileExplosion] =
         [
@@ -1224,19 +1224,19 @@ internal static class SamusProjectileAnimations
             Show(P.ShinesparkEchoUpFacingRight, 2, 2),
             Show(P.ShinesparkEchoUpFacingRight, 3, 2),
         ],
-        [P.SpazerSBATrailUpFacingRight] =
+        [P.SpazerSpecialAttackTrailUpFacingRight] =
         [
-            Show(P.SpazerSBATrailUpFacingRight, 0, 2),
-            Show(P.SpazerSBATrailUpFacingRight, 1, 2),
+            Show(P.SpazerSpecialAttackTrailUpFacingRight, 0, 2),
+            Show(P.SpazerSpecialAttackTrailUpFacingRight, 1, 2),
         ],
-        [P.SpazerSBATrailUpFacingRightLoop] =
+        [P.SpazerSpecialAttackTrailUpFacingRightLoop] =
         [
-            Show(P.SpazerSBATrailUpFacingRightLoop, 0, 2),
+            Show(P.SpazerSpecialAttackTrailUpFacingRightLoop, 0, 2),
         ],
-        [P.WaveSBA] =
+        [P.WaveSpecialAttack] =
         [
-            Show(P.WaveSBA, 0, 8),
-            Show(P.WaveSBA, 1, 8),
+            Show(P.WaveSpecialAttack, 0, 8),
+            Show(P.WaveSpecialAttack, 1, 8),
         ],
     });
 
@@ -1380,12 +1380,12 @@ internal static class SamusProjectileAnimations
         [P.BeamExplosion] = new([new(P.BeamExplosion, 0, 6, 1)], AnimationEnd.Stops),
         [P.MissileExplosion] = new([new(P.MissileExplosion, 0, 6, 1)], AnimationEnd.Stops),
         [P.BombExplosion] = new([new(P.BombExplosion, 0, 5, 1)], AnimationEnd.Stops),
-        [P.PlasmaSBA] = new([new(P.PlasmaSBA, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PlasmaSpecialAttack] = new([new(P.PlasmaSpecialAttack, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SuperMissileExplosion] = new([new(P.SuperMissileExplosion, 0, 6, 1)], AnimationEnd.Stops),
         [P.ShinesparkEchoUpFacingRight] = new([new(P.ShinesparkEchoUpFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerSBATrailUpFacingRight] = new([new(P.SpazerSBATrailUpFacingRight, 0, 2, 1), new(P.SpazerSBATrailUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerSBATrailUpFacingRightLoop] = new([new(P.SpazerSBATrailUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WaveSBA] = new([new(P.WaveSBA, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SpazerSpecialAttackTrailUpFacingRight] = new([new(P.SpazerSpecialAttackTrailUpFacingRight, 0, 2, 1), new(P.SpazerSpecialAttackTrailUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SpazerSpecialAttackTrailUpFacingRightLoop] = new([new(P.SpazerSpecialAttackTrailUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WaveSpecialAttack] = new([new(P.WaveSpecialAttack, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

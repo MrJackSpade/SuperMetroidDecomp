@@ -1200,7 +1200,7 @@ internal static class SamusProjectileFrameDefinitions
             new(new(16, 16), 0),
             new(new(16, 16), 0),
         ],
-        [P.PlasmaSBA] =
+        [P.PlasmaSpecialAttack] =
         [
             new(new(8, 8), 0),
             new(new(12, 12), 0),
@@ -1224,16 +1224,16 @@ internal static class SamusProjectileFrameDefinitions
             new(new(32, 32), 2),
             new(new(32, 32), 3),
         ],
-        [P.SpazerSBATrailUpFacingRight] =
+        [P.SpazerSpecialAttackTrailUpFacingRight] =
         [
             new(new(4, 8), 0),
             new(new(12, 8), 1),
         ],
-        [P.SpazerSBATrailUpFacingRightLoop] =
+        [P.SpazerSpecialAttackTrailUpFacingRightLoop] =
         [
             new(new(20, 8), 2),
         ],
-        [P.WaveSBA] =
+        [P.WaveSpecialAttack] =
         [
             new(new(4, 4), 0),
             new(new(4, 4), 1),

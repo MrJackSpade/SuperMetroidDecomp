@@ -34,19 +34,19 @@ internal static class IntroPoseHistoryVerification
         var random = new SharedRandom();
         history.Restore(samus.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 0, random);
-        AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "idle intro retains older metadata");
+        AssertEqual(SamusMovementType.SpinJumping, history.MovementBeforePrevious, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
         AssertEqual(SamusMovementType.Standing, history.PreviousMovement, "idle intro retains previous metadata");
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, GameplayAction.Left, GameplayAction.Left, 1, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro fixture starts running left");
-        AssertEqual(SamusMovementType.Standing, history.LastDifferentMovement, "intro run transition shifts prior metadata");
+        AssertEqual(SamusMovementType.Standing, history.MovementBeforePrevious, "intro run transition shifts prior metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "intro run transition commits current pose");
         AssertEqual(SamusMovementType.Running, history.PreviousMovement, "intro run transition commits running metadata");
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
         history.Restore(history.PreviousPose, history.PreviousMovement, SamusMovementType.SpinJumping);
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro release fixture retains running during deceleration");
-        AssertEqual(SamusMovementType.Running, history.LastDifferentMovement, "intro same-pose fallback shifts running metadata");
+        AssertEqual(SamusMovementType.Running, history.MovementBeforePrevious, "intro same-pose fallback shifts running metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "intro same-pose fallback commits current pose");
         AssertEqual(SamusMovementType.Running, history.PreviousMovement, "intro same-pose fallback commits current metadata");
     }
@@ -67,7 +67,7 @@ internal static class IntroPoseHistoryVerification
             SamusPoseId? oldPose = before?.Pose;
             SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
             SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
-            SamusMovementType olderMetadata = before?.PoseHistory.LastDifferentMovement ?? SamusMovementType.Standing;
+            SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
             bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer: 0, KnockbackDirection: not 0 };
             // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
@@ -110,13 +110,13 @@ internal static class IntroPoseHistoryVerification
             {
                 var unchanged = after.PoseHistory;
                 if (unchanged.PreviousPose != priorPose || unchanged.PreviousMovement != priorMetadata ||
-                    unchanged.LastDifferentMovement != olderMetadata)
+                    unchanged.MovementBeforePrevious != olderMetadata)
                     failures.Add($"tick {tick}: ordinary flashback frame unexpectedly shifted history");
                 continue;
             }
             var history = after.PoseHistory;
             SamusMovementType metadata = SamusPoseMetadata.ReadMovementType(after);
-            if (history.LastDifferentMovement != priorMetadata ||
+            if (history.MovementBeforePrevious != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native history shift");
         }

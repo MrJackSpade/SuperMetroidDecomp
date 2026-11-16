@@ -65,12 +65,12 @@ internal static class MotherBrainEffectBehaviorVerification
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion);
         AssertEqual(247, explosion.Position.X.Whole, "real rainbow-impact producer applies its signed X offset");
         AssertEqual(135, explosion.Position.Y.Whole, "real rainbow-impact producer applies its signed Y offset");
-        AssertTrue(explosion.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.RainbowBeamExplosion },
+        AssertTrue(explosion.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.MotherBrainRainbowBeamExplosion },
             "the rainbow impact starts the shared misc-dust rainbow explosion");
         AssertLifetime(explosionEnemies, explosion, 18, "rainbow impact survives its five-stage 18-frame lifetime");
 
-        MiscDustProjectileSegment[] deathPrograms =
-            [MiscDustProjectileSegment.SmallExplosion, MiscDustProjectileSegment.Smoke, MiscDustProjectileSegment.BigExplosion];
+        MiscDustAnimation[] deathPrograms =
+            [MiscDustAnimation.SmallExplosion, MiscDustAnimation.Smoke, MiscDustAnimation.BigExplosion];
         int[] deathExplosionLifetimes = [31, 32, 30];
         for (ushort parameter = 0; parameter < deathExplosionLifetimes.Length; parameter++)
         {

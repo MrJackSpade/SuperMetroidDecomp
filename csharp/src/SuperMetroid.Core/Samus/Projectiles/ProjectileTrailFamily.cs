@@ -40,8 +40,8 @@ internal enum ProjectileTrailFamily
     ChargedWaveIcePlasma,
 
     /// <summary>The trails of the Wave Spazer special beam attack.</summary>
-    SbaWaveSpazer,
+    SpecialAttackWaveSpazer,
 
     /// <summary>The trails of the Spazer and Ice Spazer special beam attack, which the game leaves unused.</summary>
-    SbaSpazer,
+    SpecialAttackSpazer,
 }

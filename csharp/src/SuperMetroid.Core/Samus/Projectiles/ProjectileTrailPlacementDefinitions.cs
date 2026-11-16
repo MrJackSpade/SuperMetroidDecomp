@@ -54,9 +54,9 @@ internal static class ProjectileTrailPlacementDefinitions
             [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Wave)] = null,
             [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Ice)] = null,
             [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.IceWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Spazer)] = ProjectileTrailFamily.SbaSpazer,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerWave)] = ProjectileTrailFamily.SbaWaveSpazer,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerIce)] = ProjectileTrailFamily.SbaSpazer,
+            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Spazer)] = ProjectileTrailFamily.SpecialAttackSpazer,
+            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerWave)] = ProjectileTrailFamily.SpecialAttackWaveSpazer,
+            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerIce)] = ProjectileTrailFamily.SpecialAttackSpazer,
             [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerIceWave)] = null,
             [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Plasma)] = null,
             [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.PlasmaWave)] = null,
@@ -84,8 +84,8 @@ internal static class ProjectileTrailPlacementDefinitions
             [ProjectileTrailFamily.ChargedWaveIceSpazer] = new(L.ChargedWaveIceSpazerUp, L.ChargedWaveIceSpazerUpRight, L.ChargedWaveIceSpazerRight, L.ChargedWaveIceSpazerDownRight, L.ChargedWaveIceSpazerDown, L.ChargedWaveIceSpazerDown, L.ChargedWaveIceSpazerDownLeft, L.ChargedWaveIceSpazerLeft, L.ChargedWaveIceSpazerUpLeft, L.ChargedWaveIceSpazerUp),
             [ProjectileTrailFamily.ChargedIcePlasma] = new(L.ChargedIcePlasmaUp, L.ChargedIcePlasmaUpRight, L.ChargedIcePlasmaRight, L.ChargedIcePlasmaDownRight, L.ChargedIcePlasmaDown, L.ChargedIcePlasmaDown, L.ChargedIcePlasmaDownLeft, L.ChargedIcePlasmaLeft, L.ChargedIcePlasmaUpLeft, L.ChargedIcePlasmaUp),
             [ProjectileTrailFamily.ChargedWaveIcePlasma] = new(L.ChargedWaveIcePlasmaUp, L.ChargedWaveIcePlasmaUpRight, L.ChargedWaveIcePlasmaRight, L.ChargedWaveIcePlasmaDownRight, L.ChargedWaveIcePlasmaDown, L.ChargedWaveIcePlasmaDown, L.ChargedWaveIcePlasmaDownLeft, L.ChargedWaveIcePlasmaLeft, L.ChargedWaveIcePlasmaUpLeft, L.ChargedWaveIcePlasmaUp),
-            [ProjectileTrailFamily.SbaWaveSpazer] = new(L.SbaWaveSpazerVertical, L.SbaWaveSpazerRisingDiagonal, L.SbaWaveSpazerHorizontal, L.SbaWaveSpazerFallingDiagonal, L.SbaWaveSpazerVertical, L.SbaWaveSpazerVertical, L.SbaWaveSpazerRisingDiagonal, L.SbaWaveSpazerHorizontal, L.SbaWaveSpazerFallingDiagonal, L.SbaWaveSpazerVertical),
-            [ProjectileTrailFamily.SbaSpazer] = new(L.SbaSpazer, L.SbaSpazer, L.SbaSpazer, L.SbaSpazer, L.SbaSpazerDown, L.SbaSpazerDown, L.SbaSpazer, L.SbaSpazer, L.SbaSpazer, L.SbaSpazer),
+            [ProjectileTrailFamily.SpecialAttackWaveSpazer] = new(L.SpecialAttackWaveSpazerVertical, L.SpecialAttackWaveSpazerRisingDiagonal, L.SpecialAttackWaveSpazerHorizontal, L.SpecialAttackWaveSpazerFallingDiagonal, L.SpecialAttackWaveSpazerVertical, L.SpecialAttackWaveSpazerVertical, L.SpecialAttackWaveSpazerRisingDiagonal, L.SpecialAttackWaveSpazerHorizontal, L.SpecialAttackWaveSpazerFallingDiagonal, L.SpecialAttackWaveSpazerVertical),
+            [ProjectileTrailFamily.SpecialAttackSpazer] = new(L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazerDown, L.SpecialAttackSpazerDown, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer),
         }.ToFrozenDictionary();
 
     /// <summary>
@@ -553,27 +553,27 @@ internal static class ProjectileTrailPlacementDefinitions
                 new(new(32, 8), new(8, 32)), new(new(32, 8), new(8, 32)), new(new(32, 12), new(12, 32)), new(new(32, 12), new(12, 32)),
                 new(new(24, 16), new(16, 24)), new(new(24, 16), new(16, 24)),
             ],
-            [L.SbaWaveSpazerVertical] =
+            [L.SpecialAttackWaveSpazerVertical] =
             [
                 new(new(0, 0), new(0, 0)), new(new(16, 0), new(-16, 0)), new(new(0, 0), new(0, 0)), new(new(-16, 0), new(16, 0)),
             ],
-            [L.SbaWaveSpazerRisingDiagonal] =
+            [L.SpecialAttackWaveSpazerRisingDiagonal] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-10, -10), new(10, 10)), new(new(0, 0), new(0, 0)), new(new(10, 10), new(-10, -10)),
             ],
-            [L.SbaWaveSpazerHorizontal] =
+            [L.SpecialAttackWaveSpazerHorizontal] =
             [
                 new(new(0, 0), new(0, 0)), new(new(0, -16), new(0, 16)), new(new(0, 0), new(0, 0)), new(new(0, 16), new(0, -16)),
             ],
-            [L.SbaWaveSpazerFallingDiagonal] =
+            [L.SpecialAttackWaveSpazerFallingDiagonal] =
             [
                 new(new(0, 0), new(0, 0)), new(new(10, -10), new(-10, 10)), new(new(0, 0), new(0, 0)), new(new(-10, 10), new(10, -10)),
             ],
-            [L.SbaSpazer] =
+            [L.SpecialAttackSpazer] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-8, 8), new(8, 8)), new(new(-16, 8), new(16, 8)),
             ],
-            [L.SbaSpazerDown] =
+            [L.SpecialAttackSpazerDown] =
             [
                 new(new(0, 0), new(0, 0)), new(new(-8, -8), new(8, -8)), new(new(-16, -8), new(16, -8)),
             ],

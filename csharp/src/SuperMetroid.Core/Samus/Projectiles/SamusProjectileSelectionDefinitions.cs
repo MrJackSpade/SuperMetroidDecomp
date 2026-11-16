@@ -103,18 +103,18 @@ internal static class SamusProjectileSelectionDefinitions
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> SpecialAttacks =
         new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
-            [SamusBeamCombination.Wave] = SamusProjectileKind.WaveSBA,
-            [SamusBeamCombination.Spazer] = SamusProjectileKind.SpazerSBA,
-            [SamusBeamCombination.SpazerWave] = SamusProjectileKind.SpazerSBA,
-            [SamusBeamCombination.Plasma] = SamusProjectileKind.PlasmaSBA,
-            [SamusBeamCombination.PlasmaWave] = SamusProjectileKind.PlasmaSBA,
+            [SamusBeamCombination.Wave] = SamusProjectileKind.WaveSpecialAttack,
+            [SamusBeamCombination.Spazer] = SamusProjectileKind.SpazerSpecialAttack,
+            [SamusBeamCombination.SpazerWave] = SamusProjectileKind.SpazerSpecialAttack,
+            [SamusBeamCombination.Plasma] = SamusProjectileKind.PlasmaSpecialAttack,
+            [SamusBeamCombination.PlasmaWave] = SamusProjectileKind.PlasmaSpecialAttack,
         };
 
     /// <summary>The kind of each echo.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamEcho, SamusProjectileKind> Echoes =
         new Dictionary<SamusBeamEcho, SamusProjectileKind>
         {
-            [SamusBeamEcho.SpazerComboTrail] = SamusProjectileKind.SpazerSBATrail,
+            [SamusBeamEcho.SpazerComboTrail] = SamusProjectileKind.SpazerSpecialAttackTrail,
             [SamusBeamEcho.ShinesparkEcho] = SamusProjectileKind.ShinesparkEcho,
         };
 }

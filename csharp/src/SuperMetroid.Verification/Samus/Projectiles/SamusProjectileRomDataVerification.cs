@@ -131,7 +131,7 @@ internal static class SamusProjectileRomDataVerification
         {
             SamusProjectileRomDataTrailsConstants.UnchargedOffsetFamilies,
             SamusProjectileRomDataTrailsConstants.ChargedOffsetFamilies,
-            SamusProjectileRomDataTrailsConstants.SpazerSbaOffsetFamilies,
+            SamusProjectileRomDataTrailsConstants.SpazerSpecialAttackOffsetFamilies,
         })
         {
             TouchRange(bus, offsets,

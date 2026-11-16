@@ -739,7 +739,6 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
-        MiscDustProjectileSegment segment = MiscDustProjectiles.Animation(animation);
         EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -752,7 +751,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.
-        projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(animation));
     }
 
     /// <summary>Creates the common dud shot for a protected head hitbox.</summary>

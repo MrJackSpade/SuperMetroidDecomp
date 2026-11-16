@@ -320,12 +320,12 @@ internal static class RidleyFullMovieVerification
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(512, 400));
             samus.EquippedItems = (SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
             SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-            samus.PoseHistory.Restore(pose, samus.PoseHistory.PreviousMovement, samus.PoseHistory.LastDifferentMovement);
+            samus.PoseHistory.Restore(pose, samus.PoseHistory.PreviousMovement, samus.PoseHistory.MovementBeforePrevious);
             SamusMovementType spinMovement = SamusMovementType.SpinJumping;
             samus.PoseHistory.Restore(samus.PoseHistory.PreviousPose, spinMovement, SamusMovementType.Running);
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
-            AssertEqual(spinMovement, samus.PoseHistory.LastDifferentMovement, "fallback publishes older spin movement");
+            AssertEqual(spinMovement, samus.PoseHistory.MovementBeforePrevious, "fallback publishes older spin movement");
             AssertTrue(samus.PoseHistory.AllowsWallJumpProbe, "next update admits native wall observation");
         }
         Console.WriteLine("Spin fallback history: ordinary, Space Jump and Screw Attack both facings retain pose and admit wall probe.");
@@ -466,7 +466,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.SmallDustCloud }, "native impact selects variant nine");
+        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.SmallDustCloud }, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }

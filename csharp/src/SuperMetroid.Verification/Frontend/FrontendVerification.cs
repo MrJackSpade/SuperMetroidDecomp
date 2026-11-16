@@ -368,7 +368,7 @@ internal static void VerifySavedGameLoadAppearance()
     AssertTrue(runtime.SamusLoadAppearanceActive,
         "saved-game appearance remains active through frame 359");
     runtime.StepFrame(0);
-    AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentMovement, "appearance completion shifts prior metadata");
+    AssertEqual(appearanceMetadata, appearanceHistory.MovementBeforePrevious, "appearance completion shifts prior metadata");
     AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
     AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus),
         appearanceHistory.PreviousMovement, "appearance completion commits current metadata");

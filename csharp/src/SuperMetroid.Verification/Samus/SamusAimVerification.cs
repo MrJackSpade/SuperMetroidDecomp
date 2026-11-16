@@ -266,7 +266,7 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose, "aimed transition FD target");
 
     int speedBeforeAimChange = samus.Kinematics.YSpeed.Whole;
-    SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
+    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.NormalJumpAimDiagonalDownRightPose);
     AssertEqual(speedBeforeAimChange, samus.Kinematics.YSpeed.Whole, "air aim change preserves Y speed");
 
     // `$17` is not merely alternate art: Down shrinks the live body from radius 19 to
@@ -279,7 +279,7 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     uint compactVelocity = samus.Kinematics.YSpeed.RawValue;
     SamusVerticalDirection compactDirection = samus.Kinematics.YDirection;
     AssertThrows<InvalidOperationException>(
-        () => SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.NormalJumpAimDownRightPose),
+        () => SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.NormalJumpAimDownRightPose),
         "compact aim requires room-aware collision route");
     AssertTrue(
         SamusAerialPoseTransitions.TryApplyCompactAerialTransition(samus, 
@@ -474,7 +474,7 @@ boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0, roo
     SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "aimed walk-off starts downward");
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha precedes the airborne input/aim transition.
-    SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingAimDiagonalUpRightPose);
+    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.FallingAimDiagonalUpRightPose);
 
     // `$90:8324-$8345` leaves both the command index and zero timer untouched when `$F0`
     // is reached. One frame later DEC wraps zero to `$FFFF`; the negative result advances
@@ -489,9 +489,9 @@ boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0, roo
     AssertEqual(2, samus.AnimationNumber, "timer underflow advances beyond F0");
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
-    SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingAimDiagonalDownRightPose);
+    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.FallingAimDiagonalDownRightPose);
     AssertEqual(0x29, SamusNoInputFallbackNumbers.Number(SamusPoseMetadata.ReadNoInputFallback(samus)), "aimed fall fallback target");
-    SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingRightPose);
+    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.FallingRightPose);
     AssertEqual(SamusPoseId.FallingRightPose, samus.Pose, "aimed fall applies unaimed fallback");
 
     Console.WriteLine("  Samus aimed air: FD jump, live aim, F0 cadence, compact hitboxes/landing, walk-off, and fall fallback agree.");
@@ -646,7 +646,7 @@ internal static void VerifySamusGunExtendedMovement()
         releasedForwardJump.Kinematics.YDirection = SamusVerticalDirection.Up;
         releasedForwardJump.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x89ab);
 
-        SamusAerialPoseTransitions.ApplyAerialAimTransition(releasedForwardJump, target);
+        SamusAerialPoseTransitions.ApplySameFacingAerialTransition(releasedForwardJump, target);
 
         AssertEqual(target, releasedForwardJump.Pose,
             $"{facing} forward-jump release installs neutral pose");
@@ -683,7 +683,7 @@ internal static void VerifySamusGunExtendedMovement()
     SamusPresentation.InitializeAnimation(jumping);
     jumping.Kinematics.YSpeed = new UnsignedSixteenSixteen(3, 0x4567);
     jumping.Kinematics.YDirection = SamusVerticalDirection.Up;
-    SamusAerialPoseTransitions.ApplyAerialAimTransition(jumping, SamusPoseId.NormalJumpGunExtendedRightPose);
+    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(jumping, SamusPoseId.NormalJumpGunExtendedRightPose);
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, jumping.Pose, "neutral jump installs gun extension $13");
     AssertEqual(0x00034567u, jumping.Kinematics.YSpeed.RawValue, "jump gun extension preserves velocity");
     AssertEqual(SamusVerticalDirection.Up, jumping.Kinematics.YDirection, "jump gun extension preserves direction");
@@ -694,7 +694,7 @@ internal static void VerifySamusGunExtendedMovement()
     falling.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0xabcd);
     falling.Kinematics.YDirection = SamusVerticalDirection.Down;
     falling.HorizontalSpeed.BaseSpeed = falling.HorizontalSpeed.BaseSpeed.WithWhole(1);
-    SamusAerialPoseTransitions.ApplyAerialAimTransition(falling, SamusPoseId.FallingGunExtendedRightPose);
+    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(falling, SamusPoseId.FallingGunExtendedRightPose);
     AssertEqual(SamusPoseId.FallingGunExtendedRightPose, falling.Pose, "fall installs gun extension $67");
     AssertEqual(0x0002abcdu, falling.Kinematics.YSpeed.RawValue, "fall gun extension preserves velocity");
 

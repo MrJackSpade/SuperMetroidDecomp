@@ -129,14 +129,14 @@ internal static class SamusProjectileProgramsVerification
     private static readonly HashSet<SamusProjectileKind> FirstListReadHeaders =
     [
         SamusProjectileKind.SuperMissileLink, SamusProjectileKind.PowerBomb, SamusProjectileKind.Bomb,
-        SamusProjectileKind.PlasmaSBA, SamusProjectileKind.WaveSBA, SamusProjectileKind.SpazerSBA,
+        SamusProjectileKind.PlasmaSpecialAttack, SamusProjectileKind.WaveSpecialAttack, SamusProjectileKind.SpazerSpecialAttack,
     ];
 
     /// <summary>The headers that hold only their first list field; every other header holds all ten.</summary>
     private static readonly HashSet<SamusProjectileKind> FirstListOnlyHeaders =
     [
         SamusProjectileKind.SuperMissileLink, SamusProjectileKind.PowerBomb, SamusProjectileKind.Bomb,
-        SamusProjectileKind.PlasmaSBA, SamusProjectileKind.WaveSBA, SamusProjectileKind.SpazerSBA,
+        SamusProjectileKind.PlasmaSpecialAttack, SamusProjectileKind.WaveSpecialAttack, SamusProjectileKind.SpazerSpecialAttack,
     ];
 
     /// <summary>

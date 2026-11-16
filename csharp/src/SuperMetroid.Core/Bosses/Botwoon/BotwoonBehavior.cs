@@ -984,7 +984,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         segment.Position = segment.Position.WithWholeY(BotwoonFightDefinitions.FloorY);
         state.SegmentPhases[segmentIndex] = BotwoonBodyPhase.Landed;
         // The landed segment plays the shared big-explosion animation.
-        segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileSegment.BigExplosion));
+        segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustAnimation.BigExplosion));
         segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;

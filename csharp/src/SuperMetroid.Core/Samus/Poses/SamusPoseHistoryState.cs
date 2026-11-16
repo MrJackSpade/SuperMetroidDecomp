@@ -15,13 +15,13 @@ public sealed class SamusPoseHistoryState
     public SamusMovementType PreviousMovement { get; private set; }
 
     /// <summary>The movement type the committed transition before the latest one recorded.</summary>
-    public SamusMovementType LastDifferentMovement { get; private set; }
+    public SamusMovementType MovementBeforePrevious { get; private set; }
 
     /// <summary>
     /// Whether the wall-jump probe may run: only when the older committed transition recorded spin jumping or wall
-    /// jumping. The game's name says "last different", but the history also shifts on same-pose transitions.
+    /// jumping. The history shifts on every committed transition, including one that selects the same pose again.
     /// </summary>
-    public bool AllowsWallJumpProbe => LastDifferentMovement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
+    public bool AllowsWallJumpProbe => MovementBeforePrevious is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
 
     /// <summary>
     /// Shifts the history for a committed transition, including one that selects the previous pose again; do not call
@@ -31,7 +31,7 @@ public sealed class SamusPoseHistoryState
     /// <param name="movement">The movement type the transition recorded.</param>
     public void CommitTransition(SamusPoseId pose, SamusMovementType movement)
     {
-        LastDifferentMovement = PreviousMovement;
+        MovementBeforePrevious = PreviousMovement;
         PreviousPose = pose;
         PreviousMovement = movement;
     }

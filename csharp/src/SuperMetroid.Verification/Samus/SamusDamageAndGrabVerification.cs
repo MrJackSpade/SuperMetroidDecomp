@@ -587,7 +587,7 @@ internal static void VerifySamusSolidEnemyCollision()
         frozen.Enemy,
         integratedHorizontal.EnemyCollision?.Enemy,
         "ordinary mover retains colliding enemy identity");
-    AssertEqual<ISolidEnemy?>(frozen.Enemy, integrated.SolidEnemyContacts[1], "ordinary mover records the enemy it met moving right");
+    AssertEqual<ISolidEnemy?>(frozen.Enemy, integrated.SolidEnemyContact(SamusCollisionDirection.Right), "ordinary mover records the enemy it met moving right");
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
@@ -596,7 +596,7 @@ internal static void VerifySamusSolidEnemyCollision()
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual<ISolidEnemy?>(below.Enemy, integratedVertical.EnemyCollision?.Enemy,
         "vertical mover retains colliding enemy identity");
-    AssertEqual<ISolidEnemy?>(below.Enemy, integrated.SolidEnemyContacts[3], "vertical mover records the enemy it met moving down");
+    AssertEqual<ISolidEnemy?>(below.Enemy, integrated.SolidEnemyContact(SamusCollisionDirection.Down), "vertical mover records the enemy it met moving down");
 
     // Wall-jump probing copies Samus so it cannot commit movement. The one exception is the
     // original `$A0:AAC8` touching bug, which still clears the real Y subposition.
@@ -712,13 +712,13 @@ internal static void VerifySamusGrabbedByDraygon()
         SamusPoseId grabbedPose = facingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         SamusMovementType grabbedMetadata = SamusMovementType.DraygonHeld;
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
-        AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "Draygon grab shifts previous metadata");
+        AssertEqual(SamusMovementType.SpinJumping, history.MovementBeforePrevious, "Draygon grab shifts previous metadata");
         AssertEqual(grabbedPose, history.PreviousPose, "Draygon grab commits grabbed pose");
         AssertEqual(grabbedMetadata, history.PreviousMovement, "Draygon grab commits grabbed metadata");
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
-        AssertEqual(grabbedMetadata, history.LastDifferentMovement, "repeated grab shifts metadata");
+        AssertEqual(grabbedMetadata, history.MovementBeforePrevious, "repeated grab shifts metadata");
         historySamus.DraygonGrabbed.Release(historySamus);
-        AssertEqual(grabbedMetadata, history.LastDifferentMovement, "Draygon release retains prior grabbed metadata");
+        AssertEqual(grabbedMetadata, history.MovementBeforePrevious, "Draygon release retains prior grabbed metadata");
         AssertEqual(historySamus.Pose, history.PreviousPose, "Draygon release commits standing pose");
         AssertEqual(SamusMovementType.Standing, history.PreviousMovement, "Draygon release commits standing metadata");
         AssertTrue(!history.AllowsWallJumpProbe, "Draygon release cannot retain pre-grab spin eligibility");

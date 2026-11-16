@@ -647,12 +647,15 @@ internal static class SamusAerialPoseTransitions
         if (TryBeginShinesparkWindup(samus, samus.Pose, previousMovementType))
             return true;
         InitializeOrdinaryAerialAcceleration(samus);
-        PublishNormalJumpPoseShotDirection(samus, controllerNewInput);
+        ArmNormalJumpTransitionShot(samus, controllerNewInput);
         return false;
     }
 
-    /// <summary>Publishes the normal jump's echo and sound bookkeeping after an accepted normal-jump pose initializer.</summary>
-    internal static void PublishNormalJumpPoseShotDirection(SamusState samus, GameplayAction controllerNewInput)
+    /// <summary>
+    /// Hands the next update's weapon firing a shot in the pose's direction when a fresh Shoot press accompanies an accepted
+    /// normal-jump pose.
+    /// </summary>
+    internal static void ArmNormalJumpTransitionShot(SamusState samus, GameplayAction controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
@@ -661,11 +664,10 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within <see cref="SamusMovementType.NormalJumping"/> or
-    /// <see cref="SamusMovementType.Falling"/> without replacing the live 1/65536-pixel velocities. The horizontal
-    /// gun-extended jumping and falling poses use this same initialization seam;
-    /// “aim” survives in the historical method name only because that was the first slice.
+    /// <see cref="SamusMovementType.Falling"/> without replacing the live 1/65536-pixel velocities: aiming, firing or
+    /// releasing forward, including the horizontal gun-extended jumping and falling poses.
     /// </summary>
-    public static void ApplyAerialAimTransition(SamusState samus, SamusPoseId targetPose)
+    public static void ApplySameFacingAerialTransition(SamusState samus, SamusPoseId targetPose)
     {
         if (SamusPoseMetadata.IsCompactAerialPose(samus.Pose) || SamusPoseMetadata.IsCompactAerialPose(targetPose))
         {
@@ -742,7 +744,7 @@ internal static class SamusAerialPoseTransitions
             (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose) && !SamusPoseMetadata.IsCompactAerialPose(targetPose)))
         {
             // This is the exact precondition of the collision-aware compact-pose helper.
-            // Other aerial changes use ApplyAerialAimTransition or a movement-specific API.
+            // Other aerial changes use ApplySameFacingAerialTransition or a movement-specific API.
             throw new InvalidOperationException(
                 $"Compact aerial transition {samus.Pose} -> {targetPose} is not a same-family route.");
         }

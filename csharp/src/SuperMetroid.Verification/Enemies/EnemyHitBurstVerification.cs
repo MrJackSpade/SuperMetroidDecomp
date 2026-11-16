@@ -320,7 +320,7 @@ internal static class EnemyHitBurstVerification
         place.Health = health;
         place.FrozenTimer = frozenTimer;
         // Shots reach only an enemy showing a frame.
-        place.Frame = EnemyFrameId.EffectActorDudShotFirst;
+        place.Frame = EnemyFrameId.EffectActorDudShotDot;
         ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(place);
         return (enemies, place);
     }

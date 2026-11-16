@@ -16,31 +16,31 @@ internal static class RipperAnimations
     {
         [P.GrappleRipperMovingLeft] =
         [
-            Show(EnemyFrameId.GrappleRipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.GrappleRipperMovingLeftSecond, 7),
-            Show(EnemyFrameId.GrappleRipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.GrappleRipperMovingLeftThird, 7),
+            Show(EnemyFrameId.GrappleRipperFlyingLeftFlameMedium, 8),
+            Show(EnemyFrameId.GrappleRipperFlyingLeftFlameShort, 7),
+            Show(EnemyFrameId.GrappleRipperFlyingLeftFlameMedium, 8),
+            Show(EnemyFrameId.GrappleRipperFlyingLeftFlameLong, 7),
         ],
         [P.GrappleRipperMovingRight] =
         [
-            Show(EnemyFrameId.GrappleRipperMovingRightFirst, 8),
-            Show(EnemyFrameId.GrappleRipperMovingRightSecond, 7),
-            Show(EnemyFrameId.GrappleRipperMovingRightFirst, 8),
-            Show(EnemyFrameId.GrappleRipperMovingRightThird, 7),
+            Show(EnemyFrameId.GrappleRipperFlyingRightFlameMedium, 8),
+            Show(EnemyFrameId.GrappleRipperFlyingRightFlameShort, 7),
+            Show(EnemyFrameId.GrappleRipperFlyingRightFlameMedium, 8),
+            Show(EnemyFrameId.GrappleRipperFlyingRightFlameLong, 7),
         ],
         [P.RipperMovingRight] =
         [
-            Show(EnemyFrameId.RipperMovingRightFirst, 8),
-            Show(EnemyFrameId.RipperMovingRightSecond, 7),
-            Show(EnemyFrameId.RipperMovingRightFirst, 8),
-            Show(EnemyFrameId.RipperMovingRightThird, 7),
+            Show(EnemyFrameId.RipperFlyingRightEyeLit, 8),
+            Show(EnemyFrameId.RipperFlyingRightEyeDark, 7),
+            Show(EnemyFrameId.RipperFlyingRightEyeLit, 8),
+            Show(EnemyFrameId.RipperFlyingRightEyeGlinting, 7),
         ],
         [P.RipperMovingLeft] =
         [
-            Show(EnemyFrameId.RipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.RipperMovingLeftSecond, 7),
-            Show(EnemyFrameId.RipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.RipperMovingLeftThird, 7),
+            Show(EnemyFrameId.RipperFlyingLeftEyeLit, 8),
+            Show(EnemyFrameId.RipperFlyingLeftEyeDark, 7),
+            Show(EnemyFrameId.RipperFlyingLeftEyeLit, 8),
+            Show(EnemyFrameId.RipperFlyingLeftEyeGlinting, 7),
         ],
     });
 

@@ -16,25 +16,25 @@ internal static class BoulderAnimations
     {
         [P.Left] =
         [
-            Show(EnemyFrameId.BoulderLeftFirst, 8),
-            Show(EnemyFrameId.BoulderLeftSecond, 8),
-            Show(EnemyFrameId.BoulderLeftThird, 8),
-            Show(EnemyFrameId.BoulderLeftFourth, 8),
-            Show(EnemyFrameId.BoulderLeftFifth, 8),
-            Show(EnemyFrameId.BoulderLeftSixth, 8),
-            Show(EnemyFrameId.BoulderLeftSeventh, 8),
-            Show(EnemyFrameId.BoulderLeftEighth, 8),
+            Show(EnemyFrameId.BoulderTurned0, 8),
+            Show(EnemyFrameId.BoulderTurned45, 8),
+            Show(EnemyFrameId.BoulderTurned90, 8),
+            Show(EnemyFrameId.BoulderTurned135, 8),
+            Show(EnemyFrameId.BoulderTurned180, 8),
+            Show(EnemyFrameId.BoulderTurned225, 8),
+            Show(EnemyFrameId.BoulderTurned270, 8),
+            Show(EnemyFrameId.BoulderTurned315, 8),
         ],
         [P.Right] =
         [
-            Show(EnemyFrameId.BoulderLeftFirst, 8),
-            Show(EnemyFrameId.BoulderLeftEighth, 8),
-            Show(EnemyFrameId.BoulderLeftSeventh, 8),
-            Show(EnemyFrameId.BoulderLeftSixth, 8),
-            Show(EnemyFrameId.BoulderLeftFifth, 8),
-            Show(EnemyFrameId.BoulderLeftFourth, 8),
-            Show(EnemyFrameId.BoulderLeftThird, 8),
-            Show(EnemyFrameId.BoulderLeftSecond, 8),
+            Show(EnemyFrameId.BoulderTurned0, 8),
+            Show(EnemyFrameId.BoulderTurned315, 8),
+            Show(EnemyFrameId.BoulderTurned270, 8),
+            Show(EnemyFrameId.BoulderTurned225, 8),
+            Show(EnemyFrameId.BoulderTurned180, 8),
+            Show(EnemyFrameId.BoulderTurned135, 8),
+            Show(EnemyFrameId.BoulderTurned90, 8),
+            Show(EnemyFrameId.BoulderTurned45, 8),
         ],
     });
 

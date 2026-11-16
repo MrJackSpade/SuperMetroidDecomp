@@ -21,10 +21,10 @@ internal static class FakeKraidAnimations
         ],
         [P.StepForwardsFacingLeft] =
         [
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftFirst, 16),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftSecond, 12),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftThird, 8),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftFourth, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetTogether, 16),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootLifting, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
             Cue(new(K.Move)),
         ],
         [P.ChooseAlternateActionFacingLeft] =
@@ -33,20 +33,20 @@ internal static class FakeKraidAnimations
         ],
         [P.StepBackwardsFacingLeft] =
         [
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftFirst, 16),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetTogether, 16),
             Cue(new(K.Move)),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftFourth, 12),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftThird, 8),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingLeftSecond, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
+            Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootLifting, 12),
         ],
         [P.FireSpitFacingLeft] =
         [
-            Show(EnemyFrameId.FakeKraidFireSpitFacingLeftFirst, 16),
+            Show(EnemyFrameId.FakeKraidFacingLeftMouthClosed, 16),
             Cue(new(K.PlayCrySound)),
-            Show(EnemyFrameId.FakeKraidFireSpitFacingLeftSecond, 8),
+            Show(EnemyFrameId.FakeKraidFacingLeftMouthOpening, 8),
             Cue(new(K.SpitLeft)),
-            Show(EnemyFrameId.FakeKraidFireSpitFacingLeftThird, 16),
-            Show(EnemyFrameId.FakeKraidFireSpitFacingLeftSecond, 8),
+            Show(EnemyFrameId.FakeKraidFacingLeftMouthWide, 16),
+            Show(EnemyFrameId.FakeKraidFacingLeftMouthOpening, 8),
         ],
         [P.ChooseActionFacingRight] =
         [
@@ -54,10 +54,10 @@ internal static class FakeKraidAnimations
         ],
         [P.StepForwardsFacingRight] =
         [
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightFirst, 16),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightSecond, 12),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightThird, 8),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightFourth, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetTogether, 16),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootLifting, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
             Cue(new(K.Move)),
         ],
         [P.ChooseAlternateActionFacingRight] =
@@ -66,20 +66,20 @@ internal static class FakeKraidAnimations
         ],
         [P.StepBackwardsFacingRight] =
         [
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightFirst, 16),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetTogether, 16),
             Cue(new(K.Move)),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightFourth, 12),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightThird, 8),
-            Show(EnemyFrameId.FakeKraidStepForwardsFacingRightSecond, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
+            Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootLifting, 12),
         ],
         [P.FireSpitFacingRight] =
         [
-            Show(EnemyFrameId.FakeKraidFireSpitFacingRightFirst, 16),
+            Show(EnemyFrameId.FakeKraidFacingRightMouthClosed, 16),
             Cue(new(K.PlayCrySound)),
-            Show(EnemyFrameId.FakeKraidFireSpitFacingRightSecond, 8),
+            Show(EnemyFrameId.FakeKraidFacingRightMouthOpening, 8),
             Cue(new(K.SpitRight)),
-            Show(EnemyFrameId.FakeKraidFireSpitFacingRightThird, 16),
-            Show(EnemyFrameId.FakeKraidFireSpitFacingRightSecond, 8),
+            Show(EnemyFrameId.FakeKraidFacingRightMouthWide, 16),
+            Show(EnemyFrameId.FakeKraidFacingRightMouthOpening, 8),
         ],
     });
 

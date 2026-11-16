@@ -16,37 +16,37 @@ internal static class MorphBallEyeAnimations
     {
         [P.FacingRightDeactivating] =
         [
-            Show(EnemyFrameId.MorphEyeRightTransition, 8),
+            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 8),
             Show(EnemyFrameId.MorphBallEyeLookingLeft, 48),
-            Show(EnemyFrameId.MorphEyeRightTransition, 5),
+            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 5),
         ],
         [P.FacingRightClosed] =
         [
-            Show(EnemyFrameId.MorphEyeRightClosed, 48),
+            Show(EnemyFrameId.MorphBallEyeFacingRightClosed, 48),
         ],
         [P.FacingLeftDeactivating] =
         [
-            Show(EnemyFrameId.MorphEyeLeftTransition, 8),
+            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 8),
             Show(EnemyFrameId.MorphBallEyeLookingRight, 48),
-            Show(EnemyFrameId.MorphEyeLeftTransition, 5),
+            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 5),
         ],
         [P.FacingLeftClosed] =
         [
-            Show(EnemyFrameId.MorphEyeLeftClosed, 48),
+            Show(EnemyFrameId.MorphBallEyeFacingLeftClosed, 48),
         ],
         [P.FacingRightActivating] =
         [
-            Show(EnemyFrameId.MorphEyeRightClosed, 32),
-            Show(EnemyFrameId.MorphEyeRightTransition, 5),
+            Show(EnemyFrameId.MorphBallEyeFacingRightClosed, 32),
+            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 5),
             Show(EnemyFrameId.MorphBallEyeLookingLeft, 48),
-            Show(EnemyFrameId.MorphEyeRightTransition, 8),
+            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 8),
         ],
         [P.FacingLeftActivating] =
         [
-            Show(EnemyFrameId.MorphEyeLeftClosed, 32),
-            Show(EnemyFrameId.MorphEyeLeftTransition, 5),
+            Show(EnemyFrameId.MorphBallEyeFacingLeftClosed, 32),
+            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 5),
             Show(EnemyFrameId.MorphBallEyeLookingRight, 48),
-            Show(EnemyFrameId.MorphEyeLeftTransition, 8),
+            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 8),
         ],
         [P.MountFacingRight] =
         [

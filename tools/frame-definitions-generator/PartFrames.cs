@@ -219,8 +219,8 @@ internal sealed record PartFrameConfiguration(
         {
             CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["TripperFrozenMovingLeft"] = ["Tripper"],
-                ["TripperFrozenMovingRight"] = ["Tripper"],
+                ["TripperFrozenFacingLeft"] = ["Tripper"],
+                ["TripperFrozenFacingRight"] = ["Tripper"],
             },
         },
         // An Evir placement is its body or its arms; the Evir projectile runs only the spit's programs.
@@ -284,8 +284,8 @@ internal sealed record PartFrameConfiguration(
         {
             CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["RipperSharedFrozenLeft"] = ["GrappleRipper", "JetRipper"],
-                ["RipperSharedFrozenRight"] = ["GrappleRipper", "JetRipper"],
+                ["RipperFrozenFacingLeft"] = ["GrappleRipper", "JetRipper"],
+                ["RipperFrozenFacingRight"] = ["GrappleRipper", "JetRipper"],
             },
         },
         // A Ki-Hunter's body flies, swoops, hops, lands and spits; its wings follow it, or fly off detached.

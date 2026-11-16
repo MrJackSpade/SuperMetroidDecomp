@@ -9,9 +9,9 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 internal static class EnemyExtendedFrameToolingDefinitions
 {
     /// <summary>Frames the document lists before Crocomire's corpse and skeleton composite frames.</summary>
-    internal static int PreCrocomireSkeletonFrameCount => FramesBefore(EnemyFrameId.CrocomireBodySkeletonFallingFirst);
+    internal static int PreCrocomireSkeletonFrameCount => FramesBefore(EnemyFrameId.CrocomireBodySkeletonToppling);
     /// <summary>Frames the document lists before Kraid's thirty-five extended foot frames.</summary>
-    internal static int PreKraidFootFrameCount => FramesBefore(EnemyFrameId.KraidFootNeutral);
+    internal static int PreKraidFootFrameCount => FramesBefore(EnemyFrameId.KraidFootPlantedTwin);
 
     /// <summary>The number of frames the extended enemy frame document lists before <paramref name="first"/>.</summary>
     /// <exception cref="InvalidOperationException">The document does not list <paramref name="first"/>.</exception>

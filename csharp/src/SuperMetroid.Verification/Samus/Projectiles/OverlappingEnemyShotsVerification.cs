@@ -39,7 +39,7 @@ internal static class OverlappingEnemyShotsVerification
             // observe damage independently from the death actor and drop machinery.
             enemy.Health = 180;
             initialize(enemy, samus, 0);
-            enemy.Frame = EnemyFrameId.BeetomCrawlingLeftLoopFirst; // Shots reach only an enemy showing a frame.
+            enemy.Frame = EnemyFrameId.BeetomCrawlingLeftLegsTucked; // Shots reach only an enemy showing a frame.
             interactive.Add(enemy);
         }
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };

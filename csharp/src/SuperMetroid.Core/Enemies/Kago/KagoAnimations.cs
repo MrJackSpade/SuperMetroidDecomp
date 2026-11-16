@@ -16,17 +16,17 @@ internal static class KagoAnimations
     {
         [P.Slow] =
         [
-            Show(EnemyFrameId.KagoSlowFirst, 10),
-            Show(EnemyFrameId.KagoSlowSecond, 10),
-            Show(EnemyFrameId.KagoSlowThird, 10),
-            Show(EnemyFrameId.KagoSlowSecond, 10),
+            Show(EnemyFrameId.KagoHiveAtRest, 10),
+            Show(EnemyFrameId.KagoHiveSwelling, 10),
+            Show(EnemyFrameId.KagoHiveSwollen, 10),
+            Show(EnemyFrameId.KagoHiveSwelling, 10),
         ],
         [P.Fast] =
         [
-            Show(EnemyFrameId.KagoSlowFirst, 3),
-            Show(EnemyFrameId.KagoSlowSecond, 3),
-            Show(EnemyFrameId.KagoSlowThird, 3),
-            Show(EnemyFrameId.KagoSlowSecond, 3),
+            Show(EnemyFrameId.KagoHiveAtRest, 3),
+            Show(EnemyFrameId.KagoHiveSwelling, 3),
+            Show(EnemyFrameId.KagoHiveSwollen, 3),
+            Show(EnemyFrameId.KagoHiveSwelling, 3),
         ],
     });
 

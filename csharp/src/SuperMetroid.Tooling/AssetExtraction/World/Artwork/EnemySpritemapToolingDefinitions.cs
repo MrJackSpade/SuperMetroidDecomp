@@ -10,17 +10,17 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 internal static class EnemySpritemapToolingDefinitions
 {
     /// <summary>Frames the document lists before the Puromi/Nuclear Waffle head frames.</summary>
-    internal static int PreNuclearWaffleFrameCount => FramesBefore(EnemyFrameId.NuclearWaffleBodyLoopFirst);
+    internal static int PreNuclearWaffleFrameCount => FramesBefore(EnemyFrameId.NuclearWaffleBodyTurned0);
     /// <summary>Frames the document lists before Kraid's two belly-lint frames.</summary>
-    internal static int PreKraidLintFrameCount => FramesBefore(EnemyFrameId.KraidLintInitial);
+    internal static int PreKraidLintFrameCount => FramesBefore(EnemyFrameId.KraidLintBudding);
     /// <summary>Frames the document lists before the audited environmental and Tourian artwork, Hibashi first.</summary>
-    internal static int PreAuditOrdinaryFrameCount => FramesBefore(EnemyFrameId.HibashiEruptionFirst);
+    internal static int PreAuditOrdinaryFrameCount => FramesBefore(EnemyFrameId.HibashiEmber);
     /// <summary>Frames the document lists before the friendly-animal compositions, the Etecoon first.</summary>
-    internal static int PreFriendlyAnimalFrameCount => FramesBefore(EnemyFrameId.EtecoonLookRightAtSamusAndRunLeft);
+    internal static int PreFriendlyAnimalFrameCount => FramesBefore(EnemyFrameId.EtecoonLookingRight);
     /// <summary>Frames the document lists before the Zero crawler artwork.</summary>
-    internal static int PreZeroFrameCount => FramesBefore(EnemyFrameId.ZeroUpsideRightLoopFirst);
+    internal static int PreZeroFrameCount => FramesBefore(EnemyFrameId.ZeroUpsideRightContracted);
     /// <summary>Frames the document lists before the tatori family.</summary>
-    internal static int PreMamaTurtleFrameCount => FramesBefore(EnemyFrameId.TurtleBabyCrawlingLeftFirst);
+    internal static int PreMamaTurtleFrameCount => FramesBefore(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked);
 
     /// <summary>The number of frames the enemy spritemap document lists before <paramref name="first"/>.</summary>
     /// <exception cref="InvalidOperationException">The document does not list <paramref name="first"/>.</exception>

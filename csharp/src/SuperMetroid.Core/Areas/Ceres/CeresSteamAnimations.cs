@@ -30,12 +30,12 @@ internal static class CeresSteamAnimations
         [P.UpPuffing] =
         [
             Show(EnemyFrameId.CeresSteamUp, 3),
-            Show(EnemyFrameId.CeresSteamUpSecond, 3),
-            Show(EnemyFrameId.CeresSteamUpThird, 3),
-            Show(EnemyFrameId.CeresSteamUpFourth, 3),
-            Show(EnemyFrameId.CeresSteamUpFifth, 3),
-            Show(EnemyFrameId.CeresSteamUpSixth, 3),
-            Show(EnemyFrameId.CeresSteamUpSeventh, 3),
+            Show(EnemyFrameId.CeresSteamUpJet22, 3),
+            Show(EnemyFrameId.CeresSteamUpJet31, 3),
+            Show(EnemyFrameId.CeresSteamUpJet40, 3),
+            Show(EnemyFrameId.CeresSteamUpDrifting33, 3),
+            Show(EnemyFrameId.CeresSteamUpDrifting27, 3),
+            Show(EnemyFrameId.CeresSteamUpDrifting16, 3),
         ],
         [P.LeftDormant] =
         [
@@ -52,12 +52,12 @@ internal static class CeresSteamAnimations
         [P.LeftPuffing] =
         [
             Show(EnemyFrameId.CeresSteamLeft, 3),
-            Show(EnemyFrameId.CeresSteamLeftSecond, 3),
-            Show(EnemyFrameId.CeresSteamLeftThird, 3),
-            Show(EnemyFrameId.CeresSteamLeftFourth, 3),
-            Show(EnemyFrameId.CeresSteamLeftFifth, 3),
-            Show(EnemyFrameId.CeresSteamLeftSixth, 3),
-            Show(EnemyFrameId.CeresSteamLeftSeventh, 3),
+            Show(EnemyFrameId.CeresSteamLeftJet24, 3),
+            Show(EnemyFrameId.CeresSteamLeftJet32, 3),
+            Show(EnemyFrameId.CeresSteamLeftJet40, 3),
+            Show(EnemyFrameId.CeresSteamLeftDrifting32, 3),
+            Show(EnemyFrameId.CeresSteamLeftDrifting26, 3),
+            Show(EnemyFrameId.CeresSteamLeftDrifting16, 3),
         ],
         [P.DownDormant] =
         [
@@ -74,12 +74,12 @@ internal static class CeresSteamAnimations
         [P.DownPuffing] =
         [
             Show(EnemyFrameId.CeresSteamDown, 3),
-            Show(EnemyFrameId.CeresSteamDownSecond, 3),
-            Show(EnemyFrameId.CeresSteamDownThird, 3),
-            Show(EnemyFrameId.CeresSteamDownFourth, 3),
-            Show(EnemyFrameId.CeresSteamDownFifth, 3),
-            Show(EnemyFrameId.CeresSteamDownSixth, 3),
-            Show(EnemyFrameId.CeresSteamDownSeventh, 3),
+            Show(EnemyFrameId.CeresSteamDownJet22, 3),
+            Show(EnemyFrameId.CeresSteamDownJet31, 3),
+            Show(EnemyFrameId.CeresSteamDownJet39, 3),
+            Show(EnemyFrameId.CeresSteamDownDrifting31, 3),
+            Show(EnemyFrameId.CeresSteamDownDrifting24, 3),
+            Show(EnemyFrameId.CeresSteamDownDrifting16, 3),
         ],
         [P.RightDormant] =
         [
@@ -96,12 +96,12 @@ internal static class CeresSteamAnimations
         [P.RightPuffing] =
         [
             Show(EnemyFrameId.CeresSteamRight, 3),
-            Show(EnemyFrameId.CeresSteamRightSecond, 3),
-            Show(EnemyFrameId.CeresSteamRightThird, 3),
-            Show(EnemyFrameId.CeresSteamRightFourth, 3),
-            Show(EnemyFrameId.CeresSteamRightFifth, 3),
-            Show(EnemyFrameId.CeresSteamRightSixth, 3),
-            Show(EnemyFrameId.CeresSteamRightSeventh, 3),
+            Show(EnemyFrameId.CeresSteamRightJet24, 3),
+            Show(EnemyFrameId.CeresSteamRightJet32, 3),
+            Show(EnemyFrameId.CeresSteamRightJet40, 3),
+            Show(EnemyFrameId.CeresSteamRightDrifting32, 3),
+            Show(EnemyFrameId.CeresSteamRightDrifting26, 3),
+            Show(EnemyFrameId.CeresSteamRightDrifting16, 3),
         ],
     });
 

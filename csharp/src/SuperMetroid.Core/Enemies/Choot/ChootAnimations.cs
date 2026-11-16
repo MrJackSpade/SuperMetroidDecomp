@@ -18,19 +18,19 @@ internal static class ChootAnimations
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.ChootIdle, 1),
+            Show(EnemyFrameId.ChootLyingFlat, 1),
         ],
         [P.Jumping] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Show(EnemyFrameId.ChootJump, 8),
-            Show(EnemyFrameId.ChootJumpApex, 1),
+            Show(EnemyFrameId.ChootSpringing, 8),
+            Show(EnemyFrameId.ChootFolded, 1),
         ],
         [P.Falling] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Show(EnemyFrameId.ChootJump, 8),
-            Show(EnemyFrameId.ChootFallEnd, 1),
+            Show(EnemyFrameId.ChootSpringing, 8),
+            Show(EnemyFrameId.ChootSpreadOut, 1),
         ],
     });
 

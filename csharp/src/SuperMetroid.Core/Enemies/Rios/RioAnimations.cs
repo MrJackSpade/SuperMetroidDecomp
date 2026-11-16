@@ -17,43 +17,43 @@ internal static class RioAnimations
     {
         [P.Idle] =
         [
-            Show(EnemyFrameId.RioIdleFirst, 4),
-            Show(EnemyFrameId.RioIdleSecond, 4),
+            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
         ],
         [P.PostSwoopIdle] =
         [
-            Show(EnemyFrameId.RioIdleFirst, 4),
-            Show(EnemyFrameId.RioIdleSecond, 4),
-            Show(EnemyFrameId.RioIdleFirst, 4),
-            Show(EnemyFrameId.RioIdleSecond, 4),
-            Show(EnemyFrameId.RioIdleFirst, 4),
-            Show(EnemyFrameId.RioIdleSecond, 4),
-            Show(EnemyFrameId.RioPostSwoopIdleThird, 4),
-            Show(EnemyFrameId.RioPostSwoopIdleFourth, 4),
-            Show(EnemyFrameId.RioPostSwoopIdleThird, 4),
-            Show(EnemyFrameId.RioPostSwoopIdleFourth, 4),
+            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsUpLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsLevelLegsTucked, 4),
+            Show(EnemyFrameId.RioWingsUpLegsHanging, 4),
+            Show(EnemyFrameId.RioWingsLevelLegsHanging, 4),
+            Show(EnemyFrameId.RioWingsUpLegsHanging, 4),
+            Show(EnemyFrameId.RioWingsLevelLegsHanging, 4),
         ],
         [P.SwoopOpening] =
         [
-            Show(EnemyFrameId.RioPostSwoopIdleThird, 3),
-            Show(EnemyFrameId.RioPostSwoopIdleFourth, 3),
-            Show(EnemyFrameId.RioSwoopingPartOneThird, 3),
-            Show(EnemyFrameId.RioSwoopingPartOneFourth, 3),
-            Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
+            Show(EnemyFrameId.RioWingsUpLegsHanging, 3),
+            Show(EnemyFrameId.RioWingsLevelLegsHanging, 3),
+            Show(EnemyFrameId.RioWingsUpLegsSpread, 3),
+            Show(EnemyFrameId.RioWingsLevelLegsSpread, 3),
+            Show(EnemyFrameId.RioWingsUpClawsCurled, 3),
             Cue(new(K.AnimationFinished)),
         ],
         [P.SwoopLoop] =
         [
-            Show(EnemyFrameId.RioSwoopingPartTwoFirst, 3),
-            Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
+            Show(EnemyFrameId.RioWingsLevelClawsCurled, 3),
+            Show(EnemyFrameId.RioWingsUpClawsCurled, 3),
         ],
         [P.SwoopCooldown] =
         [
-            Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
-            Show(EnemyFrameId.RioSwoopingPartOneFourth, 3),
-            Show(EnemyFrameId.RioSwoopingPartOneThird, 3),
-            Show(EnemyFrameId.RioPostSwoopIdleFourth, 3),
-            Show(EnemyFrameId.RioPostSwoopIdleThird, 3),
+            Show(EnemyFrameId.RioWingsUpClawsCurled, 3),
+            Show(EnemyFrameId.RioWingsLevelLegsSpread, 3),
+            Show(EnemyFrameId.RioWingsUpLegsSpread, 3),
+            Show(EnemyFrameId.RioWingsLevelLegsHanging, 3),
+            Show(EnemyFrameId.RioWingsUpLegsHanging, 3),
             Cue(new(K.AnimationFinished)),
         ],
     });

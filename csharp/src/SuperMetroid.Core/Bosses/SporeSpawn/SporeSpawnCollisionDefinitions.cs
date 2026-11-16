@@ -80,17 +80,17 @@ internal static class SporeSpawnCollisionDefinitions
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()
     {
-        [EnemyFrameId.SporeSpawnInitialDead] = DeadComponents,
-        [EnemyFrameId.SporeSpawnInitialAlive] = ClosedComponents,
-        [EnemyFrameId.SporeSpawnOpeningFirst] = OpeningComponents[0],
-        [EnemyFrameId.SporeSpawnOpeningSecond] = OpeningComponents[1],
-        [EnemyFrameId.SporeSpawnOpeningThird] = OpeningComponents[2],
-        [EnemyFrameId.SporeSpawnOpeningFourth] = OpeningComponents[3],
-        [EnemyFrameId.SporeSpawnOpeningFifth] = OpeningComponents[4],
-        [EnemyFrameId.SporeSpawnDeath] = OpeningComponents[5],
-        [EnemyFrameId.SporeSpawnOpeningSeventh] = OpeningComponents[6],
-        [EnemyFrameId.SporeSpawnOpenPulseFirst] = FullyOpenComponents[0],
-        [EnemyFrameId.SporeSpawnOpenPulseSecond] = FullyOpenComponents[1],
-        [EnemyFrameId.SporeSpawnOpenPulseThird] = FullyOpenComponents[2],
+        [EnemyFrameId.SporeSpawnShutTwin] = DeadComponents,
+        [EnemyFrameId.SporeSpawnShut] = ClosedComponents,
+        [EnemyFrameId.SporeSpawnParted8] = OpeningComponents[0],
+        [EnemyFrameId.SporeSpawnParted16] = OpeningComponents[1],
+        [EnemyFrameId.SporeSpawnParted24] = OpeningComponents[2],
+        [EnemyFrameId.SporeSpawnParted32] = OpeningComponents[3],
+        [EnemyFrameId.SporeSpawnParted40] = OpeningComponents[4],
+        [EnemyFrameId.SporeSpawnParted44] = OpeningComponents[5],
+        [EnemyFrameId.SporeSpawnParted48] = OpeningComponents[6],
+        [EnemyFrameId.SporeSpawnParted48CoreGlowing] = FullyOpenComponents[0],
+        [EnemyFrameId.SporeSpawnParted48CoreBright] = FullyOpenComponents[1],
+        [EnemyFrameId.SporeSpawnParted48Twin] = FullyOpenComponents[2],
     };
 }

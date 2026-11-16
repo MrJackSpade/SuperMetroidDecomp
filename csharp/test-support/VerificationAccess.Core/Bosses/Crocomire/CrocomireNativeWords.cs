@@ -93,15 +93,15 @@ internal static class CrocomireNativeWords
     /// <summary>The bank-$A4 frame word of each installed frame Crocomire's tongue shows.</summary>
     internal static readonly NativeWordIdentities<EnemyFrameId> TongueFrames = new(new Dictionary<EnemyFrameId, ushort>
     {
-        [EnemyFrameId.CrocomireTongueFightFirst] = 0xc65e,
-        [EnemyFrameId.CrocomireTongueFightSecond] = 0xc668,
-        [EnemyFrameId.CrocomireTongueFightThird] = 0xc672,
-        [EnemyFrameId.CrocomireTongueFightFourth] = 0xc67c,
-        [EnemyFrameId.CrocomireTongueMeltingPoseFirst] = 0xcace,
-        [EnemyFrameId.CrocomireTongueMeltingPoseSecond] = 0xcad8,
-        [EnemyFrameId.CrocomireTongueMeltingPoseThird] = 0xcae2,
-        [EnemyFrameId.CrocomireTongueMeltingPoseFourth] = 0xcaec,
-        [EnemyFrameId.CrocomireTongueMeltingPoseFifth] = 0xcaf6,
+        [EnemyFrameId.CrocomireTongueCurlingDown] = 0xc65e,
+        [EnemyFrameId.CrocomireTongueFlatRaised] = 0xc668,
+        [EnemyFrameId.CrocomireTongueCurlingUp] = 0xc672,
+        [EnemyFrameId.CrocomireTongueFlat] = 0xc67c,
+        [EnemyFrameId.CrocomireArmAloneBent] = 0xcace,
+        [EnemyFrameId.CrocomireArmAloneRaised] = 0xcad8,
+        [EnemyFrameId.CrocomireArmAloneOutstretched] = 0xcae2,
+        [EnemyFrameId.CrocomireArmAloneLowering] = 0xcaec,
+        [EnemyFrameId.CrocomireArmAloneReturning] = 0xcaf6,
     });
 
     /// <summary>Whether a recorded body variable B holds the damage-reaction latch.</summary>

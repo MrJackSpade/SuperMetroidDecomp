@@ -17,15 +17,15 @@ internal static class SkreeMetareeAnimations
     {
         [P.MetareeIdling] =
         [
-            Show(EnemyFrameId.MetareeIdlingFirst, 10),
-            Show(EnemyFrameId.MetareeIdlingSecond, 10),
-            Show(EnemyFrameId.MetareeIdlingThird, 10),
-            Show(EnemyFrameId.MetareeIdlingFourth, 10),
+            Show(EnemyFrameId.MetareeFacingViewer, 10),
+            Show(EnemyFrameId.MetareeTurningOblique, 10),
+            Show(EnemyFrameId.MetareeEdgeOn, 10),
+            Show(EnemyFrameId.MetareeReturningOblique, 10),
         ],
         [P.MetareePreparingAttack] =
         [
-            Show(EnemyFrameId.MetareeIdlingFirst, 16),
-            Show(EnemyFrameId.MetareePreparingAttackSecond, 8),
+            Show(EnemyFrameId.MetareeFacingViewer, 16),
+            Show(EnemyFrameId.MetareeWingsFlared, 8),
             Cue(new(K.SetAttackReady)),
         ],
         [P.MetareeDiving] =
@@ -34,22 +34,22 @@ internal static class SkreeMetareeAnimations
         ],
         [P.MetareeDivingLoop] =
         [
-            Show(EnemyFrameId.MetareeIdlingSecond, 2),
-            Show(EnemyFrameId.MetareeIdlingThird, 2),
-            Show(EnemyFrameId.MetareeIdlingFourth, 2),
-            Show(EnemyFrameId.MetareeIdlingFirst, 2),
+            Show(EnemyFrameId.MetareeTurningOblique, 2),
+            Show(EnemyFrameId.MetareeEdgeOn, 2),
+            Show(EnemyFrameId.MetareeReturningOblique, 2),
+            Show(EnemyFrameId.MetareeFacingViewer, 2),
         ],
         [P.SkreeIdling] =
         [
-            Show(EnemyFrameId.SkreeIdlingFirst, 10),
-            Show(EnemyFrameId.SkreeIdlingSecond, 10),
-            Show(EnemyFrameId.SkreeIdlingThird, 10),
-            Show(EnemyFrameId.SkreeIdlingFourth, 10),
+            Show(EnemyFrameId.SkreeFacingViewer, 10),
+            Show(EnemyFrameId.SkreeTurningOblique, 10),
+            Show(EnemyFrameId.SkreeEdgeOn, 10),
+            Show(EnemyFrameId.SkreeReturningOblique, 10),
         ],
         [P.SkreePreparingAttack] =
         [
-            Show(EnemyFrameId.SkreeIdlingFirst, 16),
-            Show(EnemyFrameId.SkreePreparingAttackSecond, 8),
+            Show(EnemyFrameId.SkreeFacingViewer, 16),
+            Show(EnemyFrameId.SkreeWingsFlared, 8),
             Cue(new(K.SetAttackReady)),
         ],
         [P.SkreeDiving] =
@@ -58,10 +58,10 @@ internal static class SkreeMetareeAnimations
         ],
         [P.SkreeDivingLoop] =
         [
-            Show(EnemyFrameId.SkreeIdlingSecond, 2),
-            Show(EnemyFrameId.SkreeIdlingThird, 2),
-            Show(EnemyFrameId.SkreeIdlingFourth, 2),
-            Show(EnemyFrameId.SkreeIdlingFirst, 2),
+            Show(EnemyFrameId.SkreeTurningOblique, 2),
+            Show(EnemyFrameId.SkreeEdgeOn, 2),
+            Show(EnemyFrameId.SkreeReturningOblique, 2),
+            Show(EnemyFrameId.SkreeFacingViewer, 2),
         ],
     });
 

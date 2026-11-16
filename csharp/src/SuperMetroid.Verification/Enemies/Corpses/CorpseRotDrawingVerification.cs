@@ -85,7 +85,7 @@ internal static class CorpseRotDrawingVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Rotting);
         var authored = new AuthoredRot(DeadTorizoCorpseDefinitions.RowCount);
-        string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStationary);
+        string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStanding);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.SandHeapFrame);
         SpriteSheet bodySheet = sheets.For(set, EnemyDefinitionId.CorpseTorizo);
         SpawnedObjectSheet hookSheet = sheets.Spawned(set, SpawnedObjectOwner.Shared);
@@ -110,7 +110,7 @@ internal static class CorpseRotDrawingVerification
     private static int VerifyMotherBrain(InstalledEnemySheets sheets)
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.MotherBrainHead);
-        string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHeadCorpseLoop);
+        string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHeadCorpseSlumped);
         AssertEqual(0, sheets.Under(set).Enemy(EnemyDefinitionId.MotherBrainHead).ChangingEncounters(name).Count,
             "Mother Brain's corpse frame has one finished picture, which no later look changes");
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);

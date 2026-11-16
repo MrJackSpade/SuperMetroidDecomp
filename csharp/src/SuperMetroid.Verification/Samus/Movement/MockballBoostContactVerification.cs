@@ -46,7 +46,7 @@ internal static class MockballBoostContactVerification
                 Touch = EnemyReaction.NormalEnemyTouch,
             });
             enemy.Radius = new(8, 8);
-            enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftLoopFirst; // Contact admits only an enemy showing a frame.
+            enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight; // Contact admits only an enemy showing a frame.
             for (int frame = 0; frame < 3; frame++)
             {
                 speed.BodyAttack = SamusBodyAttack.None; // Runtime beta clears before movement.

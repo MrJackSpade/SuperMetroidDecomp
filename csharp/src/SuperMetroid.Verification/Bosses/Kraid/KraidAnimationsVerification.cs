@@ -168,7 +168,7 @@ internal static class KraidAnimationsVerification
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
-        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmNormalFirst), arm.SpritemapPointer, "the slow swing's first frame shows at once");
+        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmRaisedClawClosed), arm.SpritemapPointer, "the slow swing's first frame shows at once");
         AssertEqual((ushort)8, arm.AnimationClock.Hold.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow),
@@ -192,7 +192,7 @@ internal static class KraidAnimationsVerification
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
-        ushort neutral = KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidFootNeutral);
+        ushort neutral = KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidFootPlantedTwin);
         AssertEqual(neutral, foot.SpritemapPointer, "the neutral foot shows its pose");
         AssertTrue(foot.AnimationClock.ShowsNewFrame, "the held pose raises the new-frame flag as it shows");
         // Past one whole wrap of the frame timer: the held pose never plays on, shows anew or raises the flag again.
@@ -206,7 +206,7 @@ internal static class KraidAnimationsVerification
         state.ArmState.Playback = Started(KraidPartSegment.ArmDyingOrPreparingToLunge);
         for (int beat = 0; beat < 3; beat++)
             Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmDyingOrPreparingToLungeThird), arm.SpritemapPointer,
+        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmOutstretched), arm.SpritemapPointer,
             "the arm shows its last lunge-ready pose");
         AssertEqual((ushort)32767, arm.AnimationClock.Hold.RawValue, "the last lunge-ready pose keeps the longest frame's exact count");
     }

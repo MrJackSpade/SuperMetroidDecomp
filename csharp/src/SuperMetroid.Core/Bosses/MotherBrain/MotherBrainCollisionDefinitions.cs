@@ -83,7 +83,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(7, 28), NoHitboxes),
             new(new(2, 29), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingFirst] =
+        [EnemyFrameId.MotherBrainBodyWalkingNearLegLifting] =
         [
             new(new(28, 47), RightLegHitboxes),
             new(new(38, 19), NoHitboxes),
@@ -96,7 +96,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(1, 33), NoHitboxes),
             new(new(-25, -3), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingSecond] =
+        [EnemyFrameId.MotherBrainBodyWalkingNearLegReaching] =
         [
             new(new(40, 48), RightLegHitboxes),
             new(new(38, 19), NoHitboxes),
@@ -109,7 +109,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(-1, 33), NoHitboxes),
             new(new(-26, -3), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingThird] =
+        [EnemyFrameId.MotherBrainBodyWalkingNearLegPlanting] =
         [
             new(new(40, 51), RightLegHitboxes),
             new(new(38, 21), NoHitboxes),
@@ -122,7 +122,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(-1, 32), NoHitboxes),
             new(new(-26, -4), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingFourth] =
+        [EnemyFrameId.MotherBrainBodyWalkingLegsApart] =
         [
             new(new(36, 58), RightLegHitboxes),
             new(new(33, 29), NoHitboxes),
@@ -134,7 +134,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(3, 28), NoHitboxes),
             new(new(-4, 30), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingFifth] =
+        [EnemyFrameId.MotherBrainBodyWalkingFarLegLifting] =
         [
             new(new(21, 60), RightLegHitboxes),
             new(new(29, 31), NoHitboxes),
@@ -146,7 +146,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(0, 26), NoHitboxes),
             new(new(-5, 28), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingSixth] =
+        [EnemyFrameId.MotherBrainBodyWalkingFarLegPassing] =
         [
             new(new(15, 64), RightLegHitboxes),
             new(new(30, 35), NoHitboxes),
@@ -158,7 +158,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(4, 22), NoHitboxes),
             new(new(-1, 24), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingSeventh] =
+        [EnemyFrameId.MotherBrainBodyWalkingFarLegPlanting] =
         [
             new(new(17, 60), RightLegHitboxes),
             new(new(30, 32), NoHitboxes),
@@ -170,7 +170,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(7, 21), NoHitboxes),
             new(new(3, 23), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyWalkingEighth] =
+        [EnemyFrameId.MotherBrainBodyWalkingLegsTogether] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(31, 30), NoHitboxes),
@@ -220,7 +220,7 @@ internal static class MotherBrainCollisionDefinitions
         [
             new(new(0, 0), BrainHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyHandBeamSecond] =
+        [EnemyFrameId.MotherBrainBodyStandingTwin] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(30, 29), NoHitboxes),
@@ -232,7 +232,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(7, 28), NoHitboxes),
             new(new(2, 29), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyHandBeamThird] =
+        [EnemyFrameId.MotherBrainBodyStandingTwinB] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(30, 29), NoHitboxes),
@@ -244,7 +244,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(7, 28), NoHitboxes),
             new(new(2, 29), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyHandBeamFourth] =
+        [EnemyFrameId.MotherBrainBodyStandingTwinC] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(30, 29), NoHitboxes),
@@ -256,7 +256,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(7, 28), NoHitboxes),
             new(new(2, 29), NoHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyHandBeamFifth] =
+        [EnemyFrameId.MotherBrainBodyStandingTwinD] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(30, 29), NoHitboxes),

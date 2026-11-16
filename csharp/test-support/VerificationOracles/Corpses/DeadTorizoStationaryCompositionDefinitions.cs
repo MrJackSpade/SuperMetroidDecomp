@@ -3,7 +3,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// <summary>
 /// Stock $A9:D6E2-D760 composition, separate from editable display OAM. Its authored
 /// head/body/ankle/foot arrangement remains required under Stream3's existing
-/// EnemySpritemapCatalog frame dead_torizo_stationary.
+/// EnemySpritemapCatalog frame dead_torizo_standing.
 /// No artwork-retention exception is asserted here. Corpse staging derives from
 /// this composition's source-tile coverage instead of duplicating a crop outline.
 /// </summary>

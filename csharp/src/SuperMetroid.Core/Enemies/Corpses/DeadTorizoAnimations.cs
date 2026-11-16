@@ -16,7 +16,7 @@ internal static class DeadTorizoAnimations
     {
         [P.Stationary] =
         [
-            Show(EnemyFrameId.DeadTorizoStationary, 1),
+            Show(EnemyFrameId.DeadTorizoStanding, 1),
         ],
     });
 

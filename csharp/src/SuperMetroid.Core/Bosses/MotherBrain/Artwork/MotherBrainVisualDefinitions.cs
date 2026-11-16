@@ -12,18 +12,18 @@ internal static class MotherBrainVisualDefinitions
     /// <summary>The installed frame each <see cref="MotherBrainHeadFrame"/> shows.</summary>
     internal static EnemyFrameTable<MotherBrainHeadFrame> HeadFrames { get; } = new()
     {
-        { MotherBrainHeadFrame.Initial, EnemyFrameId.MotherBrainHeadInitial },
-        { MotherBrainHeadFrame.NeutralPhaseTwoSecond, EnemyFrameId.MotherBrainHeadNeutralPhaseTwoSecond },
-        { MotherBrainHeadFrame.StretchingPhaseTwoFirst, EnemyFrameId.MotherBrainHeadStretchingPhaseTwoFirst },
-        { MotherBrainHeadFrame.StretchingPhaseTwoSecond, EnemyFrameId.MotherBrainHeadStretchingPhaseTwoSecond },
-        { MotherBrainHeadFrame.StretchingPhaseTwoThird, EnemyFrameId.MotherBrainHeadStretchingPhaseTwoThird },
-        { MotherBrainHeadFrame.DecapitatedLoop, EnemyFrameId.MotherBrainHeadDecapitatedLoop },
-        { MotherBrainHeadFrame.DecapitatedSecond, EnemyFrameId.MotherBrainHeadDecapitatedSecond },
-        { MotherBrainHeadFrame.StretchingPhaseThreeFirst, EnemyFrameId.MotherBrainHeadStretchingPhaseThreeFirst },
-        { MotherBrainHeadFrame.StretchingPhaseThreeSecond, EnemyFrameId.MotherBrainHeadStretchingPhaseThreeSecond },
-        { MotherBrainHeadFrame.StretchingPhaseThreeThird, EnemyFrameId.MotherBrainHeadStretchingPhaseThreeThird },
-        { MotherBrainHeadFrame.CorpseFourth, EnemyFrameId.MotherBrainHeadCorpseFourth },
-        { MotherBrainHeadFrame.CorpseLoop, EnemyFrameId.MotherBrainHeadCorpseLoop },
+        { MotherBrainHeadFrame.Initial, EnemyFrameId.MotherBrainHeadEyeShut },
+        { MotherBrainHeadFrame.NeutralPhaseTwoSecond, EnemyFrameId.MotherBrainHeadEyeOpen },
+        { MotherBrainHeadFrame.StretchingPhaseTwoFirst, EnemyFrameId.MotherBrainHeadEyeGlaring },
+        { MotherBrainHeadFrame.StretchingPhaseTwoSecond, EnemyFrameId.MotherBrainHeadJawDropping },
+        { MotherBrainHeadFrame.StretchingPhaseTwoThird, EnemyFrameId.MotherBrainHeadJawDropped },
+        { MotherBrainHeadFrame.DecapitatedLoop, EnemyFrameId.MotherBrainDarkHeadEyeShut },
+        { MotherBrainHeadFrame.DecapitatedSecond, EnemyFrameId.MotherBrainDarkHeadEyeOpen },
+        { MotherBrainHeadFrame.StretchingPhaseThreeFirst, EnemyFrameId.MotherBrainDarkHeadEyeGlaring },
+        { MotherBrainHeadFrame.StretchingPhaseThreeSecond, EnemyFrameId.MotherBrainDarkHeadJawDropping },
+        { MotherBrainHeadFrame.StretchingPhaseThreeThird, EnemyFrameId.MotherBrainDarkHeadJawDropped },
+        { MotherBrainHeadFrame.CorpseFourth, EnemyFrameId.MotherBrainHeadCorpseSlumping },
+        { MotherBrainHeadFrame.CorpseLoop, EnemyFrameId.MotherBrainHeadCorpseSlumped },
     };
 
     /// <summary>The neck joint each neck segment shows.</summary>
@@ -32,10 +32,10 @@ internal static class MotherBrainVisualDefinitions
     /// <summary>The installed frame each <see cref="MotherBrainTubeFrame"/> shows.</summary>
     internal static EnemyFrameTable<MotherBrainTubeFrame> TubeFrames { get; } = new()
     {
-        { MotherBrainTubeFrame.BottomLeft, EnemyFrameId.MotherBrainTubeFirst },
-        { MotherBrainTubeFrame.BottomRight, EnemyFrameId.MotherBrainTubeSecond },
-        { MotherBrainTubeFrame.BottomMiddleLeft, EnemyFrameId.MotherBrainTubeThird },
-        { MotherBrainTubeFrame.BottomMiddleRight, EnemyFrameId.MotherBrainTubeFourth },
-        { MotherBrainTubeFrame.Main, EnemyFrameId.MotherBrainTubeFifth },
+        { MotherBrainTubeFrame.BottomLeft, EnemyFrameId.MotherBrainTubeBendRight },
+        { MotherBrainTubeFrame.BottomRight, EnemyFrameId.MotherBrainTubeBendLeft },
+        { MotherBrainTubeFrame.BottomMiddleLeft, EnemyFrameId.MotherBrainTubeStraightLeft },
+        { MotherBrainTubeFrame.BottomMiddleRight, EnemyFrameId.MotherBrainTubeStraightRight },
+        { MotherBrainTubeFrame.Main, EnemyFrameId.MotherBrainTubeColumn },
     };
 }

@@ -2,464 +2,466 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The frames an enemy shows: every installed enemy frame, and the empty frame every enemy family shares. Each is named for
-/// what it shows: its owner, the animation (or the part, facing or table key) that first shows it, and its place there,
-/// which its summary spells out. Its installed name is its name in snake case (<see cref="EnemyFrameNameDefinitions"/>),
-/// which gives its installed sheet key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
+/// what its picture shows: its owner, then its pose and facing, or the turn, size or placement that tells it from the
+/// owner's other pictures, which its summary spells out; no animation that shows it and no place in one names it. A frame
+/// of its own that shows another frame's picture where that frame shows it is that frame's twin. Its installed name is
+/// its name in snake case (<see cref="EnemyFrameNameDefinitions"/>), which gives its installed sheet key
+/// (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
 /// </summary>
 public enum EnemyFrameId
 {
-    /// <summary>Boyon: idle loop, first frame.</summary>
-    BoyonIdleLoopFirst,
-    /// <summary>Boyon: idle loop, second frame.</summary>
-    BoyonIdleLoopSecond,
-    /// <summary>Boyon: idle loop, third frame.</summary>
-    BoyonIdleLoopThird,
-    /// <summary>Boyon: bouncing loop, first frame.</summary>
-    BoyonBouncingLoopFirst,
-    /// <summary>Boyon: bouncing loop, second frame.</summary>
-    BoyonBouncingLoopSecond,
-    /// <summary>Boyon: bouncing loop, third frame.</summary>
-    BoyonBouncingLoopThird,
-    /// <summary>Boyon: bouncing loop, fourth frame.</summary>
-    BoyonBouncingLoopFourth,
-    /// <summary>Cacatac: upside up idle, first frame.</summary>
-    CacatacUpsideUpIdleFirst,
-    /// <summary>Cacatac: upside up idle, second frame.</summary>
-    CacatacUpsideUpIdleSecond,
-    /// <summary>Cacatac: upside up idle, third frame.</summary>
-    CacatacUpsideUpIdleThird,
-    /// <summary>Cacatac: upside up idle, fourth frame.</summary>
-    CacatacUpsideUpIdleFourth,
-    /// <summary>Cacatac: upside up idle, fifth frame.</summary>
-    CacatacUpsideUpIdleFifth,
-    /// <summary>Cacatac: upside up idle, sixth frame.</summary>
-    CacatacUpsideUpIdleSixth,
-    /// <summary>Cacatac: upside up idle, seventh frame.</summary>
-    CacatacUpsideUpIdleSeventh,
-    /// <summary>Cacatac: upside up idle, eighth frame.</summary>
-    CacatacUpsideUpIdleEighth,
-    /// <summary>Cacatac: upside up attack, second frame.</summary>
-    CacatacUpsideUpAttackSecond,
-    /// <summary>Cacatac: upside up attack, third frame.</summary>
-    CacatacUpsideUpAttackThird,
-    /// <summary>Cacatac: upside down idle loop, first frame.</summary>
-    CacatacUpsideDownIdleLoopFirst,
-    /// <summary>Cacatac: upside down idle loop, second frame.</summary>
-    CacatacUpsideDownIdleLoopSecond,
-    /// <summary>Cacatac: upside down idle loop, third frame.</summary>
-    CacatacUpsideDownIdleLoopThird,
-    /// <summary>Cacatac: upside down idle loop, fourth frame.</summary>
-    CacatacUpsideDownIdleLoopFourth,
-    /// <summary>Cacatac: upside down idle loop, fifth frame.</summary>
-    CacatacUpsideDownIdleLoopFifth,
-    /// <summary>Cacatac: upside down idle loop, sixth frame.</summary>
-    CacatacUpsideDownIdleLoopSixth,
-    /// <summary>Cacatac: upside down idle loop, seventh frame.</summary>
-    CacatacUpsideDownIdleLoopSeventh,
-    /// <summary>Cacatac: upside down idle loop, eighth frame.</summary>
-    CacatacUpsideDownIdleLoopEighth,
-    /// <summary>Cacatac: upside down attack, second frame.</summary>
-    CacatacUpsideDownAttackSecond,
-    /// <summary>Cacatac: upside down attack, third frame.</summary>
-    CacatacUpsideDownAttackThird,
-    /// <summary>The boulder: left, first frame.</summary>
-    BoulderLeftFirst,
-    /// <summary>The boulder: left, second frame.</summary>
-    BoulderLeftSecond,
-    /// <summary>The boulder: left, third frame.</summary>
-    BoulderLeftThird,
-    /// <summary>The boulder: left, fourth frame.</summary>
-    BoulderLeftFourth,
-    /// <summary>The boulder: left, fifth frame.</summary>
-    BoulderLeftFifth,
-    /// <summary>The boulder: left, sixth frame.</summary>
-    BoulderLeftSixth,
-    /// <summary>The boulder: left, seventh frame.</summary>
-    BoulderLeftSeventh,
-    /// <summary>The boulder: left, eighth frame.</summary>
-    BoulderLeftEighth,
-    /// <summary>Atomic: up right, first frame.</summary>
-    AtomicUpRightFirst,
-    /// <summary>Atomic: up right, second frame.</summary>
-    AtomicUpRightSecond,
-    /// <summary>Atomic: up right, third frame.</summary>
-    AtomicUpRightThird,
-    /// <summary>Atomic: up right, fourth frame.</summary>
-    AtomicUpRightFourth,
-    /// <summary>Atomic: up right, fifth frame.</summary>
-    AtomicUpRightFifth,
-    /// <summary>Atomic: up right, sixth frame.</summary>
-    AtomicUpRightSixth,
-    /// <summary>Atomic: up left, first frame.</summary>
-    AtomicUpLeftFirst,
-    /// <summary>Atomic: up left, second frame.</summary>
-    AtomicUpLeftSecond,
-    /// <summary>Atomic: up left, third frame.</summary>
-    AtomicUpLeftThird,
-    /// <summary>Atomic: up left, fourth frame.</summary>
-    AtomicUpLeftFourth,
-    /// <summary>Atomic: up left, fifth frame.</summary>
-    AtomicUpLeftFifth,
-    /// <summary>Atomic: up left, sixth frame.</summary>
-    AtomicUpLeftSixth,
-    /// <summary>Skultera: swimming left loop, first frame.</summary>
-    SkulteraSwimmingLeftLoopFirst,
-    /// <summary>Skultera: swimming left loop, second frame.</summary>
-    SkulteraSwimmingLeftLoopSecond,
-    /// <summary>Skultera: swimming left loop, third frame.</summary>
-    SkulteraSwimmingLeftLoopThird,
-    /// <summary>Skultera: turning right, first frame.</summary>
-    SkulteraTurningRightFirst,
-    /// <summary>Skultera: turning right, second frame.</summary>
-    SkulteraTurningRightSecond,
-    /// <summary>Skultera: turning right, third frame.</summary>
-    SkulteraTurningRightThird,
-    /// <summary>Skultera: turning right, fourth frame.</summary>
-    SkulteraTurningRightFourth,
-    /// <summary>Skultera: turning right, fifth frame.</summary>
-    SkulteraTurningRightFifth,
-    /// <summary>Skultera: turning right, sixth frame.</summary>
-    SkulteraTurningRightSixth,
-    /// <summary>Skultera: turning right, seventh frame.</summary>
-    SkulteraTurningRightSeventh,
-    /// <summary>Skultera: turning right, eighth frame.</summary>
-    SkulteraTurningRightEighth,
-    /// <summary>Skultera: swimming right loop, first frame.</summary>
-    SkulteraSwimmingRightLoopFirst,
-    /// <summary>Skultera: swimming right loop, second frame.</summary>
-    SkulteraSwimmingRightLoopSecond,
-    /// <summary>Skultera: swimming right loop, third frame.</summary>
-    SkulteraSwimmingRightLoopThird,
-    /// <summary>Skultera: turning left, first frame.</summary>
-    SkulteraTurningLeftFirst,
-    /// <summary>Skultera: turning left, second frame.</summary>
-    SkulteraTurningLeftSecond,
-    /// <summary>Skultera: turning left, third frame.</summary>
-    SkulteraTurningLeftThird,
-    /// <summary>Skultera: turning left, fourth frame.</summary>
-    SkulteraTurningLeftFourth,
-    /// <summary>Skultera: turning left, fifth frame.</summary>
-    SkulteraTurningLeftFifth,
-    /// <summary>Skultera: turning left, sixth frame.</summary>
-    SkulteraTurningLeftSixth,
-    /// <summary>Skultera: turning left, seventh frame.</summary>
-    SkulteraTurningLeftSeventh,
-    /// <summary>Skultera: turning left, eighth frame.</summary>
-    SkulteraTurningLeftEighth,
-    /// <summary>Waver: steady left.</summary>
-    WaverSteadyLeft,
-    /// <summary>Waver: steady right.</summary>
-    WaverSteadyRight,
-    /// <summary>Waver: spinning facing left, first frame.</summary>
-    WaverSpinningFacingLeftFirst,
-    /// <summary>Waver: spinning facing left, second frame.</summary>
-    WaverSpinningFacingLeftSecond,
-    /// <summary>Waver: spinning facing left, third frame.</summary>
-    WaverSpinningFacingLeftThird,
-    /// <summary>Waver: spinning facing left, fourth frame.</summary>
-    WaverSpinningFacingLeftFourth,
-    /// <summary>Waver: spinning facing right, first frame.</summary>
-    WaverSpinningFacingRightFirst,
-    /// <summary>Waver: spinning facing right, second frame.</summary>
-    WaverSpinningFacingRightSecond,
-    /// <summary>Waver: spinning facing right, third frame.</summary>
-    WaverSpinningFacingRightThird,
-    /// <summary>Waver: spinning facing right, fourth frame.</summary>
-    WaverSpinningFacingRightFourth,
-    /// <summary>Metaree: idling, first frame.</summary>
-    MetareeIdlingFirst,
-    /// <summary>Metaree: idling, second frame.</summary>
-    MetareeIdlingSecond,
-    /// <summary>Metaree: idling, third frame.</summary>
-    MetareeIdlingThird,
-    /// <summary>Metaree: idling, fourth frame.</summary>
-    MetareeIdlingFourth,
-    /// <summary>Metaree: preparing attack, second frame.</summary>
-    MetareePreparingAttackSecond,
-    /// <summary>Skree: idling, first frame.</summary>
-    SkreeIdlingFirst,
-    /// <summary>Skree: idling, second frame.</summary>
-    SkreeIdlingSecond,
-    /// <summary>Skree: idling, third frame.</summary>
-    SkreeIdlingThird,
-    /// <summary>Skree: idling, fourth frame.</summary>
-    SkreeIdlingFourth,
-    /// <summary>Skree: preparing attack, second frame.</summary>
-    SkreePreparingAttackSecond,
-    /// <summary>Zoa: facing left shooting, first frame.</summary>
-    ZoaFacingLeftShootingFirst,
-    /// <summary>Zoa: facing left shooting, second frame.</summary>
-    ZoaFacingLeftShootingSecond,
-    /// <summary>Zoa: facing left shooting, third frame.</summary>
-    ZoaFacingLeftShootingThird,
-    /// <summary>Zoa: facing left rising, first frame.</summary>
-    ZoaFacingLeftRisingFirst,
-    /// <summary>Zoa: facing left rising, second frame.</summary>
-    ZoaFacingLeftRisingSecond,
-    /// <summary>Zoa: facing left rising, third frame.</summary>
-    ZoaFacingLeftRisingThird,
-    /// <summary>Zoa: facing right shooting, first frame.</summary>
-    ZoaFacingRightShootingFirst,
-    /// <summary>Zoa: facing right shooting, second frame.</summary>
-    ZoaFacingRightShootingSecond,
-    /// <summary>Zoa: facing right shooting, third frame.</summary>
-    ZoaFacingRightShootingThird,
-    /// <summary>Zoa: facing right rising, first frame.</summary>
-    ZoaFacingRightRisingFirst,
-    /// <summary>Zoa: facing right rising, second frame.</summary>
-    ZoaFacingRightRisingSecond,
-    /// <summary>Zoa: facing right rising, third frame.</summary>
-    ZoaFacingRightRisingThird,
-    /// <summary>Zeb: rising left, first frame.</summary>
-    ZebRisingLeftFirst,
-    /// <summary>Zeb: rising left, second frame.</summary>
-    ZebRisingLeftSecond,
-    /// <summary>Zeb: rising left, third frame.</summary>
-    ZebRisingLeftThird,
-    /// <summary>Zeb: rising left, fourth frame.</summary>
-    ZebRisingLeftFourth,
-    /// <summary>Zeb: rising left, fifth frame.</summary>
-    ZebRisingLeftFifth,
-    /// <summary>Zeb: rising right, first frame.</summary>
-    ZebRisingRightFirst,
-    /// <summary>Zeb: rising right, second frame.</summary>
-    ZebRisingRightSecond,
-    /// <summary>Zeb: rising right, third frame.</summary>
-    ZebRisingRightThird,
-    /// <summary>Zeb: rising right, fourth frame.</summary>
-    ZebRisingRightFourth,
-    /// <summary>Zeb: rising right, fifth frame.</summary>
-    ZebRisingRightFifth,
-    /// <summary>Zebbo: shooting left, first frame.</summary>
-    ZebboShootingLeftFirst,
-    /// <summary>Zebbo: shooting left, second frame.</summary>
-    ZebboShootingLeftSecond,
-    /// <summary>Zebbo: shooting left, third frame.</summary>
-    ZebboShootingLeftThird,
-    /// <summary>Zebbo: rising left, first frame.</summary>
-    ZebboRisingLeftFirst,
-    /// <summary>Zebbo: rising left, second frame.</summary>
-    ZebboRisingLeftSecond,
-    /// <summary>Zebbo: rising left, third frame.</summary>
-    ZebboRisingLeftThird,
-    /// <summary>Zebbo: shooting right, first frame.</summary>
-    ZebboShootingRightFirst,
-    /// <summary>Zebbo: shooting right, second frame.</summary>
-    ZebboShootingRightSecond,
-    /// <summary>Zebbo: shooting right, third frame.</summary>
-    ZebboShootingRightThird,
-    /// <summary>Zebbo: rising right, first frame.</summary>
-    ZebboRisingRightFirst,
-    /// <summary>Zebbo: rising right, second frame.</summary>
-    ZebboRisingRightSecond,
-    /// <summary>Zebbo: rising right, third frame.</summary>
-    ZebboRisingRightThird,
-    /// <summary>Gamet: rising left, first frame.</summary>
-    GametRisingLeftFirst,
-    /// <summary>Gamet: rising left, second frame.</summary>
-    GametRisingLeftSecond,
-    /// <summary>Gamet: rising left, third frame.</summary>
-    GametRisingLeftThird,
-    /// <summary>Gamet: rising left, fourth frame.</summary>
-    GametRisingLeftFourth,
-    /// <summary>Gamet: rising left, fifth frame.</summary>
-    GametRisingLeftFifth,
-    /// <summary>Gamet: rising right, first frame.</summary>
-    GametRisingRightFirst,
-    /// <summary>Gamet: rising right, second frame.</summary>
-    GametRisingRightSecond,
-    /// <summary>Gamet: rising right, third frame.</summary>
-    GametRisingRightThird,
-    /// <summary>Gamet: rising right, fourth frame.</summary>
-    GametRisingRightFourth,
-    /// <summary>Gamet: rising right, fifth frame.</summary>
-    GametRisingRightFifth,
-    /// <summary>Geega: flying left, first frame.</summary>
-    GeegaFlyingLeftFirst,
-    /// <summary>Geega: flying left, second frame.</summary>
-    GeegaFlyingLeftSecond,
-    /// <summary>Geega: flying left, third frame.</summary>
-    GeegaFlyingLeftThird,
-    /// <summary>Geega: arcing left, first frame.</summary>
-    GeegaArcingLeftFirst,
-    /// <summary>Geega: arcing left, second frame.</summary>
-    GeegaArcingLeftSecond,
-    /// <summary>Geega: arcing left, third frame.</summary>
-    GeegaArcingLeftThird,
-    /// <summary>Geega: flying right, first frame.</summary>
-    GeegaFlyingRightFirst,
-    /// <summary>Geega: flying right, second frame.</summary>
-    GeegaFlyingRightSecond,
-    /// <summary>Geega: flying right, third frame.</summary>
-    GeegaFlyingRightThird,
-    /// <summary>Geega: arcing right, first frame.</summary>
-    GeegaArcingRightFirst,
-    /// <summary>Geega: arcing right, second frame.</summary>
-    GeegaArcingRightSecond,
-    /// <summary>Geega: arcing right, third frame.</summary>
-    GeegaArcingRightThird,
-    /// <summary>Fake Kraid: step forwards facing left, first frame.</summary>
-    FakeKraidStepForwardsFacingLeftFirst,
-    /// <summary>Fake Kraid: step forwards facing left, second frame.</summary>
-    FakeKraidStepForwardsFacingLeftSecond,
-    /// <summary>Fake Kraid: step forwards facing left, third frame.</summary>
-    FakeKraidStepForwardsFacingLeftThird,
-    /// <summary>Fake Kraid: step forwards facing left, fourth frame.</summary>
-    FakeKraidStepForwardsFacingLeftFourth,
-    /// <summary>Fake Kraid: fire spit facing left, first frame.</summary>
-    FakeKraidFireSpitFacingLeftFirst,
-    /// <summary>Fake Kraid: fire spit facing left, second frame.</summary>
-    FakeKraidFireSpitFacingLeftSecond,
-    /// <summary>Fake Kraid: fire spit facing left, third frame.</summary>
-    FakeKraidFireSpitFacingLeftThird,
-    /// <summary>Fake Kraid: step forwards facing right, first frame.</summary>
-    FakeKraidStepForwardsFacingRightFirst,
-    /// <summary>Fake Kraid: step forwards facing right, second frame.</summary>
-    FakeKraidStepForwardsFacingRightSecond,
-    /// <summary>Fake Kraid: step forwards facing right, third frame.</summary>
-    FakeKraidStepForwardsFacingRightThird,
-    /// <summary>Fake Kraid: step forwards facing right, fourth frame.</summary>
-    FakeKraidStepForwardsFacingRightFourth,
-    /// <summary>Fake Kraid: fire spit facing right, first frame.</summary>
-    FakeKraidFireSpitFacingRightFirst,
-    /// <summary>Fake Kraid: fire spit facing right, second frame.</summary>
-    FakeKraidFireSpitFacingRightSecond,
-    /// <summary>Fake Kraid: fire spit facing right, third frame.</summary>
-    FakeKraidFireSpitFacingRightThird,
-    /// <summary>Kraid: nail loop, first frame.</summary>
-    KraidNailLoopFirst,
-    /// <summary>Kraid: nail loop, second frame.</summary>
-    KraidNailLoopSecond,
-    /// <summary>Kraid: nail loop, third frame.</summary>
-    KraidNailLoopThird,
-    /// <summary>Kraid: nail loop, fourth frame.</summary>
-    KraidNailLoopFourth,
-    /// <summary>Kraid: nail loop, fifth frame.</summary>
-    KraidNailLoopFifth,
-    /// <summary>Kraid: nail loop, sixth frame.</summary>
-    KraidNailLoopSixth,
-    /// <summary>Kraid: nail loop, seventh frame.</summary>
-    KraidNailLoopSeventh,
-    /// <summary>Kraid: nail loop, eighth frame.</summary>
-    KraidNailLoopEighth,
-    /// <summary>Owtch: moving left loop, first frame.</summary>
-    OwtchMovingLeftLoopFirst,
-    /// <summary>Owtch: moving left loop, second frame.</summary>
-    OwtchMovingLeftLoopSecond,
-    /// <summary>Owtch: moving left loop, third frame.</summary>
-    OwtchMovingLeftLoopThird,
-    /// <summary>Gripper: moving left, first frame.</summary>
-    GrappleRipperMovingLeftFirst,
-    /// <summary>Gripper: moving left, second frame.</summary>
-    GrappleRipperMovingLeftSecond,
-    /// <summary>Gripper: moving left, third frame.</summary>
-    GrappleRipperMovingLeftThird,
-    /// <summary>Gripper: moving right, first frame.</summary>
-    GrappleRipperMovingRightFirst,
-    /// <summary>Gripper: moving right, second frame.</summary>
-    GrappleRipperMovingRightSecond,
-    /// <summary>Gripper: moving right, third frame.</summary>
-    GrappleRipperMovingRightThird,
-    /// <summary>Ripper: shared frozen left.</summary>
-    RipperSharedFrozenLeft,
-    /// <summary>Ripper: shared frozen right.</summary>
-    RipperSharedFrozenRight,
-    /// <summary>Ripper: moving left, first frame.</summary>
-    RipperMovingLeftFirst,
-    /// <summary>Ripper: moving left, second frame.</summary>
-    RipperMovingLeftSecond,
-    /// <summary>Ripper: moving left, third frame.</summary>
-    RipperMovingLeftThird,
-    /// <summary>Ripper: moving right, first frame.</summary>
-    RipperMovingRightFirst,
-    /// <summary>Ripper: moving right, second frame.</summary>
-    RipperMovingRightSecond,
-    /// <summary>Ripper: moving right, third frame.</summary>
-    RipperMovingRightThird,
-    /// <summary>Fireflea: loop, first frame.</summary>
-    FirefleaLoopFirst,
-    /// <summary>Fireflea: loop, second frame.</summary>
-    FirefleaLoopSecond,
-    /// <summary>Fireflea: loop, third frame.</summary>
-    FirefleaLoopThird,
-    /// <summary>Fireflea: loop, fourth frame.</summary>
-    FirefleaLoopFourth,
-    /// <summary>Fireflea: loop, fifth frame.</summary>
-    FirefleaLoopFifth,
-    /// <summary>Fireflea: loop, sixth frame.</summary>
-    FirefleaLoopSixth,
-    /// <summary>Fireflea: loop, seventh frame.</summary>
-    FirefleaLoopSeventh,
-    /// <summary>Fireflea: loop, eighth frame.</summary>
-    FirefleaLoopEighth,
-    /// <summary>Fireflea: loop, ninth frame.</summary>
-    FirefleaLoopNinth,
-    /// <summary>Fireflea: loop, tenth frame.</summary>
-    FirefleaLoopTenth,
-    /// <summary>Fireflea: loop, eleventh frame.</summary>
-    FirefleaLoopEleventh,
-    /// <summary>Fireflea: loop, twelfth frame.</summary>
-    FirefleaLoopTwelfth,
-    /// <summary>Fireflea: loop, thirteenth frame.</summary>
-    FirefleaLoopThirteenth,
-    /// <summary>Fireflea: loop, fourteenth frame.</summary>
-    FirefleaLoopFourteenth,
-    /// <summary>Fireflea: loop, fifteenth frame.</summary>
-    FirefleaLoopFifteenth,
-    /// <summary>Fireflea: loop, sixteenth frame.</summary>
-    FirefleaLoopSixteenth,
-    /// <summary>Fireflea: loop, seventeenth frame.</summary>
-    FirefleaLoopSeventeenth,
-    /// <summary>Fireflea: loop, eighteenth frame.</summary>
-    FirefleaLoopEighteenth,
-    /// <summary>Fireflea: loop, nineteenth frame.</summary>
-    FirefleaLoopNineteenth,
-    /// <summary>Fireflea: loop, twentieth frame.</summary>
-    FirefleaLoopTwentieth,
-    /// <summary>Fireflea: loop, twenty-first frame.</summary>
-    FirefleaLoopTwentyFirst,
-    /// <summary>Magdollite: left idle, first frame.</summary>
-    MagdolliteLeftIdleFirst,
-    /// <summary>Magdollite: left idle, second frame.</summary>
-    MagdolliteLeftIdleSecond,
-    /// <summary>Magdollite: left idle, third frame.</summary>
-    MagdolliteLeftIdleThird,
-    /// <summary>Magdollite: left throw, first frame.</summary>
-    MagdolliteLeftThrowFirst,
-    /// <summary>Magdollite: left throw, second frame.</summary>
-    MagdolliteLeftThrowSecond,
-    /// <summary>Magdollite: left throw, third frame.</summary>
-    MagdolliteLeftThrowThird,
-    /// <summary>Magdollite: left throw, fourth frame.</summary>
-    MagdolliteLeftThrowFourth,
+    /// <summary>Boyon: resting, round.</summary>
+    BoyonRestingRound,
+    /// <summary>Boyon: resting, round and glinting.</summary>
+    BoyonRestingGlinting,
+    /// <summary>Boyon: resting, squashed low.</summary>
+    BoyonRestingSquat,
+    /// <summary>Boyon: bouncing, bulging out of shape.</summary>
+    BoyonBouncingBulging,
+    /// <summary>Boyon: bouncing, pulled into a star.</summary>
+    BoyonBouncingStarShaped,
+    /// <summary>Boyon: bouncing, a star spread wider.</summary>
+    BoyonBouncingStarSpread,
+    /// <summary>Boyon: bouncing, a star with its points spiked out.</summary>
+    BoyonBouncingStarSpiked,
+    /// <summary>Cacatac: upright on the floor, legs splayed.</summary>
+    CacatacUprightSplayed,
+    /// <summary>Cacatac: upright on the floor, legs drawing in.</summary>
+    CacatacUprightDrawingIn,
+    /// <summary>Cacatac: upright on the floor, legs drawn in.</summary>
+    CacatacUprightDrawnIn,
+    /// <summary>Cacatac: upright on the floor, crouching on drawn-in legs.</summary>
+    CacatacUprightCrouching,
+    /// <summary>Cacatac: upright on the floor, legs gathered under it, low.</summary>
+    CacatacUprightGathered,
+    /// <summary>Cacatac: upright on the floor, legs gathered under it, standing.</summary>
+    CacatacUprightGatheredTall,
+    /// <summary>Cacatac: upright on the floor, legs spreading.</summary>
+    CacatacUprightSpreading,
+    /// <summary>Cacatac: upright on the floor, legs stretched tall.</summary>
+    CacatacUprightStretched,
+    /// <summary>Cacatac: upright on the floor, puffing up to shoot its spikes.</summary>
+    CacatacUprightPuffingUp,
+    /// <summary>Cacatac: upright on the floor, puffed up to shoot its spikes.</summary>
+    CacatacUprightPuffedUp,
+    /// <summary>Cacatac: upside down on the ceiling, legs splayed.</summary>
+    CacatacUpsideDownSplayed,
+    /// <summary>Cacatac: upside down on the ceiling, legs drawing in.</summary>
+    CacatacUpsideDownDrawingIn,
+    /// <summary>Cacatac: upside down on the ceiling, legs drawn in.</summary>
+    CacatacUpsideDownDrawnIn,
+    /// <summary>Cacatac: upside down on the ceiling, crouching on drawn-in legs.</summary>
+    CacatacUpsideDownCrouching,
+    /// <summary>Cacatac: upside down on the ceiling, legs gathered under it, low.</summary>
+    CacatacUpsideDownGathered,
+    /// <summary>Cacatac: upside down on the ceiling, legs gathered under it, standing.</summary>
+    CacatacUpsideDownGatheredTall,
+    /// <summary>Cacatac: upside down on the ceiling, legs spreading.</summary>
+    CacatacUpsideDownSpreading,
+    /// <summary>Cacatac: upside down on the ceiling, legs stretched tall.</summary>
+    CacatacUpsideDownStretched,
+    /// <summary>Cacatac: upside down on the ceiling, puffing up to shoot its spikes.</summary>
+    CacatacUpsideDownPuffingUp,
+    /// <summary>Cacatac: upside down on the ceiling, puffed up to shoot its spikes.</summary>
+    CacatacUpsideDownPuffedUp,
+    /// <summary>The boulder: rolling, upright.</summary>
+    BoulderTurned0,
+    /// <summary>The boulder: rolling, turned an eighth.</summary>
+    BoulderTurned45,
+    /// <summary>The boulder: rolling, turned a quarter.</summary>
+    BoulderTurned90,
+    /// <summary>The boulder: rolling, turned three eighths.</summary>
+    BoulderTurned135,
+    /// <summary>The boulder: rolling, turned half way.</summary>
+    BoulderTurned180,
+    /// <summary>The boulder: rolling, turned five eighths.</summary>
+    BoulderTurned225,
+    /// <summary>The boulder: rolling, turned three quarters.</summary>
+    BoulderTurned270,
+    /// <summary>The boulder: rolling, turned seven eighths.</summary>
+    BoulderTurned315,
+    /// <summary>Atomic: drifting up and right, its orbiting lights upright.</summary>
+    AtomicFacingUpRightTurned0,
+    /// <summary>Atomic: drifting up and right, its orbiting lights turned a sixth.</summary>
+    AtomicFacingUpRightTurned60,
+    /// <summary>Atomic: drifting up and right, its orbiting lights turned a third.</summary>
+    AtomicFacingUpRightTurned120,
+    /// <summary>Atomic: drifting up and right, its orbiting lights turned half way.</summary>
+    AtomicFacingUpRightTurned180,
+    /// <summary>Atomic: drifting up and right, its orbiting lights turned two thirds.</summary>
+    AtomicFacingUpRightTurned240,
+    /// <summary>Atomic: drifting up and right, its orbiting lights turned five sixths.</summary>
+    AtomicFacingUpRightTurned300,
+    /// <summary>Atomic: drifting up and left, its orbiting lights upright.</summary>
+    AtomicFacingUpLeftTurned0,
+    /// <summary>Atomic: drifting up and left, its orbiting lights turned a sixth.</summary>
+    AtomicFacingUpLeftTurned60,
+    /// <summary>Atomic: drifting up and left, its orbiting lights turned a third.</summary>
+    AtomicFacingUpLeftTurned120,
+    /// <summary>Atomic: drifting up and left, its orbiting lights turned half way.</summary>
+    AtomicFacingUpLeftTurned180,
+    /// <summary>Atomic: drifting up and left, its orbiting lights turned two thirds.</summary>
+    AtomicFacingUpLeftTurned240,
+    /// <summary>Atomic: drifting up and left, its orbiting lights turned five sixths.</summary>
+    AtomicFacingUpLeftTurned300,
+    /// <summary>Skultera: swimming left, tail straight.</summary>
+    SkulteraSwimmingLeftTailStraight,
+    /// <summary>Skultera: swimming left, tail waving.</summary>
+    SkulteraSwimmingLeftTailWaving,
+    /// <summary>Skultera: swimming left, tail flicking.</summary>
+    SkulteraSwimmingLeftTailFlicking,
+    /// <summary>Skultera: turning from facing left toward facing right, 22 degrees round.</summary>
+    SkulteraTurningRightBy22,
+    /// <summary>Skultera: turning from facing left toward facing right, 45 degrees round.</summary>
+    SkulteraTurningRightBy45,
+    /// <summary>Skultera: turning from facing left toward facing right, 67 degrees round.</summary>
+    SkulteraTurningRightBy67,
+    /// <summary>Skultera: turning from facing left toward facing right, 90 degrees round.</summary>
+    SkulteraTurningRightBy90,
+    /// <summary>Skultera: turning from facing left toward facing right, 112 degrees round.</summary>
+    SkulteraTurningRightBy112,
+    /// <summary>Skultera: turning from facing left toward facing right, 135 degrees round.</summary>
+    SkulteraTurningRightBy135,
+    /// <summary>Skultera: turning from facing left toward facing right, 157 degrees round.</summary>
+    SkulteraTurningRightBy157,
+    /// <summary>Skultera: turning from facing left toward facing right, 180 degrees round.</summary>
+    SkulteraTurningRightBy180,
+    /// <summary>Skultera: swimming right, tail straight.</summary>
+    SkulteraSwimmingRightTailStraight,
+    /// <summary>Skultera: swimming right, tail waving.</summary>
+    SkulteraSwimmingRightTailWaving,
+    /// <summary>Skultera: swimming right, tail flicking.</summary>
+    SkulteraSwimmingRightTailFlicking,
+    /// <summary>Skultera: turning from facing right toward facing left, 22 degrees round.</summary>
+    SkulteraTurningLeftBy22,
+    /// <summary>Skultera: turning from facing right toward facing left, 45 degrees round.</summary>
+    SkulteraTurningLeftBy45,
+    /// <summary>Skultera: turning from facing right toward facing left, 67 degrees round.</summary>
+    SkulteraTurningLeftBy67,
+    /// <summary>Skultera: turning from facing right toward facing left, 90 degrees round.</summary>
+    SkulteraTurningLeftBy90,
+    /// <summary>Skultera: turning from facing right toward facing left, 112 degrees round.</summary>
+    SkulteraTurningLeftBy112,
+    /// <summary>Skultera: turning from facing right toward facing left, 135 degrees round.</summary>
+    SkulteraTurningLeftBy135,
+    /// <summary>Skultera: turning from facing right toward facing left, 157 degrees round.</summary>
+    SkulteraTurningLeftBy157,
+    /// <summary>Skultera: turning from facing right toward facing left, 180 degrees round.</summary>
+    SkulteraTurningLeftBy180,
+    /// <summary>Waver: flying level, facing left.</summary>
+    WaverLevelFacingLeft,
+    /// <summary>Waver: flying level, facing right.</summary>
+    WaverLevelFacingRight,
+    /// <summary>Waver: rolling over facing left, edge on.</summary>
+    WaverRollingFacingLeftEdgeOn,
+    /// <summary>Waver: rolling over facing left, tilted to show its underside.</summary>
+    WaverRollingFacingLeftTilted,
+    /// <summary>Waver: rolling over facing left, showing its underside.</summary>
+    WaverRollingFacingLeftUnderside,
+    /// <summary>Waver: rolling over facing left, turning back edge on.</summary>
+    WaverRollingFacingLeftTurningBack,
+    /// <summary>Waver: rolling over facing right, edge on.</summary>
+    WaverRollingFacingRightEdgeOn,
+    /// <summary>Waver: rolling over facing right, tilted to show its underside.</summary>
+    WaverRollingFacingRightTilted,
+    /// <summary>Waver: rolling over facing right, showing its underside.</summary>
+    WaverRollingFacingRightUnderside,
+    /// <summary>Waver: rolling over facing right, turning back edge on.</summary>
+    WaverRollingFacingRightTurningBack,
+    /// <summary>Metaree: hanging, facing the viewer, wings folded around it.</summary>
+    MetareeFacingViewer,
+    /// <summary>Metaree: hanging, turning away at an angle.</summary>
+    MetareeTurningOblique,
+    /// <summary>Metaree: hanging, turned edge on.</summary>
+    MetareeEdgeOn,
+    /// <summary>Metaree: hanging, turning back at an angle.</summary>
+    MetareeReturningOblique,
+    /// <summary>Metaree: facing the viewer, wings flared to dive.</summary>
+    MetareeWingsFlared,
+    /// <summary>Skree: hanging, facing the viewer, wings folded around it.</summary>
+    SkreeFacingViewer,
+    /// <summary>Skree: hanging, turning away at an angle.</summary>
+    SkreeTurningOblique,
+    /// <summary>Skree: hanging, turned edge on.</summary>
+    SkreeEdgeOn,
+    /// <summary>Skree: hanging, turning back at an angle.</summary>
+    SkreeReturningOblique,
+    /// <summary>Skree: facing the viewer, wings flared to dive.</summary>
+    SkreeWingsFlared,
+    /// <summary>Zoa: darting facing left, tail tucked.</summary>
+    ZoaDartingFacingLeftTailTucked,
+    /// <summary>Zoa: darting facing left, tail kicking.</summary>
+    ZoaDartingFacingLeftTailKicking,
+    /// <summary>Zoa: darting facing left, tail extended.</summary>
+    ZoaDartingFacingLeftTailExtended,
+    /// <summary>Zoa: swimming up facing left, legs drawn in.</summary>
+    ZoaSwimmingFacingLeftLegsIn,
+    /// <summary>Zoa: swimming up facing left, legs paddling.</summary>
+    ZoaSwimmingFacingLeftLegsPaddling,
+    /// <summary>Zoa: swimming up facing left, legs stretched out.</summary>
+    ZoaSwimmingFacingLeftLegsOut,
+    /// <summary>Zoa: darting facing right, tail tucked.</summary>
+    ZoaDartingFacingRightTailTucked,
+    /// <summary>Zoa: darting facing right, tail kicking.</summary>
+    ZoaDartingFacingRightTailKicking,
+    /// <summary>Zoa: darting facing right, tail extended.</summary>
+    ZoaDartingFacingRightTailExtended,
+    /// <summary>Zoa: swimming up facing right, legs drawn in.</summary>
+    ZoaSwimmingFacingRightLegsIn,
+    /// <summary>Zoa: swimming up facing right, legs paddling.</summary>
+    ZoaSwimmingFacingRightLegsPaddling,
+    /// <summary>Zoa: swimming up facing right, legs stretched out.</summary>
+    ZoaSwimmingFacingRightLegsOut,
+    /// <summary>Zeb: rising facing left, wings up.</summary>
+    ZebFacingLeftWingsUp,
+    /// <summary>Zeb: rising facing left, wings raised.</summary>
+    ZebFacingLeftWingsRaised,
+    /// <summary>Zeb: rising facing left, wings level.</summary>
+    ZebFacingLeftWingsLevel,
+    /// <summary>Zeb: rising facing left, wings lowered.</summary>
+    ZebFacingLeftWingsLowered,
+    /// <summary>Zeb: rising facing left, wings down.</summary>
+    ZebFacingLeftWingsDown,
+    /// <summary>Zeb: rising facing right, wings up.</summary>
+    ZebFacingRightWingsUp,
+    /// <summary>Zeb: rising facing right, wings raised.</summary>
+    ZebFacingRightWingsRaised,
+    /// <summary>Zeb: rising facing right, wings level.</summary>
+    ZebFacingRightWingsLevel,
+    /// <summary>Zeb: rising facing right, wings lowered.</summary>
+    ZebFacingRightWingsLowered,
+    /// <summary>Zeb: rising facing right, wings down.</summary>
+    ZebFacingRightWingsDown,
+    /// <summary>Zebbo: darting facing left, wings up.</summary>
+    ZebboDartingFacingLeftWingsUp,
+    /// <summary>Zebbo: darting facing left, wings level.</summary>
+    ZebboDartingFacingLeftWingsLevel,
+    /// <summary>Zebbo: darting facing left, wings down.</summary>
+    ZebboDartingFacingLeftWingsDown,
+    /// <summary>Zebbo: rising facing left, wings up.</summary>
+    ZebboRisingFacingLeftWingsUp,
+    /// <summary>Zebbo: rising facing left, wings level.</summary>
+    ZebboRisingFacingLeftWingsLevel,
+    /// <summary>Zebbo: rising facing left, wings down.</summary>
+    ZebboRisingFacingLeftWingsDown,
+    /// <summary>Zebbo: darting facing right, wings up.</summary>
+    ZebboDartingFacingRightWingsUp,
+    /// <summary>Zebbo: darting facing right, wings level.</summary>
+    ZebboDartingFacingRightWingsLevel,
+    /// <summary>Zebbo: darting facing right, wings down.</summary>
+    ZebboDartingFacingRightWingsDown,
+    /// <summary>Zebbo: rising facing right, wings up.</summary>
+    ZebboRisingFacingRightWingsUp,
+    /// <summary>Zebbo: rising facing right, wings level.</summary>
+    ZebboRisingFacingRightWingsLevel,
+    /// <summary>Zebbo: rising facing right, wings down.</summary>
+    ZebboRisingFacingRightWingsDown,
+    /// <summary>Gamet: rising facing left, wings up.</summary>
+    GametFacingLeftWingsUp,
+    /// <summary>Gamet: rising facing left, wings raised.</summary>
+    GametFacingLeftWingsRaised,
+    /// <summary>Gamet: rising facing left, wings level.</summary>
+    GametFacingLeftWingsLevel,
+    /// <summary>Gamet: rising facing left, wings lowered.</summary>
+    GametFacingLeftWingsLowered,
+    /// <summary>Gamet: rising facing left, wings down.</summary>
+    GametFacingLeftWingsDown,
+    /// <summary>Gamet: rising facing right, wings up.</summary>
+    GametFacingRightWingsUp,
+    /// <summary>Gamet: rising facing right, wings raised.</summary>
+    GametFacingRightWingsRaised,
+    /// <summary>Gamet: rising facing right, wings level.</summary>
+    GametFacingRightWingsLevel,
+    /// <summary>Gamet: rising facing right, wings lowered.</summary>
+    GametFacingRightWingsLowered,
+    /// <summary>Gamet: rising facing right, wings down.</summary>
+    GametFacingRightWingsDown,
+    /// <summary>Geega: flying level facing left, wings up.</summary>
+    GeegaLevelFacingLeftWingsUp,
+    /// <summary>Geega: flying level facing left, wings level.</summary>
+    GeegaLevelFacingLeftWingsLevel,
+    /// <summary>Geega: flying level facing left, wings down.</summary>
+    GeegaLevelFacingLeftWingsDown,
+    /// <summary>Geega: tilted into a swoop facing left, wings up.</summary>
+    GeegaTiltedFacingLeftWingsUp,
+    /// <summary>Geega: tilted into a swoop facing left, wings level.</summary>
+    GeegaTiltedFacingLeftWingsLevel,
+    /// <summary>Geega: tilted into a swoop facing left, wings down.</summary>
+    GeegaTiltedFacingLeftWingsDown,
+    /// <summary>Geega: flying level facing right, wings up.</summary>
+    GeegaLevelFacingRightWingsUp,
+    /// <summary>Geega: flying level facing right, wings level.</summary>
+    GeegaLevelFacingRightWingsLevel,
+    /// <summary>Geega: flying level facing right, wings down.</summary>
+    GeegaLevelFacingRightWingsDown,
+    /// <summary>Geega: tilted into a swoop facing right, wings up.</summary>
+    GeegaTiltedFacingRightWingsUp,
+    /// <summary>Geega: tilted into a swoop facing right, wings level.</summary>
+    GeegaTiltedFacingRightWingsLevel,
+    /// <summary>Geega: tilted into a swoop facing right, wings down.</summary>
+    GeegaTiltedFacingRightWingsDown,
+    /// <summary>Fake Kraid: stepping facing left, feet together.</summary>
+    FakeKraidSteppingFacingLeftFeetTogether,
+    /// <summary>Fake Kraid: stepping facing left, front foot lifting.</summary>
+    FakeKraidSteppingFacingLeftFrontFootLifting,
+    /// <summary>Fake Kraid: stepping facing left, front foot forward.</summary>
+    FakeKraidSteppingFacingLeftFrontFootForward,
+    /// <summary>Fake Kraid: stepping facing left, feet planted apart.</summary>
+    FakeKraidSteppingFacingLeftFeetPlanted,
+    /// <summary>Fake Kraid: facing left, mouth closed.</summary>
+    FakeKraidFacingLeftMouthClosed,
+    /// <summary>Fake Kraid: facing left, mouth opening.</summary>
+    FakeKraidFacingLeftMouthOpening,
+    /// <summary>Fake Kraid: facing left, head thrown back, mouth wide open.</summary>
+    FakeKraidFacingLeftMouthWide,
+    /// <summary>Fake Kraid: stepping facing right, feet together.</summary>
+    FakeKraidSteppingFacingRightFeetTogether,
+    /// <summary>Fake Kraid: stepping facing right, front foot lifting.</summary>
+    FakeKraidSteppingFacingRightFrontFootLifting,
+    /// <summary>Fake Kraid: stepping facing right, front foot forward.</summary>
+    FakeKraidSteppingFacingRightFrontFootForward,
+    /// <summary>Fake Kraid: stepping facing right, feet planted apart.</summary>
+    FakeKraidSteppingFacingRightFeetPlanted,
+    /// <summary>Fake Kraid: facing right, mouth closed.</summary>
+    FakeKraidFacingRightMouthClosed,
+    /// <summary>Fake Kraid: facing right, mouth opening.</summary>
+    FakeKraidFacingRightMouthOpening,
+    /// <summary>Fake Kraid: facing right, head thrown back, mouth wide open.</summary>
+    FakeKraidFacingRightMouthWide,
+    /// <summary>Kraid: its spinning nail, upright.</summary>
+    KraidNailTurned0,
+    /// <summary>Kraid: its spinning nail, turned an eighth.</summary>
+    KraidNailTurned45,
+    /// <summary>Kraid: its spinning nail, turned a quarter.</summary>
+    KraidNailTurned90,
+    /// <summary>Kraid: its spinning nail, turned three eighths.</summary>
+    KraidNailTurned135,
+    /// <summary>Kraid: its spinning nail, turned half way.</summary>
+    KraidNailTurned180,
+    /// <summary>Kraid: its spinning nail, turned five eighths.</summary>
+    KraidNailTurned225,
+    /// <summary>Kraid: its spinning nail, turned three quarters.</summary>
+    KraidNailTurned270,
+    /// <summary>Kraid: its spinning nail, turned seven eighths.</summary>
+    KraidNailTurned315,
+    /// <summary>Owtch: crawling, its feet at rest.</summary>
+    OwtchCrawlingFeetAtRest,
+    /// <summary>Owtch: crawling, its feet shuffling.</summary>
+    OwtchCrawlingFeetShuffling,
+    /// <summary>Owtch: crawling, its feet stretched.</summary>
+    OwtchCrawlingFeetStretched,
+    /// <summary>Gripper: flying left, its jet flame medium.</summary>
+    GrappleRipperFlyingLeftFlameMedium,
+    /// <summary>Gripper: flying left, its jet flame short.</summary>
+    GrappleRipperFlyingLeftFlameShort,
+    /// <summary>Gripper: flying left, its jet flame long.</summary>
+    GrappleRipperFlyingLeftFlameLong,
+    /// <summary>Gripper: flying right, its jet flame medium.</summary>
+    GrappleRipperFlyingRightFlameMedium,
+    /// <summary>Gripper: flying right, its jet flame short.</summary>
+    GrappleRipperFlyingRightFlameShort,
+    /// <summary>Gripper: flying right, its jet flame long.</summary>
+    GrappleRipperFlyingRightFlameLong,
+    /// <summary>Ripper: frozen facing left.</summary>
+    RipperFrozenFacingLeft,
+    /// <summary>Ripper: frozen facing right.</summary>
+    RipperFrozenFacingRight,
+    /// <summary>Ripper: flying left, its eye lit.</summary>
+    RipperFlyingLeftEyeLit,
+    /// <summary>Ripper: flying left, its eye dark.</summary>
+    RipperFlyingLeftEyeDark,
+    /// <summary>Ripper: flying left, its eye glinting.</summary>
+    RipperFlyingLeftEyeGlinting,
+    /// <summary>Ripper: flying right, its eye lit.</summary>
+    RipperFlyingRightEyeLit,
+    /// <summary>Ripper: flying right, its eye dark.</summary>
+    RipperFlyingRightEyeDark,
+    /// <summary>Ripper: flying right, its eye glinting.</summary>
+    RipperFlyingRightEyeGlinting,
+    /// <summary>Fireflea: glowing brightest, wings up.</summary>
+    FirefleaGlowBrightestWingsUp,
+    /// <summary>Fireflea: glowing brightest, wings level.</summary>
+    FirefleaGlowBrightestWingsLevel,
+    /// <summary>Fireflea: glowing brightest, wings down.</summary>
+    FirefleaGlowBrightestWingsDown,
+    /// <summary>Fireflea: glowing brighter, wings up.</summary>
+    FirefleaGlowBrighterWingsUp,
+    /// <summary>Fireflea: glowing brighter, wings level.</summary>
+    FirefleaGlowBrighterWingsLevel,
+    /// <summary>Fireflea: glowing brighter, wings down.</summary>
+    FirefleaGlowBrighterWingsDown,
+    /// <summary>Fireflea: glowing bright, wings up.</summary>
+    FirefleaGlowBrightWingsUp,
+    /// <summary>Fireflea: glowing bright, wings level.</summary>
+    FirefleaGlowBrightWingsLevel,
+    /// <summary>Fireflea: glowing bright, wings down.</summary>
+    FirefleaGlowBrightWingsDown,
+    /// <summary>Fireflea: glowing half bright, wings up.</summary>
+    FirefleaGlowMidWingsUp,
+    /// <summary>Fireflea: glowing half bright, wings level.</summary>
+    FirefleaGlowMidWingsLevel,
+    /// <summary>Fireflea: glowing half bright, wings down.</summary>
+    FirefleaGlowMidWingsDown,
+    /// <summary>Fireflea: glowing dim, wings up.</summary>
+    FirefleaGlowDimWingsUp,
+    /// <summary>Fireflea: glowing dim, wings level.</summary>
+    FirefleaGlowDimWingsLevel,
+    /// <summary>Fireflea: glowing dim, wings down.</summary>
+    FirefleaGlowDimWingsDown,
+    /// <summary>Fireflea: glowing dimmer, wings up.</summary>
+    FirefleaGlowDimmerWingsUp,
+    /// <summary>Fireflea: glowing dimmer, wings level.</summary>
+    FirefleaGlowDimmerWingsLevel,
+    /// <summary>Fireflea: glowing dimmer, wings down.</summary>
+    FirefleaGlowDimmerWingsDown,
+    /// <summary>Fireflea: glowing dimmest, wings up.</summary>
+    FirefleaGlowDimmestWingsUp,
+    /// <summary>Fireflea: glowing dimmest, wings level.</summary>
+    FirefleaGlowDimmestWingsLevel,
+    /// <summary>Fireflea: glowing dimmest, wings down.</summary>
+    FirefleaGlowDimmestWingsDown,
+    /// <summary>Magdollite: its head above the lava facing left, bobbing at its highest.</summary>
+    MagdolliteHeadFacingLeftHigh,
+    /// <summary>Magdollite: its head above the lava facing left, bobbing half way.</summary>
+    MagdolliteHeadFacingLeftMid,
+    /// <summary>Magdollite: its head above the lava facing left, bobbing at its lowest.</summary>
+    MagdolliteHeadFacingLeftLow,
+    /// <summary>Magdollite: rearing up tall, facing left.</summary>
+    MagdolliteRearingFacingLeft,
+    /// <summary>Magdollite: leaning forward, facing left.</summary>
+    MagdolliteLeaningFacingLeft,
+    /// <summary>Magdollite: stretched out sideways, facing left.</summary>
+    MagdolliteReachingFacingLeft,
+    /// <summary>Magdollite: flattened in a swipe, facing left.</summary>
+    MagdolliteThrowingFacingLeft,
     /// <summary>Magdollite: pillar cap.</summary>
     MagdollitePillarCap,
-    /// <summary>Magdollite: left raise pillar.</summary>
-    MagdolliteLeftRaisePillar,
-    /// <summary>Magdollite: left submerge, second frame.</summary>
-    MagdolliteLeftSubmergeSecond,
-    /// <summary>Magdollite: left submerge, third frame.</summary>
-    MagdolliteLeftSubmergeThird,
-    /// <summary>Magdollite: right idle, first frame.</summary>
-    MagdolliteRightIdleFirst,
-    /// <summary>Magdollite: right idle, second frame.</summary>
-    MagdolliteRightIdleSecond,
-    /// <summary>Magdollite: right idle, third frame.</summary>
-    MagdolliteRightIdleThird,
-    /// <summary>Magdollite: right throw, first frame.</summary>
-    MagdolliteRightThrowFirst,
-    /// <summary>Magdollite: right throw, second frame.</summary>
-    MagdolliteRightThrowSecond,
-    /// <summary>Magdollite: right throw, third frame.</summary>
-    MagdolliteRightThrowThird,
-    /// <summary>Magdollite: right throw, fourth frame.</summary>
-    MagdolliteRightThrowFourth,
-    /// <summary>Magdollite: right raise pillar.</summary>
-    MagdolliteRightRaisePillar,
-    /// <summary>Magdollite: right submerge, second frame.</summary>
-    MagdolliteRightSubmergeSecond,
-    /// <summary>Magdollite: right submerge, third frame.</summary>
-    MagdolliteRightSubmergeThird,
+    /// <summary>Magdollite: a low mound of lava with an eye, facing left.</summary>
+    MagdolliteMoundFacingLeft,
+    /// <summary>Magdollite: sinking flat into the lava, facing left.</summary>
+    MagdolliteSinkingFacingLeft,
+    /// <summary>Magdollite: sunk almost flat into the lava, facing left.</summary>
+    MagdolliteSunkFacingLeft,
+    /// <summary>Magdollite: its head above the lava facing right, bobbing at its highest.</summary>
+    MagdolliteHeadFacingRightHigh,
+    /// <summary>Magdollite: its head above the lava facing right, bobbing half way.</summary>
+    MagdolliteHeadFacingRightMid,
+    /// <summary>Magdollite: its head above the lava facing right, bobbing at its lowest.</summary>
+    MagdolliteHeadFacingRightLow,
+    /// <summary>Magdollite: rearing up tall, facing right.</summary>
+    MagdolliteRearingFacingRight,
+    /// <summary>Magdollite: leaning forward, facing right.</summary>
+    MagdolliteLeaningFacingRight,
+    /// <summary>Magdollite: stretched out sideways, facing right.</summary>
+    MagdolliteReachingFacingRight,
+    /// <summary>Magdollite: flattened in a swipe, facing right.</summary>
+    MagdolliteThrowingFacingRight,
+    /// <summary>Magdollite: a low mound of lava with an eye, facing right.</summary>
+    MagdolliteMoundFacingRight,
+    /// <summary>Magdollite: sinking flat into the lava, facing right.</summary>
+    MagdolliteSinkingFacingRight,
+    /// <summary>Magdollite: sunk almost flat into the lava, facing right.</summary>
+    MagdolliteSunkFacingRight,
     /// <summary>Magdollite: the pillar one segment high.</summary>
     MagdolliteOneSegmentPillar,
     /// <summary>Magdollite: the pillar two segments high.</summary>
@@ -480,956 +482,956 @@ public enum EnemyFrameId
     CeresElevatorDoorBlocked,
     /// <summary>A Ceres door facing left: closed.</summary>
     CeresDoorFacingLeftClosed,
-    /// <summary>A Ceres door facing left: opening, first frame.</summary>
-    CeresDoorFacingLeftOpeningFirst,
-    /// <summary>A Ceres door facing left: opening, second frame.</summary>
-    CeresDoorFacingLeftOpeningSecond,
-    /// <summary>A Ceres door facing left: opening, third frame.</summary>
-    CeresDoorFacingLeftOpeningThird,
+    /// <summary>A Ceres door facing left: a quarter open.</summary>
+    CeresDoorFacingLeftQuarterOpen,
+    /// <summary>A Ceres door facing left: half open.</summary>
+    CeresDoorFacingLeftHalfOpen,
+    /// <summary>A Ceres door facing left: three quarters open.</summary>
+    CeresDoorFacingLeftThreeQuartersOpen,
     /// <summary>A Ceres door facing left: open.</summary>
     CeresDoorFacingLeftOpen,
     /// <summary>A Ceres door facing right: closed.</summary>
     CeresDoorFacingRightClosed,
-    /// <summary>A Ceres door facing right: opening, first frame.</summary>
-    CeresDoorFacingRightOpeningFirst,
-    /// <summary>A Ceres door facing right: opening, second frame.</summary>
-    CeresDoorFacingRightOpeningSecond,
-    /// <summary>A Ceres door facing right: opening, third frame.</summary>
-    CeresDoorFacingRightOpeningThird,
+    /// <summary>A Ceres door facing right: a quarter open.</summary>
+    CeresDoorFacingRightQuarterOpen,
+    /// <summary>A Ceres door facing right: half open.</summary>
+    CeresDoorFacingRightHalfOpen,
+    /// <summary>A Ceres door facing right: three quarters open.</summary>
+    CeresDoorFacingRightThreeQuartersOpen,
     /// <summary>A Ceres door facing right: open.</summary>
     CeresDoorFacingRightOpen,
-    /// <summary>Every Ceres door and wall: the picture it shows before its animation's first frame.</summary>
-    CeresDoorOrWallInitial,
+    /// <summary>Every Ceres door and wall: a small square above and left of its origin.</summary>
+    CeresDoorOrWallSmallSquare,
     /// <summary>The left wall of Ceres Ridley's getaway chamber.</summary>
     CeresGetawayChamberLeftWall,
     /// <summary>The right wall of Ceres Ridley's getaway chamber.</summary>
     CeresGetawayChamberRightWall,
-    /// <summary>The door of Ceres Ridley's room as Ridley's scene draws it while the door hands its drawing to him.</summary>
-    CeresRidleyRoomDoorDrawnByRidley,
+    /// <summary>The door of Ceres Ridley's room, closed, as Ridley's scene draws it while the door hands its drawing to him: the picture of CeresDoorFacingRightClosed.</summary>
+    CeresRidleyRoomDoorClosed,
     /// <summary>The Ceres baby Metroid: horizontal.</summary>
     CeresBabyHorizontal,
     /// <summary>The Ceres baby Metroid: round.</summary>
     CeresBabyRound,
     /// <summary>The Ceres baby Metroid: vertical.</summary>
     CeresBabyVertical,
-    /// <summary>Rio: idle, first frame.</summary>
-    RioIdleFirst,
-    /// <summary>Rio: idle, second frame.</summary>
-    RioIdleSecond,
-    /// <summary>Rio: post swoop idle, third frame.</summary>
-    RioPostSwoopIdleThird,
-    /// <summary>Rio: post swoop idle, fourth frame.</summary>
-    RioPostSwoopIdleFourth,
-    /// <summary>Rio: swooping part one, third frame.</summary>
-    RioSwoopingPartOneThird,
-    /// <summary>Rio: swooping part one, fourth frame.</summary>
-    RioSwoopingPartOneFourth,
-    /// <summary>Rio: swooping part one, fifth frame.</summary>
-    RioSwoopingPartOneFifth,
-    /// <summary>Rio: swooping part two, first frame.</summary>
-    RioSwoopingPartTwoFirst,
-    /// <summary>The Lower Norfair Rio: idle loop, first frame.</summary>
-    LowerNorfairRioIdleLoopFirst,
-    /// <summary>The Lower Norfair Rio: idle loop, second frame.</summary>
-    LowerNorfairRioIdleLoopSecond,
-    /// <summary>The Lower Norfair Rio: idle loop, third frame.</summary>
-    LowerNorfairRioIdleLoopThird,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, second frame.</summary>
-    LowerNorfairRioPrepareToSwoopSecond,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, third frame.</summary>
-    LowerNorfairRioPrepareToSwoopThird,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, fourth frame.</summary>
-    LowerNorfairRioPrepareToSwoopFourth,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, fifth frame.</summary>
-    LowerNorfairRioPrepareToSwoopFifth,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, sixth frame.</summary>
-    LowerNorfairRioPrepareToSwoopSixth,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, seventh frame.</summary>
-    LowerNorfairRioPrepareToSwoopSeventh,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, eighth frame.</summary>
-    LowerNorfairRioPrepareToSwoopEighth,
-    /// <summary>The Lower Norfair Rio: prepare to swoop, ninth frame.</summary>
-    LowerNorfairRioPrepareToSwoopNinth,
-    /// <summary>The Lower Norfair Rio: ascending part one, third frame.</summary>
-    LowerNorfairRioAscendingPartOneThird,
-    /// <summary>The Lower Norfair Rio: ascending part two loop, second frame.</summary>
-    LowerNorfairRioAscendingPartTwoLoopSecond,
-    /// <summary>The Lower Norfair Rio: ascending part two loop, third frame.</summary>
-    LowerNorfairRioAscendingPartTwoLoopThird,
-    /// <summary>The Lower Norfair Rio: ascending part two loop, first frame.</summary>
-    LowerNorfairRioAscendingPartTwoLoopFirst,
-    /// <summary>The Lower Norfair Rio: flames, first frame.</summary>
-    LowerNorfairRioFlamesFirst,
-    /// <summary>The Lower Norfair Rio: flames, second frame.</summary>
-    LowerNorfairRioFlamesSecond,
-    /// <summary>The Lower Norfair Rio: flames, third frame.</summary>
-    LowerNorfairRioFlamesThird,
-    /// <summary>The Norfair Rio: idle, second frame.</summary>
-    NorfairRioIdleSecond,
-    /// <summary>The Norfair Rio: idle, first frame.</summary>
-    NorfairRioIdleFirst,
-    /// <summary>The Norfair Rio: idle, third frame.</summary>
-    NorfairRioIdleThird,
-    /// <summary>The Norfair Rio: flames ascending, first frame.</summary>
-    NorfairRioFlamesAscendingFirst,
-    /// <summary>The Norfair Rio: flames ascending, second frame.</summary>
-    NorfairRioFlamesAscendingSecond,
-    /// <summary>The Norfair Rio: flames ascending, third frame.</summary>
-    NorfairRioFlamesAscendingThird,
-    /// <summary>The Norfair Rio: descending, first frame.</summary>
-    NorfairRioDescendingFirst,
-    /// <summary>The Norfair Rio: descending, second frame.</summary>
-    NorfairRioDescendingSecond,
-    /// <summary>The Norfair Rio: descending, third frame.</summary>
-    NorfairRioDescendingThird,
-    /// <summary>The Norfair Rio: start descending, second frame.</summary>
-    NorfairRioStartDescendingSecond,
-    /// <summary>The Norfair Rio: start descending, third frame.</summary>
-    NorfairRioStartDescendingThird,
-    /// <summary>The Norfair Rio: start descending, fourth frame.</summary>
-    NorfairRioStartDescendingFourth,
-    /// <summary>The Norfair Rio: start descending, fifth frame.</summary>
-    NorfairRioStartDescendingFifth,
-    /// <summary>The Norfair Rio: start descending, sixth frame.</summary>
-    NorfairRioStartDescendingSixth,
-    /// <summary>The Norfair Rio: ascending, first frame.</summary>
-    NorfairRioAscendingFirst,
-    /// <summary>The Norfair Rio: ascending, second frame.</summary>
-    NorfairRioAscendingSecond,
-    /// <summary>The Norfair Rio: ascending, third frame.</summary>
-    NorfairRioAscendingThird,
-    /// <summary>The Norfair Rio: flames descending, first frame.</summary>
-    NorfairRioFlamesDescendingFirst,
-    /// <summary>The Norfair Rio: flames descending, second frame.</summary>
-    NorfairRioFlamesDescendingSecond,
-    /// <summary>The Norfair Rio: flames descending, third frame.</summary>
-    NorfairRioFlamesDescendingThird,
-    /// <summary>Puyo: grounded fast, first frame.</summary>
-    PuyoGroundedFastFirst,
-    /// <summary>Puyo: grounded fast, second frame.</summary>
-    PuyoGroundedFastSecond,
-    /// <summary>Puyo: grounded fast, third frame.</summary>
-    PuyoGroundedFastThird,
-    /// <summary>Puyo: airborne, first frame.</summary>
-    PuyoAirborneFirst,
-    /// <summary>Puyo: airborne, second frame.</summary>
-    PuyoAirborneSecond,
-    /// <summary>Puyo: airborne, third frame.</summary>
-    PuyoAirborneThird,
-    /// <summary>Puyo: airborne, fourth frame.</summary>
-    PuyoAirborneFourth,
-    /// <summary>Puyo: airborne, fifth frame.</summary>
-    PuyoAirborneFifth,
-    /// <summary>Bull: normal, first frame.</summary>
-    BullNormalFirst,
-    /// <summary>Bull: normal, second frame.</summary>
-    BullNormalSecond,
-    /// <summary>Bull: normal, third frame.</summary>
-    BullNormalThird,
-    /// <summary>Alcoon: walking left loop, first frame.</summary>
-    AlcoonWalkingLeftLoopFirst,
-    /// <summary>Alcoon: walking left loop, second frame.</summary>
-    AlcoonWalkingLeftLoopSecond,
-    /// <summary>Alcoon: walking left loop, third frame.</summary>
-    AlcoonWalkingLeftLoopThird,
-    /// <summary>Alcoon: walking left loop, fourth frame.</summary>
-    AlcoonWalkingLeftLoopFourth,
-    /// <summary>Alcoon: fire left, first frame.</summary>
-    AlcoonFireLeftFirst,
-    /// <summary>Alcoon: fire left, second frame.</summary>
-    AlcoonFireLeftSecond,
-    /// <summary>Alcoon: fire left, third frame.</summary>
-    AlcoonFireLeftThird,
-    /// <summary>Alcoon: fire left, fourth frame.</summary>
-    AlcoonFireLeftFourth,
-    /// <summary>Alcoon: left air up.</summary>
-    AlcoonLeftAirUp,
-    /// <summary>Alcoon: walking right loop, first frame.</summary>
-    AlcoonWalkingRightLoopFirst,
-    /// <summary>Alcoon: walking right loop, second frame.</summary>
-    AlcoonWalkingRightLoopSecond,
-    /// <summary>Alcoon: walking right loop, third frame.</summary>
-    AlcoonWalkingRightLoopThird,
-    /// <summary>Alcoon: walking right loop, fourth frame.</summary>
-    AlcoonWalkingRightLoopFourth,
-    /// <summary>Alcoon: fire right, first frame.</summary>
-    AlcoonFireRightFirst,
-    /// <summary>Alcoon: fire right, second frame.</summary>
-    AlcoonFireRightSecond,
-    /// <summary>Alcoon: fire right, third frame.</summary>
-    AlcoonFireRightThird,
-    /// <summary>Alcoon: fire right, fourth frame.</summary>
-    AlcoonFireRightFourth,
-    /// <summary>Alcoon: right air up.</summary>
-    AlcoonRightAirUp,
-    /// <summary>Beetom: crawling left loop, first frame.</summary>
-    BeetomCrawlingLeftLoopFirst,
-    /// <summary>Beetom: crawling left loop, second frame.</summary>
-    BeetomCrawlingLeftLoopSecond,
-    /// <summary>Beetom: crawling left loop, third frame.</summary>
-    BeetomCrawlingLeftLoopThird,
-    /// <summary>Beetom: hop left, first frame.</summary>
-    BeetomHopLeftFirst,
-    /// <summary>Beetom: hop left, second frame.</summary>
-    BeetomHopLeftSecond,
-    /// <summary>Beetom: draining left, first frame.</summary>
-    BeetomDrainingLeftFirst,
-    /// <summary>Beetom: draining left, second frame.</summary>
-    BeetomDrainingLeftSecond,
-    /// <summary>Beetom: draining left, third frame.</summary>
-    BeetomDrainingLeftThird,
-    /// <summary>Beetom: draining left loop, first frame.</summary>
-    BeetomDrainingLeftLoopFirst,
-    /// <summary>Beetom: draining left loop, second frame.</summary>
-    BeetomDrainingLeftLoopSecond,
-    /// <summary>Beetom: draining left loop, third frame.</summary>
-    BeetomDrainingLeftLoopThird,
-    /// <summary>Beetom: crawling right loop, first frame.</summary>
-    BeetomCrawlingRightLoopFirst,
-    /// <summary>Beetom: crawling right loop, second frame.</summary>
-    BeetomCrawlingRightLoopSecond,
-    /// <summary>Beetom: crawling right loop, third frame.</summary>
-    BeetomCrawlingRightLoopThird,
-    /// <summary>Beetom: hop right, first frame.</summary>
-    BeetomHopRightFirst,
-    /// <summary>Beetom: hop right, second frame.</summary>
-    BeetomHopRightSecond,
-    /// <summary>Beetom: draining right, first frame.</summary>
-    BeetomDrainingRightFirst,
-    /// <summary>Beetom: draining right, second frame.</summary>
-    BeetomDrainingRightSecond,
-    /// <summary>Beetom: draining right, third frame.</summary>
-    BeetomDrainingRightThird,
-    /// <summary>Beetom: draining right loop, first frame.</summary>
-    BeetomDrainingRightLoopFirst,
-    /// <summary>Beetom: draining right loop, second frame.</summary>
-    BeetomDrainingRightLoopSecond,
-    /// <summary>Beetom: draining right loop, third frame.</summary>
-    BeetomDrainingRightLoopThird,
-    /// <summary>Sidehopper: jump floor.</summary>
-    SidehopperJumpFloor,
-    /// <summary>Sidehopper: floor landed, first frame.</summary>
-    SidehopperFloorLandedFirst,
-    /// <summary>Sidehopper: floor landed, second frame.</summary>
-    SidehopperFloorLandedSecond,
-    /// <summary>Sidehopper: jump ceiling.</summary>
-    SidehopperJumpCeiling,
-    /// <summary>Sidehopper: ceiling landed, first frame.</summary>
-    SidehopperCeilingLandedFirst,
-    /// <summary>Sidehopper: ceiling landed, second frame.</summary>
-    SidehopperCeilingLandedSecond,
-    /// <summary>Dessgeega: jump floor.</summary>
-    DessgeegaJumpFloor,
-    /// <summary>Dessgeega: floor landed, first frame.</summary>
-    DessgeegaFloorLandedFirst,
-    /// <summary>Dessgeega: floor landed, second frame.</summary>
-    DessgeegaFloorLandedSecond,
-    /// <summary>Dessgeega: jump ceiling.</summary>
-    DessgeegaJumpCeiling,
-    /// <summary>Dessgeega: ceiling landed, first frame.</summary>
-    DessgeegaCeilingLandedFirst,
-    /// <summary>Dessgeega: ceiling landed, second frame.</summary>
-    DessgeegaCeilingLandedSecond,
-    /// <summary>The large Sidehopper: jump floor.</summary>
-    LargeSidehopperJumpFloor,
-    /// <summary>The large Sidehopper: floor landed, first frame.</summary>
-    LargeSidehopperFloorLandedFirst,
-    /// <summary>The large Sidehopper: floor landed, second frame.</summary>
-    LargeSidehopperFloorLandedSecond,
-    /// <summary>The large Sidehopper: jump ceiling.</summary>
-    LargeSidehopperJumpCeiling,
-    /// <summary>The large Sidehopper: ceiling landed, first frame.</summary>
-    LargeSidehopperCeilingLandedFirst,
-    /// <summary>The large Sidehopper: ceiling landed, second frame.</summary>
-    LargeSidehopperCeilingLandedSecond,
-    /// <summary>The large Dessgeega: jump floor.</summary>
-    LargeDessgeegaJumpFloor,
-    /// <summary>The large Dessgeega: floor landed, first frame.</summary>
-    LargeDessgeegaFloorLandedFirst,
-    /// <summary>The large Dessgeega: floor landed, second frame.</summary>
-    LargeDessgeegaFloorLandedSecond,
-    /// <summary>The large Dessgeega: jump ceiling.</summary>
-    LargeDessgeegaJumpCeiling,
-    /// <summary>The large Dessgeega: ceiling landed, first frame.</summary>
-    LargeDessgeegaCeilingLandedFirst,
-    /// <summary>The large Dessgeega: ceiling landed, second frame.</summary>
-    LargeDessgeegaCeilingLandedSecond,
-    /// <summary>Choot: idle.</summary>
-    ChootIdle,
-    /// <summary>Choot: jump.</summary>
-    ChootJump,
-    /// <summary>Choot: jump apex.</summary>
-    ChootJumpApex,
-    /// <summary>Choot: fall end.</summary>
-    ChootFallEnd,
-    /// <summary>The horizontal Zoomer: upside right loop, first frame.</summary>
-    OrangeZoomerUpsideRightLoopFirst,
-    /// <summary>The horizontal Zoomer: upside right loop, second frame.</summary>
-    OrangeZoomerUpsideRightLoopSecond,
-    /// <summary>The horizontal Zoomer: upside right loop, third frame.</summary>
-    OrangeZoomerUpsideRightLoopThird,
-    /// <summary>The horizontal Zoomer: upside right loop, fourth frame.</summary>
-    OrangeZoomerUpsideRightLoopFourth,
-    /// <summary>The horizontal Zoomer: upside right loop, fifth frame.</summary>
-    OrangeZoomerUpsideRightLoopFifth,
-    /// <summary>The horizontal Zoomer: upside left loop, first frame.</summary>
-    OrangeZoomerUpsideLeftLoopFirst,
-    /// <summary>The horizontal Zoomer: upside left loop, second frame.</summary>
-    OrangeZoomerUpsideLeftLoopSecond,
-    /// <summary>The horizontal Zoomer: upside left loop, third frame.</summary>
-    OrangeZoomerUpsideLeftLoopThird,
-    /// <summary>The horizontal Zoomer: upside left loop, fourth frame.</summary>
-    OrangeZoomerUpsideLeftLoopFourth,
-    /// <summary>The horizontal Zoomer: upside left loop, fifth frame.</summary>
-    OrangeZoomerUpsideLeftLoopFifth,
-    /// <summary>The horizontal Zoomer: upside down loop, first frame.</summary>
-    OrangeZoomerUpsideDownLoopFirst,
-    /// <summary>The horizontal Zoomer: upside down loop, second frame.</summary>
-    OrangeZoomerUpsideDownLoopSecond,
-    /// <summary>The horizontal Zoomer: upside down loop, third frame.</summary>
-    OrangeZoomerUpsideDownLoopThird,
-    /// <summary>The horizontal Zoomer: upside down loop, fourth frame.</summary>
-    OrangeZoomerUpsideDownLoopFourth,
-    /// <summary>The horizontal Zoomer: upside down loop, fifth frame.</summary>
-    OrangeZoomerUpsideDownLoopFifth,
-    /// <summary>The horizontal Zoomer: upside up loop, first frame.</summary>
-    OrangeZoomerUpsideUpLoopFirst,
-    /// <summary>The horizontal Zoomer: upside up loop, second frame.</summary>
-    OrangeZoomerUpsideUpLoopSecond,
-    /// <summary>The horizontal Zoomer: upside up loop, third frame.</summary>
-    OrangeZoomerUpsideUpLoopThird,
-    /// <summary>The horizontal Zoomer: upside up loop, fourth frame.</summary>
-    OrangeZoomerUpsideUpLoopFourth,
-    /// <summary>The horizontal Zoomer: upside up loop, fifth frame.</summary>
-    OrangeZoomerUpsideUpLoopFifth,
-    /// <summary>Sbug: right, first frame.</summary>
-    SbugRightFirst,
-    /// <summary>Sbug: right, second frame.</summary>
-    SbugRightSecond,
-    /// <summary>Sbug: right, third frame.</summary>
-    SbugRightThird,
-    /// <summary>Sbug: up right, first frame.</summary>
-    SbugUpRightFirst,
-    /// <summary>Sbug: up right, second frame.</summary>
-    SbugUpRightSecond,
-    /// <summary>Sbug: up right, third frame.</summary>
-    SbugUpRightThird,
-    /// <summary>Sbug: up, first frame.</summary>
-    SbugUpFirst,
-    /// <summary>Sbug: up, second frame.</summary>
-    SbugUpSecond,
-    /// <summary>Sbug: up, third frame.</summary>
-    SbugUpThird,
-    /// <summary>Sbug: up left, first frame.</summary>
-    SbugUpLeftFirst,
-    /// <summary>Sbug: up left, second frame.</summary>
-    SbugUpLeftSecond,
-    /// <summary>Sbug: up left, third frame.</summary>
-    SbugUpLeftThird,
-    /// <summary>Sbug: left, first frame.</summary>
-    SbugLeftFirst,
-    /// <summary>Sbug: left, second frame.</summary>
-    SbugLeftSecond,
-    /// <summary>Sbug: left, third frame.</summary>
-    SbugLeftThird,
-    /// <summary>Sbug: down left, first frame.</summary>
-    SbugDownLeftFirst,
-    /// <summary>Sbug: down left, second frame.</summary>
-    SbugDownLeftSecond,
-    /// <summary>Sbug: down left, third frame.</summary>
-    SbugDownLeftThird,
-    /// <summary>Sbug: down, first frame.</summary>
-    SbugDownFirst,
-    /// <summary>Sbug: down, second frame.</summary>
-    SbugDownSecond,
-    /// <summary>Sbug: down, third frame.</summary>
-    SbugDownThird,
-    /// <summary>Sbug: down right, first frame.</summary>
-    SbugDownRightFirst,
-    /// <summary>Sbug: down right, second frame.</summary>
-    SbugDownRightSecond,
-    /// <summary>Sbug: down right, third frame.</summary>
-    SbugDownRightThird,
-    /// <summary>Fune: left idle.</summary>
-    FuneLeftIdle,
-    /// <summary>Fune: active left, second frame.</summary>
-    FuneActiveLeftSecond,
-    /// <summary>Fune: active left, third frame.</summary>
-    FuneActiveLeftThird,
-    /// <summary>Fune: active left, fourth frame.</summary>
-    FuneActiveLeftFourth,
-    /// <summary>Fune: active left, fifth frame.</summary>
-    FuneActiveLeftFifth,
-    /// <summary>Fune: right idle.</summary>
-    FuneRightIdle,
-    /// <summary>Fune: active right, second frame.</summary>
-    FuneActiveRightSecond,
-    /// <summary>Fune: active right, third frame.</summary>
-    FuneActiveRightThird,
-    /// <summary>Fune: active right, fourth frame.</summary>
-    FuneActiveRightFourth,
-    /// <summary>Fune: active right, fifth frame.</summary>
-    FuneActiveRightFifth,
-    /// <summary>Namihe: left idle.</summary>
-    NamiheLeftIdle,
-    /// <summary>Namihe: active left, second frame.</summary>
-    NamiheActiveLeftSecond,
-    /// <summary>Namihe: active left, third frame.</summary>
-    NamiheActiveLeftThird,
-    /// <summary>Namihe: active left, fourth frame.</summary>
-    NamiheActiveLeftFourth,
-    /// <summary>Namihe: active left, fifth frame.</summary>
-    NamiheActiveLeftFifth,
-    /// <summary>Namihe: active left, sixth frame.</summary>
-    NamiheActiveLeftSixth,
-    /// <summary>Namihe: right idle.</summary>
-    NamiheRightIdle,
-    /// <summary>Namihe: active right, second frame.</summary>
-    NamiheActiveRightSecond,
-    /// <summary>Namihe: active right, third frame.</summary>
-    NamiheActiveRightThird,
-    /// <summary>Namihe: active right, fourth frame.</summary>
-    NamiheActiveRightFourth,
-    /// <summary>Namihe: active right, fifth frame.</summary>
-    NamiheActiveRightFifth,
-    /// <summary>Namihe: active right, sixth frame.</summary>
-    NamiheActiveRightSixth,
-    /// <summary>Kamer: platform, first frame.</summary>
-    KamerPlatformFirst,
-    /// <summary>Kamer: platform, second frame.</summary>
-    KamerPlatformSecond,
-    /// <summary>Kamer: platform, third frame.</summary>
-    KamerPlatformThird,
-    /// <summary>Kamer: platform, fourth frame.</summary>
-    KamerPlatformFourth,
-    /// <summary>The elevator: loop, first frame.</summary>
-    ElevatorLoopFirst,
-    /// <summary>The elevator: loop, second frame.</summary>
-    ElevatorLoopSecond,
-    /// <summary>A room effect actor: evir facing left, first frame.</summary>
-    EffectActorEvirFacingLeftFirst,
-    /// <summary>A room effect actor: evir facing left, second frame.</summary>
-    EffectActorEvirFacingLeftSecond,
-    /// <summary>A room effect actor: evir facing left, third frame.</summary>
-    EffectActorEvirFacingLeftThird,
-    /// <summary>A room effect actor: evir facing left, fourth frame.</summary>
-    EffectActorEvirFacingLeftFourth,
-    /// <summary>A room effect actor: short Draygon breath bubbles, first frame.</summary>
-    EffectActorShortDraygonBreathBubblesFirst,
-    /// <summary>A room effect actor: short Draygon breath bubbles, second frame.</summary>
-    EffectActorShortDraygonBreathBubblesSecond,
-    /// <summary>A room effect actor: short Draygon breath bubbles, third frame.</summary>
-    EffectActorShortDraygonBreathBubblesThird,
-    /// <summary>A room effect actor: short Draygon breath bubbles, fourth frame.</summary>
-    EffectActorShortDraygonBreathBubblesFourth,
-    /// <summary>A room effect actor: short Draygon breath bubbles, fifth frame.</summary>
-    EffectActorShortDraygonBreathBubblesFifth,
-    /// <summary>A room effect actor: short Draygon breath bubbles, sixth frame.</summary>
-    EffectActorShortDraygonBreathBubblesSixth,
-    /// <summary>A room effect actor: short Draygon breath bubbles, seventh frame.</summary>
-    EffectActorShortDraygonBreathBubblesSeventh,
-    /// <summary>A room effect actor: short Draygon breath bubbles, eighth frame.</summary>
-    EffectActorShortDraygonBreathBubblesEighth,
-    /// <summary>A room effect actor: short Draygon breath bubbles, ninth frame.</summary>
-    EffectActorShortDraygonBreathBubblesNinth,
+    /// <summary>Rio: wings up, legs tucked.</summary>
+    RioWingsUpLegsTucked,
+    /// <summary>Rio: wings level, legs tucked.</summary>
+    RioWingsLevelLegsTucked,
+    /// <summary>Rio: wings up, legs hanging.</summary>
+    RioWingsUpLegsHanging,
+    /// <summary>Rio: wings level, legs hanging.</summary>
+    RioWingsLevelLegsHanging,
+    /// <summary>Rio: wings up, legs spread wide.</summary>
+    RioWingsUpLegsSpread,
+    /// <summary>Rio: wings level, legs spread wide.</summary>
+    RioWingsLevelLegsSpread,
+    /// <summary>Rio: wings up, claws curled.</summary>
+    RioWingsUpClawsCurled,
+    /// <summary>Rio: wings level, claws curled.</summary>
+    RioWingsLevelClawsCurled,
+    /// <summary>The Lower Norfair Rio: hovering, wings raised.</summary>
+    LowerNorfairRioWingsRaised,
+    /// <summary>The Lower Norfair Rio: hovering, wings level.</summary>
+    LowerNorfairRioWingsLevel,
+    /// <summary>The Lower Norfair Rio: hovering, wings level, a pixel lower.</summary>
+    LowerNorfairRioWingsLevelDropped,
+    /// <summary>The Lower Norfair Rio: wings lifting.</summary>
+    LowerNorfairRioWingsLifting,
+    /// <summary>The Lower Norfair Rio: wings tilting out.</summary>
+    LowerNorfairRioWingsTilting,
+    /// <summary>The Lower Norfair Rio: wings opening.</summary>
+    LowerNorfairRioWingsOpening,
+    /// <summary>The Lower Norfair Rio: wings spread.</summary>
+    LowerNorfairRioWingsSpread,
+    /// <summary>The Lower Norfair Rio: wings fully spread.</summary>
+    LowerNorfairRioWingsFullySpread,
+    /// <summary>The Lower Norfair Rio: wings closing.</summary>
+    LowerNorfairRioWingsClosing,
+    /// <summary>The Lower Norfair Rio: wings folding.</summary>
+    LowerNorfairRioWingsFolding,
+    /// <summary>The Lower Norfair Rio: wings folded back.</summary>
+    LowerNorfairRioWingsFolded,
+    /// <summary>The Lower Norfair Rio: wings swept back.</summary>
+    LowerNorfairRioWingsSwept,
+    /// <summary>The Lower Norfair Rio: wings swept back: the picture of LowerNorfairRioWingsSwept, as a frame of its own.</summary>
+    LowerNorfairRioWingsSweptTwinB,
+    /// <summary>The Lower Norfair Rio: wings swept back: the picture of LowerNorfairRioWingsSwept, as a frame of its own.</summary>
+    LowerNorfairRioWingsSweptTwinC,
+    /// <summary>The Lower Norfair Rio: wings swept back: the picture of LowerNorfairRioWingsSwept, as a frame of its own.</summary>
+    LowerNorfairRioWingsSweptTwin,
+    /// <summary>The Lower Norfair Rio: the flame trailing it, large.</summary>
+    LowerNorfairRioFlameLarge,
+    /// <summary>The Lower Norfair Rio: the flame trailing it, medium.</summary>
+    LowerNorfairRioFlameMedium,
+    /// <summary>The Lower Norfair Rio: the flame trailing it, small.</summary>
+    LowerNorfairRioFlameSmall,
+    /// <summary>The Norfair Rio: hovering, wings level.</summary>
+    NorfairRioWingsLevel,
+    /// <summary>The Norfair Rio: hovering, wings spread.</summary>
+    NorfairRioWingsSpread,
+    /// <summary>The Norfair Rio: hovering, wings drooping.</summary>
+    NorfairRioWingsDrooping,
+    /// <summary>The Norfair Rio: the flame trailing it as it rises, large.</summary>
+    NorfairRioRisingFlameLarge,
+    /// <summary>The Norfair Rio: the flame trailing it as it rises, medium.</summary>
+    NorfairRioRisingFlameMedium,
+    /// <summary>The Norfair Rio: the flame trailing it as it rises, small.</summary>
+    NorfairRioRisingFlameSmall,
+    /// <summary>The Norfair Rio: diving, wings swept up.</summary>
+    NorfairRioDiving,
+    /// <summary>The Norfair Rio: diving, wings swept up: the picture of NorfairRioDiving, as a frame of its own.</summary>
+    NorfairRioDivingTwin,
+    /// <summary>The Norfair Rio: diving, wings swept up: the picture of NorfairRioDiving, as a frame of its own.</summary>
+    NorfairRioDivingTwinB,
+    /// <summary>The Norfair Rio: wings flattening.</summary>
+    NorfairRioWingsFlattening,
+    /// <summary>The Norfair Rio: wings tilting up.</summary>
+    NorfairRioWingsTilting,
+    /// <summary>The Norfair Rio: wings lifting.</summary>
+    NorfairRioWingsLifting,
+    /// <summary>The Norfair Rio: wings raising.</summary>
+    NorfairRioWingsRaising,
+    /// <summary>The Norfair Rio: wings swept up over it.</summary>
+    NorfairRioWingsSweptUp,
+    /// <summary>The Norfair Rio: climbing, wings spread low.</summary>
+    NorfairRioClimbing,
+    /// <summary>The Norfair Rio: climbing, wings spread low: the picture of NorfairRioClimbing, as a frame of its own.</summary>
+    NorfairRioClimbingTwin,
+    /// <summary>The Norfair Rio: climbing, wings spread low: the picture of NorfairRioClimbing, as a frame of its own.</summary>
+    NorfairRioClimbingTwinB,
+    /// <summary>The Norfair Rio: the flame trailing it as it falls, large.</summary>
+    NorfairRioFallingFlameLarge,
+    /// <summary>The Norfair Rio: the flame trailing it as it falls, medium.</summary>
+    NorfairRioFallingFlameMedium,
+    /// <summary>The Norfair Rio: the flame trailing it as it falls, small.</summary>
+    NorfairRioFallingFlameSmall,
+    /// <summary>Puyo: on the ground, domed tall.</summary>
+    PuyoGroundedTall,
+    /// <summary>Puyo: on the ground, flattening.</summary>
+    PuyoGroundedFlattening,
+    /// <summary>Puyo: on the ground, flat.</summary>
+    PuyoGroundedFlat,
+    /// <summary>Puyo: in the air, curling open.</summary>
+    PuyoAirborneOpening,
+    /// <summary>Puyo: in the air, half spread.</summary>
+    PuyoAirborneHalfOpen,
+    /// <summary>Puyo: in the air, spread wide.</summary>
+    PuyoAirborneSpread,
+    /// <summary>Puyo: in the air, half folded back.</summary>
+    PuyoAirborneHalfClosed,
+    /// <summary>Puyo: in the air, folding closed.</summary>
+    PuyoAirborneClosing,
+    /// <summary>Bull: floating, tentacles upright.</summary>
+    BullTentaclesUpright,
+    /// <summary>Bull: floating, tentacles tilted.</summary>
+    BullTentaclesTilted,
+    /// <summary>Bull: floating, tentacles tilted further.</summary>
+    BullTentaclesTiltedFurther,
+    /// <summary>Alcoon: walking left, its near leg stepping forward.</summary>
+    AlcoonWalkingLeftNearLegStepping,
+    /// <summary>Alcoon: walking left, its near leg planted.</summary>
+    AlcoonWalkingLeftNearLegPlanted,
+    /// <summary>Alcoon: walking left, its far leg stepping forward.</summary>
+    AlcoonWalkingLeftFarLegStepping,
+    /// <summary>Alcoon: walking left, its far leg planted.</summary>
+    AlcoonWalkingLeftFarLegPlanted,
+    /// <summary>Alcoon: standing facing left, mouth closed.</summary>
+    AlcoonFacingLeftMouthClosed,
+    /// <summary>Alcoon: standing facing left, mouth opening.</summary>
+    AlcoonFacingLeftMouthOpening,
+    /// <summary>Alcoon: standing facing left, mouth open, a fireball glowing in its throat.</summary>
+    AlcoonFacingLeftThroatGlowing,
+    /// <summary>Alcoon: standing facing left, mouth wide open, snout raised.</summary>
+    AlcoonFacingLeftMouthWide,
+    /// <summary>Alcoon: stretched upright in a leap, facing left.</summary>
+    AlcoonLeapingFacingLeft,
+    /// <summary>Alcoon: walking right, its near leg stepping forward.</summary>
+    AlcoonWalkingRightNearLegStepping,
+    /// <summary>Alcoon: walking right, its near leg planted.</summary>
+    AlcoonWalkingRightNearLegPlanted,
+    /// <summary>Alcoon: walking right, its far leg stepping forward.</summary>
+    AlcoonWalkingRightFarLegStepping,
+    /// <summary>Alcoon: walking right, its far leg planted.</summary>
+    AlcoonWalkingRightFarLegPlanted,
+    /// <summary>Alcoon: standing facing right, mouth closed.</summary>
+    AlcoonFacingRightMouthClosed,
+    /// <summary>Alcoon: standing facing right, mouth opening.</summary>
+    AlcoonFacingRightMouthOpening,
+    /// <summary>Alcoon: standing facing right, mouth open, a fireball glowing in its throat.</summary>
+    AlcoonFacingRightThroatGlowing,
+    /// <summary>Alcoon: standing facing right, mouth wide open, snout raised.</summary>
+    AlcoonFacingRightMouthWide,
+    /// <summary>Alcoon: stretched upright in a leap, facing right.</summary>
+    AlcoonLeapingFacingRight,
+    /// <summary>Beetom: crawling left, legs tucked.</summary>
+    BeetomCrawlingLeftLegsTucked,
+    /// <summary>Beetom: crawling left, legs part way out.</summary>
+    BeetomCrawlingLeftLegsMid,
+    /// <summary>Beetom: crawling left, legs out.</summary>
+    BeetomCrawlingLeftLegsOut,
+    /// <summary>Beetom: hopping left, its hind leg pushing off.</summary>
+    BeetomHoppingLeftLegPushing,
+    /// <summary>Beetom: hopping left, its hind leg stretched out.</summary>
+    BeetomHoppingLeftLegStretched,
+    /// <summary>Beetom: latched on facing left, its gem bright green.</summary>
+    BeetomLatchedFacingLeftGemGreenBright,
+    /// <summary>Beetom: latched on facing left, its gem green.</summary>
+    BeetomLatchedFacingLeftGemGreen,
+    /// <summary>Beetom: latched on facing left, its gem dim green.</summary>
+    BeetomLatchedFacingLeftGemGreenDim,
+    /// <summary>Beetom: latched on facing left, its gem bright red.</summary>
+    BeetomLatchedFacingLeftGemRedBright,
+    /// <summary>Beetom: latched on facing left, its gem red.</summary>
+    BeetomLatchedFacingLeftGemRed,
+    /// <summary>Beetom: latched on facing left, its gem dark red.</summary>
+    BeetomLatchedFacingLeftGemRedDim,
+    /// <summary>Beetom: crawling right, legs tucked.</summary>
+    BeetomCrawlingRightLegsTucked,
+    /// <summary>Beetom: crawling right, legs part way out.</summary>
+    BeetomCrawlingRightLegsMid,
+    /// <summary>Beetom: crawling right, legs out.</summary>
+    BeetomCrawlingRightLegsOut,
+    /// <summary>Beetom: hopping right, its hind leg pushing off.</summary>
+    BeetomHoppingRightLegPushing,
+    /// <summary>Beetom: hopping right, its hind leg stretched out.</summary>
+    BeetomHoppingRightLegStretched,
+    /// <summary>Beetom: latched on facing right, its gem bright green.</summary>
+    BeetomLatchedFacingRightGemGreenBright,
+    /// <summary>Beetom: latched on facing right, its gem green.</summary>
+    BeetomLatchedFacingRightGemGreen,
+    /// <summary>Beetom: latched on facing right, its gem dim green.</summary>
+    BeetomLatchedFacingRightGemGreenDim,
+    /// <summary>Beetom: latched on facing right, its gem bright red.</summary>
+    BeetomLatchedFacingRightGemRedBright,
+    /// <summary>Beetom: latched on facing right, its gem red.</summary>
+    BeetomLatchedFacingRightGemRed,
+    /// <summary>Beetom: latched on facing right, its gem dark red.</summary>
+    BeetomLatchedFacingRightGemRedDim,
+    /// <summary>Sidehopper: on the floor, legs straight.</summary>
+    SidehopperLegsStraight,
+    /// <summary>Sidehopper: on the floor, legs bent.</summary>
+    SidehopperLegsBent,
+    /// <summary>Sidehopper: on the floor, crouched low.</summary>
+    SidehopperLegsCrouched,
+    /// <summary>Sidehopper: upside down on the ceiling, legs straight.</summary>
+    SidehopperUpsideDownLegsStraight,
+    /// <summary>Sidehopper: upside down on the ceiling, legs bent.</summary>
+    SidehopperUpsideDownLegsBent,
+    /// <summary>Sidehopper: upside down on the ceiling, crouched low.</summary>
+    SidehopperUpsideDownLegsCrouched,
+    /// <summary>Dessgeega: on the floor, legs straight.</summary>
+    DessgeegaLegsStraight,
+    /// <summary>Dessgeega: on the floor, legs bent.</summary>
+    DessgeegaLegsBent,
+    /// <summary>Dessgeega: on the floor, crouched low.</summary>
+    DessgeegaLegsCrouched,
+    /// <summary>Dessgeega: upside down on the ceiling, legs straight.</summary>
+    DessgeegaUpsideDownLegsStraight,
+    /// <summary>Dessgeega: upside down on the ceiling, legs bent.</summary>
+    DessgeegaUpsideDownLegsBent,
+    /// <summary>Dessgeega: upside down on the ceiling, crouched low.</summary>
+    DessgeegaUpsideDownLegsCrouched,
+    /// <summary>The large Sidehopper: on the floor, legs straight.</summary>
+    LargeSidehopperLegsStraight,
+    /// <summary>The large Sidehopper: on the floor, legs bent.</summary>
+    LargeSidehopperLegsBent,
+    /// <summary>The large Sidehopper: on the floor, crouched low.</summary>
+    LargeSidehopperLegsCrouched,
+    /// <summary>The large Sidehopper: upside down on the ceiling, legs straight.</summary>
+    LargeSidehopperUpsideDownLegsStraight,
+    /// <summary>The large Sidehopper: upside down on the ceiling, legs bent.</summary>
+    LargeSidehopperUpsideDownLegsBent,
+    /// <summary>The large Sidehopper: upside down on the ceiling, crouched low.</summary>
+    LargeSidehopperUpsideDownLegsCrouched,
+    /// <summary>The large Dessgeega: on the floor, legs straight.</summary>
+    LargeDessgeegaLegsStraight,
+    /// <summary>The large Dessgeega: on the floor, legs bent.</summary>
+    LargeDessgeegaLegsBent,
+    /// <summary>The large Dessgeega: on the floor, crouched low.</summary>
+    LargeDessgeegaLegsCrouched,
+    /// <summary>The large Dessgeega: upside down on the ceiling, legs straight.</summary>
+    LargeDessgeegaUpsideDownLegsStraight,
+    /// <summary>The large Dessgeega: upside down on the ceiling, legs bent.</summary>
+    LargeDessgeegaUpsideDownLegsBent,
+    /// <summary>The large Dessgeega: upside down on the ceiling, crouched low.</summary>
+    LargeDessgeegaUpsideDownLegsCrouched,
+    /// <summary>Choot: lying flat.</summary>
+    ChootLyingFlat,
+    /// <summary>Choot: springing up, its edges folding.</summary>
+    ChootSpringing,
+    /// <summary>Choot: folded up.</summary>
+    ChootFolded,
+    /// <summary>Choot: spread out wide as it drifts down.</summary>
+    ChootSpreadOut,
+    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 0 degrees.</summary>
+    OrangeZoomerUpsideRightSpinesTurned0,
+    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 12 degrees.</summary>
+    OrangeZoomerUpsideRightSpinesTurned12,
+    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 24 degrees.</summary>
+    OrangeZoomerUpsideRightSpinesTurned24,
+    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 36 degrees.</summary>
+    OrangeZoomerUpsideRightSpinesTurned36,
+    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 48 degrees.</summary>
+    OrangeZoomerUpsideRightSpinesTurned48,
+    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 0 degrees.</summary>
+    OrangeZoomerUpsideLeftSpinesTurned0,
+    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 12 degrees.</summary>
+    OrangeZoomerUpsideLeftSpinesTurned12,
+    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 24 degrees.</summary>
+    OrangeZoomerUpsideLeftSpinesTurned24,
+    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 36 degrees.</summary>
+    OrangeZoomerUpsideLeftSpinesTurned36,
+    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 48 degrees.</summary>
+    OrangeZoomerUpsideLeftSpinesTurned48,
+    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 0 degrees.</summary>
+    OrangeZoomerUpsideDownSpinesTurned0,
+    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 12 degrees.</summary>
+    OrangeZoomerUpsideDownSpinesTurned12,
+    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 24 degrees.</summary>
+    OrangeZoomerUpsideDownSpinesTurned24,
+    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 36 degrees.</summary>
+    OrangeZoomerUpsideDownSpinesTurned36,
+    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 48 degrees.</summary>
+    OrangeZoomerUpsideDownSpinesTurned48,
+    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 0 degrees.</summary>
+    OrangeZoomerUpsideUpSpinesTurned0,
+    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 12 degrees.</summary>
+    OrangeZoomerUpsideUpSpinesTurned12,
+    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 24 degrees.</summary>
+    OrangeZoomerUpsideUpSpinesTurned24,
+    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 36 degrees.</summary>
+    OrangeZoomerUpsideUpSpinesTurned36,
+    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 48 degrees.</summary>
+    OrangeZoomerUpsideUpSpinesTurned48,
+    /// <summary>Sbug: facing right, wings up.</summary>
+    SbugFacingRightWingsUp,
+    /// <summary>Sbug: facing right, wings level.</summary>
+    SbugFacingRightWingsLevel,
+    /// <summary>Sbug: facing right, wings down.</summary>
+    SbugFacingRightWingsDown,
+    /// <summary>Sbug: facing up and right, wings up.</summary>
+    SbugFacingUpRightWingsUp,
+    /// <summary>Sbug: facing up and right, wings level.</summary>
+    SbugFacingUpRightWingsLevel,
+    /// <summary>Sbug: facing up and right, wings down.</summary>
+    SbugFacingUpRightWingsDown,
+    /// <summary>Sbug: facing up, wings up.</summary>
+    SbugFacingUpWingsUp,
+    /// <summary>Sbug: facing up, wings level.</summary>
+    SbugFacingUpWingsLevel,
+    /// <summary>Sbug: facing up, wings down.</summary>
+    SbugFacingUpWingsDown,
+    /// <summary>Sbug: facing up and left, wings up.</summary>
+    SbugFacingUpLeftWingsUp,
+    /// <summary>Sbug: facing up and left, wings level.</summary>
+    SbugFacingUpLeftWingsLevel,
+    /// <summary>Sbug: facing up and left, wings down.</summary>
+    SbugFacingUpLeftWingsDown,
+    /// <summary>Sbug: facing left, wings up.</summary>
+    SbugFacingLeftWingsUp,
+    /// <summary>Sbug: facing left, wings level.</summary>
+    SbugFacingLeftWingsLevel,
+    /// <summary>Sbug: facing left, wings down.</summary>
+    SbugFacingLeftWingsDown,
+    /// <summary>Sbug: facing down and left, wings up.</summary>
+    SbugFacingDownLeftWingsUp,
+    /// <summary>Sbug: facing down and left, wings level.</summary>
+    SbugFacingDownLeftWingsLevel,
+    /// <summary>Sbug: facing down and left, wings down.</summary>
+    SbugFacingDownLeftWingsDown,
+    /// <summary>Sbug: facing down, wings up.</summary>
+    SbugFacingDownWingsUp,
+    /// <summary>Sbug: facing down, wings level.</summary>
+    SbugFacingDownWingsLevel,
+    /// <summary>Sbug: facing down, wings down.</summary>
+    SbugFacingDownWingsDown,
+    /// <summary>Sbug: facing down and right, wings up.</summary>
+    SbugFacingDownRightWingsUp,
+    /// <summary>Sbug: facing down and right, wings level.</summary>
+    SbugFacingDownRightWingsLevel,
+    /// <summary>Sbug: facing down and right, wings down.</summary>
+    SbugFacingDownRightWingsDown,
+    /// <summary>Fune: facing left, mouth closed.</summary>
+    FuneFacingLeftMouthClosed,
+    /// <summary>Fune: facing left, mouth opening.</summary>
+    FuneFacingLeftMouthOpening,
+    /// <summary>Fune: facing left, mouth half open.</summary>
+    FuneFacingLeftMouthHalfOpen,
+    /// <summary>Fune: facing left, mouth open.</summary>
+    FuneFacingLeftMouthOpen,
+    /// <summary>Fune: facing left, mouth wide open.</summary>
+    FuneFacingLeftMouthWide,
+    /// <summary>Fune: facing right, mouth closed.</summary>
+    FuneFacingRightMouthClosed,
+    /// <summary>Fune: facing right, mouth opening.</summary>
+    FuneFacingRightMouthOpening,
+    /// <summary>Fune: facing right, mouth half open.</summary>
+    FuneFacingRightMouthHalfOpen,
+    /// <summary>Fune: facing right, mouth open.</summary>
+    FuneFacingRightMouthOpen,
+    /// <summary>Fune: facing right, mouth wide open.</summary>
+    FuneFacingRightMouthWide,
+    /// <summary>Namihe: facing left, mouth closed.</summary>
+    NamiheFacingLeftMouthClosed,
+    /// <summary>Namihe: facing left, mouth opening.</summary>
+    NamiheFacingLeftMouthOpening,
+    /// <summary>Namihe: facing left, mouth half open.</summary>
+    NamiheFacingLeftMouthHalfOpen,
+    /// <summary>Namihe: facing left, mouth open.</summary>
+    NamiheFacingLeftMouthOpen,
+    /// <summary>Namihe: facing left, mouth wide open.</summary>
+    NamiheFacingLeftMouthWide,
+    /// <summary>Namihe: facing left, mouth stretched widest.</summary>
+    NamiheFacingLeftMouthWidest,
+    /// <summary>Namihe: facing right, mouth closed.</summary>
+    NamiheFacingRightMouthClosed,
+    /// <summary>Namihe: facing right, mouth opening.</summary>
+    NamiheFacingRightMouthOpening,
+    /// <summary>Namihe: facing right, mouth half open.</summary>
+    NamiheFacingRightMouthHalfOpen,
+    /// <summary>Namihe: facing right, mouth open.</summary>
+    NamiheFacingRightMouthOpen,
+    /// <summary>Namihe: facing right, mouth wide open.</summary>
+    NamiheFacingRightMouthWide,
+    /// <summary>Namihe: facing right, mouth stretched widest.</summary>
+    NamiheFacingRightMouthWidest,
+    /// <summary>Kamer: its light dark.</summary>
+    KamerLightDark,
+    /// <summary>Kamer: its light dim.</summary>
+    KamerLightDim,
+    /// <summary>Kamer: its light lit.</summary>
+    KamerLightLit,
+    /// <summary>Kamer: its light bright.</summary>
+    KamerLightBright,
+    /// <summary>The elevator: its pad unlit.</summary>
+    ElevatorPadUnlit,
+    /// <summary>The elevator: its pad lit.</summary>
+    ElevatorPadLit,
+    /// <summary>A room effect actor: an Evir's body facing left, all white, legs stretched down.</summary>
+    EffectActorEvirFacingLeftLegsStretched,
+    /// <summary>A room effect actor: an Evir's body facing left, all white, legs lowered.</summary>
+    EffectActorEvirFacingLeftLegsLowered,
+    /// <summary>A room effect actor: an Evir's body facing left, all white, legs tucked.</summary>
+    EffectActorEvirFacingLeftLegsTucked,
+    /// <summary>A room effect actor: an Evir's body facing left, all white, legs lowering again.</summary>
+    EffectActorEvirFacingLeftLegsLowering,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 6 pixels wide and 7 high, risen 0 pixels.</summary>
+    EffectActorDraygonBreathBubbles6By7Risen0,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 12 pixels wide and 12 high, risen 6 pixels.</summary>
+    EffectActorDraygonBreathBubbles12By12Risen6,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 14 pixels wide and 13 high, risen 8 pixels.</summary>
+    EffectActorDraygonBreathBubbles14By13Risen8,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 12 pixels wide and 14 high, risen 11 pixels.</summary>
+    EffectActorDraygonBreathBubbles12By14Risen11,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 12 pixels wide and 14 high, risen 14 pixels.</summary>
+    EffectActorDraygonBreathBubbles12By14Risen14,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 10 pixels wide and 13 high, risen 15 pixels.</summary>
+    EffectActorDraygonBreathBubbles10By13Risen15,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 10 pixels wide and 12 high, risen 16 pixels.</summary>
+    EffectActorDraygonBreathBubbles10By12Risen16,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 8 pixels wide and 10 high, risen 16 pixels.</summary>
+    EffectActorDraygonBreathBubbles8By10Risen16,
+    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 4 pixels wide and 6 high, risen 14 pixels.</summary>
+    EffectActorDraygonBreathBubbles4By6Risen14,
     /// <summary>A room effect actor: empty.</summary>
     EffectActorEmpty,
-    /// <summary>A room effect actor: short big dust cloud, first frame.</summary>
-    EffectActorShortBigDustCloudFirst,
-    /// <summary>A room effect actor: short big dust cloud, second frame.</summary>
-    EffectActorShortBigDustCloudSecond,
-    /// <summary>A room effect actor: short big dust cloud, third frame.</summary>
-    EffectActorShortBigDustCloudThird,
-    /// <summary>A room effect actor: short big dust cloud, fourth frame.</summary>
-    EffectActorShortBigDustCloudFourth,
-    /// <summary>A room effect actor: big dust cloud, fifth frame.</summary>
-    EffectActorBigDustCloudFifth,
-    /// <summary>A room effect actor: big dust cloud, sixth frame.</summary>
-    EffectActorBigDustCloudSixth,
-    /// <summary>A room effect actor: big dust cloud, seventh frame.</summary>
-    EffectActorBigDustCloudSeventh,
-    /// <summary>A room effect actor: big dust cloud, eighth frame.</summary>
-    EffectActorBigDustCloudEighth,
-    /// <summary>A room effect actor: small explosion, first frame.</summary>
-    EffectActorSmallExplosionFirst,
-    /// <summary>A room effect actor: small explosion, second frame.</summary>
-    EffectActorSmallExplosionSecond,
-    /// <summary>A room effect actor: small explosion, third frame.</summary>
-    EffectActorSmallExplosionThird,
-    /// <summary>A room effect actor: small explosion, fourth frame.</summary>
-    EffectActorSmallExplosionFourth,
-    /// <summary>A room effect actor: small explosion, fifth frame.</summary>
-    EffectActorSmallExplosionFifth,
-    /// <summary>A room effect actor: small explosion, sixth frame.</summary>
-    EffectActorSmallExplosionSixth,
-    /// <summary>A room effect actor: dud shot, first frame.</summary>
-    EffectActorDudShotFirst,
-    /// <summary>A room effect actor: dud shot, second frame.</summary>
-    EffectActorDudShotSecond,
-    /// <summary>A room effect actor: dud shot, third frame.</summary>
-    EffectActorDudShotThird,
-    /// <summary>A room effect actor: dud shot, fourth frame.</summary>
-    EffectActorDudShotFourth,
-    /// <summary>A room effect actor: dud shot, fifth frame.</summary>
-    EffectActorDudShotFifth,
-    /// <summary>A room effect actor: dud shot, sixth frame.</summary>
-    EffectActorDudShotSixth,
-    /// <summary>A room effect actor: small dud shot, second frame.</summary>
-    EffectActorSmallDudShotSecond,
-    /// <summary>A room effect actor: small dud shot, third frame.</summary>
-    EffectActorSmallDudShotThird,
-    /// <summary>A room effect actor: small dud shot, fourth frame.</summary>
-    EffectActorSmallDudShotFourth,
-    /// <summary>A room effect actor: small dud shot, fifth frame.</summary>
-    EffectActorSmallDudShotFifth,
-    /// <summary>A room effect actor: small dud shot, first frame.</summary>
-    EffectActorSmallDudShotFirst,
-    /// <summary>A room effect actor: space pirate landing dust cloud, second frame.</summary>
-    EffectActorSpacePirateLandingDustCloudSecond,
-    /// <summary>A room effect actor: space pirate landing dust cloud, third frame.</summary>
-    EffectActorSpacePirateLandingDustCloudThird,
-    /// <summary>A room effect actor: space pirate landing dust cloud, fourth frame.</summary>
-    EffectActorSpacePirateLandingDustCloudFourth,
-    /// <summary>A room effect actor: smoke, first frame.</summary>
-    EffectActorSmokeFirst,
-    /// <summary>A room effect actor: smoke, second frame.</summary>
-    EffectActorSmokeSecond,
-    /// <summary>A room effect actor: smoke, third frame.</summary>
-    EffectActorSmokeThird,
-    /// <summary>A room effect actor: smoke, fourth frame.</summary>
-    EffectActorSmokeFourth,
-    /// <summary>A room effect actor: big explosion, first frame.</summary>
-    EffectActorBigExplosionFirst,
-    /// <summary>A room effect actor: big explosion, second frame.</summary>
-    EffectActorBigExplosionSecond,
-    /// <summary>A room effect actor: big explosion, third frame.</summary>
-    EffectActorBigExplosionThird,
-    /// <summary>A room effect actor: big explosion, fourth frame.</summary>
-    EffectActorBigExplosionFourth,
-    /// <summary>A room effect actor: big explosion, fifth frame.</summary>
-    EffectActorBigExplosionFifth,
-    /// <summary>A room effect actor: big explosion, sixth frame.</summary>
-    EffectActorBigExplosionSixth,
-    /// <summary>A room effect actor: puromi body, first frame.</summary>
-    EffectActorPuromiBodyFirst,
-    /// <summary>A room effect actor: puromi body, second frame.</summary>
-    EffectActorPuromiBodySecond,
-    /// <summary>A room effect actor: puromi body, fourth frame.</summary>
-    EffectActorPuromiBodyFourth,
-    /// <summary>A room effect actor: puromi body, fifth frame.</summary>
-    EffectActorPuromiBodyFifth,
-    /// <summary>A room effect actor: puromi body, third frame.</summary>
-    EffectActorPuromiBodyThird,
-    /// <summary>A room effect actor: puromi body, sixth frame.</summary>
-    EffectActorPuromiBodySixth,
-    /// <summary>A room effect actor: puromi body, seventh frame.</summary>
-    EffectActorPuromiBodySeventh,
-    /// <summary>A room effect actor: puromi body, eighth frame.</summary>
-    EffectActorPuromiBodyEighth,
-    /// <summary>A room effect actor: puromi right explosion, first frame.</summary>
-    EffectActorPuromiRightExplosionFirst,
-    /// <summary>A room effect actor: puromi right explosion, second frame.</summary>
-    EffectActorPuromiRightExplosionSecond,
-    /// <summary>A room effect actor: puromi right explosion, third frame.</summary>
-    EffectActorPuromiRightExplosionThird,
-    /// <summary>A room effect actor: puromi right explosion, fourth frame.</summary>
-    EffectActorPuromiRightExplosionFourth,
-    /// <summary>A room effect actor: puromi right explosion, fifth frame.</summary>
-    EffectActorPuromiRightExplosionFifth,
-    /// <summary>A room effect actor: puromi right explosion, sixth frame.</summary>
-    EffectActorPuromiRightExplosionSixth,
-    /// <summary>A room effect actor: puromi right explosion, seventh frame.</summary>
-    EffectActorPuromiRightExplosionSeventh,
-    /// <summary>A room effect actor: puromi left explosion, first frame.</summary>
-    EffectActorPuromiLeftExplosionFirst,
-    /// <summary>A room effect actor: puromi left explosion, second frame.</summary>
-    EffectActorPuromiLeftExplosionSecond,
-    /// <summary>A room effect actor: puromi left explosion, third frame.</summary>
-    EffectActorPuromiLeftExplosionThird,
-    /// <summary>A room effect actor: puromi left explosion, fourth frame.</summary>
-    EffectActorPuromiLeftExplosionFourth,
-    /// <summary>A room effect actor: puromi left explosion, fifth frame.</summary>
-    EffectActorPuromiLeftExplosionFifth,
-    /// <summary>A room effect actor: puromi left explosion, sixth frame.</summary>
-    EffectActorPuromiLeftExplosionSixth,
-    /// <summary>A room effect actor: puromi left explosion, seventh frame.</summary>
-    EffectActorPuromiLeftExplosionSeventh,
-    /// <summary>A room effect actor: puromi splash, first frame.</summary>
-    EffectActorPuromiSplashFirst,
-    /// <summary>A room effect actor: puromi splash, second frame.</summary>
-    EffectActorPuromiSplashSecond,
-    /// <summary>A room effect actor: puromi splash, third frame.</summary>
-    EffectActorPuromiSplashThird,
-    /// <summary>A room effect actor: puromi splash, fourth frame.</summary>
-    EffectActorPuromiSplashFourth,
-    /// <summary>A room effect actor: falling spark trail, first frame.</summary>
-    EffectActorFallingSparkTrailFirst,
-    /// <summary>A room effect actor: falling spark trail, second frame.</summary>
-    EffectActorFallingSparkTrailSecond,
-    /// <summary>A room effect actor: falling spark trail, third frame.</summary>
-    EffectActorFallingSparkTrailThird,
-    /// <summary>A room effect actor: falling spark trail, fourth frame.</summary>
-    EffectActorFallingSparkTrailFourth,
-    /// <summary>A room effect actor: Metroid shell, first frame.</summary>
-    EffectActorMetroidShellFirst,
-    /// <summary>A room effect actor: Metroid shell, third frame.</summary>
-    EffectActorMetroidShellThird,
-    /// <summary>A room effect actor: Metroid shell loop, third frame.</summary>
-    EffectActorMetroidShellLoopThird,
-    /// <summary>A room effect actor: Metroid electricity, first frame.</summary>
-    EffectActorMetroidElectricityFirst,
-    /// <summary>A room effect actor: Metroid electricity, second frame.</summary>
-    EffectActorMetroidElectricitySecond,
-    /// <summary>A room effect actor: Metroid electricity, third frame.</summary>
-    EffectActorMetroidElectricityThird,
-    /// <summary>A room effect actor: Metroid electricity, fifth frame.</summary>
-    EffectActorMetroidElectricityFifth,
-    /// <summary>A room effect actor: Metroid electricity, sixth frame.</summary>
-    EffectActorMetroidElectricitySixth,
-    /// <summary>A room effect actor: Metroid electricity, seventh frame.</summary>
-    EffectActorMetroidElectricitySeventh,
-    /// <summary>A room effect actor: Metroid electricity loop, first frame.</summary>
-    EffectActorMetroidElectricityLoopFirst,
-    /// <summary>A room effect actor: Metroid electricity loop, second frame.</summary>
-    EffectActorMetroidElectricityLoopSecond,
-    /// <summary>A room effect actor: Metroid electricity loop, third frame.</summary>
-    EffectActorMetroidElectricityLoopThird,
-    /// <summary>A room effect actor: Metroid electricity, eleventh frame.</summary>
-    EffectActorMetroidElectricityEleventh,
-    /// <summary>A room effect actor: Metroid electricity, twelfth frame.</summary>
-    EffectActorMetroidElectricityTwelfth,
-    /// <summary>A room effect actor: Metroid electricity, thirteenth frame.</summary>
-    EffectActorMetroidElectricityThirteenth,
-    /// <summary>A room effect actor: Metroid electricity, eighth frame.</summary>
-    EffectActorMetroidElectricityEighth,
-    /// <summary>A room effect actor: Metroid electricity, ninth frame.</summary>
-    EffectActorMetroidElectricityNinth,
-    /// <summary>A room effect actor: Metroid electricity, tenth frame.</summary>
-    EffectActorMetroidElectricityTenth,
-    /// <summary>A room effect actor: Metroid electricity, fourteenth frame.</summary>
-    EffectActorMetroidElectricityFourteenth,
-    /// <summary>A room effect actor: Metroid electricity, fifteenth frame.</summary>
-    EffectActorMetroidElectricityFifteenth,
-    /// <summary>A room effect actor: Metroid electricity, sixteenth frame.</summary>
-    EffectActorMetroidElectricitySixteenth,
-    /// <summary>A room effect actor: Metroid electricity, seventeenth frame.</summary>
-    EffectActorMetroidElectricitySeventeenth,
-    /// <summary>A room effect actor: Metroid electricity, eighteenth frame.</summary>
-    EffectActorMetroidElectricityEighteenth,
-    /// <summary>A room effect actor: Metroid electricity, nineteenth frame.</summary>
-    EffectActorMetroidElectricityNineteenth,
-    /// <summary>A room effect actor: Metroid electricity loop, fifth frame.</summary>
-    EffectActorMetroidElectricityLoopFifth,
-    /// <summary>A room effect actor: Metroid electricity loop, sixth frame.</summary>
-    EffectActorMetroidElectricityLoopSixth,
-    /// <summary>A room effect actor: Metroid electricity loop, seventh frame.</summary>
-    EffectActorMetroidElectricityLoopSeventh,
+    /// <summary>A room effect actor: a puff of dust.</summary>
+    EffectActorBigDustCloudPuff,
+    /// <summary>A room effect actor: a dust cloud swelling.</summary>
+    EffectActorBigDustCloudSwelling,
+    /// <summary>A room effect actor: a dust cloud swollen.</summary>
+    EffectActorBigDustCloudSwollen,
+    /// <summary>A room effect actor: a dust cloud billowing.</summary>
+    EffectActorBigDustCloudBillowing,
+    /// <summary>A room effect actor: a dust cloud at its fullest.</summary>
+    EffectActorBigDustCloudFull,
+    /// <summary>A room effect actor: a dust cloud thinning.</summary>
+    EffectActorBigDustCloudThinning,
+    /// <summary>A room effect actor: a dust cloud fading.</summary>
+    EffectActorBigDustCloudFading,
+    /// <summary>A room effect actor: the last wisps of a dust cloud.</summary>
+    EffectActorBigDustCloudWisps,
+    /// <summary>A room effect actor: a spark.</summary>
+    EffectActorSmallExplosionSpark,
+    /// <summary>A room effect actor: a small fireball.</summary>
+    EffectActorSmallExplosionFireball,
+    /// <summary>A room effect actor: a white flash.</summary>
+    EffectActorSmallExplosionFlash,
+    /// <summary>A room effect actor: a burst of flame round a ring.</summary>
+    EffectActorSmallExplosionBurst,
+    /// <summary>A room effect actor: a ring of fire.</summary>
+    EffectActorSmallExplosionRing,
+    /// <summary>A room effect actor: scattering embers.</summary>
+    EffectActorSmallExplosionScattering,
+    /// <summary>A room effect actor: a dot of light.</summary>
+    EffectActorDudShotDot,
+    /// <summary>A room effect actor: a spark.</summary>
+    EffectActorDudShotSpark,
+    /// <summary>A room effect actor: a white flash.</summary>
+    EffectActorDudShotFlash,
+    /// <summary>A room effect actor: a ring round a glowing core.</summary>
+    EffectActorDudShotRing,
+    /// <summary>A room effect actor: a thin ring.</summary>
+    EffectActorDudShotThinRing,
+    /// <summary>A room effect actor: a fading ring.</summary>
+    EffectActorDudShotFadingRing,
+    /// <summary>A room effect actor: a smoke cloud.</summary>
+    EffectActorSmallDudShotSmoke,
+    /// <summary>A room effect actor: a smoke cloud rising.</summary>
+    EffectActorSmallDudShotSmokeRising,
+    /// <summary>A room effect actor: a smoke cloud risen.</summary>
+    EffectActorSmallDudShotSmokeRisen,
+    /// <summary>A room effect actor: a smoke cloud fading.</summary>
+    EffectActorSmallDudShotSmokeFading,
+    /// <summary>A room effect actor: a puff of smoke.</summary>
+    EffectActorSmallDudShotPuff,
+    /// <summary>A room effect actor: a puff of dust.</summary>
+    EffectActorSpacePirateLandingDustPuff,
+    /// <summary>A room effect actor: a puff of dust rising.</summary>
+    EffectActorSpacePirateLandingDustPuffRising,
+    /// <summary>A room effect actor: a puff of dust risen.</summary>
+    EffectActorSpacePirateLandingDustPuffRisen,
+    /// <summary>A room effect actor: a smoke puff, low.</summary>
+    EffectActorSmokeLow,
+    /// <summary>A room effect actor: a smoke puff rising.</summary>
+    EffectActorSmokeRising,
+    /// <summary>A room effect actor: a smoke puff risen.</summary>
+    EffectActorSmokeRisen,
+    /// <summary>A room effect actor: a smoke puff fading away.</summary>
+    EffectActorSmokeFading,
+    /// <summary>A room effect actor: a fireball.</summary>
+    EffectActorBigExplosionFireball,
+    /// <summary>A room effect actor: a white flash.</summary>
+    EffectActorBigExplosionFlash,
+    /// <summary>A room effect actor: a burst of flame round a ring.</summary>
+    EffectActorBigExplosionBurst,
+    /// <summary>A room effect actor: a thick white ring.</summary>
+    EffectActorBigExplosionRing,
+    /// <summary>A room effect actor: a wide white ring.</summary>
+    EffectActorBigExplosionWideRing,
+    /// <summary>A room effect actor: a fading ring.</summary>
+    EffectActorBigExplosionFadingRing,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, upright.</summary>
+    EffectActorNuclearWaffleBodyTurned0,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned an eighth.</summary>
+    EffectActorNuclearWaffleBodyTurned45,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned three eighths.</summary>
+    EffectActorNuclearWaffleBodyTurned135,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned half way.</summary>
+    EffectActorNuclearWaffleBodyTurned180,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned a quarter.</summary>
+    EffectActorNuclearWaffleBodyTurned90,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned five eighths.</summary>
+    EffectActorNuclearWaffleBodyTurned225,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned three quarters.</summary>
+    EffectActorNuclearWaffleBodyTurned270,
+    /// <summary>A room effect actor: a nuclear waffle's swirling body, turned seven eighths.</summary>
+    EffectActorNuclearWaffleBodyTurned315,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: an ember.</summary>
+    EffectActorNuclearWaffleRightExplosionEmber,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: a small fireball.</summary>
+    EffectActorNuclearWaffleRightExplosionBall,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: a fireball swelling.</summary>
+    EffectActorNuclearWaffleRightExplosionSwelling,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: a fireball glowing.</summary>
+    EffectActorNuclearWaffleRightExplosionGlowing,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: a fireball bursting.</summary>
+    EffectActorNuclearWaffleRightExplosionBursting,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: embers scattering.</summary>
+    EffectActorNuclearWaffleRightExplosionScattering,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the right: the last scattered embers.</summary>
+    EffectActorNuclearWaffleRightExplosionScattered,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: an ember.</summary>
+    EffectActorNuclearWaffleLeftExplosionEmber,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: a small fireball.</summary>
+    EffectActorNuclearWaffleLeftExplosionBall,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: a fireball swelling.</summary>
+    EffectActorNuclearWaffleLeftExplosionSwelling,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: a fireball glowing.</summary>
+    EffectActorNuclearWaffleLeftExplosionGlowing,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: a fireball bursting.</summary>
+    EffectActorNuclearWaffleLeftExplosionBursting,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: embers scattering.</summary>
+    EffectActorNuclearWaffleLeftExplosionScattering,
+    /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: the last scattered embers.</summary>
+    EffectActorNuclearWaffleLeftExplosionScattered,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash, 25 pixels wide.</summary>
+    EffectActorNuclearWaffleSplash25Wide,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash, 29 pixels wide.</summary>
+    EffectActorNuclearWaffleSplash29Wide,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash, 39 pixels wide.</summary>
+    EffectActorNuclearWaffleSplash39Wide,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash, 45 pixels wide.</summary>
+    EffectActorNuclearWaffleSplash45Wide,
+    /// <summary>A room effect actor: a falling spark's trailing sparkle, bright.</summary>
+    EffectActorFallingSparkTrailBright,
+    /// <summary>A room effect actor: a falling spark's trailing sparkle, twinkling.</summary>
+    EffectActorFallingSparkTrailTwinkling,
+    /// <summary>A room effect actor: a falling spark's trailing sparkle, dimming.</summary>
+    EffectActorFallingSparkTrailDimming,
+    /// <summary>A room effect actor: a falling spark's trailing sparkle, fading.</summary>
+    EffectActorFallingSparkTrailFading,
+    /// <summary>A room effect actor: a frozen Metroid's shell, 38 pixels wide and 27 high.</summary>
+    EffectActorMetroidShell38By27,
+    /// <summary>A room effect actor: a frozen Metroid's shell, 44 pixels wide and 29 high.</summary>
+    EffectActorMetroidShell44By29,
+    /// <summary>A room effect actor: a frozen Metroid's shell, 38 pixels wide and 28 high.</summary>
+    EffectActorMetroidShell38By28,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 23 pixels wide and 21 high, anchored 16 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc23By21Anchored16By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 22 pixels wide and 22 high, anchored 16 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc22By22Anchored16By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 23 high, anchored 16 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc24By23Anchored16By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 18 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc24By18Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 21 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc24By21Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 23 pixels wide and 22 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc23By22Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 23 pixels wide and 21 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc23By21Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 22 pixels wide and 22 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc22By22Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 23 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc24By23Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 19 pixels wide and 18 high, anchored 16 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc19By18Anchored16By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 19 pixels wide and 22 high, anchored 16 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc19By22Anchored16By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 20 pixels wide and 21 high, anchored 16 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc20By21Anchored16By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 7 high, anchored 16 pixels in and 4 down.</summary>
+    EffectActorMetroidElectricityArc16By7Anchored16By4,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 8 pixels wide and 8 high, anchored 16 pixels in and 4 down.</summary>
+    EffectActorMetroidElectricityArc8By8Anchored16By4,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 6 high, anchored 16 pixels in and 4 down.</summary>
+    EffectActorMetroidElectricityArc16By6Anchored16By4,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 7 pixels wide and 12 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc7By12Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 8 pixels wide and 14 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc8By14Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 7 pixels wide and 14 high, anchored 8 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc7By14Anchored8By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 7 high, anchored 0 pixels in and 4 down.</summary>
+    EffectActorMetroidElectricityArc16By7Anchored0By4,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 8 high, anchored 0 pixels in and 4 down.</summary>
+    EffectActorMetroidElectricityArc16By8Anchored0By4,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 6 high, anchored 0 pixels in and 4 down.</summary>
+    EffectActorMetroidElectricityArc16By6Anchored0By4,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 4 pixels wide and 6 high, anchored 0 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc4By6Anchored0By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 3 pixels wide and 6 high, anchored 0 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc3By6Anchored0By20,
+    /// <summary>A room effect actor: an arc of a Metroid's electricity 4 pixels wide and 7 high, anchored 0 pixels in and 20 down.</summary>
+    EffectActorMetroidElectricityArc4By7Anchored0By20,
     /// <summary>A room effect actor: yapping maw base facing down.</summary>
     EffectActorYappingMawBaseFacingDown,
     /// <summary>A room effect actor: yapping maw base facing up.</summary>
     EffectActorYappingMawBaseFacingUp,
-    /// <summary>A room effect actor: evir facing right, first frame.</summary>
-    EffectActorEvirFacingRightFirst,
-    /// <summary>A room effect actor: evir facing right, second frame.</summary>
-    EffectActorEvirFacingRightSecond,
-    /// <summary>A room effect actor: evir facing right, third frame.</summary>
-    EffectActorEvirFacingRightThird,
-    /// <summary>A room effect actor: evir facing right, fourth frame.</summary>
-    EffectActorEvirFacingRightFourth,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, first frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthFirst,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, second frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthSecond,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, third frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthThird,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, fourth frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthFourth,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, fifth frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthFifth,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, sixth frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthSixth,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, seventh frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthSeventh,
-    /// <summary>A room effect actor: Draygon foaming at the mouth, eighth frame.</summary>
-    EffectActorDraygonFoamingAtTheMouthEighth,
-    /// <summary>Yapping Maw: attacking up, first frame.</summary>
-    YappingMawAttackingUpFirst,
-    /// <summary>Yapping Maw: attacking up, second frame.</summary>
-    YappingMawAttackingUpSecond,
-    /// <summary>Yapping Maw: attacking up, third frame.</summary>
-    YappingMawAttackingUpThird,
-    /// <summary>Yapping Maw: attacking up right, first frame.</summary>
-    YappingMawAttackingUpRightFirst,
-    /// <summary>Yapping Maw: attacking up right, second frame.</summary>
-    YappingMawAttackingUpRightSecond,
-    /// <summary>Yapping Maw: attacking up right, third frame.</summary>
-    YappingMawAttackingUpRightThird,
-    /// <summary>Yapping Maw: attacking right, first frame.</summary>
-    YappingMawAttackingRightFirst,
-    /// <summary>Yapping Maw: attacking right, second frame.</summary>
-    YappingMawAttackingRightSecond,
-    /// <summary>Yapping Maw: attacking right, third frame.</summary>
-    YappingMawAttackingRightThird,
-    /// <summary>Yapping Maw: attacking down right, first frame.</summary>
-    YappingMawAttackingDownRightFirst,
-    /// <summary>Yapping Maw: attacking down right, second frame.</summary>
-    YappingMawAttackingDownRightSecond,
-    /// <summary>Yapping Maw: attacking down right, third frame.</summary>
-    YappingMawAttackingDownRightThird,
-    /// <summary>Yapping Maw: attacking down, first frame.</summary>
-    YappingMawAttackingDownFirst,
-    /// <summary>Yapping Maw: attacking down, second frame.</summary>
-    YappingMawAttackingDownSecond,
-    /// <summary>Yapping Maw: attacking down, third frame.</summary>
-    YappingMawAttackingDownThird,
-    /// <summary>Yapping Maw: attacking down left, first frame.</summary>
-    YappingMawAttackingDownLeftFirst,
-    /// <summary>Yapping Maw: attacking down left, second frame.</summary>
-    YappingMawAttackingDownLeftSecond,
-    /// <summary>Yapping Maw: attacking down left, third frame.</summary>
-    YappingMawAttackingDownLeftThird,
-    /// <summary>Yapping Maw: attacking left, first frame.</summary>
-    YappingMawAttackingLeftFirst,
-    /// <summary>Yapping Maw: attacking left, second frame.</summary>
-    YappingMawAttackingLeftSecond,
-    /// <summary>Yapping Maw: attacking left, third frame.</summary>
-    YappingMawAttackingLeftThird,
-    /// <summary>Yapping Maw: attacking up left, first frame.</summary>
-    YappingMawAttackingUpLeftFirst,
-    /// <summary>Yapping Maw: attacking up left, second frame.</summary>
-    YappingMawAttackingUpLeftSecond,
-    /// <summary>Yapping Maw: attacking up left, third frame.</summary>
-    YappingMawAttackingUpLeftThird,
-    /// <summary>Ki-Hunter: flying left, first frame.</summary>
-    KiHunterFlyingLeftFirst,
-    /// <summary>Ki-Hunter: flying left, second frame.</summary>
-    KiHunterFlyingLeftSecond,
-    /// <summary>Ki-Hunter: flying left, third frame.</summary>
-    KiHunterFlyingLeftThird,
-    /// <summary>Ki-Hunter: wings left, first frame.</summary>
-    KiHunterWingsLeftFirst,
-    /// <summary>Ki-Hunter: wings left, second frame.</summary>
-    KiHunterWingsLeftSecond,
-    /// <summary>Ki-Hunter: wings left, third frame.</summary>
-    KiHunterWingsLeftThird,
-    /// <summary>Ki-Hunter: flying right, first frame.</summary>
-    KiHunterFlyingRightFirst,
-    /// <summary>Ki-Hunter: flying right, second frame.</summary>
-    KiHunterFlyingRightSecond,
-    /// <summary>Ki-Hunter: flying right, third frame.</summary>
-    KiHunterFlyingRightThird,
-    /// <summary>Ki-Hunter: wings right, first frame.</summary>
-    KiHunterWingsRightFirst,
-    /// <summary>Ki-Hunter: wings right, second frame.</summary>
-    KiHunterWingsRightSecond,
-    /// <summary>Ki-Hunter: wings right, third frame.</summary>
-    KiHunterWingsRightThird,
+    /// <summary>A room effect actor: an Evir's body facing right, all white, legs stretched down.</summary>
+    EffectActorEvirFacingRightLegsStretched,
+    /// <summary>A room effect actor: an Evir's body facing right, all white, legs lowered.</summary>
+    EffectActorEvirFacingRightLegsLowered,
+    /// <summary>A room effect actor: an Evir's body facing right, all white, legs tucked.</summary>
+    EffectActorEvirFacingRightLegsTucked,
+    /// <summary>A room effect actor: an Evir's body facing right, all white, legs lowering again.</summary>
+    EffectActorEvirFacingRightLegsLowering,
+    /// <summary>A room effect actor: foam from Draygon's mouth 9 pixels wide and 8 high, risen 0 pixels.</summary>
+    EffectActorDraygonFoam9By8Risen0,
+    /// <summary>A room effect actor: foam from Draygon's mouth 13 pixels wide and 14 high, risen 4 pixels.</summary>
+    EffectActorDraygonFoam13By14Risen4,
+    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 14 high, risen 8 pixels.</summary>
+    EffectActorDraygonFoam15By14Risen8,
+    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 16 high, risen 12 pixels.</summary>
+    EffectActorDraygonFoam15By16Risen12,
+    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 15 high, risen 16 pixels.</summary>
+    EffectActorDraygonFoam15By15Risen16,
+    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 12 high, risen 20 pixels.</summary>
+    EffectActorDraygonFoam15By12Risen20,
+    /// <summary>A room effect actor: foam from Draygon's mouth 14 pixels wide and 9 high, risen 24 pixels.</summary>
+    EffectActorDraygonFoam14By9Risen24,
+    /// <summary>A room effect actor: foam from Draygon's mouth 13 pixels wide and 9 high, risen 28 pixels.</summary>
+    EffectActorDraygonFoam13By9Risen28,
+    /// <summary>Yapping Maw: reaching up, jaws wide open.</summary>
+    YappingMawFacingUpJawsWide,
+    /// <summary>Yapping Maw: reaching up, jaws closing.</summary>
+    YappingMawFacingUpJawsClosing,
+    /// <summary>Yapping Maw: reaching up, jaws shut.</summary>
+    YappingMawFacingUpJawsShut,
+    /// <summary>Yapping Maw: reaching up and right, jaws wide open.</summary>
+    YappingMawFacingUpRightJawsWide,
+    /// <summary>Yapping Maw: reaching up and right, jaws closing.</summary>
+    YappingMawFacingUpRightJawsClosing,
+    /// <summary>Yapping Maw: reaching up and right, jaws shut.</summary>
+    YappingMawFacingUpRightJawsShut,
+    /// <summary>Yapping Maw: reaching right, jaws wide open.</summary>
+    YappingMawFacingRightJawsWide,
+    /// <summary>Yapping Maw: reaching right, jaws closing.</summary>
+    YappingMawFacingRightJawsClosing,
+    /// <summary>Yapping Maw: reaching right, jaws shut.</summary>
+    YappingMawFacingRightJawsShut,
+    /// <summary>Yapping Maw: reaching down and right, jaws wide open.</summary>
+    YappingMawFacingDownRightJawsWide,
+    /// <summary>Yapping Maw: reaching down and right, jaws closing.</summary>
+    YappingMawFacingDownRightJawsClosing,
+    /// <summary>Yapping Maw: reaching down and right, jaws shut.</summary>
+    YappingMawFacingDownRightJawsShut,
+    /// <summary>Yapping Maw: reaching down, jaws wide open.</summary>
+    YappingMawFacingDownJawsWide,
+    /// <summary>Yapping Maw: reaching down, jaws closing.</summary>
+    YappingMawFacingDownJawsClosing,
+    /// <summary>Yapping Maw: reaching down, jaws shut.</summary>
+    YappingMawFacingDownJawsShut,
+    /// <summary>Yapping Maw: reaching down and left, jaws wide open.</summary>
+    YappingMawFacingDownLeftJawsWide,
+    /// <summary>Yapping Maw: reaching down and left, jaws closing.</summary>
+    YappingMawFacingDownLeftJawsClosing,
+    /// <summary>Yapping Maw: reaching down and left, jaws shut.</summary>
+    YappingMawFacingDownLeftJawsShut,
+    /// <summary>Yapping Maw: reaching left, jaws wide open.</summary>
+    YappingMawFacingLeftJawsWide,
+    /// <summary>Yapping Maw: reaching left, jaws closing.</summary>
+    YappingMawFacingLeftJawsClosing,
+    /// <summary>Yapping Maw: reaching left, jaws shut.</summary>
+    YappingMawFacingLeftJawsShut,
+    /// <summary>Yapping Maw: reaching up and left, jaws wide open.</summary>
+    YappingMawFacingUpLeftJawsWide,
+    /// <summary>Yapping Maw: reaching up and left, jaws closing.</summary>
+    YappingMawFacingUpLeftJawsClosing,
+    /// <summary>Yapping Maw: reaching up and left, jaws shut.</summary>
+    YappingMawFacingUpLeftJawsShut,
+    /// <summary>Ki-Hunter: hovering facing left.</summary>
+    KiHunterHoveringFacingLeft,
+    /// <summary>Ki-Hunter: hovering facing left, a pixel lower.</summary>
+    KiHunterHoveringFacingLeftDropped,
+    /// <summary>Ki-Hunter: hovering facing left: the picture of KiHunterHoveringFacingLeft, as a frame of its own.</summary>
+    KiHunterHoveringFacingLeftTwin,
+    /// <summary>Ki-Hunter: its wings facing left, raised.</summary>
+    KiHunterWingsFacingLeftRaised,
+    /// <summary>Ki-Hunter: its wings facing left, half lowered.</summary>
+    KiHunterWingsFacingLeftMid,
+    /// <summary>Ki-Hunter: its wings facing left, level.</summary>
+    KiHunterWingsFacingLeftLevel,
+    /// <summary>Ki-Hunter: hovering facing right.</summary>
+    KiHunterHoveringFacingRight,
+    /// <summary>Ki-Hunter: hovering facing right, a pixel lower.</summary>
+    KiHunterHoveringFacingRightDropped,
+    /// <summary>Ki-Hunter: hovering facing right: the picture of KiHunterHoveringFacingRight, as a frame of its own.</summary>
+    KiHunterHoveringFacingRightTwin,
+    /// <summary>Ki-Hunter: its wings facing right, raised.</summary>
+    KiHunterWingsFacingRightRaised,
+    /// <summary>Ki-Hunter: its wings facing right, half lowered.</summary>
+    KiHunterWingsFacingRightMid,
+    /// <summary>Ki-Hunter: its wings facing right, level.</summary>
+    KiHunterWingsFacingRightLevel,
     /// <summary>Ki-Hunter: detached wings.</summary>
     KiHunterDetachedWings,
-    /// <summary>Ki-Hunter: swoop left, third frame.</summary>
-    KiHunterSwoopLeftThird,
-    /// <summary>Ki-Hunter: swoop left, first frame.</summary>
-    KiHunterSwoopLeftFirst,
-    /// <summary>Ki-Hunter: swoop left, second frame.</summary>
-    KiHunterSwoopLeftSecond,
-    /// <summary>Ki-Hunter: swoop left, fourth frame.</summary>
-    KiHunterSwoopLeftFourth,
-    /// <summary>Ki-Hunter: swoop left, fifth frame.</summary>
-    KiHunterSwoopLeftFifth,
-    /// <summary>Ki-Hunter: swoop right, third frame.</summary>
-    KiHunterSwoopRightThird,
-    /// <summary>Ki-Hunter: swoop right, first frame.</summary>
-    KiHunterSwoopRightFirst,
-    /// <summary>Ki-Hunter: swoop right, second frame.</summary>
-    KiHunterSwoopRightSecond,
-    /// <summary>Ki-Hunter: swoop right, fourth frame.</summary>
-    KiHunterSwoopRightFourth,
-    /// <summary>Ki-Hunter: swoop right, fifth frame.</summary>
-    KiHunterSwoopRightFifth,
-    /// <summary>Ki-Hunter: jump left, first frame.</summary>
-    KiHunterJumpLeftFirst,
-    /// <summary>Ki-Hunter: jump left, second frame.</summary>
-    KiHunterJumpLeftSecond,
-    /// <summary>Ki-Hunter: jump left, third frame.</summary>
-    KiHunterJumpLeftThird,
-    /// <summary>Ki-Hunter: jump left, fourth frame.</summary>
-    KiHunterJumpLeftFourth,
-    /// <summary>Ki-Hunter: jump right, first frame.</summary>
-    KiHunterJumpRightFirst,
-    /// <summary>Ki-Hunter: jump right, second frame.</summary>
-    KiHunterJumpRightSecond,
-    /// <summary>Ki-Hunter: jump right, third frame.</summary>
-    KiHunterJumpRightThird,
-    /// <summary>Ki-Hunter: jump right, fourth frame.</summary>
-    KiHunterJumpRightFourth,
-    /// <summary>Ki-Hunter: spit left, first frame.</summary>
-    KiHunterSpitLeftFirst,
-    /// <summary>Ki-Hunter: spit left, second frame.</summary>
-    KiHunterSpitLeftSecond,
-    /// <summary>Ki-Hunter: spit left, third frame.</summary>
-    KiHunterSpitLeftThird,
-    /// <summary>Ki-Hunter: spit left, fourth frame.</summary>
-    KiHunterSpitLeftFourth,
-    /// <summary>Ki-Hunter: spit left, fifth frame.</summary>
-    KiHunterSpitLeftFifth,
-    /// <summary>Ki-Hunter: spit right, first frame.</summary>
-    KiHunterSpitRightFirst,
-    /// <summary>Ki-Hunter: spit right, second frame.</summary>
-    KiHunterSpitRightSecond,
-    /// <summary>Ki-Hunter: spit right, third frame.</summary>
-    KiHunterSpitRightThird,
-    /// <summary>Ki-Hunter: spit right, fourth frame.</summary>
-    KiHunterSpitRightFourth,
-    /// <summary>Ki-Hunter: spit right, fifth frame.</summary>
-    KiHunterSpitRightFifth,
-    /// <summary>Mother Brain: head initial.</summary>
-    MotherBrainHeadInitial,
-    /// <summary>Mother Brain: head neutral phase two, second frame.</summary>
-    MotherBrainHeadNeutralPhaseTwoSecond,
-    /// <summary>Mother Brain: head stretching phase two, first frame.</summary>
-    MotherBrainHeadStretchingPhaseTwoFirst,
-    /// <summary>Mother Brain: head stretching phase two, second frame.</summary>
-    MotherBrainHeadStretchingPhaseTwoSecond,
-    /// <summary>Mother Brain: head stretching phase two, third frame.</summary>
-    MotherBrainHeadStretchingPhaseTwoThird,
+    /// <summary>Ki-Hunter: hovering facing left: the picture of KiHunterHoveringFacingLeft, as a frame of its own.</summary>
+    KiHunterHoveringFacingLeftTwinB,
+    /// <summary>Ki-Hunter: swooping facing left, arms swept back.</summary>
+    KiHunterSwoopingFacingLeftArmsBack,
+    /// <summary>Ki-Hunter: swooping facing left, arms drawn in.</summary>
+    KiHunterSwoopingFacingLeftArmsIn,
+    /// <summary>Ki-Hunter: swooping facing left, legs reaching out.</summary>
+    KiHunterSwoopingFacingLeftLegsReaching,
+    /// <summary>Ki-Hunter: swooping facing left, legs stretched in a lunge.</summary>
+    KiHunterSwoopingFacingLeftLegsStretched,
+    /// <summary>Ki-Hunter: hovering facing right: the picture of KiHunterHoveringFacingRight, as a frame of its own.</summary>
+    KiHunterHoveringFacingRightTwinB,
+    /// <summary>Ki-Hunter: swooping facing right, arms swept back.</summary>
+    KiHunterSwoopingFacingRightArmsBack,
+    /// <summary>Ki-Hunter: swooping facing right, arms drawn in.</summary>
+    KiHunterSwoopingFacingRightArmsIn,
+    /// <summary>Ki-Hunter: swooping facing right, legs reaching out.</summary>
+    KiHunterSwoopingFacingRightLegsReaching,
+    /// <summary>Ki-Hunter: swooping facing right, legs stretched in a lunge.</summary>
+    KiHunterSwoopingFacingRightLegsStretched,
+    /// <summary>Ki-Hunter: crouched facing left.</summary>
+    KiHunterCrouchedFacingLeft,
+    /// <summary>Ki-Hunter: crouching low, facing left.</summary>
+    KiHunterCrouchingLowFacingLeft,
+    /// <summary>Ki-Hunter: springing up, facing left.</summary>
+    KiHunterSpringingFacingLeft,
+    /// <summary>Ki-Hunter: leaping, legs hanging, facing left.</summary>
+    KiHunterLeapingFacingLeft,
+    /// <summary>Ki-Hunter: crouched facing right.</summary>
+    KiHunterCrouchedFacingRight,
+    /// <summary>Ki-Hunter: crouching low, facing right.</summary>
+    KiHunterCrouchingLowFacingRight,
+    /// <summary>Ki-Hunter: springing up, facing right.</summary>
+    KiHunterSpringingFacingRight,
+    /// <summary>Ki-Hunter: leaping, legs hanging, facing right.</summary>
+    KiHunterLeapingFacingRight,
+    /// <summary>Ki-Hunter: crouched facing left: the picture of KiHunterCrouchedFacingLeft, as a frame of its own.</summary>
+    KiHunterCrouchedFacingLeftTwin,
+    /// <summary>Ki-Hunter: spitting facing left, a ball of acid gathering in its mouth.</summary>
+    KiHunterSpittingFacingLeftAcidGathering,
+    /// <summary>Ki-Hunter: spitting facing left, a swollen ball of acid in its mouth.</summary>
+    KiHunterSpittingFacingLeftAcidSwollen,
+    /// <summary>Ki-Hunter: spitting facing left, head thrust forward, spitting acid.</summary>
+    KiHunterSpittingFacingLeftAcidSpat,
+    /// <summary>Ki-Hunter: spitting facing left, a last fleck of acid in its mouth.</summary>
+    KiHunterSpittingFacingLeftAcidSpent,
+    /// <summary>Ki-Hunter: crouched facing right: the picture of KiHunterCrouchedFacingRight, as a frame of its own.</summary>
+    KiHunterCrouchedFacingRightTwin,
+    /// <summary>Ki-Hunter: spitting facing right, a ball of acid gathering in its mouth.</summary>
+    KiHunterSpittingFacingRightAcidGathering,
+    /// <summary>Ki-Hunter: spitting facing right, a swollen ball of acid in its mouth.</summary>
+    KiHunterSpittingFacingRightAcidSwollen,
+    /// <summary>Ki-Hunter: spitting facing right, head thrust forward, spitting acid.</summary>
+    KiHunterSpittingFacingRightAcidSpat,
+    /// <summary>Ki-Hunter: spitting facing right, a last fleck of acid in its mouth.</summary>
+    KiHunterSpittingFacingRightAcidSpent,
+    /// <summary>Mother Brain: its head, the brain whole, its eye shut.</summary>
+    MotherBrainHeadEyeShut,
+    /// <summary>Mother Brain: its head, the brain whole, its eye open.</summary>
+    MotherBrainHeadEyeOpen,
+    /// <summary>Mother Brain: its head, the brain whole, its eye glaring red.</summary>
+    MotherBrainHeadEyeGlaring,
+    /// <summary>Mother Brain: its head, the brain whole, its jaw dropping.</summary>
+    MotherBrainHeadJawDropping,
+    /// <summary>Mother Brain: its head, the brain whole, its jaw dropped wide.</summary>
+    MotherBrainHeadJawDropped,
     /// <summary>Mother Brain: neck joint.</summary>
     MotherBrainNeckJoint,
-    /// <summary>Mother Brain: head decapitated loop.</summary>
-    MotherBrainHeadDecapitatedLoop,
-    /// <summary>Mother Brain: head decapitated, second frame.</summary>
-    MotherBrainHeadDecapitatedSecond,
-    /// <summary>Mother Brain: head stretching phase three, first frame.</summary>
-    MotherBrainHeadStretchingPhaseThreeFirst,
-    /// <summary>Mother Brain: head stretching phase three, second frame.</summary>
-    MotherBrainHeadStretchingPhaseThreeSecond,
-    /// <summary>Mother Brain: head stretching phase three, third frame.</summary>
-    MotherBrainHeadStretchingPhaseThreeThird,
-    /// <summary>Mother Brain: head corpse, fourth frame.</summary>
-    MotherBrainHeadCorpseFourth,
-    /// <summary>Mother Brain: head corpse loop.</summary>
-    MotherBrainHeadCorpseLoop,
-    /// <summary>Mother Brain: tube, first frame.</summary>
-    MotherBrainTubeFirst,
-    /// <summary>Mother Brain: tube, second frame.</summary>
-    MotherBrainTubeSecond,
-    /// <summary>Mother Brain: tube, third frame.</summary>
-    MotherBrainTubeThird,
-    /// <summary>Mother Brain: tube, fourth frame.</summary>
-    MotherBrainTubeFourth,
-    /// <summary>Mother Brain: tube, fifth frame.</summary>
-    MotherBrainTubeFifth,
-    /// <summary>The dead Torizo: corpse hook.</summary>
-    DeadTorizoCorpseHook,
+    /// <summary>Mother Brain: its head, the brain darkened, its eye shut.</summary>
+    MotherBrainDarkHeadEyeShut,
+    /// <summary>Mother Brain: its head, the brain darkened, its eye open.</summary>
+    MotherBrainDarkHeadEyeOpen,
+    /// <summary>Mother Brain: its head, the brain darkened, its eye glaring red.</summary>
+    MotherBrainDarkHeadEyeGlaring,
+    /// <summary>Mother Brain: its head, the brain darkened, its jaw dropping.</summary>
+    MotherBrainDarkHeadJawDropping,
+    /// <summary>Mother Brain: its head, the brain darkened, its jaw dropped wide.</summary>
+    MotherBrainDarkHeadJawDropped,
+    /// <summary>Mother Brain: its lifeless head slumping.</summary>
+    MotherBrainHeadCorpseSlumping,
+    /// <summary>Mother Brain: its lifeless head slumped over.</summary>
+    MotherBrainHeadCorpseSlumped,
+    /// <summary>Mother Brain: a length of its tube bending right.</summary>
+    MotherBrainTubeBendRight,
+    /// <summary>Mother Brain: a length of its tube bending left.</summary>
+    MotherBrainTubeBendLeft,
+    /// <summary>Mother Brain: a straight length of its tube, its joint to the left.</summary>
+    MotherBrainTubeStraightLeft,
+    /// <summary>Mother Brain: a straight length of its tube, its joint to the right.</summary>
+    MotherBrainTubeStraightRight,
+    /// <summary>Mother Brain: the machinery column its tubes feed.</summary>
+    MotherBrainTubeColumn,
+    /// <summary>The dead Torizo: its remains crumbled to a low mound.</summary>
+    DeadTorizoRubbleMound,
     /// <summary>Ridley: the tail link nearest his body, which the two links at its base show.</summary>
     RidleyTailBaseLink,
     /// <summary>Ridley: the middle tail link, which the third and fourth links show.</summary>
     RidleyTailMiddleLink,
     /// <summary>Ridley: the outer tail link, which the fifth and sixth links, nearest the tip, show.</summary>
     RidleyTailOuterLink,
-    /// <summary>Ridley: breakup tail tip, thirteenth frame.</summary>
-    RidleyBreakupTailTipThirteenth,
-    /// <summary>Ridley: breakup tail tip, twelfth frame.</summary>
-    RidleyBreakupTailTipTwelfth,
-    /// <summary>Ridley: breakup tail tip, eleventh frame.</summary>
-    RidleyBreakupTailTipEleventh,
-    /// <summary>Ridley: breakup tail tip, tenth frame.</summary>
-    RidleyBreakupTailTipTenth,
-    /// <summary>Ridley: breakup tail tip, ninth frame.</summary>
-    RidleyBreakupTailTipNinth,
-    /// <summary>Ridley: breakup tail tip, eighth frame.</summary>
-    RidleyBreakupTailTipEighth,
-    /// <summary>Ridley: breakup tail tip, seventh frame.</summary>
-    RidleyBreakupTailTipSeventh,
-    /// <summary>Ridley: breakup tail tip, sixth frame.</summary>
-    RidleyBreakupTailTipSixth,
-    /// <summary>Ridley: breakup tail tip, fifth frame.</summary>
-    RidleyBreakupTailTipFifth,
-    /// <summary>Ridley: breakup tail tip, fourth frame.</summary>
-    RidleyBreakupTailTipFourth,
-    /// <summary>Ridley: breakup tail tip, third frame.</summary>
-    RidleyBreakupTailTipThird,
-    /// <summary>Ridley: breakup tail tip, second frame.</summary>
-    RidleyBreakupTailTipSecond,
-    /// <summary>Ridley: breakup tail tip, first frame.</summary>
-    RidleyBreakupTailTipFirst,
-    /// <summary>Ridley: breakup tail tip, sixteenth frame.</summary>
-    RidleyBreakupTailTipSixteenth,
-    /// <summary>Ridley: breakup tail tip, fifteenth frame.</summary>
-    RidleyBreakupTailTipFifteenth,
-    /// <summary>Ridley: breakup tail tip, fourteenth frame.</summary>
-    RidleyBreakupTailTipFourteenth,
-    /// <summary>Ridley: wing facing left, first frame.</summary>
-    RidleyWingFacingLeftFirst,
-    /// <summary>Ridley: wing facing left, second frame.</summary>
-    RidleyWingFacingLeftSecond,
-    /// <summary>Ridley: wing facing left, third frame.</summary>
-    RidleyWingFacingLeftThird,
-    /// <summary>Ridley: wing facing left, fourth frame.</summary>
-    RidleyWingFacingLeftFourth,
-    /// <summary>Ridley: wing facing left, fifth frame.</summary>
-    RidleyWingFacingLeftFifth,
-    /// <summary>Ridley: wing facing left, sixth frame.</summary>
-    RidleyWingFacingLeftSixth,
-    /// <summary>Ridley: wing facing right, first frame.</summary>
-    RidleyWingFacingRightFirst,
-    /// <summary>Ridley: wing facing right, second frame.</summary>
-    RidleyWingFacingRightSecond,
-    /// <summary>Ridley: wing facing right, third frame.</summary>
-    RidleyWingFacingRightThird,
-    /// <summary>Ridley: wing facing right, fourth frame.</summary>
-    RidleyWingFacingRightFourth,
-    /// <summary>Ridley: wing facing right, fifth frame.</summary>
-    RidleyWingFacingRightFifth,
-    /// <summary>Ridley: wing facing right, sixth frame.</summary>
-    RidleyWingFacingRightSixth,
-    /// <summary>Sciser: upside right loop, first frame.</summary>
-    SciserUpsideRightLoopFirst,
-    /// <summary>Sciser: upside right loop, second frame.</summary>
-    SciserUpsideRightLoopSecond,
-    /// <summary>Sciser: upside right loop, third frame.</summary>
-    SciserUpsideRightLoopThird,
-    /// <summary>Sciser: upside left loop, first frame.</summary>
-    SciserUpsideLeftLoopFirst,
-    /// <summary>Sciser: upside left loop, second frame.</summary>
-    SciserUpsideLeftLoopSecond,
-    /// <summary>Sciser: upside left loop, third frame.</summary>
-    SciserUpsideLeftLoopThird,
-    /// <summary>Sciser: upside down loop, first frame.</summary>
-    SciserUpsideDownLoopFirst,
-    /// <summary>Sciser: upside down loop, second frame.</summary>
-    SciserUpsideDownLoopSecond,
-    /// <summary>Sciser: upside down loop, third frame.</summary>
-    SciserUpsideDownLoopThird,
-    /// <summary>Sciser: upside up loop, first frame.</summary>
-    SciserUpsideUpLoopFirst,
-    /// <summary>Sciser: upside up loop, second frame.</summary>
-    SciserUpsideUpLoopSecond,
-    /// <summary>Sciser: upside up loop, third frame.</summary>
-    SciserUpsideUpLoopThird,
-    /// <summary>The fly: flight, first frame.</summary>
-    FlyFlightFirst,
-    /// <summary>The fly: flight, second frame.</summary>
-    FlyFlightSecond,
-    /// <summary>The fly: flight, third frame.</summary>
-    FlyFlightThird,
-    /// <summary>The fly: flight, fourth frame.</summary>
-    FlyFlightFourth,
-    /// <summary>Kago: slow, first frame.</summary>
-    KagoSlowFirst,
-    /// <summary>Kago: slow, second frame.</summary>
-    KagoSlowSecond,
-    /// <summary>Kago: slow, third frame.</summary>
-    KagoSlowThird,
+    /// <summary>Ridley: the tip of its tail, pointing toward 270 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward270,
+    /// <summary>Ridley: the tip of its tail, pointing toward 292 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward292,
+    /// <summary>Ridley: the tip of its tail, pointing toward 315 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward315,
+    /// <summary>Ridley: the tip of its tail, pointing toward 337 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward337,
+    /// <summary>Ridley: the tip of its tail, pointing toward 0 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward0,
+    /// <summary>Ridley: the tip of its tail, pointing toward 22 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward22,
+    /// <summary>Ridley: the tip of its tail, pointing toward 45 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward45,
+    /// <summary>Ridley: the tip of its tail, pointing toward 67 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward67,
+    /// <summary>Ridley: the tip of its tail, pointing toward 90 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward90,
+    /// <summary>Ridley: the tip of its tail, pointing toward 112 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward112,
+    /// <summary>Ridley: the tip of its tail, pointing toward 135 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward135,
+    /// <summary>Ridley: the tip of its tail, pointing toward 157 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward157,
+    /// <summary>Ridley: the tip of its tail, pointing toward 180 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward180,
+    /// <summary>Ridley: the tip of its tail, pointing toward 202 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward202,
+    /// <summary>Ridley: the tip of its tail, pointing toward 225 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward225,
+    /// <summary>Ridley: the tip of its tail, pointing toward 247 degrees clockwise from straight up.</summary>
+    RidleyTailTipPointingToward247,
+    /// <summary>Ridley: its wing facing left, raised.</summary>
+    RidleyWingFacingLeftRaised,
+    /// <summary>Ridley: its wing facing left, lowering.</summary>
+    RidleyWingFacingLeftLowering,
+    /// <summary>Ridley: its wing facing left, edge on.</summary>
+    RidleyWingFacingLeftEdgeOn,
+    /// <summary>Ridley: its wing facing left, edge on, tilted.</summary>
+    RidleyWingFacingLeftEdgeOnTilted,
+    /// <summary>Ridley: its wing facing left, dipping.</summary>
+    RidleyWingFacingLeftDipping,
+    /// <summary>Ridley: its wing facing left, down.</summary>
+    RidleyWingFacingLeftDown,
+    /// <summary>Ridley: its wing facing right, raised.</summary>
+    RidleyWingFacingRightRaised,
+    /// <summary>Ridley: its wing facing right, lowering.</summary>
+    RidleyWingFacingRightLowering,
+    /// <summary>Ridley: its wing facing right, edge on.</summary>
+    RidleyWingFacingRightEdgeOn,
+    /// <summary>Ridley: its wing facing right, edge on, tilted.</summary>
+    RidleyWingFacingRightEdgeOnTilted,
+    /// <summary>Ridley: its wing facing right, dipping.</summary>
+    RidleyWingFacingRightDipping,
+    /// <summary>Ridley: its wing facing right, down.</summary>
+    RidleyWingFacingRightDown,
+    /// <summary>Sciser: scuttling with its top right, legs tucked.</summary>
+    SciserUpsideRightLegsTucked,
+    /// <summary>Sciser: scuttling with its top right, legs part way out.</summary>
+    SciserUpsideRightLegsMid,
+    /// <summary>Sciser: scuttling with its top right, legs out.</summary>
+    SciserUpsideRightLegsOut,
+    /// <summary>Sciser: scuttling with its top left, legs tucked.</summary>
+    SciserUpsideLeftLegsTucked,
+    /// <summary>Sciser: scuttling with its top left, legs part way out.</summary>
+    SciserUpsideLeftLegsMid,
+    /// <summary>Sciser: scuttling with its top left, legs out.</summary>
+    SciserUpsideLeftLegsOut,
+    /// <summary>Sciser: scuttling with its top down, legs tucked.</summary>
+    SciserUpsideDownLegsTucked,
+    /// <summary>Sciser: scuttling with its top down, legs part way out.</summary>
+    SciserUpsideDownLegsMid,
+    /// <summary>Sciser: scuttling with its top down, legs out.</summary>
+    SciserUpsideDownLegsOut,
+    /// <summary>Sciser: scuttling with its top up, legs tucked.</summary>
+    SciserUpsideUpLegsTucked,
+    /// <summary>Sciser: scuttling with its top up, legs part way out.</summary>
+    SciserUpsideUpLegsMid,
+    /// <summary>Sciser: scuttling with its top up, legs out.</summary>
+    SciserUpsideUpLegsOut,
+    /// <summary>The fly: wings raised and out.</summary>
+    FlyWingsRaisedOut,
+    /// <summary>The fly: wings raised.</summary>
+    FlyWingsRaised,
+    /// <summary>The fly: wings level.</summary>
+    FlyWingsLevel,
+    /// <summary>The fly: wings lowered.</summary>
+    FlyWingsLowered,
+    /// <summary>Kago: its hive at rest.</summary>
+    KagoHiveAtRest,
+    /// <summary>Kago: its hive swelling.</summary>
+    KagoHiveSwelling,
+    /// <summary>Kago: its hive swollen.</summary>
+    KagoHiveSwollen,
     /// <summary>The face block: neutral.</summary>
     FaceBlockNeutral,
-    /// <summary>The blue Brinstar face block: Samus left, second frame.</summary>
-    BlueBrinstarFaceBlockSamusLeftSecond,
-    /// <summary>The blue Brinstar face block: Samus left, third frame.</summary>
-    BlueBrinstarFaceBlockSamusLeftThird,
-    /// <summary>The blue Brinstar face block: Samus right, second frame.</summary>
-    BlueBrinstarFaceBlockSamusRightSecond,
-    /// <summary>The blue Brinstar face block: Samus right, third frame.</summary>
-    BlueBrinstarFaceBlockSamusRightThird,
+    /// <summary>The blue Brinstar face block: glancing left.</summary>
+    BlueBrinstarFaceBlockGlancingLeft,
+    /// <summary>The blue Brinstar face block: looking left.</summary>
+    BlueBrinstarFaceBlockLookingLeft,
+    /// <summary>The blue Brinstar face block: glancing right.</summary>
+    BlueBrinstarFaceBlockGlancingRight,
+    /// <summary>The blue Brinstar face block: looking right.</summary>
+    BlueBrinstarFaceBlockLookingRight,
     /// <summary>The Morph Ball eye open, looking up and a little right.</summary>
     MorphBallEyeLookingUpUpRight,
     /// <summary>The Morph Ball eye open, looking up and to the right.</summary>
@@ -1458,14 +1460,14 @@ public enum EnemyFrameId
     MorphBallEyeLookingUpLeft,
     /// <summary>The Morph Ball eye open, looking up and a little left.</summary>
     MorphBallEyeLookingUpUpLeft,
-    /// <summary>The Morph Ball eye: right transition.</summary>
-    MorphEyeRightTransition,
-    /// <summary>The Morph Ball eye: right closed.</summary>
-    MorphEyeRightClosed,
-    /// <summary>The Morph Ball eye: left transition.</summary>
-    MorphEyeLeftTransition,
-    /// <summary>The Morph Ball eye: left closed.</summary>
-    MorphEyeLeftClosed,
+    /// <summary>The Morph Ball eye: turned right, half open.</summary>
+    MorphBallEyeFacingRightHalfOpen,
+    /// <summary>The Morph Ball eye: turned right, closed.</summary>
+    MorphBallEyeFacingRightClosed,
+    /// <summary>The Morph Ball eye: turned left, half open.</summary>
+    MorphBallEyeFacingLeftHalfOpen,
+    /// <summary>The Morph Ball eye: turned left, closed.</summary>
+    MorphBallEyeFacingLeftClosed,
     /// <summary>The Morph Ball eye: mount right.</summary>
     MorphEyeMountRight,
     /// <summary>The Morph Ball eye: mount down.</summary>
@@ -1474,28 +1476,28 @@ public enum EnemyFrameId
     MorphEyeMountLeft,
     /// <summary>The Morph Ball eye: mount up.</summary>
     MorphEyeMountUp,
-    /// <summary>The shutter: growing ten pixels.</summary>
-    ShutterGrowingTenPixels,
-    /// <summary>The shutter: growing twenty pixels.</summary>
-    ShutterGrowingTwentyPixels,
-    /// <summary>The shutter: growing thirty pixels.</summary>
-    ShutterGrowingThirtyPixels,
-    /// <summary>The shutter: forty pixels.</summary>
-    ShutterFortyPixels,
-    /// <summary>The Metroid: chasing Samus, first frame.</summary>
-    MetroidChasingSamusFirst,
-    /// <summary>The Metroid: chasing Samus, second frame.</summary>
-    MetroidChasingSamusSecond,
-    /// <summary>The Metroid: chasing Samus, third frame.</summary>
-    MetroidChasingSamusThird,
-    /// <summary>The Metroid: chasing Samus, fourth frame.</summary>
-    MetroidChasingSamusFourth,
-    /// <summary>Shaktool: saw hand final piece, first frame.</summary>
-    ShaktoolSawHandFinalPieceFirst,
-    /// <summary>Shaktool: saw hand final piece, second frame.</summary>
-    ShaktoolSawHandFinalPieceSecond,
-    /// <summary>Shaktool: saw hand final piece, third frame.</summary>
-    ShaktoolSawHandFinalPieceThird,
+    /// <summary>The shutter: ten pixels long.</summary>
+    ShutterTenPixelsLong,
+    /// <summary>The shutter: twenty pixels long.</summary>
+    ShutterTwentyPixelsLong,
+    /// <summary>The shutter: thirty pixels long.</summary>
+    ShutterThirtyPixelsLong,
+    /// <summary>The shutter: forty pixels long.</summary>
+    ShutterFortyPixelsLong,
+    /// <summary>The Metroid: its nuclei dark.</summary>
+    MetroidNucleiDark,
+    /// <summary>The Metroid: its nuclei glowing.</summary>
+    MetroidNucleiGlowing,
+    /// <summary>The Metroid: its nuclei bright.</summary>
+    MetroidNucleiBright,
+    /// <summary>The Metroid: its nuclei brightest.</summary>
+    MetroidNucleiBrightest,
+    /// <summary>Shaktool: the final piece of its saw hand, its blade upright.</summary>
+    ShaktoolSawHandFinalPieceTurned0,
+    /// <summary>Shaktool: the final piece of its saw hand, its blade turned a twelfth.</summary>
+    ShaktoolSawHandFinalPieceTurned30,
+    /// <summary>Shaktool: the final piece of its saw hand, its blade turned a sixth.</summary>
+    ShaktoolSawHandFinalPieceTurned60,
     /// <summary>Shaktool: arm.</summary>
     ShaktoolArm,
     /// <summary>Shaktool: head left.</summary>
@@ -1514,188 +1516,188 @@ public enum EnemyFrameId
     ShaktoolHeadDown,
     /// <summary>Shaktool: head down left.</summary>
     ShaktoolHeadDownLeft,
-    /// <summary>Shaktool: saw hand primary piece, first frame.</summary>
-    ShaktoolSawHandPrimaryPieceFirst,
-    /// <summary>Shaktool: saw hand primary piece, second frame.</summary>
-    ShaktoolSawHandPrimaryPieceSecond,
-    /// <summary>Shaktool: saw hand primary piece, third frame.</summary>
-    ShaktoolSawHandPrimaryPieceThird,
-    /// <summary>Tripper: moving left loop, first frame.</summary>
-    TripperMovingLeftLoopFirst,
-    /// <summary>Tripper: moving left loop, second frame.</summary>
-    TripperMovingLeftLoopSecond,
-    /// <summary>Tripper: moving left loop, third frame.</summary>
-    TripperMovingLeftLoopThird,
-    /// <summary>Tripper: moving right loop, first frame.</summary>
-    TripperMovingRightLoopFirst,
-    /// <summary>Tripper: moving right loop, second frame.</summary>
-    TripperMovingRightLoopSecond,
-    /// <summary>Tripper: moving right loop, third frame.</summary>
-    TripperMovingRightLoopThird,
-    /// <summary>Tripper: still moving left loop, first frame.</summary>
-    TripperStillMovingLeftLoopFirst,
-    /// <summary>Tripper: still moving left loop, second frame.</summary>
-    TripperStillMovingLeftLoopSecond,
-    /// <summary>Tripper: still moving left loop, third frame.</summary>
-    TripperStillMovingLeftLoopThird,
-    /// <summary>Tripper: still moving right loop, first frame.</summary>
-    TripperStillMovingRightLoopFirst,
-    /// <summary>Tripper: still moving right loop, second frame.</summary>
-    TripperStillMovingRightLoopSecond,
-    /// <summary>Tripper: still moving right loop, third frame.</summary>
-    TripperStillMovingRightLoopThird,
-    /// <summary>Tripper: frozen moving left.</summary>
-    TripperFrozenMovingLeft,
-    /// <summary>Tripper: frozen moving right.</summary>
-    TripperFrozenMovingRight,
-    /// <summary>The suspensor platform, first frame of its loop.</summary>
-    SuspensorPlatformFirst,
-    /// <summary>The suspensor platform, second frame of its loop.</summary>
-    SuspensorPlatformSecond,
-    /// <summary>The suspensor platform, third frame of its loop.</summary>
-    SuspensorPlatformThird,
-    /// <summary>The suspensor platform, fourth frame of its loop.</summary>
-    SuspensorPlatformFourth,
-    /// <summary>Dragon: body idle left.</summary>
-    DragonBodyIdleLeft,
-    /// <summary>Dragon: wings facing left, first frame.</summary>
-    DragonWingsFacingLeftFirst,
-    /// <summary>Dragon: wings facing left, second frame.</summary>
-    DragonWingsFacingLeftSecond,
-    /// <summary>Dragon: body idle right.</summary>
-    DragonBodyIdleRight,
-    /// <summary>Dragon: wings facing right, first frame.</summary>
-    DragonWingsFacingRightFirst,
-    /// <summary>Dragon: wings facing right, second frame.</summary>
-    DragonWingsFacingRightSecond,
-    /// <summary>Dragon: attacking facing left, first frame.</summary>
-    DragonAttackingFacingLeftFirst,
-    /// <summary>Dragon: attacking facing left, second frame.</summary>
-    DragonAttackingFacingLeftSecond,
-    /// <summary>Dragon: attacking facing left, third frame.</summary>
-    DragonAttackingFacingLeftThird,
-    /// <summary>Dragon: attacking facing right, first frame.</summary>
-    DragonAttackingFacingRightFirst,
-    /// <summary>Dragon: attacking facing right, second frame.</summary>
-    DragonAttackingFacingRightSecond,
-    /// <summary>Dragon: attacking facing right, third frame.</summary>
-    DragonAttackingFacingRightThird,
-    /// <summary>Multiviola: flying, first frame.</summary>
-    MultiviolaFlyingFirst,
-    /// <summary>Multiviola: flying, second frame.</summary>
-    MultiviolaFlyingSecond,
-    /// <summary>Multiviola: flying, third frame.</summary>
-    MultiviolaFlyingThird,
-    /// <summary>Multiviola: flying, fourth frame.</summary>
-    MultiviolaFlyingFourth,
-    /// <summary>Multiviola: flying, fifth frame.</summary>
-    MultiviolaFlyingFifth,
-    /// <summary>Multiviola: flying, sixth frame.</summary>
-    MultiviolaFlyingSixth,
-    /// <summary>Multiviola: flying, seventh frame.</summary>
-    MultiviolaFlyingSeventh,
-    /// <summary>Multiviola: flying, eighth frame.</summary>
-    MultiviolaFlyingEighth,
-    /// <summary>The Norfair lava jumper: hidden.</summary>
-    NorfairLavaJumperHidden,
-    /// <summary>The Norfair lava jumper: jump, second frame.</summary>
-    NorfairLavaJumperJumpSecond,
-    /// <summary>The Norfair lava jumper: jump, third frame.</summary>
-    NorfairLavaJumperJumpThird,
-    /// <summary>The Norfair lava jumper: jump, fourth frame.</summary>
-    NorfairLavaJumperJumpFourth,
-    /// <summary>The Norfair lava jumper: jump, fifth frame.</summary>
-    NorfairLavaJumperJumpFifth,
-    /// <summary>The Norfair lava jumper: jump, sixth frame.</summary>
-    NorfairLavaJumperJumpSixth,
-    /// <summary>The Norfair lava jumper: jump, seventh frame.</summary>
-    NorfairLavaJumperJumpSeventh,
-    /// <summary>The Norfair lava jumper: follower, first frame.</summary>
-    NorfairLavaJumperFollowerFirst,
-    /// <summary>The Norfair lava jumper: follower loop, first frame.</summary>
-    NorfairLavaJumperFollowerLoopFirst,
-    /// <summary>The Norfair lava jumper: follower loop, third frame.</summary>
-    NorfairLavaJumperFollowerLoopThird,
-    /// <summary>The Chozo statue: Lower Norfair initial.</summary>
-    ChozoStatueLowerNorfairInitial,
-    /// <summary>The Chozo statue: Lower Norfair activated, second frame.</summary>
-    ChozoStatueLowerNorfairActivatedSecond,
-    /// <summary>The Chozo statue: Lower Norfair activated, third frame.</summary>
-    ChozoStatueLowerNorfairActivatedThird,
-    /// <summary>The Chozo statue: Lower Norfair activated, fourth frame.</summary>
-    ChozoStatueLowerNorfairActivatedFourth,
-    /// <summary>The Chozo statue: Lower Norfair activated, fifth frame.</summary>
-    ChozoStatueLowerNorfairActivatedFifth,
-    /// <summary>The Chozo statue: Lower Norfair activated, sixth frame.</summary>
-    ChozoStatueLowerNorfairActivatedSixth,
-    /// <summary>The Chozo statue: Lower Norfair activated, seventh frame.</summary>
-    ChozoStatueLowerNorfairActivatedSeventh,
-    /// <summary>The Chozo statue: Lower Norfair activated, eighth frame.</summary>
-    ChozoStatueLowerNorfairActivatedEighth,
-    /// <summary>The Chozo statue: Lower Norfair activated, ninth frame.</summary>
-    ChozoStatueLowerNorfairActivatedNinth,
-    /// <summary>The Chozo statue: Wrecked Ship initial.</summary>
-    ChozoStatueWreckedShipInitial,
-    /// <summary>The Chozo statue: Wrecked Ship activated, second frame.</summary>
-    ChozoStatueWreckedShipActivatedSecond,
-    /// <summary>The Chozo statue: Wrecked Ship activated, third frame.</summary>
-    ChozoStatueWreckedShipActivatedThird,
-    /// <summary>The Chozo statue: Wrecked Ship activated, fourth frame.</summary>
-    ChozoStatueWreckedShipActivatedFourth,
-    /// <summary>The Chozo statue: Wrecked Ship activated, fifth frame.</summary>
-    ChozoStatueWreckedShipActivatedFifth,
-    /// <summary>The Chozo statue: Wrecked Ship activated, sixth frame.</summary>
-    ChozoStatueWreckedShipActivatedSixth,
-    /// <summary>The Chozo statue: Wrecked Ship activated, seventh frame.</summary>
-    ChozoStatueWreckedShipActivatedSeventh,
-    /// <summary>The Chozo statue: Wrecked Ship activated, eighth frame.</summary>
-    ChozoStatueWreckedShipActivatedEighth,
-    /// <summary>The Chozo statue: Wrecked Ship activated, ninth frame.</summary>
-    ChozoStatueWreckedShipActivatedNinth,
-    /// <summary>The Chozo statue: Wrecked Ship walking, first frame.</summary>
-    ChozoStatueWreckedShipWalkingFirst,
-    /// <summary>The Chozo statue: Wrecked Ship walking, second frame.</summary>
-    ChozoStatueWreckedShipWalkingSecond,
-    /// <summary>The Chozo statue: Wrecked Ship walking, third frame.</summary>
-    ChozoStatueWreckedShipWalkingThird,
-    /// <summary>The Chozo statue: Wrecked Ship walking, fourth frame.</summary>
-    ChozoStatueWreckedShipWalkingFourth,
-    /// <summary>The Chozo statue: Wrecked Ship walking, fifth frame.</summary>
-    ChozoStatueWreckedShipWalkingFifth,
-    /// <summary>The Chozo statue: Wrecked Ship walking, sixth frame.</summary>
-    ChozoStatueWreckedShipWalkingSixth,
-    /// <summary>The Chozo statue: Wrecked Ship walking, seventh frame.</summary>
-    ChozoStatueWreckedShipWalkingSeventh,
-    /// <summary>The Chozo statue: Wrecked Ship walking, eighth frame.</summary>
-    ChozoStatueWreckedShipWalkingEighth,
-    /// <summary>Viola: normal, first frame.</summary>
-    ViolaNormalFirst,
-    /// <summary>Viola: normal, second frame.</summary>
-    ViolaNormalSecond,
-    /// <summary>Viola: normal, third frame.</summary>
-    ViolaNormalThird,
-    /// <summary>Viola: normal, fourth frame.</summary>
-    ViolaNormalFourth,
-    /// <summary>Viola: normal, fifth frame.</summary>
-    ViolaNormalFifth,
-    /// <summary>Viola: normal, sixth frame.</summary>
-    ViolaNormalSixth,
-    /// <summary>Viola: normal, seventh frame.</summary>
-    ViolaNormalSeventh,
-    /// <summary>Viola: normal, eighth frame.</summary>
-    ViolaNormalEighth,
-    /// <summary>Rinka: ordinary.</summary>
-    RinkaOrdinary,
-    /// <summary>Rinka: ordinary loop, second frame.</summary>
-    RinkaOrdinaryLoopSecond,
-    /// <summary>Rinka: ordinary loop, third frame.</summary>
-    RinkaOrdinaryLoopThird,
-    /// <summary>Rinka: ordinary loop, fourth frame.</summary>
-    RinkaOrdinaryLoopFourth,
-    /// <summary>Rinka: ordinary loop, fifth frame.</summary>
-    RinkaOrdinaryLoopFifth,
-    /// <summary>The dead Torizo: stationary.</summary>
-    DeadTorizoStationary,
+    /// <summary>Shaktool: the primary piece of its saw hand, its blade upright.</summary>
+    ShaktoolSawHandPrimaryPieceTurned0,
+    /// <summary>Shaktool: the primary piece of its saw hand, its blade turned a twelfth.</summary>
+    ShaktoolSawHandPrimaryPieceTurned30,
+    /// <summary>Shaktool: the primary piece of its saw hand, its blade turned a sixth.</summary>
+    ShaktoolSawHandPrimaryPieceTurned60,
+    /// <summary>Tripper: hovering facing left, its downward jet short.</summary>
+    TripperHoveringFacingLeftJetShort,
+    /// <summary>Tripper: hovering facing left, its downward jet long.</summary>
+    TripperHoveringFacingLeftJetLong,
+    /// <summary>Tripper: hovering facing left, its downward jet long: the picture of TripperHoveringFacingLeftJetLong, as a frame of its own.</summary>
+    TripperHoveringFacingLeftJetLongTwin,
+    /// <summary>Tripper: hovering facing right, its downward jet short.</summary>
+    TripperHoveringFacingRightJetShort,
+    /// <summary>Tripper: hovering facing right, its downward jet long.</summary>
+    TripperHoveringFacingRightJetLong,
+    /// <summary>Tripper: hovering facing right, its downward jet long: the picture of TripperHoveringFacingRightJetLong, as a frame of its own.</summary>
+    TripperHoveringFacingRightJetLongTwin,
+    /// <summary>Tripper: thrusting left, its jet out its right side medium.</summary>
+    TripperThrustingLeftJetMedium,
+    /// <summary>Tripper: thrusting left, its jet out its right side short.</summary>
+    TripperThrustingLeftJetShort,
+    /// <summary>Tripper: thrusting left, its jet out its right side long.</summary>
+    TripperThrustingLeftJetLong,
+    /// <summary>Tripper: thrusting right, its jet out its left side medium.</summary>
+    TripperThrustingRightJetMedium,
+    /// <summary>Tripper: thrusting right, its jet out its left side short.</summary>
+    TripperThrustingRightJetShort,
+    /// <summary>Tripper: thrusting right, its jet out its left side long.</summary>
+    TripperThrustingRightJetLong,
+    /// <summary>Tripper: frozen facing left.</summary>
+    TripperFrozenFacingLeft,
+    /// <summary>Tripper: frozen facing right.</summary>
+    TripperFrozenFacingRight,
+    /// <summary>Its light dark.</summary>
+    SuspensorPlatformLightDark,
+    /// <summary>Its light dim.</summary>
+    SuspensorPlatformLightDim,
+    /// <summary>Its light lit.</summary>
+    SuspensorPlatformLightLit,
+    /// <summary>Its light bright.</summary>
+    SuspensorPlatformLightBright,
+    /// <summary>Dragon: its body facing left.</summary>
+    DragonBodyFacingLeft,
+    /// <summary>Dragon: its wing facing left, raised.</summary>
+    DragonWingFacingLeftRaised,
+    /// <summary>Dragon: its wing facing left, lowered.</summary>
+    DragonWingFacingLeftLowered,
+    /// <summary>Dragon: its body facing right.</summary>
+    DragonBodyFacingRight,
+    /// <summary>Dragon: its wing facing right, raised.</summary>
+    DragonWingFacingRightRaised,
+    /// <summary>Dragon: its wing facing right, lowered.</summary>
+    DragonWingFacingRightLowered,
+    /// <summary>Dragon: spitting fire facing left, head drawn back.</summary>
+    DragonSpittingFacingLeftHeadBack,
+    /// <summary>Dragon: spitting fire facing left, head raised.</summary>
+    DragonSpittingFacingLeftHeadRaised,
+    /// <summary>Dragon: spitting fire facing left, head thrust forward.</summary>
+    DragonSpittingFacingLeftHeadForward,
+    /// <summary>Dragon: spitting fire facing right, head drawn back.</summary>
+    DragonSpittingFacingRightHeadBack,
+    /// <summary>Dragon: spitting fire facing right, head raised.</summary>
+    DragonSpittingFacingRightHeadRaised,
+    /// <summary>Dragon: spitting fire facing right, head thrust forward.</summary>
+    DragonSpittingFacingRightHeadForward,
+    /// <summary>Multiviola: a plain fireball.</summary>
+    MultiviolaPlain,
+    /// <summary>Multiviola: a fireball, its face faint.</summary>
+    MultiviolaFaceFaint,
+    /// <summary>Multiviola: a fireball, its face forming.</summary>
+    MultiviolaFaceForming,
+    /// <summary>Multiviola: a fireball, its face dim.</summary>
+    MultiviolaFaceDim,
+    /// <summary>Multiviola: a fireball, its face lit.</summary>
+    MultiviolaFaceLit,
+    /// <summary>Multiviola: a fireball, its face bright.</summary>
+    MultiviolaFaceBright,
+    /// <summary>Multiviola: a fireball, its face brighter.</summary>
+    MultiviolaFaceBrighter,
+    /// <summary>Multiviola: a fireball, its face brightest.</summary>
+    MultiviolaFaceBrightest,
+    /// <summary>The Norfair lava jumper: claws curled down beneath it.</summary>
+    NorfairLavaJumperClawsCurledDown,
+    /// <summary>The Norfair lava jumper: claws spreading.</summary>
+    NorfairLavaJumperClawsSpreading,
+    /// <summary>The Norfair lava jumper: claws spread.</summary>
+    NorfairLavaJumperClawsSpread,
+    /// <summary>The Norfair lava jumper: claws spread flat.</summary>
+    NorfairLavaJumperClawsSpreadFlat,
+    /// <summary>The Norfair lava jumper: claws raising.</summary>
+    NorfairLavaJumperClawsRaising,
+    /// <summary>The Norfair lava jumper: claws raised.</summary>
+    NorfairLavaJumperClawsRaised,
+    /// <summary>The Norfair lava jumper: claws folded up over it.</summary>
+    NorfairLavaJumperClawsFolded,
+    /// <summary>The Norfair lava jumper: the flame trailing it, flared wide.</summary>
+    NorfairLavaJumperFlameFlare,
+    /// <summary>The Norfair lava jumper: the flame trailing it, small.</summary>
+    NorfairLavaJumperFlameSmall,
+    /// <summary>The Norfair lava jumper: the flame trailing it, tall.</summary>
+    NorfairLavaJumperFlameTall,
+    /// <summary>The Chozo statue: hands cupped together before its chest.</summary>
+    ChozoStatueLowerNorfairHandsCupped,
+    /// <summary>The Chozo statue: a hand reaching out.</summary>
+    ChozoStatueLowerNorfairHandReaching,
+    /// <summary>The Chozo statue: a hand stretched out flat.</summary>
+    ChozoStatueLowerNorfairHandOutstretched,
+    /// <summary>The Chozo statue: its outstretched hand opening.</summary>
+    ChozoStatueLowerNorfairHandOpening,
+    /// <summary>The Chozo statue: its outstretched hand open.</summary>
+    ChozoStatueLowerNorfairHandOpen,
+    /// <summary>The Chozo statue: its outstretched hand open: the picture of ChozoStatueLowerNorfairHandOpen, as a frame of its own.</summary>
+    ChozoStatueLowerNorfairHandOpenTwin,
+    /// <summary>The Chozo statue: the fingers of its outstretched hand curling.</summary>
+    ChozoStatueLowerNorfairFingersCurling,
+    /// <summary>The Chozo statue: the fingers of its outstretched hand curled.</summary>
+    ChozoStatueLowerNorfairFingersCurled,
+    /// <summary>The Chozo statue: the fingers of its outstretched hand clenched.</summary>
+    ChozoStatueLowerNorfairFingersClenched,
+    /// <summary>The Chozo statue: hands cupped together before its chest.</summary>
+    ChozoStatueWreckedShipHandsCupped,
+    /// <summary>The Chozo statue: a hand reaching out.</summary>
+    ChozoStatueWreckedShipHandReaching,
+    /// <summary>The Chozo statue: a hand stretched out flat.</summary>
+    ChozoStatueWreckedShipHandOutstretched,
+    /// <summary>The Chozo statue: its outstretched hand opening.</summary>
+    ChozoStatueWreckedShipHandOpening,
+    /// <summary>The Chozo statue: its outstretched hand open.</summary>
+    ChozoStatueWreckedShipHandOpen,
+    /// <summary>The Chozo statue: its outstretched hand open: the picture of ChozoStatueWreckedShipHandOpen, as a frame of its own.</summary>
+    ChozoStatueWreckedShipHandOpenTwin,
+    /// <summary>The Chozo statue: the fingers of its outstretched hand curling.</summary>
+    ChozoStatueWreckedShipFingersCurling,
+    /// <summary>The Chozo statue: the fingers of its outstretched hand curled.</summary>
+    ChozoStatueWreckedShipFingersCurled,
+    /// <summary>The Chozo statue: the fingers of its outstretched hand clenched.</summary>
+    ChozoStatueWreckedShipFingersClenched,
+    /// <summary>The Chozo statue: walking, its near leg lifting.</summary>
+    ChozoStatueWreckedShipWalkingNearLegLifting,
+    /// <summary>The Chozo statue: walking, its near leg striding out.</summary>
+    ChozoStatueWreckedShipWalkingNearLegStriding,
+    /// <summary>The Chozo statue: walking, its near leg planting.</summary>
+    ChozoStatueWreckedShipWalkingNearLegPlanting,
+    /// <summary>The Chozo statue: walking, its near leg planted, legs together.</summary>
+    ChozoStatueWreckedShipWalkingNearLegPlanted,
+    /// <summary>The Chozo statue: walking, its far leg lifting.</summary>
+    ChozoStatueWreckedShipWalkingFarLegLifting,
+    /// <summary>The Chozo statue: walking, its far leg striding out.</summary>
+    ChozoStatueWreckedShipWalkingFarLegStriding,
+    /// <summary>The Chozo statue: walking, its far leg planting.</summary>
+    ChozoStatueWreckedShipWalkingFarLegPlanting,
+    /// <summary>The Chozo statue: walking, its far leg planted, legs together.</summary>
+    ChozoStatueWreckedShipWalkingFarLegPlanted,
+    /// <summary>Viola: a plain glowing ball.</summary>
+    ViolaPlain,
+    /// <summary>Viola: a glowing ball, its face faint.</summary>
+    ViolaFaceFaint,
+    /// <summary>Viola: a glowing ball, its face forming.</summary>
+    ViolaFaceForming,
+    /// <summary>Viola: a glowing ball, its face dim.</summary>
+    ViolaFaceDim,
+    /// <summary>Viola: a glowing ball, its face lit.</summary>
+    ViolaFaceLit,
+    /// <summary>Viola: a glowing ball, its face bright.</summary>
+    ViolaFaceBright,
+    /// <summary>Viola: a glowing ball, its face brighter.</summary>
+    ViolaFaceBrighter,
+    /// <summary>Viola: a glowing ball, its face brightest.</summary>
+    ViolaFaceBrightest,
+    /// <summary>Rinka: a white-hot ring.</summary>
+    RinkaWhiteHot,
+    /// <summary>Rinka: a yellow ring.</summary>
+    RinkaYellow,
+    /// <summary>Rinka: an orange ring.</summary>
+    RinkaOrange,
+    /// <summary>Rinka: a red ring.</summary>
+    RinkaRed,
+    /// <summary>Rinka: a dark red ring.</summary>
+    RinkaDarkRed,
+    /// <summary>The dead Torizo: its lifeless body standing hunched.</summary>
+    DeadTorizoStanding,
     /// <summary>The dead Zoomer: lying on its back.</summary>
     DeadZoomerCorpseOnItsBack,
     /// <summary>The dead Zoomer: lying the right way up.</summary>
@@ -1706,338 +1708,338 @@ public enum EnemyFrameId
     DeadRipperCorpseTilted,
     /// <summary>The dead Skree: its corpse.</summary>
     DeadSkreeCorpse,
-    /// <summary>The dead Sidehopper: hop body.</summary>
-    DeadSidehopperHopBody,
-    /// <summary>The dead Sidehopper: hopping, crouched low with its legs spread.</summary>
-    DeadSidehopperHopCrouched,
-    /// <summary>The dead Sidehopper: idle.</summary>
-    DeadSidehopperIdle,
-    /// <summary>The dead Sidehopper: corpse.</summary>
-    DeadSidehopperCorpse,
-    /// <summary>The dead Sidehopper: initially dead.</summary>
-    DeadSidehopperInitiallyDead,
-    /// <summary>Mochtroid: free flight, first frame.</summary>
-    MochtroidFreeFlightFirst,
-    /// <summary>Mochtroid: free flight, second frame.</summary>
-    MochtroidFreeFlightSecond,
-    /// <summary>Mochtroid: free flight, third frame.</summary>
-    MochtroidFreeFlightThird,
-    /// <summary>Mochtroid: attached, first frame.</summary>
-    MochtroidAttachedFirst,
-    /// <summary>Mochtroid: attached, second frame.</summary>
-    MochtroidAttachedSecond,
-    /// <summary>Mochtroid: attached, third frame.</summary>
-    MochtroidAttachedThird,
-    /// <summary>Evir: body facing left, first frame.</summary>
-    EvirBodyFacingLeftFirst,
-    /// <summary>Evir: body facing left, second frame.</summary>
-    EvirBodyFacingLeftSecond,
-    /// <summary>Evir: body facing left, third frame.</summary>
-    EvirBodyFacingLeftThird,
-    /// <summary>Evir: body facing left, fourth frame.</summary>
-    EvirBodyFacingLeftFourth,
-    /// <summary>Evir: body facing left, fifth frame.</summary>
-    EvirBodyFacingLeftFifth,
-    /// <summary>Evir: body facing left, sixth frame.</summary>
-    EvirBodyFacingLeftSixth,
-    /// <summary>Evir: arms facing left, first frame.</summary>
-    EvirArmsFacingLeftFirst,
-    /// <summary>Evir: arms facing left, second frame.</summary>
-    EvirArmsFacingLeftSecond,
-    /// <summary>Evir: arms facing left, third frame.</summary>
-    EvirArmsFacingLeftThird,
-    /// <summary>Evir: arms facing left, fourth frame.</summary>
-    EvirArmsFacingLeftFourth,
-    /// <summary>Evir: arms facing left, fifth frame.</summary>
-    EvirArmsFacingLeftFifth,
-    /// <summary>Evir: body facing right, first frame.</summary>
-    EvirBodyFacingRightFirst,
-    /// <summary>Evir: body facing right, second frame.</summary>
-    EvirBodyFacingRightSecond,
-    /// <summary>Evir: body facing right, third frame.</summary>
-    EvirBodyFacingRightThird,
-    /// <summary>Evir: body facing right, fourth frame.</summary>
-    EvirBodyFacingRightFourth,
-    /// <summary>Evir: body facing right, fifth frame.</summary>
-    EvirBodyFacingRightFifth,
-    /// <summary>Evir: body facing right, sixth frame.</summary>
-    EvirBodyFacingRightSixth,
-    /// <summary>Evir: arms facing right, first frame.</summary>
-    EvirArmsFacingRightFirst,
-    /// <summary>Evir: arms facing right, second frame.</summary>
-    EvirArmsFacingRightSecond,
-    /// <summary>Evir: arms facing right, third frame.</summary>
-    EvirArmsFacingRightThird,
-    /// <summary>Evir: arms facing right, fourth frame.</summary>
-    EvirArmsFacingRightFourth,
-    /// <summary>Evir: arms facing right, fifth frame.</summary>
-    EvirArmsFacingRightFifth,
-    /// <summary>Evir: projectile flight.</summary>
-    EvirProjectileFlight,
-    /// <summary>Evir: projectile regenerating.</summary>
-    EvirProjectileRegenerating,
-    /// <summary>The work robot: facing left walking forwards loop, twelfth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopTwelfth,
-    /// <summary>The work robot: initial.</summary>
-    WorkRobotInitial,
-    /// <summary>The work robot: facing left walking forwards loop, second frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopSecond,
-    /// <summary>The work robot: facing left walking forwards loop, third frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopThird,
-    /// <summary>The work robot: facing left walking forwards loop, fourth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopFourth,
-    /// <summary>The work robot: facing left walking forwards loop, fifth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopFifth,
-    /// <summary>The work robot: facing left walking forwards loop, sixth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopSixth,
-    /// <summary>The work robot: facing left walking forwards loop, seventh frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopSeventh,
-    /// <summary>The work robot: facing left walking forwards loop, eighth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopEighth,
-    /// <summary>The work robot: facing left walking forwards loop, ninth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopNinth,
-    /// <summary>The work robot: facing left walking forwards loop, tenth frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopTenth,
-    /// <summary>The work robot: facing left walking forwards loop, eleventh frame.</summary>
-    WorkRobotFacingLeftWalkingForwardsLoopEleventh,
-    /// <summary>The work robot: approaching fall right, first frame.</summary>
-    WorkRobotApproachingFallRightFirst,
-    /// <summary>The work robot: approaching fall right, second frame.</summary>
-    WorkRobotApproachingFallRightSecond,
-    /// <summary>The work robot: approaching fall right, third frame.</summary>
-    WorkRobotApproachingFallRightThird,
-    /// <summary>The work robot: facing right walking forwards loop, fourth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopFourth,
-    /// <summary>The work robot: facing right walking forwards loop, fifth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopFifth,
-    /// <summary>The work robot: facing right walking forwards loop, sixth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopSixth,
-    /// <summary>The work robot: facing right walking forwards loop, seventh frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopSeventh,
-    /// <summary>The work robot: facing right walking forwards loop, eighth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopEighth,
-    /// <summary>The work robot: facing right walking forwards loop, ninth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopNinth,
-    /// <summary>The work robot: facing right walking forwards loop, tenth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopTenth,
-    /// <summary>The work robot: facing right walking forwards loop, eleventh frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopEleventh,
-    /// <summary>The work robot: facing right walking forwards loop, twelfth frame.</summary>
-    WorkRobotFacingRightWalkingForwardsLoopTwelfth,
-    /// <summary>The work robot: unpowered neutral.</summary>
-    WorkRobotUnpoweredNeutral,
-    /// <summary>The work robot: unpowered left.</summary>
-    WorkRobotUnpoweredLeft,
-    /// <summary>The work robot: unpowered right.</summary>
-    WorkRobotUnpoweredRight,
-    /// <summary>Yard: outside turn upside right moving up, first frame.</summary>
-    YardOutsideTurnUpsideRightMovingUpFirst,
-    /// <summary>Yard: outside turn upside right moving up, second frame.</summary>
-    YardOutsideTurnUpsideRightMovingUpSecond,
-    /// <summary>Yard: outside turn upside right moving up, third frame.</summary>
-    YardOutsideTurnUpsideRightMovingUpThird,
-    /// <summary>Yard: crawling upside up moving left, first frame.</summary>
-    YardCrawlingUpsideUpMovingLeftFirst,
-    /// <summary>Yard: crawling upside up moving left, second frame.</summary>
-    YardCrawlingUpsideUpMovingLeftSecond,
-    /// <summary>Yard: crawling upside up moving left, third frame.</summary>
-    YardCrawlingUpsideUpMovingLeftThird,
-    /// <summary>Yard: outside turn upside up moving left, first frame.</summary>
-    YardOutsideTurnUpsideUpMovingLeftFirst,
-    /// <summary>Yard: outside turn upside up moving left, second frame.</summary>
-    YardOutsideTurnUpsideUpMovingLeftSecond,
-    /// <summary>Yard: outside turn upside up moving left, third frame.</summary>
-    YardOutsideTurnUpsideUpMovingLeftThird,
-    /// <summary>Yard: crawling upside left moving down, first frame.</summary>
-    YardCrawlingUpsideLeftMovingDownFirst,
-    /// <summary>Yard: crawling upside left moving down, second frame.</summary>
-    YardCrawlingUpsideLeftMovingDownSecond,
-    /// <summary>Yard: crawling upside left moving down, third frame.</summary>
-    YardCrawlingUpsideLeftMovingDownThird,
-    /// <summary>Yard: outside turn upside left moving down, first frame.</summary>
-    YardOutsideTurnUpsideLeftMovingDownFirst,
-    /// <summary>Yard: outside turn upside left moving down, second frame.</summary>
-    YardOutsideTurnUpsideLeftMovingDownSecond,
-    /// <summary>Yard: outside turn upside left moving down, third frame.</summary>
-    YardOutsideTurnUpsideLeftMovingDownThird,
-    /// <summary>Yard: crawling upside down moving right, first frame.</summary>
-    YardCrawlingUpsideDownMovingRightFirst,
-    /// <summary>Yard: crawling upside down moving right, second frame.</summary>
-    YardCrawlingUpsideDownMovingRightSecond,
-    /// <summary>Yard: crawling upside down moving right, third frame.</summary>
-    YardCrawlingUpsideDownMovingRightThird,
-    /// <summary>Yard: outside turn upside down moving right, first frame.</summary>
-    YardOutsideTurnUpsideDownMovingRightFirst,
-    /// <summary>Yard: outside turn upside down moving right, second frame.</summary>
-    YardOutsideTurnUpsideDownMovingRightSecond,
-    /// <summary>Yard: outside turn upside down moving right, third frame.</summary>
-    YardOutsideTurnUpsideDownMovingRightThird,
-    /// <summary>Yard: crawling upside right moving up, first frame.</summary>
-    YardCrawlingUpsideRightMovingUpFirst,
-    /// <summary>Yard: crawling upside right moving up, second frame.</summary>
-    YardCrawlingUpsideRightMovingUpSecond,
-    /// <summary>Yard: crawling upside right moving up, third frame.</summary>
-    YardCrawlingUpsideRightMovingUpThird,
-    /// <summary>Yard: outside turn upside left moving up, first frame.</summary>
-    YardOutsideTurnUpsideLeftMovingUpFirst,
-    /// <summary>Yard: outside turn upside left moving up, second frame.</summary>
-    YardOutsideTurnUpsideLeftMovingUpSecond,
-    /// <summary>Yard: outside turn upside left moving up, third frame.</summary>
-    YardOutsideTurnUpsideLeftMovingUpThird,
-    /// <summary>Yard: crawling upside up moving right, first frame.</summary>
-    YardCrawlingUpsideUpMovingRightFirst,
-    /// <summary>Yard: crawling upside up moving right, second frame.</summary>
-    YardCrawlingUpsideUpMovingRightSecond,
-    /// <summary>Yard: crawling upside up moving right, third frame.</summary>
-    YardCrawlingUpsideUpMovingRightThird,
-    /// <summary>Yard: outside turn upside up moving right, first frame.</summary>
-    YardOutsideTurnUpsideUpMovingRightFirst,
-    /// <summary>Yard: outside turn upside up moving right, second frame.</summary>
-    YardOutsideTurnUpsideUpMovingRightSecond,
-    /// <summary>Yard: outside turn upside up moving right, third frame.</summary>
-    YardOutsideTurnUpsideUpMovingRightThird,
-    /// <summary>Yard: crawling upside right moving down, first frame.</summary>
-    YardCrawlingUpsideRightMovingDownFirst,
-    /// <summary>Yard: crawling upside right moving down, second frame.</summary>
-    YardCrawlingUpsideRightMovingDownSecond,
-    /// <summary>Yard: crawling upside right moving down, third frame.</summary>
-    YardCrawlingUpsideRightMovingDownThird,
-    /// <summary>Yard: outside turn upside right moving down, first frame.</summary>
-    YardOutsideTurnUpsideRightMovingDownFirst,
-    /// <summary>Yard: outside turn upside right moving down, second frame.</summary>
-    YardOutsideTurnUpsideRightMovingDownSecond,
-    /// <summary>Yard: outside turn upside right moving down, third frame.</summary>
-    YardOutsideTurnUpsideRightMovingDownThird,
-    /// <summary>Yard: crawling upside down moving left, first frame.</summary>
-    YardCrawlingUpsideDownMovingLeftFirst,
-    /// <summary>Yard: crawling upside down moving left, second frame.</summary>
-    YardCrawlingUpsideDownMovingLeftSecond,
-    /// <summary>Yard: crawling upside down moving left, third frame.</summary>
-    YardCrawlingUpsideDownMovingLeftThird,
-    /// <summary>Yard: outside turn upside down moving left, first frame.</summary>
-    YardOutsideTurnUpsideDownMovingLeftFirst,
-    /// <summary>Yard: outside turn upside down moving left, second frame.</summary>
-    YardOutsideTurnUpsideDownMovingLeftSecond,
-    /// <summary>Yard: outside turn upside down moving left, third frame.</summary>
-    YardOutsideTurnUpsideDownMovingLeftThird,
-    /// <summary>Yard: crawling upside left moving up, first frame.</summary>
-    YardCrawlingUpsideLeftMovingUpFirst,
-    /// <summary>Yard: crawling upside left moving up, second frame.</summary>
-    YardCrawlingUpsideLeftMovingUpSecond,
-    /// <summary>Yard: crawling upside left moving up, third frame.</summary>
-    YardCrawlingUpsideLeftMovingUpThird,
-    /// <summary>Yard: inside turn upside up moving left, first frame.</summary>
-    YardInsideTurnUpsideUpMovingLeftFirst,
-    /// <summary>Yard: inside turn upside up moving left, second frame.</summary>
-    YardInsideTurnUpsideUpMovingLeftSecond,
-    /// <summary>Yard: inside turn upside up moving left, third frame.</summary>
-    YardInsideTurnUpsideUpMovingLeftThird,
-    /// <summary>Yard: inside turn upside right moving up, first frame.</summary>
-    YardInsideTurnUpsideRightMovingUpFirst,
-    /// <summary>Yard: inside turn upside right moving up, second frame.</summary>
-    YardInsideTurnUpsideRightMovingUpSecond,
-    /// <summary>Yard: inside turn upside right moving up, third frame.</summary>
-    YardInsideTurnUpsideRightMovingUpThird,
-    /// <summary>Yard: inside turn upside down moving right, first frame.</summary>
-    YardInsideTurnUpsideDownMovingRightFirst,
-    /// <summary>Yard: inside turn upside down moving right, second frame.</summary>
-    YardInsideTurnUpsideDownMovingRightSecond,
-    /// <summary>Yard: inside turn upside down moving right, third frame.</summary>
-    YardInsideTurnUpsideDownMovingRightThird,
-    /// <summary>Yard: inside turn upside left moving down, first frame.</summary>
-    YardInsideTurnUpsideLeftMovingDownFirst,
-    /// <summary>Yard: inside turn upside left moving down, second frame.</summary>
-    YardInsideTurnUpsideLeftMovingDownSecond,
-    /// <summary>Yard: inside turn upside left moving down, third frame.</summary>
-    YardInsideTurnUpsideLeftMovingDownThird,
-    /// <summary>Yard: inside turn upside up moving right, first frame.</summary>
-    YardInsideTurnUpsideUpMovingRightFirst,
-    /// <summary>Yard: inside turn upside up moving right, second frame.</summary>
-    YardInsideTurnUpsideUpMovingRightSecond,
-    /// <summary>Yard: inside turn upside up moving right, third frame.</summary>
-    YardInsideTurnUpsideUpMovingRightThird,
-    /// <summary>Yard: inside turn upside left moving up, first frame.</summary>
-    YardInsideTurnUpsideLeftMovingUpFirst,
-    /// <summary>Yard: inside turn upside left moving up, second frame.</summary>
-    YardInsideTurnUpsideLeftMovingUpSecond,
-    /// <summary>Yard: inside turn upside left moving up, third frame.</summary>
-    YardInsideTurnUpsideLeftMovingUpThird,
-    /// <summary>Yard: inside turn upside down moving left, first frame.</summary>
-    YardInsideTurnUpsideDownMovingLeftFirst,
-    /// <summary>Yard: inside turn upside down moving left, second frame.</summary>
-    YardInsideTurnUpsideDownMovingLeftSecond,
-    /// <summary>Yard: inside turn upside down moving left, third frame.</summary>
-    YardInsideTurnUpsideDownMovingLeftThird,
-    /// <summary>Yard: inside turn upside right moving down, first frame.</summary>
-    YardInsideTurnUpsideRightMovingDownFirst,
-    /// <summary>Yard: inside turn upside right moving down, second frame.</summary>
-    YardInsideTurnUpsideRightMovingDownSecond,
-    /// <summary>Yard: inside turn upside right moving down, third frame.</summary>
-    YardInsideTurnUpsideRightMovingDownThird,
-    /// <summary>Yard: hiding upside up moving left, first frame.</summary>
-    YardHidingUpsideUpMovingLeftFirst,
-    /// <summary>Yard: hiding upside up moving left, second frame.</summary>
-    YardHidingUpsideUpMovingLeftSecond,
-    /// <summary>Yard: hidden upside up moving left, first frame.</summary>
-    YardHiddenUpsideUpMovingLeftFirst,
-    /// <summary>Yard: hidden upside up moving left, second frame.</summary>
-    YardHiddenUpsideUpMovingLeftSecond,
-    /// <summary>Yard: hiding upside down moving left, first frame.</summary>
-    YardHidingUpsideDownMovingLeftFirst,
-    /// <summary>Yard: hiding upside down moving left, second frame.</summary>
-    YardHidingUpsideDownMovingLeftSecond,
-    /// <summary>Yard: hiding upside down moving left, third frame.</summary>
-    YardHidingUpsideDownMovingLeftThird,
-    /// <summary>Yard: hiding upside down moving left, fourth frame.</summary>
-    YardHidingUpsideDownMovingLeftFourth,
-    /// <summary>Yard: hiding upside down moving right, first frame.</summary>
-    YardHidingUpsideDownMovingRightFirst,
-    /// <summary>Yard: hiding upside down moving right, second frame.</summary>
-    YardHidingUpsideDownMovingRightSecond,
-    /// <summary>Yard: hiding upside down moving right, third frame.</summary>
-    YardHidingUpsideDownMovingRightThird,
-    /// <summary>Yard: hiding upside down moving right, fourth frame.</summary>
-    YardHidingUpsideDownMovingRightFourth,
-    /// <summary>Yard: hiding upside up moving right, first frame.</summary>
-    YardHidingUpsideUpMovingRightFirst,
-    /// <summary>Yard: hiding upside up moving right, second frame.</summary>
-    YardHidingUpsideUpMovingRightSecond,
-    /// <summary>Yard: hidden upside up moving right, first frame.</summary>
-    YardHiddenUpsideUpMovingRightFirst,
-    /// <summary>Yard: hidden upside up moving right, second frame.</summary>
-    YardHiddenUpsideUpMovingRightSecond,
-    /// <summary>Yard: hiding upside right moving up, first frame.</summary>
-    YardHidingUpsideRightMovingUpFirst,
-    /// <summary>Yard: hiding upside right moving up, second frame.</summary>
-    YardHidingUpsideRightMovingUpSecond,
-    /// <summary>Yard: hiding upside right moving up, third frame.</summary>
-    YardHidingUpsideRightMovingUpThird,
-    /// <summary>Yard: hiding upside right moving up, fourth frame.</summary>
-    YardHidingUpsideRightMovingUpFourth,
-    /// <summary>Yard: hiding upside left moving up, first frame.</summary>
-    YardHidingUpsideLeftMovingUpFirst,
-    /// <summary>Yard: hiding upside left moving up, second frame.</summary>
-    YardHidingUpsideLeftMovingUpSecond,
-    /// <summary>Yard: hiding upside left moving up, third frame.</summary>
-    YardHidingUpsideLeftMovingUpThird,
-    /// <summary>Yard: hiding upside left moving up, fourth frame.</summary>
-    YardHidingUpsideLeftMovingUpFourth,
-    /// <summary>Yard: hiding upside left moving down, first frame.</summary>
-    YardHidingUpsideLeftMovingDownFirst,
-    /// <summary>Yard: hiding upside left moving down, second frame.</summary>
-    YardHidingUpsideLeftMovingDownSecond,
-    /// <summary>Yard: hiding upside left moving down, third frame.</summary>
-    YardHidingUpsideLeftMovingDownThird,
-    /// <summary>Yard: hiding upside left moving down, fourth frame.</summary>
-    YardHidingUpsideLeftMovingDownFourth,
-    /// <summary>Yard: hiding upside right moving down, first frame.</summary>
-    YardHidingUpsideRightMovingDownFirst,
-    /// <summary>Yard: hiding upside right moving down, second frame.</summary>
-    YardHidingUpsideRightMovingDownSecond,
-    /// <summary>Yard: hiding upside right moving down, third frame.</summary>
-    YardHidingUpsideRightMovingDownThird,
-    /// <summary>Yard: hiding upside right moving down, fourth frame.</summary>
-    YardHidingUpsideRightMovingDownFourth,
+    /// <summary>The dead Sidehopper: legs bent.</summary>
+    DeadSidehopperLegsBent,
+    /// <summary>The dead Sidehopper: crouched low.</summary>
+    DeadSidehopperLegsCrouched,
+    /// <summary>The dead Sidehopper: legs straight.</summary>
+    DeadSidehopperLegsStraight,
+    /// <summary>The dead Sidehopper: sprawled flat.</summary>
+    DeadSidehopperSprawled,
+    /// <summary>The dead Sidehopper: sprawled flat, legs raised.</summary>
+    DeadSidehopperSprawledLegsUp,
+    /// <summary>Mochtroid: floating, its membrane wide.</summary>
+    MochtroidFloatingWide,
+    /// <summary>Mochtroid: floating, its membrane squeezing in.</summary>
+    MochtroidFloatingSqueezing,
+    /// <summary>Mochtroid: floating, its membrane squeezed narrow.</summary>
+    MochtroidFloatingSqueezed,
+    /// <summary>Mochtroid: latched on, nucleus bright, its membrane wide.</summary>
+    MochtroidLatchedWide,
+    /// <summary>Mochtroid: latched on, nucleus bright, its membrane squeezing in.</summary>
+    MochtroidLatchedSqueezing,
+    /// <summary>Mochtroid: latched on, nucleus bright, its membrane squeezed narrow.</summary>
+    MochtroidLatchedSqueezed,
+    /// <summary>Evir: its body facing left, legs tucked.</summary>
+    EvirBodyFacingLeftLegsTucked,
+    /// <summary>Evir: its body facing left, legs curling.</summary>
+    EvirBodyFacingLeftLegsCurling,
+    /// <summary>Evir: its body facing left, legs lowering.</summary>
+    EvirBodyFacingLeftLegsLowering,
+    /// <summary>Evir: its body facing left, legs hanging.</summary>
+    EvirBodyFacingLeftLegsHanging,
+    /// <summary>Evir: its body facing left, legs stretched down.</summary>
+    EvirBodyFacingLeftLegsStretched,
+    /// <summary>Evir: its body facing left, legs lifting.</summary>
+    EvirBodyFacingLeftLegsLifting,
+    /// <summary>Evir: its arms facing left, reaching forward.</summary>
+    EvirArmsFacingLeftReaching,
+    /// <summary>Evir: its arms facing left, curling in.</summary>
+    EvirArmsFacingLeftCurling,
+    /// <summary>Evir: its arms facing left, folding.</summary>
+    EvirArmsFacingLeftFolding,
+    /// <summary>Evir: its arms facing left, spreading.</summary>
+    EvirArmsFacingLeftSpreading,
+    /// <summary>Evir: its arms facing left, folded back.</summary>
+    EvirArmsFacingLeftFolded,
+    /// <summary>Evir: its body facing right, legs tucked.</summary>
+    EvirBodyFacingRightLegsTucked,
+    /// <summary>Evir: its body facing right, legs curling.</summary>
+    EvirBodyFacingRightLegsCurling,
+    /// <summary>Evir: its body facing right, legs lowering.</summary>
+    EvirBodyFacingRightLegsLowering,
+    /// <summary>Evir: its body facing right, legs hanging.</summary>
+    EvirBodyFacingRightLegsHanging,
+    /// <summary>Evir: its body facing right, legs stretched down.</summary>
+    EvirBodyFacingRightLegsStretched,
+    /// <summary>Evir: its body facing right, legs lifting.</summary>
+    EvirBodyFacingRightLegsLifting,
+    /// <summary>Evir: its arms facing right, reaching forward.</summary>
+    EvirArmsFacingRightReaching,
+    /// <summary>Evir: its arms facing right, curling in.</summary>
+    EvirArmsFacingRightCurling,
+    /// <summary>Evir: its arms facing right, folding.</summary>
+    EvirArmsFacingRightFolding,
+    /// <summary>Evir: its arms facing right, spreading.</summary>
+    EvirArmsFacingRightSpreading,
+    /// <summary>Evir: its arms facing right, folded back.</summary>
+    EvirArmsFacingRightFolded,
+    /// <summary>Evir: the spined ball it throws.</summary>
+    EvirSpineBall,
+    /// <summary>Evir: the spined ball it throws, small as it regrows.</summary>
+    EvirSpineBallRegrowing,
+    /// <summary>The work robot: walking left on its near foot, leaning back.</summary>
+    WorkRobotWalkingLeftNearFootLeanBack,
+    /// <summary>The work robot: walking left on its near foot, easing upright.</summary>
+    WorkRobotWalkingLeftNearFootEasingUp,
+    /// <summary>The work robot: walking left on its near foot, upright.</summary>
+    WorkRobotWalkingLeftNearFootUpright,
+    /// <summary>The work robot: walking left on its near foot, easing forward.</summary>
+    WorkRobotWalkingLeftNearFootEasingForward,
+    /// <summary>The work robot: walking left on its near foot, leaning forward.</summary>
+    WorkRobotWalkingLeftNearFootLeanForward,
+    /// <summary>The work robot: walking left on its near foot, settling upright.</summary>
+    WorkRobotWalkingLeftNearFootSettling,
+    /// <summary>The work robot: walking left on its far foot, leaning back.</summary>
+    WorkRobotWalkingLeftFarFootLeanBack,
+    /// <summary>The work robot: walking left on its far foot, easing upright.</summary>
+    WorkRobotWalkingLeftFarFootEasingUp,
+    /// <summary>The work robot: walking left on its far foot, upright.</summary>
+    WorkRobotWalkingLeftFarFootUpright,
+    /// <summary>The work robot: walking left on its far foot, easing forward.</summary>
+    WorkRobotWalkingLeftFarFootEasingForward,
+    /// <summary>The work robot: walking left on its far foot, leaning forward.</summary>
+    WorkRobotWalkingLeftFarFootLeanForward,
+    /// <summary>The work robot: walking left on its far foot, settling upright.</summary>
+    WorkRobotWalkingLeftFarFootSettling,
+    /// <summary>The work robot: walking right on its near foot, leaning back.</summary>
+    WorkRobotWalkingRightNearFootLeanBack,
+    /// <summary>The work robot: walking right on its near foot, easing upright.</summary>
+    WorkRobotWalkingRightNearFootEasingUp,
+    /// <summary>The work robot: walking right on its near foot, upright.</summary>
+    WorkRobotWalkingRightNearFootUpright,
+    /// <summary>The work robot: walking right on its near foot, easing forward.</summary>
+    WorkRobotWalkingRightNearFootEasingForward,
+    /// <summary>The work robot: walking right on its near foot, leaning forward.</summary>
+    WorkRobotWalkingRightNearFootLeanForward,
+    /// <summary>The work robot: walking right on its near foot, settling upright.</summary>
+    WorkRobotWalkingRightNearFootSettling,
+    /// <summary>The work robot: walking right on its far foot, leaning back.</summary>
+    WorkRobotWalkingRightFarFootLeanBack,
+    /// <summary>The work robot: walking right on its far foot, easing upright.</summary>
+    WorkRobotWalkingRightFarFootEasingUp,
+    /// <summary>The work robot: walking right on its far foot, upright.</summary>
+    WorkRobotWalkingRightFarFootUpright,
+    /// <summary>The work robot: walking right on its far foot, easing forward.</summary>
+    WorkRobotWalkingRightFarFootEasingForward,
+    /// <summary>The work robot: walking right on its far foot, leaning forward.</summary>
+    WorkRobotWalkingRightFarFootLeanForward,
+    /// <summary>The work robot: walking right on its far foot, settling upright.</summary>
+    WorkRobotWalkingRightFarFootSettling,
+    /// <summary>The work robot: unpowered, standing upright.</summary>
+    WorkRobotUnpoweredUpright,
+    /// <summary>The work robot: unpowered, tilted left.</summary>
+    WorkRobotUnpoweredTiltedLeft,
+    /// <summary>The work robot: unpowered, tilted right.</summary>
+    WorkRobotUnpoweredTiltedRight,
+    /// <summary>Yard: rounding an outside corner with its top to the right, facing up, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideRightFacingUpTurned22,
+    /// <summary>Yard: rounding an outside corner with its top to the right, facing up, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideRightFacingUpTurned45,
+    /// <summary>Yard: rounding an outside corner with its top to the right, facing up, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideRightFacingUpTurned67,
+    /// <summary>Yard: crawling upright, facing left, legs tucked.</summary>
+    YardCrawlingUpsideUpFacingLeftLegsTucked,
+    /// <summary>Yard: crawling upright, facing left, legs spread.</summary>
+    YardCrawlingUpsideUpFacingLeftLegsSpread,
+    /// <summary>Yard: crawling upright, facing left, legs stepping.</summary>
+    YardCrawlingUpsideUpFacingLeftLegsStepping,
+    /// <summary>Yard: rounding an outside corner upright, facing left, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideUpFacingLeftTurned22,
+    /// <summary>Yard: rounding an outside corner upright, facing left, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideUpFacingLeftTurned45,
+    /// <summary>Yard: rounding an outside corner upright, facing left, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideUpFacingLeftTurned67,
+    /// <summary>Yard: crawling with its top to the left, facing down, legs tucked.</summary>
+    YardCrawlingUpsideLeftFacingDownLegsTucked,
+    /// <summary>Yard: crawling with its top to the left, facing down, legs spread.</summary>
+    YardCrawlingUpsideLeftFacingDownLegsSpread,
+    /// <summary>Yard: crawling with its top to the left, facing down, legs stepping.</summary>
+    YardCrawlingUpsideLeftFacingDownLegsStepping,
+    /// <summary>Yard: rounding an outside corner with its top to the left, facing down, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideLeftFacingDownTurned22,
+    /// <summary>Yard: rounding an outside corner with its top to the left, facing down, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideLeftFacingDownTurned45,
+    /// <summary>Yard: rounding an outside corner with its top to the left, facing down, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideLeftFacingDownTurned67,
+    /// <summary>Yard: crawling upside down, facing right, legs tucked.</summary>
+    YardCrawlingUpsideDownFacingRightLegsTucked,
+    /// <summary>Yard: crawling upside down, facing right, legs spread.</summary>
+    YardCrawlingUpsideDownFacingRightLegsSpread,
+    /// <summary>Yard: crawling upside down, facing right, legs stepping.</summary>
+    YardCrawlingUpsideDownFacingRightLegsStepping,
+    /// <summary>Yard: rounding an outside corner upside down, facing right, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideDownFacingRightTurned22,
+    /// <summary>Yard: rounding an outside corner upside down, facing right, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideDownFacingRightTurned45,
+    /// <summary>Yard: rounding an outside corner upside down, facing right, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideDownFacingRightTurned67,
+    /// <summary>Yard: crawling with its top to the right, facing up, legs tucked.</summary>
+    YardCrawlingUpsideRightFacingUpLegsTucked,
+    /// <summary>Yard: crawling with its top to the right, facing up, legs spread.</summary>
+    YardCrawlingUpsideRightFacingUpLegsSpread,
+    /// <summary>Yard: crawling with its top to the right, facing up, legs stepping.</summary>
+    YardCrawlingUpsideRightFacingUpLegsStepping,
+    /// <summary>Yard: rounding an outside corner with its top to the left, facing up, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideLeftFacingUpTurned22,
+    /// <summary>Yard: rounding an outside corner with its top to the left, facing up, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideLeftFacingUpTurned45,
+    /// <summary>Yard: rounding an outside corner with its top to the left, facing up, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideLeftFacingUpTurned67,
+    /// <summary>Yard: crawling upright, facing right, legs tucked.</summary>
+    YardCrawlingUpsideUpFacingRightLegsTucked,
+    /// <summary>Yard: crawling upright, facing right, legs spread.</summary>
+    YardCrawlingUpsideUpFacingRightLegsSpread,
+    /// <summary>Yard: crawling upright, facing right, legs stepping.</summary>
+    YardCrawlingUpsideUpFacingRightLegsStepping,
+    /// <summary>Yard: rounding an outside corner upright, facing right, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideUpFacingRightTurned22,
+    /// <summary>Yard: rounding an outside corner upright, facing right, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideUpFacingRightTurned45,
+    /// <summary>Yard: rounding an outside corner upright, facing right, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideUpFacingRightTurned67,
+    /// <summary>Yard: crawling with its top to the right, facing down, legs tucked.</summary>
+    YardCrawlingUpsideRightFacingDownLegsTucked,
+    /// <summary>Yard: crawling with its top to the right, facing down, legs spread.</summary>
+    YardCrawlingUpsideRightFacingDownLegsSpread,
+    /// <summary>Yard: crawling with its top to the right, facing down, legs stepping.</summary>
+    YardCrawlingUpsideRightFacingDownLegsStepping,
+    /// <summary>Yard: rounding an outside corner with its top to the right, facing down, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideRightFacingDownTurned22,
+    /// <summary>Yard: rounding an outside corner with its top to the right, facing down, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideRightFacingDownTurned45,
+    /// <summary>Yard: rounding an outside corner with its top to the right, facing down, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideRightFacingDownTurned67,
+    /// <summary>Yard: crawling upside down, facing left, legs tucked.</summary>
+    YardCrawlingUpsideDownFacingLeftLegsTucked,
+    /// <summary>Yard: crawling upside down, facing left, legs spread.</summary>
+    YardCrawlingUpsideDownFacingLeftLegsSpread,
+    /// <summary>Yard: crawling upside down, facing left, legs stepping.</summary>
+    YardCrawlingUpsideDownFacingLeftLegsStepping,
+    /// <summary>Yard: rounding an outside corner upside down, facing left, turned a quarter of the way round.</summary>
+    YardRoundingOutsideCornerUpsideDownFacingLeftTurned22,
+    /// <summary>Yard: rounding an outside corner upside down, facing left, turned half way round.</summary>
+    YardRoundingOutsideCornerUpsideDownFacingLeftTurned45,
+    /// <summary>Yard: rounding an outside corner upside down, facing left, turned three quarters of the way round.</summary>
+    YardRoundingOutsideCornerUpsideDownFacingLeftTurned67,
+    /// <summary>Yard: crawling with its top to the left, facing up, legs tucked.</summary>
+    YardCrawlingUpsideLeftFacingUpLegsTucked,
+    /// <summary>Yard: crawling with its top to the left, facing up, legs spread.</summary>
+    YardCrawlingUpsideLeftFacingUpLegsSpread,
+    /// <summary>Yard: crawling with its top to the left, facing up, legs stepping.</summary>
+    YardCrawlingUpsideLeftFacingUpLegsStepping,
+    /// <summary>Yard: rounding an inside corner upright, facing left, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideUpFacingLeftTurned22,
+    /// <summary>Yard: rounding an inside corner upright, facing left, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideUpFacingLeftTurned45,
+    /// <summary>Yard: rounding an inside corner upright, facing left, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideUpFacingLeftTurned67,
+    /// <summary>Yard: rounding an inside corner with its top to the right, facing up, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideRightFacingUpTurned22,
+    /// <summary>Yard: rounding an inside corner with its top to the right, facing up, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideRightFacingUpTurned45,
+    /// <summary>Yard: rounding an inside corner with its top to the right, facing up, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideRightFacingUpTurned67,
+    /// <summary>Yard: rounding an inside corner upside down, facing right, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideDownFacingRightTurned22,
+    /// <summary>Yard: rounding an inside corner upside down, facing right, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideDownFacingRightTurned45,
+    /// <summary>Yard: rounding an inside corner upside down, facing right, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideDownFacingRightTurned67,
+    /// <summary>Yard: rounding an inside corner with its top to the left, facing down, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideLeftFacingDownTurned22,
+    /// <summary>Yard: rounding an inside corner with its top to the left, facing down, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideLeftFacingDownTurned45,
+    /// <summary>Yard: rounding an inside corner with its top to the left, facing down, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideLeftFacingDownTurned67,
+    /// <summary>Yard: rounding an inside corner upright, facing right, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideUpFacingRightTurned22,
+    /// <summary>Yard: rounding an inside corner upright, facing right, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideUpFacingRightTurned45,
+    /// <summary>Yard: rounding an inside corner upright, facing right, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideUpFacingRightTurned67,
+    /// <summary>Yard: rounding an inside corner with its top to the left, facing up, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideLeftFacingUpTurned22,
+    /// <summary>Yard: rounding an inside corner with its top to the left, facing up, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideLeftFacingUpTurned45,
+    /// <summary>Yard: rounding an inside corner with its top to the left, facing up, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideLeftFacingUpTurned67,
+    /// <summary>Yard: rounding an inside corner upside down, facing left, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideDownFacingLeftTurned22,
+    /// <summary>Yard: rounding an inside corner upside down, facing left, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideDownFacingLeftTurned45,
+    /// <summary>Yard: rounding an inside corner upside down, facing left, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideDownFacingLeftTurned67,
+    /// <summary>Yard: rounding an inside corner with its top to the right, facing down, turned a quarter of the way round.</summary>
+    YardRoundingInsideCornerUpsideRightFacingDownTurned22,
+    /// <summary>Yard: rounding an inside corner with its top to the right, facing down, turned half way round.</summary>
+    YardRoundingInsideCornerUpsideRightFacingDownTurned45,
+    /// <summary>Yard: rounding an inside corner with its top to the right, facing down, turned three quarters of the way round.</summary>
+    YardRoundingInsideCornerUpsideRightFacingDownTurned67,
+    /// <summary>Yard: upright, facing left, tucking its legs into its shell.</summary>
+    YardUpsideUpFacingLeftLegsTucking,
+    /// <summary>Yard: upright, facing left, withdrawn into its closed shell.</summary>
+    YardUpsideUpFacingLeftShellClosed,
+    /// <summary>Yard: upright, facing left, withdrawn into its closed shell: the picture of YardUpsideUpFacingLeftShellClosed, as a frame of its own.</summary>
+    YardUpsideUpFacingLeftShellClosedTwin,
+    /// <summary>Yard: upright, facing left, tucking its legs into its shell: the picture of YardUpsideUpFacingLeftLegsTucking, drawn 3 pixels left of it.</summary>
+    YardUpsideUpFacingLeftLegsTuckingShiftedLeft3,
+    /// <summary>Yard: upside down, facing left, tucking its legs into its shell.</summary>
+    YardUpsideDownFacingLeftLegsTucking,
+    /// <summary>Yard: upside down, facing left, withdrawn into its closed shell.</summary>
+    YardUpsideDownFacingLeftShellClosed,
+    /// <summary>Yard: upside down, facing left, withdrawn into its closed shell: the picture of YardUpsideDownFacingLeftShellClosed, as a frame of its own.</summary>
+    YardUpsideDownFacingLeftShellClosedTwin,
+    /// <summary>Yard: upside down, facing left, tucking its legs into its shell: the picture of YardUpsideDownFacingLeftLegsTucking, drawn 2 pixels left of it.</summary>
+    YardUpsideDownFacingLeftLegsTuckingShiftedLeft2,
+    /// <summary>Yard: upside down, facing right, tucking its legs into its shell.</summary>
+    YardUpsideDownFacingRightLegsTucking,
+    /// <summary>Yard: upside down, facing right, withdrawn into its closed shell.</summary>
+    YardUpsideDownFacingRightShellClosed,
+    /// <summary>Yard: upside down, facing right, withdrawn into its closed shell: the picture of YardUpsideDownFacingRightShellClosed, as a frame of its own.</summary>
+    YardUpsideDownFacingRightShellClosedTwin,
+    /// <summary>Yard: upside down, facing right, tucking its legs into its shell: the picture of YardUpsideDownFacingRightLegsTucking, drawn 2 pixels right of it.</summary>
+    YardUpsideDownFacingRightLegsTuckingShiftedRight2,
+    /// <summary>Yard: upright, facing right, tucking its legs into its shell.</summary>
+    YardUpsideUpFacingRightLegsTucking,
+    /// <summary>Yard: upright, facing right, withdrawn into its closed shell.</summary>
+    YardUpsideUpFacingRightShellClosed,
+    /// <summary>Yard: upright, facing right, withdrawn into its closed shell: the picture of YardUpsideUpFacingRightShellClosed, as a frame of its own.</summary>
+    YardUpsideUpFacingRightShellClosedTwin,
+    /// <summary>Yard: upright, facing right, tucking its legs into its shell: the picture of YardUpsideUpFacingRightLegsTucking, drawn 3 pixels right of it.</summary>
+    YardUpsideUpFacingRightLegsTuckingShiftedRight3,
+    /// <summary>Yard: with its top to the right, facing up, tucking its legs into its shell.</summary>
+    YardUpsideRightFacingUpLegsTucking,
+    /// <summary>Yard: with its top to the right, facing up, withdrawn into its closed shell.</summary>
+    YardUpsideRightFacingUpShellClosed,
+    /// <summary>Yard: with its top to the right, facing up, withdrawn into its closed shell: the picture of YardUpsideRightFacingUpShellClosed, as a frame of its own.</summary>
+    YardUpsideRightFacingUpShellClosedTwin,
+    /// <summary>Yard: with its top to the right, facing up, tucking its legs further into its shell.</summary>
+    YardUpsideRightFacingUpLegsTuckingFurther,
+    /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell.</summary>
+    YardUpsideLeftFacingUpLegsTucking,
+    /// <summary>Yard: with its top to the left, facing up, withdrawn into its closed shell.</summary>
+    YardUpsideLeftFacingUpShellClosed,
+    /// <summary>Yard: with its top to the left, facing up, withdrawn into its closed shell: the picture of YardUpsideLeftFacingUpShellClosed, as a frame of its own.</summary>
+    YardUpsideLeftFacingUpShellClosedTwin,
+    /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell: the picture of YardUpsideLeftFacingUpLegsTucking, drawn 2 pixels up of it.</summary>
+    YardUpsideLeftFacingUpLegsTuckingShiftedUp2,
+    /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell.</summary>
+    YardUpsideLeftFacingDownLegsTucking,
+    /// <summary>Yard: with its top to the left, facing down, withdrawn into its closed shell.</summary>
+    YardUpsideLeftFacingDownShellClosed,
+    /// <summary>Yard: with its top to the left, facing down, withdrawn into its closed shell: the picture of YardUpsideLeftFacingDownShellClosed, as a frame of its own.</summary>
+    YardUpsideLeftFacingDownShellClosedTwin,
+    /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell: the picture of YardUpsideLeftFacingDownLegsTucking, drawn 2 pixels down of it.</summary>
+    YardUpsideLeftFacingDownLegsTuckingShiftedDown2,
+    /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell.</summary>
+    YardUpsideRightFacingDownLegsTucking,
+    /// <summary>Yard: with its top to the right, facing down, withdrawn into its closed shell.</summary>
+    YardUpsideRightFacingDownShellClosed,
+    /// <summary>Yard: with its top to the right, facing down, withdrawn into its closed shell: the picture of YardUpsideRightFacingDownShellClosed, as a frame of its own.</summary>
+    YardUpsideRightFacingDownShellClosedTwin,
+    /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell: the picture of YardUpsideRightFacingDownLegsTucking, drawn 2 pixels down of it.</summary>
+    YardUpsideRightFacingDownLegsTuckingShiftedDown2,
     /// <summary>Botwoon: head closed up left.</summary>
     BotwoonHeadClosedUpLeft,
     /// <summary>Botwoon: head closed left.</summary>
@@ -2070,416 +2072,416 @@ public enum EnemyFrameId
     BotwoonHeadOpenUpRight,
     /// <summary>Botwoon: head open up.</summary>
     BotwoonHeadOpenUp,
-    /// <summary>Samus's gunship: entrance pad opening, first frame.</summary>
-    GunshipEntrancePadOpeningFirst,
-    /// <summary>Samus's gunship: entrance pad opening, second frame.</summary>
-    GunshipEntrancePadOpeningSecond,
-    /// <summary>Samus's gunship: entrance pad opening, third frame.</summary>
-    GunshipEntrancePadOpeningThird,
-    /// <summary>Samus's gunship: entrance pad opening, fourth frame.</summary>
-    GunshipEntrancePadOpeningFourth,
-    /// <summary>Samus's gunship: entrance pad opening, fifth frame.</summary>
-    GunshipEntrancePadOpeningFifth,
-    /// <summary>Samus's gunship: entrance pad opening, sixth frame.</summary>
-    GunshipEntrancePadOpeningSixth,
-    /// <summary>Samus's gunship: entrance pad opening, seventh frame.</summary>
-    GunshipEntrancePadOpeningSeventh,
-    /// <summary>Samus's gunship: entrance pad opening, eighth frame.</summary>
-    GunshipEntrancePadOpeningEighth,
-    /// <summary>Samus's gunship: entrance pad opening, ninth frame.</summary>
-    GunshipEntrancePadOpeningNinth,
-    /// <summary>Samus's gunship: entrance pad opening, tenth frame.</summary>
-    GunshipEntrancePadOpeningTenth,
+    /// <summary>Samus's gunship: its entrance pad shut.</summary>
+    GunshipEntrancePadShut,
+    /// <summary>Samus's gunship: its entrance pad shut, 1 pixels higher.</summary>
+    GunshipEntrancePadShutRaised1,
+    /// <summary>Samus's gunship: its entrance pad shut, 2 pixels higher.</summary>
+    GunshipEntrancePadShutRaised2,
+    /// <summary>Samus's gunship: its entrance pad shut, 4 pixels higher.</summary>
+    GunshipEntrancePadShutRaised4,
+    /// <summary>Samus's gunship: its entrance pad opening, 32 pixels wide.</summary>
+    GunshipEntrancePadOpening32Wide,
+    /// <summary>Samus's gunship: its entrance pad opening, 36 pixels wide.</summary>
+    GunshipEntrancePadOpening36Wide,
+    /// <summary>Samus's gunship: its entrance pad opening, 40 pixels wide.</summary>
+    GunshipEntrancePadOpening40Wide,
+    /// <summary>Samus's gunship: its entrance pad opening, 44 pixels wide.</summary>
+    GunshipEntrancePadOpening44Wide,
+    /// <summary>Samus's gunship: its entrance pad opening, 48 pixels wide.</summary>
+    GunshipEntrancePadOpening48Wide,
+    /// <summary>Samus's gunship: its entrance pad opening, 52 pixels wide.</summary>
+    GunshipEntrancePadOpening52Wide,
     /// <summary>Samus's gunship: entrance pad open.</summary>
     GunshipEntrancePadOpen,
     /// <summary>Samus's gunship: top hull.</summary>
     GunshipTopHull,
     /// <summary>Samus's gunship: bottom hull.</summary>
     GunshipBottomHull,
-    /// <summary>The baby turtle: crawling left, first frame.</summary>
-    TurtleBabyCrawlingLeftFirst,
-    /// <summary>The baby turtle: crawling left, second frame.</summary>
-    TurtleBabyCrawlingLeftSecond,
-    /// <summary>The baby turtle: crawling left, third frame.</summary>
-    TurtleBabyCrawlingLeftThird,
-    /// <summary>The baby turtle: crawling left, fourth frame.</summary>
-    TurtleBabyCrawlingLeftFourth,
-    /// <summary>The baby turtle: crawling left, fifth frame.</summary>
-    TurtleBabyCrawlingLeftFifth,
-    /// <summary>The baby turtle: crawling left, sixth frame.</summary>
-    TurtleBabyCrawlingLeftSixth,
-    /// <summary>The baby turtle: crawling left, seventh frame.</summary>
-    TurtleBabyCrawlingLeftSeventh,
-    /// <summary>The baby turtle: spinning, first frame.</summary>
-    TurtleBabySpinningFirst,
-    /// <summary>The baby turtle: spinning, second frame.</summary>
-    TurtleBabySpinningSecond,
-    /// <summary>The baby turtle: spinning, third frame.</summary>
-    TurtleBabySpinningThird,
-    /// <summary>The baby turtle: spinning, fourth frame.</summary>
-    TurtleBabySpinningFourth,
-    /// <summary>The mama turtle: spinning, first frame.</summary>
-    TurtleMamaSpinningFirst,
-    /// <summary>The mama turtle: spinning, second frame.</summary>
-    TurtleMamaSpinningSecond,
-    /// <summary>The mama turtle: spinning, third frame.</summary>
-    TurtleMamaSpinningThird,
-    /// <summary>The mama turtle: enter shell left, first frame.</summary>
-    TurtleMamaEnterShellLeftFirst,
-    /// <summary>The mama turtle: enter shell left, second frame.</summary>
-    TurtleMamaEnterShellLeftSecond,
-    /// <summary>The mama turtle: enter shell left, third frame.</summary>
-    TurtleMamaEnterShellLeftThird,
-    /// <summary>The baby turtle: crawling right, first frame.</summary>
-    TurtleBabyCrawlingRightFirst,
-    /// <summary>The baby turtle: crawling right, second frame.</summary>
-    TurtleBabyCrawlingRightSecond,
-    /// <summary>The baby turtle: crawling right, third frame.</summary>
-    TurtleBabyCrawlingRightThird,
-    /// <summary>The baby turtle: crawling right, fourth frame.</summary>
-    TurtleBabyCrawlingRightFourth,
-    /// <summary>The baby turtle: crawling right, fifth frame.</summary>
-    TurtleBabyCrawlingRightFifth,
-    /// <summary>The baby turtle: crawling right, sixth frame.</summary>
-    TurtleBabyCrawlingRightSixth,
-    /// <summary>The baby turtle: crawling right, seventh frame.</summary>
-    TurtleBabyCrawlingRightSeventh,
-    /// <summary>The mama turtle: enter shell right, first frame.</summary>
-    TurtleMamaEnterShellRightFirst,
-    /// <summary>The mama turtle: enter shell right, second frame.</summary>
-    TurtleMamaEnterShellRightSecond,
-    /// <summary>The mama turtle: enter shell right, third frame.</summary>
-    TurtleMamaEnterShellRightThird,
-    /// <summary>The mama turtle: enter shell right, fourth frame.</summary>
-    TurtleMamaEnterShellRightFourth,
-    /// <summary>The baby turtle: hiding right, third frame.</summary>
-    TurtleBabyHidingRightThird,
-    /// <summary>Zero: upside right loop, first frame.</summary>
-    ZeroUpsideRightLoopFirst,
-    /// <summary>Zero: upside right loop, second frame.</summary>
-    ZeroUpsideRightLoopSecond,
-    /// <summary>Zero: upside right loop, third frame.</summary>
-    ZeroUpsideRightLoopThird,
-    /// <summary>Zero: upside right loop, fourth frame.</summary>
-    ZeroUpsideRightLoopFourth,
-    /// <summary>Zero: upside left loop, first frame.</summary>
-    ZeroUpsideLeftLoopFirst,
-    /// <summary>Zero: upside left loop, second frame.</summary>
-    ZeroUpsideLeftLoopSecond,
-    /// <summary>Zero: upside left loop, third frame.</summary>
-    ZeroUpsideLeftLoopThird,
-    /// <summary>Zero: upside left loop, fourth frame.</summary>
-    ZeroUpsideLeftLoopFourth,
-    /// <summary>Zero: upside down loop, first frame.</summary>
-    ZeroUpsideDownLoopFirst,
-    /// <summary>Zero: upside down loop, second frame.</summary>
-    ZeroUpsideDownLoopSecond,
-    /// <summary>Zero: upside down loop, third frame.</summary>
-    ZeroUpsideDownLoopThird,
-    /// <summary>Zero: upside down loop, fourth frame.</summary>
-    ZeroUpsideDownLoopFourth,
-    /// <summary>Zero: upside up loop, first frame.</summary>
-    ZeroUpsideUpLoopFirst,
-    /// <summary>Zero: upside up loop, second frame.</summary>
-    ZeroUpsideUpLoopSecond,
-    /// <summary>Zero: upside up loop, third frame.</summary>
-    ZeroUpsideUpLoopThird,
-    /// <summary>Zero: upside up loop, fourth frame.</summary>
-    ZeroUpsideUpLoopFourth,
-    /// <summary>Etecoon: look right at Samus and run left.</summary>
-    EtecoonLookRightAtSamusAndRunLeft,
-    /// <summary>Etecoon: begin running left.</summary>
-    EtecoonBeginRunningLeft,
-    /// <summary>Etecoon: running left, first frame.</summary>
-    EtecoonRunningLeftFirst,
-    /// <summary>Etecoon: running left, second frame.</summary>
-    EtecoonRunningLeftSecond,
-    /// <summary>Etecoon: running left, third frame.</summary>
-    EtecoonRunningLeftThird,
-    /// <summary>Etecoon: wall jump left.</summary>
-    EtecoonWallJumpLeft,
-    /// <summary>Etecoon: wall jump left loop, first frame.</summary>
-    EtecoonWallJumpLeftLoopFirst,
-    /// <summary>Etecoon: wall jump left loop, second frame.</summary>
-    EtecoonWallJumpLeftLoopSecond,
-    /// <summary>Etecoon: wall jump left loop, third frame.</summary>
-    EtecoonWallJumpLeftLoopThird,
-    /// <summary>Etecoon: wall jump left loop, fourth frame.</summary>
-    EtecoonWallJumpLeftLoopFourth,
-    /// <summary>Etecoon: hopping facing left.</summary>
-    EtecoonHoppingFacingLeft,
-    /// <summary>Etecoon: continue hopping facing left, first frame.</summary>
-    EtecoonContinueHoppingFacingLeftFirst,
-    /// <summary>Etecoon: continue hopping facing left, second frame.</summary>
-    EtecoonContinueHoppingFacingLeftSecond,
-    /// <summary>Etecoon: continue hopping facing left, third frame: the crest of the hop, which a ceiling hit enters at.</summary>
-    EtecoonContinueHoppingFacingLeftThird,
-    /// <summary>Etecoon: wall jump left eligible.</summary>
-    EtecoonWallJumpLeftEligible,
-    /// <summary>Etecoon: look left at Samus and run right.</summary>
-    EtecoonLookLeftAtSamusAndRunRight,
-    /// <summary>Etecoon: begin running right.</summary>
-    EtecoonBeginRunningRight,
-    /// <summary>Etecoon: running right, first frame.</summary>
-    EtecoonRunningRightFirst,
-    /// <summary>Etecoon: running right, second frame.</summary>
-    EtecoonRunningRightSecond,
-    /// <summary>Etecoon: running right, third frame.</summary>
-    EtecoonRunningRightThird,
-    /// <summary>Etecoon: wall jump right.</summary>
-    EtecoonWallJumpRight,
-    /// <summary>Etecoon: jumping right, first frame.</summary>
-    EtecoonJumpingRightFirst,
-    /// <summary>Etecoon: jumping right, second frame.</summary>
-    EtecoonJumpingRightSecond,
-    /// <summary>Etecoon: jumping right, third frame.</summary>
-    EtecoonJumpingRightThird,
-    /// <summary>Etecoon: jumping right, fourth frame.</summary>
-    EtecoonJumpingRightFourth,
-    /// <summary>Etecoon: hopping facing right.</summary>
-    EtecoonHoppingFacingRight,
-    /// <summary>Etecoon: continue hopping facing right, first frame.</summary>
-    EtecoonContinueHoppingFacingRightFirst,
-    /// <summary>Etecoon: continue hopping facing right, second frame.</summary>
-    EtecoonContinueHoppingFacingRightSecond,
-    /// <summary>Etecoon: continue hopping facing right, third frame.</summary>
-    EtecoonContinueHoppingFacingRightThird,
-    /// <summary>Etecoon: wall jump right eligible.</summary>
-    EtecoonWallJumpRightEligible,
-    /// <summary>Etecoon: flexing loop, fifth frame.</summary>
-    EtecoonFlexingLoopFifth,
-    /// <summary>Dachora: running left, first frame.</summary>
-    DachoraRunningLeftFirst,
-    /// <summary>Dachora: running left, second frame.</summary>
-    DachoraRunningLeftSecond,
-    /// <summary>Dachora: running left, third frame.</summary>
-    DachoraRunningLeftThird,
-    /// <summary>Dachora: running left, fourth frame.</summary>
-    DachoraRunningLeftFourth,
-    /// <summary>Dachora: running left, fifth frame.</summary>
-    DachoraRunningLeftFifth,
-    /// <summary>Dachora: running left, sixth frame.</summary>
-    DachoraRunningLeftSixth,
-    /// <summary>Dachora: idle left, first frame.</summary>
-    DachoraIdleLeftFirst,
-    /// <summary>Dachora: idle left, second frame.</summary>
-    DachoraIdleLeftSecond,
-    /// <summary>Dachora: idle left, third frame.</summary>
-    DachoraIdleLeftThird,
-    /// <summary>Dachora: idle left, fourth frame.</summary>
-    DachoraIdleLeftFourth,
-    /// <summary>Dachora: idle left, fifth frame.</summary>
-    DachoraIdleLeftFifth,
-    /// <summary>Dachora: blink left, second frame.</summary>
-    DachoraBlinkLeftSecond,
-    /// <summary>Dachora: blink left, third frame.</summary>
-    DachoraBlinkLeftThird,
-    /// <summary>Dachora: echo left.</summary>
-    DachoraEchoLeft,
-    /// <summary>Dachora: running right, first frame.</summary>
-    DachoraRunningRightFirst,
-    /// <summary>Dachora: running right, second frame.</summary>
-    DachoraRunningRightSecond,
-    /// <summary>Dachora: running right, third frame.</summary>
-    DachoraRunningRightThird,
-    /// <summary>Dachora: running right, fourth frame.</summary>
-    DachoraRunningRightFourth,
-    /// <summary>Dachora: running right, fifth frame.</summary>
-    DachoraRunningRightFifth,
-    /// <summary>Dachora: running right, sixth frame.</summary>
-    DachoraRunningRightSixth,
-    /// <summary>Dachora: idle right, first frame.</summary>
-    DachoraIdleRightFirst,
-    /// <summary>Dachora: idle right, second frame.</summary>
-    DachoraIdleRightSecond,
-    /// <summary>Dachora: idle right, third frame.</summary>
-    DachoraIdleRightThird,
-    /// <summary>Dachora: idle right, fourth frame.</summary>
-    DachoraIdleRightFourth,
-    /// <summary>Dachora: idle right, fifth frame.</summary>
-    DachoraIdleRightFifth,
-    /// <summary>Dachora: blink right, second frame.</summary>
-    DachoraBlinkRightSecond,
-    /// <summary>Dachora: blink right, third frame.</summary>
-    DachoraBlinkRightThird,
-    /// <summary>Dachora: charge right.</summary>
-    DachoraChargeRight,
-    /// <summary>Dachora: echo right.</summary>
-    DachoraEchoRight,
-    /// <summary>The escaping Etecoons: running left low tide loop, first frame.</summary>
-    EscapeEtecoonRunningLeftLowTideLoopFirst,
-    /// <summary>The escaping Etecoons: running left low tide loop, second frame.</summary>
-    EscapeEtecoonRunningLeftLowTideLoopSecond,
-    /// <summary>The escaping Etecoons: running left low tide loop, third frame.</summary>
-    EscapeEtecoonRunningLeftLowTideLoopThird,
-    /// <summary>The escaping Etecoons: running right low tide loop, first frame.</summary>
-    EscapeEtecoonRunningRightLowTideLoopFirst,
-    /// <summary>The escaping Etecoons: running right low tide loop, second frame.</summary>
-    EscapeEtecoonRunningRightLowTideLoopSecond,
-    /// <summary>The escaping Etecoons: running right low tide loop, third frame.</summary>
-    EscapeEtecoonRunningRightLowTideLoopThird,
-    /// <summary>The escaping Etecoons: stationary, first frame.</summary>
-    EscapeEtecoonStationaryFirst,
-    /// <summary>The escaping Etecoons: stationary, second frame.</summary>
-    EscapeEtecoonStationarySecond,
-    /// <summary>The escaping Etecoons: stationary, third frame.</summary>
-    EscapeEtecoonStationaryThird,
-    /// <summary>The escaping Etecoons: stationary, fourth frame.</summary>
-    EscapeEtecoonStationaryFourth,
-    /// <summary>The escaping Dachora: running around low tide left, first frame.</summary>
-    EscapeDachoraRunningAroundLowTideLeftFirst,
-    /// <summary>The escaping Dachora: running around low tide left, second frame.</summary>
-    EscapeDachoraRunningAroundLowTideLeftSecond,
-    /// <summary>The escaping Dachora: running around low tide left, third frame.</summary>
-    EscapeDachoraRunningAroundLowTideLeftThird,
-    /// <summary>The escaping Dachora: running around low tide left, fourth frame.</summary>
-    EscapeDachoraRunningAroundLowTideLeftFourth,
-    /// <summary>The escaping Dachora: running around low tide left, fifth frame.</summary>
-    EscapeDachoraRunningAroundLowTideLeftFifth,
-    /// <summary>The escaping Dachora: running around low tide left, sixth frame.</summary>
-    EscapeDachoraRunningAroundLowTideLeftSixth,
-    /// <summary>The escaping Dachora: running around low tide right, first frame.</summary>
-    EscapeDachoraRunningAroundLowTideRightFirst,
-    /// <summary>The escaping Dachora: running around low tide right, second frame.</summary>
-    EscapeDachoraRunningAroundLowTideRightSecond,
-    /// <summary>The escaping Dachora: running around low tide right, third frame.</summary>
-    EscapeDachoraRunningAroundLowTideRightThird,
-    /// <summary>The escaping Dachora: running around low tide right, fourth frame.</summary>
-    EscapeDachoraRunningAroundLowTideRightFourth,
-    /// <summary>The escaping Dachora: running around low tide right, fifth frame.</summary>
-    EscapeDachoraRunningAroundLowTideRightFifth,
-    /// <summary>The escaping Dachora: running around low tide right, sixth frame.</summary>
-    EscapeDachoraRunningAroundLowTideRightSixth,
-    /// <summary>Hibashi: eruption, first frame.</summary>
-    HibashiEruptionFirst,
-    /// <summary>Hibashi: eruption, second frame.</summary>
-    HibashiEruptionSecond,
-    /// <summary>Hibashi: eruption, third frame.</summary>
-    HibashiEruptionThird,
-    /// <summary>Hibashi: eruption, fourth frame.</summary>
-    HibashiEruptionFourth,
-    /// <summary>Hibashi: eruption, fifth frame.</summary>
-    HibashiEruptionFifth,
-    /// <summary>Hibashi: eruption, sixth frame.</summary>
-    HibashiEruptionSixth,
-    /// <summary>Hibashi: eruption, seventh frame.</summary>
-    HibashiEruptionSeventh,
-    /// <summary>Hibashi: eruption, eighth frame.</summary>
-    HibashiEruptionEighth,
-    /// <summary>Hibashi: eruption, ninth frame.</summary>
-    HibashiEruptionNinth,
-    /// <summary>Hibashi: eruption, tenth frame.</summary>
-    HibashiEruptionTenth,
-    /// <summary>Hibashi: eruption, eleventh frame.</summary>
-    HibashiEruptionEleventh,
-    /// <summary>Hibashi: eruption, twelfth frame.</summary>
-    HibashiEruptionTwelfth,
-    /// <summary>Hibashi: eruption, thirteenth frame.</summary>
-    HibashiEruptionThirteenth,
-    /// <summary>Hibashi: eruption, fourteenth frame.</summary>
-    HibashiEruptionFourteenth,
-    /// <summary>Hibashi: eruption, fifteenth frame.</summary>
-    HibashiEruptionFifteenth,
-    /// <summary>Hibashi: eruption, sixteenth frame.</summary>
-    HibashiEruptionSixteenth,
-    /// <summary>Hibashi: eruption, seventeenth frame.</summary>
-    HibashiEruptionSeventeenth,
-    /// <summary>Hibashi: eruption, eighteenth frame.</summary>
-    HibashiEruptionEighteenth,
-    /// <summary>Hibashi: eruption, nineteenth frame.</summary>
-    HibashiEruptionNineteenth,
-    /// <summary>Hibashi: eruption, twentieth frame.</summary>
-    HibashiEruptionTwentieth,
-    /// <summary>Hibashi: eruption, twenty-first frame.</summary>
-    HibashiEruptionTwentyFirst,
-    /// <summary>Hibashi: eruption, twenty-second frame.</summary>
-    HibashiEruptionTwentySecond,
-    /// <summary>Hibashi: eruption, twenty-third frame.</summary>
-    HibashiEruptionTwentyThird,
-    /// <summary>The zebetite: first frame.</summary>
-    ZebetiteFirst,
-    /// <summary>The zebetite: second frame.</summary>
-    ZebetiteSecond,
-    /// <summary>The zebetite: third frame.</summary>
-    ZebetiteThird,
-    /// <summary>The zebetite: fourth frame.</summary>
-    ZebetiteFourth,
-    /// <summary>The zebetite: fifth frame.</summary>
-    ZebetiteFifth,
-    /// <summary>The zebetite: sixth frame.</summary>
-    ZebetiteSixth,
-    /// <summary>The zebetite: seventh frame.</summary>
-    ZebetiteSeventh,
-    /// <summary>The zebetite: eighth frame.</summary>
-    ZebetiteEighth,
-    /// <summary>The zebetite: ninth frame.</summary>
-    ZebetiteNinth,
-    /// <summary>The zebetite: tenth frame.</summary>
-    ZebetiteTenth,
-    /// <summary>The Wrecked Ship ghost: floating, first frame.</summary>
-    WreckedShipGhostFloatingFirst,
-    /// <summary>The Wrecked Ship ghost: floating, second frame.</summary>
-    WreckedShipGhostFloatingSecond,
-    /// <summary>The Wrecked Ship ghost: floating, third frame.</summary>
-    WreckedShipGhostFloatingThird,
-    /// <summary>Powamp: body fast, first frame.</summary>
-    PowampBodyFastFirst,
-    /// <summary>Powamp: body fast, second frame.</summary>
-    PowampBodyFastSecond,
-    /// <summary>Powamp: body fast, third frame.</summary>
-    PowampBodyFastThird,
-    /// <summary>Powamp: balloon inflate, first frame.</summary>
-    PowampBalloonInflateFirst,
-    /// <summary>Powamp: balloon inflate, second frame.</summary>
-    PowampBalloonInflateSecond,
-    /// <summary>Powamp: balloon inflate, third frame.</summary>
-    PowampBalloonInflateThird,
-    /// <summary>The spark: flicker on, first frame.</summary>
-    SparkFlickerOnFirst,
-    /// <summary>The spark: flicker on, third frame.</summary>
-    SparkFlickerOnThird,
-    /// <summary>The spark: flicker on, fourth frame.</summary>
-    SparkFlickerOnFourth,
-    /// <summary>The spark: flicker on, fifth frame.</summary>
-    SparkFlickerOnFifth,
-    /// <summary>The spark: active, first frame.</summary>
-    SparkActiveFirst,
-    /// <summary>The spark: active, second frame.</summary>
-    SparkActiveSecond,
-    /// <summary>The spark: active, third frame.</summary>
-    SparkActiveThird,
-    /// <summary>The spark: active, fourth frame.</summary>
-    SparkActiveFourth,
-    /// <summary>The baby Metroid: initial, third frame.</summary>
-    BabyMetroidInitialThird,
-    /// <summary>The baby Metroid: initial, second frame.</summary>
-    BabyMetroidInitialSecond,
-    /// <summary>The baby Metroid: initial, first frame.</summary>
-    BabyMetroidInitialFirst,
-    /// <summary>Kraid: lint initial.</summary>
-    KraidLintInitial,
-    /// <summary>Kraid: lint post growth.</summary>
-    KraidLintPostGrowth,
-    /// <summary>The nuclear waffle: body loop, first frame.</summary>
-    NuclearWaffleBodyLoopFirst,
-    /// <summary>The nuclear waffle: body loop, second frame.</summary>
-    NuclearWaffleBodyLoopSecond,
-    /// <summary>The nuclear waffle: body loop, third frame.</summary>
-    NuclearWaffleBodyLoopThird,
-    /// <summary>The nuclear waffle: body loop, fourth frame.</summary>
-    NuclearWaffleBodyLoopFourth,
-    /// <summary>The nuclear waffle: body loop, fifth frame.</summary>
-    NuclearWaffleBodyLoopFifth,
-    /// <summary>The nuclear waffle: body loop, sixth frame.</summary>
-    NuclearWaffleBodyLoopSixth,
-    /// <summary>The nuclear waffle: body loop, seventh frame.</summary>
-    NuclearWaffleBodyLoopSeventh,
-    /// <summary>The nuclear waffle: body loop, eighth frame.</summary>
-    NuclearWaffleBodyLoopEighth,
-    /// <summary>Kzan: idle.</summary>
-    KzanIdle,
-    /// <summary>Polyp: stationary.</summary>
-    PolypStationary,
+    /// <summary>The baby turtle: crawling left, legs tucked.</summary>
+    TurtleBabyCrawlingLeftLegsTucked,
+    /// <summary>The baby turtle: crawling left, legs reaching.</summary>
+    TurtleBabyCrawlingLeftLegsReaching,
+    /// <summary>The baby turtle: crawling left, legs planted.</summary>
+    TurtleBabyCrawlingLeftLegsPlanted,
+    /// <summary>The baby turtle: crawling left, legs pushing.</summary>
+    TurtleBabyCrawlingLeftLegsPushing,
+    /// <summary>The baby turtle: crawling left, legs trailing.</summary>
+    TurtleBabyCrawlingLeftLegsTrailing,
+    /// <summary>The baby turtle: crawling left, legs lifting.</summary>
+    TurtleBabyCrawlingLeftLegsLifting,
+    /// <summary>The baby turtle: crawling left, legs returning.</summary>
+    TurtleBabyCrawlingLeftLegsReturning,
+    /// <summary>The baby turtle: withdrawn into its spinning shell, its shell turned side on.</summary>
+    TurtleBabyShellTurned0,
+    /// <summary>The baby turtle: withdrawn into its spinning shell, its shell turned to the viewer.</summary>
+    TurtleBabyShellTurned90,
+    /// <summary>The baby turtle: withdrawn into its spinning shell, its shell turned to its other side.</summary>
+    TurtleBabyShellTurned180,
+    /// <summary>The baby turtle: withdrawn into its spinning shell, its shell turned away.</summary>
+    TurtleBabyShellTurned270,
+    /// <summary>The mama turtle: withdrawn into its shell, turned left.</summary>
+    TurtleMamaInShellFacingLeft,
+    /// <summary>The mama turtle: withdrawn into its shell, turned to the viewer.</summary>
+    TurtleMamaInShellFacingViewer,
+    /// <summary>The mama turtle: withdrawn into its shell, turned right.</summary>
+    TurtleMamaInShellFacingRight,
+    /// <summary>The mama turtle: head and legs out of its shell, facing left.</summary>
+    TurtleMamaOutOfShellFacingLeft,
+    /// <summary>The mama turtle: head and legs withdrawing into its shell, facing left.</summary>
+    TurtleMamaWithdrawingFacingLeft,
+    /// <summary>The mama turtle: head and legs withdrawn, its shell facing left.</summary>
+    TurtleMamaWithdrawnFacingLeft,
+    /// <summary>The baby turtle: crawling right, legs tucked.</summary>
+    TurtleBabyCrawlingRightLegsTucked,
+    /// <summary>The baby turtle: crawling right, legs reaching.</summary>
+    TurtleBabyCrawlingRightLegsReaching,
+    /// <summary>The baby turtle: crawling right, legs planted.</summary>
+    TurtleBabyCrawlingRightLegsPlanted,
+    /// <summary>The baby turtle: crawling right, legs pushing.</summary>
+    TurtleBabyCrawlingRightLegsPushing,
+    /// <summary>The baby turtle: crawling right, legs trailing.</summary>
+    TurtleBabyCrawlingRightLegsTrailing,
+    /// <summary>The baby turtle: crawling right, legs lifting.</summary>
+    TurtleBabyCrawlingRightLegsLifting,
+    /// <summary>The baby turtle: crawling right, legs returning.</summary>
+    TurtleBabyCrawlingRightLegsReturning,
+    /// <summary>The mama turtle: head and legs out of its shell, facing right.</summary>
+    TurtleMamaOutOfShellFacingRight,
+    /// <summary>The mama turtle: head and legs withdrawing into its shell, facing right.</summary>
+    TurtleMamaWithdrawingFacingRight,
+    /// <summary>The mama turtle: head and legs withdrawn, its shell facing right.</summary>
+    TurtleMamaWithdrawnFacingRight,
+    /// <summary>The mama turtle: withdrawn into its shell, turned right: the picture of TurtleMamaInShellFacingRight, as a frame of its own.</summary>
+    TurtleMamaInShellFacingRightTwin,
+    /// <summary>The baby turtle: withdrawn into its shell, turned to its other side: the picture of TurtleBabyShellTurned180, as a frame of its own.</summary>
+    TurtleBabyShellTurned180Twin,
+    /// <summary>Zero: crawling with its top right, contracted.</summary>
+    ZeroUpsideRightContracted,
+    /// <summary>Zero: crawling with its top right, stretching, the gaps between its segments showing.</summary>
+    ZeroUpsideRightStretching,
+    /// <summary>Zero: crawling with its top right, stretched, its segments parted.</summary>
+    ZeroUpsideRightStretched,
+    /// <summary>Zero: crawling with its top right, fully stretched, its segments wide apart.</summary>
+    ZeroUpsideRightFullyStretched,
+    /// <summary>Zero: crawling with its top left, contracted.</summary>
+    ZeroUpsideLeftContracted,
+    /// <summary>Zero: crawling with its top left, stretching, the gaps between its segments showing.</summary>
+    ZeroUpsideLeftStretching,
+    /// <summary>Zero: crawling with its top left, stretched, its segments parted.</summary>
+    ZeroUpsideLeftStretched,
+    /// <summary>Zero: crawling with its top left, fully stretched, its segments wide apart.</summary>
+    ZeroUpsideLeftFullyStretched,
+    /// <summary>Zero: crawling with its top down, contracted.</summary>
+    ZeroUpsideDownContracted,
+    /// <summary>Zero: crawling with its top down, stretching, the gaps between its segments showing.</summary>
+    ZeroUpsideDownStretching,
+    /// <summary>Zero: crawling with its top down, stretched, its segments parted.</summary>
+    ZeroUpsideDownStretched,
+    /// <summary>Zero: crawling with its top down, fully stretched, its segments wide apart.</summary>
+    ZeroUpsideDownFullyStretched,
+    /// <summary>Zero: crawling with its top up, contracted.</summary>
+    ZeroUpsideUpContracted,
+    /// <summary>Zero: crawling with its top up, stretching, the gaps between its segments showing.</summary>
+    ZeroUpsideUpStretching,
+    /// <summary>Zero: crawling with its top up, stretched, its segments parted.</summary>
+    ZeroUpsideUpStretched,
+    /// <summary>Zero: crawling with its top up, fully stretched, its segments wide apart.</summary>
+    ZeroUpsideUpFullyStretched,
+    /// <summary>Etecoon: standing, looking right.</summary>
+    EtecoonLookingRight,
+    /// <summary>Etecoon: standing, turning left.</summary>
+    EtecoonTurningLeft,
+    /// <summary>Etecoon: running left, stretched out mid stride.</summary>
+    EtecoonRunningLeftStretched,
+    /// <summary>Etecoon: running left, bunched up.</summary>
+    EtecoonRunningLeftBunched,
+    /// <summary>Etecoon: running left, pushing off.</summary>
+    EtecoonRunningLeftPushingOff,
+    /// <summary>Etecoon: leaping left, stretched flat.</summary>
+    EtecoonLeapingLeft,
+    /// <summary>Etecoon: curled up spinning left, upright.</summary>
+    EtecoonSpinningLeftTurned0,
+    /// <summary>Etecoon: curled up spinning left, turned a quarter.</summary>
+    EtecoonSpinningLeftTurned90,
+    /// <summary>Etecoon: curled up spinning left, upside down.</summary>
+    EtecoonSpinningLeftTurned180,
+    /// <summary>Etecoon: curled up spinning left, turned three quarters.</summary>
+    EtecoonSpinningLeftTurned270,
+    /// <summary>Etecoon: crouched to hop, facing left.</summary>
+    EtecoonHopCrouchFacingLeft,
+    /// <summary>Etecoon: hopping facing left, arms raising.</summary>
+    EtecoonHopArmsRaisingFacingLeft,
+    /// <summary>Etecoon: hopping facing left, arms up.</summary>
+    EtecoonHopArmsUpFacingLeft,
+    /// <summary>Etecoon: hopping facing left, arms flung wide.</summary>
+    EtecoonHopArmsFlungFacingLeft,
+    /// <summary>Etecoon: crouched against a wall, facing left.</summary>
+    EtecoonClingingFacingLeft,
+    /// <summary>Etecoon: standing, looking left.</summary>
+    EtecoonLookingLeft,
+    /// <summary>Etecoon: standing, turning right.</summary>
+    EtecoonTurningRight,
+    /// <summary>Etecoon: running right, stretched out mid stride.</summary>
+    EtecoonRunningRightStretched,
+    /// <summary>Etecoon: running right, bunched up.</summary>
+    EtecoonRunningRightBunched,
+    /// <summary>Etecoon: running right, pushing off.</summary>
+    EtecoonRunningRightPushingOff,
+    /// <summary>Etecoon: leaping right, stretched flat.</summary>
+    EtecoonLeapingRight,
+    /// <summary>Etecoon: curled up spinning right, upright.</summary>
+    EtecoonSpinningRightTurned0,
+    /// <summary>Etecoon: curled up spinning right, turned a quarter.</summary>
+    EtecoonSpinningRightTurned90,
+    /// <summary>Etecoon: curled up spinning right, upside down.</summary>
+    EtecoonSpinningRightTurned180,
+    /// <summary>Etecoon: curled up spinning right, turned three quarters.</summary>
+    EtecoonSpinningRightTurned270,
+    /// <summary>Etecoon: crouched to hop, facing right.</summary>
+    EtecoonHopCrouchFacingRight,
+    /// <summary>Etecoon: hopping facing right, arms raising.</summary>
+    EtecoonHopArmsRaisingFacingRight,
+    /// <summary>Etecoon: hopping facing right, arms up.</summary>
+    EtecoonHopArmsUpFacingRight,
+    /// <summary>Etecoon: hopping facing right, arms flung wide.</summary>
+    EtecoonHopArmsFlungFacingRight,
+    /// <summary>Etecoon: crouched against a wall, facing right.</summary>
+    EtecoonClingingFacingRight,
+    /// <summary>Etecoon: standing facing the viewer, arms at its sides.</summary>
+    EtecoonFacingViewer,
+    /// <summary>Dachora: running left, its far leg stretched behind.</summary>
+    DachoraRunningLeftFarLegBack,
+    /// <summary>Dachora: running left, its far leg swinging past.</summary>
+    DachoraRunningLeftFarLegPassing,
+    /// <summary>Dachora: running left, its far leg reaching forward.</summary>
+    DachoraRunningLeftFarLegReaching,
+    /// <summary>Dachora: running left, its near leg stretched behind.</summary>
+    DachoraRunningLeftNearLegBack,
+    /// <summary>Dachora: running left, its near leg swinging past.</summary>
+    DachoraRunningLeftNearLegPassing,
+    /// <summary>Dachora: running left, its near leg reaching forward.</summary>
+    DachoraRunningLeftNearLegReaching,
+    /// <summary>Dachora: standing facing left, head up.</summary>
+    DachoraStandingFacingLeftHeadUp,
+    /// <summary>Dachora: standing facing left, neck stretched forward.</summary>
+    DachoraStandingFacingLeftNeckStretched,
+    /// <summary>Dachora: standing facing left, head lowered.</summary>
+    DachoraStandingFacingLeftHeadLowered,
+    /// <summary>Dachora: standing facing left, head down to the ground.</summary>
+    DachoraStandingFacingLeftHeadToGround,
+    /// <summary>Dachora: standing facing left, head raising.</summary>
+    DachoraStandingFacingLeftHeadRaising,
+    /// <summary>Dachora: standing facing left, eye half shut.</summary>
+    DachoraStandingFacingLeftEyeHalfShut,
+    /// <summary>Dachora: standing facing left, eye shut.</summary>
+    DachoraStandingFacingLeftEyeShut,
+    /// <summary>Dachora: stretched straight up, facing left.</summary>
+    DachoraStretchedUpFacingLeft,
+    /// <summary>Dachora: running right, its far leg stretched behind.</summary>
+    DachoraRunningRightFarLegBack,
+    /// <summary>Dachora: running right, its far leg swinging past.</summary>
+    DachoraRunningRightFarLegPassing,
+    /// <summary>Dachora: running right, its far leg reaching forward.</summary>
+    DachoraRunningRightFarLegReaching,
+    /// <summary>Dachora: running right, its near leg stretched behind.</summary>
+    DachoraRunningRightNearLegBack,
+    /// <summary>Dachora: running right, its near leg swinging past.</summary>
+    DachoraRunningRightNearLegPassing,
+    /// <summary>Dachora: running right, its near leg reaching forward.</summary>
+    DachoraRunningRightNearLegReaching,
+    /// <summary>Dachora: standing facing right, head up.</summary>
+    DachoraStandingFacingRightHeadUp,
+    /// <summary>Dachora: standing facing right, neck stretched forward.</summary>
+    DachoraStandingFacingRightNeckStretched,
+    /// <summary>Dachora: standing facing right, head lowered.</summary>
+    DachoraStandingFacingRightHeadLowered,
+    /// <summary>Dachora: standing facing right, head down to the ground.</summary>
+    DachoraStandingFacingRightHeadToGround,
+    /// <summary>Dachora: standing facing right, head raising.</summary>
+    DachoraStandingFacingRightHeadRaising,
+    /// <summary>Dachora: standing facing right, eye half shut.</summary>
+    DachoraStandingFacingRightEyeHalfShut,
+    /// <summary>Dachora: standing facing right, eye shut.</summary>
+    DachoraStandingFacingRightEyeShut,
+    /// <summary>Dachora: crouched to charge, facing right.</summary>
+    DachoraCrouchedFacingRight,
+    /// <summary>Dachora: stretched straight up, facing right.</summary>
+    DachoraStretchedUpFacingRight,
+    /// <summary>The escaping Etecoons: running left, stretched out mid stride.</summary>
+    EscapeEtecoonRunningLeftStretched,
+    /// <summary>The escaping Etecoons: running left, bunched up.</summary>
+    EscapeEtecoonRunningLeftBunched,
+    /// <summary>The escaping Etecoons: running left, pushing off.</summary>
+    EscapeEtecoonRunningLeftPushingOff,
+    /// <summary>The escaping Etecoons: running right, stretched out mid stride.</summary>
+    EscapeEtecoonRunningRightStretched,
+    /// <summary>The escaping Etecoons: running right, bunched up.</summary>
+    EscapeEtecoonRunningRightBunched,
+    /// <summary>The escaping Etecoons: running right, pushing off.</summary>
+    EscapeEtecoonRunningRightPushingOff,
+    /// <summary>The escaping Etecoons: standing, looking right.</summary>
+    EscapeEtecoonLookingRight,
+    /// <summary>The escaping Etecoons: standing, turning left.</summary>
+    EscapeEtecoonTurningLeft,
+    /// <summary>The escaping Etecoons: standing, looking left.</summary>
+    EscapeEtecoonLookingLeft,
+    /// <summary>The escaping Etecoons: standing, turning right.</summary>
+    EscapeEtecoonTurningRight,
+    /// <summary>The escaping Dachora: running left, its far leg stretched behind.</summary>
+    EscapeDachoraRunningLeftFarLegBack,
+    /// <summary>The escaping Dachora: running left, its far leg swinging past.</summary>
+    EscapeDachoraRunningLeftFarLegPassing,
+    /// <summary>The escaping Dachora: running left, its far leg reaching forward.</summary>
+    EscapeDachoraRunningLeftFarLegReaching,
+    /// <summary>The escaping Dachora: running left, its near leg stretched behind.</summary>
+    EscapeDachoraRunningLeftNearLegBack,
+    /// <summary>The escaping Dachora: running left, its near leg swinging past.</summary>
+    EscapeDachoraRunningLeftNearLegPassing,
+    /// <summary>The escaping Dachora: running left, its near leg reaching forward.</summary>
+    EscapeDachoraRunningLeftNearLegReaching,
+    /// <summary>The escaping Dachora: running right, its far leg stretched behind.</summary>
+    EscapeDachoraRunningRightFarLegBack,
+    /// <summary>The escaping Dachora: running right, its far leg swinging past.</summary>
+    EscapeDachoraRunningRightFarLegPassing,
+    /// <summary>The escaping Dachora: running right, its far leg reaching forward.</summary>
+    EscapeDachoraRunningRightFarLegReaching,
+    /// <summary>The escaping Dachora: running right, its near leg stretched behind.</summary>
+    EscapeDachoraRunningRightNearLegBack,
+    /// <summary>The escaping Dachora: running right, its near leg swinging past.</summary>
+    EscapeDachoraRunningRightNearLegPassing,
+    /// <summary>The escaping Dachora: running right, its near leg reaching forward.</summary>
+    EscapeDachoraRunningRightNearLegReaching,
+    /// <summary>Hibashi: a lone ember.</summary>
+    HibashiEmber,
+    /// <summary>Hibashi: a column of flame 19 pixels wide and 19 high.</summary>
+    HibashiFlame19By19,
+    /// <summary>Hibashi: a column of flame 23 pixels wide and 26 high.</summary>
+    HibashiFlame23By26,
+    /// <summary>Hibashi: a column of flame 33 pixels wide and 35 high.</summary>
+    HibashiFlame33By35,
+    /// <summary>Hibashi: a column of flame 37 pixels wide and 41 high.</summary>
+    HibashiFlame37By41,
+    /// <summary>Hibashi: a column of flame 19 pixels wide and 43 high.</summary>
+    HibashiFlame19By43,
+    /// <summary>Hibashi: a column of flame 23 pixels wide and 45 high.</summary>
+    HibashiFlame23By45,
+    /// <summary>Hibashi: a column of flame 33 pixels wide and 47 high.</summary>
+    HibashiFlame33By47,
+    /// <summary>Hibashi: a column of flame 37 pixels wide and 55 high.</summary>
+    HibashiFlame37By55,
+    /// <summary>Hibashi: a column of flame 19 pixels wide and 63 high.</summary>
+    HibashiFlame19By63,
+    /// <summary>Hibashi: a column of flame 23 pixels wide and 71 high.</summary>
+    HibashiFlame23By71,
+    /// <summary>Hibashi: a column of flame 33 pixels wide and 80 high.</summary>
+    HibashiFlame33By80,
+    /// <summary>Hibashi: a column of flame 41 pixels wide and 87 high.</summary>
+    HibashiFlame41By87,
+    /// <summary>Hibashi: a column of flame 45 pixels wide and 95 high.</summary>
+    HibashiFlame45By95,
+    /// <summary>Hibashi: a column of flame 17 pixels wide and 99 high.</summary>
+    HibashiFlame17By99,
+    /// <summary>Hibashi: a column of flame 19 pixels wide and 109 high.</summary>
+    HibashiFlame19By109,
+    /// <summary>Hibashi: a column of flame 23 pixels wide and 112 high.</summary>
+    HibashiFlame23By112,
+    /// <summary>Hibashi: a column of flame 33 pixels wide and 109 high.</summary>
+    HibashiFlame33By109,
+    /// <summary>Hibashi: a column of flame 37 pixels wide and 111 high.</summary>
+    HibashiFlame37By111,
+    /// <summary>Hibashi: the top of its flame dispersing, 17 pixels wide and 44 high.</summary>
+    HibashiDispersing17By44,
+    /// <summary>Hibashi: the top of its flame dispersing, 17 pixels wide and 32 high.</summary>
+    HibashiDispersing17By32,
+    /// <summary>Hibashi: the top of its flame dispersing, 17 pixels wide and 25 high.</summary>
+    HibashiDispersing17By25,
+    /// <summary>Hibashi: the top of its flame dispersing, 14 pixels wide and 16 high.</summary>
+    HibashiDispersing14By16,
+    /// <summary>The zebetite: standing full height, intact.</summary>
+    ZebetiteTallIntact,
+    /// <summary>The zebetite: standing full height, a fifth drained.</summary>
+    ZebetiteTallDrained,
+    /// <summary>The zebetite: standing full height, two fifths drained.</summary>
+    ZebetiteTallHalfDrained,
+    /// <summary>The zebetite: standing full height, three fifths drained.</summary>
+    ZebetiteTallMostlyDrained,
+    /// <summary>The zebetite: standing full height, nearly drained.</summary>
+    ZebetiteTallNearlyDrained,
+    /// <summary>The zebetite: standing half height, intact.</summary>
+    ZebetiteShortIntact,
+    /// <summary>The zebetite: standing half height, a fifth drained.</summary>
+    ZebetiteShortDrained,
+    /// <summary>The zebetite: standing half height, two fifths drained.</summary>
+    ZebetiteShortHalfDrained,
+    /// <summary>The zebetite: standing half height, three fifths drained.</summary>
+    ZebetiteShortMostlyDrained,
+    /// <summary>The zebetite: standing half height, nearly drained.</summary>
+    ZebetiteShortNearlyDrained,
+    /// <summary>The Wrecked Ship ghost: floating, its wisps at rest.</summary>
+    WreckedShipGhostWispsAtRest,
+    /// <summary>The Wrecked Ship ghost: floating, its wisps curling.</summary>
+    WreckedShipGhostWispsCurling,
+    /// <summary>The Wrecked Ship ghost: floating, its wisps stretched.</summary>
+    WreckedShipGhostWispsStretched,
+    /// <summary>Powamp: its spiny body, tail curled left.</summary>
+    PowampBodyTailLeft,
+    /// <summary>Powamp: its spiny body, tail hanging straight down.</summary>
+    PowampBodyTailDown,
+    /// <summary>Powamp: its spiny body, tail curled right.</summary>
+    PowampBodyTailRight,
+    /// <summary>Powamp: its balloon, small.</summary>
+    PowampBalloonSmall,
+    /// <summary>Powamp: its balloon, half inflated.</summary>
+    PowampBalloonHalfInflated,
+    /// <summary>Powamp: its balloon, fully inflated.</summary>
+    PowampBalloonInflated,
+    /// <summary>The spark: a large cross-shaped spark among scattered motes.</summary>
+    SparkLargeCross,
+    /// <summary>The spark: a large slanted spark among scattered motes.</summary>
+    SparkLargeSlant,
+    /// <summary>The spark: a cross-shaped spark, its motes scattering below.</summary>
+    SparkLargeCrossScattering,
+    /// <summary>The spark: a slanted spark, its motes scattering below.</summary>
+    SparkLargeSlantScattering,
+    /// <summary>The spark: a small cross-shaped spark.</summary>
+    SparkSmallCross,
+    /// <summary>The spark: a small slanted spark trailing motes.</summary>
+    SparkSmallSlantTrailing,
+    /// <summary>The spark: a small cross-shaped spark trailing motes.</summary>
+    SparkSmallCrossTrailing,
+    /// <summary>The spark: a small slanted spark trailing motes further.</summary>
+    SparkSmallSlantTrailingFar,
+    /// <summary>The baby Metroid: its nuclei bright.</summary>
+    BabyMetroidNucleiBright,
+    /// <summary>The baby Metroid: its nuclei glowing.</summary>
+    BabyMetroidNucleiGlowing,
+    /// <summary>The baby Metroid: its nuclei dark.</summary>
+    BabyMetroidNucleiDark,
+    /// <summary>Kraid: a belly spike budding, its points clustered.</summary>
+    KraidLintBudding,
+    /// <summary>Kraid: a belly spike grown, its points swept back.</summary>
+    KraidLintGrown,
+    /// <summary>The nuclear waffle: its swirling body, upright.</summary>
+    NuclearWaffleBodyTurned0,
+    /// <summary>The nuclear waffle: its swirling body, turned an eighth.</summary>
+    NuclearWaffleBodyTurned45,
+    /// <summary>The nuclear waffle: its swirling body, turned a quarter.</summary>
+    NuclearWaffleBodyTurned90,
+    /// <summary>The nuclear waffle: its swirling body, turned three eighths.</summary>
+    NuclearWaffleBodyTurned135,
+    /// <summary>The nuclear waffle: its swirling body, turned half way.</summary>
+    NuclearWaffleBodyTurned180,
+    /// <summary>The nuclear waffle: its swirling body, turned five eighths.</summary>
+    NuclearWaffleBodyTurned225,
+    /// <summary>The nuclear waffle: its swirling body, turned three quarters.</summary>
+    NuclearWaffleBodyTurned270,
+    /// <summary>The nuclear waffle: its swirling body, turned seven eighths.</summary>
+    NuclearWaffleBodyTurned315,
+    /// <summary>Kzan: its spiked block.</summary>
+    KzanSpikedBlock,
+    /// <summary>Polyp: a molten rock.</summary>
+    PolypRock,
     /// <summary>Ridley: breakup legs left.</summary>
     RidleyBreakupLegsLeft,
     /// <summary>Ridley: breakup legs right.</summary>
@@ -2500,264 +2502,264 @@ public enum EnemyFrameId
     WalkingPirateFlinchLeft,
     /// <summary>The walking space pirate: flinch right.</summary>
     WalkingPirateFlinchRight,
-    /// <summary>The walking space pirate: walking left loop, first frame.</summary>
-    WalkingPirateWalkingLeftLoopFirst,
-    /// <summary>The walking space pirate: walking left loop, second frame.</summary>
-    WalkingPirateWalkingLeftLoopSecond,
-    /// <summary>The walking space pirate: walking left loop, third frame.</summary>
-    WalkingPirateWalkingLeftLoopThird,
-    /// <summary>The walking space pirate: walking left loop, fourth frame.</summary>
-    WalkingPirateWalkingLeftLoopFourth,
-    /// <summary>The walking space pirate: walking left loop, fifth frame.</summary>
-    WalkingPirateWalkingLeftLoopFifth,
-    /// <summary>The walking space pirate: walking left loop, sixth frame.</summary>
-    WalkingPirateWalkingLeftLoopSixth,
-    /// <summary>The walking space pirate: walking left loop, seventh frame.</summary>
-    WalkingPirateWalkingLeftLoopSeventh,
-    /// <summary>The walking space pirate: walking left loop, eighth frame.</summary>
-    WalkingPirateWalkingLeftLoopEighth,
-    /// <summary>The walking space pirate: fire lasers left, first frame.</summary>
-    WalkingPirateFireLasersLeftFirst,
-    /// <summary>The walking space pirate: fire lasers left, second frame.</summary>
-    WalkingPirateFireLasersLeftSecond,
-    /// <summary>The walking space pirate: fire lasers left, third frame.</summary>
-    WalkingPirateFireLasersLeftThird,
-    /// <summary>The walking space pirate: fire lasers left, fourth frame.</summary>
-    WalkingPirateFireLasersLeftFourth,
-    /// <summary>The walking space pirate: fire lasers left, fifth frame.</summary>
-    WalkingPirateFireLasersLeftFifth,
-    /// <summary>The walking space pirate: fire lasers left, sixth frame.</summary>
-    WalkingPirateFireLasersLeftSixth,
-    /// <summary>The walking space pirate: looking facing left, first frame.</summary>
-    WalkingPirateLookingFacingLeftFirst,
-    /// <summary>The walking space pirate: looking facing left, second frame.</summary>
-    WalkingPirateLookingFacingLeftSecond,
-    /// <summary>The walking space pirate: looking facing left, third frame.</summary>
-    WalkingPirateLookingFacingLeftThird,
-    /// <summary>The walking space pirate: look shared.</summary>
-    WalkingPirateLookShared,
-    /// <summary>The walking space pirate: walking right loop, first frame.</summary>
-    WalkingPirateWalkingRightLoopFirst,
-    /// <summary>The walking space pirate: walking right loop, second frame.</summary>
-    WalkingPirateWalkingRightLoopSecond,
-    /// <summary>The walking space pirate: walking right loop, third frame.</summary>
-    WalkingPirateWalkingRightLoopThird,
-    /// <summary>The walking space pirate: walking right loop, fourth frame.</summary>
-    WalkingPirateWalkingRightLoopFourth,
-    /// <summary>The walking space pirate: walking right loop, fifth frame.</summary>
-    WalkingPirateWalkingRightLoopFifth,
-    /// <summary>The walking space pirate: walking right loop, sixth frame.</summary>
-    WalkingPirateWalkingRightLoopSixth,
-    /// <summary>The walking space pirate: walking right loop, seventh frame.</summary>
-    WalkingPirateWalkingRightLoopSeventh,
-    /// <summary>The walking space pirate: walking right loop, eighth frame.</summary>
-    WalkingPirateWalkingRightLoopEighth,
-    /// <summary>The walking space pirate: fire lasers right, first frame.</summary>
-    WalkingPirateFireLasersRightFirst,
-    /// <summary>The walking space pirate: fire lasers right, second frame.</summary>
-    WalkingPirateFireLasersRightSecond,
-    /// <summary>The walking space pirate: fire lasers right, third frame.</summary>
-    WalkingPirateFireLasersRightThird,
-    /// <summary>The walking space pirate: fire lasers right, fourth frame.</summary>
-    WalkingPirateFireLasersRightFourth,
-    /// <summary>The walking space pirate: fire lasers right, fifth frame.</summary>
-    WalkingPirateFireLasersRightFifth,
-    /// <summary>The walking space pirate: fire lasers right, sixth frame.</summary>
-    WalkingPirateFireLasersRightSixth,
-    /// <summary>The walking space pirate: looking facing right, first frame.</summary>
-    WalkingPirateLookingFacingRightFirst,
-    /// <summary>The walking space pirate: looking facing right, second frame.</summary>
-    WalkingPirateLookingFacingRightSecond,
-    /// <summary>The walking space pirate: looking facing right, third frame.</summary>
-    WalkingPirateLookingFacingRightThird,
-    /// <summary>The wall space pirate: fire and jump left, first frame.</summary>
-    WallPirateFireAndJumpLeftFirst,
-    /// <summary>The wall space pirate: fire and jump left, second frame.</summary>
-    WallPirateFireAndJumpLeftSecond,
-    /// <summary>The wall space pirate: fire and jump left, third frame.</summary>
-    WallPirateFireAndJumpLeftThird,
-    /// <summary>The wall space pirate: fire and jump left, fourth frame.</summary>
-    WallPirateFireAndJumpLeftFourth,
-    /// <summary>The wall space pirate: moving up left wall loop, first frame.</summary>
-    WallPirateMovingUpLeftWallLoopFirst,
-    /// <summary>The wall space pirate: moving up left wall loop, second frame.</summary>
-    WallPirateMovingUpLeftWallLoopSecond,
-    /// <summary>The wall space pirate: moving up left wall loop, third frame.</summary>
-    WallPirateMovingUpLeftWallLoopThird,
-    /// <summary>The wall space pirate: moving up left wall loop, fourth frame.</summary>
-    WallPirateMovingUpLeftWallLoopFourth,
-    /// <summary>The wall space pirate: moving up left wall loop, fifth frame.</summary>
-    WallPirateMovingUpLeftWallLoopFifth,
-    /// <summary>The wall space pirate: fire and jump right, first frame.</summary>
-    WallPirateFireAndJumpRightFirst,
-    /// <summary>The wall space pirate: fire and jump right, second frame.</summary>
-    WallPirateFireAndJumpRightSecond,
-    /// <summary>The wall space pirate: fire and jump right, third frame.</summary>
-    WallPirateFireAndJumpRightThird,
-    /// <summary>The wall space pirate: fire and jump right, fourth frame.</summary>
-    WallPirateFireAndJumpRightFourth,
-    /// <summary>The wall space pirate: moving down right wall loop, first frame.</summary>
-    WallPirateMovingDownRightWallLoopFirst,
-    /// <summary>The wall space pirate: moving down right wall loop, second frame.</summary>
-    WallPirateMovingDownRightWallLoopSecond,
-    /// <summary>The wall space pirate: moving down right wall loop, third frame.</summary>
-    WallPirateMovingDownRightWallLoopThird,
-    /// <summary>The wall space pirate: moving down right wall loop, fourth frame.</summary>
-    WallPirateMovingDownRightWallLoopFourth,
-    /// <summary>The wall space pirate: moving down right wall loop, fifth frame.</summary>
-    WallPirateMovingDownRightWallLoopFifth,
-    /// <summary>The ninja space pirate: claw attack left, first frame.</summary>
-    NinjaPirateClawAttackLeftFirst,
-    /// <summary>The ninja space pirate: claw attack left, second frame.</summary>
-    NinjaPirateClawAttackLeftSecond,
-    /// <summary>The ninja space pirate: claw attack left, third frame.</summary>
-    NinjaPirateClawAttackLeftThird,
-    /// <summary>The ninja space pirate: claw attack left, fourth frame.</summary>
-    NinjaPirateClawAttackLeftFourth,
-    /// <summary>The ninja space pirate: claw attack left, fifth frame.</summary>
-    NinjaPirateClawAttackLeftFifth,
-    /// <summary>The ninja space pirate: claw attack left, sixth frame.</summary>
-    NinjaPirateClawAttackLeftSixth,
-    /// <summary>The ninja space pirate: claw attack left, seventh frame.</summary>
-    NinjaPirateClawAttackLeftSeventh,
-    /// <summary>The ninja space pirate: claw attack left, eighth frame.</summary>
-    NinjaPirateClawAttackLeftEighth,
-    /// <summary>The ninja space pirate: claw attack left, ninth frame.</summary>
-    NinjaPirateClawAttackLeftNinth,
-    /// <summary>The ninja space pirate: spin jump left loop, first frame.</summary>
-    NinjaPirateSpinJumpLeftLoopFirst,
-    /// <summary>The ninja space pirate: spin jump left loop, second frame.</summary>
-    NinjaPirateSpinJumpLeftLoopSecond,
-    /// <summary>The ninja space pirate: spin jump left loop, third frame.</summary>
-    NinjaPirateSpinJumpLeftLoopThird,
-    /// <summary>The ninja space pirate: spin jump left loop, fourth frame.</summary>
-    NinjaPirateSpinJumpLeftLoopFourth,
-    /// <summary>The ninja space pirate: spin jump left loop, fifth frame.</summary>
-    NinjaPirateSpinJumpLeftLoopFifth,
-    /// <summary>The ninja space pirate: spin jump left loop, sixth frame.</summary>
-    NinjaPirateSpinJumpLeftLoopSixth,
-    /// <summary>The ninja space pirate: spin jump left loop, seventh frame.</summary>
-    NinjaPirateSpinJumpLeftLoopSeventh,
-    /// <summary>The ninja space pirate: spin jump left loop, eighth frame.</summary>
-    NinjaPirateSpinJumpLeftLoopEighth,
-    /// <summary>The ninja space pirate: active facing left loop, first frame.</summary>
-    NinjaPirateActiveFacingLeftLoopFirst,
-    /// <summary>The ninja space pirate: active facing left loop, second frame.</summary>
-    NinjaPirateActiveFacingLeftLoopSecond,
-    /// <summary>The ninja space pirate: active facing left loop, third frame.</summary>
-    NinjaPirateActiveFacingLeftLoopThird,
+    /// <summary>The walking space pirate: walking left, its far leg stretched behind.</summary>
+    WalkingPirateWalkingLeftFarLegBack,
+    /// <summary>The walking space pirate: walking left, its far leg lifting behind.</summary>
+    WalkingPirateWalkingLeftFarLegLifting,
+    /// <summary>The walking space pirate: walking left, its far leg swinging past its knee.</summary>
+    WalkingPirateWalkingLeftFarLegPassing,
+    /// <summary>The walking space pirate: walking left, its far leg planting.</summary>
+    WalkingPirateWalkingLeftFarLegPlanting,
+    /// <summary>The walking space pirate: walking left, its near leg stretched behind.</summary>
+    WalkingPirateWalkingLeftNearLegBack,
+    /// <summary>The walking space pirate: walking left, its near leg lifting behind.</summary>
+    WalkingPirateWalkingLeftNearLegLifting,
+    /// <summary>The walking space pirate: walking left, its near leg swinging past its knee.</summary>
+    WalkingPirateWalkingLeftNearLegPassing,
+    /// <summary>The walking space pirate: walking left, its near leg planting.</summary>
+    WalkingPirateWalkingLeftNearLegPlanting,
+    /// <summary>The walking space pirate: standing at ease facing left, claws down.</summary>
+    WalkingPirateStandingFacingLeft,
+    /// <summary>The walking space pirate: facing left, claws lifting.</summary>
+    WalkingPirateClawsLiftingFacingLeft,
+    /// <summary>The walking space pirate: facing left, claws held level and forward.</summary>
+    WalkingPirateClawsForwardFacingLeft,
+    /// <summary>The walking space pirate: facing left, claws raised.</summary>
+    WalkingPirateClawsRaisedFacingLeft,
+    /// <summary>The walking space pirate: facing left, claws raised high, leaning in.</summary>
+    WalkingPirateClawsRaisedLeaningFacingLeft,
+    /// <summary>The walking space pirate: crouched facing left, claws thrust forward to fire.</summary>
+    WalkingPirateFiringFacingLeft,
+    /// <summary>The walking space pirate: standing facing left, its head turned to the viewer.</summary>
+    WalkingPirateLookingAtViewerFacingLeft,
+    /// <summary>The walking space pirate: standing at ease facing left, claws down: the picture and hitboxes of WalkingPirateStandingFacingLeft, as a frame of its own.</summary>
+    WalkingPirateStandingFacingLeftTwin,
+    /// <summary>The walking space pirate: standing facing left, its head turned away from the viewer.</summary>
+    WalkingPirateLookingAwayFacingLeft,
+    /// <summary>The walking space pirate: standing facing the viewer, arms at its sides.</summary>
+    WalkingPirateFacingViewer,
+    /// <summary>The walking space pirate: walking right, its far leg stretched behind.</summary>
+    WalkingPirateWalkingRightFarLegBack,
+    /// <summary>The walking space pirate: walking right, its far leg lifting behind.</summary>
+    WalkingPirateWalkingRightFarLegLifting,
+    /// <summary>The walking space pirate: walking right, its far leg swinging past its knee.</summary>
+    WalkingPirateWalkingRightFarLegPassing,
+    /// <summary>The walking space pirate: walking right, its far leg planting.</summary>
+    WalkingPirateWalkingRightFarLegPlanting,
+    /// <summary>The walking space pirate: walking right, its near leg stretched behind.</summary>
+    WalkingPirateWalkingRightNearLegBack,
+    /// <summary>The walking space pirate: walking right, its near leg lifting behind.</summary>
+    WalkingPirateWalkingRightNearLegLifting,
+    /// <summary>The walking space pirate: walking right, its near leg swinging past its knee.</summary>
+    WalkingPirateWalkingRightNearLegPassing,
+    /// <summary>The walking space pirate: walking right, its near leg planting.</summary>
+    WalkingPirateWalkingRightNearLegPlanting,
+    /// <summary>The walking space pirate: standing at ease facing right, claws down.</summary>
+    WalkingPirateStandingFacingRight,
+    /// <summary>The walking space pirate: facing right, claws lifting.</summary>
+    WalkingPirateClawsLiftingFacingRight,
+    /// <summary>The walking space pirate: facing right, claws held level and forward.</summary>
+    WalkingPirateClawsForwardFacingRight,
+    /// <summary>The walking space pirate: facing right, claws raised.</summary>
+    WalkingPirateClawsRaisedFacingRight,
+    /// <summary>The walking space pirate: facing right, claws raised high, leaning in.</summary>
+    WalkingPirateClawsRaisedLeaningFacingRight,
+    /// <summary>The walking space pirate: crouched facing right, claws thrust forward to fire.</summary>
+    WalkingPirateFiringFacingRight,
+    /// <summary>The walking space pirate: standing facing right, its head turned to the viewer.</summary>
+    WalkingPirateLookingAtViewerFacingRight,
+    /// <summary>The walking space pirate: standing at ease facing right, claws down: the picture and hitboxes of WalkingPirateStandingFacingRight, as a frame of its own.</summary>
+    WalkingPirateStandingFacingRightTwin,
+    /// <summary>The walking space pirate: standing facing right, its head turned away from the viewer.</summary>
+    WalkingPirateLookingAwayFacingRight,
+    /// <summary>The wall space pirate: clinging to a wall on its right, turned out to face left, claws together.</summary>
+    WallPirateOnRightWallClawsTogether,
+    /// <summary>The wall space pirate: clinging to a wall on its right, turned out to face left, claws spread to fire.</summary>
+    WallPirateOnRightWallClawsSpread,
+    /// <summary>The wall space pirate: knees tucked, claws stretched up and left to a wall on its left.</summary>
+    WallPirateReachingForLeftWall,
+    /// <summary>The wall space pirate: curled up, leaping left.</summary>
+    WallPirateCurledLeapingLeft,
+    /// <summary>The wall space pirate: climbing a wall on its left, legs hanging.</summary>
+    WallPirateOnLeftWallLegsHanging,
+    /// <summary>The wall space pirate: climbing a wall on its left, knees bending.</summary>
+    WallPirateOnLeftWallKneesBending,
+    /// <summary>The wall space pirate: climbing a wall on its left, knees tucked up.</summary>
+    WallPirateOnLeftWallKneesTucked,
+    /// <summary>The wall space pirate: climbing a wall on its left, legs pushing down.</summary>
+    WallPirateOnLeftWallLegsPushing,
+    /// <summary>The wall space pirate: climbing a wall on its left, legs stretched down.</summary>
+    WallPirateOnLeftWallLegsStretched,
+    /// <summary>The wall space pirate: clinging to a wall on its left, turned out to face right, claws together.</summary>
+    WallPirateOnLeftWallClawsTogether,
+    /// <summary>The wall space pirate: clinging to a wall on its left, turned out to face right, claws spread to fire.</summary>
+    WallPirateOnLeftWallClawsSpread,
+    /// <summary>The wall space pirate: knees tucked, claws stretched up and right to a wall on its right.</summary>
+    WallPirateReachingForRightWall,
+    /// <summary>The wall space pirate: curled up, leaping right.</summary>
+    WallPirateCurledLeapingRight,
+    /// <summary>The wall space pirate: climbing a wall on its right, legs hanging.</summary>
+    WallPirateOnRightWallLegsHanging,
+    /// <summary>The wall space pirate: climbing a wall on its right, knees bending.</summary>
+    WallPirateOnRightWallKneesBending,
+    /// <summary>The wall space pirate: climbing a wall on its right, knees tucked up.</summary>
+    WallPirateOnRightWallKneesTucked,
+    /// <summary>The wall space pirate: climbing a wall on its right, legs pushing down.</summary>
+    WallPirateOnRightWallLegsPushing,
+    /// <summary>The wall space pirate: climbing a wall on its right, legs stretched down.</summary>
+    WallPirateOnRightWallLegsStretched,
+    /// <summary>The ninja space pirate: crouched facing left, claws held low and forward.</summary>
+    NinjaPirateCrouchFacingLeft,
+    /// <summary>The ninja space pirate: facing left, claws level and ready.</summary>
+    NinjaPirateClawsReadyFacingLeft,
+    /// <summary>The ninja space pirate: facing left, its upper claw drawn back over its shoulder.</summary>
+    NinjaPirateClawDrawnBackFacingLeft,
+    /// <summary>The ninja space pirate: facing left, its upper claw raised high and forward.</summary>
+    NinjaPirateClawRaisedHighFacingLeft,
+    /// <summary>The ninja space pirate: stretched tall facing left, one claw raised straight overhead.</summary>
+    NinjaPirateClawRaisedOverheadFacingLeft,
+    /// <summary>The ninja space pirate: facing left, its upper claw swung forward to throw.</summary>
+    NinjaPirateClawSwungForwardFacingLeft,
+    /// <summary>The ninja space pirate: facing left, claws level and ready: the picture and hitboxes of NinjaPirateClawsReadyFacingLeft, as a frame of its own.</summary>
+    NinjaPirateClawsReadyFacingLeftTwin,
+    /// <summary>The ninja space pirate: facing left, claws swept down.</summary>
+    NinjaPirateClawsSweptDownFacingLeft,
+    /// <summary>The ninja space pirate: standing upright facing left, claws hanging down.</summary>
+    NinjaPirateUprightClawsLoweredFacingLeft,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, upright.</summary>
+    NinjaPirateSpinningFacingLeftTurned0,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, turned an eighth.</summary>
+    NinjaPirateSpinningFacingLeftTurned45,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, turned a quarter.</summary>
+    NinjaPirateSpinningFacingLeftTurned90,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, turned three eighths.</summary>
+    NinjaPirateSpinningFacingLeftTurned135,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, upside down.</summary>
+    NinjaPirateSpinningFacingLeftTurned180,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, turned five eighths.</summary>
+    NinjaPirateSpinningFacingLeftTurned225,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, turned three quarters.</summary>
+    NinjaPirateSpinningFacingLeftTurned270,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing left, turned seven eighths.</summary>
+    NinjaPirateSpinningFacingLeftTurned315,
+    /// <summary>The ninja space pirate: in its ready stance facing left, claws forward, feet close.</summary>
+    NinjaPirateReadyFacingLeftFeetClose,
+    /// <summary>The ninja space pirate: in its ready stance facing left, claws forward, feet apart.</summary>
+    NinjaPirateReadyFacingLeftFeetApart,
+    /// <summary>The ninja space pirate: in its ready stance facing left, claws forward, feet wide and knees bent.</summary>
+    NinjaPirateReadyFacingLeftFeetWide,
     /// <summary>The ninja space pirate: flinch facing left.</summary>
     NinjaPirateFlinchFacingLeft,
-    /// <summary>The ninja space pirate: divekick left jump.</summary>
-    NinjaPirateDivekickLeftJump,
-    /// <summary>The ninja space pirate: divekick left jump loop.</summary>
-    NinjaPirateDivekickLeftJumpLoop,
-    /// <summary>The ninja space pirate: divekick left dive.</summary>
-    NinjaPirateDivekickLeftDive,
-    /// <summary>The ninja space pirate: walk to left post loop, first frame.</summary>
-    NinjaPirateWalkToLeftPostLoopFirst,
-    /// <summary>The ninja space pirate: walk to left post loop, second frame.</summary>
-    NinjaPirateWalkToLeftPostLoopSecond,
-    /// <summary>The ninja space pirate: walk to left post loop, third frame.</summary>
-    NinjaPirateWalkToLeftPostLoopThird,
-    /// <summary>The ninja space pirate: walk to left post loop, fourth frame.</summary>
-    NinjaPirateWalkToLeftPostLoopFourth,
-    /// <summary>The ninja space pirate: walk to left post loop, fifth frame.</summary>
-    NinjaPirateWalkToLeftPostLoopFifth,
-    /// <summary>The ninja space pirate: walk to left post loop, sixth frame.</summary>
-    NinjaPirateWalkToLeftPostLoopSixth,
-    /// <summary>The ninja space pirate: walk to left post loop, seventh frame.</summary>
-    NinjaPirateWalkToLeftPostLoopSeventh,
-    /// <summary>The ninja space pirate: walk to left post loop, eighth frame.</summary>
-    NinjaPirateWalkToLeftPostLoopEighth,
-    /// <summary>The ninja space pirate: initial facing left loop, first frame.</summary>
-    NinjaPirateInitialFacingLeftLoopFirst,
-    /// <summary>The ninja space pirate: initial facing left loop, second frame.</summary>
-    NinjaPirateInitialFacingLeftLoopSecond,
-    /// <summary>The ninja space pirate: initial facing left loop, third frame.</summary>
-    NinjaPirateInitialFacingLeftLoopThird,
-    /// <summary>The ninja space pirate: land facing left, third frame.</summary>
-    NinjaPirateLandFacingLeftThird,
-    /// <summary>The ninja space pirate: land facing left, fourth frame.</summary>
-    NinjaPirateLandFacingLeftFourth,
-    /// <summary>The ninja space pirate: land facing left loop, first frame.</summary>
-    NinjaPirateLandFacingLeftLoopFirst,
-    /// <summary>The ninja space pirate: land facing left loop, second frame.</summary>
-    NinjaPirateLandFacingLeftLoopSecond,
-    /// <summary>The ninja space pirate: land facing left loop, third frame.</summary>
-    NinjaPirateLandFacingLeftLoopThird,
-    /// <summary>The ninja space pirate: kick facing left, first frame.</summary>
-    NinjaPirateKickFacingLeftFirst,
-    /// <summary>The ninja space pirate: kick facing left, second frame.</summary>
-    NinjaPirateKickFacingLeftSecond,
-    /// <summary>The ninja space pirate: kick facing left, third frame.</summary>
-    NinjaPirateKickFacingLeftThird,
-    /// <summary>The ninja space pirate: claw attack right, first frame.</summary>
-    NinjaPirateClawAttackRightFirst,
-    /// <summary>The ninja space pirate: claw attack right, second frame.</summary>
-    NinjaPirateClawAttackRightSecond,
-    /// <summary>The ninja space pirate: claw attack right, third frame.</summary>
-    NinjaPirateClawAttackRightThird,
-    /// <summary>The ninja space pirate: claw attack right, fourth frame.</summary>
-    NinjaPirateClawAttackRightFourth,
-    /// <summary>The ninja space pirate: claw attack right, fifth frame.</summary>
-    NinjaPirateClawAttackRightFifth,
-    /// <summary>The ninja space pirate: claw attack right, sixth frame.</summary>
-    NinjaPirateClawAttackRightSixth,
-    /// <summary>The ninja space pirate: claw attack right, seventh frame.</summary>
-    NinjaPirateClawAttackRightSeventh,
-    /// <summary>The ninja space pirate: claw attack right, eighth frame.</summary>
-    NinjaPirateClawAttackRightEighth,
-    /// <summary>The ninja space pirate: spin jump right loop, first frame.</summary>
-    NinjaPirateSpinJumpRightLoopFirst,
-    /// <summary>The ninja space pirate: spin jump right loop, second frame.</summary>
-    NinjaPirateSpinJumpRightLoopSecond,
-    /// <summary>The ninja space pirate: spin jump right loop, third frame.</summary>
-    NinjaPirateSpinJumpRightLoopThird,
-    /// <summary>The ninja space pirate: spin jump right loop, fourth frame.</summary>
-    NinjaPirateSpinJumpRightLoopFourth,
-    /// <summary>The ninja space pirate: spin jump right loop, fifth frame.</summary>
-    NinjaPirateSpinJumpRightLoopFifth,
-    /// <summary>The ninja space pirate: spin jump right loop, sixth frame.</summary>
-    NinjaPirateSpinJumpRightLoopSixth,
-    /// <summary>The ninja space pirate: spin jump right loop, seventh frame.</summary>
-    NinjaPirateSpinJumpRightLoopSeventh,
-    /// <summary>The ninja space pirate: spin jump right loop, eighth frame.</summary>
-    NinjaPirateSpinJumpRightLoopEighth,
+    /// <summary>The ninja space pirate: crouched facing left, claws held low and forward, with the hitboxes of its leap: the picture of NinjaPirateCrouchFacingLeft.</summary>
+    NinjaPirateLeapCrouchFacingLeft,
+    /// <summary>The ninja space pirate: jumping facing left, knees tucked.</summary>
+    NinjaPirateTuckedJumpFacingLeft,
+    /// <summary>The ninja space pirate: diving down and left, one leg kicked out and one claw raised.</summary>
+    NinjaPirateDiveKickFacingLeft,
+    /// <summary>The ninja space pirate: running left, its far leg stretched behind.</summary>
+    NinjaPirateRunningLeftFarLegBack,
+    /// <summary>The ninja space pirate: running left, its far leg lifting behind.</summary>
+    NinjaPirateRunningLeftFarLegLifting,
+    /// <summary>The ninja space pirate: running left, its far leg swinging past its knee.</summary>
+    NinjaPirateRunningLeftFarLegPassing,
+    /// <summary>The ninja space pirate: running left, its far leg planting.</summary>
+    NinjaPirateRunningLeftFarLegPlanting,
+    /// <summary>The ninja space pirate: running left, its near leg stretched behind.</summary>
+    NinjaPirateRunningLeftNearLegBack,
+    /// <summary>The ninja space pirate: running left, its near leg lifting behind.</summary>
+    NinjaPirateRunningLeftNearLegLifting,
+    /// <summary>The ninja space pirate: running left, its near leg swinging past its knee.</summary>
+    NinjaPirateRunningLeftNearLegPassing,
+    /// <summary>The ninja space pirate: running left, its near leg planting.</summary>
+    NinjaPirateRunningLeftNearLegPlanting,
+    /// <summary>The ninja space pirate: standing facing left, its head turned to the viewer.</summary>
+    NinjaPirateLookingAtViewerFacingLeft,
+    /// <summary>The ninja space pirate: standing at ease facing left, claws down.</summary>
+    NinjaPirateStandingFacingLeft,
+    /// <summary>The ninja space pirate: standing facing left, its head turned away from the viewer.</summary>
+    NinjaPirateLookingAwayFacingLeft,
+    /// <summary>The ninja space pirate: standing facing the viewer, arms at its sides.</summary>
+    NinjaPirateFacingViewer,
+    /// <summary>The ninja space pirate: standing at ease facing right, claws down.</summary>
+    NinjaPirateStandingFacingRight,
+    /// <summary>The ninja space pirate: in its ready stance facing right, claws forward, feet close.</summary>
+    NinjaPirateReadyFacingRightFeetClose,
+    /// <summary>The ninja space pirate: in its ready stance facing right, claws forward, feet apart.</summary>
+    NinjaPirateReadyFacingRightFeetApart,
+    /// <summary>The ninja space pirate: in its ready stance facing right, claws forward, feet wide and knees bent.</summary>
+    NinjaPirateReadyFacingRightFeetWide,
+    /// <summary>The ninja space pirate: facing left, one knee raised to kick.</summary>
+    NinjaPirateKickChamberedFacingLeft,
+    /// <summary>The ninja space pirate: facing left, its kicking leg extending.</summary>
+    NinjaPirateKickExtendingFacingLeft,
+    /// <summary>The ninja space pirate: facing left, its kicking leg fully extended.</summary>
+    NinjaPirateKickExtendedFacingLeft,
+    /// <summary>The ninja space pirate: crouched facing right, claws held low and forward.</summary>
+    NinjaPirateCrouchFacingRight,
+    /// <summary>The ninja space pirate: facing right, claws level and ready.</summary>
+    NinjaPirateClawsReadyFacingRight,
+    /// <summary>The ninja space pirate: facing right, its upper claw drawn back over its shoulder.</summary>
+    NinjaPirateClawDrawnBackFacingRight,
+    /// <summary>The ninja space pirate: facing right, its upper claw raised high and forward.</summary>
+    NinjaPirateClawRaisedHighFacingRight,
+    /// <summary>The ninja space pirate: stretched tall facing right, one claw raised straight overhead.</summary>
+    NinjaPirateClawRaisedOverheadFacingRight,
+    /// <summary>The ninja space pirate: facing right, its upper claw swung forward to throw.</summary>
+    NinjaPirateClawSwungForwardFacingRight,
+    /// <summary>The ninja space pirate: facing right, claws swept down.</summary>
+    NinjaPirateClawsSweptDownFacingRight,
+    /// <summary>The ninja space pirate: standing upright facing right, claws hanging down.</summary>
+    NinjaPirateUprightClawsLoweredFacingRight,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, upright.</summary>
+    NinjaPirateSpinningFacingRightTurned0,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, turned an eighth.</summary>
+    NinjaPirateSpinningFacingRightTurned45,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, turned a quarter.</summary>
+    NinjaPirateSpinningFacingRightTurned90,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, turned three eighths.</summary>
+    NinjaPirateSpinningFacingRightTurned135,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, upside down.</summary>
+    NinjaPirateSpinningFacingRightTurned180,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, turned five eighths.</summary>
+    NinjaPirateSpinningFacingRightTurned225,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, turned three quarters.</summary>
+    NinjaPirateSpinningFacingRightTurned270,
+    /// <summary>The ninja space pirate: curled into a spinning ball facing right, turned seven eighths.</summary>
+    NinjaPirateSpinningFacingRightTurned315,
     /// <summary>The ninja space pirate: flinch facing right.</summary>
     NinjaPirateFlinchFacingRight,
-    /// <summary>The ninja space pirate: divekick right jump.</summary>
-    NinjaPirateDivekickRightJump,
-    /// <summary>The ninja space pirate: divekick right jump loop.</summary>
-    NinjaPirateDivekickRightJumpLoop,
-    /// <summary>The ninja space pirate: divekick right dive.</summary>
-    NinjaPirateDivekickRightDive,
-    /// <summary>The ninja space pirate: walk to right post loop, first frame.</summary>
-    NinjaPirateWalkToRightPostLoopFirst,
-    /// <summary>The ninja space pirate: walk to right post loop, second frame.</summary>
-    NinjaPirateWalkToRightPostLoopSecond,
-    /// <summary>The ninja space pirate: walk to right post loop, third frame.</summary>
-    NinjaPirateWalkToRightPostLoopThird,
-    /// <summary>The ninja space pirate: walk to right post loop, fourth frame.</summary>
-    NinjaPirateWalkToRightPostLoopFourth,
-    /// <summary>The ninja space pirate: walk to right post loop, fifth frame.</summary>
-    NinjaPirateWalkToRightPostLoopFifth,
-    /// <summary>The ninja space pirate: walk to right post loop, sixth frame.</summary>
-    NinjaPirateWalkToRightPostLoopSixth,
-    /// <summary>The ninja space pirate: walk to right post loop, seventh frame.</summary>
-    NinjaPirateWalkToRightPostLoopSeventh,
-    /// <summary>The ninja space pirate: walk to right post loop, eighth frame.</summary>
-    NinjaPirateWalkToRightPostLoopEighth,
-    /// <summary>The ninja space pirate: initial facing right loop, first frame.</summary>
-    NinjaPirateInitialFacingRightLoopFirst,
-    /// <summary>The ninja space pirate: initial facing right loop, third frame.</summary>
-    NinjaPirateInitialFacingRightLoopThird,
-    /// <summary>The ninja space pirate: kick facing right, first frame.</summary>
-    NinjaPirateKickFacingRightFirst,
-    /// <summary>The ninja space pirate: kick facing right, second frame.</summary>
-    NinjaPirateKickFacingRightSecond,
-    /// <summary>The ninja space pirate: kick facing right, third frame.</summary>
-    NinjaPirateKickFacingRightThird,
+    /// <summary>The ninja space pirate: crouched facing right, claws held low and forward, with the hitboxes of its leap: the picture of NinjaPirateCrouchFacingRight.</summary>
+    NinjaPirateLeapCrouchFacingRight,
+    /// <summary>The ninja space pirate: jumping facing right, knees tucked.</summary>
+    NinjaPirateTuckedJumpFacingRight,
+    /// <summary>The ninja space pirate: diving down and right, one leg kicked out and one claw raised.</summary>
+    NinjaPirateDiveKickFacingRight,
+    /// <summary>The ninja space pirate: running right, its far leg stretched behind.</summary>
+    NinjaPirateRunningRightFarLegBack,
+    /// <summary>The ninja space pirate: running right, its far leg lifting behind.</summary>
+    NinjaPirateRunningRightFarLegLifting,
+    /// <summary>The ninja space pirate: running right, its far leg swinging past its knee.</summary>
+    NinjaPirateRunningRightFarLegPassing,
+    /// <summary>The ninja space pirate: running right, its far leg planting.</summary>
+    NinjaPirateRunningRightFarLegPlanting,
+    /// <summary>The ninja space pirate: running right, its near leg stretched behind.</summary>
+    NinjaPirateRunningRightNearLegBack,
+    /// <summary>The ninja space pirate: running right, its near leg lifting behind.</summary>
+    NinjaPirateRunningRightNearLegLifting,
+    /// <summary>The ninja space pirate: running right, its near leg swinging past its knee.</summary>
+    NinjaPirateRunningRightNearLegPassing,
+    /// <summary>The ninja space pirate: running right, its near leg planting.</summary>
+    NinjaPirateRunningRightNearLegPlanting,
+    /// <summary>The ninja space pirate: standing facing right, its head turned to the viewer.</summary>
+    NinjaPirateLookingAtViewerFacingRight,
+    /// <summary>The ninja space pirate: standing facing right, its head turned away from the viewer.</summary>
+    NinjaPirateLookingAwayFacingRight,
+    /// <summary>The ninja space pirate: facing right, one knee raised to kick.</summary>
+    NinjaPirateKickChamberedFacingRight,
+    /// <summary>The ninja space pirate: facing right, its kicking leg extending.</summary>
+    NinjaPirateKickExtendingFacingRight,
+    /// <summary>The ninja space pirate: facing right, its kicking leg fully extended.</summary>
+    NinjaPirateKickExtendedFacingRight,
     /// <summary>Ridley: body left.</summary>
     RidleyBodyLeft,
     /// <summary>Ridley: body right.</summary>
@@ -2780,344 +2782,344 @@ public enum EnemyFrameId
     RidleyBodyRightLegsExtended,
     /// <summary>Ridley: body forward.</summary>
     RidleyBodyForward,
-    /// <summary>Draygon: arms facing left idle, first frame.</summary>
-    DraygonArmsFacingLeftIdleFirst,
-    /// <summary>Draygon: arms facing left idle, second frame.</summary>
-    DraygonArmsFacingLeftIdleSecond,
-    /// <summary>Draygon: arms facing left idle, third frame.</summary>
-    DraygonArmsFacingLeftIdleThird,
-    /// <summary>Draygon: arms facing left idle, fourth frame.</summary>
-    DraygonArmsFacingLeftIdleFourth,
-    /// <summary>Draygon: arms facing left idle, fifth frame.</summary>
-    DraygonArmsFacingLeftIdleFifth,
-    /// <summary>Draygon: arms facing left idle, sixth frame.</summary>
-    DraygonArmsFacingLeftIdleSixth,
-    /// <summary>Draygon: arms facing left near swoop apex, first frame.</summary>
-    DraygonArmsFacingLeftNearSwoopApexFirst,
-    /// <summary>Draygon: arms facing left near swoop apex, second frame.</summary>
-    DraygonArmsFacingLeftNearSwoopApexSecond,
-    /// <summary>Draygon: arms facing left near swoop apex, third frame.</summary>
-    DraygonArmsFacingLeftNearSwoopApexThird,
-    /// <summary>Draygon: arms facing left near swoop apex, fourth frame.</summary>
-    DraygonArmsFacingLeftNearSwoopApexFourth,
-    /// <summary>Draygon: tail facing left idle, first frame.</summary>
-    DraygonTailFacingLeftIdleFirst,
-    /// <summary>Draygon: tail facing left idle, second frame.</summary>
-    DraygonTailFacingLeftIdleSecond,
-    /// <summary>Draygon: tail facing left idle, third frame.</summary>
-    DraygonTailFacingLeftIdleThird,
-    /// <summary>Draygon: tail facing left idle, fourth frame.</summary>
-    DraygonTailFacingLeftIdleFourth,
-    /// <summary>Draygon: tail facing left idle, fifth frame.</summary>
-    DraygonTailFacingLeftIdleFifth,
-    /// <summary>Draygon: tail facing left idle, sixth frame.</summary>
-    DraygonTailFacingLeftIdleSixth,
-    /// <summary>Draygon: tail facing left idle, seventh frame.</summary>
-    DraygonTailFacingLeftIdleSeventh,
-    /// <summary>Draygon: tail facing left initial fake whip, second frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipSecond,
-    /// <summary>Draygon: tail facing left initial fake whip, third frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipThird,
-    /// <summary>Draygon: tail facing left initial fake whip, fourth frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipFourth,
-    /// <summary>Draygon: tail facing left initial fake whip, fifth frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipFifth,
-    /// <summary>Draygon: tail facing left initial fake whip, sixth frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipSixth,
-    /// <summary>Draygon: tail facing left initial fake whip, seventh frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipSeventh,
-    /// <summary>Draygon: tail facing left initial fake whip, eighth frame.</summary>
-    DraygonTailFacingLeftInitialFakeWhipEighth,
-    /// <summary>Draygon: arms facing right idle, first frame.</summary>
-    DraygonArmsFacingRightIdleFirst,
-    /// <summary>Draygon: arms facing right idle, second frame.</summary>
-    DraygonArmsFacingRightIdleSecond,
-    /// <summary>Draygon: arms facing right idle, third frame.</summary>
-    DraygonArmsFacingRightIdleThird,
-    /// <summary>Draygon: arms facing right idle, fourth frame.</summary>
-    DraygonArmsFacingRightIdleFourth,
-    /// <summary>Draygon: arms facing right idle, fifth frame.</summary>
-    DraygonArmsFacingRightIdleFifth,
-    /// <summary>Draygon: arms facing right idle, sixth frame.</summary>
-    DraygonArmsFacingRightIdleSixth,
-    /// <summary>Draygon: arms facing right near swoop apex, first frame.</summary>
-    DraygonArmsFacingRightNearSwoopApexFirst,
-    /// <summary>Draygon: arms facing right near swoop apex, second frame.</summary>
-    DraygonArmsFacingRightNearSwoopApexSecond,
-    /// <summary>Draygon: arms facing right near swoop apex, third frame.</summary>
-    DraygonArmsFacingRightNearSwoopApexThird,
-    /// <summary>Draygon: arms facing right near swoop apex, fourth frame.</summary>
-    DraygonArmsFacingRightNearSwoopApexFourth,
-    /// <summary>Draygon: tail facing right idle, first frame.</summary>
-    DraygonTailFacingRightIdleFirst,
-    /// <summary>Draygon: tail facing right idle, second frame.</summary>
-    DraygonTailFacingRightIdleSecond,
-    /// <summary>Draygon: tail facing right idle, third frame.</summary>
-    DraygonTailFacingRightIdleThird,
-    /// <summary>Draygon: tail facing right idle, fourth frame.</summary>
-    DraygonTailFacingRightIdleFourth,
-    /// <summary>Draygon: tail facing right idle, fifth frame.</summary>
-    DraygonTailFacingRightIdleFifth,
-    /// <summary>Draygon: tail facing right idle, sixth frame.</summary>
-    DraygonTailFacingRightIdleSixth,
-    /// <summary>Draygon: tail facing right idle, seventh frame.</summary>
-    DraygonTailFacingRightIdleSeventh,
-    /// <summary>Draygon: tail facing right final whips loop, second frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopSecond,
-    /// <summary>Draygon: tail facing right final whips loop, third frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopThird,
-    /// <summary>Draygon: tail facing right final whips loop, fourth frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopFourth,
-    /// <summary>Draygon: tail facing right final whips loop, fifth frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopFifth,
-    /// <summary>Draygon: tail facing right final whips loop, sixth frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopSixth,
-    /// <summary>Draygon: tail facing right final whips loop, seventh frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopSeventh,
-    /// <summary>Draygon: tail facing right final whips loop, eighth frame.</summary>
-    DraygonTailFacingRightFinalWhipsLoopEighth,
-    /// <summary>Spore Spawn: initial dead.</summary>
-    SporeSpawnInitialDead,
-    /// <summary>Spore Spawn: initial alive.</summary>
-    SporeSpawnInitialAlive,
-    /// <summary>Spore Spawn: opening, first frame.</summary>
-    SporeSpawnOpeningFirst,
-    /// <summary>Spore Spawn: opening, second frame.</summary>
-    SporeSpawnOpeningSecond,
-    /// <summary>Spore Spawn: opening, third frame.</summary>
-    SporeSpawnOpeningThird,
-    /// <summary>Spore Spawn: opening, fourth frame.</summary>
-    SporeSpawnOpeningFourth,
-    /// <summary>Spore Spawn: opening, fifth frame.</summary>
-    SporeSpawnOpeningFifth,
-    /// <summary>Spore Spawn: death.</summary>
-    SporeSpawnDeath,
-    /// <summary>Spore Spawn: opening, seventh frame.</summary>
-    SporeSpawnOpeningSeventh,
-    /// <summary>Spore Spawn: open pulse, first frame.</summary>
-    SporeSpawnOpenPulseFirst,
-    /// <summary>Spore Spawn: open pulse, second frame.</summary>
-    SporeSpawnOpenPulseSecond,
-    /// <summary>Spore Spawn: open pulse, third frame.</summary>
-    SporeSpawnOpenPulseThird,
+    /// <summary>Draygon: its arms facing left, swept forward.</summary>
+    DraygonArmsFacingLeftForward,
+    /// <summary>Draygon: its arms facing left, lowering.</summary>
+    DraygonArmsFacingLeftLowering,
+    /// <summary>Draygon: its arms facing left, down.</summary>
+    DraygonArmsFacingLeftDown,
+    /// <summary>Draygon: its arms facing left, hanging down, stretched.</summary>
+    DraygonArmsFacingLeftDownStretched,
+    /// <summary>Draygon: its arms facing left, raising.</summary>
+    DraygonArmsFacingLeftRaising,
+    /// <summary>Draygon: its arms facing left, reaching forward.</summary>
+    DraygonArmsFacingLeftReaching,
+    /// <summary>Draygon: its arms facing left, spread wide.</summary>
+    DraygonArmsFacingLeftSpreadWide,
+    /// <summary>Draygon: its arms facing left, closing.</summary>
+    DraygonArmsFacingLeftClosing,
+    /// <summary>Draygon: its arms facing left, gathering in.</summary>
+    DraygonArmsFacingLeftGathering,
+    /// <summary>Draygon: its arms facing left, tucked in.</summary>
+    DraygonArmsFacingLeftTucked,
+    /// <summary>Draygon: its tail facing left, its tip curled in.</summary>
+    DraygonTailFacingLeftTipCurledIn,
+    /// <summary>Draygon: its tail facing left, its tip swinging out.</summary>
+    DraygonTailFacingLeftTipSwingingOut,
+    /// <summary>Draygon: its tail facing left, its tip out.</summary>
+    DraygonTailFacingLeftTipOut,
+    /// <summary>Draygon: its tail facing left, its tip further out.</summary>
+    DraygonTailFacingLeftTipFurtherOut,
+    /// <summary>Draygon: its tail facing left, its tip farthest out.</summary>
+    DraygonTailFacingLeftTipFarthestOut,
+    /// <summary>Draygon: its tail facing left, its tip returning.</summary>
+    DraygonTailFacingLeftTipReturning,
+    /// <summary>Draygon: its tail facing left, its tip swung back.</summary>
+    DraygonTailFacingLeftTipBack,
+    /// <summary>Draygon: its tail facing left, cocking to whip.</summary>
+    DraygonTailFacingLeftWhipCocking,
+    /// <summary>Draygon: its tail facing left, raising to whip.</summary>
+    DraygonTailFacingLeftWhipRaising,
+    /// <summary>Draygon: its tail facing left, hanging long.</summary>
+    DraygonTailFacingLeftWhipHangingLong,
+    /// <summary>Draygon: its tail facing left, swinging.</summary>
+    DraygonTailFacingLeftWhipSwinging,
+    /// <summary>Draygon: its tail facing left, lashed out flat.</summary>
+    DraygonTailFacingLeftWhipLashedOut,
+    /// <summary>Draygon: its tail facing left, curling back.</summary>
+    DraygonTailFacingLeftWhipCurling,
+    /// <summary>Draygon: its tail facing left, recoiling.</summary>
+    DraygonTailFacingLeftWhipRecoiling,
+    /// <summary>Draygon: its arms facing right, swept forward.</summary>
+    DraygonArmsFacingRightForward,
+    /// <summary>Draygon: its arms facing right, lowering.</summary>
+    DraygonArmsFacingRightLowering,
+    /// <summary>Draygon: its arms facing right, down.</summary>
+    DraygonArmsFacingRightDown,
+    /// <summary>Draygon: its arms facing right, hanging down, stretched.</summary>
+    DraygonArmsFacingRightDownStretched,
+    /// <summary>Draygon: its arms facing right, raising.</summary>
+    DraygonArmsFacingRightRaising,
+    /// <summary>Draygon: its arms facing right, reaching forward.</summary>
+    DraygonArmsFacingRightReaching,
+    /// <summary>Draygon: its arms facing right, spread wide.</summary>
+    DraygonArmsFacingRightSpreadWide,
+    /// <summary>Draygon: its arms facing right, closing.</summary>
+    DraygonArmsFacingRightClosing,
+    /// <summary>Draygon: its arms facing right, gathering in.</summary>
+    DraygonArmsFacingRightGathering,
+    /// <summary>Draygon: its arms facing right, tucked in.</summary>
+    DraygonArmsFacingRightTucked,
+    /// <summary>Draygon: its tail facing right, its tip curled in.</summary>
+    DraygonTailFacingRightTipCurledIn,
+    /// <summary>Draygon: its tail facing right, its tip swinging out.</summary>
+    DraygonTailFacingRightTipSwingingOut,
+    /// <summary>Draygon: its tail facing right, its tip out.</summary>
+    DraygonTailFacingRightTipOut,
+    /// <summary>Draygon: its tail facing right, its tip further out.</summary>
+    DraygonTailFacingRightTipFurtherOut,
+    /// <summary>Draygon: its tail facing right, its tip farthest out.</summary>
+    DraygonTailFacingRightTipFarthestOut,
+    /// <summary>Draygon: its tail facing right, its tip returning.</summary>
+    DraygonTailFacingRightTipReturning,
+    /// <summary>Draygon: its tail facing right, its tip swung back.</summary>
+    DraygonTailFacingRightTipBack,
+    /// <summary>Draygon: its tail facing right, cocking to whip.</summary>
+    DraygonTailFacingRightWhipCocking,
+    /// <summary>Draygon: its tail facing right, raising to whip.</summary>
+    DraygonTailFacingRightWhipRaising,
+    /// <summary>Draygon: its tail facing right, hanging long.</summary>
+    DraygonTailFacingRightWhipHangingLong,
+    /// <summary>Draygon: its tail facing right, swinging.</summary>
+    DraygonTailFacingRightWhipSwinging,
+    /// <summary>Draygon: its tail facing right, lashed out flat.</summary>
+    DraygonTailFacingRightWhipLashedOut,
+    /// <summary>Draygon: its tail facing right, curling back.</summary>
+    DraygonTailFacingRightWhipCurling,
+    /// <summary>Draygon: its tail facing right, recoiling.</summary>
+    DraygonTailFacingRightWhipRecoiling,
+    /// <summary>Spore Spawn: its shell shut: the picture of SporeSpawnShut, as a frame of its own.</summary>
+    SporeSpawnShutTwin,
+    /// <summary>Spore Spawn: its shell shut.</summary>
+    SporeSpawnShut,
+    /// <summary>Spore Spawn: its shell parted 8 pixels round its core.</summary>
+    SporeSpawnParted8,
+    /// <summary>Spore Spawn: its shell parted 16 pixels round its core.</summary>
+    SporeSpawnParted16,
+    /// <summary>Spore Spawn: its shell parted 24 pixels round its core.</summary>
+    SporeSpawnParted24,
+    /// <summary>Spore Spawn: its shell parted 32 pixels round its core.</summary>
+    SporeSpawnParted32,
+    /// <summary>Spore Spawn: its shell parted 40 pixels round its core.</summary>
+    SporeSpawnParted40,
+    /// <summary>Spore Spawn: its shell parted 44 pixels round its core.</summary>
+    SporeSpawnParted44,
+    /// <summary>Spore Spawn: its shell parted 48 pixels round its core.</summary>
+    SporeSpawnParted48,
+    /// <summary>Spore Spawn: its shell parted 48 pixels, its core glowing.</summary>
+    SporeSpawnParted48CoreGlowing,
+    /// <summary>Spore Spawn: its shell parted 48 pixels, its core bright.</summary>
+    SporeSpawnParted48CoreBright,
+    /// <summary>Spore Spawn: its shell parted 48 pixels round its core: the picture of SporeSpawnParted48, as a frame of its own.</summary>
+    SporeSpawnParted48Twin,
     /// <summary>Ceres steam: up.</summary>
     CeresSteamUp,
-    /// <summary>Ceres steam: up, second frame.</summary>
-    CeresSteamUpSecond,
-    /// <summary>Ceres steam: up, third frame.</summary>
-    CeresSteamUpThird,
-    /// <summary>Ceres steam: up, fourth frame.</summary>
-    CeresSteamUpFourth,
-    /// <summary>Ceres steam: up, fifth frame.</summary>
-    CeresSteamUpFifth,
-    /// <summary>Ceres steam: up, sixth frame.</summary>
-    CeresSteamUpSixth,
-    /// <summary>Ceres steam: up, seventh frame.</summary>
-    CeresSteamUpSeventh,
+    /// <summary>Ceres steam: a jet of steam up, 22 pixels long.</summary>
+    CeresSteamUpJet22,
+    /// <summary>Ceres steam: a jet of steam up, 31 pixels long.</summary>
+    CeresSteamUpJet31,
+    /// <summary>Ceres steam: a jet of steam up, 40 pixels long.</summary>
+    CeresSteamUpJet40,
+    /// <summary>Ceres steam: a cloud of steam drifting off up, 33 pixels long.</summary>
+    CeresSteamUpDrifting33,
+    /// <summary>Ceres steam: a cloud of steam drifting off up, 27 pixels long.</summary>
+    CeresSteamUpDrifting27,
+    /// <summary>Ceres steam: a cloud of steam drifting off up, 16 pixels long.</summary>
+    CeresSteamUpDrifting16,
     /// <summary>Ceres steam: left.</summary>
     CeresSteamLeft,
-    /// <summary>Ceres steam: left, second frame.</summary>
-    CeresSteamLeftSecond,
-    /// <summary>Ceres steam: left, third frame.</summary>
-    CeresSteamLeftThird,
-    /// <summary>Ceres steam: left, fourth frame.</summary>
-    CeresSteamLeftFourth,
-    /// <summary>Ceres steam: left, fifth frame.</summary>
-    CeresSteamLeftFifth,
-    /// <summary>Ceres steam: left, sixth frame.</summary>
-    CeresSteamLeftSixth,
-    /// <summary>Ceres steam: left, seventh frame.</summary>
-    CeresSteamLeftSeventh,
+    /// <summary>Ceres steam: a jet of steam left, 24 pixels long.</summary>
+    CeresSteamLeftJet24,
+    /// <summary>Ceres steam: a jet of steam left, 32 pixels long.</summary>
+    CeresSteamLeftJet32,
+    /// <summary>Ceres steam: a jet of steam left, 40 pixels long.</summary>
+    CeresSteamLeftJet40,
+    /// <summary>Ceres steam: a cloud of steam drifting off left, 32 pixels long.</summary>
+    CeresSteamLeftDrifting32,
+    /// <summary>Ceres steam: a cloud of steam drifting off left, 26 pixels long.</summary>
+    CeresSteamLeftDrifting26,
+    /// <summary>Ceres steam: a cloud of steam drifting off left, 16 pixels long.</summary>
+    CeresSteamLeftDrifting16,
     /// <summary>Ceres steam: down.</summary>
     CeresSteamDown,
-    /// <summary>Ceres steam: down, second frame.</summary>
-    CeresSteamDownSecond,
-    /// <summary>Ceres steam: down, third frame.</summary>
-    CeresSteamDownThird,
-    /// <summary>Ceres steam: down, fourth frame.</summary>
-    CeresSteamDownFourth,
-    /// <summary>Ceres steam: down, fifth frame.</summary>
-    CeresSteamDownFifth,
-    /// <summary>Ceres steam: down, sixth frame.</summary>
-    CeresSteamDownSixth,
-    /// <summary>Ceres steam: down, seventh frame.</summary>
-    CeresSteamDownSeventh,
+    /// <summary>Ceres steam: a jet of steam down, 22 pixels long.</summary>
+    CeresSteamDownJet22,
+    /// <summary>Ceres steam: a jet of steam down, 31 pixels long.</summary>
+    CeresSteamDownJet31,
+    /// <summary>Ceres steam: a jet of steam down, 39 pixels long.</summary>
+    CeresSteamDownJet39,
+    /// <summary>Ceres steam: a cloud of steam drifting off down, 31 pixels long.</summary>
+    CeresSteamDownDrifting31,
+    /// <summary>Ceres steam: a cloud of steam drifting off down, 24 pixels long.</summary>
+    CeresSteamDownDrifting24,
+    /// <summary>Ceres steam: a cloud of steam drifting off down, 16 pixels long.</summary>
+    CeresSteamDownDrifting16,
     /// <summary>Ceres steam: right.</summary>
     CeresSteamRight,
-    /// <summary>Ceres steam: right, second frame.</summary>
-    CeresSteamRightSecond,
-    /// <summary>Ceres steam: right, third frame.</summary>
-    CeresSteamRightThird,
-    /// <summary>Ceres steam: right, fourth frame.</summary>
-    CeresSteamRightFourth,
-    /// <summary>Ceres steam: right, fifth frame.</summary>
-    CeresSteamRightFifth,
-    /// <summary>Ceres steam: right, sixth frame.</summary>
-    CeresSteamRightSixth,
-    /// <summary>Ceres steam: right, seventh frame.</summary>
-    CeresSteamRightSeventh,
-    /// <summary>Oum: facing left idle.</summary>
-    OumFacingLeftIdle,
-    /// <summary>Oum: facing left attacking, second frame.</summary>
-    OumFacingLeftAttackingSecond,
-    /// <summary>Oum: facing left attacking, third frame.</summary>
-    OumFacingLeftAttackingThird,
-    /// <summary>Oum: facing left attacking, fourth frame.</summary>
-    OumFacingLeftAttackingFourth,
-    /// <summary>Oum: facing left attacking, fifth frame.</summary>
-    OumFacingLeftAttackingFifth,
-    /// <summary>Oum: facing left attacking, sixth frame.</summary>
-    OumFacingLeftAttackingSixth,
-    /// <summary>Oum: facing left attacking, seventh frame.</summary>
-    OumFacingLeftAttackingSeventh,
-    /// <summary>Oum: facing left attacking, eighth frame.</summary>
-    OumFacingLeftAttackingEighth,
-    /// <summary>Oum: facing left rolling forwards, second frame.</summary>
-    OumFacingLeftRollingForwardsSecond,
-    /// <summary>Oum: facing left rolling forwards, third frame.</summary>
-    OumFacingLeftRollingForwardsThird,
-    /// <summary>Oum: facing left rolling forwards, fourth frame.</summary>
-    OumFacingLeftRollingForwardsFourth,
-    /// <summary>Oum: facing left rolling forwards, fifth frame.</summary>
-    OumFacingLeftRollingForwardsFifth,
-    /// <summary>Oum: facing left rolling forwards, sixth frame.</summary>
-    OumFacingLeftRollingForwardsSixth,
-    /// <summary>Oum: facing left rolling forwards, seventh frame.</summary>
-    OumFacingLeftRollingForwardsSeventh,
-    /// <summary>Oum: facing left rolling forwards, eighth frame.</summary>
-    OumFacingLeftRollingForwardsEighth,
-    /// <summary>Oum: facing right idle.</summary>
-    OumFacingRightIdle,
-    /// <summary>Oum: facing right attacking, second frame.</summary>
-    OumFacingRightAttackingSecond,
-    /// <summary>Oum: facing right attacking, third frame.</summary>
-    OumFacingRightAttackingThird,
-    /// <summary>Oum: facing right attacking, fourth frame.</summary>
-    OumFacingRightAttackingFourth,
-    /// <summary>Oum: facing right attacking, fifth frame.</summary>
-    OumFacingRightAttackingFifth,
-    /// <summary>Oum: facing right attacking, sixth frame.</summary>
-    OumFacingRightAttackingSixth,
-    /// <summary>Oum: facing right attacking, seventh frame.</summary>
-    OumFacingRightAttackingSeventh,
-    /// <summary>Oum: facing right attacking, eighth frame.</summary>
-    OumFacingRightAttackingEighth,
-    /// <summary>Oum: facing right rolling forwards, second frame.</summary>
-    OumFacingRightRollingForwardsSecond,
-    /// <summary>Oum: facing right rolling forwards, third frame.</summary>
-    OumFacingRightRollingForwardsThird,
-    /// <summary>Oum: facing right rolling forwards, fourth frame.</summary>
-    OumFacingRightRollingForwardsFourth,
-    /// <summary>Oum: facing right rolling forwards, fifth frame.</summary>
-    OumFacingRightRollingForwardsFifth,
-    /// <summary>Oum: facing right rolling forwards, sixth frame.</summary>
-    OumFacingRightRollingForwardsSixth,
-    /// <summary>Oum: facing right rolling forwards, seventh frame.</summary>
-    OumFacingRightRollingForwardsSeventh,
-    /// <summary>Oum: facing right rolling forwards, eighth frame.</summary>
-    OumFacingRightRollingForwardsEighth,
-    /// <summary>Crocomire: tongue fight, first frame.</summary>
-    CrocomireTongueFightFirst,
-    /// <summary>Crocomire: tongue fight, second frame.</summary>
-    CrocomireTongueFightSecond,
-    /// <summary>Crocomire: tongue fight, third frame.</summary>
-    CrocomireTongueFightThird,
-    /// <summary>Crocomire: tongue fight, fourth frame.</summary>
-    CrocomireTongueFightFourth,
-    /// <summary>Crocomire: tongue melting pose, first frame.</summary>
-    CrocomireTongueMeltingPoseFirst,
-    /// <summary>Crocomire: tongue melting pose, second frame.</summary>
-    CrocomireTongueMeltingPoseSecond,
-    /// <summary>Crocomire: tongue melting pose, third frame.</summary>
-    CrocomireTongueMeltingPoseThird,
-    /// <summary>Crocomire: tongue melting pose, fourth frame.</summary>
-    CrocomireTongueMeltingPoseFourth,
-    /// <summary>Crocomire: tongue melting pose, fifth frame.</summary>
-    CrocomireTongueMeltingPoseFifth,
-    /// <summary>Crocomire: body charging, first frame.</summary>
-    CrocomireBodyChargingFirst,
-    /// <summary>Crocomire: body charging, second frame.</summary>
-    CrocomireBodyChargingSecond,
-    /// <summary>Crocomire: body charging, third frame.</summary>
-    CrocomireBodyChargingThird,
-    /// <summary>Crocomire: body charging, fourth frame.</summary>
-    CrocomireBodyChargingFourth,
-    /// <summary>Crocomire: body charging, fifth frame.</summary>
-    CrocomireBodyChargingFifth,
-    /// <summary>Crocomire: body charging, sixth frame.</summary>
-    CrocomireBodyChargingSixth,
-    /// <summary>Crocomire: body charging, seventh frame.</summary>
-    CrocomireBodyChargingSeventh,
-    /// <summary>Crocomire: body charging, eighth frame.</summary>
-    CrocomireBodyChargingEighth,
-    /// <summary>Crocomire: body charging, ninth frame.</summary>
-    CrocomireBodyChargingNinth,
-    /// <summary>Crocomire: body charging, tenth frame.</summary>
-    CrocomireBodyChargingTenth,
-    /// <summary>Crocomire: body charging, eleventh frame.</summary>
-    CrocomireBodyChargingEleventh,
-    /// <summary>Crocomire: body charging, twelfth frame.</summary>
-    CrocomireBodyChargingTwelfth,
-    /// <summary>Crocomire: body initial.</summary>
-    CrocomireBodyInitial,
-    /// <summary>Crocomire: body wait for first second damage, sixth frame.</summary>
-    CrocomireBodyWaitForFirstSecondDamageSixth,
-    /// <summary>Crocomire: body wait for first second damage, fifth frame.</summary>
-    CrocomireBodyWaitForFirstSecondDamageFifth,
-    /// <summary>Crocomire: body wait for first second damage, fourth frame.</summary>
-    CrocomireBodyWaitForFirstSecondDamageFourth,
-    /// <summary>Crocomire: body wait for first second damage, third frame.</summary>
-    CrocomireBodyWaitForFirstSecondDamageThird,
-    /// <summary>Crocomire: body wait for first second damage, second frame.</summary>
-    CrocomireBodyWaitForFirstSecondDamageSecond,
-    /// <summary>Crocomire: body wait for first second damage, first frame.</summary>
-    CrocomireBodyWaitForFirstSecondDamageFirst,
-    /// <summary>Crocomire: body projectile attack, first frame.</summary>
-    CrocomireBodyProjectileAttackFirst,
-    /// <summary>Crocomire: body projectile attack, second frame.</summary>
-    CrocomireBodyProjectileAttackSecond,
-    /// <summary>Crocomire: body projectile attack, third frame.</summary>
-    CrocomireBodyProjectileAttackThird,
-    /// <summary>Crocomire: body projectile attack, fourth frame.</summary>
-    CrocomireBodyProjectileAttackFourth,
-    /// <summary>Crocomire: body projectile attack, fifth frame.</summary>
-    CrocomireBodyProjectileAttackFifth,
-    /// <summary>Crocomire: body projectile attack, sixth frame.</summary>
-    CrocomireBodyProjectileAttackSixth,
-    /// <summary>Crocomire: body projectile attack, seventh frame.</summary>
-    CrocomireBodyProjectileAttackSeventh,
-    /// <summary>Crocomire: body projectile attack, eighth frame.</summary>
-    CrocomireBodyProjectileAttackEighth,
-    /// <summary>Crocomire: body step forward after delay.</summary>
-    CrocomireBodyStepForwardAfterDelay,
-    /// <summary>Crocomire: body stepping forward, first frame.</summary>
-    CrocomireBodySteppingForwardFirst,
-    /// <summary>Crocomire: body stepping forward, second frame.</summary>
-    CrocomireBodySteppingForwardSecond,
-    /// <summary>Crocomire: body stepping forward, third frame.</summary>
-    CrocomireBodySteppingForwardThird,
-    /// <summary>Crocomire: body stepping forward, fourth frame.</summary>
-    CrocomireBodySteppingForwardFourth,
-    /// <summary>Crocomire: body stepping forward, fifth frame.</summary>
-    CrocomireBodySteppingForwardFifth,
-    /// <summary>Crocomire: body stepping forward, sixth frame.</summary>
-    CrocomireBodySteppingForwardSixth,
-    /// <summary>Crocomire: body stepping forward, seventh frame.</summary>
-    CrocomireBodySteppingForwardSeventh,
-    /// <summary>Crocomire: body stepping forward, eighth frame.</summary>
-    CrocomireBodySteppingForwardEighth,
-    /// <summary>Crocomire: body stepping forward, ninth frame.</summary>
-    CrocomireBodySteppingForwardNinth,
-    /// <summary>Crocomire: body projectile attack loop, first frame.</summary>
-    CrocomireBodyProjectileAttackLoopFirst,
-    /// <summary>Crocomire: body projectile attack loop, second frame.</summary>
-    CrocomireBodyProjectileAttackLoopSecond,
-    /// <summary>Crocomire: body projectile attack loop, third frame.</summary>
-    CrocomireBodyProjectileAttackLoopThird,
-    /// <summary>Crocomire: body projectile attack loop, fourth frame.</summary>
-    CrocomireBodyProjectileAttackLoopFourth,
-    /// <summary>Crocomire: body projectile attack loop, fifth frame.</summary>
-    CrocomireBodyProjectileAttackLoopFifth,
+    /// <summary>Ceres steam: a jet of steam right, 24 pixels long.</summary>
+    CeresSteamRightJet24,
+    /// <summary>Ceres steam: a jet of steam right, 32 pixels long.</summary>
+    CeresSteamRightJet32,
+    /// <summary>Ceres steam: a jet of steam right, 40 pixels long.</summary>
+    CeresSteamRightJet40,
+    /// <summary>Ceres steam: a cloud of steam drifting off right, 32 pixels long.</summary>
+    CeresSteamRightDrifting32,
+    /// <summary>Ceres steam: a cloud of steam drifting off right, 26 pixels long.</summary>
+    CeresSteamRightDrifting26,
+    /// <summary>Ceres steam: a cloud of steam drifting off right, 16 pixels long.</summary>
+    CeresSteamRightDrifting16,
+    /// <summary>Oum: its shell facing left, upright.</summary>
+    OumFacingLeftTurned0,
+    /// <summary>Oum: its shell facing left, a vent opening on its front.</summary>
+    OumFacingLeftVentOpening,
+    /// <summary>Oum: its shell facing left, a vent open on its front.</summary>
+    OumFacingLeftVentOpen,
+    /// <summary>Oum: its shell facing left, a jet flaring from its vent.</summary>
+    OumFacingLeftJetFlaring,
+    /// <summary>Oum: its shell facing left, a short jet from its vent.</summary>
+    OumFacingLeftJetShort,
+    /// <summary>Oum: its shell facing left, a medium jet from its vent.</summary>
+    OumFacingLeftJetMedium,
+    /// <summary>Oum: its shell facing left, a long jet from its vent.</summary>
+    OumFacingLeftJetLong,
+    /// <summary>Oum: its shell facing left, its longest jet from its vent.</summary>
+    OumFacingLeftJetLongest,
+    /// <summary>Oum: its shell facing left, rolled an eighth over.</summary>
+    OumFacingLeftTurned45,
+    /// <summary>Oum: its shell facing left, rolled a quarter over.</summary>
+    OumFacingLeftTurned90,
+    /// <summary>Oum: its shell facing left, rolled three eighths over.</summary>
+    OumFacingLeftTurned135,
+    /// <summary>Oum: its shell facing left, rolled half way over.</summary>
+    OumFacingLeftTurned180,
+    /// <summary>Oum: its shell facing left, rolled five eighths over.</summary>
+    OumFacingLeftTurned225,
+    /// <summary>Oum: its shell facing left, rolled three quarters over.</summary>
+    OumFacingLeftTurned270,
+    /// <summary>Oum: its shell facing left, rolled seven eighths over.</summary>
+    OumFacingLeftTurned315,
+    /// <summary>Oum: its shell facing right, upright.</summary>
+    OumFacingRightTurned0,
+    /// <summary>Oum: its shell facing right, a vent opening on its front.</summary>
+    OumFacingRightVentOpening,
+    /// <summary>Oum: its shell facing right, a vent open on its front.</summary>
+    OumFacingRightVentOpen,
+    /// <summary>Oum: its shell facing right, a jet flaring from its vent.</summary>
+    OumFacingRightJetFlaring,
+    /// <summary>Oum: its shell facing right, a short jet from its vent.</summary>
+    OumFacingRightJetShort,
+    /// <summary>Oum: its shell facing right, a medium jet from its vent.</summary>
+    OumFacingRightJetMedium,
+    /// <summary>Oum: its shell facing right, a long jet from its vent.</summary>
+    OumFacingRightJetLong,
+    /// <summary>Oum: its shell facing right, its longest jet from its vent.</summary>
+    OumFacingRightJetLongest,
+    /// <summary>Oum: its shell facing right, rolled an eighth over.</summary>
+    OumFacingRightTurned45,
+    /// <summary>Oum: its shell facing right, rolled a quarter over.</summary>
+    OumFacingRightTurned90,
+    /// <summary>Oum: its shell facing right, rolled three eighths over.</summary>
+    OumFacingRightTurned135,
+    /// <summary>Oum: its shell facing right, rolled half way over.</summary>
+    OumFacingRightTurned180,
+    /// <summary>Oum: its shell facing right, rolled five eighths over.</summary>
+    OumFacingRightTurned225,
+    /// <summary>Oum: its shell facing right, rolled three quarters over.</summary>
+    OumFacingRightTurned270,
+    /// <summary>Oum: its shell facing right, rolled seven eighths over.</summary>
+    OumFacingRightTurned315,
+    /// <summary>Crocomire: its tongue curling down.</summary>
+    CrocomireTongueCurlingDown,
+    /// <summary>Crocomire: its tongue flat, held higher.</summary>
+    CrocomireTongueFlatRaised,
+    /// <summary>Crocomire: its tongue curling up.</summary>
+    CrocomireTongueCurlingUp,
+    /// <summary>Crocomire: its tongue flat.</summary>
+    CrocomireTongueFlat,
+    /// <summary>Crocomire: its arm alone, bent at the elbow.</summary>
+    CrocomireArmAloneBent,
+    /// <summary>Crocomire: its arm alone, raised high.</summary>
+    CrocomireArmAloneRaised,
+    /// <summary>Crocomire: its arm alone, stretched out flat.</summary>
+    CrocomireArmAloneOutstretched,
+    /// <summary>Crocomire: its arm alone, lowering.</summary>
+    CrocomireArmAloneLowering,
+    /// <summary>Crocomire: its arm alone, returning, bent upright.</summary>
+    CrocomireArmAloneReturning,
+    /// <summary>Crocomire: striding, near foot forward, its arm bent at the elbow.</summary>
+    CrocomireBodyNearFootForwardArmBent,
+    /// <summary>Crocomire: striding, near foot forward, its arm level, forearm upright.</summary>
+    CrocomireBodyNearFootForwardArmSquare,
+    /// <summary>Crocomire: striding, near foot forward, its arm reaching up and forward.</summary>
+    CrocomireBodyNearFootForwardArmReaching,
+    /// <summary>Crocomire: striding, near foot forward, its arm sweeping up.</summary>
+    CrocomireBodyNearFootForwardArmSweeping,
+    /// <summary>Crocomire: striding, near foot forward, its arm lifting.</summary>
+    CrocomireBodyNearFootForwardArmLifting,
+    /// <summary>Crocomire: striding, near foot forward, its arm upright.</summary>
+    CrocomireBodyNearFootForwardArmUpright,
+    /// <summary>Crocomire: striding, far foot forward, its arm bent at the elbow.</summary>
+    CrocomireBodyFarFootForwardArmBent,
+    /// <summary>Crocomire: striding, far foot forward, its arm level, forearm upright.</summary>
+    CrocomireBodyFarFootForwardArmSquare,
+    /// <summary>Crocomire: striding, far foot forward, its arm reaching up and forward.</summary>
+    CrocomireBodyFarFootForwardArmReaching,
+    /// <summary>Crocomire: striding, far foot forward, its arm sweeping up.</summary>
+    CrocomireBodyFarFootForwardArmSweeping,
+    /// <summary>Crocomire: striding, far foot forward, its arm lifting.</summary>
+    CrocomireBodyFarFootForwardArmLifting,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright.</summary>
+    CrocomireBodyFarFootForwardArmUpright,
+    /// <summary>Crocomire: its arm upright, its mouth open wide.</summary>
+    CrocomireBodyArmUprightMouthOpen,
+    /// <summary>Crocomire: its arm upright, its mouth a little less open.</summary>
+    CrocomireBodyArmUprightMouthOpenLess,
+    /// <summary>Crocomire: its arm upright, its mouth closing.</summary>
+    CrocomireBodyArmUprightMouthClosing,
+    /// <summary>Crocomire: its arm upright, its mouth half closed.</summary>
+    CrocomireBodyArmUprightMouthHalfClosed,
+    /// <summary>Crocomire: its arm upright, its mouth mostly closed.</summary>
+    CrocomireBodyArmUprightMouthMostlyClosed,
+    /// <summary>Crocomire: its arm upright, its mouth nearly shut.</summary>
+    CrocomireBodyArmUprightMouthNearlyShut,
+    /// <summary>Crocomire: its arm upright, its mouth shut, its mouth pieces hidden.</summary>
+    CrocomireBodyArmUprightMouthShut,
+    /// <summary>Crocomire: its arm bent at the elbow as it swings to throw, feet together.</summary>
+    CrocomireBodySwingingArmBent,
+    /// <summary>Crocomire: its arm raised high as it swings to throw, feet together.</summary>
+    CrocomireBodySwingingArmRaised,
+    /// <summary>Crocomire: its arm stretched out flat as it swings to throw, feet together.</summary>
+    CrocomireBodySwingingArmOutstretched,
+    /// <summary>Crocomire: its arm lowering as it swings to throw, feet together.</summary>
+    CrocomireBodySwingingArmLowering,
+    /// <summary>Crocomire: its arm returning, bent upright as it swings to throw, feet together.</summary>
+    CrocomireBodySwingingArmReturning,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmUprightTwinB,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmUprightTwinC,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmUprightTwinD,
+    /// <summary>Crocomire: striding, near foot forward, its arm bent at the elbow: the picture of CrocomireBodyNearFootForwardArmBent, as a frame of its own.</summary>
+    CrocomireBodyNearFootForwardArmBentTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyNearFootForwardArmSweeping, as a frame of its own.</summary>
+    CrocomireBodyNearFootForwardArmSweepingTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyNearFootForwardArmLifting, as a frame of its own.</summary>
+    CrocomireBodyNearFootForwardArmLiftingTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyNearFootForwardArmUpright, as a frame of its own.</summary>
+    CrocomireBodyNearFootForwardArmUprightTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmBent, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmBentTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmSquare, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmSquareTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmReaching, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmReachingTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmSweeping, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmSweepingTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmLifting, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmLiftingTwin,
+    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
+    CrocomireBodyFarFootForwardArmUprightTwin,
+    /// <summary>Crocomire: its arm bent at the elbow as it lunges, feet apart.</summary>
+    CrocomireBodyLungingArmBent,
+    /// <summary>Crocomire: its arm raised high as it lunges, feet apart.</summary>
+    CrocomireBodyLungingArmRaised,
+    /// <summary>Crocomire: its arm stretched out flat as it lunges, feet apart.</summary>
+    CrocomireBodyLungingArmOutstretched,
+    /// <summary>Crocomire: its arm lowering as it lunges, feet apart.</summary>
+    CrocomireBodyLungingArmLowering,
+    /// <summary>Crocomire: its arm returning, bent upright as it lunges, feet apart.</summary>
+    CrocomireBodyLungingArmReturning,
     /// <summary>Crocomire: body melting one top row.</summary>
     CrocomireBodyMeltingOneTopRow,
     /// <summary>Crocomire: body melting one top two rows.</summary>
@@ -3136,278 +3138,278 @@ public enum EnemyFrameId
     CrocomireBodyMeltingTwoTopFourRows,
     /// <summary>Bomb Torizo: dormant.</summary>
     BombTorizoDormant,
-    /// <summary>Torizo: facing left standing up, third frame; both Torizos show it, Golden Torizo first as it sits dormant.</summary>
-    TorizoFacingLeftStandingUpThird,
-    /// <summary>Kraid: arm normal, first frame.</summary>
-    KraidArmNormalFirst,
-    /// <summary>Kraid: arm normal, second frame.</summary>
-    KraidArmNormalSecond,
-    /// <summary>Kraid: arm normal, third frame.</summary>
-    KraidArmNormalThird,
-    /// <summary>Kraid: arm normal, fourth frame.</summary>
-    KraidArmNormalFourth,
-    /// <summary>Kraid: arm normal, fifth frame.</summary>
-    KraidArmNormalFifth,
-    /// <summary>Kraid: arm normal, sixth frame.</summary>
-    KraidArmNormalSixth,
-    /// <summary>Kraid: arm normal, seventh frame.</summary>
-    KraidArmNormalSeventh,
-    /// <summary>Kraid: arm normal, eighth frame.</summary>
-    KraidArmNormalEighth,
-    /// <summary>Kraid: arm normal, ninth frame.</summary>
-    KraidArmNormalNinth,
-    /// <summary>Kraid: arm normal, tenth frame.</summary>
-    KraidArmNormalTenth,
-    /// <summary>Kraid: arm rising or sinking, first frame.</summary>
-    KraidArmRisingOrSinkingFirst,
-    /// <summary>Kraid: arm rising or sinking, second frame.</summary>
-    KraidArmRisingOrSinkingSecond,
-    /// <summary>Kraid: arm rising or sinking, third frame.</summary>
-    KraidArmRisingOrSinkingThird,
-    /// <summary>Kraid: arm rising or sinking, fourth frame.</summary>
-    KraidArmRisingOrSinkingFourth,
-    /// <summary>Kraid: arm rising or sinking, fifth frame.</summary>
-    KraidArmRisingOrSinkingFifth,
-    /// <summary>Kraid: arm rising or sinking, sixth frame.</summary>
-    KraidArmRisingOrSinkingSixth,
-    /// <summary>Kraid: arm rising or sinking, seventh frame.</summary>
-    KraidArmRisingOrSinkingSeventh,
-    /// <summary>Kraid: arm rising or sinking, eighth frame.</summary>
-    KraidArmRisingOrSinkingEighth,
-    /// <summary>Kraid: arm rising or sinking, ninth frame.</summary>
-    KraidArmRisingOrSinkingNinth,
-    /// <summary>Kraid: arm rising or sinking, tenth frame.</summary>
-    KraidArmRisingOrSinkingTenth,
-    /// <summary>Kraid: arm dying or preparing to lunge, second frame.</summary>
-    KraidArmDyingOrPreparingToLungeSecond,
-    /// <summary>Kraid: arm dying or preparing to lunge, third frame.</summary>
-    KraidArmDyingOrPreparingToLungeThird,
-    /// <summary>Torizo: facing left standing up, second frame.</summary>
-    TorizoFacingLeftStandingUpSecond,
-    /// <summary>Torizo: facing left standing up, first frame.</summary>
-    TorizoFacingLeftStandingUpFirst,
+    /// <summary>Torizo: facing left, half risen.</summary>
+    TorizoFacingLeftHalfRisen,
+    /// <summary>Kraid: its arm raised on a diagonal, claw closed.</summary>
+    KraidArmRaisedClawClosed,
+    /// <summary>Kraid: its arm raised on a diagonal, claw open.</summary>
+    KraidArmRaisedClawOpen,
+    /// <summary>Kraid: its arm lowering, claw hooked.</summary>
+    KraidArmLoweringClawHooked,
+    /// <summary>Kraid: its arm held level, claw hooked.</summary>
+    KraidArmLevelClawHooked,
+    /// <summary>Kraid: its arm held level, claw hanging down.</summary>
+    KraidArmLevelClawHangingDown,
+    /// <summary>Kraid: its arm held level, claw curling under.</summary>
+    KraidArmLevelClawCurlingUnder,
+    /// <summary>Kraid: its arm held level, claw tucked.</summary>
+    KraidArmLevelClawTucked,
+    /// <summary>Kraid: its arm held level, claw tucked tight.</summary>
+    KraidArmLevelClawTuckedTight,
+    /// <summary>Kraid: its arm held level, claw folded.</summary>
+    KraidArmLevelClawFolded,
+    /// <summary>Kraid: its arm held level, claw folded flat.</summary>
+    KraidArmLevelClawFoldedFlat,
+    /// <summary>Kraid: its arm raised on a diagonal, claw closed: the picture of KraidArmRaisedClawClosed, as a frame of its own.</summary>
+    KraidArmRaisedClawClosedTwin,
+    /// <summary>Kraid: its arm raised on a diagonal, claw open: the picture of KraidArmRaisedClawOpen, as a frame of its own.</summary>
+    KraidArmRaisedClawOpenTwin,
+    /// <summary>Kraid: its arm lowering, claw hooked: the picture of KraidArmLoweringClawHooked, as a frame of its own.</summary>
+    KraidArmLoweringClawHookedTwin,
+    /// <summary>Kraid: its arm held level, claw hooked: the picture of KraidArmLevelClawHooked, as a frame of its own.</summary>
+    KraidArmLevelClawHookedTwin,
+    /// <summary>Kraid: its arm held level, claw hanging down: the picture of KraidArmLevelClawHangingDown, as a frame of its own.</summary>
+    KraidArmLevelClawHangingDownTwin,
+    /// <summary>Kraid: its arm held level, claw curling under: the picture of KraidArmLevelClawCurlingUnder, as a frame of its own.</summary>
+    KraidArmLevelClawCurlingUnderTwin,
+    /// <summary>Kraid: its arm held level, claw tucked: the picture of KraidArmLevelClawTucked, as a frame of its own.</summary>
+    KraidArmLevelClawTuckedTwin,
+    /// <summary>Kraid: its arm held level, claw tucked tight: the picture of KraidArmLevelClawTuckedTight, as a frame of its own.</summary>
+    KraidArmLevelClawTuckedTightTwin,
+    /// <summary>Kraid: its arm held level, claw folded: the picture of KraidArmLevelClawFolded, as a frame of its own.</summary>
+    KraidArmLevelClawFoldedTwin,
+    /// <summary>Kraid: its arm held level, claw folded flat: the picture of KraidArmLevelClawFoldedFlat, as a frame of its own.</summary>
+    KraidArmLevelClawFoldedFlatTwin,
+    /// <summary>Kraid: its arm drooping on a diagonal.</summary>
+    KraidArmDroopingDiagonal,
+    /// <summary>Kraid: its arm stretched out flat.</summary>
+    KraidArmOutstretched,
+    /// <summary>Torizo: facing left, crouched.</summary>
+    TorizoFacingLeftCrouched,
+    /// <summary>Torizo: facing left, rising from its seat, knees deeply bent.</summary>
+    TorizoFacingLeftRisingFromSeat,
     /// <summary>Torizo: facing left seated.</summary>
     TorizoFacingLeftSeated,
-    /// <summary>Torizo: facing left standing up, fourth frame.</summary>
-    TorizoFacingLeftStandingUpFourth,
-    /// <summary>Torizo: facing left standing up, fifth frame.</summary>
-    TorizoFacingLeftStandingUpFifth,
-    /// <summary>Torizo: facing left standing up, sixth frame.</summary>
-    TorizoFacingLeftStandingUpSixth,
-    /// <summary>Torizo: facing left walking right leg moving, first frame.</summary>
-    TorizoFacingLeftWalkingRightLegMovingFirst,
-    /// <summary>Torizo: facing left walking right leg moving, second frame.</summary>
-    TorizoFacingLeftWalkingRightLegMovingSecond,
-    /// <summary>Torizo: facing left walking right leg moving, third frame.</summary>
-    TorizoFacingLeftWalkingRightLegMovingThird,
-    /// <summary>Torizo: facing left walking right leg moving, fourth frame.</summary>
-    TorizoFacingLeftWalkingRightLegMovingFourth,
-    /// <summary>Torizo: facing left walking right leg moving, fifth frame.</summary>
-    TorizoFacingLeftWalkingRightLegMovingFifth,
-    /// <summary>Torizo: facing left walking left leg moving, first frame.</summary>
-    TorizoFacingLeftWalkingLeftLegMovingFirst,
-    /// <summary>Torizo: facing left walking left leg moving, second frame.</summary>
-    TorizoFacingLeftWalkingLeftLegMovingSecond,
-    /// <summary>Torizo: facing left walking left leg moving, third frame.</summary>
-    TorizoFacingLeftWalkingLeftLegMovingThird,
-    /// <summary>Torizo: facing left walking left leg moving, fourth frame.</summary>
-    TorizoFacingLeftWalkingLeftLegMovingFourth,
-    /// <summary>Torizo: facing left walking left leg moving, fifth frame.</summary>
-    TorizoFacingLeftWalkingLeftLegMovingFifth,
-    /// <summary>Torizo: facing left turning left.</summary>
-    TorizoFacingLeftTurningLeft,
-    /// <summary>Torizo: facing right walking left leg moving, first frame.</summary>
-    TorizoFacingRightWalkingLeftLegMovingFirst,
-    /// <summary>Torizo: facing right walking left leg moving, second frame.</summary>
-    TorizoFacingRightWalkingLeftLegMovingSecond,
-    /// <summary>Torizo: facing right walking left leg moving, third frame.</summary>
-    TorizoFacingRightWalkingLeftLegMovingThird,
-    /// <summary>Torizo: facing right walking left leg moving, fourth frame.</summary>
-    TorizoFacingRightWalkingLeftLegMovingFourth,
-    /// <summary>Torizo: facing right walking left leg moving, fifth frame.</summary>
-    TorizoFacingRightWalkingLeftLegMovingFifth,
-    /// <summary>Torizo: facing right walking right leg moving, first frame.</summary>
-    TorizoFacingRightWalkingRightLegMovingFirst,
-    /// <summary>Torizo: facing right walking right leg moving, second frame.</summary>
-    TorizoFacingRightWalkingRightLegMovingSecond,
-    /// <summary>Torizo: facing right walking right leg moving, third frame.</summary>
-    TorizoFacingRightWalkingRightLegMovingThird,
-    /// <summary>Torizo: facing right walking right leg moving, fourth frame.</summary>
-    TorizoFacingRightWalkingRightLegMovingFourth,
-    /// <summary>Torizo: facing right walking right leg moving, fifth frame.</summary>
-    TorizoFacingRightWalkingRightLegMovingFifth,
-    /// <summary>Torizo: facing right jumping forwards, first frame.</summary>
-    TorizoFacingRightJumpingForwardsFirst,
-    /// <summary>Torizo: facing right jumping forwards, second frame.</summary>
-    TorizoFacingRightJumpingForwardsSecond,
-    /// <summary>Torizo: facing right jumping forwards, third frame.</summary>
-    TorizoFacingRightJumpingForwardsThird,
-    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, first frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst,
-    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, second frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootForwardSecond,
-    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, third frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootForwardThird,
-    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, fourth frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootForwardFourth,
-    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, fifth frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootForwardFifth,
-    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, sixth frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootForwardSixth,
-    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, first frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst,
-    /// <summary>Torizo: facing right sonic booms left foot forward, second frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardSecond,
-    /// <summary>Torizo: facing right sonic booms left foot forward, third frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardThird,
-    /// <summary>Torizo: facing right sonic booms left foot forward, fourth frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardFourth,
-    /// <summary>Torizo: facing right sonic booms left foot forward, fifth frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardFifth,
-    /// <summary>Torizo: facing right sonic booms left foot forward, sixth frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardSixth,
-    /// <summary>Torizo: facing right sonic booms left foot forward, seventh frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardSeventh,
-    /// <summary>Torizo: facing right sonic booms left foot forward, eighth frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardEighth,
-    /// <summary>Torizo: facing right sonic booms left foot forward, ninth frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardNinth,
-    /// <summary>Torizo: facing right sonic booms left foot forward, tenth frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardTenth,
-    /// <summary>Torizo: facing right sonic booms left foot forward, eleventh frame.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardEleventh,
-    /// <summary>Torizo: facing right sonic booms right foot forward, second frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardSecond,
-    /// <summary>Torizo: facing right sonic booms right foot forward, third frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardThird,
-    /// <summary>Torizo: facing right sonic booms right foot forward, fourth frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardFourth,
-    /// <summary>Torizo: facing right sonic booms right foot forward, fifth frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardFifth,
-    /// <summary>Torizo: facing right sonic booms right foot forward, sixth frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardSixth,
-    /// <summary>Torizo: facing right sonic booms right foot forward, seventh frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardSeventh,
-    /// <summary>Torizo: facing right sonic booms right foot forward, eighth frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardEighth,
-    /// <summary>Torizo: facing right sonic booms right foot forward, ninth frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardNinth,
-    /// <summary>Torizo: facing right sonic booms right foot forward, tenth frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardTenth,
-    /// <summary>Torizo: facing right sonic booms right foot forward, eleventh frame.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardEleventh,
+    /// <summary>Torizo: facing left, nearly upright.</summary>
+    TorizoFacingLeftNearlyUpright,
+    /// <summary>Torizo: facing left, upright, stepping out.</summary>
+    TorizoFacingLeftUprightStepping,
+    /// <summary>Torizo: facing left, upright, feet planted wide.</summary>
+    TorizoFacingLeftUprightWideStance,
+    /// <summary>Torizo: walking facing left, its right leg lifting.</summary>
+    TorizoFacingLeftWalkingRightLegLifting,
+    /// <summary>Torizo: walking facing left, its right leg swinging forward.</summary>
+    TorizoFacingLeftWalkingRightLegSwinging,
+    /// <summary>Torizo: walking facing left, its right leg reaching out.</summary>
+    TorizoFacingLeftWalkingRightLegReaching,
+    /// <summary>Torizo: walking facing left, its right leg planting.</summary>
+    TorizoFacingLeftWalkingRightLegPlanting,
+    /// <summary>Torizo: walking facing left, its right leg planted.</summary>
+    TorizoFacingLeftWalkingRightLegPlanted,
+    /// <summary>Torizo: walking facing left, its left leg lifting.</summary>
+    TorizoFacingLeftWalkingLeftLegLifting,
+    /// <summary>Torizo: walking facing left, its left leg swinging forward.</summary>
+    TorizoFacingLeftWalkingLeftLegSwinging,
+    /// <summary>Torizo: walking facing left, its left leg reaching out.</summary>
+    TorizoFacingLeftWalkingLeftLegReaching,
+    /// <summary>Torizo: walking facing left, its left leg planting.</summary>
+    TorizoFacingLeftWalkingLeftLegPlanting,
+    /// <summary>Torizo: walking facing left, its left leg planted.</summary>
+    TorizoFacingLeftWalkingLeftLegPlanted,
+    /// <summary>Torizo: standing facing the viewer.</summary>
+    TorizoFacingViewer,
+    /// <summary>Torizo: walking facing right, its left leg lifting.</summary>
+    TorizoFacingRightWalkingLeftLegLifting,
+    /// <summary>Torizo: walking facing right, its left leg swinging forward.</summary>
+    TorizoFacingRightWalkingLeftLegSwinging,
+    /// <summary>Torizo: walking facing right, its left leg reaching out.</summary>
+    TorizoFacingRightWalkingLeftLegReaching,
+    /// <summary>Torizo: walking facing right, its left leg planting.</summary>
+    TorizoFacingRightWalkingLeftLegPlanting,
+    /// <summary>Torizo: walking facing right, its left leg planted.</summary>
+    TorizoFacingRightWalkingLeftLegPlanted,
+    /// <summary>Torizo: walking facing right, its right leg lifting.</summary>
+    TorizoFacingRightWalkingRightLegLifting,
+    /// <summary>Torizo: walking facing right, its right leg swinging forward.</summary>
+    TorizoFacingRightWalkingRightLegSwinging,
+    /// <summary>Torizo: walking facing right, its right leg reaching out.</summary>
+    TorizoFacingRightWalkingRightLegReaching,
+    /// <summary>Torizo: walking facing right, its right leg planting.</summary>
+    TorizoFacingRightWalkingRightLegPlanting,
+    /// <summary>Torizo: walking facing right, its right leg planted.</summary>
+    TorizoFacingRightWalkingRightLegPlanted,
+    /// <summary>Torizo: facing right, crouched to jump.</summary>
+    TorizoFacingRightJumpCrouch,
+    /// <summary>Torizo: facing right, springing up.</summary>
+    TorizoFacingRightSpringing,
+    /// <summary>Torizo: facing right, leaping, legs tucked.</summary>
+    TorizoFacingRightLeaping,
+    /// <summary>Torizo: facing right, right foot forward, spewing orbs, head lowered.</summary>
+    TorizoFacingRightRightFootForwardSpewingHeadLowered,
+    /// <summary>Torizo: facing right, right foot forward, spewing orbs, head raised, its eye glowing.</summary>
+    TorizoFacingRightRightFootForwardSpewingHeadRaised,
+    /// <summary>Torizo: facing right, right foot forward, spewing orbs, mouth opening.</summary>
+    TorizoFacingRightRightFootForwardSpewingMouthOpening,
+    /// <summary>Torizo: facing right, right foot forward, spewing orbs, an arm thrust forward.</summary>
+    TorizoFacingRightRightFootForwardSpewingArmThrust,
+    /// <summary>Torizo: facing right, right foot forward, spewing orbs, an arm raised.</summary>
+    TorizoFacingRightRightFootForwardSpewingArmRaised,
+    /// <summary>Torizo: facing right, right foot forward, spewing orbs, an arm drawn back.</summary>
+    TorizoFacingRightRightFootForwardSpewingArmDrawnBack,
+    /// <summary>Torizo: facing right, left foot forward, spewing orbs, head lowered.</summary>
+    TorizoFacingRightLeftFootForwardSpewingHeadLowered,
+    /// <summary>Torizo: facing right, left foot forward, its near arm down.</summary>
+    TorizoFacingRightLeftFootForwardNearArmDown,
+    /// <summary>Torizo: facing right, left foot forward, its near arm lifting.</summary>
+    TorizoFacingRightLeftFootForwardNearArmLifting,
+    /// <summary>Torizo: facing right, left foot forward, its near arm level.</summary>
+    TorizoFacingRightLeftFootForwardNearArmLevel,
+    /// <summary>Torizo: facing right, left foot forward, its near arm raised.</summary>
+    TorizoFacingRightLeftFootForwardNearArmRaised,
+    /// <summary>Torizo: facing right, left foot forward, its near arm straight overhead.</summary>
+    TorizoFacingRightLeftFootForwardNearArmOverhead,
+    /// <summary>Torizo: facing right, left foot forward, its far arm down.</summary>
+    TorizoFacingRightLeftFootForwardFarArmDown,
+    /// <summary>Torizo: facing right, left foot forward, its far arm lifting.</summary>
+    TorizoFacingRightLeftFootForwardFarArmLifting,
+    /// <summary>Torizo: facing right, left foot forward, its far arm level.</summary>
+    TorizoFacingRightLeftFootForwardFarArmLevel,
+    /// <summary>Torizo: facing right, left foot forward, its far arm raised.</summary>
+    TorizoFacingRightLeftFootForwardFarArmRaised,
+    /// <summary>Torizo: facing right, left foot forward, its far arm straight overhead.</summary>
+    TorizoFacingRightLeftFootForwardFarArmOverhead,
+    /// <summary>Torizo: facing right, right foot forward, its near arm down.</summary>
+    TorizoFacingRightRightFootForwardNearArmDown,
+    /// <summary>Torizo: facing right, right foot forward, its near arm lifting.</summary>
+    TorizoFacingRightRightFootForwardNearArmLifting,
+    /// <summary>Torizo: facing right, right foot forward, its near arm level.</summary>
+    TorizoFacingRightRightFootForwardNearArmLevel,
+    /// <summary>Torizo: facing right, right foot forward, its near arm raised.</summary>
+    TorizoFacingRightRightFootForwardNearArmRaised,
+    /// <summary>Torizo: facing right, right foot forward, its near arm straight overhead.</summary>
+    TorizoFacingRightRightFootForwardNearArmOverhead,
+    /// <summary>Torizo: facing right, right foot forward, its far arm down.</summary>
+    TorizoFacingRightRightFootForwardFarArmDown,
+    /// <summary>Torizo: facing right, right foot forward, its far arm lifting.</summary>
+    TorizoFacingRightRightFootForwardFarArmLifting,
+    /// <summary>Torizo: facing right, right foot forward, its far arm level.</summary>
+    TorizoFacingRightRightFootForwardFarArmLevel,
+    /// <summary>Torizo: facing right, right foot forward, its far arm raised.</summary>
+    TorizoFacingRightRightFootForwardFarArmRaised,
+    /// <summary>Torizo: facing right, right foot forward, its far arm straight overhead.</summary>
+    TorizoFacingRightRightFootForwardFarArmOverhead,
     /// <summary>Torizo: falling left.</summary>
     TorizoFallingLeft,
-    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, second frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootForwardSecond,
-    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, third frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootForwardThird,
-    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, fourth frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootForwardFourth,
-    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, fifth frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootForwardFifth,
-    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, sixth frame.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootForwardSixth,
-    /// <summary>Torizo: facing left jumping forwards, first frame.</summary>
-    TorizoFacingLeftJumpingForwardsFirst,
-    /// <summary>Torizo: facing left jumping forwards, third frame.</summary>
-    TorizoFacingLeftJumpingForwardsThird,
-    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, first frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst,
-    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, second frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootForwardSecond,
-    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, third frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootForwardThird,
-    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, fourth frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootForwardFourth,
-    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, fifth frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootForwardFifth,
-    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, sixth frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootForwardSixth,
-    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, first frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst,
-    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, second frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSecond,
-    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, third frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardThird,
-    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, fourth frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFourth,
-    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, fifth frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFifth,
-    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, sixth frame.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSixth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, second frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardSecond,
-    /// <summary>Torizo: facing left sonic booms right foot forward, third frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardThird,
-    /// <summary>Torizo: facing left sonic booms right foot forward, fourth frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardFourth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, fifth frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardFifth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, sixth frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardSixth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, seventh frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardSeventh,
-    /// <summary>Torizo: facing left sonic booms right foot forward, eighth frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardEighth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, ninth frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardNinth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, tenth frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardTenth,
-    /// <summary>Torizo: facing left sonic booms right foot forward, eleventh frame.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardEleventh,
-    /// <summary>Torizo: facing left sonic booms left foot forward, second frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardSecond,
-    /// <summary>Torizo: facing left sonic booms left foot forward, third frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardThird,
-    /// <summary>Torizo: facing left sonic booms left foot forward, fourth frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardFourth,
-    /// <summary>Torizo: facing left sonic booms left foot forward, fifth frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardFifth,
-    /// <summary>Torizo: facing left sonic booms left foot forward, sixth frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardSixth,
-    /// <summary>Torizo: facing left sonic booms left foot forward, seventh frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardSeventh,
-    /// <summary>Torizo: facing left sonic booms left foot forward, eighth frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardEighth,
-    /// <summary>Torizo: facing left sonic booms left foot forward, ninth frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardNinth,
-    /// <summary>Torizo: facing left sonic booms left foot forward, tenth frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardTenth,
-    /// <summary>Torizo: facing left sonic booms left foot forward, eleventh frame.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardEleventh,
+    /// <summary>Torizo: facing right, left foot forward, spewing orbs, head raised, its eye glowing.</summary>
+    TorizoFacingRightLeftFootForwardSpewingHeadRaised,
+    /// <summary>Torizo: facing right, left foot forward, spewing orbs, mouth opening.</summary>
+    TorizoFacingRightLeftFootForwardSpewingMouthOpening,
+    /// <summary>Torizo: facing right, left foot forward, spewing orbs, an arm thrust forward.</summary>
+    TorizoFacingRightLeftFootForwardSpewingArmThrust,
+    /// <summary>Torizo: facing right, left foot forward, spewing orbs, an arm raised.</summary>
+    TorizoFacingRightLeftFootForwardSpewingArmRaised,
+    /// <summary>Torizo: facing right, left foot forward, spewing orbs, an arm drawn back.</summary>
+    TorizoFacingRightLeftFootForwardSpewingArmDrawnBack,
+    /// <summary>Torizo: facing left, crouched to jump.</summary>
+    TorizoFacingLeftJumpCrouch,
+    /// <summary>Torizo: facing left, leaping, legs tucked.</summary>
+    TorizoFacingLeftLeaping,
+    /// <summary>Torizo: facing left, right foot forward, spewing orbs, head lowered.</summary>
+    TorizoFacingLeftRightFootForwardSpewingHeadLowered,
+    /// <summary>Torizo: facing left, right foot forward, spewing orbs, head raised, its eye glowing.</summary>
+    TorizoFacingLeftRightFootForwardSpewingHeadRaised,
+    /// <summary>Torizo: facing left, right foot forward, spewing orbs, mouth opening.</summary>
+    TorizoFacingLeftRightFootForwardSpewingMouthOpening,
+    /// <summary>Torizo: facing left, right foot forward, spewing orbs, an arm thrust forward.</summary>
+    TorizoFacingLeftRightFootForwardSpewingArmThrust,
+    /// <summary>Torizo: facing left, right foot forward, spewing orbs, an arm raised.</summary>
+    TorizoFacingLeftRightFootForwardSpewingArmRaised,
+    /// <summary>Torizo: facing left, right foot forward, spewing orbs, an arm drawn back.</summary>
+    TorizoFacingLeftRightFootForwardSpewingArmDrawnBack,
+    /// <summary>Torizo: facing left, left foot forward, spewing orbs, head lowered.</summary>
+    TorizoFacingLeftLeftFootForwardSpewingHeadLowered,
+    /// <summary>Torizo: facing left, left foot forward, spewing orbs, head raised, its eye glowing.</summary>
+    TorizoFacingLeftLeftFootForwardSpewingHeadRaised,
+    /// <summary>Torizo: facing left, left foot forward, spewing orbs, mouth opening.</summary>
+    TorizoFacingLeftLeftFootForwardSpewingMouthOpening,
+    /// <summary>Torizo: facing left, left foot forward, spewing orbs, an arm thrust forward.</summary>
+    TorizoFacingLeftLeftFootForwardSpewingArmThrust,
+    /// <summary>Torizo: facing left, left foot forward, spewing orbs, an arm raised.</summary>
+    TorizoFacingLeftLeftFootForwardSpewingArmRaised,
+    /// <summary>Torizo: facing left, left foot forward, spewing orbs, an arm drawn back.</summary>
+    TorizoFacingLeftLeftFootForwardSpewingArmDrawnBack,
+    /// <summary>Torizo: facing left, right foot forward, its near arm down.</summary>
+    TorizoFacingLeftRightFootForwardNearArmDown,
+    /// <summary>Torizo: facing left, right foot forward, its near arm lifting.</summary>
+    TorizoFacingLeftRightFootForwardNearArmLifting,
+    /// <summary>Torizo: facing left, right foot forward, its near arm level.</summary>
+    TorizoFacingLeftRightFootForwardNearArmLevel,
+    /// <summary>Torizo: facing left, right foot forward, its near arm raised.</summary>
+    TorizoFacingLeftRightFootForwardNearArmRaised,
+    /// <summary>Torizo: facing left, right foot forward, its near arm straight overhead.</summary>
+    TorizoFacingLeftRightFootForwardNearArmOverhead,
+    /// <summary>Torizo: facing left, right foot forward, its far arm down.</summary>
+    TorizoFacingLeftRightFootForwardFarArmDown,
+    /// <summary>Torizo: facing left, right foot forward, its far arm lifting.</summary>
+    TorizoFacingLeftRightFootForwardFarArmLifting,
+    /// <summary>Torizo: facing left, right foot forward, its far arm level.</summary>
+    TorizoFacingLeftRightFootForwardFarArmLevel,
+    /// <summary>Torizo: facing left, right foot forward, its far arm raised.</summary>
+    TorizoFacingLeftRightFootForwardFarArmRaised,
+    /// <summary>Torizo: facing left, right foot forward, its far arm straight overhead.</summary>
+    TorizoFacingLeftRightFootForwardFarArmOverhead,
+    /// <summary>Torizo: facing left, left foot forward, its near arm down.</summary>
+    TorizoFacingLeftLeftFootForwardNearArmDown,
+    /// <summary>Torizo: facing left, left foot forward, its near arm lifting.</summary>
+    TorizoFacingLeftLeftFootForwardNearArmLifting,
+    /// <summary>Torizo: facing left, left foot forward, its near arm level.</summary>
+    TorizoFacingLeftLeftFootForwardNearArmLevel,
+    /// <summary>Torizo: facing left, left foot forward, its near arm raised.</summary>
+    TorizoFacingLeftLeftFootForwardNearArmRaised,
+    /// <summary>Torizo: facing left, left foot forward, its near arm straight overhead.</summary>
+    TorizoFacingLeftLeftFootForwardNearArmOverhead,
+    /// <summary>Torizo: facing left, left foot forward, its far arm down.</summary>
+    TorizoFacingLeftLeftFootForwardFarArmDown,
+    /// <summary>Torizo: facing left, left foot forward, its far arm lifting.</summary>
+    TorizoFacingLeftLeftFootForwardFarArmLifting,
+    /// <summary>Torizo: facing left, left foot forward, its far arm level.</summary>
+    TorizoFacingLeftLeftFootForwardFarArmLevel,
+    /// <summary>Torizo: facing left, left foot forward, its far arm raised.</summary>
+    TorizoFacingLeftLeftFootForwardFarArmRaised,
+    /// <summary>Torizo: facing left, left foot forward, its far arm straight overhead.</summary>
+    TorizoFacingLeftLeftFootForwardFarArmOverhead,
     /// <summary>Torizo: facing right seated.</summary>
     TorizoFacingRightSeated,
-    /// <summary>Torizo: facing right standing up, first frame.</summary>
-    TorizoFacingRightStandingUpFirst,
-    /// <summary>Torizo: facing right standing up, second frame.</summary>
-    TorizoFacingRightStandingUpSecond,
-    /// <summary>Torizo: facing right standing up, third frame.</summary>
-    TorizoFacingRightStandingUpThird,
-    /// <summary>Torizo: facing right standing up, fourth frame.</summary>
-    TorizoFacingRightStandingUpFourth,
-    /// <summary>Torizo: facing right standing up, fifth frame.</summary>
-    TorizoFacingRightStandingUpFifth,
-    /// <summary>Torizo: facing right standing up, sixth frame.</summary>
-    TorizoFacingRightStandingUpSixth,
+    /// <summary>Torizo: facing right, rising from its seat, knees deeply bent.</summary>
+    TorizoFacingRightRisingFromSeat,
+    /// <summary>Torizo: facing right, crouched.</summary>
+    TorizoFacingRightCrouched,
+    /// <summary>Torizo: facing right, half risen.</summary>
+    TorizoFacingRightHalfRisen,
+    /// <summary>Torizo: facing right, nearly upright.</summary>
+    TorizoFacingRightNearlyUpright,
+    /// <summary>Torizo: facing right, upright, stepping out.</summary>
+    TorizoFacingRightUprightStepping,
+    /// <summary>Torizo: facing right, upright, feet planted wide.</summary>
+    TorizoFacingRightUprightWideStance,
     /// <summary>Mother Brain: body standing.</summary>
     MotherBrainBodyStanding,
-    /// <summary>Mother Brain: body walking, first frame.</summary>
-    MotherBrainBodyWalkingFirst,
-    /// <summary>Mother Brain: body walking, second frame.</summary>
-    MotherBrainBodyWalkingSecond,
-    /// <summary>Mother Brain: body walking, third frame.</summary>
-    MotherBrainBodyWalkingThird,
-    /// <summary>Mother Brain: body walking, fourth frame.</summary>
-    MotherBrainBodyWalkingFourth,
-    /// <summary>Mother Brain: body walking, fifth frame.</summary>
-    MotherBrainBodyWalkingFifth,
-    /// <summary>Mother Brain: body walking, sixth frame.</summary>
-    MotherBrainBodyWalkingSixth,
-    /// <summary>Mother Brain: body walking, seventh frame.</summary>
-    MotherBrainBodyWalkingSeventh,
-    /// <summary>Mother Brain: body walking, eighth frame.</summary>
-    MotherBrainBodyWalkingEighth,
+    /// <summary>Mother Brain: its body walking, its near leg lifting.</summary>
+    MotherBrainBodyWalkingNearLegLifting,
+    /// <summary>Mother Brain: its body walking, its near leg reaching forward.</summary>
+    MotherBrainBodyWalkingNearLegReaching,
+    /// <summary>Mother Brain: its body walking, its near leg planting.</summary>
+    MotherBrainBodyWalkingNearLegPlanting,
+    /// <summary>Mother Brain: its body walking, legs apart.</summary>
+    MotherBrainBodyWalkingLegsApart,
+    /// <summary>Mother Brain: its body walking, its far leg lifting.</summary>
+    MotherBrainBodyWalkingFarLegLifting,
+    /// <summary>Mother Brain: its body walking, its far leg swinging past.</summary>
+    MotherBrainBodyWalkingFarLegPassing,
+    /// <summary>Mother Brain: its body walking, its far leg planting.</summary>
+    MotherBrainBodyWalkingFarLegPlanting,
+    /// <summary>Mother Brain: its body walking, legs together.</summary>
+    MotherBrainBodyWalkingLegsTogether,
     /// <summary>Mother Brain: body crouched.</summary>
     MotherBrainBodyCrouched,
     /// <summary>Mother Brain: body uncrouching.</summary>
@@ -3416,14 +3418,14 @@ public enum EnemyFrameId
     MotherBrainBodyLeaningDown,
     /// <summary>Mother Brain: body initial dummy.</summary>
     MotherBrainBodyInitialDummy,
-    /// <summary>Mother Brain: body hand beam, second frame.</summary>
-    MotherBrainBodyHandBeamSecond,
-    /// <summary>Mother Brain: body hand beam, third frame.</summary>
-    MotherBrainBodyHandBeamThird,
-    /// <summary>Mother Brain: body hand beam, fourth frame.</summary>
-    MotherBrainBodyHandBeamFourth,
-    /// <summary>Mother Brain: body hand beam, fifth frame.</summary>
-    MotherBrainBodyHandBeamFifth,
+    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
+    MotherBrainBodyStandingTwin,
+    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
+    MotherBrainBodyStandingTwinB,
+    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
+    MotherBrainBodyStandingTwinC,
+    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
+    MotherBrainBodyStandingTwinD,
     /// <summary>Phantoon: invulnerable body.</summary>
     PhantoonInvulnerableBody,
     /// <summary>Phantoon: full hitbox body.</summary>
@@ -3432,12 +3434,12 @@ public enum EnemyFrameId
     PhantoonEyeHitboxBody,
     /// <summary>Phantoon: eye closed.</summary>
     PhantoonEyeClosed,
-    /// <summary>Phantoon: eye open, first frame.</summary>
-    PhantoonEyeOpenFirst,
-    /// <summary>Phantoon: eye open, second frame.</summary>
-    PhantoonEyeOpenSecond,
-    /// <summary>Phantoon: eye open, third frame.</summary>
-    PhantoonEyeOpenThird,
+    /// <summary>Phantoon: its eye closed: the picture of PhantoonEyeClosed, as a frame of its own.</summary>
+    PhantoonEyeClosedTwin,
+    /// <summary>Phantoon: its eye half open.</summary>
+    PhantoonEyeHalfOpen,
+    /// <summary>Phantoon: its eye open, looking straight ahead: the picture of PhantoonEyeballCentered, as a frame of its own.</summary>
+    PhantoonEyeballCenteredTwin,
     /// <summary>Phantoon: eyeball centered.</summary>
     PhantoonEyeballCentered,
     /// <summary>Phantoon: eye looking up.</summary>
@@ -3456,222 +3458,222 @@ public enum EnemyFrameId
     PhantoonEyeLookingUpLeft,
     /// <summary>Phantoon: eye looking up right.</summary>
     PhantoonEyeLookingUpRight,
-    /// <summary>Phantoon: tentacles, first frame.</summary>
-    PhantoonTentaclesFirst,
-    /// <summary>Phantoon: tentacles, second frame.</summary>
-    PhantoonTentaclesSecond,
-    /// <summary>Phantoon: tentacles, third frame.</summary>
-    PhantoonTentaclesThird,
-    /// <summary>Phantoon: mouth initial.</summary>
-    PhantoonMouthInitial,
-    /// <summary>Phantoon: mouth spawn flame, second frame.</summary>
-    PhantoonMouthSpawnFlameSecond,
-    /// <summary>Phantoon: mouth spawn flame, first frame.</summary>
-    PhantoonMouthSpawnFlameFirst,
-    /// <summary>Draygon: arms facing left dying, first frame.</summary>
-    DraygonArmsFacingLeftDyingFirst,
-    /// <summary>Draygon: arms facing left dying, second frame.</summary>
-    DraygonArmsFacingLeftDyingSecond,
-    /// <summary>Draygon: arms facing left dying, third frame.</summary>
-    DraygonArmsFacingLeftDyingThird,
-    /// <summary>Draygon: arms facing left dying, fourth frame.</summary>
-    DraygonArmsFacingLeftDyingFourth,
-    /// <summary>Draygon: body facing left fire goop, first frame.</summary>
-    DraygonBodyFacingLeftFireGoopFirst,
-    /// <summary>Draygon: body facing left fire goop, second frame.</summary>
-    DraygonBodyFacingLeftFireGoopSecond,
-    /// <summary>Draygon: body facing left fire goop, third frame.</summary>
-    DraygonBodyFacingLeftFireGoopThird,
-    /// <summary>Draygon: body facing left fire goop, fourth frame.</summary>
-    DraygonBodyFacingLeftFireGoopFourth,
-    /// <summary>Draygon: eye facing left idle, first frame.</summary>
-    DraygonEyeFacingLeftIdleFirst,
-    /// <summary>Draygon: eye facing left idle, second frame.</summary>
-    DraygonEyeFacingLeftIdleSecond,
-    /// <summary>Draygon: eye facing left idle, third frame.</summary>
-    DraygonEyeFacingLeftIdleThird,
-    /// <summary>Draygon: eye facing left dying loop, fifth frame.</summary>
-    DraygonEyeFacingLeftDyingLoopFifth,
-    /// <summary>Draygon: eye facing left idle, fourth frame.</summary>
-    DraygonEyeFacingLeftIdleFourth,
-    /// <summary>Draygon: eye facing left dying loop, third frame.</summary>
-    DraygonEyeFacingLeftDyingLoopThird,
-    /// <summary>Draygon: eye facing left idle, fifth frame.</summary>
-    DraygonEyeFacingLeftIdleFifth,
-    /// <summary>Draygon: eye facing left idle, sixth frame.</summary>
-    DraygonEyeFacingLeftIdleSixth,
-    /// <summary>Draygon: body facing left reset.</summary>
-    DraygonBodyFacingLeftReset,
-    /// <summary>Draygon: arms facing right dying, first frame.</summary>
-    DraygonArmsFacingRightDyingFirst,
-    /// <summary>Draygon: arms facing right dying, second frame.</summary>
-    DraygonArmsFacingRightDyingSecond,
-    /// <summary>Draygon: arms facing right dying, third frame.</summary>
-    DraygonArmsFacingRightDyingThird,
-    /// <summary>Draygon: arms facing right dying, fourth frame.</summary>
-    DraygonArmsFacingRightDyingFourth,
-    /// <summary>Draygon: body facing right fire goop, first frame.</summary>
-    DraygonBodyFacingRightFireGoopFirst,
-    /// <summary>Draygon: body facing right fire goop, second frame.</summary>
-    DraygonBodyFacingRightFireGoopSecond,
-    /// <summary>Draygon: body facing right fire goop, third frame.</summary>
-    DraygonBodyFacingRightFireGoopThird,
-    /// <summary>Draygon: body facing right fire goop, fourth frame.</summary>
-    DraygonBodyFacingRightFireGoopFourth,
-    /// <summary>Draygon: eye facing right idle, first frame.</summary>
-    DraygonEyeFacingRightIdleFirst,
-    /// <summary>Draygon: eye facing right idle, second frame.</summary>
-    DraygonEyeFacingRightIdleSecond,
-    /// <summary>Draygon: eye facing right idle, third frame.</summary>
-    DraygonEyeFacingRightIdleThird,
-    /// <summary>Draygon: eye facing right dying loop, fifth frame.</summary>
-    DraygonEyeFacingRightDyingLoopFifth,
-    /// <summary>Draygon: eye facing right idle, fourth frame.</summary>
-    DraygonEyeFacingRightIdleFourth,
-    /// <summary>Draygon: eye facing right dying loop, third frame.</summary>
-    DraygonEyeFacingRightDyingLoopThird,
-    /// <summary>Draygon: eye facing right idle, fifth frame.</summary>
-    DraygonEyeFacingRightIdleFifth,
-    /// <summary>Draygon: eye facing right idle, sixth frame.</summary>
-    DraygonEyeFacingRightIdleSixth,
-    /// <summary>Draygon: body facing right reset.</summary>
-    DraygonBodyFacingRightReset,
-    /// <summary>Crocomire: body skeleton falling, first frame.</summary>
-    CrocomireBodySkeletonFallingFirst,
-    /// <summary>Crocomire: body skeleton falling, second frame.</summary>
-    CrocomireBodySkeletonFallingSecond,
-    /// <summary>Crocomire: body skeleton falling, third frame.</summary>
-    CrocomireBodySkeletonFallingThird,
-    /// <summary>Crocomire: body skeleton falls apart, first frame.</summary>
-    CrocomireBodySkeletonFallsApartFirst,
-    /// <summary>Crocomire: body skeleton falls apart, second frame.</summary>
-    CrocomireBodySkeletonFallsApartSecond,
-    /// <summary>Crocomire: body skeleton falls apart, third frame.</summary>
-    CrocomireBodySkeletonFallsApartThird,
-    /// <summary>Crocomire: body skeleton falls apart, fourth frame.</summary>
-    CrocomireBodySkeletonFallsApartFourth,
-    /// <summary>Crocomire: body skeleton falls apart, fifth frame.</summary>
-    CrocomireBodySkeletonFallsApartFifth,
-    /// <summary>Crocomire: body skeleton falls apart, sixth frame.</summary>
-    CrocomireBodySkeletonFallsApartSixth,
-    /// <summary>Crocomire: body skeleton falls apart, seventh frame.</summary>
-    CrocomireBodySkeletonFallsApartSeventh,
-    /// <summary>Crocomire: body skeleton falls apart, eighth frame.</summary>
-    CrocomireBodySkeletonFallsApartEighth,
-    /// <summary>Crocomire: body skeleton falls apart, ninth frame.</summary>
-    CrocomireBodySkeletonFallsApartNinth,
-    /// <summary>Crocomire: body skeleton falls apart, tenth frame.</summary>
-    CrocomireBodySkeletonFallsApartTenth,
-    /// <summary>Crocomire: body skeleton falls apart, eleventh frame.</summary>
-    CrocomireBodySkeletonFallsApartEleventh,
-    /// <summary>Crocomire: body skeleton falls apart, twelfth frame.</summary>
-    CrocomireBodySkeletonFallsApartTwelfth,
-    /// <summary>Crocomire: body skeleton falls apart, thirteenth frame.</summary>
-    CrocomireBodySkeletonFallsApartThirteenth,
-    /// <summary>Crocomire: body skeleton falls apart, fourteenth frame.</summary>
-    CrocomireBodySkeletonFallsApartFourteenth,
-    /// <summary>Crocomire: body skeleton falls apart, fifteenth frame.</summary>
-    CrocomireBodySkeletonFallsApartFifteenth,
-    /// <summary>Crocomire: body skeleton falls apart, sixteenth frame.</summary>
-    CrocomireBodySkeletonFallsApartSixteenth,
-    /// <summary>Crocomire: body skeleton falls apart, seventeenth frame.</summary>
-    CrocomireBodySkeletonFallsApartSeventeenth,
-    /// <summary>Crocomire: body skeleton falls apart, eighteenth frame.</summary>
-    CrocomireBodySkeletonFallsApartEighteenth,
+    /// <summary>Phantoon: its tentacles drawn in.</summary>
+    PhantoonTentaclesNarrow,
+    /// <summary>Phantoon: its tentacles spreading.</summary>
+    PhantoonTentaclesSpreading,
+    /// <summary>Phantoon: its tentacles spread.</summary>
+    PhantoonTentaclesSpread,
+    /// <summary>Phantoon: its mouth open.</summary>
+    PhantoonMouthOpen,
+    /// <summary>Phantoon: its mouth half open.</summary>
+    PhantoonMouthHalfOpen,
+    /// <summary>Phantoon: its mouth narrowed.</summary>
+    PhantoonMouthNarrow,
+    /// <summary>Draygon: a limp arm facing left, its claw raised.</summary>
+    DraygonLimpArmFacingLeftClawRaised,
+    /// <summary>Draygon: a limp arm facing left, its claw dropping.</summary>
+    DraygonLimpArmFacingLeftClawDropping,
+    /// <summary>Draygon: a limp arm facing left, its claw dropped.</summary>
+    DraygonLimpArmFacingLeftClawDropped,
+    /// <summary>Draygon: a limp arm facing left, its claw curled.</summary>
+    DraygonLimpArmFacingLeftClawCurled,
+    /// <summary>Draygon: its body facing left, its jaw shut.</summary>
+    DraygonBodyFacingLeftJawShut,
+    /// <summary>Draygon: its body facing left, its jaw parting.</summary>
+    DraygonBodyFacingLeftJawParting,
+    /// <summary>Draygon: its body facing left, its jaw open.</summary>
+    DraygonBodyFacingLeftJawOpen,
+    /// <summary>Draygon: its body facing left, its jaw wide open.</summary>
+    DraygonBodyFacingLeftJawWide,
+    /// <summary>Draygon: its eye facing left, shut.</summary>
+    DraygonEyeFacingLeftShut,
+    /// <summary>Draygon: its eye facing left, opening.</summary>
+    DraygonEyeFacingLeftOpening,
+    /// <summary>Draygon: its eye facing left, half open.</summary>
+    DraygonEyeFacingLeftHalfOpen,
+    /// <summary>Draygon: its eye facing left, wide open.</summary>
+    DraygonEyeFacingLeftWide,
+    /// <summary>Draygon: its eye facing left, open.</summary>
+    DraygonEyeFacingLeftOpen,
+    /// <summary>Draygon: its eye facing left, open and bloodshot.</summary>
+    DraygonEyeFacingLeftBloodshot,
+    /// <summary>Draygon: its eye facing left, narrowing.</summary>
+    DraygonEyeFacingLeftNarrowing,
+    /// <summary>Draygon: its eye facing left, closing.</summary>
+    DraygonEyeFacingLeftClosing,
+    /// <summary>Draygon: its body facing left, its jaw shut: the picture of DraygonBodyFacingLeftJawShut, as a frame of its own.</summary>
+    DraygonBodyFacingLeftJawShutTwin,
+    /// <summary>Draygon: a limp arm facing right, its claw raised.</summary>
+    DraygonLimpArmFacingRightClawRaised,
+    /// <summary>Draygon: a limp arm facing right, its claw dropping.</summary>
+    DraygonLimpArmFacingRightClawDropping,
+    /// <summary>Draygon: a limp arm facing right, its claw dropped.</summary>
+    DraygonLimpArmFacingRightClawDropped,
+    /// <summary>Draygon: a limp arm facing right, its claw curled.</summary>
+    DraygonLimpArmFacingRightClawCurled,
+    /// <summary>Draygon: its body facing right, its jaw shut.</summary>
+    DraygonBodyFacingRightJawShut,
+    /// <summary>Draygon: its body facing right, its jaw parting.</summary>
+    DraygonBodyFacingRightJawParting,
+    /// <summary>Draygon: its body facing right, its jaw open.</summary>
+    DraygonBodyFacingRightJawOpen,
+    /// <summary>Draygon: its body facing right, its jaw wide open.</summary>
+    DraygonBodyFacingRightJawWide,
+    /// <summary>Draygon: its eye facing right, shut.</summary>
+    DraygonEyeFacingRightShut,
+    /// <summary>Draygon: its eye facing right, opening.</summary>
+    DraygonEyeFacingRightOpening,
+    /// <summary>Draygon: its eye facing right, half open.</summary>
+    DraygonEyeFacingRightHalfOpen,
+    /// <summary>Draygon: its eye facing right, wide open.</summary>
+    DraygonEyeFacingRightWide,
+    /// <summary>Draygon: its eye facing right, open.</summary>
+    DraygonEyeFacingRightOpen,
+    /// <summary>Draygon: its eye facing right, open and bloodshot.</summary>
+    DraygonEyeFacingRightBloodshot,
+    /// <summary>Draygon: its eye facing right, narrowing.</summary>
+    DraygonEyeFacingRightNarrowing,
+    /// <summary>Draygon: its eye facing right, closing.</summary>
+    DraygonEyeFacingRightClosing,
+    /// <summary>Draygon: its body facing right, its jaw shut: the picture of DraygonBodyFacingRightJawShut, as a frame of its own.</summary>
+    DraygonBodyFacingRightJawShutTwin,
+    /// <summary>Crocomire: its skeleton starting to topple.</summary>
+    CrocomireBodySkeletonToppling,
+    /// <summary>Crocomire: its skeleton leaning as it topples.</summary>
+    CrocomireBodySkeletonLeaning,
+    /// <summary>Crocomire: its skeleton tipping over.</summary>
+    CrocomireBodySkeletonTipping,
+    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 134 high.</summary>
+    CrocomireBodySkeletonCollapsing158By134,
+    /// <summary>Crocomire: its skeleton collapsing, 141 pixels wide and 132 high.</summary>
+    CrocomireBodySkeletonCollapsing141By132,
+    /// <summary>Crocomire: its skeleton collapsing, 142 pixels wide and 127 high.</summary>
+    CrocomireBodySkeletonCollapsing142By127,
+    /// <summary>Crocomire: its skeleton collapsing, 143 pixels wide and 130 high.</summary>
+    CrocomireBodySkeletonCollapsing143By130,
+    /// <summary>Crocomire: its skeleton collapsing, 143 pixels wide and 131 high.</summary>
+    CrocomireBodySkeletonCollapsing143By131,
+    /// <summary>Crocomire: its skeleton collapsing, 160 pixels wide and 130 high.</summary>
+    CrocomireBodySkeletonCollapsing160By130,
+    /// <summary>Crocomire: its skeleton collapsing, 159 pixels wide and 122 high.</summary>
+    CrocomireBodySkeletonCollapsing159By122,
+    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 118 high.</summary>
+    CrocomireBodySkeletonCollapsing158By118,
+    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 108 high.</summary>
+    CrocomireBodySkeletonCollapsing158By108,
+    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 109 high.</summary>
+    CrocomireBodySkeletonCollapsing158By109,
+    /// <summary>Crocomire: its skeleton collapsing, 177 pixels wide and 87 high.</summary>
+    CrocomireBodySkeletonCollapsing177By87,
+    /// <summary>Crocomire: its skeleton collapsing, 174 pixels wide and 82 high.</summary>
+    CrocomireBodySkeletonCollapsing174By82,
+    /// <summary>Crocomire: its skeleton collapsing, 185 pixels wide and 79 high.</summary>
+    CrocomireBodySkeletonCollapsing185By79,
+    /// <summary>Crocomire: its skeleton collapsing, 189 pixels wide and 77 high.</summary>
+    CrocomireBodySkeletonCollapsing189By77,
+    /// <summary>Crocomire: its skeleton collapsing, 173 pixels wide and 77 high.</summary>
+    CrocomireBodySkeletonCollapsing173By77,
+    /// <summary>Crocomire: its skeleton collapsing, 153 pixels wide and 84 high.</summary>
+    CrocomireBodySkeletonCollapsing153By84,
+    /// <summary>Crocomire: its skeleton collapsing, 120 pixels wide and 71 high.</summary>
+    CrocomireBodySkeletonCollapsing120By71,
+    /// <summary>Crocomire: its skeleton collapsing, 120 pixels wide and 68 high.</summary>
+    CrocomireBodySkeletonCollapsing120By68,
     /// <summary>Crocomire: body skeleton stable.</summary>
     CrocomireBodySkeletonStable,
     /// <summary>Crocomire: body dead.</summary>
     CrocomireBodyDead,
-    /// <summary>Crocomire: body skeleton flowing down river, first frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverFirst,
-    /// <summary>Crocomire: body skeleton flowing down river, second frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverSecond,
-    /// <summary>Crocomire: body skeleton flowing down river, third frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverThird,
-    /// <summary>Crocomire: body skeleton flowing down river, fourth frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverFourth,
-    /// <summary>Crocomire: body skeleton flowing down river, fifth frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverFifth,
-    /// <summary>Crocomire: body skeleton flowing down river, sixth frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverSixth,
-    /// <summary>Crocomire: body skeleton flowing down river, seventh frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverSeventh,
-    /// <summary>Crocomire: body skeleton flowing down river, eighth frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverEighth,
-    /// <summary>Crocomire: body skeleton flowing down river, ninth frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverNinth,
-    /// <summary>Crocomire: body skeleton flowing down river, tenth frame.</summary>
-    CrocomireBodySkeletonFlowingDownRiverTenth,
-    /// <summary>Kraid: foot neutral.</summary>
-    KraidFootNeutral,
-    /// <summary>Kraid: foot walking forward, second frame.</summary>
-    KraidFootWalkingForwardSecond,
-    /// <summary>Kraid: foot walking forward, third frame.</summary>
-    KraidFootWalkingForwardThird,
-    /// <summary>Kraid: foot walking forward, fourth frame.</summary>
-    KraidFootWalkingForwardFourth,
-    /// <summary>Kraid: foot walking forward, fifth frame.</summary>
-    KraidFootWalkingForwardFifth,
-    /// <summary>Kraid: foot walking forward, sixth frame.</summary>
-    KraidFootWalkingForwardSixth,
-    /// <summary>Kraid: foot walking forward, seventh frame.</summary>
-    KraidFootWalkingForwardSeventh,
-    /// <summary>Kraid: foot walking forward, eighth frame.</summary>
-    KraidFootWalkingForwardEighth,
-    /// <summary>Kraid: foot walking forward, ninth frame.</summary>
-    KraidFootWalkingForwardNinth,
-    /// <summary>Kraid: foot walking forward, tenth frame.</summary>
-    KraidFootWalkingForwardTenth,
-    /// <summary>Kraid: foot walking forward, eleventh frame.</summary>
-    KraidFootWalkingForwardEleventh,
-    /// <summary>Kraid: foot walking forward, twelfth frame.</summary>
-    KraidFootWalkingForwardTwelfth,
-    /// <summary>Kraid: foot walking forward, thirteenth frame.</summary>
-    KraidFootWalkingForwardThirteenth,
-    /// <summary>Kraid: foot walking forward, fourteenth frame.</summary>
-    KraidFootWalkingForwardFourteenth,
-    /// <summary>Kraid: foot walking forward, fifteenth frame.</summary>
-    KraidFootWalkingForwardFifteenth,
-    /// <summary>Kraid: foot walking forward, sixteenth frame.</summary>
-    KraidFootWalkingForwardSixteenth,
-    /// <summary>Kraid: foot walking forward, seventeenth frame.</summary>
-    KraidFootWalkingForwardSeventeenth,
-    /// <summary>Kraid: foot walking forward, eighteenth frame.</summary>
-    KraidFootWalkingForwardEighteenth,
-    /// <summary>Kraid: foot walking forward, nineteenth frame.</summary>
-    KraidFootWalkingForwardNineteenth,
-    /// <summary>Kraid: foot walking forward, twentieth frame.</summary>
-    KraidFootWalkingForwardTwentieth,
-    /// <summary>Kraid: foot walking backward, thirteenth frame.</summary>
-    KraidFootWalkingBackwardThirteenth,
-    /// <summary>Kraid: foot walking forward, twenty-first frame.</summary>
-    KraidFootWalkingForwardTwentyFirst,
-    /// <summary>Kraid: foot walking forward, twenty-second frame.</summary>
-    KraidFootWalkingForwardTwentySecond,
-    /// <summary>Kraid: foot walking forward, twenty-third frame.</summary>
-    KraidFootWalkingForwardTwentyThird,
-    /// <summary>Kraid: foot walking forward, twenty-fourth frame.</summary>
-    KraidFootWalkingForwardTwentyFourth,
-    /// <summary>Kraid: foot walking forward, twenty-fifth frame.</summary>
-    KraidFootWalkingForwardTwentyFifth,
-    /// <summary>Kraid: foot walking forward, twenty-sixth frame.</summary>
-    KraidFootWalkingForwardTwentySixth,
-    /// <summary>Kraid: foot walking forward, twenty-seventh frame.</summary>
-    KraidFootWalkingForwardTwentySeventh,
-    /// <summary>Kraid: foot walking forward, twenty-eighth frame.</summary>
-    KraidFootWalkingForwardTwentyEighth,
-    /// <summary>Kraid: foot walking forward, twenty-ninth frame.</summary>
-    KraidFootWalkingForwardTwentyNinth,
-    /// <summary>Kraid: foot walking forward, thirtieth frame.</summary>
-    KraidFootWalkingForwardThirtieth,
-    /// <summary>Kraid: foot walking forward, thirty-first frame.</summary>
-    KraidFootWalkingForwardThirtyFirst,
-    /// <summary>Kraid: foot walking backward, second frame.</summary>
-    KraidFootWalkingBackwardSecond,
-    /// <summary>Kraid: foot walking backward, first frame.</summary>
-    KraidFootWalkingBackwardFirst,
-    /// <summary>Kraid: foot standing.</summary>
-    KraidFootStanding,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 6 pixels wide and 7 high, risen 0 pixels.</summary>
+    CrocomireBubbles6By7Risen0,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 12 pixels wide and 12 high, risen 6 pixels.</summary>
+    CrocomireBubbles12By12Risen6,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 14 pixels wide and 13 high, risen 8 pixels.</summary>
+    CrocomireBubbles14By13Risen8,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 12 pixels wide and 14 high, risen 11 pixels.</summary>
+    CrocomireBubbles12By14Risen11,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 12 pixels wide and 14 high, risen 14 pixels.</summary>
+    CrocomireBubbles12By14Risen14,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 10 pixels wide and 13 high, risen 15 pixels.</summary>
+    CrocomireBubbles10By13Risen15,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 10 pixels wide and 12 high, risen 16 pixels.</summary>
+    CrocomireBubbles10By12Risen16,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 8 pixels wide and 10 high, risen 16 pixels.</summary>
+    CrocomireBubbles8By10Risen16,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 4 pixels wide and 6 high, risen 14 pixels.</summary>
+    CrocomireBubbles4By6Risen14,
+    /// <summary>Crocomire: bubbles rising from its skeleton, 4 pixels wide and 6 high, drifted off: the picture of CrocomireBubbles4By6Risen14, drawn 32 pixels right and 32 pixels lower.</summary>
+    CrocomireBubbles4By6Adrift,
+    /// <summary>Kraid: its foot planted where it stands: the picture of KraidFootPlanted, as a frame of its own.</summary>
+    KraidFootPlantedTwin,
+    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 2 right and 1 down of the standing foot's.</summary>
+    KraidFootPlantedOffset2By1,
+    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 4 right and 2 down of the standing foot's.</summary>
+    KraidFootPlantedOffset4By2,
+    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 6 right and 3 down of the standing foot's.</summary>
+    KraidFootPlantedOffset6By3,
+    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 8 right and 4 down of the standing foot's.</summary>
+    KraidFootPlantedOffset8By4,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 10 right and 19 down of the standing foot's.</summary>
+    KraidFootLiftingOffset10By19,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 12 right and 20 down of the standing foot's.</summary>
+    KraidFootLiftingOffset12By20,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 14 right and 21 down of the standing foot's.</summary>
+    KraidFootLiftingOffset14By21,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 16 right and 22 down of the standing foot's.</summary>
+    KraidFootLiftingOffset16By22,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 18 right and 23 down of the standing foot's.</summary>
+    KraidFootLiftingOffset18By23,
+    /// <summary>Kraid: its foot raised, its leg straight up, its picture's origin 20 right and 26 down of the standing foot's.</summary>
+    KraidFootRaisedOffset20By26,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 22 right and 23 down of the standing foot's.</summary>
+    KraidFootSwingingOffset22By23,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 24 right and 21 down of the standing foot's.</summary>
+    KraidFootSwingingOffset24By21,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 26 right and 19 down of the standing foot's.</summary>
+    KraidFootSwingingOffset26By19,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 28 right and 17 down of the standing foot's.</summary>
+    KraidFootSwingingOffset28By17,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 30 right and 15 down of the standing foot's.</summary>
+    KraidFootSwingingOffset30By15,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 32 right and 13 down of the standing foot's.</summary>
+    KraidFootSwingingOffset32By13,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 34 right and 11 down of the standing foot's.</summary>
+    KraidFootSwingingOffset34By11,
+    /// <summary>Kraid: its foot reaching forward, its picture's origin 32 right and 10 down of the standing foot's.</summary>
+    KraidFootReachingOffset32By10,
+    /// <summary>Kraid: its foot reaching forward, its picture's origin 30 right and 10 down of the standing foot's.</summary>
+    KraidFootReachingOffset30By10,
+    /// <summary>Kraid: its foot reaching forward, its picture's origin 28 right and 10 down of the standing foot's.</summary>
+    KraidFootReachingOffset28By10,
+    /// <summary>Kraid: its foot raised, its leg straight up, its picture's origin 26 right and 15 down of the standing foot's.</summary>
+    KraidFootRaisedOffset26By15,
+    /// <summary>Kraid: its foot raised, its leg straight up, its picture's origin 24 right and 15 down of the standing foot's.</summary>
+    KraidFootRaisedOffset24By15,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 22 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset22By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 20 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset20By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 18 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset18By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 16 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset16By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 14 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset14By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 12 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset12By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 10 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset10By14,
+    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 8 right and 14 down of the standing foot's.</summary>
+    KraidFootLiftingOffset8By14,
+    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 6 right and 0 down of the standing foot's.</summary>
+    KraidFootPlantedOffset6By0,
+    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 4 right and 0 down of the standing foot's.</summary>
+    KraidFootPlantedOffset4By0,
+    /// <summary>Kraid: its foot planted where it stands: the picture of KraidFootPlanted, as a frame of its own.</summary>
+    KraidFootPlantedTwinB,
+    /// <summary>Kraid: its foot planted where it stands, its leg angled back.</summary>
+    KraidFootPlanted,
     /// <summary>
     /// The empty frame every enemy family shares: an enemy showing it draws nothing, and one that collides by its frames'
     /// hitboxes collides at the single point at its origin.

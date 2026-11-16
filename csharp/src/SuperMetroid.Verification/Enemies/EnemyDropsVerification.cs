@@ -101,7 +101,7 @@ internal static class EnemyDropsVerification
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
-        enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftLoopFirst;
+        enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
         enemy.Contact = EnemyContact.None;
         enemy.Processing = EnemyProcessing.None;
         enemy.Presence = EnemyPresence.RespawnsIfKilled;

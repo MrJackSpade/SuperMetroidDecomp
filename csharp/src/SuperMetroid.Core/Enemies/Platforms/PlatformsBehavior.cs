@@ -359,5 +359,5 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The frozen Tripper's frame: the left-moving frame while it moves left, the right-moving frame while it moves right.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
-        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;
+        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenFacingLeft : EnemyFrameId.TripperFrozenFacingRight;
 }

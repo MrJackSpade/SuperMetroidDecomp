@@ -43,8 +43,8 @@ internal static class CrocomireDefinitionMigrationVerification
         AssertTrue(CrocomireNativeWords.DamageReactionPending(0x4801), "latch of a recorded word");
         AssertTrue(!CrocomireNativeWords.DamageReactionPending(0x8000), "the engagement mark is no latch");
 
-        AssertEqual(0xc65e, CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueFightFirst), "first tongue frame");
-        AssertEqual(0xcaf6, CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueMeltingPoseFifth), "last tongue frame");
+        AssertEqual(0xc65e, CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueCurlingDown), "first tongue frame");
+        AssertEqual(0xcaf6, CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireArmAloneReturning), "last tongue frame");
 
         Console.WriteLine("Crocomire definition migration: colours, melting, skeleton, volley, latches and tongue identities keep their values.");
     }

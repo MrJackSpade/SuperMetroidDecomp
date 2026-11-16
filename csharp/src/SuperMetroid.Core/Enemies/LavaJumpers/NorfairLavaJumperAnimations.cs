@@ -17,29 +17,29 @@ internal static class NorfairLavaJumperAnimations
     {
         [P.Hidden] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperHidden, 1),
+            Show(EnemyFrameId.NorfairLavaJumperClawsCurledDown, 1),
         ],
         [P.Jump] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperHidden, 1),
-            Show(EnemyFrameId.NorfairLavaJumperJumpSecond, 5),
-            Show(EnemyFrameId.NorfairLavaJumperJumpThird, 9),
-            Show(EnemyFrameId.NorfairLavaJumperJumpFourth, 7),
-            Show(EnemyFrameId.NorfairLavaJumperJumpFifth, 3),
-            Show(EnemyFrameId.NorfairLavaJumperJumpSixth, 10),
-            Show(EnemyFrameId.NorfairLavaJumperJumpSeventh, 1),
+            Show(EnemyFrameId.NorfairLavaJumperClawsCurledDown, 1),
+            Show(EnemyFrameId.NorfairLavaJumperClawsSpreading, 5),
+            Show(EnemyFrameId.NorfairLavaJumperClawsSpread, 9),
+            Show(EnemyFrameId.NorfairLavaJumperClawsSpreadFlat, 7),
+            Show(EnemyFrameId.NorfairLavaJumperClawsRaising, 3),
+            Show(EnemyFrameId.NorfairLavaJumperClawsRaised, 10),
+            Show(EnemyFrameId.NorfairLavaJumperClawsFolded, 1),
             Cue(new(K.FinishAnimation)),
         ],
         [P.Follower] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperFollowerFirst, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFlameFlare, 1),
             Show(EnemyFrameId.Empty, 1),
         ],
         [P.FollowerLoop] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperFollowerLoopFirst, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFlameSmall, 1),
             Show(EnemyFrameId.Empty, 1),
-            Show(EnemyFrameId.NorfairLavaJumperFollowerLoopThird, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFlameTall, 1),
             Show(EnemyFrameId.Empty, 1),
         ],
     });

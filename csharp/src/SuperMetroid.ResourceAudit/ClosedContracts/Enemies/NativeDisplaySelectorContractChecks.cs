@@ -23,7 +23,7 @@ internal static class NativeDisplaySelectorContractChecks
                 void Inspect(EnemyFrameDisplays frames, EnemyFrameId frame) {
                     frames.GetDisplayFrame(frame);
                     frames.GetDisplayFrame(EnemyFrameId.Empty);
-                    frames.GetDisplayFrame(EnemyFrameId.KraidFootStanding);
+                    frames.GetDisplayFrame(EnemyFrameId.KraidFootPlanted);
                     frames.TryGetDisplay(frame, out _);
                 }
             }

@@ -16,39 +16,39 @@ internal static class AtomicAnimations
     {
         [P.UpRight] =
         [
-            Show(EnemyFrameId.AtomicUpRightFirst, 8),
-            Show(EnemyFrameId.AtomicUpRightSecond, 8),
-            Show(EnemyFrameId.AtomicUpRightThird, 8),
-            Show(EnemyFrameId.AtomicUpRightFourth, 8),
-            Show(EnemyFrameId.AtomicUpRightFifth, 8),
-            Show(EnemyFrameId.AtomicUpRightSixth, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned0, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned60, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned120, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned180, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned240, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned300, 8),
         ],
         [P.UpLeft] =
         [
-            Show(EnemyFrameId.AtomicUpLeftFirst, 8),
-            Show(EnemyFrameId.AtomicUpLeftSecond, 8),
-            Show(EnemyFrameId.AtomicUpLeftThird, 8),
-            Show(EnemyFrameId.AtomicUpLeftFourth, 8),
-            Show(EnemyFrameId.AtomicUpLeftFifth, 8),
-            Show(EnemyFrameId.AtomicUpLeftSixth, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned0, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned60, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned120, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned180, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned240, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned300, 8),
         ],
         [P.DownLeft] =
         [
-            Show(EnemyFrameId.AtomicUpRightSixth, 8),
-            Show(EnemyFrameId.AtomicUpRightFifth, 8),
-            Show(EnemyFrameId.AtomicUpRightFourth, 8),
-            Show(EnemyFrameId.AtomicUpRightThird, 8),
-            Show(EnemyFrameId.AtomicUpRightSecond, 8),
-            Show(EnemyFrameId.AtomicUpRightFirst, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned300, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned240, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned180, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned120, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned60, 8),
+            Show(EnemyFrameId.AtomicFacingUpRightTurned0, 8),
         ],
         [P.DownRight] =
         [
-            Show(EnemyFrameId.AtomicUpLeftSixth, 8),
-            Show(EnemyFrameId.AtomicUpLeftFifth, 8),
-            Show(EnemyFrameId.AtomicUpLeftFourth, 8),
-            Show(EnemyFrameId.AtomicUpLeftThird, 8),
-            Show(EnemyFrameId.AtomicUpLeftSecond, 8),
-            Show(EnemyFrameId.AtomicUpLeftFirst, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned300, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned240, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned180, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned120, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned60, 8),
+            Show(EnemyFrameId.AtomicFacingUpLeftTurned0, 8),
         ],
     });
 

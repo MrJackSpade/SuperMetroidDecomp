@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 internal static class CeresDoorFrameDefinitions
 {
     /// <summary>The door of Ridley's room as his scene draws it.</summary>
-    internal const EnemyFrameId RidleyRoomDoorDrawnByRidley = EnemyFrameId.CeresRidleyRoomDoorDrawnByRidley;
+    internal const EnemyFrameId RidleyRoomDoorDrawnByRidley = EnemyFrameId.CeresRidleyRoomDoorClosed;
 }

@@ -10,16 +10,16 @@ internal static class CrocomireAnimations
     /// <summary>The fight tongue's frames, five updates each (#1885).</summary>
     private static readonly EnemyFrameId[] FightTongueFrames =
     [
-        EnemyFrameId.CrocomireTongueFightFirst, EnemyFrameId.CrocomireTongueFightSecond, EnemyFrameId.CrocomireTongueFightThird,
-        EnemyFrameId.CrocomireTongueFightFourth,
+        EnemyFrameId.CrocomireTongueCurlingDown, EnemyFrameId.CrocomireTongueFlatRaised, EnemyFrameId.CrocomireTongueCurlingUp,
+        EnemyFrameId.CrocomireTongueFlat,
     ];
 
     /// <summary>The melting tongue's frames, five updates each (#1885).</summary>
     private static readonly EnemyFrameId[] MeltingTongueFrames =
     [
-        EnemyFrameId.CrocomireTongueMeltingPoseFirst, EnemyFrameId.CrocomireTongueMeltingPoseSecond,
-        EnemyFrameId.CrocomireTongueMeltingPoseThird, EnemyFrameId.CrocomireTongueMeltingPoseFourth,
-        EnemyFrameId.CrocomireTongueMeltingPoseFifth,
+        EnemyFrameId.CrocomireArmAloneBent, EnemyFrameId.CrocomireArmAloneRaised,
+        EnemyFrameId.CrocomireArmAloneOutstretched, EnemyFrameId.CrocomireArmAloneLowering,
+        EnemyFrameId.CrocomireArmAloneReturning,
     ];
 
     /// <summary>

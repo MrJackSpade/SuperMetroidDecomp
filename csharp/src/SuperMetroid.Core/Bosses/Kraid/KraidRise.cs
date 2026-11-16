@@ -179,7 +179,7 @@ internal sealed class KraidRise
                 foreach (RoomEnemyPlace lint in _parts.Lints)
                 {
                     _access.SetKraidPartAnimation(lint, KraidPartSegment.LintPostGrowth);
-                    lint.Frame = EnemyFrameId.KraidLintPostGrowth;
+                    lint.Frame = EnemyFrameId.KraidLintGrown;
                 }
                 return;
 

@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -35,8 +35,11 @@ public sealed class ZebetiteEnemyState
     /// <summary>The generation's form: a split pair's primary half requests a linked second half.</summary>
     public ZebetiteBarrierForm Form { get; internal set; }
 
-    /// <summary>This half's health animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<ZebetiteSegment> Playback { get; set; } = ZebetiteAnimations.Starting(default);
+    /// <summary>
+    /// The picture this half shows, chosen by its form and health (#2250): by its setup, then by each active update; none
+    /// before its setup chose one.
+    /// </summary>
+    internal EnemyFrameId? Picture { get; set; }
 
     /// <summary>
     /// The other half of a linked pair, to which a shot's health and flash are copied; null for a single barrier, which

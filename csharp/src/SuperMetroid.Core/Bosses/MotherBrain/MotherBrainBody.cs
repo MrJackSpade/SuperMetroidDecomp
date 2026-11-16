@@ -58,8 +58,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs a falling tube's animation where the shared enemy animation runs: its pose shows on the update the
-    /// timer expires, raising the new-frame flag, and the animation then keeps it.
+    /// Runs a falling tube's animation where the shared enemy animation runs: its still picture shows on the update the
+    /// timer expires, raising the new-frame flag, and the animation then holds it.
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube)
     {

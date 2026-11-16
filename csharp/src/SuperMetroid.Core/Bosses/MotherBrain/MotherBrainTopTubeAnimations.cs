@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainTopTubeAnimations
 {
-    /// <summary>Every segment; each shows its own tube.</summary>
+    /// <summary>Every segment; each holds its own tube's picture.</summary>
     internal static AnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MotherBrainTopTubeSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
     {
@@ -24,7 +24,7 @@ internal static class MotherBrainTopTubeAnimations
     internal static IReadOnlyDictionary<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>> StartingAt { get; } =
         Enum.GetValues<P>().ToDictionary(tube => tube, tube => new Animation<P>([new(tube, 0, 1, 1)], AnimationEnd.Holds));
 
-    /// <summary>Shows <paramref name="frame"/> for one update.</summary>
+    /// <summary>A still picture (#2250): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, NoAnimationCue> Show(EnemyProjectileFrameId frame) =>
-        new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Frame(frame, 1);
+        new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.HeldFrame(frame);
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The falling tubes' typed animations (#641, #1600), each beat naming the installed frame it shows (#2249).</summary>
 internal static class MotherBrainTubeAnimations
 {
-    /// <summary>Every piece's segment: its picture for one update.</summary>
+    /// <summary>Every piece's segment: its picture, held.</summary>
     internal static AnimationSegments<MotherBrainTubePiece, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MotherBrainTubePiece, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
@@ -27,7 +27,7 @@ internal static class MotherBrainTubeAnimations
     internal static AnimationPlayback<MotherBrainTubePiece> Starting(MotherBrainTubePiece piece) =>
         new(StartingAt[piece], AnimationPlace.StartOfAnimation);
 
-    /// <summary>Shows <paramref name="frame"/> for one update.</summary>
+    /// <summary>A still picture (#2250): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame) =>
-        new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, 1);
+        new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

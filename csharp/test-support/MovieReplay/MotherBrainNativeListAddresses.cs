@@ -167,20 +167,15 @@ internal static class MotherBrainNativeListAddresses
         [0x9f8e] = new HeadCueOp(0, _ => H.Of(K.PrepareRainbowBeamCharge)),
     };
 
-    /// <summary>Each Zebetite health program's native entry point in bank $A6, six bytes apart.</summary>
-    internal static readonly NativeProgramEntry<ZebetiteSegment>[] ZebetiteEntries =
-    [
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.LargeAtLeast800, 0xfdcc),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.LargeAtLeast600, 0xfdd2),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.LargeAtLeast400, 0xfdd8),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.LargeAtLeast200, 0xfdde),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.LargeBelow200, 0xfde4),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.SplitAtLeast800, 0xfdea),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.SplitAtLeast600, 0xfdf0),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.SplitAtLeast400, 0xfdf6),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.SplitAtLeast200, 0xfdfc),
-        new NativeProgramEntry<ZebetiteSegment>(ZebetiteSegment.SplitBelow200, 0xfe02),
-    ];
+    /// <summary>
+    /// Each Zebetite form's native health lists in bank $A6, six bytes apart, in the order of its health pictures
+    /// (<see cref="ZebetiteHealthPictureDefinitions"/>): each shows its picture and sleeps.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<ZebetiteBarrierForm, ushort[]> ZebetiteHealthLists = new Dictionary<ZebetiteBarrierForm, ushort[]>
+    {
+        [ZebetiteBarrierForm.Single] = [0xfdcc, 0xfdd2, 0xfdd8, 0xfdde, 0xfde4],
+        [ZebetiteBarrierForm.SplitPair] = [0xfdea, 0xfdf0, 0xfdf6, 0xfdfc, 0xfe02],
+    };
 
     /// <summary>Each falling tube's pose list in bank $A9, six bytes apart.</summary>
     internal static readonly NativeProgramEntry<MotherBrainTubePiece>[] TubeEntries =
@@ -261,6 +256,15 @@ internal static class MotherBrainNativeListAddresses
                 ushort word = cartridge.ReadCartridgeWord(bank | cursor);
                 switch (NativeEnemyListDefinitions.Classify(word))
                 {
+                    case NativeEnemyListDefinitions.WordKind.Frame when Beat(beats, addresses.Count, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
+                        // A held frame stands for a frame its list's sleep follows: its duration only times a sleep that
+                        // shows nothing else (#2250).
+                        VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(held.Shown), $"{at}: held frame's spritemap");
+                        VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep,
+                            NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(bank | (cursor + 4))), $"{at}: the held frame's sleep");
+                        addresses.Add(cursor);
+                        cursor = unchecked((ushort)(cursor + 4));
+                        continue;
                     case NativeEnemyListDefinitions.WordKind.Frame:
                         var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beats, addresses.Count, at), $"{at}: frame");
                         VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
@@ -388,10 +392,28 @@ internal static class MotherBrainNativeListAddresses
         Lists(cartridge, MotherBrainBank, ShitroidAnimations.Segments, ShitroidAnimations.StartingAt, ShitroidEntries,
             frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidNativeOps);
 
-    /// <summary>Compares the Zebetites' typed health segments and animations with their native lists.</summary>
-    internal static void CompareZebetites(IImportCartridgeSource cartridge) =>
-        Lists(cartridge, ZebetiteBank, ZebetiteAnimations.Segments, ZebetiteAnimations.StartingAt, ZebetiteEntries,
-            frame => ZebetiteVisualToolingDefinitions.Spritemap(frame), new Dictionary<ushort, NativeListOp<ZebetiteSegment, NoAnimationCue>>());
+    /// <summary>
+    /// Compares the Zebetites' health pictures with their native lists (#2250): each list shows its picture and sleeps, so
+    /// the picture holds until the half chooses another.
+    /// </summary>
+    internal static void CompareZebetites(IImportCartridgeSource cartridge)
+    {
+        foreach ((ZebetiteBarrierForm form, IReadOnlyList<ZebetiteHealthPicture> pictures) in ZebetiteHealthPictureDefinitions.ByForm)
+        {
+            ushort[] lists = ZebetiteHealthLists[form];
+            VerificationAssertions.AssertEqual(pictures.Count, lists.Length, $"every {form} Zebetite picture has its native list");
+            for (int index = 0; index < pictures.Count; index++)
+            {
+                string at = $"{form} Zebetite picture at {pictures[index].MinimumHealth} health (${lists[index]:X4})";
+                VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Frame,
+                    NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(ZebetiteBank | lists[index])), $"{at}: frame");
+                VerificationAssertions.AssertEqual(EnemyFrameCartridgeLookupTooling.Word(pictures[index].Picture),
+                    cartridge.ReadCartridgeWord(ZebetiteBank | (lists[index] + 2)), $"{at}: spritemap");
+                VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep,
+                    NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(ZebetiteBank | (lists[index] + 4))), $"{at}: sleep");
+            }
+        }
+    }
 
     /// <summary>Compares the falling tubes' typed segments and animations with their native lists; returns each piece's native list.</summary>
     internal static Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>

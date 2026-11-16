@@ -20,7 +20,7 @@ internal static class RinkaAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
-        Console.WriteLine($"  Rinka animations: {Entries.Length} segments ({beats} beats) match bank $A2.");
+                }), onlyRunOnInto: new HashSet<RinkaSegment> { RinkaSegment.Spin });
+        Console.WriteLine($"  Rinka animations: {Entries.Length} native lists ({beats} beats) match bank $A2; both kinds run on into the one spin.");
     }
 }

@@ -15,8 +15,12 @@ internal enum PhantoonFlameSegment
     Dying,
     /// <summary>A rain flame's impact pose, then <see cref="Dying"/>.</summary>
     RainImpact,
-    /// <summary>A casual flame's fall: each of its three falling phases' two poses four times, the phases in turn for good.</summary>
-    CasualFalling,
+    /// <summary>A casual flame falling: its kindling pose and nothing, one update each, the first of its three flickers.</summary>
+    CasualFallingKindling,
+    /// <summary>A falling flame's second flicker: its teardrop pose and nothing.</summary>
+    CasualFallingTeardrop,
+    /// <summary>A falling flame's third flicker: its sputtering pose and nothing.</summary>
+    CasualFallingSputtering,
     /// <summary>A starting flame's three-pose loop.</summary>
     StartingFlame,
     /// <summary>Deletes the flame.</summary>

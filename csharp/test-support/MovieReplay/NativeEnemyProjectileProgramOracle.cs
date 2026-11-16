@@ -16,9 +16,6 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NativeEnemyProjectileProgramOracle
 {
-    /// <summary>The longest duration a native frame command gives, which a list follows with a rest to hold a frame.</summary>
-    private const ushort NativeHeldFrameDuration = 0x7fff;
-
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
     private static TProgram? ProgramAt<TProgram>(NativeProgramEntry<TProgram>[] entries, ushort address)
         where TProgram : struct, Enum =>
@@ -328,10 +325,11 @@ internal static class NativeEnemyProjectileProgramOracle
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0 && firstBeat + addresses.Count < beats.Count &&
                 beats[firstBeat + addresses.Count] is AnimationBeat<TFrame, TEvent>.HeldFrame held)
             {
-                // A typed held frame stands for the list's longest frame followed at once by its sleep, or by a goto back to
-                // the frame, which shows the same frame again and again for good, whatever duration it names (#1607, #2068,
-                // #2096). Where that frame is its list's only one the goto is read as the list's loop; where it follows the
-                // beats before it in one segment, the segment rests on it at the goto.
+                // A typed held frame stands for a frame followed at once by its list's sleep, or by a goto back to the frame,
+                // which shows the same frame again and again for good, whatever duration it names (#1607, #2068, #2096):
+                // after it nothing the list plays shows anything else, so its duration only times a sleep that changes
+                // nothing (#2235, #2250). Where that frame is its list's only one the goto is read as the list's loop; where
+                // it follows the beats before it in one segment, the segment rests on it at the goto.
                 bool firstOfList = addresses.Count == 0 && cursor == entry;
                 _ = Next("held frame");
                 VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");
@@ -341,8 +339,6 @@ internal static class NativeEnemyProjectileProgramOracle
                 bool loopsAlone = loopsOnItself && firstOfList;
                 VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep || loopsOnItself,
                     $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
-                if (!loopsOnItself)
-                    VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                 cursor = unchecked((ushort)(cursor + 4));
                 if (loopsOnItself && !loopsAlone)
                 {

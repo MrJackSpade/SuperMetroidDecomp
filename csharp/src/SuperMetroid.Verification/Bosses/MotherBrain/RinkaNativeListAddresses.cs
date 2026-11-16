@@ -13,11 +13,16 @@ internal static class RinkaNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa2;
 
-    /// <summary>Each typed program's native entry point, in authored order.</summary>
+    /// <summary>
+    /// Each typed segment's native entry point, in authored order: each kind's list runs on into its own copy of the spin,
+    /// which loops back to its start (#1842, #2250).
+    /// </summary>
     internal static readonly NativeProgramEntry<RinkaSegment>[] Entries =
     [
         new NativeProgramEntry<RinkaSegment>(RinkaSegment.Ordinary, 0xb9e0),
+        new NativeProgramEntry<RinkaSegment>(RinkaSegment.Spin, 0xb9e8),
         new NativeProgramEntry<RinkaSegment>(RinkaSegment.Special, 0xba0c),
+        new NativeProgramEntry<RinkaSegment>(RinkaSegment.Spin, 0xba14),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

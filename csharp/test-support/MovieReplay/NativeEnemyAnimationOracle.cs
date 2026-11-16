@@ -12,9 +12,6 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NativeEnemyAnimationOracle
 {
-    /// <summary>The longest duration a native frame instruction gives, which a list follows with its sleep to hold a frame.</summary>
-    private const ushort NativeHeldFrameDuration = 0x7fff;
-
     /// <summary>
     /// The native entry of <paramref name="segment"/>: the first of its lists, where the cartridge repeats the segment's
     /// list under more than one entry (#1842).
@@ -581,11 +578,12 @@ internal static class NativeEnemyAnimationOracle
             {
                 case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
                 {
-                    // A typed held frame stands for the list's longest frame followed at once by its sleep (#1607): the
-                    // frame shows for good, which the sleep after it reads as the same rest. It stands too for a frame
-                    // followed by a goto back to that frame (#2068, #2096): the list shows it again and again, for good,
-                    // whatever duration it names. Where that frame is a list of its own the goto is read as the list's
-                    // loop; where it follows the beats before it in one segment, the segment rests on it at the goto.
+                    // A typed held frame stands for a frame followed at once by its list's sleep (#1607): the frame shows for
+                    // good, which the sleep after it reads as the same rest, so its duration only times a sleep that shows
+                    // nothing else (#2250). It stands too for a frame followed by a goto back to that frame (#2068, #2096):
+                    // the list shows it again and again, for good, whatever duration it names. Where that frame is a list of
+                    // its own the goto is read as the list's loop; where it follows the beats before it in one segment, the
+                    // segment rests on it at the goto.
                     VerificationAssertions.AssertEqual(pictured, spritemap(held.Shown), $"{at}: held frame's spritemap");
                     ushort afterHeldCursor = unchecked((ushort)(cursor + 4));
                     int afterHeld = (int)new SnesAddress(bank, afterHeldCursor);
@@ -594,8 +592,6 @@ internal static class NativeEnemyAnimationOracle
                     bool loopsAlone = loopsOnItself && beat == 0 && cursor == entry;
                     VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsOnItself,
                         $"{at}: a held frame's native frame is followed by its sleep, or by a goto back to the frame");
-                    if (!loopsOnItself)
-                        VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                     addresses.Add(cursor);
                     cursor = afterHeldCursor;
                     if (loopsOnItself && !loopsAlone)

@@ -189,8 +189,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MotherBrainTubeAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs");
         RequireSegmentFrames(ShitroidAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidVisualDefinitions.Bank,
             nameof(ShitroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidAnimations.cs");
-        RequireSegmentFrames(ZebetiteAnimations.Segments, frame => ZebetiteVisualToolingDefinitions.Spritemap(frame), ZebetiteVisualToolingDefinitions.Bank,
-            nameof(ZebetiteAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteAnimations.cs");
+        // The Zebetites show a picture their health chooses, not an animation (#2250).
+        ushort[] zebetitePictures = ZebetiteVisualToolingDefinitions.Spritemaps();
+        foreach (ushort frame in zebetitePictures)
+            report.Require(ResourceDomains.EnemyDisplay, nameof(ZebetiteHealthPictureDefinitions), ResourceIndex.Address(ZebetiteVisualToolingDefinitions.Bank, frame),
+                "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteHealthPictureDefinitions.cs", exports);
+        rows.Add(new(zebetitePictures.Length));
 
         RequireSegmentFrames(RipperAnimations.Segments, RipperFrameToolingDefinitions.Spritemap, RipperFrameToolingDefinitions.Bank,
             nameof(RipperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperAnimations.cs");

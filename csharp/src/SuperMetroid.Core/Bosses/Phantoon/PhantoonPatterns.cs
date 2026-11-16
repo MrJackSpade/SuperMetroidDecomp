@@ -686,7 +686,7 @@ internal sealed class PhantoonPatterns
             return false;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling));
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
         flame.StartMotion(PhantoonFlameMotion.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.

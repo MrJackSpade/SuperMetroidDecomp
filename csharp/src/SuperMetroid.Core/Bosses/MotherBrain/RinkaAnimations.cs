@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class RinkaAnimations
 {
+    /// <summary>How long a Rinka waits hidden, white hot, before it fires.</summary>
+    private const int HiddenWait = 64;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<RinkaSegment, EnemyFrameId, RinkaCue> Segments { get; } = new(
         new Dictionary<RinkaSegment, AnimationBeat<EnemyFrameId, RinkaCue>[]>
@@ -18,8 +21,11 @@ internal static class RinkaAnimations
         [P.Ordinary] =
         [
             Cue(new(K.Hide)),
-            Show(EnemyFrameId.RinkaWhiteHot, 64),
+            Show(EnemyFrameId.RinkaWhiteHot, HiddenWait),
             Cue(new(K.Fire)),
+        ],
+        [P.Spin] =
+        [
             Show(EnemyFrameId.RinkaWhiteHot, 16),
             Show(EnemyFrameId.RinkaYellow, 8),
             Show(EnemyFrameId.RinkaOrange, 7),
@@ -32,28 +38,26 @@ internal static class RinkaAnimations
         [P.Special] =
         [
             Cue(new(K.HideAndProcessOffScreen)),
-            Show(EnemyFrameId.RinkaWhiteHot, 64),
+            Show(EnemyFrameId.RinkaWhiteHot, HiddenWait),
             Cue(new(K.Fire)),
-            Show(EnemyFrameId.RinkaWhiteHot, 16),
-            Show(EnemyFrameId.RinkaYellow, 8),
-            Show(EnemyFrameId.RinkaOrange, 7),
-            Show(EnemyFrameId.RinkaRed, 6),
-            Show(EnemyFrameId.RinkaDarkRed, 5),
-            Show(EnemyFrameId.RinkaRed, 6),
-            Show(EnemyFrameId.RinkaOrange, 7),
-            Show(EnemyFrameId.RinkaYellow, 8),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at: each Rinka hides, fires and then spins
+    /// for good (#2250).
+    /// </summary>
     internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
-        [P.Ordinary] = new([new(P.Ordinary, 0, 3, 1), new(P.Ordinary, 3, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Special] = new([new(P.Special, 0, 3, 1), new(P.Special, 3, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Ordinary] = new([Whole(P.Ordinary), Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
+        [P.Special] = new([Whole(P.Special), Whole(P.Spin)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RinkaSegment> StartingWith(RinkaSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<RinkaSegment> Whole(RinkaSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, RinkaCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, RinkaCue>.Frame(frame, duration);

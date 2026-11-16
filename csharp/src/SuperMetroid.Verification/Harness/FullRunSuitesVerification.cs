@@ -533,6 +533,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers()),
         new(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections()),
         new(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks()),
+        new(nameof(VerifyDebuggerStateRestoresRoomObjectVisuals), () => VerifyDebuggerStateRestoresRoomObjectVisuals()),
         new(nameof(VerifyDebuggerStateIndexesReachedCatalogs), () => VerifyDebuggerStateIndexesReachedCatalogs()),
         new(nameof(VerifyDefinitionCandidatesCoverEnemyCatalogs), () => VerifyDefinitionCandidatesCoverEnemyCatalogs()),
         new(nameof(VerifyDefinitionCandidatesCoverWorldCatalogs), () => VerifyDefinitionCandidatesCoverWorldCatalogs()),

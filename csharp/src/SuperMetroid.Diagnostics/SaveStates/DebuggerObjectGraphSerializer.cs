@@ -11,6 +11,7 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// but fields and delegate identities must still resolve against the current layout. A collection keyed by hash is held
 /// as its entries and rebuilt from them, never by its buckets (<see cref="HashKeyedCollection"/>, #1681). An array of
 /// values with no identity is written as one packed run of its elements' values (<see cref="PackedElementLayout"/>, #1696).
+/// A <see cref="Type"/> value is written as the identity of the type it names (#2060).
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
@@ -103,6 +104,11 @@ internal static class DebuggerObjectGraphSerializer
         /// once, their enums' member tables, then their values back to back (<see cref="PackedElementLayout"/>, #1696).
         /// </summary>
         PackedArray,
+        /// <summary>
+        /// A <see cref="Type"/> value, such as a key of a store of catalogs found by their type (#2060): the identity of the
+        /// type it names, which a restore resolves to this build's type, never its runtime handles.
+        /// </summary>
+        TypeIdentity,
     }
 
     /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
@@ -220,6 +226,10 @@ internal static class DebuggerObjectGraphSerializer
                 case LayoutKind.HashKeyed:
                     WriteHashEntries(layout.HashKeyed ?? throw new InvalidOperationException(
                         $"Debugger state has no hash-keyed rebuild for {layout.Type.FullName}."), value);
+                    return;
+                case LayoutKind.TypeIdentity:
+                    writer.Write((byte)PayloadKind.TypeIdentity);
+                    writer.Write(DebuggerStateTypeIdentity.GetSerializedName((Type)value));
                     return;
                 default:
                     throw new InvalidOperationException($"Debugger state has no layout kind {layout.Kind} for {layout.Type.FullName}.");
@@ -390,6 +400,8 @@ internal static class DebuggerObjectGraphSerializer
         Array,
         /// <summary>A delegate.</summary>
         Delegate,
+        /// <summary>A <see cref="Type"/>, written as the identity of the type it names (#2060).</summary>
+        TypeIdentity,
         /// <summary>An inline-array struct.</summary>
         InlineArray,
         /// <summary>An object or struct written field by field.</summary>
@@ -523,6 +535,10 @@ internal static class DebuggerObjectGraphSerializer
                 return LayoutKind.Array;
             if (typeof(Delegate).IsAssignableFrom(type))
                 return LayoutKind.Delegate;
+            // A type's own fields are the runtime's handles to it, which mean nothing in another process; the type it names
+            // is what a state holds.
+            if (typeof(Type).IsAssignableFrom(type))
+                return LayoutKind.TypeIdentity;
             if (InlineArrayElements.Length(type) is not null)
                 return LayoutKind.InlineArray;
             return LayoutKind.Fields;
@@ -764,9 +780,21 @@ internal static class DebuggerObjectGraphSerializer
                 PayloadKind.EnumName => ReadEnumName(type),
                 PayloadKind.HashEntries => ReadHashEntries(type, referenceId),
                 PayloadKind.PackedArray => ReadPackedArray(type, referenceId),
+                PayloadKind.TypeIdentity => ReadTypeIdentity(type, referenceId),
                 _ => throw new InvalidDataException(
                     $"Unknown debugger-state payload kind {(byte)kind} for {type.FullName}."),
             };
+        }
+
+        /// <summary>
+        /// Restores a saved <see cref="Type"/> as this build's type of the identity it names (#2060), which must be one a
+        /// state may hold.
+        /// </summary>
+        private Type ReadTypeIdentity(Type type, int referenceId)
+        {
+            if (!typeof(Type).IsAssignableFrom(type))
+                throw new InvalidDataException($"Debugger state stores a type identity for {type.FullName}, which is no type.");
+            return (Type)Register(referenceId, ResolveName(ReadName()));
         }
 
         /// <summary>Decodes an enum stored by member name and validates it in the current context.</summary>

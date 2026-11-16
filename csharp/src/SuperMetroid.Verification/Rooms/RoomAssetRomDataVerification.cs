@@ -11,7 +11,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Rooms;
@@ -60,7 +59,7 @@ internal static class RoomAssetRomDataVerification
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                graphicsSets.Add(checked((byte)RoomGraphicsSetCodec.Encode(SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet)));
+                graphicsSets.Add(checked((byte)RoomGraphicsSetCodecConstants.Encode(SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet)));
             }
         }
 

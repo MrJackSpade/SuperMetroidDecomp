@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Poses.MakeSamusFaceForwardVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -236,13 +236,6 @@ public sealed class RoomLevelData
         WriteObjectTerrain(Size.RowMajorIndex(block), terrain, terrain.Appearance);
 
     /// <summary>
-    /// A room object's terrain write at its block that shows <paramref name="shown"/> over the terrain instead of the
-    /// terrain's own picture. Past the grid nothing is shown, so only the terrain persists.
-    /// </summary>
-    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain, RoomBlockAppearance shown) =>
-        WriteObjectTerrain(Size.RowMajorIndex(block), terrain, shown);
-
-    /// <summary>
     /// A room object's behaviour write at its block, inside the grid or in the terrain beyond the room. A block of the grid
     /// no longer leads where its earlier behaviour did.
     /// </summary>
@@ -422,7 +415,7 @@ public sealed class RoomLevelData
     /// A terrain write at <paramref name="place"/> in the level space that shows <paramref name="shown"/>. Writes inside
     /// the grid reach collision and the display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    private void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
+    internal void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
     {
         if (place >= Terrain.Length)
         {

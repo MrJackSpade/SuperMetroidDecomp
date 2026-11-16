@@ -13,21 +13,17 @@ internal sealed class EnemyProcessingWindow
     private readonly EnemyFrameContext _frameContext;
     /// <summary>The species' work stepped at the start of the update, before enemy selection.</summary>
     private readonly IStepBeforeEnemySelection _stepBeforeSelection;
-    /// <summary>Room load guard for selection against a valid enemy population.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>The places traversed, in place order, while choosing active enemies.</summary>
     private readonly EnemyPlaces _places;
 
     /// <summary>Binds processing-window decisions to one room's frame policy and enemy pool.</summary>
     /// <param name="frameContext">The frame policy that can force off-screen enemies into the active list.</param>
     /// <param name="stepBeforeSelection">The species' work that steps at the start of the update, before selection.</param>
-    /// <param name="room">The room load guard.</param>
     /// <param name="places">The room's enemy places.</param>
-    internal EnemyProcessingWindow(EnemyFrameContext frameContext, IStepBeforeEnemySelection stepBeforeSelection, EnemyRoomBinding room, EnemyPlaces places)
+    internal EnemyProcessingWindow(EnemyFrameContext frameContext, IStepBeforeEnemySelection stepBeforeSelection, EnemyPlaces places)
     {
         _frameContext = frameContext;
         _stepBeforeSelection = stepBeforeSelection;
-        _room = room;
         _places = places;
     }
     /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in place order.</summary>

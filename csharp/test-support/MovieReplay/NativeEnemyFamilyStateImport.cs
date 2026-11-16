@@ -1,4 +1,3 @@
-using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -33,7 +32,6 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -374,7 +372,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             kiHunterWingRecord.Action = KiHuntersNativeWords.KiHunterWingActions.Decode(words.A, "recorded KiHunterWingAction");
             kiHunterWingRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            kiHunterWingRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
+            kiHunterWingRecord.WingArcAngle = RotationAngleConstants.FromRaw(words.F);
         }
         if (enemy.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
@@ -443,7 +441,7 @@ internal static class NativeEnemyFamilyStateImport
             boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
             boyonRecord.ArcDistance = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
             // The rise leaves the curve index one below the top entry, the word's largest value, past the top.
-            boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlace.PastTheTop : BoyonCurvePlace.AtEntry(words.E);
+            boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(words.E);
             boyonRecord.Bouncing = words.F != 0;
         }
         if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
@@ -459,7 +457,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
-            firefleaRecord.Angle = RotationAngle.FromRaw(words.D);
+            firefleaRecord.Angle = RotationAngleConstants.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);
         }
         if (enemy.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
@@ -606,9 +604,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {
-            segment.TargetAngle = RotationAngle.FromRaw(words.A);
-            segment.OrbitAngle = RotationAngle.FromRaw(words.B);
-            segment.AngularVelocity = RotationAngle.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
+            segment.TargetAngle = RotationAngleConstants.FromRaw(words.A);
+            segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
+            segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
             ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.SpawnSettings<ShaktoolSpawnSettings>().Segment), words.D);
             // Every segment's owner is the chain's leading saw, the first enemy its room lists.
             if (SlotIndex(words.E, "Shaktool owner") != 0)
@@ -862,7 +860,7 @@ internal static class NativeEnemyFamilyStateImport
                 segment.Orientation = new Bearing(bucket).DirectionOfEighth();
                 return;
             case 6:
-                segment.CurlProgress = RotationAngle.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));
+                segment.CurlProgress = RotationAngleConstants.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));
                 return;
             default:
                 if (word != 0)

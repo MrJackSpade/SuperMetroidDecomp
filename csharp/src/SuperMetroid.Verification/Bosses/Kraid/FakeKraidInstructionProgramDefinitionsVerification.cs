@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
@@ -33,7 +32,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
     {
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
-        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer(LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1)));
+        EnemyDefinitionId populationDefinition = EnemyDefinitionIdsConstants.FromHeaderPointer(LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1)));
         ushort extraProperties = LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11));
         AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");

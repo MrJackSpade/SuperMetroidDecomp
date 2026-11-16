@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Compatibility;
-using SuperMetroid.Verification.Harness;
-
 namespace SuperMetroid.Verification.Enemies.PipeBugs;
 
 /// <summary>Checks the Brinstar Pipe Bug's emergence (#1845) against the original's arithmetic on the height's fraction.</summary>

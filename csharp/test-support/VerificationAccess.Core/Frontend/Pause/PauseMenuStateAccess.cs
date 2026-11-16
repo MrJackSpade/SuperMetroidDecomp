@@ -7,8 +7,6 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
-
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Artwork;

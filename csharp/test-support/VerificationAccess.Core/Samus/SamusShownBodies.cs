@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Enemies.Gunship;

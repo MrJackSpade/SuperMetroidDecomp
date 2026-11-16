@@ -79,7 +79,7 @@ internal sealed class SamusShownFrameAnalysis
     private readonly HashSet<SamusPoseId> fallingWithoutDrain = [];
 
     /// <summary>Each pose's picture frames, by their place in its animation's layout: the delays and holds its own playback shows.</summary>
-    private readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
+    internal readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
 
     /// <summary>The picture frame each shown frame draws, by pose and the frames' places in its animation's layout.</summary>
     private readonly Dictionary<SamusPoseId, SortedDictionary<int, int>> pictureFrames = [];
@@ -111,9 +111,6 @@ internal sealed class SamusShownFrameAnalysis
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
     internal static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
-
-    /// <summary>The picture frames of <paramref name="pose"/>, by their places in its animation's layout, in order.</summary>
-    internal IEnumerable<int> Pictures(SamusPoseId pose) => pictured.TryGetValue(pose, out SortedSet<int>? frames) ? frames : [];
 
     /// <summary>
     /// What the installation holds of the analysis, for every pose with a record: every frame the pose shows, with the

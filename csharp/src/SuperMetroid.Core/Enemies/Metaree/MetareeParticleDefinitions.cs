@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
 

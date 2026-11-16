@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Projectiles;

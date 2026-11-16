@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

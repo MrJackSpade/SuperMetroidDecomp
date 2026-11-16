@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Fx.ColourEffects;
 

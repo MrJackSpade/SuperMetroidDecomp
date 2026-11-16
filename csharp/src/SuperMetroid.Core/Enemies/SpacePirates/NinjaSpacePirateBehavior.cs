@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -28,16 +27,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Spawns paired landing dust sprites.</summary>
     private readonly RoomEffectActors _effectActors;
 
-    /// <summary>Receives sound requests from shared Space Pirate animation steps.</summary>
-    private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
-
     /// <summary>The owner of the shared Pirate contact reactions, which every Pirate family takes.</summary>
-    internal WalkingSpacePirateBehavior Walking => _walkingSpacePirateBehavior;
+    internal WalkingSpacePirateBehavior Walking { get; }
 
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
     internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomEffectActors effectActors, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
-        _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
+        Walking = walkingSpacePirateBehavior;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
@@ -69,11 +65,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private const int NinjaPirateReturnWalkPixels = 2;
     /// <summary>Whole-pixel vertical step used by each spin-jump update.</summary>
     private const int NinjaPirateSpinVerticalPixels = 2;
-
-    /// <summary>Identifies the gold and silver ninja Space Pirate enemy definitions, which share this AI.</summary>
-    internal static bool IsNinjaSpacePirateDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.PirateGoldNinja or
-        EnemyDefinitionId.PirateSilverNinja;
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
     internal static void InitializeNinjaSpacePirate(RoomEnemyPlace place)
@@ -577,7 +568,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 place.Shading = setShading.Shading;
                 return null;
             case NinjaSpacePirateCue.PlaySound playSound:
-                _walkingSpacePirateBehavior.RequestSpacePirateSound(playSound.Sound ?? throw new InvalidOperationException(
+                Walking.RequestSpacePirateSound(playSound.Sound ?? throw new InvalidOperationException(
                     "A ninja Space Pirate sound cue carries no sound."));
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:

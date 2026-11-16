@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using System.Collections.Immutable;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Rooms.LevelData;

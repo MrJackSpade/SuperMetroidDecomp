@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Samus;
 

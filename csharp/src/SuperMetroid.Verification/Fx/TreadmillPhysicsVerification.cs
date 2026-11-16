@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.WreckedShip;
@@ -58,7 +57,7 @@ internal static class TreadmillPhysicsVerification
             if (admitted)
             {
                 SamusGroundedMovement.StepStanding(level, samus, 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
-                AssertEqual((ushort)(24 + SixteenSixteen.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
+                AssertEqual((ushort)(24 + SixteenSixteenConstants.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
             }
             cases++;
         }

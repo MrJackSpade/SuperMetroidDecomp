@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.LookupRetailDoorHeadersVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupRetailDoorListsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

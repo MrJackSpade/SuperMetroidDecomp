@@ -56,9 +56,9 @@ internal static class XrayRevealVisualInstallationVerification
                 overlays.TankBlock(kind), $"stock X-ray {kind} reveal");
         }
         int specialRecords = 0;
-        foreach (ushort pointer in XrayRoomOverlaySources.Pointers)
+        foreach (ushort pointer in XrayRoomOverlaySourcesConstants.Pointers)
         {
-            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomBlocks(XrayRoomOverlaySources.Overlay(pointer));
+            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomBlocks(XrayRoomOverlaySourcesConstants.Overlay(pointer));
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(SamusSourceDefinitions.XrayRoomOverlayBank.Value | (pointer + index * 4));

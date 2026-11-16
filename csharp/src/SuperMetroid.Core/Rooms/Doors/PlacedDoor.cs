@@ -17,9 +17,6 @@ internal sealed class PlacedDoor(LockedDoorArgument placed)
     /// <summary>Whether the object recorded its door opened for good, after which it keeps no door.</summary>
     internal bool Spent { get; private set; }
 
-    /// <summary>The door, until the object is spent.</summary>
-    internal LockedDoor? Door => Spent ? null : Placed.Door;
-
     /// <summary>The door a placement named, or null for a placement that named none.</summary>
     internal static PlacedDoor? For(LockedDoorArgument? placed) => placed is null ? null : new PlacedDoor(placed);
 

@@ -2,33 +2,20 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Evir;
-using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Enemies.Hoppers;
-using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters;
-using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.MamaTurtles;
-using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 using SuperMetroid.Core.Enemies.Platforms;
-using SuperMetroid.Core.Enemies.Platforms.Artwork;
 using SuperMetroid.Core.Enemies.Ripper;
-using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -125,8 +112,8 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt,
                 EscapeEtecoonAnimations.StartingAt.Keys),
-            [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt,
-                EscapeDachoraAnimations.StartingAt.Keys).Union(Shown(EscapeDachoraAnimations.Segments,
+            [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Segments, EscapeDachoraAnimationsConstants.StartingAt,
+                EscapeDachoraAnimationsConstants.StartingAt.Keys).Union(Shown(EscapeDachoraAnimations.Segments,
                     [EscapeDachoraAnimations.RunningAroundLowTide, EscapeDachoraAnimations.RunningAroundHighTide])).ToHashSet(),
         });
 
@@ -233,8 +220,8 @@ internal static class EnemySheetOwnFramesVerification
         KiHunterSegment[] wings = [KiHunterSegment.WingsLeft, KiHunterSegment.WingsRight, KiHunterSegment.DetachedWings];
         return new("Ki-Hunter", KiHunterAnimations.Segments.Frames.ToHashSet(),
             KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Segments, KiHunterAnimations.StartingAt,
-                KiHunterBehavior.IsKiHunterBodyDefinition(definition) ? body
-                    : KiHunterBehavior.IsKiHunterWingDefinition(definition) ? wings
+                KiHunterBehaviorConstants.IsKiHunterBodyDefinition(definition) ? body
+                    : KiHunterBehaviorConstants.IsKiHunterWingDefinition(definition) ? wings
                     : throw new InvalidDataException($"{definition} is neither a Ki-Hunter body nor its wings."))));
     }
 

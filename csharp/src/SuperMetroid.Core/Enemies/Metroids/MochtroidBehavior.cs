@@ -1,10 +1,8 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Animation;
+﻿using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 

@@ -29,9 +29,6 @@ internal sealed class BlockAnimationPlayer
     /// <summary>The loop played, or null while none is.</summary>
     private BlockAnimationLoop? loop;
 
-    /// <summary>Whether a loop is playing.</summary>
-    public bool IsPlaying => loop is not null;
-
     /// <summary>The loop played; only a playing player has one.</summary>
     /// <exception cref="InvalidOperationException">No loop is playing.</exception>
     public BlockAnimationLoop Loop => loop ?? throw new InvalidOperationException("No block animation is playing.");

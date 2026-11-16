@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Enemies.Kago;
@@ -758,9 +757,9 @@ internal static class EnemyTrigonometryVerification
             var liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                tide.SetTideForCheck(liquid, RotationAngle.FromRaw(phase), SignedSixteenSixteen.FromParts(0, 12345));
+                tide.SetTideForCheck(liquid, RotationAngleConstants.FromRaw(phase), SignedSixteenSixteen.FromParts(0, 12345));
                 step();
-                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
+                short sample = Reference(RotationAngleConstants.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = option == LiquidTide.Small;
                 bool still = option == LiquidTide.None;
                 int scale = still ? 0 : small ? 8 : 32;

@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -16,10 +14,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
-using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks the Alcoon's typed animations through a retail room's movement and fire cues.</summary>
 internal static class AlcoonInstructionProgramDefinitionsVerification

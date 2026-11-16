@@ -27,9 +27,9 @@ internal static class EndingWavySamusWaveVerification
             AssertEqual(EndingWavySamusDefinitions.VerticalStep * age,
                 new AddedPicturedPlaneLayer(plane, VerticalScroll: EndingWavySamus.VerticalScrollAtAge(age)).VerticalScroll,
                 $"age {age}: the plane keeps the wait's scroll");
-        AssertEqual((int)short.MaxValue, new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MaxValue).VerticalScroll,
+        AssertEqual(short.MaxValue, new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MaxValue).VerticalScroll,
             "the plane keeps its farthest line below its origin");
-        AssertEqual((int)short.MinValue, new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MinValue).VerticalScroll,
+        AssertEqual(short.MinValue, new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MinValue).VerticalScroll,
             "the plane keeps its farthest line above its origin");
         AssertThrows<OverflowException>(() => _ = new AddedPicturedPlaneLayer(plane, VerticalScroll: short.MaxValue + 1),
             "a scroll past the plane's space names no plane line");

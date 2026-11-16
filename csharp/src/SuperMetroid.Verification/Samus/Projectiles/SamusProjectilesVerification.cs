@@ -38,12 +38,11 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.World;
 
 /// <summary>Projectile fixtures covering native shot production, flight, impact, artwork, and camera edges.</summary>
 internal static class SamusProjectilesVerification

@@ -42,11 +42,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-
-    /// <summary>Recognizes the two enemy definitions sharing platform movement.</summary>
-    internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.SuspensorPlatform;
-
     /// <summary>Runs the two entry points and common initializer.</summary>
     internal static void InitializePlatform(RoomEnemyPlace place)
     {

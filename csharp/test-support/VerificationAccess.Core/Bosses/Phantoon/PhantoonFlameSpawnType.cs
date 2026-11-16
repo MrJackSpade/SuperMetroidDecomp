@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Phantoon;
+﻿namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Which kind of destroyable flame Phantoon spawns; the spawn also names the flame's direction, or its column and fall delay. Its values are arbitrary.</summary>
 public enum PhantoonFlameSpawnType

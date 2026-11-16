@@ -2,10 +2,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Compatibility;
-using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

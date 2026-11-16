@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Harness;
@@ -446,7 +445,7 @@ internal static class RidleyFullMovieVerification
             samus.Health = 700; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision(fireball, samus);
-            AssertEqual((ushort)(700 - norfairDamage / 4), samus.Health, "room damage passes through native Gravity reduction");
+            AssertEqual(700 - norfairDamage / 4, samus.Health, "room damage passes through native Gravity reduction");
         }
         Console.WriteLine("Ridley fireball damage: the area rows, the loaded room's row for fireball and afterburn, and suit reduction pass.");
     }

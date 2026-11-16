@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Spatial;
 
@@ -49,7 +48,7 @@ internal static class TurnArcPicksVerification
         ];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            RotationAngle angle = RotationAngle.FromRaw(raw);
+            RotationAngle angle = RotationAngleConstants.FromRaw(raw);
             AssertEqual(byPose[angle.Sector(16)], MorphBallEyeAnimations.AimFrames.At(angle), $"Morph Ball eye angle {raw} aim");
         }
     }

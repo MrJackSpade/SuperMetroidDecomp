@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;

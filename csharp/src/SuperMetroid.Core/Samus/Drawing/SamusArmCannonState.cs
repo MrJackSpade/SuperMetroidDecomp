@@ -25,9 +25,6 @@ public sealed class SamusArmCannonState
     /// <summary>Starts a closed cover placed by <paramref name="artwork"/>'s arm-cannon placements.</summary>
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
-    /// <summary>The installed arm-cannon placements, or none before they are installed.</summary>
-    public InstalledSamusArmCannonArtwork Artwork => _artwork.ArmCannon;
-
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
     public bool IsOpen { get; internal set; }
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Assets;
@@ -7,7 +6,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

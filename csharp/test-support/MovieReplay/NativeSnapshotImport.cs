@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
-using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -331,7 +330,7 @@ internal static class NativeSnapshotImport
             "snapshot import models the lava/acid HDMA objects of its room");
         runtime.RoomFxOverlay.ImportLiquidMotion(
             stopped: !lavaAcidObjectLive,
-            tidePhase: RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase)),
+            tidePhase: RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase)),
             tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
             baseY: (runtime.RoomFxOverlay.BaseY
                 ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction)),

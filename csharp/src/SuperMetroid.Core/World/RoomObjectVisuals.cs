@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.World;
 /// family's draw requires its catalog: drawing with none bound fails, as there is no compiled copy of the pictures to show
 /// instead (#1557, #1596).
 /// </summary>
-[ArchitectureReview("context-bag", "The installed room-object visual catalogs a host binds; every member is immutable artwork data, not a service.")]
 internal sealed class RoomObjectVisuals
 {
     /// <summary>The bound catalogs, each under its own type, which names the one family it pictures.</summary>

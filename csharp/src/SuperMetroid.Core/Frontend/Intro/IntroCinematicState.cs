@@ -53,18 +53,15 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Binds the installed sprite sheets the flashbacks' Samus and projectiles draw from.</summary>
     public void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
-        spriteSheets = Ensure.NotNull(sheets);
+        SceneSheets = Ensure.NotNull(sheets);
         projectileSheets = ProjectileSheets.IntroFlashbacks(sheets);
         flashbackSamusArtwork.Sheets = sheets;
         CurrentCeresFlight?.BindSheets(sheets);
     }
 
-    /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
-    private InstalledSpriteSheets spriteSheets;
-
     /// <summary>Draws <paramref name="family"/>'s frames from the intro sheet.</summary>
     private CinematicSpriteSheet IntroSprites(CinematicSpriteFamily family) =>
-        new(spriteSheets.Get(SpriteSheetId.IntroSprites), family, crossfade.ActorShading);
+        new(SceneSheets.Get(SpriteSheetId.IntroSprites), family, crossfade.ActorShading);
 
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
     private ProjectileSheets projectileSheets;
@@ -242,7 +239,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         bool japaneseText = false)
     {
         flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
-        spriteSheets = samusArtwork.Sheets;
+        SceneSheets = samusArtwork.Sheets;
         projectileSheets = ProjectileSheets.IntroFlashbacks(samusArtwork.Sheets);
         Ensure.NotNull(overreads);
         samusOverreads = Ensure.NotNull(overreads.Samus);
@@ -491,7 +488,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // the fourteen-frame delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
                         CharacterArtwork?.CeresFlight, subtitles.Enabled,
-                        spriteSheets);
+                        SceneSheets);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -1289,7 +1286,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     private static PicturedPlaneLayer Plane(PicturedPlane pictures, Offset16<PlanePixels> scroll) => new(pictures, scroll);
 
     /// <summary>The installed sheets the scene pictures are drawn from.</summary>
-    private InstalledSpriteSheets SceneSheets =>
-        spriteSheets;
+    private InstalledSpriteSheets SceneSheets { get; set; }
 
 }

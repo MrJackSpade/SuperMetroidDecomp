@@ -43,8 +43,6 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("gameplay stays paused eight updates before a message box opens, five before the gunship's completion notice and six after a box closes, each running the music and sound queues a set number of times, one of them after closing also advancing the liquid wave, the statues' descent and a power bomb's explosion")]
 public sealed class MessageBoxPauses
 {
-    /// <summary>The updates gameplay stays paused before an ordinary box's window opens, counting the gameplay update that opened it.</summary>
-    public const int UpdatesBeforeOpening = 8;
 
     /// <summary>The updates between the accepted gunship save's closed box and the start of its saving sound's wait.</summary>
     public const int UpdatesBeforeGunshipSavingWait = 1;

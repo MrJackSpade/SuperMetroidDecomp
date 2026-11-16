@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;

@@ -28,9 +28,6 @@ public sealed class EnemyReaction
     /// </summary>
     public static EnemyReaction Ignore { get; } = new(nameof(Ignore));
 
-    /// <summary>The engine's shared reactions, which a definition may name.</summary>
-    public static IReadOnlyList<EnemyReaction> Shared { get; } = [NormalEnemyTouch, NormalEnemyShot, DudShot, Ignore];
-
     /// <summary>The reaction's name, for diagnostics.</summary>
     public string Name { get; }
 

@@ -72,9 +72,6 @@ internal static class EnemySourceDefinitions
     /// <summary>Bank $A0, which holds the 64-byte enemy headers (#1412).</summary>
     internal const int EnemyHeaderBank = 0xa00000;
 
-    /// <summary>Bank $B4, which holds the enemy graphics-set records (#1412).</summary>
-    internal const int GraphicsSetBank = 0xb40000;
-
     /// <summary>The low fifteen bits of an enemy header's tile word: the bytes of its tile set (#1412).</summary>
     internal const int EnemyHeaderTileByteCountBits = 0x7fff;
 

@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;

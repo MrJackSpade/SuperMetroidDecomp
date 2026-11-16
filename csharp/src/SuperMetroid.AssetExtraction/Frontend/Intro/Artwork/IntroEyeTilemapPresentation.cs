@@ -9,18 +9,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 public sealed class IntroEyeTilemapPresentation
 {
     /// <summary>Four installed 3-by-2 eye patches in blink selector order, each its six row-major tiles.</summary>
-    private readonly BackgroundTile[][] frames;
+    internal readonly BackgroundTile[][] frames;
 
     /// <summary>Retains the four installed eye rectangles as loaded.</summary>
     private IntroEyeTilemapPresentation(BackgroundTile[][] frames) => this.frames = frames;
-
-    /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
-    {
-        content.Append("frames", frames.Length);
-        foreach (BackgroundTile[] frame in frames)
-            content.AppendTiles("frame", frame);
-    });
 
     /// <summary>Gets the six tiles of one blink frame.</summary>
     public ReadOnlySpan<BackgroundTile> FrameTiles(int index)

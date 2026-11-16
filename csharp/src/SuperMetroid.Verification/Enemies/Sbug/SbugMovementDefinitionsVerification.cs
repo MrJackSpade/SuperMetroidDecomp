@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -138,7 +137,7 @@ internal static class SbugMovementDefinitionsVerification
             state.FaceCustomHeading(start);
             state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
             enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-            AssertEqual(RotationAngle.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
+            AssertEqual(RotationAngleConstants.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
                 $"Sbug random turn {random}");
         }
         Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");

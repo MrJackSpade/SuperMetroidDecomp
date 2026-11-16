@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -208,7 +207,7 @@ internal static class MotherBrainEffectBehaviorVerification
             {
                 Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) },
                 DroolGenerationEnabled = true,
-                NeckTurnPerUpdate = RotationAngle.FromRaw(neckAngleDelta),
+                NeckTurnPerUpdate = RotationAngleConstants.FromRaw(neckAngleDelta),
             };
             droolEnemies.MotherBrainEncounter.MotherBrain = state;
             droolEnemies.MotherBrainBehavior.Head.SpawnMotherBrainDrool(state);

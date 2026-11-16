@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
@@ -1065,22 +1066,12 @@ internal static void VerifyPowerBombColorMathWindow()
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
 internal static void VerifyScrollingSkyState()
 {
-    AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLand),
-        "$8F:C116 selects land scrolling sky");
-    AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions),
+    AssertEqual(ScrollingSky.Land, RoomMainBehavior.ScrollingSkyLand.Sky, "$8F:C116 selects land scrolling sky");
+    AssertEqual(ScrollingSky.Land, RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions.Sky,
         "$8F:C120 selects land scrolling sky before quake work");
-    AssertTrue(
-        !ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyOcean),
+    AssertEqual(ScrollingSky.Ocean, RoomMainBehavior.ScrollingSkyOcean.Sky,
         "$8F:C11B ocean wrapper is not silently treated as land sky");
-
-    AssertEqual(ScrollingSky.Land, ScrollingSkyState.SkyOf(RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions),
-        "land sky mains read the land chunk table");
-    AssertEqual(ScrollingSky.Ocean, ScrollingSkyState.SkyOf(RoomMainBehavior.ScrollingSkyOcean),
-        "the ocean main reads the ocean chunk table");
-    AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyState.SkyOf(RoomMainBehavior.None),
-        "a room main without a sky has no chunk table");
+    AssertEqual(null, RoomMainBehavior.None.Sky, "a room main without a sky has no chunk table");
 
     var sky = new ScrollingSkyState(ScrollingSky.Land);
     sky.ProcessFrame(camera: new Position16<RoomPixels>(0, 0x041f), timeIsFrozen: false);

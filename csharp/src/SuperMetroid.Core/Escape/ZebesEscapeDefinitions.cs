@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Escape;
@@ -80,17 +79,11 @@ public static class ZebesEscapeDefinitions
     public static readonly EarthquakeShake LandingQuake =
         new(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground);
 
-    /// <summary>
-    /// The room mains of the escape rooms that set off random explosions: the outdoor rooms, whose explosions skip blank
-    /// blocks, the two rooms whose shaking turns diagonal, and the rooms exploding every fourth update. The escape room
-    /// effects run their explosions in exactly these rooms, and the import pictures the explosions only for them.
-    /// </summary>
-    public static IReadOnlySet<RoomMainBehavior> ExplosionRoomMains { get; } = new HashSet<RoomMainBehavior>
-    {
-        RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions,
-        RoomMainBehavior.ShakeScreenWithRandomExplosions,
-        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal,
-        RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
-        RoomMainBehavior.RandomExplosionEveryFourthUpdate,
-    };
+    /// <summary>A lightly shaking escape room's shaking, which turns medium diagonal one update in 128.</summary>
+    public static readonly EscapeDiagonalShaking LightShakingTurnsMediumDiagonal =
+        new(LightHorizontal, MediumDiagonal, LightShakeTurnsDiagonal);
+
+    /// <summary>A medium shaking escape room's shaking, which turns strong diagonal three updates in 512.</summary>
+    public static readonly EscapeDiagonalShaking MediumShakingTurnsStrongDiagonal =
+        new(MediumHorizontal, StrongDiagonal, MediumShakeTurnsDiagonal);
 }

@@ -15,9 +15,6 @@ namespace SuperMetroid.Core.Areas.Maridia;
 [RoomLifetime]
 public sealed class MaridiaElevatubeRoomMainState
 {
-    /// <summary>Whether the selected room state runs the elevatube.</summary>
-    public bool IsActive { get; private set; }
-
     /// <summary>
     /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction.
     /// </summary>
@@ -30,21 +27,18 @@ public sealed class MaridiaElevatubeRoomMainState
     public SignedEightEight Acceleration { get; private set; }
 
     /// <summary>
-    /// Builds one room's elevatube owner, selecting whether the elevatube owns the room. The door behaviours initialize the
+    /// Builds the elevatube's ride for a room whose state runs the elevatube (#2287). The door behaviours initialize the
     /// room-main values this behaviour reads.
     /// </summary>
-    /// <param name="active">Whether the room state runs the elevatube.</param>
     /// <param name="carryover">The room-main value the previous room left, whose fraction the tube adopts.</param>
-    public MaridiaElevatubeRoomMainState(bool active, RoomMainCarryover carryover)
+    public MaridiaElevatubeRoomMainState(RoomMainCarryover carryover)
     {
-        IsActive = active;
         TrackedY = FixedCoordinate.Of(0, Ensure.NotNull(carryover).Fraction);
     }
 
     /// <summary>Applies the door behaviour for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
-        EnsureActive(DoorRoomEvent.StartsElevatubeRideFromSouth);
         Ensure.NotNull(samus);
         // Entry from the south leaves the tracked fraction as it was.
         TrackedY = TrackedY.WithWhole(MaridiaElevatubeDefinitions.SouthStartingY);
@@ -56,7 +50,6 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies the door behaviour for entry from Plasma Spark to the north.</summary>
     public void SetUpFromNorth(SamusState samus)
     {
-        EnsureActive(DoorRoomEvent.StartsElevatubeRideFromNorth);
         Ensure.NotNull(samus);
         // Entry from the north leaves the tracked fraction as it was.
         TrackedY = TrackedY.WithWhole(MaridiaElevatubeDefinitions.NorthStartingY);
@@ -66,22 +59,11 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>
-    /// Restores Samus's control, as both exit behaviours do. Room loading has already
-    /// selected a non-elevatube main behaviour, so no elevatube movement state survives.
-    /// </summary>
-    public void ResetOnExit(SamusState samus)
-    {
-        Ensure.NotNull(samus);
-        samus.Control.Unlock();
-        IsActive = false;
-    }
-
-    /// <summary>
     /// Runs the elevatube once: pin X to 128, integrate signed 1/256-pixel velocity into both
     /// the tracked height and Samus's 1/65536-pixel position through Samus's ordinary
     /// vertical collision check, then apply the game's bounded acceleration.
     /// </summary>
-    internal BlockMoveResult? Step(
+    internal BlockMoveResult Step(
 
         RoomLevelData level,
         SamusState? samus,
@@ -89,9 +71,6 @@ public sealed class MaridiaElevatubeRoomMainState
         ISamusRoomObjects roomObjects,
         RoomMainCarryover carryover)
     {
-        if (!IsActive)
-            return null;
-
         Ensure.NotNull(carryover);
         Ensure.NotNull(level);
         Ensure.NotNull(roomObjects);
@@ -117,14 +96,5 @@ public sealed class MaridiaElevatubeRoomMainState
             Velocity = candidate;
 
         return movement;
-    }
-
-    /// <summary>Rejects a door's setup behaviour when the room has not selected the elevatube.</summary>
-    private void EnsureActive(DoorRoomEvent roomEvent)
-    {
-        if (IsActive)
-            return;
-        throw new InvalidDataException(
-            $"Door setup event {roomEvent} drives the elevatube in a room whose room behaviour is not the elevatube.");
     }
 }

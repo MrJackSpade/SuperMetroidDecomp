@@ -33,4 +33,11 @@ public sealed record RoomStateSettings(
 
     /// <summary>The music data set and track the room state selects.</summary>
     public RoomMusic Music { get; init; } = Music;
+
+    /// <summary>
+    /// The turning floor the state shows (#1649, #2287), authored on the state for the import that installs floors and the
+    /// room load that binds one alike: the elevator shaft's states show the shaft's floor, whose screen is that floor alone
+    /// (#1647); the Ceres Ridley fight's state shows the floor his getaway flies over; every other state shows none.
+    /// </summary>
+    public RoomTurningFloor TurningFloor { get; init; } = RoomTurningFloor.None;
 }

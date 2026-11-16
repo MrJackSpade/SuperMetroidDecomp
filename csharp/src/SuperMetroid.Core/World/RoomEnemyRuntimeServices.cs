@@ -92,7 +92,8 @@ internal sealed class RoomEnemyRuntimeServices(
 
     /// <inheritdoc/>
     /// <remarks>Read live from the loaded room's statue sequence, whose descent step runs at the start of the update.</remarks>
-    int ITourianStatueRoom.StatueOffset => room.LoadedScope.TourianStatues.VerticalOffset;
+    int ITourianStatueRoom.StatueOffset => (room.LoadedScope.TourianStatues ?? throw new InvalidOperationException(
+        "Only the statue room, whose setup unlocks the statues, has their descent.")).VerticalOffset;
 
     /// <summary>Checks whether a requested Bomb Torizo hand room object remains active.</summary>
     public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;

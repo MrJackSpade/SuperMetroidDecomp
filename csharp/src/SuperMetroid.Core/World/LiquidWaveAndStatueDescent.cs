@@ -52,6 +52,6 @@ internal sealed class LiquidWaveAndStatueDescent
         if (!RunsThisUpdate)
             return;
         room.FxOverlay.AdvanceLiquidMotion(_system, _freeze.TimeIsFrozen);
-        room.TourianStatues.StepDescent(roomObjects);
+        room.TourianStatues?.StepDescent(roomObjects);
     }
 }

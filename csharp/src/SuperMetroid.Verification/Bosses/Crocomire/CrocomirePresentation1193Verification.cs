@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Drawing;

@@ -106,8 +106,6 @@ public sealed class TourianStatueSequence
     /// exposed as a negative background vertical offset.
     /// </summary>
     internal SignedSixteenSixteen Descent { get; private set; }
-    /// <summary>Whether the last loaded room uses <see cref="RoomSetupBehavior.RunStatueUnlockingAnimations"/>; remains true after the descent finishes; the next room builds its own sequence.</summary>
-    public bool Enabled { get; private set; }
     /// <summary>
     /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
     /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
@@ -134,15 +132,13 @@ public sealed class TourianStatueSequence
         Begin(roomObjects);
     }
 
-    /// <summary>Begins the room's statue sequence, enabling the four statue animations only for the statue-unlocking room setup.</summary>
+    /// <summary>Begins the room's statue sequence with its four statue animations; only the statue room, whose setup unlocks the statues, builds one (#2287).</summary>
     /// <remarks>
     /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its room object, and enables vertical scrolling.
-    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no statue animations.
+    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish.
     /// </remarks>
     private void Begin(RoomObjectSystem roomObjects)
     {
-        Enabled = _room.ActiveRoom?.State.SetupBehavior == RoomSetupBehavior.RunStatueUnlockingAnimations;
-        if (!Enabled) return;
         SpawnStatueAnimations();
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
@@ -184,7 +180,6 @@ public sealed class TourianStatueSequence
     /// </summary>
     public void StepBlockAnimations()
     {
-        if (!Enabled) return;
         if (_assists.Current.TourianStatuesOpen) return;
         foreach (StatueBlockAnimation statueAnimation in statues)
         {
@@ -278,7 +273,6 @@ public sealed class TourianStatueSequence
     /// </summary>
     public void StepDescent(RoomObjectSystem roomObjects)
     {
-        if (!Enabled) return;
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked)) { EnableScrolling(); return; }
         if (_descentPhase == TourianStatueDescentPhase.AwaitingReleases)
         {

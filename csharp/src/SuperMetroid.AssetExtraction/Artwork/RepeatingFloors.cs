@@ -47,10 +47,10 @@ internal static class RepeatingFloors
 
     /// <summary>
     /// Whether some retail room of <paramref name="tileset"/> repeats its turning floor beyond its edges: a room state that
-    /// shows the elevator shaft's floor (<see cref="RoomTurningFloors"/>), which the shaft repeats; Ceres Ridley's getaway
+    /// shows the elevator shaft's floor (<see cref="RoomStateSettings.TurningFloor"/>), which the shaft repeats; Ceres Ridley's getaway
     /// shows nothing beyond its floor.
     /// </summary>
     internal static bool Repeats(TilesetDefinition tileset) =>
         RetailRooms.All.SelectMany(RoomStateLists.GetStates)
-            .Any(state => RoomTurningFloors.Of(state) == RoomTurningFloor.ElevatorShaft && RoomTilesets.Get(state.GraphicsSet) == tileset);
+            .Any(state => state.TurningFloor == RoomTurningFloor.ElevatorShaft && RoomTilesets.Get(state.GraphicsSet) == tileset);
 }

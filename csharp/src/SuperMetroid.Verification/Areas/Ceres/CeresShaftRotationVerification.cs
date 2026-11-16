@@ -16,7 +16,7 @@ internal static class CeresShaftRotationVerification
                 CeresShaftRotationDefinitions.TiltHoldFrames[Math.Abs(record - CeresShaftRotationDefinitions.FullTiltSteps)],
                 $"shaft hold of native record {record}");
         var carryover = new RoomMainCarryover();
-        var state = new CeresElevatorShaftRoomMainState(active: true, carryover);
+        var state = new CeresElevatorShaftRoomMainState(carryover);
         ushort phaseWord = 34, timer = 60;
         int updates = 0;
         // Four full sweeps: compare every held frame as well as every tilt

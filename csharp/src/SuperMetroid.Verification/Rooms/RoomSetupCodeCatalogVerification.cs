@@ -25,9 +25,9 @@ internal static class RoomSetupCodeCatalogVerification
     /// </summary>
     internal static void VerifyRoomSetupCodeCatalog()
     {
-        IReadOnlyDictionary<ushort, RoomSetupBehavior> routines = RoomBehaviorDefinitions.SetupRoutines;
+        IReadOnlyDictionary<ushort, RoomSetupBehavior> routines = RoomBehaviorRoutines.SetupRoutines;
         ushort[] catalog = [.. routines.Keys];
-        foreach (RoomSetupBehavior acting in Enum.GetValues<RoomSetupBehavior>().Where(callback => callback != RoomSetupBehavior.None))
+        foreach (RoomSetupBehavior acting in RoomSetupBehavior.All.Where(callback => callback != RoomSetupBehavior.None))
         {
             AssertEqual(1, routines.Values.Count(callback => callback == acting),
                 $"room-setup behaviour {acting} is one routine");
@@ -69,10 +69,10 @@ internal static class RoomSetupCodeCatalogVerification
         {
             AssertEqual(callback == RoomSetupBehavior.None,
                 SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer) ||
-                    RoomBehaviorDefinitions.DisplayOnlySetupRoutines.Contains(pointer),
+                    RoomBehaviorRoutines.DisplayOnlySetupRoutines.Contains(pointer),
                 $"room-setup routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once or acts only on the display");
         }
-        foreach (ushort pointer in RoomBehaviorDefinitions.DisplayOnlySetupRoutines)
+        foreach (ushort pointer in RoomBehaviorRoutines.DisplayOnlySetupRoutines)
         {
             AssertTrue(!SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
                 $"display-only room-setup routine $8F:{pointer:X4} does not return at once");
@@ -88,11 +88,9 @@ internal static class RoomSetupCodeCatalogVerification
             AssertTrue(retailSetupPointers.Contains(pointer),
                 $"catalogued room-setup callback $8F:{pointer:X4} occurs in a retail state");
         }
-        AssertTrue(RoomBehaviorDefinitions.CeresHazeSetups.Contains(
-                RoomSetupBehavior.SealCeresDoorAndSpawnHaze),
+        AssertTrue(RoomSetupBehavior.SealCeresDoorAndSpawnHaze.SpawnsCeresHaze,
             "Ceres solid-door setup declares haze side effect");
-        AssertTrue(!RoomBehaviorDefinitions.CeresHazeSetups.Contains(
-                RoomSetupBehavior.SetMediumHorizontalRoomShaking),
+        AssertTrue(!RoomSetupBehavior.SetMediumHorizontalRoomShaking.SpawnsCeresHaze,
             "unrelated setup does not acquire Ceres haze");
 
         Console.WriteLine(

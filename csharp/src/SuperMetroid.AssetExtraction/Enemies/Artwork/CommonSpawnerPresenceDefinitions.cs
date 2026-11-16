@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Tourian;
@@ -71,7 +72,7 @@ internal static class CommonSpawnerPresenceDefinitions
     private static readonly CommonSpawnerPresence StatueUnlocking = new() { Setups = [RoomSetupBehavior.RunStatueUnlockingAnimations] };
 
     /// <summary>The escape rooms that set off random explosions.</summary>
-    private static readonly CommonSpawnerPresence EscapeExplosions = new() { Mains = [.. ZebesEscapeDefinitions.ExplosionRoomMains] };
+    private static readonly CommonSpawnerPresence EscapeExplosions = new() { Mains = [.. RoomMainBehavior.All.Where(main => main.SetsOffEscapeExplosions)] };
 
     /// <summary>The Ceres elevator's arrival pad and platform.</summary>
     private static readonly CommonSpawnerPresence ElevatorArrival = new()

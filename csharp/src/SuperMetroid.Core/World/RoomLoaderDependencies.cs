@@ -44,9 +44,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The room effects the entered room's enemies request as they load.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 
-    /// <summary>The escapes' room effects, which a load sets up when Samus enters an escape room.</summary>
-    public required EscapeRoomEffects EscapeEffects { get; init; }
-
     /// <summary>The game's clock, which loading a saved game restores.</summary>
     public required GameTimeState GameTime { get; init; }
 

@@ -7,11 +7,13 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room-main behaviours: Ceres falling debris, the Crocomire comeback, block animations, and elevator drawing rules.
+/// The room mains' work that reads the session (#2287): Ceres falling debris and the Crocomire comeback, which those rooms'
+/// mains run, the block animations every room runs, and elevator drawing rules.
 /// </summary>
 internal sealed class RoomMainRoutines
 {
@@ -35,8 +37,7 @@ internal sealed class RoomMainRoutines
     /// <summary>The hidden-wall branch of Crocomire's room shaking.</summary>
     internal void RunCrocomireComebackRoomMain(RoomScope room)
     {
-        if (_room.ActiveRoom?.State.MainBehavior != RoomMainBehavior.CrocomireRoomShaking ||
-            room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
+        if (room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
             boss.Body.Presence.HasAny(EnemyPresence.Hidden) ||
             boss.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
             return;
@@ -58,9 +59,6 @@ internal sealed class RoomMainRoutines
     internal static bool ShouldPublishFacingForwardElevatorDoorSideEffects(
         ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
 
-    /// <summary>Most recent Ceres elevator shaft room-main call.</summary>
-    public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; internal set; }
-
     /// <summary>
     /// The block animations' step: gameplay and the door
     /// transition's scroll and every fade step call it. The X-Ray Scope's setup
@@ -73,7 +71,7 @@ internal sealed class RoomMainRoutines
         // The treadmills, the effect's and the one a Wrecked Ship entrance door starts, show a frame a pass only after
         // Phantoon is defeated.
         room.BlockAnimations.Step(_system.HasDefeatedAnyOf(_room.LoadedRoom.Area, DefeatedBosses.AreaBoss), room.ArtworkFrames);
-        room.TourianStatues.StepBlockAnimations();
+        room.TourianStatues?.StepBlockAnimations();
     }
 
     /// <summary>
@@ -87,15 +85,15 @@ internal sealed class RoomMainRoutines
     /// Executes the Falling Tile room main. It samples the existing RNG
     /// value rather than generating a new one, preserving subsequent random consumers.
     /// </summary>
-    internal void RunCeresFallingDebrisRoomMain(RoomScope room)
+    /// <param name="room">The pre-elevator hall.</param>
+    /// <param name="debris">The hall's countdown to the next falling tile.</param>
+    internal void RunCeresFallingDebrisRoomMain(RoomScope room, CeresFallingDebrisRoomMainState debris)
     {
-        if (_room.ActiveRoom?.State.MainBehavior !=
-                RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris ||
-            room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
+        if (room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             return;
 
         // The countdown starts from what the previous room's main left, normally the shaft's turn step.
-        if (!room.CeresFallingDebris.Step())
+        if (!debris.Step())
             return;
 
         int random = _system.RandomNumber;

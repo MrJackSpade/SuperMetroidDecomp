@@ -85,14 +85,12 @@ internal static class RoomScopeVerification
             "the held beam charge is the session's, shared by both rooms");
         VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
-            !ReferenceEquals(source.ColourEffects, destination.ColourEffects) && !ReferenceEquals(source.CeresHaze, destination.CeresHaze) &&
-            !ReferenceEquals(source.BlockAnimations, destination.BlockAnimations) &&
-            !ReferenceEquals(source.TourianStatues, destination.TourianStatues),
-            "the destination builds its own FX, animated tiles, haze and statue sequence");
-        VerificationAssertions.AssertTrue(!ReferenceEquals(source.MaridiaElevatube, destination.MaridiaElevatube) &&
-            !ReferenceEquals(source.CeresElevatorShaft, destination.CeresElevatorShaft) &&
-            !destination.MaridiaElevatube.IsActive && !destination.CeresElevatorShaft.IsActive,
-            "the destination builds its own room mains, inactive in a room that does not select them");
+            !ReferenceEquals(source.ColourEffects, destination.ColourEffects) &&
+            !ReferenceEquals(source.BlockAnimations, destination.BlockAnimations),
+            "the destination builds its own FX and animated tiles");
+        VerificationAssertions.AssertTrue(destination.CeresHaze is null && destination.TourianStatues is null &&
+            destination.Main is null && destination.MaridiaElevatube is null && destination.CeresElevatorShaft is null,
+            "a room whose state runs no main and whose setup spawns nothing composes no main, haze or statue sequence (#2287)");
         VerificationAssertions.AssertEqual(heatPhase, runtime.ColourEffectSession.PublishedHeatPhase,
             "the palette-FX heat phase survives the load on the session");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&

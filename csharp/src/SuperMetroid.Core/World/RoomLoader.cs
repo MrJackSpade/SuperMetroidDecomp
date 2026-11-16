@@ -58,7 +58,6 @@ internal sealed class RoomLoader
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Sets up the escape's room effects when entering the relevant room.</summary>
-    private readonly EscapeRoomEffects _escapeEffects;
     /// <summary>Restores the save slot's accumulated game time.</summary>
     private readonly GameTimeState _gameTime;
     /// <summary>Holds HUD values carried into the loaded room.</summary>
@@ -122,7 +121,6 @@ internal sealed class RoomLoader
         _enemySession = dependencies.EnemySession;
         _bossArtwork = dependencies.BossArtwork;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
-        _escapeEffects = dependencies.EscapeEffects;
         _gameTime = dependencies.GameTime;
         _hud = dependencies.Hud;
 
@@ -799,17 +797,9 @@ internal sealed class RoomLoader
         // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
         scope.BlockAnimations = blockAnimations;
-        var maridiaElevatube = new MaridiaElevatubeRoomMainState(
-            active: room.State.MainBehavior == RoomMainBehavior.MaridiaElevatube,
-            _room.RoomMainCarryover);
-        scope.MaridiaElevatube = maridiaElevatube;
-        var ceresElevatorShaft = new CeresElevatorShaftRoomMainState(
-            active: room.State.MainBehavior == RoomMainBehavior.CeresElevatorShaft &&
-                door.EntersCeresElevatorShaft,
-            _room.RoomMainCarryover);
-        scope.CeresElevatorShaft = ceresElevatorShaft;
-        scope.CeresFallingDebris = new CeresFallingDebrisRoomMainState(_room.RoomMainCarryover);
-        scope.EscapeDiagonalQuake = new EscapeDiagonalQuakeState(_room.RoomMainCarryover);
+        // The room composes the main its state names, with the state that main keeps: the elevatube's ride and the
+        // elevator shaft's turn, which the door's setup below starts, a sky, debris or a diagonal quake (#2287).
+        room.State.MainBehavior.Compose(scope);
         // Ceres's elevator door setup levels the shaft about its centre before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and the rotating elevator's steam a single authoritative
@@ -853,15 +843,6 @@ internal sealed class RoomLoader
             _backgroundScroll.PrepareDoorOpeningDestination(camera, parallaxBasis);
         }
 
-        // The room-main behaviour runs even in Crateria's rock room, whose background stays its own background.
-        // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
-        // setup starts, not to the room's main behaviour.
-        RoomEffectDefinition? selectedFx = room.State.Fx?.Select(door);
-        bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupBehavior);
-        scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainBehavior)
-            ? new ScrollingSkyState(ScrollingSkyState.SkyOf(room.State.MainBehavior), skyHasBands)
-            : null;
-
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
         // The elevator shaft and Ceres Ridley's arena show their tileset's turning floor, which the shaft's door and Ridley
         // then draw over (#1349, #1467); every other room shows none (#1649).
@@ -878,9 +859,11 @@ internal sealed class RoomLoader
         roomFxOverlay.BindAudioRequests(_audioRequests);
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
-        scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
-            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss),
-            viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
+        // Only a room whose setup spawns the Ceres haze has one (#2287).
+        scope.CeresHaze = room.State.SetupBehavior.SpawnsCeresHaze
+            ? new CeresHazeState(_system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss),
+                viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
+            : null;
         // Every room loads with Samus: a new game's Ceres start has initialized her before its first room loads.
         SamusState loadingSamus = _player.IntroducedSamus;
         loadingSamus.LiquidPhysics.ConfigureFor(roomFxOverlay);
@@ -949,9 +932,16 @@ internal sealed class RoomLoader
         // those setups rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetup(door, roomObjects, blockAnimations, ceresElevatorShaft, maridiaElevatube);
+        _doorTransition.RunDoorSetup(door, roomObjects, blockAnimations, scope.MaridiaElevatube);
         // The room state's setup runs right after the door's.
-        RoomStateSetup.Run(room, assets.LevelData, roomObjects, destinationCamera.Scrolls, _system);
+        room.State.SetupBehavior.PlaceRoomObjects(new RoomSetupPlacing
+        {
+            Room = room,
+            Level = assets.LevelData,
+            RoomObjects = roomObjects,
+            Scrolls = destinationCamera.Scrolls,
+            System = _system,
+        });
 
         if (entry.RunDoorClosingObject)
         {
@@ -1023,19 +1013,27 @@ internal sealed class RoomLoader
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
                     _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row));
         }
-        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupBehavior, enemies, scope.EscapeDiagonalQuake);
+        // The room state's setup starts its earthquake and its projectile once the enemies are loaded. The pre-Phantoon
+        // room's setup holds its projectile place in the pool that Enemies.Load has just cleared; its room has no gate whose
+        // projectile the step below spawns, so the two never meet (#2287).
+        room.State.SetupBehavior.StartWithRoomEnemies(new RoomSetupEnemiesLoaded
+        {
+            Enemies = enemies,
+            System = _system,
+            Carryover = _room.RoomMainCarryover,
+        });
         // Gate setup runs while the room-object population is constructed, but Enemies.Load
         // subsequently clears the shared projectile pool. Consume those setup
         // requests here—the first point matching the game's completed room teardown—
         // so the closed actor survives into the initial viewport.
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, enemies);
-        // The pre-Phantoon room's setup holds its projectile place in the pool that Enemies.Load has just cleared.
-        if (room.State.SetupBehavior == RoomSetupBehavior.HoldPrePhantoonProjectilePlace)
-            enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomColourEffects, enemies);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
         _enemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, roomColourEffects);
-        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies);
+        // Only the statue room, whose setup unlocks the statues, has their sequence (#2287).
+        scope.TourianStatues = room.State.SetupBehavior.UnlocksTourianStatues
+            ? new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomColourEffects, roomObjects, enemies)
+            : null;
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
@@ -1167,7 +1165,7 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
-        if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior))
+        if (scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft)
             return RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet);
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, scope.Looks), []);

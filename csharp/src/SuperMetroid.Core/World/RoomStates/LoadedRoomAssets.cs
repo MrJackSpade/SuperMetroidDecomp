@@ -73,7 +73,7 @@ public sealed class LoadedRoomAssets
     /// shows none (<see cref="RoomTurningFloor.None"/>), whose tileset installs none.
     /// </summary>
     /// <exception cref="InvalidDataException">The state shows a floor, but none is installed for the room's tileset.</exception>
-    public RoomFloor? CreateFloor() => RoomTurningFloors.ShowsOne(Room.State) ? new RoomFloor(Pictures.FloorOf(Tileset)) : null;
+    public RoomFloor? CreateFloor() => Room.State.TurningFloor != RoomTurningFloor.None ? new RoomFloor(Pictures.FloorOf(Tileset)) : null;
 
     /// <summary>
     /// Builds the room's grid from its installed level, with its own terrain beyond the room for this room's lifetime.

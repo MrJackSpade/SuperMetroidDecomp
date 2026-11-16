@@ -174,9 +174,9 @@ internal static class RoomDefinitionIntegrationVerification
             }
         }
 
-        foreach (ushort pointer in RoomBehaviorDefinitions.MainRoutines.Keys)
+        foreach (ushort pointer in RoomBehaviorRoutines.MainRoutines.Keys)
             forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
-        foreach (ushort pointer in RoomBehaviorDefinitions.SetupRoutines.Keys)
+        foreach (ushort pointer in RoomBehaviorRoutines.SetupRoutines.Keys)
             forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, statePointers.Count,

@@ -231,9 +231,9 @@ internal sealed class SuperMetroidRuntime
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         LiquidWaveAndStatueDescent = new LiquidWaveAndStatueDescent(Freeze, System, LiquidWaveAndStatueDescentOrder);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
-        EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
+        EscapeEffects = new EscapeRoomEffects(Freeze, Clock, System);
         RoomObjectVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -572,7 +572,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs the owners before the game state's phase: Ceres haze, the suit transformation, Phantoon's wave and blending, and room effect overlay FX.</summary>
     private void RunEffectsBeforePhase()
     {
-        Room.LoadedScope.CeresHaze.Step();
+        Room.LoadedScope.CeresHaze?.Step();
 
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
 
@@ -944,45 +944,26 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Runs the scrolling sky, block animations, escape effects, the elevatube and the room main behaviours.</summary>
+    /// <summary>Runs the block animations and the room's main behaviour.</summary>
     private void RunRoomMains(RuntimeFramePolicy policy)
     {
-        // Landing Site's room main advances the sky bands after ordinary gameplay logic.
-        if (Room.ScrollingSky is not null && Room.Camera is not null)
-            Room.ScrollingSky.ProcessFrame(Room.Camera.PixelPosition, timeIsFrozen: Freeze.TimeIsFrozen);
-
         RoomMains.RunBlockAnimations(Room.LoadedScope);
-        EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope);
 
-        // Maridia's elevatube runs with the room mains, after gameplay drawing and before the room shakes.
-        if (Room.LoadedScope.MaridiaElevatube.IsActive)
+        // The room's main runs after gameplay drawing and the HUD, and before the room shakes (#2287). The Ceres elevator
+        // shaft's main publishes a tilt for the following frame's presentation and may change the outer game-state loop to
+        // the Ceres elevator state only while main gameplay runs it.
+        Room.LoadedScope.Main?.Run(new RoomMainUpdate
         {
-            if (Room.LevelData is null)
-                throw new InvalidOperationException("Maridia elevatube has no active room level.");
-            _ = Room.LoadedScope.MaridiaElevatube.Step(
-
-                Room.LevelData,
-                Player.Samus,
-                Clock.Counter,
-                Room.LoadedScope.RoomObjects,
-                Room.RoomMainCarryover);
-        }
-
-        // The active room's room main runs with Landing Site's above: after gameplay drawing and the HUD, and before
-        // the room shakes. The Ceres room main publishes a tilt for the following frame's presentation and may
-        // change the outer game-state loop to the Ceres elevator state only while main gameplay runs it.
-        RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
-            Player.Samus,
-            Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
-            allowDeparture: policy.AllowCeresElevatorDeparture,
-            Room.RoomMainCarryover);
-        if (RoomMains.LastCeresElevatorShaftRoomMain.TiltChanged)
-            Display.ActiveTurningFloor = RoomMains.LastCeresElevatorShaftRoomMain.Transform;
-
-        RoomMains.RunCeresFallingDebrisRoomMain(Room.LoadedScope);
-        RoomMains.RunCrocomireComebackRoomMain(Room.LoadedScope);
-        if (Room.ActiveRoom?.State.MainBehavior == RoomMainBehavior.CeresRidleyGetaway)
-            Room.LoadedScope.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(Player.IntroducedSamus, Clock.Counter);
+            Room = Room.LoadedScope,
+            Mains = RoomMains,
+            Escape = EscapeEffects,
+            Player = Player,
+            FrameCounter = Clock.Counter,
+            TimeIsFrozen = Freeze.TimeIsFrozen,
+            Display = Display,
+            Carryover = Room.RoomMainCarryover,
+            AllowCeresElevatorDeparture = policy.AllowCeresElevatorDeparture,
+        });
     }
 
     /// <summary>Decrements Samus's hurt timers and the projectile interaction timer.</summary>
@@ -1043,7 +1024,7 @@ internal sealed class SuperMetroidRuntime
             MessageBoxLayer.Capture(MessageBox, Room.Scope?.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
-            Room.LoadedScope.TourianStatues.Enabled);
+            Room.LoadedScope.TourianStatues is not null);
         return new(Display.Latched, frameEnd, new FramePaint(PublishShading(),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
@@ -1100,7 +1081,7 @@ internal sealed class SuperMetroidRuntime
         Ensure.NotNull(assists);
         bool statuesOpening = !Assists.Current.TourianStatuesOpen && assists.TourianStatuesOpen;
         Assists.Rebind(assists);
-        if (statuesOpening && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartWithStatuesOpen(Room.LoadedScope.RoomObjects);
+        if (statuesOpening) Room.LoadedScope.TourianStatues?.RestartWithStatuesOpen(Room.LoadedScope.RoomObjects);
     }
 
     /// <summary>

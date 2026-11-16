@@ -275,7 +275,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.Close<PauseMenuState>();
             session.GameState = SuperMetroidGameState.PausingDarkening;
         }
-        else if (session.GameplayRuntime.RoomMains.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
+        else if (session.GameplayRuntime.Room.LoadedScope.CeresElevatorShaft is { DepartureRequestedThisFrame: true })
         {
             // The elevator has already selected standing pose, locked Samus, and
             // published its game state. The following update owns the

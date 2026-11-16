@@ -69,7 +69,6 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
-        enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);

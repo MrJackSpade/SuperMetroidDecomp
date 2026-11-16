@@ -8,26 +8,34 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>
 /// The boss artwork the host has installed, rebound when it reloads artwork (#1395). The runtime owns one for the
-/// session; each room's bosses read through it, so a rebinding reaches bosses already in the room.
+/// session; each room's bosses read through it, so a rebinding reaches bosses already in the room. Every member is
+/// installed from the start and rebound only to other installed artwork (#2246, #2269).
 /// </summary>
 /// <param name="ceresRidleyGetawayBoostDelays">The installed delays Ceres Ridley's getaway wing frames leave behind.</param>
 /// <param name="escapeTypewriterPresentation">The escape typewriters' installed text.</param>
+/// <param name="motherBrainRainbowColors">Mother Brain's installed rainbow-beam colours.</param>
+/// <param name="kraidEyes">Kraid's installed eye colours.</param>
+/// <param name="bodySheets">Every boss's installed body sheet.</param>
 public sealed class BossArtworkBinding(CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays,
-    EscapeTypewriterPresentation escapeTypewriterPresentation)
+    EscapeTypewriterPresentation escapeTypewriterPresentation, MotherBrainRainbowBeamColours motherBrainRainbowColors,
+    KraidEyeColours kraidEyes, BossBodySheets bodySheets)
 {
     /// <summary>
-    /// Kraid's installed eye colours, which his eye glow reads back (#1512), or null before any are installed; the rest of
+    /// Kraid's installed eye colours, which his eye glow reads back (#1512), rebound with the bosses' artwork; the rest of
     /// the bosses' installed artwork is pre-coloured into their sheets by the import (#1583).
     /// </summary>
-    public KraidEyeColours? KraidEyes { get; set; }
+    public KraidEyeColours KraidEyes
+    {
+        get;
+        set => field = Ensure.NotNull(value);
+    } = Ensure.NotNull(kraidEyes);
 
-    /// <summary>Mother Brain's installed rainbow-beam colors, bound with the map presentation.</summary>
-    public MotherBrainRainbowBeamColours? MotherBrainRainbowColors { get; set; }
-
-    /// <summary>Mother Brain's installed rainbow-beam colours; a beam that shows fails when none are installed.</summary>
-    /// <exception cref="InvalidOperationException">No rainbow-beam colours are installed.</exception>
-    internal MotherBrainRainbowBeamColours RainbowBeamColours() =>
-        MotherBrainRainbowColors ?? throw new InvalidOperationException("No Mother Brain rainbow-beam colours are installed to show her beam.");
+    /// <summary>Mother Brain's installed rainbow-beam colours, rebound with the map presentation.</summary>
+    public MotherBrainRainbowBeamColours MotherBrainRainbowColors
+    {
+        get;
+        set => field = Ensure.NotNull(value);
+    } = Ensure.NotNull(motherBrainRainbowColors);
 
     /// <summary>
     /// The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, installed from the start and rebound with
@@ -46,11 +54,13 @@ public sealed class BossArtworkBinding(CeresRidleyGetawayBoostDelays ceresRidley
         set => field = Ensure.NotNull(value);
     } = Ensure.NotNull(escapeTypewriterPresentation);
 
-    /// <summary>Every boss's installed body sheet, or null before any is installed (#1466).</summary>
-    public BossBodySheets? BodySheets { get; set; }
+    /// <summary>Every boss's installed body sheet (#1466), rebound with the bosses' artwork.</summary>
+    public BossBodySheets BodySheets
+    {
+        get;
+        set => field = Ensure.NotNull(value);
+    } = Ensure.NotNull(bodySheets);
 
-    /// <summary><paramref name="owner"/>'s installed body sheet; a boss that draws its body fails when none is installed.</summary>
-    /// <exception cref="InvalidOperationException">No body sheets are installed.</exception>
-    internal BossBodySheet Body(BossBodyOwner owner) =>
-        (BodySheets ?? throw new InvalidOperationException($"No boss body sheets are installed to draw {owner}.")).Of(owner);
+    /// <summary><paramref name="owner"/>'s installed body sheet.</summary>
+    internal BossBodySheet Body(BossBodyOwner owner) => BodySheets.Of(owner);
 }

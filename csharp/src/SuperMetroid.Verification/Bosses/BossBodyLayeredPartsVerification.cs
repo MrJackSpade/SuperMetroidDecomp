@@ -37,7 +37,7 @@ internal static class BossBodyLayeredPartsVerification
     {
         BossSourceArtwork frames = InstalledFixtures.BossArtwork;
         BossBodySheets sheets = InstalledFixtures.BossBodySheets;
-        int bodies = CheckCrocomireMelt(frames, sheets) + CheckKraidHead(frames, sheets) + CheckPhantoonEye(frames, sheets);
+        int bodies = CheckCrocomireMelt(frames, sheets) + CheckKraidHead(frames) + CheckPhantoonEye(frames, sheets);
         CheckPartShowingNothing(sheets.Of(BossBodyOwner.Crocomire));
         Console.WriteLine($"  Boss body parts: {bodies} bodies layer their parts as their frames composed them; a part showing nothing hides nothing.");
     }
@@ -95,10 +95,9 @@ internal static class BossBodyLayeredPartsVerification
     /// it: his growth writes every word of his body and the head it rises with in the upper tier, which draws them in front of
     /// the sprites (#1634), and leaves each head pose's words as they are. Returns the bodies compared.
     /// </summary>
-    private static int CheckKraidHead(BossSourceArtwork frames, BossBodySheets sheets)
+    private static int CheckKraidHead(BossSourceArtwork frames)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.BossArtworkBinding.BodySheets = sheets;
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         state.InitializeBodyLayer();
         state.ShowBody();

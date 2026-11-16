@@ -268,7 +268,7 @@ internal static class NativeSnapshotMotherBrainImport
         var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
-        BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The runtime installs no boss body sheets.");
+        BossBodySheets sheets = runtime.BossArtwork.BodySheets;
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);

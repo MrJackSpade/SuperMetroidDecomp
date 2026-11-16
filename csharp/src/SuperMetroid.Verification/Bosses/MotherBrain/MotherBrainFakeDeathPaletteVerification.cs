@@ -74,7 +74,6 @@ internal static class MotherBrainFakeDeathPaletteVerification
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.BossArtworkBinding.MotherBrainRainbowColors = InstalledFixtures.Maps.MotherBrainRainbowBeamColours;
         return enemies;
     }
 

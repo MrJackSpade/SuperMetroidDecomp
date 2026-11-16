@@ -211,7 +211,7 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
 
-            runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidColors?.Eyes();
+            runtime.BossArtwork.KraidEyes = (EnemyTiles.Bosses.KraidColors ?? throw new InvalidOperationException("The enemy artwork holds Kraid's colours.")).Eyes();
 
             runtime.Artwork.SamusBodyArt = SamusBody.Gameplay;
             runtime.RoomObjectVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;

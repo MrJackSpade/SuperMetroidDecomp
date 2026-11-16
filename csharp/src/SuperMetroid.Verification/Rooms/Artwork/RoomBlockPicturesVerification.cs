@@ -355,7 +355,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        BossBodySheet sheet = (runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("No boss body sheets are installed.")).Of(owner);
+        BossBodySheet sheet = runtime.BossArtwork.BodySheets.Of(owner);
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         byte[] loaded = runtime.ComposedVram();
         // A frame pictured under a room animation's frames (Crocomire's melt states, #1513) shows those frames' characters

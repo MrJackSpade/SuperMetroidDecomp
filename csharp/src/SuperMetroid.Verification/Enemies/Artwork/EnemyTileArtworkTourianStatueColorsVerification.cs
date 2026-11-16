@@ -185,7 +185,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             ISnesAddressSpace source, ImportEnemyArtwork artwork)
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.BossArtwork.KraidEyes = artwork.Bosses.KraidColors?.Eyes();
+            runtime.BossArtwork.KraidEyes = (artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The artwork holds Kraid's colours.")).Eyes();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

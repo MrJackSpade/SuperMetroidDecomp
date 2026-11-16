@@ -1702,7 +1702,6 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var actual=new SnesCgram(); var vram=new SnesVram();
-                enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
                 new Action<RoomEnemyPlace>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.Places.InUpdateOrder[0]);
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
                 DraygonEnemyState initialized = enemies.Draygon ?? throw new InvalidOperationException("Verification requires enemies.Draygon.");

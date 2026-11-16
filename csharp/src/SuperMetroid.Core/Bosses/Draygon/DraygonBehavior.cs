@@ -87,11 +87,11 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles, Shots);
         Intro = new DraygonIntro(dependencies.EffectActors, Turrets);
         Movement = new DraygonMovement(dependencies.EffectActors);
-        Swoops = new DraygonSwoops(_room, Parts, Turrets, Movement);
-        Goop = new DraygonGoop(_room, Parts, Turrets, Movement);
-        Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.EffectActors, dependencies.ScrollCap, Parts, Turrets);
+        Swoops = new DraygonSwoops(_room, Turrets, Movement);
+        Goop = new DraygonGoop(_room, Turrets, Movement);
+        Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.EffectActors, dependencies.ScrollCap, Turrets);
         Death = new DraygonDeath(_room, dependencies.EffectActors, dependencies.DeathsAndDrops, Parts);
-        Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Parts, Grab);
+        Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Grab);
     }
 
     /// <summary>Runs Draygon's body per-frame behaviour.</summary>

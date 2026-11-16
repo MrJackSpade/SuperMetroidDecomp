@@ -144,7 +144,7 @@ internal static class CrocomireStateQuantitiesVerification
     /// <summary>Runs the production rise beside the native reference until the reference clears the surface.</summary>
     private static void CompareRise(ushort acceleration, ushort speed, ushort subposition, ushort y, string name)
     {
-        (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
+        (_, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
         state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);

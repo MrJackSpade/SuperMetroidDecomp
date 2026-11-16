@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Rendering.Direct3D11.Device;

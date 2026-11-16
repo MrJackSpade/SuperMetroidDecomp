@@ -19,19 +19,16 @@ internal sealed class DraygonGrab
     private readonly RoomEffectActors _effectActors;
     /// <summary>Restricts camera scrolling while Draygon controls the arena.</summary>
     private readonly SamusScrollCap _scrollCap;
-    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
-    private readonly DraygonParts _parts;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomEffectActors effectActors, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
+    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomEffectActors effectActors, SamusScrollCap scrollCap, DraygonTurrets turrets)
     {
         _frameResults = frameResults;
         _room = room;
         _effectActors = effectActors;
         _scrollCap = scrollCap;
-        _parts = parts;
         _turrets = turrets;
     }
 

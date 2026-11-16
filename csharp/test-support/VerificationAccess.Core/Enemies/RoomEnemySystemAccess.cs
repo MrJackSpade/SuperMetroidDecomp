@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Enemies;
 
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;

@@ -14,17 +14,14 @@ internal sealed class DraygonCombat
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Evaluates Samus and projectile contacts against Draygon's linked parts.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
-    private readonly DraygonParts _parts;
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     private readonly DraygonGrab _grab;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyCollision collision, DraygonParts parts, DraygonGrab grab)
+    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyCollision collision, DraygonGrab grab)
     {
         _projectiles = projectiles;
         _collision = collision;
-        _parts = parts;
         _grab = grab;
     }
 

@@ -473,9 +473,9 @@ public sealed class SamusBombProjectileSystem
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         if (!shootHeld)
         {
-            // The outer Morph-Ball step cancels charge before testing HUD selection
-            //. Releasing Shoot must also cancel with Power Bombs selected;
-            // only held Shoot reaches their branch. Runtime consumes the shade/SFX bridge.
+            // The Morph Ball step cancels a charge before it reads the HUD selection: releasing Shoot cancels it even
+            // with Power Bombs selected, and only held Shoot reaches their branch. The Morph Ball update applies the
+            // cancelled charge's shade and sound.
             return samus.BeamCharge.IsCharging
                 ? BombSpreadAdmission.ChargeCancelled
                 : BombSpreadAdmission.NotApplicable;
@@ -878,8 +878,7 @@ public sealed class SamusBombProjectileSystem
 
         // The shot reaction selects the temporary generic trigger room object for both solid-block collision and
         // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
-        // object, finds the resident actor at the same block, and publishes this projectile
-        // projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
+        // object, finds the resident actor at the same block, and publishes this projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
         // to a shootable block, so narrowing this seam to colored doors strands the progression room object.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
@@ -892,12 +891,9 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The four ordinary blue-door cap orientations lead to
-        // the blue door setup regardless of whether the collision came from the shot or bomb
-        // step. Normal bombs use the bomb projectile family and are accepted; the Power
-        // Bomb family is rejected inside the shared setup. Treating these
-        // private door behaviours as ordinary shot-block reactions both crashed on a blue door and lost
-        // the game behavior that allows a bomb placed beside a blue door to open it.
+        // The four ordinary blue-door cap orientations lead to the blue door setup whether the collision came from the
+        // shot or the bomb step. Normal bombs use the bomb projectile family and are accepted, so a bomb placed beside a
+        // blue door opens it; the Power Bomb family is rejected inside the shared setup.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetBlueDoorOrientation(out _))
         {
@@ -951,7 +947,7 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
             // Gate shot blocks reuse shootable collision with the private gate-trigger behaviours. They
-            // select temporary trigger room objects rather than the ordinary 0..F bomb table.
+            // select temporary trigger room objects rather than the ordinary bomb reactions.
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
@@ -1065,8 +1061,8 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;
-            // Samus right of the bomb launches right. Later overlapping bombs overwrite
-            // earlier ones exactly as the ascending assembly loop does.
+            // Samus right of the bomb launches right. Later overlapping bombs, in place order, overwrite
+            // earlier ones.
             publishedDirection = samus.Position.X.Whole == bomb.Position.X.Whole
                 ? SamusBombJumpDirection.Straight
                 : CoordinateAxis.Difference(samus.Position.X.Whole, bomb.Position.X.Whole) < 0

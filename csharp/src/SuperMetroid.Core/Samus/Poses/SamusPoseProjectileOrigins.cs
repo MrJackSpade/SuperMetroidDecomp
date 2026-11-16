@@ -8,8 +8,7 @@ internal static class SamusPoseProjectileOrigins
     /// <summary>
     /// How far above Samus's centre the projectiles and Grapple of <paramref name="pose"/> start, in pixels: its authored
     /// height, or what an unauthored pose reads (<see cref="SamusUnauthoredPoseDefinitions"/>). The drained poses' origin
-    /// is four pixels below the centre. The original read their correction as a byte, a height of 252; the drained poses
-    /// cannot shoot or fire the Grapple, so nothing fired from them reads it, and that representation is gone (#1928).
+    /// is four pixels below the centre; they cannot shoot or fire the Grapple, so nothing fired from them reads it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static int ReadYOffset(SamusPoseId pose) =>

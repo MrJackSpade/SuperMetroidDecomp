@@ -345,7 +345,7 @@ internal static class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Applies the verified ordinary transition from standing-right <see cref="SamusPoseId.FacingRightNormalPose"/> to running-
+    /// Applies the ordinary transition from standing-right <see cref="SamusPoseId.FacingRightNormalPose"/> to running-
     /// right <see cref="SamusPoseId.MovingRightNormalPose"/> at the end-of-frame transition seam.
     /// </summary>
     /// <remarks>
@@ -371,7 +371,7 @@ internal static class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Applies the verified no-button fallback from running-right <see cref="SamusPoseId.MovingRightNormalPose"/> to standing-right
+    /// Applies the no-button fallback from running-right <see cref="SamusPoseId.MovingRightNormalPose"/> to standing-right
     /// <see cref="SamusPoseId.FacingRightNormalPose"/> after ordinary running momentum has decelerated to zero.
     /// </summary>
     public static void ApplyRunningRightToStandingRight(SamusState samus)
@@ -429,7 +429,7 @@ internal static class SamusGroundedPoseTransitions
         if (!right && !left)
         {
             throw new InvalidOperationException(
-                $"Landing-to-run transition {samus.Pose} -> {targetPose} is not verified.");
+                $"Landing-to-run transition {samus.Pose} -> {targetPose} is not one the game makes.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Landing-to-run");
@@ -484,7 +484,7 @@ internal static class SamusGroundedPoseTransitions
         if (!turnsLeft && !turnsRight && !leavesForwardView)
         {
             throw new InvalidOperationException(
-                $"Grounded turn {samus.Pose} -> {targetPose} is not a verified transition.");
+                $"Grounded turn {samus.Pose} -> {targetPose} is not one the game makes.");
         }
 
         // The turn's jump check reads held Jump, not a fresh press. Releasing Shoot from a buffered

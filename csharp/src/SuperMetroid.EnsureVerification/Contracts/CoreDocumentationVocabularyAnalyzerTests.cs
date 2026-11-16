@@ -746,5 +746,23 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>X is the sample modulo 128; Y is the tangent; A held animation stays held; A binding names a frame.</summary>\nint F => 0; }");
         Expect("class P { // X-ray is shoot-free; a is jump; the X button; Shoot alone.\n }");
         Expect(CompatibilityService + "/// <summary>Evidence: the game reads B as Run and A is Jump.</summary>\n[CompatibilityService(\"buttons\")] class Buttons { }");
+        // Anything verified, in every type, as the review trail (#2123).
+        Expect("class P { /// <summary>Generated from the verified animations.</summary>\nint F => 0; }", "('verified')");
+        Expect("class P { string Name => \"Spin direction transition {0} is not verified.\"; }", "('verified')");
+        Expect(CompatibilityService + "/// <summary>Evidence: verified against the captured frames.</summary>\n[CompatibilityService(\"frames\")] class Frames { }", "('verified')");
+        // The desktop, the original's assembly loops and branches, a value stored as a number for a meaning and a literal
+        // number, outside hardware owners (#2123).
+        Expect("class P { // The desktop runtime performs shade writes later in the frame.\n }", "('desktop')");
+        Expect("class P { /// <summary>Its own cooldown keeps a desktop-held button from firing faster.</summary>\nint F => 0; }", "('desktop')");
+        Expect("class P { // Later bombs overwrite earlier ones exactly as the ascending assembly loop does.\n }", "('ascending assembly')");
+        Expect("class P { /// <summary>An assembly branch skips the turn.</summary>\nint F => 0; }", "('assembly branch')");
+        Expect("class P { /// <summary>Samus still stores the direction as zero for left and one for right.</summary>\nint F => 0; }",
+            "('stores the direction as zero for')");
+        Expect("class P { // Any value other than literal four follows the right-facing path.\n }", "('literal four')");
+        Expect("class P { // These are the literal 190/66/2 and 192/64/4 branches.\n }", "('literal 190')");
+        // Assembling a value, Wrecked Ship's Assembly Line, a count of what is stored, a literal alone, checking, the
+        // unverified and a hardware owner are English.
+        Expect("class P { /// <summary>Whole and fraction assembly; the Assembly Line room; the game stores these as four separate flags; a string literal; checked when it opens; unverified.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the desktop-held button; the ascending assembly loop; stores the direction as zero for left; any value but literal four.</summary>\n[CompatibilityService(\"loop\")] class Loop { }");
     }
 }

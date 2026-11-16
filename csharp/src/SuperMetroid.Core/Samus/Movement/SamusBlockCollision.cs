@@ -41,11 +41,10 @@ public static class SamusBlockCollision
         state.YSpeed = probe.YSpeed;
         state.YAcceleration = probe.YAcceleration;
 
-        // (and square-slope clipping) writes Samus's real X subposition
-        // even through the observational wall-jump probe entry point. The probe's accepted
-        // displacement is whole pixels on a block hit, so its final fraction
-        // retains that write. Keep the live integer X unchanged. Dropping this write
-        // let away movement accumulate fractional speed during the wall-check pose.
+        // A block hit (and square-slope clipping) writes Samus's real X subpixel even through the wall-jump probe. The
+        // probe's accepted displacement is whole pixels on a block hit, so its final subpixel keeps that write, and her
+        // whole X is unchanged; without it, movement away from the wall would gather fractional speed during the
+        // wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
             state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
 
@@ -62,7 +61,7 @@ public static class SamusBlockCollision
     /// Runs horizontal block collision, the position addition of a move
     /// without solid-enemy collision, and the subsequent non-square slope alignment.
     /// </summary>
-    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
     /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>

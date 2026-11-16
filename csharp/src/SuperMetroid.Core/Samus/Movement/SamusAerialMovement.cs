@@ -630,7 +630,7 @@ public static class SamusAerialMovement
         downwardDisplacement = !displacement.IsNegative;
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
-        // (down) and the upward mover (up) publish this result after every move. A downward pass always
+        // Both vertical movers, downward and upward, publish this result after every move. A downward pass always
         // publishes one: Landed on a landing, otherwise Falling unless a wall jump's WallJump is retained.
         if (downwardDisplacement)
         {

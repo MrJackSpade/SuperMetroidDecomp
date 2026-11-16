@@ -425,9 +425,8 @@ internal sealed class SamusFramePhases
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        // The normal movement mode runs the movement type's movement before animation. Every admitted pose
-        // below has its own verified direction/mode path; a newly reachable pose
-        // cannot accidentally inherit generic standing or running physics.
+        // The normal movement mode runs the movement type's movement before animation. Every admitted pose below has its
+        // own direction and mode path, so no pose inherits generic standing or running physics by accident.
         _player.LastGroundedSamusMovement = null;
         _player.LastAerialSamusMovement = null;
         _player.LastMorphBallMovement = null;

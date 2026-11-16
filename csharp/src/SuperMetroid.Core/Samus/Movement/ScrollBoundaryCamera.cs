@@ -290,7 +290,7 @@ public sealed class ScrollBoundaryCamera
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
-        // The game returns if either half of the time-freeze flag is set. Keep this gate local to the two autoscrollers;
+        // Frozen time stops autoscrolling. Keep this gate local to the two autoscrollers;
         // the directional moved-Samus checks themselves have no freeze check.
         if (timeIsFrozen)
             return;

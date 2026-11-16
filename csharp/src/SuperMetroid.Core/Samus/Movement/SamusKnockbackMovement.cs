@@ -404,12 +404,8 @@ public static class SamusKnockbackMovement
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-        // Calls the exact same vertical step as ordinary aerial
-        // movement, so reuse that owner instead of maintaining a subtly narrower
-        // copy. The retail Rinka timer expires while Samus is still rising; her reported
-        // midair hang came from failing to run ordinary falling after that expiry, not
-        // from this calculation. Sharing the step still preserves the real direction-
-        // reversal behavior for any longer knockback stimulus without inventing a new path.
+        // Knockback runs the same vertical step as ordinary aerial movement, its reversal from rising to falling
+        // included. The Rinka's hurt timer expires while Samus is still rising, and ordinary falling takes over after it.
         return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out _);
     }
 

@@ -95,7 +95,7 @@ internal static class SamusPoseInputRules
         _ => throw new InvalidOperationException($"Undefined {nameof(SamusPoseInputList)} {inputList}."),
     };
 
-    /// <summary>The input-transition list of <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: priority order.</summary>
+    /// <summary>The list with no transitions: no input changes the pose.</summary>
     private static SamusPoseInputMatch MatchNoInputTransitions()
     {
         return new(null, HasConditions: false);

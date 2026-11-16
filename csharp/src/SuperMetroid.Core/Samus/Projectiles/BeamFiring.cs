@@ -83,9 +83,8 @@ internal sealed class BeamFiring
         const GameplayAction shoot = GameplayAction.Shoot;
         _charge.PreviousCharge = _charge.Level;
 
-        // Firing gives the Hyper flag priority over Charge equipment. It still uses
-        // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
-        // desktop-held button from allocating more frequently than the game.
+        // Firing gives the Hyper Beam priority over Charge equipment. It fires on held Shoot rather than a new press,
+        // and its own 21-frame cooldown paces a held button.
         if (samus.HyperBeamEnabled)
         {
             (int? place, SoundEffectId? sound) = (controllerInput & shoot) != GameplayAction.None
@@ -273,9 +272,8 @@ internal sealed class BeamFiring
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
         samus.ResumeChargingBeamSoundPending = false;
 
-        // The combination selects one projectile, not four independent animation layers
-        // composed by the host. In particular, Spazer's familiar three streaks are one
-        // composition in one projectile projectile, so no child projectiles are created here.
+        // The combination selects one projectile: Spazer's three streaks are one picture of one projectile, so no
+        // further projectiles are created here.
         SamusBeamCombination beamType = projectile.Type.BeamCombination;
 
         // The projectile setup selects the combination's projectile kind, stores damage, chooses the

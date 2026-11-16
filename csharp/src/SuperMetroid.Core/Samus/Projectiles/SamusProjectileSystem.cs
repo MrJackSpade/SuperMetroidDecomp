@@ -17,16 +17,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// Samus's ordinary shots in their places (see <see cref="SamusShotPool"/> for the place order).
 /// </summary>
-/// <remarks>
-/// This class deliberately holds the game's own fields rather than a desktop particle
-/// effect. Firing, damage and animation records, and terrain movement each keep
-/// their own seam. Keeping those seams separate prevents a convenient stand-in sprite from
-/// replacing the actual projectile lifecycle.
-///
-/// The implemented producer covers ordinary and charged plain power beams. The shared shot
-/// model and animation are intentionally general enough for the remaining beam
-/// and missile families, but unsupported producers are rejected before taking a place.
-/// </remarks>
+/// <remarks>Firing, damage and animation, and terrain movement each keep their own seam.</remarks>
 [RoomLifetime]
 public sealed class SamusProjectileSystem
 {
@@ -292,7 +283,7 @@ public sealed class SamusProjectileSystem
     /// Runs the power-beam HUD producer and then handles every shot: <see cref="FireFromHud"/>, then
     /// <see cref="HandleShots"/>.
     /// </summary>
-    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
@@ -313,7 +304,7 @@ public sealed class SamusProjectileSystem
     /// handles any projectile: the producer fires and queues its firing sound as it fires (#1620), so the sound is tested
     /// against the power bomb as it stood before the update's bombs ran. The pass's result reports the firing sound.
     /// </summary>
-    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="sharedProjectiles">Samus's bombs, carrying the shared projectile cooldown, which a successful shot replaces.</param>

@@ -145,9 +145,9 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
-        // Handles Dash before calculating base speed. With no equipped Speed
-        // Booster, B establishes momentum, adds exactly a sixteenth of a pixel per frame, and caps the
-        // extra component at two pixels. The flag retains that component after B is released.
+        // Handles Dash before calculating base speed. With no Speed Booster equipped, Dash establishes momentum, adds
+        // exactly a sixteenth of a pixel per frame, and caps the extra component at two pixels. The flag retains that
+        // component after Dash is released.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Running,
             controllerInput,
@@ -201,7 +201,7 @@ public static class SamusGroundedMovement
         if (!turnsLeft && !turnsRight)
         {
             throw new InvalidOperationException(
-                $"Grounded-turn movement requires a verified standing, crouched, or moonwalk turn pose, not {samus.Pose}.");
+                $"Grounded-turn movement requires a standing, crouched, or moonwalk turn pose, not {samus.Pose}.");
         }
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);

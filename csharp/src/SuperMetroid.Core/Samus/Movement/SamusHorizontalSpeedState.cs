@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The fixed-point horizontal speeds used by Samus's movement code.
 /// </summary>
 /// <remarks>
-/// This class is intentionally narrower than a general-purpose desktop physics body. Every
-/// property corresponds to one value of Samus's state, and every operation below preserves
+/// Every property corresponds to one value of Samus's state, and every operation below preserves
 /// the game's wrapping at 65536 and its comparisons. Room/enemy collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Pinned vertical mechanics; presentation overrides do not alter physics.</summary>
+/// <summary>Samus's vertical motion: the speeds she rebounds, launches and jumps at, the falls Space Jump restarts from, and the gravity in each medium.</summary>
 internal static class SamusVerticalMotionDefinitions
 {
     /// <summary>

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Mini-Kraid's action choice, step and spit animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
-/// Generated from the verified animations; see <see cref="FakeKraidAnimations"/>.
+/// Generated from the animations; see <see cref="FakeKraidAnimations"/>.
 /// </summary>
 internal enum FakeKraidSegment
 {

@@ -799,7 +799,7 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.NeutralJumpTransitionLeftPose)):
                 // The crouched aim poses use the ordinary neutral-jump transition
                 // art for every crouched aim direction. The helper preserves
-                // the crouching-turn poses' literal ten-pixel adjustment.
+                // the crouching-turn poses' ten-pixel adjustment.
                 SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus,
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Crouch jump requires active room level data."),

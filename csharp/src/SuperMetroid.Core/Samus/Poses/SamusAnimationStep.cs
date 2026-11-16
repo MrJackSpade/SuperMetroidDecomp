@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>What one Samus animation step reads: input, the frame counter, system state, liquid-sound and pose-input policy, and the echo-sound queue (#633).</summary>
 public sealed record SamusAnimationStep
 {
-    /// <summary>Controller input.</summary>
+    /// <summary>The actions held this update.</summary>
     public GameplayAction ControllerInput { get; init; } = 0;
 
     /// <summary>
@@ -27,10 +27,10 @@ public sealed record SamusAnimationStep
     /// </summary>
     public bool BeginLiquidSoundRequestFrame { get; init; } = true;
 
-    /// <summary>Prospective input pose.</summary>
+    /// <summary>The pose this update's input selected, if any: a jump it selected survives a turn's last frame.</summary>
     public SamusPoseId? ProspectiveInputPose { get; init; } = null;
 
-    /// <summary>Demo pose input.</summary>
+    /// <summary>Whether a demo, not the player, drives the pose input; a demo's turn never arms the automatic jump.</summary>
     public bool DemoPoseInput { get; init; } = false;
 
     /// <summary>Whether the room has a boss, which suppresses the running-footstep sound.</summary>

@@ -221,7 +221,7 @@ internal static class SamusAerialPoseTransitions
             (!SamusPoseMetadata.IsWallJumpPose(samus.Pose) && !SamusPoseMetadata.IsSpinJumpPose(samus.Pose)))
         {
             throw new InvalidOperationException(
-                $"Spin direction transition {samus.Pose} -> {targetPose} is not verified.");
+                $"Spin direction transition {samus.Pose} -> {targetPose} is not a spin turn the game makes.");
         }
 
         SamusFacingDirection oldDirection = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -230,9 +230,9 @@ internal static class SamusAerialPoseTransitions
         {
             SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
 
-            // Unlike the grounded/aerial turn initializers, the spin-jump initializer calls
-            // Cancels the speed boost immediately after folding the extra pair. Waiting
-            // for another movement frame would leave the running-momentum flag observably stale.
+            // Unlike the grounded and aerial turn initializers, the spin-jump initializer cancels the speed boost right
+            // after folding the extra speed in. Waiting for another movement frame would leave the running-momentum flag
+            // observably stale.
             samus.HorizontalSpeed.CancelRunningMomentum(oldDirection);
         }
 
@@ -288,9 +288,8 @@ internal static class SamusAerialPoseTransitions
         }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
-        // immediately reloads the normal suit shade before the wall jump starts. The desktop
-        // runtime performs shade writes later in the frame, so preserve that phase split.
+        // A wall jump from a Screw Attack spin asks for the normal suit shade back before the jump starts; the shade
+        // itself is applied later in the update.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
             samus.HorizontalSpeed.RequestSuitShadeRestore();
 
@@ -538,10 +537,8 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Applies the verified ordinary-input jump transitions selected from the game's
-    /// table, including the jump transition's jump start. Only explicitly verified
-    /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
-    /// interrupting any same-facing landing with a fresh Jump edge.
+    /// Applies the ordinary-input jump transitions the game's table selects, including the jump transition's jump start:
+    /// the routes with no equipment or aim, among them interrupting any same-facing landing with a fresh Jump press.
     /// </summary>
     public static void ApplyOrdinaryJumpTransition(
         SamusState samus,

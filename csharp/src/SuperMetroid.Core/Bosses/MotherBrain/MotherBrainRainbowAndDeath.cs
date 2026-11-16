@@ -177,7 +177,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Corner));
 
-    /// <summary>Runs one body-phase call through the shared verified sequence.</summary>
+    /// <summary>Runs one body-phase call through the shared sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
         SamusState samus,

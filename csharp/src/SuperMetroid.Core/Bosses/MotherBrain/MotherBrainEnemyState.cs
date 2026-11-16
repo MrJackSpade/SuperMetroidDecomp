@@ -272,7 +272,7 @@ public sealed class MotherBrainEnemyState
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }
 
     /// <summary>
-    /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
+    /// The rainbow, finish-off, Baby and phase-three state machine, attached to
     /// the real body/head pair only after phase-two health reaches zero. Physical actor
     /// coordinates and animations remain owned by this room system; this object owns the long
     ///  phase chain and forced-Samus calculations.

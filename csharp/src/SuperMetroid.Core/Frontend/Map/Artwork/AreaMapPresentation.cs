@@ -110,7 +110,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
 
-    /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
+    /// <summary>Returns an area's selected map presentation with its stock exploration and station-reveal rules.</summary>
     /// <param name="area">One of the seven areas, including Ceres.</param>
     /// <returns>The immutable view compiled when this catalog was loaded.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not an area.</exception>

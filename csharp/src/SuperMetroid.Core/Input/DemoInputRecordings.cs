@@ -4,7 +4,7 @@ using N = SuperMetroid.Core.Input.DemoInputRecordingId;
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The demos' recorded inputs (#1300, #1600), generated from the verified demo recordings: each recording plays its
+/// The demos' recorded inputs (#1300, #1600), generated from the demo recordings: each recording plays its
 /// inputs for their durations, then ends as <see cref="DemoRecording.End"/> says.
 /// </summary>
 public static class DemoInputRecordings

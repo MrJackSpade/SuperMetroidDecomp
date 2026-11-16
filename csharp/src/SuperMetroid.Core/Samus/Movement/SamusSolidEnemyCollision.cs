@@ -84,10 +84,8 @@ public static class SamusSolidEnemyCollision
             bool wasTouching = gap == 0;
             if (wasTouching)
             {
-                // Clears Y subposition for every direction. Yes, that clears
-                // Samus's *Y* subposition even for a left/right touch. This is an
-                // game bug; preserving it prevents one-pixel drift
-                // differences when repeatedly pressing into a solid or frozen enemy.
+                // Touching clears Samus's Y subpixel whatever the direction, even for a left or right touch: a quirk of
+                // the game that decides whether repeated presses into a solid or frozen enemy drift her by a pixel.
                 state.Position = state.Position.WithFractionY(0);
             }
 

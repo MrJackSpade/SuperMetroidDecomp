@@ -119,9 +119,8 @@ internal static class SamusPosturePoseTransitions
 
         // The input phase owns the new radius next frame; collision correction and jump setup
         // below must not publish it during this frame's pose-commit stage.
-        // The normal-jumping jump transition performs this after pose
-        // initialization/collision but before the jump starts. It writes only current Y;
-        // the desktop state has no separately exposed previous Y position to mirror.
+        // The jump transition lowers Samus after pose initialization and collision but before the jump starts. It moves
+        // only her current position and records no previous position.
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 10);
 
@@ -137,7 +136,7 @@ internal static class SamusPosturePoseTransitions
     /// the unaimed and aimed crouching and standing transitions.
     /// </summary>
     /// <returns>
-    /// False only when simultaneous floor and ceiling collision leave no verified room to
+    /// False only when simultaneous floor and ceiling collision leave no room to
     /// expand from radius 16 to radius 21; the game then retains the crouching pose.
     /// </returns>
     public static bool TryApplyPostureTransition(
@@ -439,9 +438,9 @@ internal static class SamusPosturePoseTransitions
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // InitializeAnimation resets only the target's animation. In particular, do not call
-        // start a jump or clear YDirection/YSpeed/YSubspeed: the input transition can occur
-        // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
+        // Only the target's animation restarts: the transition neither starts a jump nor clears Samus's vertical
+        // direction and speed, because it can occur halfway through a fall, as it does when leaving Parlor's Morph Ball
+        // tunnel.
         SamusPresentation.InitializeAnimation(samus);
         return true;
     }

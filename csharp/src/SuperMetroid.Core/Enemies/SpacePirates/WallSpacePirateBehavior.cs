@@ -53,8 +53,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
         // The Japanese and North American release measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
-        // one takes 32 four-step frames with adjusted endpoints. These values are not approximations: they are the
-        // literal 190/66/2 and 192/64/4 branches.
+        // one takes 32 four-step frames with adjusted endpoints.
         state.RightJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 190 : 192);
         state.LeftJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;

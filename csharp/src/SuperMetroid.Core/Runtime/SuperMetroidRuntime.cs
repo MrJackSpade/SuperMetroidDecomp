@@ -472,9 +472,8 @@ internal sealed class SuperMetroidRuntime
         }
         finally
         {
-            // The desktop error reporter deliberately catches modelled exceptions and
-            // attempts another frame. A finally seam is therefore mandatory: otherwise a
-            // frame that throws after borrowing the last round leaves live ammo at two.
+            // A failed update may be followed by another update, so the borrowed round is returned here whatever
+            // happens: otherwise an update that throws after borrowing the last round leaves live ammo at two.
             infiniteAmmoGuard.Complete(Player.Samus);
             // A failed demo frame must not leak scripted input into the player latch.
             AttractDemo.RestoreAttractPlayerInput();

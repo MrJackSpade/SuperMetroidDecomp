@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SpriteImage
 {
     /// <summary>
-    /// The pixels and the maps, decoded when first read: an installation's stock images are verified when it opens, so
+    /// The pixels and the maps, decoded when first read: an installation's stock images are checked when it opens, so
     /// decoding every sheet up front only cost the time and memory of images nothing draws (#1430).
     /// </summary>
     private readonly Lazy<DecodedImage> content;

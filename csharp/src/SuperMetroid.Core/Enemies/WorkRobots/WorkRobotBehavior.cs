@@ -382,16 +382,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             (state.Facing == HorizontalDirection.Left ? -ahead : ahead)), 0),
             new(CoordinateAxis.Wrap(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove), 0));
 
-        // Preserve the laser viewport bug. Its final Y comparison omits
-        // the camera's Y, so lasers only request sound while their owner's absolute
-        // top edge is less than the picture's height from the room's top, even when a lower room row is on screen.
-        bool horizontallyVisible =
-            CoordinateAxis.AsSigned(robot.Position.X.Whole + robot.Radius.X - camera.X) >= 0 &&
-            CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - (ScreenGeometry.ScreenWidthPixels + 1), camera.X) < 0;
-        bool verticallyVisible =
-            CoordinateAxis.AsSigned(robot.Position.Y.Whole + robot.Radius.Y - camera.Y) >= 0 &&
-            CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, ScreenGeometry.ScreenHeightPixels) < 0;
-        if (horizontallyVisible && verticallyVisible)
+        if (WorkRobotLaserSoundRange.RequestsSound(robot.Position.Whole, robot.Radius, camera))
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }
 

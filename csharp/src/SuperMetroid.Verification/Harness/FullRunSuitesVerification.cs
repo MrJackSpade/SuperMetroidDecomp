@@ -35,6 +35,7 @@ using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerifica
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardFallAccelerationVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardShotLaunchFractionsVerification;
+using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserSoundRangeVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
@@ -1104,6 +1105,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyYardAirborneSlowing), () => VerifyYardAirborneSlowing()),
         new(nameof(VerifyYardFallAcceleration), () => VerifyYardFallAcceleration()),
         new(nameof(VerifyYardShotLaunchFractions), () => VerifyYardShotLaunchFractions()),
+        new(nameof(VerifyWorkRobotLaserSoundRange), () => VerifyWorkRobotLaserSoundRange()),
         new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),

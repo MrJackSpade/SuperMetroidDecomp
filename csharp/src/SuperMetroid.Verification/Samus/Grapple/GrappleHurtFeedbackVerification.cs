@@ -32,7 +32,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
-        foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
+        foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
         var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
@@ -46,13 +46,13 @@ internal static class GrappleHurtFeedbackVerification
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(0, samus.HurtFlash.Count, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
-        var target = runtime.Enemies.SlotTable.Slots[0];
+        var target = runtime.Enemies.Places.InUpdateOrder[0];
         target.Bind(EnemyDefinitionId.Ripper, target.Definition);
         target.Bind(target.DefinitionId, RoomEnemyDefinitionLookup.Get(target.DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.Frame = EnemyFrameId.RipperMovingLeftFirst; // Contact admits only an enemy showing a frame.
-        var interactive = (List<RoomEnemySlot>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
+        var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
         interactive.Clear();
         interactive.Add(target);
         int health = samus.Health;

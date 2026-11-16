@@ -24,7 +24,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Shaktool);
-        RoomEnemySlot segment = runtime.Enemies.SlotTable.Slots[0];
+        RoomEnemyPlace segment = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Shaktool, segment.DefinitionId, "slot zero is a Shaktool segment");
         AssertEqual<EnemyReaction?>(null, segment.Definition.Touch, "Shaktool's definition leaves its touch to the species");
         AssertTrue(segment.Entity is IEnemyTouchReaction { ReactsToTouch: true }, "the Shaktool entity reacts to Samus's touch");
@@ -39,7 +39,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>(0, 0));
         bool touched = runtime.Enemies.Collision.ResolveOrdinarySamusContact(
-            samus, 0, runtime.Room.LoadedLevelData, onlyEnemy: runtime.Enemies.SlotTable.Slots[0]);
+            samus, 0, runtime.Room.LoadedLevelData, onlyEnemy: runtime.Enemies.Places.InUpdateOrder[0]);
 
         AssertTrue(touched, "the overlapping Shaktool segment runs its touch reaction");
         AssertTrue(samus.Health < healthBefore, "$AA:DF2F deals common contact damage");

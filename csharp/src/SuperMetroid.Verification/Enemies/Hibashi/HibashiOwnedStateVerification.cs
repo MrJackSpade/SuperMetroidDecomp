@@ -15,13 +15,13 @@ internal static class HibashiOwnedStateVerification
     internal static void VerifyHibashiOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
         graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.SetSpawnParameter1(EnemyDefinitionId.Hibashi, ushort.MaxValue);
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         graphics.Position = graphics.Position.WithWhole(new(0x0040, 0x0120));
         enemies.HibashiBehavior.InitializeHibashi(graphics);
-        RoomEnemySlot hitbox = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
         hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
         hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         enemies.HibashiBehavior.InitializeHibashi(hitbox);

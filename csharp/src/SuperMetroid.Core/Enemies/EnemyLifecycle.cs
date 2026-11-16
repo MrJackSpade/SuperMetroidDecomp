@@ -5,60 +5,60 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Puts populations into slots and runs their AI: slot setup from a definition, initialization and main AI
-/// through each slot's entity, spawns into the first free slot, and the slots Samus can touch this frame.
+/// Puts populations into places and runs their AI: place setup from a definition, initialization and main AI
+/// through each place's entity, spawns into the first free place, and the places Samus can touch this frame.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyLifecycle : IEnemyLifecycle
 {
     /// <summary>The room whose definitions spawns read.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>The room's enemy slots.</summary>
-    private readonly EnemySlotTable _slotTable;
-    /// <summary>Selects the slots that interact with Samus this frame.</summary>
+    /// <summary>The room's enemy places.</summary>
+    private readonly EnemyPlaces _places;
+    /// <summary>Selects the places that interact with Samus this frame.</summary>
     private readonly EnemyProcessingWindow _processingWindow;
 
-    /// <summary>Binds the room, slots and processing window the lifecycle works in.</summary>
-    internal EnemyLifecycle(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyProcessingWindow processingWindow)
+    /// <summary>Binds the room, places and processing window the lifecycle works in.</summary>
+    internal EnemyLifecycle(EnemyRoomBinding room, EnemyPlaces places, EnemyProcessingWindow processingWindow)
     {
         _room = room;
-        _slotTable = slotTable;
+        _places = places;
         _processingWindow = processingWindow;
     }
 
     /// <summary>
-    /// Copies population and definition fields into a slot, showing its sheet's standard colours, and records a spawn
+    /// Copies population and definition fields into a place, showing its sheet's standard colours, and records a spawn
     /// snapshot before initialization AI runs.
     /// </summary>
-    internal static void InitializeSlotFromDefinition(
-        RoomEnemySlot slot,
+    internal static void InitializePlaceFromDefinition(
+        RoomEnemyPlace place,
         RoomEnemyPlacement population,
         RoomEnemyDefinition definition)
     {
         // The placement is recorded before the entity is bound, so a species that places several actors creates the one
         // the placement names (#1953).
-        slot.Spawn = new RoomEnemySpawnSnapshot(population);
-        slot.Bind(population.DefinitionId, definition);
-        slot.Radius = new(definition.Radius.X, definition.Radius.Y);
-        slot.Health = definition.Health;
-        slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
+        place.Spawn = new RoomEnemySpawnSnapshot(population);
+        place.Bind(population.DefinitionId, definition);
+        place.Radius = new(definition.Radius.X, definition.Radius.Y);
+        place.Health = definition.Health;
+        place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));
 
-        slot.Contact = population.Contact;
-        slot.Processing = population.Processing;
-        slot.Presence = population.Presence;
-        slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-        slot.AiStates = EnemyAiStates.None;
-        slot.AnimationClock.Restart();
-        slot.FrameCounter = 0;
-        slot.HurtFlashFrames = definition.HurtFlashFrames;
-        slot.Shading = PictureShading.Standard;
+        place.Contact = population.Contact;
+        place.Processing = population.Processing;
+        place.Presence = population.Presence;
+        place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
+        place.AiStates = EnemyAiStates.None;
+        place.AnimationClock.Restart();
+        place.FrameCounter = 0;
+        place.HurtFlashFrames = definition.HurtFlashFrames;
+        place.Shading = PictureShading.Standard;
     }
 
-    /// <summary>Runs the definition's initialization for the newly loaded slot.</summary>
-    internal static void RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
+    /// <summary>Runs the definition's initialization for the newly loaded place.</summary>
+    internal static void RunInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        switch (slot.Entity)
+        switch (place.Entity)
         {
             case IEnemySurroundingsInitialization entity:
                 entity.Initialize(surroundings);
@@ -67,53 +67,53 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
                 entity.Initialize();
                 break;
             default:
-                throw NoInitialization(slot);
+                throw NoInitialization(place);
         }
     }
 
-    /// <summary>The failure for a slot whose species has no initialization behaviour.</summary>
-    private static InvalidDataException NoInitialization(RoomEnemySlot slot) =>
-        new($"Enemy {slot.DefinitionId} has no initialization behaviour.");
+    /// <summary>The failure for a place whose species has no initialization behaviour.</summary>
+    private static InvalidDataException NoInitialization(RoomEnemyPlace place) =>
+        new($"Enemy {place.DefinitionId} has no initialization behaviour.");
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
-    void IEnemyLifecycle.InitializeSlotFromDefinition(
-        RoomEnemySlot slot, RoomEnemyPlacement population, RoomEnemyDefinition definition) =>
-        InitializeSlotFromDefinition(slot, population, definition);
+    void IEnemyLifecycle.InitializePlaceFromDefinition(
+        RoomEnemyPlace place, RoomEnemyPlacement population, RoomEnemyDefinition definition) =>
+        InitializePlaceFromDefinition(place, population, definition);
 
-    /// <summary>Lets the population loader run the slot's species initialization.</summary>
-    void IEnemyLifecycle.RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings) =>
-        RunInitializationAi(slot, surroundings);
+    /// <summary>Lets the population loader run the place's species initialization.</summary>
+    void IEnemyLifecycle.RunInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings) =>
+        RunInitializationAi(place, surroundings);
 
     /// <inheritdoc/>
-    RoomEnemySlot? IEnemyLifecycle.SpawnEnemy(RoomEnemyPlacement population)
+    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemy(RoomEnemyPlacement population)
     {
-        if (_slotTable.FindFreeSlot() is not { } slot)
+        if (_places.FindFreePlace() is not { } place)
             return null;
-        InitializeSlotFromDefinition(slot, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
-        RunInitializationAi(slot, EnemySpawnSurroundings.None);
+        InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
+        RunInitializationAi(place, EnemySpawnSurroundings.None);
         // Spawning writes the empty frame after initialization, before the first animation tick.
-        slot.Frame = slot.Processing.HasAny(EnemyProcessing.Animates)
+        place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty
             : null;
-        _slotTable.CoverSpawn(slot);
-        return slot;
+        _places.CoverSpawn(place);
+        return place;
     }
 
     /// <summary>Routes a scheduled enemy update through its species' main AI.</summary>
-    void IEnemyLifecycle.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        RunMainAi(slot, frame);
+    void IEnemyLifecycle.RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        RunMainAi(place, frame);
 
     /// <summary>Exposes the enemies selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<RoomEnemySlot> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
+    IReadOnlyList<RoomEnemyPlace> IEnemyLifecycle.InteractiveEnemies => _processingWindow.InteractiveEnemies;
 
-    /// <summary>Runs a loaded slot's main AI through its species' main behaviour.</summary>
-    internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    /// <summary>Runs a loaded place's main AI through its species' main behaviour.</summary>
+    internal static void RunMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         // A place awaiting its enemy's respawn has no behaviour; the enemy pass still counts its update.
-        if (slot.AwaitsRespawn)
+        if (place.AwaitsRespawn)
             return;
-        if (slot.Entity is not IEnemyMainAi entity)
-            throw new InvalidDataException($"Enemy {slot.DefinitionId} has no main behaviour.");
+        if (place.Entity is not IEnemyMainAi entity)
+            throw new InvalidDataException($"Enemy {place.DefinitionId} has no main behaviour.");
         entity.RunMainAi(frame);
     }
 }

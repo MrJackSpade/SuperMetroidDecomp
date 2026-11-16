@@ -5,18 +5,18 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// The state of a Bull. Speed and acceleration are wrapping 1/256-pixel speeds, because a deceleration that overshoots leaves a
 /// value past zero that the next update reads as below zero; they change only through <see cref="Accelerate"/> and
 /// <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
-/// slot (<see cref="SlotInheritance{TOccupant}"/>).
+/// place (<see cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
 public sealed class BullEnemyState
 {
-    /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its slot left, or none for the slot's first.</summary>
+    /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its place left, or none for the place's first.</summary>
     /// <remarks>
     /// The Bull's setup writes only the speed and interval settings. The guard flag and its countdown are
     /// read by the Bull's first main-AI update, which counts the inherited countdown down: a Bull set up while its
     /// predecessor's 48-update guard was still running ignores no-damage kicks until that guard runs out. The angles
     /// are always written by targeting or a kick before they are read, so they are the Bull's own.
     /// </remarks>
-    /// <param name="previous">The slot's previous Bull, or null for the slot's first in the room.</param>
+    /// <param name="previous">The place's previous Bull, or null for the place's first in the room.</param>
     /// <param name="action">The action the Bull starts in.</param>
     internal BullEnemyState(BullEnemyState? previous, BullAction action)
     {
@@ -104,7 +104,7 @@ public sealed class BullEnemyState
 
     /// <summary>
     /// Whether repeated no-damage projectile kicks are suppressed during the shot-reaction cooldown, inherited from the
-    /// slot's previous Bull; it does not disable ordinary health processing.
+    /// place's previous Bull; it does not disable ordinary health processing.
     /// </summary>
     public bool ShotReactionDisabled { get; internal set; }
 
@@ -115,7 +115,7 @@ public sealed class BullEnemyState
     public int DecelerationIntervalTimerReset { get; internal set; }
 
     /// <summary>
-    /// Wrapping guard countdown, inherited from the slot's previous Bull, set to 48 by an immune-shot kick and
+    /// Wrapping guard countdown, inherited from the place's previous Bull, set to 48 by an immune-shot kick and
     /// decremented each main-AI call; reaching zero clears the guard and pins the countdown at one, while a countdown
     /// starting at zero first wraps to its largest count.
     /// </summary>

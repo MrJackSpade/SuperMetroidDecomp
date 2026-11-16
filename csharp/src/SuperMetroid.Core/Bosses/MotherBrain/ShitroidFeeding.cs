@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="enemies">The room's enemies, in placement order.</param>
 [RoomLifetime]
-internal sealed class ShitroidFeeding(EnemySlotTable enemies) : IShitroidFeeding
+internal sealed class ShitroidFeeding(EnemyPlaces enemies) : IShitroidFeeding
 {
     /// <inheritdoc/>
-    public bool HasAlreadyFedOn(RoomEnemySlot victim) =>
-        BabyMetroidVictim.FeederOf(enemies.Slots, Ensure.NotNull(victim).SlotIndex)?.SpeciesState<ShitroidEnemyState>()
+    public bool HasAlreadyFedOn(RoomEnemyPlace victim) =>
+        BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, Ensure.NotNull(victim).Ordinal)?.SpeciesState<ShitroidEnemyState>()
             is { Action: ShitroidAction.Dormant };
 }

@@ -31,14 +31,14 @@ internal static class BombTorizoMovementDefinitionsVerification
         foreach (Offset16<RoomPixels> displacement in displacements)
         foreach (bool sitDown in new[] { false, true })
         {
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
-            TorizoBehavior.ApplyTorizoPosture(slot, displacement, sitDown ? TorizoPostureMove.SitDown : TorizoPostureMove.StandUp);
+            TorizoBehavior.ApplyTorizoPosture(place, displacement, sitDown ? TorizoPostureMove.SitDown : TorizoPostureMove.StandUp);
             int sign = sitDown ? -1 : 1;
-            AssertEqual(unchecked((ushort)(1000 + sign * displacement.X)), slot.Position.X.Whole, $"Torizo posture X {displacement} sit {sitDown}");
-            AssertEqual(unchecked((ushort)(500 + sign * displacement.Y)), slot.Position.Y.Whole, $"Torizo posture Y {displacement} sit {sitDown}");
+            AssertEqual(unchecked((ushort)(1000 + sign * displacement.X)), place.Position.X.Whole, $"Torizo posture X {displacement} sit {sitDown}");
+            AssertEqual(unchecked((ushort)(500 + sign * displacement.Y)), place.Position.Y.Whole, $"Torizo posture Y {displacement} sit {sitDown}");
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -47,14 +47,14 @@ internal static class BombTorizoMovementDefinitionsVerification
         AssertTrue(velocities.Length > 1, "Bomb Torizo's animations carry walking velocities");
         foreach (int velocity in velocities)
         {
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(isGolden: false);
-            slot.SetSpeciesState(state);
-            var next = enemies.TorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
+            place.SetSpeciesState(state);
+            var next = enemies.TorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
                 new TorizoWalkStep { Velocity = velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
             AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");
             AssertTrue(next is null, $"Bomb Torizo walk consumer runs on without a wall at velocity {velocity}");

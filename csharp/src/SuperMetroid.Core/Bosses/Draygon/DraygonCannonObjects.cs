@@ -28,7 +28,7 @@ internal sealed class DraygonCannonObjects
         DraygonCannonDefinitions.Setups.TryGetValue(kind, out DraygonCannonSetup setup) ? setup : null;
 
     /// <summary>Sets up the cannon that controls <paramref name="cannon"/>, installing shootable terrain unless it starts destroyed.</summary>
-    internal static void SetupDraygonCannonSlot(RoomLevelData level, RoomObjectPlace place, DraygonCannonSetup setup, DraygonWallCannon cannon)
+    internal static void SetupDraygonCannon(RoomLevelData level, RoomObjectPlace place, DraygonCannonSetup setup, DraygonWallCannon cannon)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);

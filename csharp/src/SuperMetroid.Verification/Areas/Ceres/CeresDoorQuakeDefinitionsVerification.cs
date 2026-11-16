@@ -48,10 +48,10 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)),
             RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Ceres Ridley");
+        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(enemies.Places.InUpdateOrder[0], "Ceres Ridley");
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
-        RoomEnemySlot door = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
         enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
         door.SetSpeciesState(new CeresRidleyRoomDoorState { HandsDrawingToRidley = true });

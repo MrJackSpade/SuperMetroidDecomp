@@ -2,19 +2,19 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>One Platforms occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Platforms species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => PlatformsBehavior.InitializePlatform(Slot);
+    public void Initialize() => PlatformsBehavior.InitializePlatform(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PlatformsBehavior.AdvancePlatformsTypedAnimation(Place, context);
 
     /// <summary>The Tripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? PlatformsBehavior.TripperShotReaction : base.ShotReaction;

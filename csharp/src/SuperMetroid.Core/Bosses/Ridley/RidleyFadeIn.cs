@@ -52,7 +52,7 @@ internal sealed class RidleyFadeIn
     /// Reveals either Ridley's body one shade every second update; after the final shade he stops ignoring Samus, waits
     /// before his opening roar, and the battle music starts.
     /// </summary>
-    internal void TickBodyFadeIn(RoomEnemySlot slot, RidleyEnemyState state)
+    internal void TickBodyFadeIn(RoomEnemyPlace place, RidleyEnemyState state)
     {
         if (++state.PhaseTimer < 2)
             return;
@@ -70,7 +70,7 @@ internal sealed class RidleyFadeIn
 
         // After the final shade Ridley stops ignoring Samus, so the ordinary touch check meets his body again; he waits
         // five updates, then begins the opening-roar animation.
-        slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+        place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         state.FadeStep = 0;
         state.Phase = RidleyPhase.WaitBeforeRoar;
         state.PhaseTimer = 4;

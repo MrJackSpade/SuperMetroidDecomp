@@ -31,9 +31,9 @@ internal static class WreckedShipGhostBobbingVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.Coven, slot.Definition);
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Coven, place.Definition);
+            place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
             var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
             {
                 Action = WreckedShipGhostAction.BobbingWhileVisible,
@@ -41,12 +41,12 @@ internal static class WreckedShipGhostBobbingVerification
                 BobbingOriginY = originY,
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };
-            slot.SetSpeciesState(state);
+            place.SetSpeciesState(state);
 
-            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(slot, frame);
+            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, frame);
 
-            AssertEqual(expectedY, slot.Position.Y.Whole, $"Ghost {context}: position");
-            AssertEqual((ushort)0, slot.Position.Y.Fraction, $"Ghost {context}: subposition");
+            AssertEqual(expectedY, place.Position.Y.Whole, $"Ghost {context}: position");
+            AssertEqual((ushort)0, place.Position.Y.Fraction, $"Ghost {context}: subposition");
             AssertEqual(SixteenSixteenWords.ToDisplacement(expectedVelocity), state.VerticalVelocity, $"Ghost {context}: speed");
         }
         Console.WriteLine("  Wrecked Ship ghost bobbing: speed carries and the origin compares by the wrapped difference.");

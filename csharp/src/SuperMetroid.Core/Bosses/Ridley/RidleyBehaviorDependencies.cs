@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed record RidleyBehaviorDependencies
 {
-    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>
@@ -37,8 +38,8 @@ internal sealed record RidleyBehaviorDependencies
     /// <summary>Ridley projectiles.</summary>
     public required RidleyProjectiles RidleyProjectiles { get; init; }
 
-    /// <summary>Room status.</summary>
-    public required EnemyRoomStatus RoomStatus { get; init; }
+    /// <summary>Samus's passage through a door, which holds Ridley's opening wait.</summary>
+    public required DoorPassage DoorPassage { get; init; }
 
     /// <summary>Room fx.</summary>
     public required EnemyRoomFx RoomFx { get; init; }

@@ -55,7 +55,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(0)), enemies.MagdolliteBehavior.Glow,
             "a restarted Magdollite glow shows its first frame");
         Action step = enemies.MagdolliteBehavior.StepGlow;
-        RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace untouched = enemies.Places.InUpdateOrder[0];
         int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)

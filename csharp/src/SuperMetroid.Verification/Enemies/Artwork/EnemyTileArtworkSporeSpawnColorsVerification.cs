@@ -62,7 +62,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));

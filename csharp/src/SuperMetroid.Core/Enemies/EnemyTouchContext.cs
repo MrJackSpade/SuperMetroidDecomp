@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One Samus/enemy overlap that reached a touch reaction.</summary>
-/// <param name="Slot">The touched enemy.</param>
+/// <param name="Place">The touched enemy.</param>
 /// <param name="Samus">Samus, who touched it.</param>
 /// <param name="ControllerInput">Held input, used by reactions that grab or eject Samus.</param>
 /// <param name="Level">Room terrain for collision-aware reactions.</param>
@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Camera">The camera's position as the touch pass runs.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyTouchContext(
-    RoomEnemySlot Slot,
+    RoomEnemyPlace Place,
     SamusState Samus,
     GameplayAction ControllerInput,
     RoomLevelData Level,

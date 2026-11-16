@@ -34,13 +34,13 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;
-        (RoomEnemySlot stockSlot, AnimationPlayback<NinjaSpacePirateSegment> stockProgram) = Initialize(stock);
+        (RoomEnemyPlace stockPlace, AnimationPlayback<NinjaSpacePirateSegment> stockProgram) = Initialize(stock);
         SpriteSheetShadeDocument stockShade = GoldWallShade(stock);
         AssertTrue(stockShade.Inks.Length > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
         for (int index = 0; index < stockShade.Inks.Length; index++)
             AssertEqual(native[stockShade.Inks[index] % native.Length], stockShade.Colours[index],
                 $"Installed ninja gold wall shade ink {stockShade.Inks[index]} shows the gold Pirate's native colour");
-        AssertEqual(nativeX, stockSlot.Position.X.Whole,
+        AssertEqual(nativeX, stockPlace.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         // Facing left, the ninja starts at the native initial list $B2:F2DA.
         AssertEqual(new AnimationPlayback<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(NinjaSpacePirateSegment.InitialFacingLeft), AnimationPlace.StartOfAnimation), stockProgram,
@@ -67,13 +67,13 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             ImportEnemyArtwork artwork)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            slot.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
-            return new InitializeResult(slot, (enemies.NinjaSpacePirateStates[0]
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
+            place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
+            return new InitializeResult(place, (enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback);
         }
     }

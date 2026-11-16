@@ -28,6 +28,6 @@ internal static class TorizoCollisionDefinitionsAccess
     {
         /// <summary>The body hitboxes of the frame at native address <paramref name="frame"/>.</summary>
         internal static TorizoHitboxList HitboxesAt(ushort frame) =>
-            TorizoCollision.HitboxesAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
+            TorizoCollision.HitboxesAt(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame));
     }
 }

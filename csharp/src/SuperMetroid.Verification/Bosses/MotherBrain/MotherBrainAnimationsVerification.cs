@@ -62,11 +62,11 @@ internal static class MotherBrainAnimationsVerification
     private static NewMotherBrainResult NewMotherBrain()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemySlot bodySlot = enemies.SlotTable.Slots[0];
-        bodySlot.Bind(EnemyDefinitionId.MotherBrainBody, bodySlot.Definition);
-        RoomEnemySlot headSlot = enemies.SlotTable.Slots[1];
-        headSlot.Bind(EnemyDefinitionId.MotherBrainHead, headSlot.Definition);
-        var state = new MotherBrainEnemyState(bodySlot) { Head = headSlot };
+        RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
+        bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.Definition);
+        RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
+        headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.Definition);
+        var state = new MotherBrainEnemyState(bodyPlace) { Head = headPlace };
         enemies.MotherBrainEncounter.MotherBrain = state;
         return new NewMotherBrainResult(enemies, state);
     }
@@ -145,7 +145,7 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, program);
             for (int update = 0; update < 256; update++)
             {
-                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainPlaceAnimation(state.Body, samus: RoomEnemyFrameFixtures.StandaloneSamus());
                 // Every move carries her body with her (#1949, #2031): her posture changes no longer move it across.
                 AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, state.BodyPlacedAt,
                     $"{program}: her body stays placed at her");

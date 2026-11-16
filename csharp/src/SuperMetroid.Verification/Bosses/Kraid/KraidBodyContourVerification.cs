@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class KraidBodyContourVerification
 {
     /// <summary>Builds a direct probe for the private contour branch at its exact projectile-bottom threshold.</summary>
-    internal static Func<RoomEnemySlot, SamusProjectile, bool> CreateKraidBodyContourProbe() => (body, shot) =>
+    internal static Func<RoomEnemyPlace, SamusProjectile, bool> CreateKraidBodyContourProbe() => (body, shot) =>
     {
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
@@ -32,7 +32,7 @@ internal static class KraidBodyContourVerification
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var overlaps = CreateKraidBodyContourProbe();
-        var body = enemies.SlotTable.Slots[0];
+        var body = enemies.Places.InUpdateOrder[0];
         var shot = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)).Shots[0];
         const int roomHeightLimit = SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid.KeptCellCount * 256;
         for (int y = -roomHeightLimit; y <= roomHeightLimit; y++)

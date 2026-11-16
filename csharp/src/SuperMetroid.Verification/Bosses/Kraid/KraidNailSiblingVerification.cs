@@ -63,24 +63,24 @@ internal static class KraidNailSiblingVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
-        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.Kraid, enemies.SlotTable.Slots[0].Definition);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].Definition);
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
-        Action<RoomEnemySlot, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
+        Action<RoomEnemyPlace, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
         // Both fingernails live in their places, so each launch reads its sibling's speed.
         foreach (int place in new[] { 6, 7 })
         {
-            RoomEnemySlot living = enemies.SlotTable.Slots[place];
+            RoomEnemyPlace living = enemies.Places.InUpdateOrder[place];
             living.SetSpeciesState<KraidPartState>(enemies.KraidBehavior.Parts.NailStateOf(state, living));
         }
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (bool siblingAlternate in new[] { false, true })
         {
-            var nail = enemies.SlotTable.Slots[slot];
-            var sibling = enemies.SlotTable.Slots[13 - slot];
+            var nail = enemies.Places.InUpdateOrder[slot];
+            var sibling = enemies.Places.InUpdateOrder[13 - slot];
             var part = enemies.KraidBehavior.Parts.NailStateOf(state, nail);
             random = (ushort)raw;
             enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity = enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.WithY(enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
@@ -103,8 +103,8 @@ internal static class KraidNailSiblingVerification
         }
 
         // A killed sibling has stopped: the launch reads no speed from it, whatever speed it last moved at.
-        RoomEnemySlot firstNail = enemies.SlotTable.Slots[6];
-        RoomEnemySlot secondNail = enemies.SlotTable.Slots[7];
+        RoomEnemyPlace firstNail = enemies.Places.InUpdateOrder[6];
+        RoomEnemyPlace secondNail = enemies.Places.InUpdateOrder[7];
         KraidNailState killedSibling = enemies.KraidBehavior.Parts.NailStateOf(state, secondNail);
         killedSibling.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 0, 0x8000, 0);
         killedSibling.AlternateSpawn = false;

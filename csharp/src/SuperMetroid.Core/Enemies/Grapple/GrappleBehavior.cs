@@ -30,11 +30,11 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// <summary>
     /// Resolves the grapple beam's endpoint against enemies. Extended hitboxes are
     /// intentionally ignored: the beam compares the endpoint with each ordinary radius
-    /// plus an eight-pixel beam-point radius and selects the first interactive slot.
+    /// plus an eight-pixel beam-point radius and selects the first interactive place.
     /// </summary>
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
-        foreach (RoomEnemySlot enemy in _lifecycle.InteractiveEnemies)
+        foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
         {
             if (enemy.InvincibilityTimer != 0)
                 continue;
@@ -74,7 +74,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// Executes the common grapple AI the grappled state selects. Returning true tells the
     /// ordinary scheduler that this call replaced main AI for the current enemy frame.
     /// </summary>
-    internal bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame)
+    internal bool RunCommonGrappleAi(RoomEnemyPlace enemy, IEnemyAiFrame frame)
     {
         if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
             return false;

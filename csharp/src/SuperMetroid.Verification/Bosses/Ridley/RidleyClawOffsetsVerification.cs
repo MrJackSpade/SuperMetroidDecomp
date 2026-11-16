@@ -40,9 +40,9 @@ internal static class RidleyClawOffsetsVerification
             AssertTrue(Enum.IsDefined(feet.Height),
                 $"Ridley {program} selects claw height {feet.Height}");
         }
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus;
-        Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = NorfairRidleyCombat.RidleyClawOverlapsSamus;
-        var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> carry = NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus;
+        Func<RoomEnemyPlace, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = NorfairRidleyCombat.RidleyClawOverlapsSamus;
+        var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
         var state = new RidleyEnemyState();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         static int Decay(short offset) => offset < 0 ? Math.Min(0, offset + 4) : Math.Max(0, offset - 4);
@@ -50,13 +50,13 @@ internal static class RidleyClawOffsetsVerification
         foreach (RidleyClawHeight feet in RidleyClawHeightPlaces.TableOrder)
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            slot.Position = slot.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
+            place.Position = place.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
             state.FacingDirection = facing;
             state.ClawHeight = feet;
             state.GrabOffset = new Offset16<RoomPixels>(unchecked((short)raw), unchecked((short)(ushort.MaxValue - raw)));
             int dx = Decay(unchecked(state.GrabOffset.X));
             int dy = Decay(unchecked(state.GrabOffset.Y));
-            carry(slot, state, samus);
+            carry(place, state, samus);
             AssertEqual(unchecked((ushort)(raw + x[(int)facing] + dx)), samus.Position.X.Whole, "Actual carry X includes claw, signed decay and word wrap");
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw + y[RidleyClawHeightPlaces.Place(feet)] + dy)), samus.Position.Y.Whole, "Actual carry Y includes animated claw, signed decay and word wrap");
             AssertEqual(unchecked((short)dx), state.GrabOffset.X, "Carry X offset decays four pixels");
@@ -68,12 +68,12 @@ internal static class RidleyClawOffsetsVerification
         for (int dx = -32; dx <= 32; dx++)
         for (int dy = -32; dy <= 32; dy++)
         {
-            slot.Position = slot.Position.WithWhole(new(world, world));
+            place.Position = place.Position.WithWhole(new(world, world));
             state.FacingDirection = facing;
             state.ClawHeight = feet;
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(world + x[(int)facing] + dx)), unchecked((ushort)(world + y[RidleyClawHeightPlaces.Place(feet)] + dy))));
             bool expected = Math.Abs(dx) < samus.Kinematics.Radius.X + 8 && Math.Abs(dy) < samus.Kinematics.Radius.Y + 12;
-            AssertEqual(expected, overlaps(slot, state, samus, new Extent16<RoomPixels>(8, 12)), "Actual claw collision boundaries including world wrap");
+            AssertEqual(expected, overlaps(place, state, samus, new Extent16<RoomPixels>(8, 12)), "Actual claw collision boundaries including world wrap");
         }
         Console.WriteLine("Ridley claws: three authored claw heights, out-of-range rejection, 589824 carry placements and 114075 collision probes pass through bus-free consumers.");
     }

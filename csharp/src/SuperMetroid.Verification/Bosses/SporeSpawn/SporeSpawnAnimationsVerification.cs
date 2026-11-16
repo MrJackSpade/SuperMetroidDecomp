@@ -156,7 +156,7 @@ internal static class SporeSpawnAnimationsVerification
     private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.SporeSpawnBehavior.SporeSpawn = new SporeSpawnEnemyState(enemies.SlotTable.Slots[0]);
+        enemies.SporeSpawnBehavior.SporeSpawn = new SporeSpawnEnemyState(enemies.Places.InUpdateOrder[0]);
         enemies.VerificationServices().NextRandom = () => 1;
         enemies.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         return enemies;
@@ -167,12 +167,12 @@ internal static class SporeSpawnAnimationsVerification
         SporeSpawnBodySegment program,
         int frames,
         ImportEnemyArtwork? artwork = null,
-        Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
+        Action<RoomEnemySystem, RoomEnemyPlace>? afterFrame = null)
     {
         ImportEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.BossArtwork = bound.Bosses;
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));

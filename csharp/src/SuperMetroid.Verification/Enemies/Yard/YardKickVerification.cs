@@ -31,7 +31,7 @@ internal static class YardKickVerification
                 RoomEnemyCompatibilityFixtures.ForNewRoom(new SuperMetroid.Core.Compatibility.SharedFadeStepCount(), new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), kickDistance),
                 definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
-            var actor = enemies.SlotTable.Slots[0];
+            var actor = enemies.Places.InUpdateOrder[0];
             var state = enemies.YardStates[0];
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };

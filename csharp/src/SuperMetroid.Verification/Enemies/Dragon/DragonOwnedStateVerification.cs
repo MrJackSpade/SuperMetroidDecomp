@@ -14,11 +14,11 @@ internal static class DragonOwnedStateVerification
     internal static void VerifyDragonOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         body.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
         enemies.DragonBehavior.InitializeDragon(body);
-        RoomEnemySlot wing = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
         enemies.DragonBehavior.InitializeDragon(wing);

@@ -32,7 +32,7 @@ internal sealed class CrocomireBodyLayer
     /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
     internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
     {
-        RoomEnemySlot tongue = state.Tongue ??
+        RoomEnemyPlace tongue = state.Tongue ??
             throw new InvalidOperationException("Crocomire's tongue animation started without a tongue.");
         state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(segment), AnimationPlace.StartOfAnimation);
         tongue.AnimationClock.RestartAfter(updates);
@@ -62,15 +62,17 @@ internal sealed class CrocomireBodyLayer
     /// <summary>
     /// Places the tongue at the body: a normal second enemy, it lies at its body-relative X offset, and every placement of
     /// his body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
+    /// The tongue's picture is drawn where the tongue lies until his steps move his body later in the update (#2031).
     /// </summary>
     internal static void PlaceCrocomireTongue(CrocomireEnemyState state)
     {
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         if (state.Tongue is { } tongue)
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()
                 ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
             tongue.Position = tongue.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + offset), body.Position.Y.Whole));
+            tongue.DrawOffset = Offset16<RoomPixels>.Zero;
         }
     }
 

@@ -136,13 +136,13 @@ internal static class ShutterNativeArc
         for (int i = 0; i < 2; i++)
         {
             int offset = i * 64;
-            var slot = runtime.Room.LoadedScope.Enemies.SlotTable.Slots[i];
-            Word(0xF78 + offset, EnemyDefinitionIds.HeaderPointer(slot.DefinitionId));
-            Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(slot.Frame));
-            ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, slot.DefinitionId);
-            Word(0xF7A + offset, slot.Position.X.Whole); Word(0xF7E + offset, slot.Position.Y.Whole);
-            Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);
-            Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
+            var place = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[i];
+            Word(0xF78 + offset, EnemyDefinitionIds.HeaderPointer(place.DefinitionId));
+            Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(place.Frame));
+            ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, place.DefinitionId);
+            Word(0xF7A + offset, place.Position.X.Whole); Word(0xF7E + offset, place.Position.Y.Whole);
+            Word(0xF80 + offset, place.Position.Y.Fraction); Word(0xF82 + offset, place.Radius.X);
+            Word(0xF84 + offset, place.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action));

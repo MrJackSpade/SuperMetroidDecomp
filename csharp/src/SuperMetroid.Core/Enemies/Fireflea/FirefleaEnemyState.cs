@@ -4,16 +4,16 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// <summary>
 /// The state of a Fireflea. The speed and the vertical extents are the Fireflea's own: setup writes the speed, and
 /// writes the extents for every Fireflea that moves vertically, the only kind that reads them, so nothing a previous
-/// Fireflea in the slot left reaches a new one.
+/// Fireflea in the place left reaches a new one.
 /// </summary>
 public sealed class FirefleaEnemyState
 {
-    /// <summary>The slot the Fireflea occupies, whose spawn settings choose its path.</summary>
-    private readonly RoomEnemySlot _slot;
+    /// <summary>The place the Fireflea occupies, whose spawn settings choose its path.</summary>
+    private readonly RoomEnemyPlace _place;
 
-    /// <summary>Starts the state of the Fireflea in <paramref name="slot"/>.</summary>
-    /// <param name="slot">The slot the Fireflea occupies.</param>
-    internal FirefleaEnemyState(RoomEnemySlot slot) => _slot = slot;
+    /// <summary>Starts the state of the Fireflea in <paramref name="place"/>.</summary>
+    /// <param name="place">The place the Fireflea occupies.</param>
+    internal FirefleaEnemyState(RoomEnemyPlace place) => _place = place;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FirefleaSegment> Playback { get; set; }
@@ -55,5 +55,5 @@ public sealed class FirefleaEnemyState
     };
 
     /// <summary>Whether the spawn settings choose circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
-    public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Flight is FirefleaFlight.Circling;
+    public bool UsesCircularMovement => _place.SpawnSettings<FirefleaSpawnSettings>().Flight is FirefleaFlight.Circling;
 }

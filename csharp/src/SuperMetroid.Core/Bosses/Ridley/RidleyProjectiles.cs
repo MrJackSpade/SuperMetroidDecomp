@@ -19,7 +19,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
 {
     /// <summary>The loaded room, whose area selects Ridley's projectile damage.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Owns slots used by fireballs and successive afterburn projectiles.</summary>
+    /// <summary>Owns places used by fireballs and successive afterburn projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies Ridley's current facing and calculated muzzle velocity.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -56,7 +56,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     private static readonly TrigonometryAngle RightFacingAimSplit = new(192);
 
     /// <summary>Runs Ridley's fireball aim step and retains its asymmetric aim clamps.</summary>
-    internal void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
+    internal void CalculateRidleyFireballVelocity(RoomEnemyPlace ridley, SamusState samus)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(ridley);
         int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
@@ -91,7 +91,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     }
 
     /// <summary>Allocates Ridley's fireball at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
-    internal void SpawnRidleyFireball(RoomEnemySlot ridley, int afterburns)
+    internal void SpawnRidleyFireball(RoomEnemyPlace ridley, int afterburns)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

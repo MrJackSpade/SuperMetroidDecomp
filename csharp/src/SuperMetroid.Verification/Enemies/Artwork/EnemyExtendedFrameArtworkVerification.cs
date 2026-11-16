@@ -110,14 +110,14 @@ internal static class EnemyExtendedFrameArtworkVerification
                          new VerifyInstalledEnemyExtendedFramesCase(0x0000, 0x0000),
                      })
             {
-                RoomEnemySlot? drawn = null;
+                RoomEnemyPlace? drawn = null;
                 int drawnRow = 0;
                 int drawnBase = 0;
-                OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), (slot, system) =>
+                OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), (place, system) =>
                 {
-                    drawn = slot;
-                    drawnRow = slot.PaletteRowIn(system);
-                    drawnBase = slot.NativeTileBaseIn(system);
+                    drawn = place;
+                    drawnRow = place.PaletteRowIn(system);
+                    drawnBase = place.NativeTileBaseIn(system);
                 });
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
                     frame.Bank, frame.Pointer, new(x, y),
@@ -253,7 +253,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>Draws a bank-$B2 installed frame through the production enemy-layer path for OAM comparison.</summary>
     private static OamBuffer DrawExtended(ImportEnemyArtwork art,
         ushort pointer, Position16<RoomPixels> position,
-        Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
+        Action<RoomEnemyPlace, RoomEnemySystem>? inspect = null)
     {
         return DrawExtendedForBank(art, EnemyExtendedFrameDefinitions.Bank,
             pointer, position, inspect);
@@ -262,38 +262,38 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// <summary>Installs a chosen extended frame on a fixture enemy and captures the production layer draw for its bank.</summary>
     internal static OamBuffer DrawExtendedForBank(ImportEnemyArtwork? art,
         byte bank, ushort pointer, Position16<RoomPixels> position,
-        Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
+        Action<RoomEnemyPlace, RoomEnemySystem>? inspect = null)
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         // A boss frame names its body frame through the installed body sheets (#1466), as a room loading the boss binds them.
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
-        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        EnemyFrameId? frame = RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer);
-        slot.Bind(ExtendedFrameShower(frame), slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
+        place.Bind(ExtendedFrameShower(frame), place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(slot.DefinitionId));
-            slot.Shading = PictureShading.Standard;
+            enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.DefinitionId));
+            place.Shading = PictureShading.Standard;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
-        if (slot.DefinitionId == EnemyDefinitionId.Ridley)
+        if (place.DefinitionId == EnemyDefinitionId.Ridley)
         {
-            enemies.RidleyEncounter.Parts.AttachBody(slot, "Lower Norfair Ridley");
+            enemies.RidleyEncounter.Parts.AttachBody(place, "Lower Norfair Ridley");
             enemies.RidleyEncounter.Ridley = new RidleyEnemyState();
         }
-        slot.CollidesByFrameHitboxes = true;
-        slot.Frame = frame;
+        place.CollidesByFrameHitboxes = true;
+        place.Frame = frame;
         if (frame is { } shown)
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
-        slot.AnimationClock.HoldFor(7);
-        slot.Position = slot.Position.WithWhole(position);
+        place.AnimationClock.HoldFor(7);
+        place.Position = place.Position.WithWhole(position);
         var oam = new OamBuffer();
         enemies.Drawing.DrawAsOam(oam, new(0, 0));
-        inspect?.Invoke(slot, enemies);
+        inspect?.Invoke(place, enemies);
         return oam;
     }
 

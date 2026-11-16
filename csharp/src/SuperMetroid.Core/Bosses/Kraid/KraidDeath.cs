@@ -67,7 +67,7 @@ internal sealed class KraidDeath
 
     /// <summary>Runs the current step of Kraid's death: his staged sinking, his colour change and the room's repair.</summary>
     internal void RunKraidDeathPhase(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX)
     {
@@ -91,7 +91,7 @@ internal sealed class KraidDeath
             case KraidPhase.DeathShowBody:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.Phase = KraidPhase.DeathStartSinking;
-                foreach (RoomEnemySlot lint in _parts.Lints)
+                foreach (RoomEnemyPlace lint in _parts.Lints)
                 {
                     _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
                     _parts.LintStateOf(state, lint).PhaseTimer = KraidBehavior.KraidStillPartTimer;
@@ -191,7 +191,7 @@ internal sealed class KraidDeath
     /// Runs the shared body of both death-drop checks: a living Kraid, or a dead
     /// one whose camera has left the room's left edge, is given a dead enemy's properties.
     /// </summary>
-    private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, int cameraX)
+    private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemyPlace body, int cameraX)
     {
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) && cameraX == 0)
             return;
@@ -211,11 +211,11 @@ internal sealed class KraidDeath
         // The death clears the fingernails' respawn bit, then kills the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
-        foreach (RoomEnemySlot nail in _parts.Nails)
+        foreach (RoomEnemyPlace nail in _parts.Nails)
             nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        foreach (RoomEnemySlot nail in _parts.Nails)
+        foreach (RoomEnemyPlace nail in _parts.Nails)
             _deathsAndDrops.StartGenericEnemyDeath(nail, deathAnimation: EnemyDeathExplosion.Small);
-        foreach (RoomEnemySlot lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in _parts.Lints)
             _deathsAndDrops.StartGenericEnemyDeath(lint, deathAnimation: EnemyDeathExplosion.Small);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
@@ -223,7 +223,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
-    private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)
+    private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state)
     {
         _ = _head.AdvanceKraidHeadAnimation(state);
         if (--state.DeathSoundTimer == 0)
@@ -237,14 +237,14 @@ internal sealed class KraidDeath
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        RoomEnemySlot arm = _parts.Arm;
+        RoomEnemyPlace arm = _parts.Arm;
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         arm.Presence = arm.Presence.With(EnemyPresence.Deleted);
         // The lints and the foot take the arm's new properties, no longer solid and without animation or off-screen
         // processing.
         EnemyContact otherContact = arm.Contact.Without(EnemyContact.SolidToSamus);
         EnemyProcessing otherProcessing = arm.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        foreach (RoomEnemySlot lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in _parts.Lints)
         {
             lint.Contact = otherContact;
             lint.Processing = otherProcessing;
@@ -272,7 +272,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Takes the sink step the body has reached as it descends, if any: its ceiling block goes and a rock falls from it.</summary>
-    internal void TakeKraidSinkStep(RoomEnemySlot body)
+    internal void TakeKraidSinkStep(RoomEnemyPlace body)
     {
         if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is not KraidSinkStep step)
             return;

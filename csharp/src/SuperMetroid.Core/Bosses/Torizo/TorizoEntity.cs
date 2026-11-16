@@ -5,41 +5,41 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>One Torizo occupant, Bomb or Golden: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Torizo species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class TorizoEntity(TorizoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
+internal sealed class TorizoEntity(TorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {
     /// <summary>Whether this Torizo has no health left: its belly's glow ends on the first update it sees so (#1700).</summary>
-    public bool IsDefeated => Slot.Health == 0;
+    public bool IsDefeated => Place.Health == 0;
 
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => species.Movement.RunTorizoInitializationAi(Slot, surroundings);
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.Movement.RunTorizoInitializationAi(Place, surroundings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (TorizoPartDefinitions.Parts[Slot.DefinitionId])
+        switch (TorizoPartDefinitions.Parts[Place.DefinitionId])
         {
             case TorizoPart.BombTorizo:
-                species.RunBombTorizoMainAi(Slot, frame);
+                species.RunBombTorizoMainAi(Place, frame);
                 break;
             case TorizoPart.GoldenTorizo:
-                species.RunGoldenTorizoMainAi(Slot, frame);
+                species.RunGoldenTorizoMainAi(Place, frame);
                 break;
             default:
-                throw new InvalidOperationException($"Torizo entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Torizo entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceTorizoTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceTorizoTypedAnimation(Place, context);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        return TorizoCombat.FindTorizoHitboxReaction(Slot, probe, out reaction);
+        return TorizoCombat.FindTorizoHitboxReaction(Place, probe, out reaction);
     }
 
     /// <summary>Both Torizos' contact and shots meet their own frames' hitboxes.</summary>
@@ -51,7 +51,7 @@ internal sealed class TorizoEntity(TorizoBehavior species, RoomEnemySlot slot, E
 
     /// <summary>The shot reaction each Torizo's definition leaves to it: Golden Torizo's own, or Bomb Torizo's.</summary>
     public EnemyReaction? SpeciesShot =>
-        Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo ? TorizoReactions.GoldenShot : TorizoReactions.Shot;
+        Place.DefinitionId == EnemyDefinitionId.GoldenTorizo ? TorizoReactions.GoldenShot : TorizoReactions.Shot;
 
     /// <summary>
     /// Both Torizos' hurt behaviour; the common animation runner still advances after it, as the enemies' update does.
@@ -59,7 +59,7 @@ internal sealed class TorizoEntity(TorizoBehavior species, RoomEnemySlot slot, E
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        species.Combat.ApplyTorizoHurt(Slot);
+        species.Combat.ApplyTorizoHurt(Place);
         return true;
     }
 
@@ -91,5 +91,5 @@ internal sealed class TorizoEntity(TorizoBehavior species, RoomEnemySlot slot, E
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         reaction == TorizoReactions.Shot || reaction == TorizoReactions.StandUpSitDownShot ||
-        (Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo && reaction == TorizoReactions.GoldenShot);
+        (Place.DefinitionId == EnemyDefinitionId.GoldenTorizo && reaction == TorizoReactions.GoldenShot);
 }

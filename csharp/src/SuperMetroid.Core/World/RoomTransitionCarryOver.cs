@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -13,9 +12,5 @@ namespace SuperMetroid.Core.World;
 /// fractions (#1266); the runtime's first room takes the fractions the previous game left
 /// (<see cref="CameraFractionsKeptAcrossGames"/>).
 /// </param>
-/// <param name="DoorGates">
-/// The outgoing room's door-transition gates, which door-transition code owns for the whole transition; the
-/// destination's enemies load with them clear and resume them once loaded (owner decision on #1329).
-/// </param>
 [RoomScopeBoundary("Captures the outgoing room's parts the destination reads.")]
-internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, EnemyDoorTransitionGates DoorGates);
+internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera);

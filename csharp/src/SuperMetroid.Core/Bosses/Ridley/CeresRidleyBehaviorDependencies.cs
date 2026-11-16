@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -11,7 +12,7 @@ internal sealed record CeresRidleyBehaviorDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>
@@ -23,8 +24,8 @@ internal sealed record CeresRidleyBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
+    /// <summary>Place table.</summary>
+    public required EnemyPlaces Places { get; init; }
 
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
@@ -40,6 +41,9 @@ internal sealed record CeresRidleyBehaviorDependencies
 
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
+
+    /// <summary>Samus's passage through a door, which holds Ridley's opening wait.</summary>
+    public required DoorPassage DoorPassage { get; init; }
 
     /// <summary>The session's unauthored Speed Booster cadence, whose delays the getaway's wing frames leave behind.</summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }

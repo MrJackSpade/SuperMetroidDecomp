@@ -32,19 +32,19 @@ internal static class CeresDoorInitializationDefinitionsVerification
             (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(selector);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.StartCeresDoorOrWall(actor, settings);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.StartCeresDoorOrWall(actor, settings);
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + selector * 2)),
-                CeresNativeWords.MainBehaviourWord(slot),
+                CeresNativeWords.MainBehaviourWord(place),
                 $"production Ceres {actor} {settings} main behaviour, function selector {selector}");
-            AnimationPlayback<CeresDoorSegment> playback = slot.RequireSpeciesState<CeresDoorAnimationState>().Playback;
+            AnimationPlayback<CeresDoorSegment> playback = place.RequireSpeciesState<CeresDoorAnimationState>().Playback;
             CeresDoorSegment started = CeresDoorAnimations.StartingAt.Keys.Single(segment =>
                 new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation).Equals(playback));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + selector * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, started),
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
-            AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
+            AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue,
                 $"production Ceres {actor} {settings} instruction timer");
         }
 

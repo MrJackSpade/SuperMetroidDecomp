@@ -20,23 +20,23 @@ internal static class BullBehaviorVerification
     internal static void VerifyBullBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Bull, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
+        enemies.BullBehavior.InitializeBull(place);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
         AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullSegment.Normal, BullFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullSegment.Normal)),
+            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullSegment.Normal)),
             "Bull normal loop");
 
-        BullBehavior.ResolveBullImmuneShot(slot, state, SamusProjectileDirection.Right);
+        BullBehavior.ResolveBullImmuneShot(place, state, SamusProjectileDirection.Right);
         AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Shot), AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.ShotLoop).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullSegment.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
-            EnemyInstructionRunner.ShownFrames(slot, 61), "Bull shot program repeats five times and returns to normal");
+            EnemyInstructionRunner.ShownFrames(place, 61), "Bull shot program repeats five times and returns to normal");
         Console.WriteLine("  Bull behavior: the normal loop and the five-repeat immune-shot reaction run as the cartridge does.");
     }
 
@@ -48,23 +48,23 @@ internal static class BullBehaviorVerification
     internal static void VerifyBullDecelerationOvershoot()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
-        slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(slot);
-        BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Bull, place.Definition);
+        place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
+        enemies.BullBehavior.InitializeBull(place);
+        BullEnemyState state = place.RequireSpeciesState<BullEnemyState>();
         state.Action = BullAction.Decelerating;
         state.Speed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(10);
         state.Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(48);
         state.AccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
         state.AccelerationIntervalTimer = 1;
 
-        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+        BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(24, state.Acceleration.InTwoHundredFiftySixthsOfPixel, "the expiring interval shrinks the acceleration by its delta");
         AssertEqual(-14, state.Speed.InTwoHundredFiftySixthsOfPixel, "the overshooting deceleration leaves the speed below zero");
         AssertEqual(BullAction.Decelerating, state.Action, "the overshoot is read on the following update");
 
-        BullBehavior.RunBullMain(slot, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+        BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(BullAction.MovementDelay, state.Action, "a speed below zero stops the flight");
         AssertTrue(state.Speed.IsZero, "stopping clears the speed");
         AssertTrue(state.Acceleration.IsZero, "stopping clears the acceleration");

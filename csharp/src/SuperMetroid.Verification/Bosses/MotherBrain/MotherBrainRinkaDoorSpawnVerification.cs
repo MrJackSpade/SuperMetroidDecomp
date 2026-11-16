@@ -67,9 +67,9 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
         AssertEqual(RoomDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
-        RoomEnemySlot[] rinkas = runtime.Enemies.SlotTable.Slots
-            .Where(slot => slot.DefinitionId == EnemyDefinitionId.Rinka && slot.SpawnSettings<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint)
-            .OrderBy(slot => slot.SlotIndex)
+        RoomEnemyPlace[] rinkas = runtime.Enemies.Places.InUpdateOrder
+            .Where(place => place.DefinitionId == EnemyDefinitionId.Rinka && place.SpawnSettings<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint)
+            .OrderBy(place => place.Ordinal)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");
         MotherBrainRinkaDoorSpawnExpected[] expected = [new MotherBrainRinkaDoorSpawnExpected(0x03e7, 0x0026), new MotherBrainRinkaDoorSpawnExpected(0x03e7, 0x00a6), new MotherBrainRinkaDoorSpawnExpected(0x0337, 0x0036)];
@@ -89,7 +89,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
 
         /// <summary>Allows enemy initialization once scrolling reaches the recorded layer-1 X.</summary>
         /// <exception cref="InvalidOperationException">No runtime has been given.</exception>
-        public bool HasInitializedEnemySlot(int slot) =>
+        public bool HasInitializedEnemyPlace(int slot) =>
             (Runtime ?? throw new InvalidOperationException("The loader progress follows no runtime.")).Room.LoadedCamera.PixelPosition.X <= cameraX;
     }
 

@@ -31,8 +31,12 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// </summary>
     public PhantoonPhase Phase { get; internal set; } = PhantoonPhase.SpawnStartingFlames;
 
-    /// <summary>The updates before the current phase moves on.</summary>
-    public int PhaseTimer { get; internal set; }
+    /// <summary>
+    /// The updates the current phase waits before it moves on, zero or more: a timed phase moves on on the update its timer
+    /// reaches zero (<see cref="PhantoonPresentation.TickPhantoonPhaseTimer"/>), and the power's return waits out its
+    /// count before it starts.
+    /// </summary>
+    public int PhaseTimer { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>Whether the eye-close animation's pattern choice takes the flame-rain branch.</summary>
     public bool FlameRainRequested { get; internal set; }

@@ -84,7 +84,8 @@ internal static class NativeEnemyFamilyStateImport
             EnemyDefinitionId part = enemy.DefinitionId;
             if (part == EnemyDefinitionId.PhantoonEye)
             {
-                phantoon.Round.EyeClosedTimer = CoordinateAxis.AsSigned(words.A);
+                // A count the cartridge ran below zero has run out, as the port's timer that stays at zero has.
+                phantoon.Round.EyeClosedTimer = Math.Max(0, CoordinateAxis.AsSigned(words.A));
                 phantoon.FigureEight.Reversed = words.C != 0;
                 phantoon.Death.FadeCycles = words.C;
                 phantoon.BodyFade.Denominator = words.D;
@@ -120,7 +121,8 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.StartingFlames.Orbiting = words.B != 0;
                 phantoon.FigureEight.Speed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
-                phantoon.PhaseTimer = CoordinateAxis.AsSigned(words.E);
+                // A count the cartridge ran below zero has run out, as the port's timer that stays at zero has.
+                phantoon.PhaseTimer = Math.Max(0, CoordinateAxis.AsSigned(words.E));
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
             }
@@ -278,7 +280,11 @@ internal static class NativeEnemyFamilyStateImport
             shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.ColourTimer = LittleEndianBytes.HighByte(words.D);
             shitroidRecord.ColourDelay = words.E;
-            shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);
+            // The cartridge keeps the Sidehopper drain's updates in the same word as every other wait's count.
+            if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
+                shitroidRecord.SidehopperDrainTimer = words.F;
+            else
+                shitroidRecord.StateTimer.Count = CoordinateAxis.AsSigned(words.F);
         }
         if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
         {
@@ -594,7 +600,7 @@ internal static class NativeEnemyFamilyStateImport
                 rinkaRecord.Action = MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             rinkaRecord.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
-            rinkaRecord.DelayTimer = CoordinateAxis.AsSigned(words.F);
+            rinkaRecord.DelayTimer.Count = CoordinateAxis.AsSigned(words.F);
         }
         if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {

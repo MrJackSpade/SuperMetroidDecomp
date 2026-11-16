@@ -6,8 +6,19 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public sealed class PhantoonRoundState
 {
-    /// <summary>The updates before his eye opens.</summary>
-    public int EyeClosedTimer { get; internal set; }
+    /// <summary>The updates before his eye opens, zero or more: it opens on the update the timer reaches zero.</summary>
+    public int EyeClosedTimer { get; internal set => field = Ensure.AtLeastZero(value); }
+
+    /// <summary>
+    /// Steps the eye-closed timer one update and reports whether it has run out (#2253): a timer loaded with N runs out on
+    /// its Nth step, one at zero on its first, and a timer that has run out stays at zero.
+    /// </summary>
+    internal bool StepEyeClosedTimerRunsOut()
+    {
+        if (EyeClosedTimer > 0)
+            EyeClosedTimer--;
+        return EyeClosedTimer == 0;
+    }
 
     /// <summary>The damage he has taken during the current round.</summary>
     public int Damage { get; internal set => field = Ensure.AtLeastZero(value); }

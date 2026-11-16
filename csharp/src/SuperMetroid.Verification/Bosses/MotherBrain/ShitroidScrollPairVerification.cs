@@ -43,7 +43,7 @@ internal static class ShitroidScrollPairVerification
 
         Seed(scrolls, [RoomScrollState.Closed, RoomScrollState.Closed, RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.Closed]);
         state.Action = ShitroidAction.RiseAfterFeeding;
-        state.StateTimer = 0;
+        state.StateTimer.Count = 0;
         runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, null);
         AssertEqual(ShitroidAction.HoverNearSamus, state.Action, "the rise's timer running out starts the hover");
         Expect(scrolls, [RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed],

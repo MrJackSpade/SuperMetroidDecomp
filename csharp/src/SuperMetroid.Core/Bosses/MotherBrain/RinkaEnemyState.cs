@@ -37,6 +37,8 @@ public sealed class RinkaEnemyState
     /// </summary>
     public RinkaSpawnPoint? SpawnPoint { get; internal set; }
 
-    /// <summary>Updates left before flight or before a special respawn, counted down past zero.</summary>
-    public int DelayTimer { get; internal set; }
+    /// <summary>
+    /// The wait before the Rinka aims or, for a special Rinka, before it respawns: one of its two waits at a time (#2253).
+    /// </summary>
+    public MotherBrainCountdown DelayTimer { get; } = new();
 }

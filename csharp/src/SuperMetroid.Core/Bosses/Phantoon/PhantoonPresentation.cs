@@ -64,8 +64,16 @@ internal sealed class PhantoonPresentation
         return false;
     }
 
-    /// <summary>Counts the body phase timer down and reports its expiry: reaching zero or running past it.</summary>
-    internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state) => --state.PhaseTimer <= 0;
+    /// <summary>
+    /// Steps the phase timer one update and reports whether it has run out (#2253): a timer loaded with N runs out on its
+    /// Nth step, one at zero on its first, and a timer that has run out stays at zero.
+    /// </summary>
+    internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state)
+    {
+        if (state.PhaseTimer > 0)
+            state.PhaseTimer--;
+        return state.PhaseTimer == 0;
+    }
 
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemyPlace body) =>

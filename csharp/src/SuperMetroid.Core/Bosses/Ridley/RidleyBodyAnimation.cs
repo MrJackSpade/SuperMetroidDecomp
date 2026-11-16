@@ -75,13 +75,9 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FaceForward }:
                 state.FacingDirection = RidleyFacing.Turning;
                 return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FlipLeft }:
+            case RidleyBodyCue.Flip flip:
                 RidleyTail.MirrorRidleyTail(state);
-                state.FacingDirection = RidleyFacing.Left;
-                return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FlipRight }:
-                RidleyTail.MirrorRidleyTail(state);
-                state.FacingDirection = RidleyFacing.Right;
+                state.FacingDirection = flip.Facing == HorizontalDirection.Left ? RidleyFacing.Left : RidleyFacing.Right;
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.AimFireball }:
                 _ridleyProjectiles.CalculateRidleyFireballVelocity(place, samus);

@@ -8,12 +8,16 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 internal static class SkulteraNativeWords
 {
-    /// <summary>The routine word naming each <see cref="SkulteraAction"/>.</summary>
-    internal static readonly NativeWordIdentities<SkulteraAction> SkulteraActions = new(new Dictionary<SkulteraAction, ushort>
-    {
-        [SkulteraAction.SwimmingLeft] = 0x9132,
-        [SkulteraAction.SwimmingRight] = 0x91ab,
-        [SkulteraAction.TurningRight] = 0x9224,
-        [SkulteraAction.TurningLeft] = 0x9256,
-    });
+    /// <summary>
+    /// The routine word naming each <see cref="SkulteraAction"/> and the heading it carries (#2165), the cartridge giving
+    /// each heading a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(SkulteraAction Action, HorizontalDirection Heading)> SkulteraActions =
+        new(new Dictionary<(SkulteraAction Action, HorizontalDirection Heading), ushort>
+        {
+            [(SkulteraAction.Swimming, HorizontalDirection.Left)] = 0x9132,
+            [(SkulteraAction.Swimming, HorizontalDirection.Right)] = 0x91ab,
+            [(SkulteraAction.Turning, HorizontalDirection.Right)] = 0x9224,
+            [(SkulteraAction.Turning, HorizontalDirection.Left)] = 0x9256,
+        });
 }

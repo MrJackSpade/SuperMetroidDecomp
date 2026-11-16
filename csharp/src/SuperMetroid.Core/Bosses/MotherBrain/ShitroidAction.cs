@@ -40,10 +40,11 @@ public enum ShitroidAction
     PostDrainPause,
     /// <summary>Rises after releasing the drained Samus.</summary>
     RiseAfterDrainingSamus,
-    /// <summary>Flies left during the scripted departure.</summary>
-    FlyLeft,
-    /// <summary>Flies right during the scripted departure.</summary>
-    FlyRight,
+    /// <summary>
+    /// Flies to Samus's side during the scripted departure (<see cref="ShitroidEnemyState.DepartureSide"/>): first her
+    /// left, then her right.
+    /// </summary>
+    FlyBesideSamus,
     /// <summary>Initializes the final room exit.</summary>
     BeginExit,
     /// <summary>Flies out of the encounter room.</summary>

@@ -381,23 +381,11 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetPosture(torizo, TorizoFacing.Posture(torizo) | TorizoPostureFlags.TurningAround);
                 return null;
 
-            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedLeftWithLeftFoot }:
-                SetPosture(torizo, TorizoPostureFlags.None);
-                state.CountDecisionStep();
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedRightWithRightFoot }:
-                SetPosture(torizo, TorizoPostureFlags.FacingRight);
-                state.CountDecisionStep();
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedLeftWithRightFoot }:
-                SetPosture(torizo, TorizoPostureFlags.OppositeLegForward);
-                state.CountDecisionStep();
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedRightWithLeftFoot }:
-                SetPosture(torizo, TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward);
+            case TorizoCue.Stepped stepped:
+                // The step replaces all three posture latches: the way it faces, and which leg leads.
+                SetPosture(torizo,
+                    (stepped.Direction == HorizontalDirection.Right ? TorizoPostureFlags.FacingRight : TorizoPostureFlags.None)
+                    | (stepped.Foot != stepped.Direction ? TorizoPostureFlags.OppositeLegForward : TorizoPostureFlags.None));
                 state.CountDecisionStep();
                 return null;
 

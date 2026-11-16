@@ -164,6 +164,9 @@ public sealed class DraygonEnemyState
     /// <summary>The body's phase; the body runs it each update before its three parts take the body's position.</summary>
     public DraygonPhase Phase { get; internal set; }
 
+    /// <summary>The way Draygon's swoop or goop pass travels (#2165).</summary>
+    public HorizontalDirection PassDirection { get; internal set; }
+
     /// <summary>
     /// The updates the current intro stage has run: zero when the opening delay starts and when the dance starts, and
     /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration.

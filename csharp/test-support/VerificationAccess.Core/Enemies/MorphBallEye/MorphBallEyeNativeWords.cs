@@ -15,6 +15,5 @@ internal static class MorphBallEyeNativeWords
         [MorphBallEyeAction.Activating] = 0x912e,
         [MorphBallEyeAction.Active] = 0x9160,
         [MorphBallEyeAction.Deactivating] = 0x91ce,
-        [MorphBallEyeAction.ShowingMount] = 0x91dc,
     });
 }

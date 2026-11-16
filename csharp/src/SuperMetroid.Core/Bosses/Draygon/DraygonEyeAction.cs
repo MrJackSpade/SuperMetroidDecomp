@@ -6,9 +6,6 @@ internal enum DraygonEyeAction
     /// <summary>The eye is inert.</summary>
     Inert,
 
-    /// <summary>Draygon eye behaviour: facing left.</summary>
-    FacingLeft,
-
-    /// <summary>Draygon eye behaviour: facing right.</summary>
-    FacingRight,
+    /// <summary>The eye tracks Samus the way Draygon faces (<see cref="DraygonEyeState.Facing"/>).</summary>
+    Tracking,
 }

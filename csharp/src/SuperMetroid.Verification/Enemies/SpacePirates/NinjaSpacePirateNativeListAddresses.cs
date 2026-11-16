@@ -53,7 +53,9 @@ internal static class NinjaSpacePirateNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<NinjaSpacePirateCue>> Instructions = new()
     {
-        [0xef83] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.Begin>("E"),
+        // The routine setter begins an action, one that goes one way with its heading (#2165).
+        [0xef83] = new NativeCueShape<NinjaSpacePirateCue>(nameof(NinjaSpacePirateCue.Begin),
+            cue => cue is NinjaSpacePirateCue.Begin or NinjaSpacePirateCue.BeginHeading, "E"),
         [0xf536] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.SetShading>("V"),
         [0xf546] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.PlaySound>("V"),
         [0xf564] = NativeCueShape<NinjaSpacePirateCue>.Of<NinjaSpacePirateCue.ThrowClaw>("VSY"),

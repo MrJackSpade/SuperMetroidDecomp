@@ -42070,7 +42070,7 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCue",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -42079,7 +42079,46 @@
         "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyCue.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCue.Dust",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCue.Signal",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCue.Step",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCueKind",
@@ -42716,6 +42755,45 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireStep",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireStepCondition",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireStepCondition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireStepDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireStepDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsAccess",
@@ -44352,7 +44430,7 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidCue",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -44361,7 +44439,33 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidCue.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidCue.Signal",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidCue.Spit",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidCueKind",
@@ -68486,19 +68590,6 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyShotTiming",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyShotTiming.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemySoundEffectDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -68646,19 +68737,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyTrigonometryAngleDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyTrigonometryAngleDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyVerticalProbe",
@@ -71982,13 +72060,52 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitCue",
-      "kind": "enum",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAcidSpitCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitCue.Launch",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAcidSpitCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitCue.Signal",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAcidSpitCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAcidSpitCueKind.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -73944,6 +74061,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Metaree.MetareeMotionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeMotionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Metaree.MetareeNativeWords",
       "kind": "static class",
       "scope": "test",
@@ -74240,6 +74370,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MochtroidBehaviorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidBehaviorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Metroids.MochtroidEnemyState",
@@ -74558,6 +74701,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeWatchDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeWatchDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MotherBrainTubePiece",
@@ -76117,6 +76273,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Powamp.PowampBalloonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampBalloonEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Powamp.PowampBalloonInflation",
       "kind": "record struct",
       "scope": "product",
@@ -76182,6 +76351,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Powamp.PowampBodyEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampBodyEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Powamp.PowampBodyState",
       "kind": "class",
       "scope": "product",
@@ -76190,19 +76372,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampBodyState.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Powamp.PowampEntity",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -78870,6 +79039,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SaveStation.SaveStationElectricityDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SaveStation/SaveStationElectricityDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Sbug.Artwork.SbugFrameToolingDefinitions",
       "kind": "static class",
       "scope": "tool",
@@ -79565,6 +79747,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Shutters.GrowingShutterDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Shutters/GrowingShutterDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shutters.GrowingShutterEnemyState",
@@ -80776,6 +80971,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePirateMotionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/SpacePirateMotionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileAnimation",
       "kind": "class",
       "scope": "product",
@@ -81717,6 +81925,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Waver.WaverMotionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverMotionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Waver.WaverNativeWords",
       "kind": "static class",
       "scope": "test",
@@ -82046,6 +82267,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotMotionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotMotionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotMoveStep",
@@ -82525,6 +82759,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawAttackDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAttackDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawAttackGeometry",
@@ -153841,6 +154088,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.EnemyStandingVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/EnemyStandingVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.EnemyTerrainBlockAddressingVerification",

@@ -47,8 +47,9 @@ internal sealed class EnemyTerrain
             slopes: NonSquareSlopes.Walls);
 
     /// <summary>
-    /// Shared body of the three horizontal enemy movers. The remaining
-    /// process-slopes mode will reuse this seam when the first enemy that moves that way is modelled.
+    /// Moves the enemy horizontally by <paramref name="displacement"/>, stopping it against the first solid block in the column
+    /// its leading edge enters; <paramref name="slopes"/> says whether non-square slopes stop it like walls. Returns
+    /// whether it was stopped.
     /// </summary>
     private bool MoveEnemyHorizontally(
         RoomLevelData level,

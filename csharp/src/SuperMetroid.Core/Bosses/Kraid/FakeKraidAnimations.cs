@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Mini-Kraid's action choice, step and spit animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> naming what it does.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> saying what it does.
 /// </summary>
 internal static class FakeKraidAnimations
 {
@@ -17,7 +17,7 @@ internal static class FakeKraidAnimations
     {
         [P.ChooseActionFacingLeft] =
         [
-            Cue(new(K.ChooseAction)),
+            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
         [P.StepForwardsFacingLeft] =
         [
@@ -25,16 +25,16 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootLifting, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
-            Cue(new(K.Move)),
+            Cue(new FakeKraidCue.Signal(K.Move)),
         ],
         [P.ChooseAlternateActionFacingLeft] =
         [
-            Cue(new(K.ChooseAction)),
+            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
         [P.StepBackwardsFacingLeft] =
         [
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetTogether, 16),
-            Cue(new(K.Move)),
+            Cue(new FakeKraidCue.Signal(K.Move)),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootLifting, 12),
@@ -42,15 +42,15 @@ internal static class FakeKraidAnimations
         [P.FireSpitFacingLeft] =
         [
             Show(EnemyFrameId.FakeKraidFacingLeftMouthClosed, 16),
-            Cue(new(K.PlayCrySound)),
+            Cue(new FakeKraidCue.Signal(K.PlayCrySound)),
             Show(EnemyFrameId.FakeKraidFacingLeftMouthOpening, 8),
-            Cue(new(K.SpitLeft)),
+            Cue(new FakeKraidCue.Spit(HorizontalDirection.Left)),
             Show(EnemyFrameId.FakeKraidFacingLeftMouthWide, 16),
             Show(EnemyFrameId.FakeKraidFacingLeftMouthOpening, 8),
         ],
         [P.ChooseActionFacingRight] =
         [
-            Cue(new(K.ChooseAction)),
+            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
         [P.StepForwardsFacingRight] =
         [
@@ -58,16 +58,16 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootLifting, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
-            Cue(new(K.Move)),
+            Cue(new FakeKraidCue.Signal(K.Move)),
         ],
         [P.ChooseAlternateActionFacingRight] =
         [
-            Cue(new(K.ChooseAction)),
+            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
         [P.StepBackwardsFacingRight] =
         [
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetTogether, 16),
-            Cue(new(K.Move)),
+            Cue(new FakeKraidCue.Signal(K.Move)),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootLifting, 12),
@@ -75,9 +75,9 @@ internal static class FakeKraidAnimations
         [P.FireSpitFacingRight] =
         [
             Show(EnemyFrameId.FakeKraidFacingRightMouthClosed, 16),
-            Cue(new(K.PlayCrySound)),
+            Cue(new FakeKraidCue.Signal(K.PlayCrySound)),
             Show(EnemyFrameId.FakeKraidFacingRightMouthOpening, 8),
-            Cue(new(K.SpitRight)),
+            Cue(new FakeKraidCue.Spit(HorizontalDirection.Right)),
             Show(EnemyFrameId.FakeKraidFacingRightMouthWide, 16),
             Show(EnemyFrameId.FakeKraidFacingRightMouthOpening, 8),
         ],

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>What a cue of Ridley's body animations does: roar, face a way, aim or spawn a fireball, or start his lift-off.</summary>
+/// <summary>What a cue of Ridley's body animations does: roar, face forward, aim or spawn a fireball, or start his lift-off.</summary>
 internal enum RidleyBodyCueKind
 {
     /// <summary>Raises the roaring flag and queues the roar.</summary>
@@ -9,10 +9,6 @@ internal enum RidleyBodyCueKind
     ClearRoaringFlag,
     /// <summary>Faces forward while turning.</summary>
     FaceForward,
-    /// <summary>Faces left and mirrors the tail.</summary>
-    FlipLeft,
-    /// <summary>Faces right and mirrors the tail.</summary>
-    FlipRight,
     /// <summary>Aims the next fireball at Samus.</summary>
     AimFireball,
     /// <summary>Spawns a fireball with its afterburn.</summary>

@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
-/// <summary>One Norfair lava-jumping enemy occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// A jumping Squeept (#2164): it leaps out of the lava and falls back, the cosmetic follower its room lists right after it
+/// (<see cref="NorfairLavaJumperFollowerEntity"/>) showing its second half while it rises.
+/// </summary>
 /// <param name="species">The Norfair lava-jumping enemy species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
@@ -8,11 +11,11 @@ internal sealed class NorfairLavaJumpingEnemyEntity(NorfairLavaJumpingEnemyBehav
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeNorfairLavaJumpingEnemy(Place);
+    public void Initialize() => NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumpingEnemyMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumpingEnemyMainAi(Place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NorfairLavaJumpingEnemyBehavior.AdvanceNorfairLavaJumpingEnemyTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NorfairLavaJumpingEnemyBehavior.AdvanceNorfairLavaJumpingEnemyTypedAnimation(Place);
 }

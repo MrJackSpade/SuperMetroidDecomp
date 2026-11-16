@@ -767,16 +767,16 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
-                case KiHunterAcidSpitCue.LaunchLeft:
+                case KiHunterAcidSpitCue.Launch { Direction: HorizontalDirection.Left }:
                     projectile.StartMotion(KiHunterAcidMotion.LaunchingLeft);
                     break;
-                case KiHunterAcidSpitCue.LaunchRight:
+                case KiHunterAcidSpitCue.Launch { Direction: HorizontalDirection.Right }:
                     projectile.StartMotion(KiHunterAcidMotion.LaunchingRight);
                     break;
-                case KiHunterAcidSpitCue.StopMoving:
+                case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.StopMoving }:
                     projectile.HoldStill();
                     break;
-                case KiHunterAcidSpitCue.Delete:
+                case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.Delete }:
                     projectile.Delete();
                     break;
                 default:

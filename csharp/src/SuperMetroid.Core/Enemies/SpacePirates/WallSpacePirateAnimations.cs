@@ -23,19 +23,19 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.FireLaser(HorizontalDirection.Left)),
             Wait(32),
             Cue(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Left)),
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.WallJumpingLeft)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, HorizontalDirection.Left)),
             Cue(new WallSpacePirateCue.Signal(K.PlayAttackSound)),
             Show(EnemyFrameId.WallPirateReachingForLeftWall, 10),
             Show(EnemyFrameId.WallPirateCurledLeapingLeft, 1),
         ],
         [P.LandedOnLeftWall] =
         [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.ClimbingLeftWall)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
             Show(EnemyFrameId.WallPirateReachingForLeftWall, 10),
         ],
         [P.MovingUpLeftWall] =
         [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.ClimbingLeftWall)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
         [P.MovingUpLeftWallLoop] =
         [
@@ -58,7 +58,7 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingDownLeftWall] =
         [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.ClimbingLeftWall)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
         [P.MovingDownLeftWallLoop] =
         [
@@ -87,19 +87,19 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.FireLaser(HorizontalDirection.Right)),
             Wait(32),
             Cue(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Right)),
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.WallJumpingRight)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, HorizontalDirection.Right)),
             Cue(new WallSpacePirateCue.Signal(K.PlayAttackSound)),
             Show(EnemyFrameId.WallPirateReachingForRightWall, 10),
             Show(EnemyFrameId.WallPirateCurledLeapingRight, 1),
         ],
         [P.LandedOnRightWall] =
         [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.ClimbingRightWall)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
             Show(EnemyFrameId.WallPirateReachingForRightWall, 10),
         ],
         [P.MovingDownRightWall] =
         [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.ClimbingRightWall)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
         ],
         [P.MovingDownRightWallLoop] =
         [
@@ -122,7 +122,7 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingUpRightWall] =
         [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.ClimbingRightWall)),
+            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
         ],
         [P.MovingUpRightWallLoop] =
         [

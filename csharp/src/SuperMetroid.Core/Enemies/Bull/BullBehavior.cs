@@ -104,9 +104,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemyPlace place, SamusState samus) =>
-        EnemyMath.CalculateBearing(
+        (EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)))
-            .ToMirroredTrigonometryAngle().TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn).ToAngle();
+            .ToMirroredTrigonometryAngle() - TrigonometryAngle.QuarterTurn).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)

@@ -9,6 +9,9 @@ internal sealed class DraygonEyeState
     /// <summary>The eye's action.</summary>
     public DraygonEyeAction Action { get; internal set; }
 
+    /// <summary>The way the tracking eye faces, Draygon's (#2165).</summary>
+    public HorizontalDirection Facing { get; internal set; }
+
     /// <summary>The bearing toward Samus the eye last looked along.</summary>
     public Bearing LookAngle { get; internal set; }
 }

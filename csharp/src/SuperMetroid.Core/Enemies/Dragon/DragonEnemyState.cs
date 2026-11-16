@@ -30,4 +30,10 @@ public sealed class DragonEnemyState : DragonPartState
 
     /// <summary>Set by the attack animation's finishing cue.</summary>
     public bool AnimationFinished { get; internal set; }
+
+    /// <summary>
+    /// Whether the body plays its attack animation (#2168): set where the attack starts, cleared where its idle pose
+    /// starts. Only the update after a fireball restarts an attack that is already playing.
+    /// </summary>
+    internal bool PlaysAttack { get; set; }
 }

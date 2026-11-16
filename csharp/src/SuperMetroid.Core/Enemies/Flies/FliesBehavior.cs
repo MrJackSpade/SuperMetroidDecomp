@@ -131,7 +131,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static EightEightVector<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, FlyMotionDefinitions.DiveAcrossSpeed),
-        EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), FlyMotionDefinitions.DiveDownSpeed));
+        EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveDownSpeed));
 
     /// <summary>
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its
@@ -139,7 +139,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static EightEightVector<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, 1),
-        EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 1));
+        EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, 1));
 
     /// <summary>Steps the fly around its circle at its angle, across before down.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemyPlace place, FlyEnemyState state)

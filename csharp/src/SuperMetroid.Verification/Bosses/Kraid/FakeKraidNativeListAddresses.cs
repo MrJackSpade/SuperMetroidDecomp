@@ -31,10 +31,10 @@ internal static class FakeKraidNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, FakeKraidNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9b26] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.Move, ""),
-        [0x9b74] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.ChooseAction, ""),
-        [0x9bb2] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.PlayCrySound, ""),
-        [0x9bc4] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.SpitLeft, ""),
-        [0x9c02] = new FakeKraidNativeListAddressesInstruction(FakeKraidCueKind.SpitRight, ""),
+        [0x9b26] = new FakeKraidNativeListAddressesInstruction(new FakeKraidCue.Signal(FakeKraidCueKind.Move), ""),
+        [0x9b74] = new FakeKraidNativeListAddressesInstruction(new FakeKraidCue.Signal(FakeKraidCueKind.ChooseAction), ""),
+        [0x9bb2] = new FakeKraidNativeListAddressesInstruction(new FakeKraidCue.Signal(FakeKraidCueKind.PlayCrySound), ""),
+        [0x9bc4] = new FakeKraidNativeListAddressesInstruction(new FakeKraidCue.Spit(HorizontalDirection.Left), ""),
+        [0x9c02] = new FakeKraidNativeListAddressesInstruction(new FakeKraidCue.Spit(HorizontalDirection.Right), ""),
     };
 }

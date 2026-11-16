@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>One Norfair Rio occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// A Norfair Rio parent (#2164): it waits on its perch and dives at Samus, its animation's cues placing the flames of the
+/// follower its room lists right after it (<see cref="NorfairRioFollowerEntity"/>).
+/// </summary>
 /// <param name="species">The Norfair Rio species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
@@ -8,7 +11,7 @@ internal sealed class NorfairRioEntity(NorfairRioBehavior species, RoomEnemyPlac
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeNorfairRio(Place);
+    public void Initialize() => NorfairRioBehavior.InitializeNorfairRio(Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairRioMainAi(Place, frame);

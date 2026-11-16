@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : WorkRobotEntity(species, place, common)
 {
+    /// <summary>The unpowered robot takes a bomb's damage and recoils, never rejecting it (#2164).</summary>
+    protected override EnemyBombReaction OwnBombReaction => Species.UnpoweredWorkRobotBombReaction;
+
     /// <summary>Takes no action of its own.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override void RunMainAi(IEnemyAiFrame frame)

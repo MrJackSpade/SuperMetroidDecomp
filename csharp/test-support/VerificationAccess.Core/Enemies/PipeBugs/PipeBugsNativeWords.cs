@@ -25,9 +25,17 @@ internal static class PipeBugsNativeWords
         [NorfairPipeBugAction.WaitForSamus] = 0x8bff,
         [NorfairPipeBugAction.Rise] = 0x8ca6,
         [NorfairPipeBugAction.LeaderStagger] = 0x8cff,
-        [NorfairPipeBugAction.FlyLeft] = 0x8e14,
-        [NorfairPipeBugAction.FlyRight] = 0x8e35,
         [NorfairPipeBugAction.WaitForStagger] = 0x8e5a,
+    });
+
+    /// <summary>
+    /// The routine word naming each way a departed Norfair member flies (#2165): one <see cref="NorfairPipeBugAction.Fly"/>
+    /// carrying its direction, the cartridge giving each direction a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<HorizontalDirection> NorfairPipeBugFlights = new(new Dictionary<HorizontalDirection, ushort>
+    {
+        [HorizontalDirection.Left] = 0x8e14,
+        [HorizontalDirection.Right] = 0x8e35,
     });
 
     /// <summary>The routine word naming each <see cref="YellowPipeBugAction"/>.</summary>
@@ -35,11 +43,20 @@ internal static class PipeBugsNativeWords
     {
         [YellowPipeBugAction.WaitForSamus] = 0x8fb5,
         [YellowPipeBugAction.EmergenceDelay] = 0x8ff5,
-        [YellowPipeBugAction.FlyLeft] = 0x9028,
-        [YellowPipeBugAction.FlyRight] = 0x90bd,
-        [YellowPipeBugAction.ArcLeft] = 0x915a,
-        [YellowPipeBugAction.ArcRight] = 0x91d8,
     });
+
+    /// <summary>
+    /// The routine word naming each yellow flight or arc and the way it goes (#2165): one action carrying its direction, the
+    /// cartridge giving each direction a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(YellowPipeBugAction Action, HorizontalDirection Direction)> YellowPipeBugFlights =
+        new(new Dictionary<(YellowPipeBugAction Action, HorizontalDirection Direction), ushort>
+        {
+            [(YellowPipeBugAction.Fly, HorizontalDirection.Left)] = 0x9028,
+            [(YellowPipeBugAction.Fly, HorizontalDirection.Right)] = 0x90bd,
+            [(YellowPipeBugAction.Arc, HorizontalDirection.Left)] = 0x915a,
+            [(YellowPipeBugAction.Arc, HorizontalDirection.Right)] = 0x91d8,
+        });
 
     /// <summary>
     /// The routine word naming each Norfair formation role's stagger after rising (#2071): the leader's holds its height,

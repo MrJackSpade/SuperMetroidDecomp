@@ -26,6 +26,10 @@ internal abstract record RidleyBodyCue
     /// <param name="Height">The claw height a <see cref="SetClawHeight"/> cue selects.</param>
     internal sealed record SetClawHeight(RidleyClawHeight Height) : RidleyBodyCue;
 
+    /// <summary>Faces the cue's way and mirrors the tail (#2165).</summary>
+    /// <param name="Facing">The way Ridley then faces.</param>
+    internal sealed record Flip(HorizontalDirection Facing) : RidleyBodyCue;
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(RidleyBodyCueKind Kind) : RidleyBodyCue;

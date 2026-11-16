@@ -17,7 +17,7 @@ internal static class GoldenTorizoAnimations
         [A.GoldenTorizoDormant] =
         [
             ShowArtwork(L.Awakening),
-            Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
+            Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenWaitForSamus)),
             Show(EnemyFrameId.TorizoFacingLeftHalfRisen, 1),

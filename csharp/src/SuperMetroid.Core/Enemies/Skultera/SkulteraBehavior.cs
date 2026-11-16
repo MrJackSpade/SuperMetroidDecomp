@@ -45,9 +45,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The placement names the way it starts swimming and the speed it swims at either way.
         SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
-        var state = new SkulteraEnemyState(startsLeft
-            ? SkulteraAction.SwimmingLeft
-            : SkulteraAction.SwimmingRight);
+        var state = new SkulteraEnemyState(SkulteraAction.Swimming, settings.StartDirection);
         place.SetSpeciesState(state);
 
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
@@ -74,17 +72,11 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.Action)
         {
-            case SkulteraAction.SwimmingLeft:
-                SwimSkultera(place, state, level, direction: HorizontalDirection.Left);
+            case SkulteraAction.Swimming:
+                SwimSkultera(place, state, level, state.Heading);
                 return;
-            case SkulteraAction.SwimmingRight:
-                SwimSkultera(place, state, level, direction: HorizontalDirection.Right);
-                return;
-            case SkulteraAction.TurningRight:
-                FinishSkulteraTurn(place, state, direction: HorizontalDirection.Right);
-                return;
-            case SkulteraAction.TurningLeft:
-                FinishSkulteraTurn(place, state, direction: HorizontalDirection.Left);
+            case SkulteraAction.Turning:
+                FinishSkulteraTurn(place, state, state.Heading);
                 return;
             default:
                 throw new InvalidDataException(
@@ -138,9 +130,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         SkulteraEnemyState state,
         bool currentlyMovingLeft)
     {
-        state.Action = currentlyMovingLeft
-            ? SkulteraAction.TurningRight
-            : SkulteraAction.TurningLeft;
+        state.Action = SkulteraAction.Turning;
+        state.Heading = currentlyMovingLeft ? HorizontalDirection.Right : HorizontalDirection.Left;
         state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(currentlyMovingLeft
             ? SkulteraSegment.TurningRight
             : SkulteraSegment.TurningLeft));
@@ -156,9 +147,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.TurnFinished = false;
-        state.Action = direction == HorizontalDirection.Left
-            ? SkulteraAction.SwimmingLeft
-            : SkulteraAction.SwimmingRight;
+        state.Action = SkulteraAction.Swimming;
         state.AngleDelta = -state.AngleDelta;
         state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraSegment.SwimmingLeft

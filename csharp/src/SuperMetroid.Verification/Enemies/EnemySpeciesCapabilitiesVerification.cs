@@ -194,15 +194,7 @@ internal static class EnemySpeciesCapabilitiesVerification
         int answers = 0;
         foreach (EnemyDefinitionId definition in definitions)
         {
-            // An ordinary Ceres door faces the way its placement says, and a getaway chamber wall stands on its side (#1989).
-            if (definition == EnemyDefinitionId.CeresDoor)
-                place.SetSpawnSettings(new CeresDoorSpawnSettings(HorizontalDirection.Right));
-            if (definition == EnemyDefinitionId.CeresGetawayChamberWall)
-                place.SetSpawnSettings(new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left));
-            // An Evir placement names whether it is the body or the arms (#2146); the body owns the Evir's reactions.
-            if (definition == EnemyDefinitionId.Evir)
-                place.SetSpawnSettings(new SuperMetroid.Core.Enemies.Evir.EvirSpawnSettings(
-                    SuperMetroid.Core.Enemies.Evir.EvirBodyPart.Body, SignedSixteenSixteen.FromSixteenthsOfPixel(0), 0));
+            LeadingPartPlacement.Prepare(place, definition);
             place.Bind(definition, HeaderOf(definition));
             IEnemyEntity entity = place.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
             bound++;

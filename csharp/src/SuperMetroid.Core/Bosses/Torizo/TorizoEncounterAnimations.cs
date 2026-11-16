@@ -74,7 +74,7 @@ internal static class TorizoEncounterAnimations
         ],
         [A.BombTorizoDormant] =
         [
-            Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
+            Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Show(EnemyFrameId.BombTorizoDormant, 1),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.WaitForHandTrigger)),

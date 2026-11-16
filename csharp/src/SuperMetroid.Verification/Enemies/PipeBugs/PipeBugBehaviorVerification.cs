@@ -66,8 +66,10 @@ internal static class PipeBugBehaviorVerification
             state.FormationCounter = before;
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place, Frame(new(200, 128)));
             AssertEqual(after, state.FormationCounter, $"Norfair Pipe Bug count after {before}");
-            AssertEqual(departs ? NorfairPipeBugAction.FlyRight : NorfairPipeBugAction.WaitForStagger, state.Action,
+            AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
                 $"Norfair Pipe Bug departs only on reaching its target (count {before})");
+            if (departs)
+                AssertEqual(HorizontalDirection.Right, state.FlightDirection, "Norfair Pipe Bug departs toward Samus on its right");
         }
 
         {
@@ -95,7 +97,8 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Geega, 0);
             YellowPipeBugState state = place.RequireSpeciesState<YellowPipeBugState>();
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.FlightSpeed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
-            state.Action = YellowPipeBugAction.ArcRight;
+            state.Action = YellowPipeBugAction.Arc;
+            state.FlightDirection = HorizontalDirection.Right;
             state.ArcRising = true;
             state.ArcCounter = QuadraticSpeedCurvePlace.FromMarks(1);
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];

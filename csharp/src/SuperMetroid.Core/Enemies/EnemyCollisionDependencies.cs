@@ -12,26 +12,23 @@ internal sealed record EnemyCollisionDependencies
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
-    /// <summary>Audio.</summary>
+    /// <summary>Queues the enemy sounds hits, freezes and deaths make.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>Runs the death and drop of an enemy a collision kills.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which a hit that shakes the room starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Frame context.</summary>
+    /// <summary>The current enemy frame's timing and state, which collision reactions read.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The room's enemy projectiles, which collision outcomes reach.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
     /// <summary>The room's effect actors, which the burst at an enemy a shot or bomb hurts joins.</summary>
     public required RoomEffectActors EffectActors { get; init; }
-
-    /// <summary>Room.</summary>
-    public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>The room's enemy places.</summary>
     public required EnemyPlaces Places { get; init; }

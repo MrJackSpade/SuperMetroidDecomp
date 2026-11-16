@@ -311,10 +311,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalking:
             case KraidPhase.FootSecondPhaseWalkToStart:
             case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.FootSecondPhaseWalkingLeft:
             case KraidPhase.FingernailInitialize:
             case KraidPhase.FingernailFire:
             case KraidPhase.FootPrepareFirstPhaseLunge:

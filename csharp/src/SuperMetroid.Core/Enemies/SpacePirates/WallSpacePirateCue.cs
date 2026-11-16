@@ -32,6 +32,14 @@ internal abstract record WallSpacePirateCue
     /// <param name="Action">The action main AI then runs.</param>
     internal sealed record Begin(WallSpacePirateAction Action) : WallSpacePirateCue;
 
+    /// <summary>
+    /// Begins the cling or jump the Pirate's main AI then runs on the cue's wall, as the animation runs on (#2165): clinging
+    /// to that wall and watching Samus as it climbs, or jumping across to it.
+    /// </summary>
+    /// <param name="Action">The action main AI then runs.</param>
+    /// <param name="Wall">The wall the Pirate clings to, or jumps to.</param>
+    internal sealed record BeginOnWall(WallSpacePirateAction Action, HorizontalDirection Wall) : WallSpacePirateCue;
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(WallSpacePirateCueKind Kind) : WallSpacePirateCue;

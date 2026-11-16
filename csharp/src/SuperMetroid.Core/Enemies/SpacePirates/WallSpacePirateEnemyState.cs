@@ -7,8 +7,15 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal WallSpacePirateEnemyState(WallSpacePirateAction action) => Action = action;
+    /// <summary>Starts the state in <paramref name="action"/> on <paramref name="wall"/>.</summary>
+    internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall)
+    {
+        Action = action;
+        Wall = wall;
+    }
+
+    /// <summary>The wall the Pirate clings to, or, jumping, the wall it jumps to (#2165).</summary>
+    public HorizontalDirection Wall { get; internal set; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WallSpacePirateSegment> Playback { get; set; }

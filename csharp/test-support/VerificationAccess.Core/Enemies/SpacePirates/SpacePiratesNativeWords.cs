@@ -8,34 +8,39 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal static class SpacePiratesNativeWords
 {
-    /// <summary>The routine word naming each <see cref="NinjaSpacePirateAction"/>.</summary>
-    internal static readonly NativeWordIdentities<NinjaSpacePirateAction> NinjaSpacePirateActions = new(new Dictionary<NinjaSpacePirateAction, ushort>
-    {
-        [NinjaSpacePirateAction.StandingStill] = 0x804b,
-        [NinjaSpacePirateAction.Initial] = 0xf6a9,
-        [NinjaSpacePirateAction.Active] = 0xf6e4,
-        [NinjaSpacePirateAction.SpinJumpLeftRising] = 0xf817,
-        [NinjaSpacePirateAction.SpinJumpLeftFalling] = 0xf84c,
-        [NinjaSpacePirateAction.SpinJumpRightRising] = 0xf890,
-        [NinjaSpacePirateAction.SpinJumpRightFalling] = 0xf8c5,
-        [NinjaSpacePirateAction.ReadyToDivekick] = 0xf909,
-        [NinjaSpacePirateAction.DivekickLeftJump] = 0xf985,
-        [NinjaSpacePirateAction.DivekickLeftDive] = 0xf9c1,
-        [NinjaSpacePirateAction.DivekickLeftWalkToPost] = 0xfa15,
-        [NinjaSpacePirateAction.DivekickRightJump] = 0xfa59,
-        [NinjaSpacePirateAction.DivekickRightDive] = 0xfa95,
-        [NinjaSpacePirateAction.DivekickRightWalkToPost] = 0xfae9,
-    });
+    /// <summary>
+    /// The routine word naming each <see cref="NinjaSpacePirateAction"/> and, for a move that goes one way, its heading
+    /// (#2165), the cartridge giving each heading a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(NinjaSpacePirateAction Action, HorizontalDirection? Heading)> NinjaSpacePirateActions =
+        new(new Dictionary<(NinjaSpacePirateAction Action, HorizontalDirection? Heading), ushort>
+        {
+            [(NinjaSpacePirateAction.StandingStill, null)] = 0x804b,
+            [(NinjaSpacePirateAction.Initial, null)] = 0xf6a9,
+            [(NinjaSpacePirateAction.Active, null)] = 0xf6e4,
+            [(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Left)] = 0xf817,
+            [(NinjaSpacePirateAction.SpinJumpFalling, HorizontalDirection.Left)] = 0xf84c,
+            [(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Right)] = 0xf890,
+            [(NinjaSpacePirateAction.SpinJumpFalling, HorizontalDirection.Right)] = 0xf8c5,
+            [(NinjaSpacePirateAction.ReadyToDivekick, null)] = 0xf909,
+            [(NinjaSpacePirateAction.DivekickJump, HorizontalDirection.Left)] = 0xf985,
+            [(NinjaSpacePirateAction.DivekickDive, HorizontalDirection.Left)] = 0xf9c1,
+            [(NinjaSpacePirateAction.DivekickWalkToPost, HorizontalDirection.Left)] = 0xfa15,
+            [(NinjaSpacePirateAction.DivekickJump, HorizontalDirection.Right)] = 0xfa59,
+            [(NinjaSpacePirateAction.DivekickDive, HorizontalDirection.Right)] = 0xfa95,
+            [(NinjaSpacePirateAction.DivekickWalkToPost, HorizontalDirection.Right)] = 0xfae9,
+        });
 
-    /// <summary>The routine word naming each <see cref="WalkingSpacePirateAction"/>.</summary>
+    /// <summary>The routine word naming each <see cref="WalkingSpacePirateAction"/> and, for a walk, its heading (#2165).</summary>
     /// <remarks>The shared return stub and the pirate's own empty routine both hold it while its animation runs (#1837).</remarks>
-    internal static readonly NativeWordIdentities<WalkingSpacePirateAction> WalkingSpacePirateActions = new(new Dictionary<ushort, WalkingSpacePirateAction>
-    {
-        [0x804b] = WalkingSpacePirateAction.StandingStill,
-        [0xfd44] = WalkingSpacePirateAction.WalkingLeft,
-        [0xfdce] = WalkingSpacePirateAction.WalkingRight,
-        [0xfe4a] = WalkingSpacePirateAction.StandingStill,
-    });
+    internal static readonly NativeWordIdentities<(WalkingSpacePirateAction Action, HorizontalDirection? Heading)> WalkingSpacePirateActions =
+        new(new Dictionary<ushort, (WalkingSpacePirateAction Action, HorizontalDirection? Heading)>
+        {
+            [0x804b] = (WalkingSpacePirateAction.StandingStill, null),
+            [0xfd44] = (WalkingSpacePirateAction.Walking, HorizontalDirection.Left),
+            [0xfdce] = (WalkingSpacePirateAction.Walking, HorizontalDirection.Right),
+            [0xfe4a] = (WalkingSpacePirateAction.StandingStill, null),
+        });
 
     /// <summary>The climb-direction word naming each <see cref="WallSpacePirateClimbDirection"/>.</summary>
     internal static readonly NativeWordIdentities<WallSpacePirateClimbDirection> WallClimbDirections = new(new Dictionary<WallSpacePirateClimbDirection, ushort>
@@ -44,15 +49,19 @@ internal static class SpacePiratesNativeWords
         [WallSpacePirateClimbDirection.Up] = 1,
     });
 
-    /// <summary>The routine word naming each <see cref="WallSpacePirateAction"/>.</summary>
+    /// <summary>
+    /// The routine word naming each <see cref="WallSpacePirateAction"/> and, for a cling or a jump, its wall (#2165), the
+    /// cartridge giving each wall a routine of its own.
+    /// </summary>
     /// <remarks>Each wall's empty attack routine holds the pirate while its attack animation runs (#1837).</remarks>
-    internal static readonly NativeWordIdentities<WallSpacePirateAction> WallSpacePirateActions = new(new Dictionary<ushort, WallSpacePirateAction>
-    {
-        [0xf034] = WallSpacePirateAction.ClimbingLeftWall,
-        [0xf04f] = WallSpacePirateAction.Attacking,
-        [0xf050] = WallSpacePirateAction.WallJumpingRight,
-        [0xf0c8] = WallSpacePirateAction.ClimbingRightWall,
-        [0xf0e3] = WallSpacePirateAction.Attacking,
-        [0xf0e4] = WallSpacePirateAction.WallJumpingLeft,
-    });
+    internal static readonly NativeWordIdentities<(WallSpacePirateAction Action, HorizontalDirection? Wall)> WallSpacePirateActions =
+        new(new Dictionary<ushort, (WallSpacePirateAction Action, HorizontalDirection? Wall)>
+        {
+            [0xf034] = (WallSpacePirateAction.Climbing, HorizontalDirection.Left),
+            [0xf04f] = (WallSpacePirateAction.Attacking, null),
+            [0xf050] = (WallSpacePirateAction.WallJumping, HorizontalDirection.Right),
+            [0xf0c8] = (WallSpacePirateAction.Climbing, HorizontalDirection.Right),
+            [0xf0e3] = (WallSpacePirateAction.Attacking, null),
+            [0xf0e4] = (WallSpacePirateAction.WallJumping, HorizontalDirection.Left),
+        });
 }

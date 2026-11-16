@@ -45,14 +45,6 @@ internal enum TorizoCueKind
     SpawnLowHealthDrool,
     /// <summary>Marks the body turning around.</summary>
     SetTurningAround,
-    /// <summary>Records a left step on the left foot.</summary>
-    SteppedLeftWithLeftFoot,
-    /// <summary>Records a right step on the right foot.</summary>
-    SteppedRightWithRightFoot,
-    /// <summary>Records a left step on the right foot.</summary>
-    SteppedLeftWithRightFoot,
-    /// <summary>Records a right step on the left foot.</summary>
-    SteppedRightWithLeftFoot,
     /// <summary>Spawns Bomb Torizo's Chozo orbs.</summary>
     SpawnBombTorizoChozoOrbs,
     /// <summary>Spawns a Bomb Torizo sonic boom.</summary>

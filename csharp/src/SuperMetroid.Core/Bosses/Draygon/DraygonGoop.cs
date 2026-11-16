@@ -45,9 +45,7 @@ internal sealed class DraygonGoop
         // Retail's leftward setup briefly requests the right-facing apex arm animation before
         // the body's reset cue replaces all four animations. Preserve the literal write.
         _parts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
-        state.Phase = direction == HorizontalDirection.Right
-            ? DraygonPhase.GoopRight
-            : DraygonPhase.GoopLeft;
+        state.Phase = DraygonPhase.GoopApproach;
         _parts.StartDraygonAnimation(
             body,
             direction == HorizontalDirection.Right
@@ -67,9 +65,7 @@ internal sealed class DraygonGoop
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         if (CoordinateAxis.Distance(state.Body.Position.X.Whole, samus.Position.X.Whole) < 208)
         {
-            state.Phase = direction == HorizontalDirection.Right
-                ? DraygonPhase.GoopRightTail
-                : DraygonPhase.GoopLeftTail;
+            state.Phase = DraygonPhase.GoopTail;
             state.GoopCounter = 16;
             return;
         }
@@ -123,9 +119,7 @@ internal sealed class DraygonGoop
             movingRight
                 ? DraygonSegment.ArmsFacingRightIdle
                 : DraygonSegment.ArmsFacingLeftIdle);
-        state.Phase = movingRight
-            ? DraygonPhase.GoopRightRecovery
-            : DraygonPhase.GoopLeftRecovery;
+        state.Phase = DraygonPhase.GoopRecovery;
     }
 
     /// <summary>Runs the final off-screen movement.</summary>
@@ -153,12 +147,14 @@ internal sealed class DraygonGoop
         state.SwoopEntry = DraygonSwoops.PathOf(state).EntryCount;
         if (direction == HorizontalDirection.Right)
         {
-            state.Phase = DraygonPhase.SwoopLeftSetup;
+            state.Phase = DraygonPhase.SwoopSetup;
+            state.PassDirection = HorizontalDirection.Left;
             state.Body.Position = state.Body.Position.WithWholeX(592);
         }
         else
         {
-            state.Phase = DraygonPhase.SwoopRightSetup;
+            state.Phase = DraygonPhase.SwoopSetup;
+            state.PassDirection = HorizontalDirection.Right;
             state.Body.Position = state.Body.Position.WithWholeX(DraygonBehavior.DraygonOffscreenLeftX);
         }
         state.Body.Position = state.Body.Position.WithWholeY(DraygonBehavior.DraygonOffscreenAboveY);

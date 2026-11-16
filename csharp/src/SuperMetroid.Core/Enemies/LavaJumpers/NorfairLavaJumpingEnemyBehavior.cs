@@ -10,7 +10,10 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NorfairLavaJumpingEnemyEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
+            ? new NorfairLavaJumperFollowerEntity(this, place, common)
+            : new NorfairLavaJumpingEnemyEntity(this, place, common);
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -35,23 +38,22 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>The rising velocity at and above which, while still rising, the jumper switches to the visible jump animation.</summary>
     private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = -SignedEightEight.FromParts(4, 0);
 
-    /// <summary>Initializes the Norfair lava jumper.</summary>
-    internal void InitializeNorfairLavaJumpingEnemy(RoomEnemyPlace place)
+    /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
+    internal void InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
     {
-        if (IsFollower(place))
+        // The retail population always places this cosmetic second half immediately after its moving parent, which it
+        // finds when it is placed and follows from then on; a population that places anything else there is refused.
+        place.SetSpeciesState(new NorfairLavaJumperFollowerState
         {
-            // The retail population always places this cosmetic second half immediately after its moving parent, which
-            // it finds when it is placed and follows from then on; a population that places anything else there is
-            // refused.
-            place.SetSpeciesState(new NorfairLavaJumperFollowerState
-            {
-                Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
-            });
-            _parents.Place(place, _places.ListedBefore(place, 1));
-            ValidateNorfairLavaJumpingEnemyParent(place);
-            return;
-        }
+            Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
+        });
+        _parents.Place(place, _places.ListedBefore(place, 1));
+        ValidateNorfairLavaJumpingEnemyParent(place);
+    }
 
+    /// <summary>Initializes a jumping lava jumper, hidden in the lava at its population position.</summary>
+    internal static void InitializeNorfairLavaJumpingEnemy(RoomEnemyPlace place)
+    {
         var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump)
         {
             AnimationFinished = false,
@@ -63,10 +65,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
     }
-
-    /// <summary>Whether <paramref name="place"/>'s placement makes it a follower, the cosmetic second half of the parent listed before it.</summary>
-    private static bool IsFollower(RoomEnemyPlace place) =>
-        place.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
 
     /// <summary>
     /// Runs the follower's main behaviour. Main advances the shared random numbers once for the follower as for the
@@ -191,8 +189,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingNorfairLavaJumpingEnemyPlace(follower);
-        if (parent.DefinitionId != EnemyDefinitionId.Squeept ||
-            parent.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower)
+        if (parent.Entity is not NorfairLavaJumpingEnemyEntity)
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
@@ -217,29 +214,20 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         NorfairLavaJumperSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairLavaJumperAnimations.StartingWith(segment));
 
-    /// <summary>Runs the Norfair lava-jumping enemy's main AI.</summary>
-    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
-    {
-        if (IsFollower(place))
-        {
-            RunNorfairLavaJumperFollowerMain(place);
-            return;
-        }
+    /// <summary>Runs a jumping lava jumper's main AI.</summary>
+    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemyPlace place) =>
         RunNorfairLavaJumpingEnemyMain(
             place,
             place.RequireSpeciesState<NorfairLavaJumpingEnemyState>());
-    }
 
-    /// <summary>Advances the Norfair lava-jumping enemy's typed animation: the parent's jump, or the follower's loop.</summary>
-    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
-    {
-        if (IsFollower(place))
-        {
-            EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
-                static (NorfairLavaJumperFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
-                static (_, cue) => throw new InvalidOperationException($"The Squeept follower's animation raised {cue}."));
-            return;
-        }
+    /// <summary>Advances a lava jumper follower's looping typed animation, which raises no cue.</summary>
+    internal static void AdvanceNorfairLavaJumperFollowerTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
+            static (NorfairLavaJumperFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"The Squeept follower's animation raised {cue}."));
+
+    /// <summary>Advances a jumping lava jumper's typed animation, whose jump raises its finishing cue.</summary>
+    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
@@ -247,5 +235,4 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 ApplyNorfairLavaJumperCue(state, cue);
                 return null;
             });
-    }
 }

@@ -207,17 +207,17 @@ internal static class LookupStream1Verification
         {
             bool isBody = root < 0xc183;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = enemies.PowampBehavior.InitializePowamp;
+            // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
             var balloon = enemies.Places.InUpdateOrder[0];
+            balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
             balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
-            balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
-            initialize(balloon);
+            PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
+            body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);
             body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
-            body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
-            initialize(body);
+            enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
             PowampSegment program = root switch

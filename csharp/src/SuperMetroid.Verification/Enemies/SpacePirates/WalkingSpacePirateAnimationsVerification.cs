@@ -24,7 +24,12 @@ internal static class WalkingSpacePirateAnimationsVerification
                         AssertEqual(operands[index], instruction.Operands[index] switch
                     {
                         'V' => unchecked((ushort)AssertIs<WalkingSpacePirateCue.FireLaser>(cue, $"{at}: cue").LaserHeight),
-                        'E' => NamingWord(SpacePiratesNativeWords.WalkingSpacePirateActions.WordsByIdentity[AssertIs<WalkingSpacePirateCue.Begin>(cue, $"{at}: cue").Action], operands[index]),
+                        'E' => NamingWord(SpacePiratesNativeWords.WalkingSpacePirateActions.WordsByIdentity[cue switch
+                        {
+                            WalkingSpacePirateCue.Begin begin => (begin.Action, null),
+                            WalkingSpacePirateCue.BeginHeading begin => (begin.Action, begin.Heading),
+                            _ => throw new InvalidOperationException($"{at}: {cue} begins no action."),
+                        }], operands[index]),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }));

@@ -53,8 +53,8 @@ internal static class SbugReversalVerification
             SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
             state.FaceCustomHeading(RotationAngle.FromSteps(heading));
             var angle = new TrigonometryAngle(heading);
-            SignedSixteenSixteen x = SbugBehavior.CalculateSignedSbugComponent(angle, speed, EnemyTrigonometryAngleDefinitions.QuarterTurn);
-            SignedSixteenSixteen y = SbugBehavior.CalculateSignedSbugComponent(angle, speed, EnemyTrigonometryAngleDefinitions.HalfTurn);
+            SignedSixteenSixteen x = SbugBehavior.CalculateSignedSbugComponent(angle, speed, TrigonometryAngle.QuarterTurn);
+            SignedSixteenSixteen y = SbugBehavior.CalculateSignedSbugComponent(angle, speed, TrigonometryAngle.HalfTurn);
             state.CustomXVelocity = x;
             state.CustomYVelocity = y;
             state.StraightMovementTimer = WrappingCountdown.Start(512);

@@ -67,7 +67,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The dive queues its dive sound on the exact frame the wind-up
                 // cue releases the dive. Publishing it as a frame event retains
                 // the game's timing without coupling enemy AI to a particular audio backend.
-                _audio.QueueEnemySound(EnemySound.SkreeDive, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySound.DiveScreech, priority: SoundRequestPriority.Normal);
                 return;
 
             case SkreeAction.Diving:
@@ -99,7 +99,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             place.AnimationClock.Restart();
             state.Action = SkreeAction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
-            _audio.QueueEnemySound(EnemySound.SkreeBurrow, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySound.Burrow, priority: SoundRequestPriority.Normal);
             return;
         }
 

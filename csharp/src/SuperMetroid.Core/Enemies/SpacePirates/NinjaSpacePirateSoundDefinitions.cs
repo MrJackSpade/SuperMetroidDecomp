@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class NinjaSpacePirateSoundDefinitions
 {
     /// <summary>The Space Pirate attack sound, played as a claw is thrown and as a divekick descends.</summary>
-    internal static readonly SoundEffectId Attack = EnemySound.ShotSpacePirate;
+    internal static readonly SoundEffectId Attack = EnemySound.Yell;
 
     /// <summary>The spin-jump whirl, played at the start of each spin loop.</summary>
     internal static readonly SoundEffectId SpinJump = EnemySound.Whoosh;

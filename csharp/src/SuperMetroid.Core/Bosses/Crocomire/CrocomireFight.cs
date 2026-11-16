@@ -175,7 +175,7 @@ internal sealed class CrocomireFight
         AnimationPlace place = state.BodyPlayback.Place;
         // Each cue's reaction reads where the play stands just past the cue, which the play has written to these
         // locals by then: the fight AI compares the segment the body then rests in.
-        AnimationShown<CrocomireBodySegment, CrocomireBodyFrame> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
+        AnimationShown<CrocomireBodySegment, EnemyFrameId> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
             ref animation, ref place,
             cue => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
                     CrocomireEnemyState.ResidentSegment(new AnimationPlayback<CrocomireBodySegment>(animation, place))) is { } started
@@ -191,15 +191,15 @@ internal sealed class CrocomireFight
         // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
         switch (outcome)
         {
-            case AnimationShown<CrocomireBodySegment, CrocomireBodyFrame>.Frame shown:
+            case AnimationShown<CrocomireBodySegment, EnemyFrameId>.Frame shown:
                 ShowCrocomireBodyFrame(state, body, shown.Shown);
                 body.AnimationClock.Show(shown.Duration);
                 return;
-            case AnimationShown<CrocomireBodySegment, CrocomireBodyFrame>.HeldFrame held:
+            case AnimationShown<CrocomireBodySegment, EnemyFrameId>.HeldFrame held:
                 ShowCrocomireBodyFrame(state, body, held.Shown);
                 body.AnimationClock.ShowForGood();
                 return;
-            case AnimationShown<CrocomireBodySegment, CrocomireBodyFrame>.Held:
+            case AnimationShown<CrocomireBodySegment, EnemyFrameId>.Held:
                 return;
             default:
                 throw new InvalidOperationException($"Crocomire's body animation ended an update with {outcome}.");
@@ -207,10 +207,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Shows <paramref name="frame"/> on Crocomire's body.</summary>
-    private static void ShowCrocomireBodyFrame(CrocomireEnemyState state, RoomEnemyPlace body, CrocomireBodyFrame frame)
+    private static void ShowCrocomireBodyFrame(CrocomireEnemyState state, RoomEnemyPlace body, EnemyFrameId frame)
     {
         state.BodyFrame = frame;
-        body.Frame = CrocomireBodyFrames.ShownFrames.Of(frame);
+        body.Frame = frame;
     }
 
     /// <summary>

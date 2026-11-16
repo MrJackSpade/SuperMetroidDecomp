@@ -38,18 +38,18 @@ internal static class RoomObjectVisualIdDefinitions
     /// <summary>Each reachable cannon draw's editable artwork key: its facing, condition and pose.</summary>
     internal static readonly Dictionary<DraygonCannonDraw, string> DraygonCannon = new()
     {
-        [DraygonCannonDraw.RightShieldA] = "right-shield-a",
-        [DraygonCannonDraw.RightShieldB] = "right-shield-b",
-        [DraygonCannonDraw.RightDamagedA] = "right-damaged-a",
-        [DraygonCannonDraw.RightDamagedB] = "right-damaged-b",
-        [DraygonCannonDraw.RightDamagedC] = "right-damaged-c",
-        [DraygonCannonDraw.RightDamagedD] = "right-damaged-d",
-        [DraygonCannonDraw.LeftShieldA] = "left-shield-a",
-        [DraygonCannonDraw.LeftShieldB] = "left-shield-b",
-        [DraygonCannonDraw.LeftDamagedA] = "left-damaged-a",
-        [DraygonCannonDraw.LeftDamagedB] = "left-damaged-b",
-        [DraygonCannonDraw.LeftDamagedC] = "left-damaged-c",
-        [DraygonCannonDraw.LeftDamagedD] = "left-damaged-d",
+        [DraygonCannonDraw.RightShield] = "right-shield",
+        [DraygonCannonDraw.RightShieldFlash] = "right-shield-flash",
+        [DraygonCannonDraw.RightSparksPeakingAt11And20] = "right-sparks-peaking-at-11-and-20",
+        [DraygonCannonDraw.RightSparksPeakingAt3And28] = "right-sparks-peaking-at-3-and-28",
+        [DraygonCannonDraw.RightSparksPeakingAt6And25] = "right-sparks-peaking-at-6-and-25",
+        [DraygonCannonDraw.RightSparksFlat] = "right-sparks-flat",
+        [DraygonCannonDraw.LeftShield] = "left-shield",
+        [DraygonCannonDraw.LeftShieldFlash] = "left-shield-flash",
+        [DraygonCannonDraw.LeftSparksPeakingAt11And20] = "left-sparks-peaking-at-11-and-20",
+        [DraygonCannonDraw.LeftSparksPeakingAt3And28] = "left-sparks-peaking-at-3-and-28",
+        [DraygonCannonDraw.LeftSparksPeakingAt6And25] = "left-sparks-peaking-at-6-and-25",
+        [DraygonCannonDraw.LeftSparksFlat] = "left-sparks-flat",
     };
 
     /// <summary>Each Phantoon door frame's editable artwork key.</summary>

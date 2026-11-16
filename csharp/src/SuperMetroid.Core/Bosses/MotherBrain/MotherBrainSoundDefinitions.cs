@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainSoundDefinitions
 {
     /// <summary>The roar of the neck stretch, the Hyper Beam recoil and the dying drool.</summary>
-    internal static SoundEffectId Roar { get; } = EnemySound.MotherBrainHighCry;
+    internal static SoundEffectId Roar { get; } = EnemySound.LongWail;
 
     /// <summary>The cry as the mouth opens for an onion-ring or bomb attack.</summary>
     internal static SoundEffectId AttackCry { get; } = EnemySound.MotherBrainLowCry;

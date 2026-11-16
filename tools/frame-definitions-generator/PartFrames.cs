@@ -62,7 +62,7 @@ internal sealed record PartFrameConfiguration(
     /// </summary>
     public static IReadOnlyList<PartFrameConfiguration> All { get; } =
     [
-        new("DraygonBehavior", "DraygonFrameDefinitions", "ShownFrames", "DraygonAnimations", "StartPartAnimations",
+        new("DraygonBehavior", null, null, "DraygonAnimations", "StartPartAnimations",
             ["DraygonBody", "DraygonEye", "DraygonTail", "DraygonArms"],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {

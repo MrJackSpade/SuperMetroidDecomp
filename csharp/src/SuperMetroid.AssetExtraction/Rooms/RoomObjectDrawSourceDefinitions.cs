@@ -91,18 +91,18 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="DraygonCannonDraw"/>.</summary>
     internal static IReadOnlyDictionary<DraygonCannonDraw, SnesAddress> DraygonCannon { get; } = new Dictionary<DraygonCannonDraw, SnesAddress>
     {
-        [DraygonCannonDraw.RightShieldA] = new(Bank, 0x9fcd),
-        [DraygonCannonDraw.RightShieldB] = new(Bank, 0x9fdd),
-        [DraygonCannonDraw.RightDamagedA] = new(Bank, 0xa02d),
-        [DraygonCannonDraw.RightDamagedB] = new(Bank, 0xa03d),
-        [DraygonCannonDraw.RightDamagedC] = new(Bank, 0xa04d),
-        [DraygonCannonDraw.RightDamagedD] = new(Bank, 0xa05d),
-        [DraygonCannonDraw.LeftShieldA] = new(Bank, 0xa0ed),
-        [DraygonCannonDraw.LeftShieldB] = new(Bank, 0xa101),
-        [DraygonCannonDraw.LeftDamagedA] = new(Bank, 0xa165),
-        [DraygonCannonDraw.LeftDamagedB] = new(Bank, 0xa179),
-        [DraygonCannonDraw.LeftDamagedC] = new(Bank, 0xa18d),
-        [DraygonCannonDraw.LeftDamagedD] = new(Bank, 0xa1a1),
+        [DraygonCannonDraw.RightShield] = new(Bank, 0x9fcd),
+        [DraygonCannonDraw.RightShieldFlash] = new(Bank, 0x9fdd),
+        [DraygonCannonDraw.RightSparksPeakingAt11And20] = new(Bank, 0xa02d),
+        [DraygonCannonDraw.RightSparksPeakingAt3And28] = new(Bank, 0xa03d),
+        [DraygonCannonDraw.RightSparksPeakingAt6And25] = new(Bank, 0xa04d),
+        [DraygonCannonDraw.RightSparksFlat] = new(Bank, 0xa05d),
+        [DraygonCannonDraw.LeftShield] = new(Bank, 0xa0ed),
+        [DraygonCannonDraw.LeftShieldFlash] = new(Bank, 0xa101),
+        [DraygonCannonDraw.LeftSparksPeakingAt11And20] = new(Bank, 0xa165),
+        [DraygonCannonDraw.LeftSparksPeakingAt3And28] = new(Bank, 0xa179),
+        [DraygonCannonDraw.LeftSparksPeakingAt6And25] = new(Bank, 0xa18d),
+        [DraygonCannonDraw.LeftSparksFlat] = new(Bank, 0xa1a1),
     };
 
     /// <summary>The address of each <see cref="PhantoonDoorDraw"/>.</summary>

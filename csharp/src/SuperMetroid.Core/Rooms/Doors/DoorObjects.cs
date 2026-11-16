@@ -120,7 +120,7 @@ internal sealed class DoorObjects
 
     /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
     internal void QueueDudSound() =>
-        _sounds.Queue(EnemySound.DudShotOnDoor, Priority: DudSoundPriority);
+        _sounds.Queue(EnemySound.DudShot, Priority: DudSoundPriority);
 
     /// <summary>The dud sound's request priority.</summary>
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;

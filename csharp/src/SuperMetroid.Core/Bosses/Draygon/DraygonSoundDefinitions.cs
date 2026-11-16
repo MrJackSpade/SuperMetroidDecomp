@@ -10,7 +10,7 @@ internal static class DraygonSoundDefinitions
     internal static SoundEffectId GoopSpit { get; } = EnemySound.AcidSpit;
 
     /// <summary>The roar.</summary>
-    internal static SoundEffectId Roar { get; } = EnemySound.PhantoonCry;
+    internal static SoundEffectId Roar { get; } = EnemySound.Shriek;
 
     /// <summary>The cry that starts the death sequence.</summary>
     internal static SoundEffectId DyingCry { get; } = RoomSound.DraygonDyingCry;

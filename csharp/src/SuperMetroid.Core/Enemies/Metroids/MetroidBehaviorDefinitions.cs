@@ -15,8 +15,8 @@ internal static class MetroidBehaviorDefinitions
     /// </summary>
     internal static readonly SoundEffectId[] RandomCries =
     [
-        EnemySound.MetroidDrain, EnemySound.ShotMochtroid, EnemySound.ShotMetroid, EnemySound.MetroidDrain,
-        EnemySound.ShotMochtroid, EnemySound.ShotMetroid, EnemySound.ShotMochtroid, EnemySound.ShotMetroid,
+        EnemySound.MetroidDrain, EnemySound.RisingSqueal, EnemySound.ShotMetroid, EnemySound.MetroidDrain,
+        EnemySound.RisingSqueal, EnemySound.ShotMetroid, EnemySound.RisingSqueal, EnemySound.ShotMetroid,
     ];
 
     /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> a chasing Metroid plays: the sample modulo 8.</summary>

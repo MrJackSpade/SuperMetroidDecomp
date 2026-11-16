@@ -21,22 +21,22 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId BoyonBounceSound = EnemySound.SplashOut;
 
     /// <summary>Enemy-library request emitted by the spike-release animation cue.</summary>
-    internal static readonly SoundEffectId CacatacSpikeSound = EnemySound.CacatacSpikes;
+    internal static readonly SoundEffectId CacatacSpikeSound = EnemySound.LowThump;
 
     /// <summary>Enemy-library sound queued when Samus wakes the tutorial Dachora.</summary>
     internal static readonly SoundEffectId DachoraActivationSound = EnemySound.DachoraCry;
 
     /// <summary>Enemy-library sound queued on Dachora's ceiling contact.</summary>
-    internal static readonly SoundEffectId DachoraCeilingImpactSound = EnemySound.DachoraShinesparkEnd;
+    internal static readonly SoundEffectId DachoraCeilingImpactSound = EnemySound.ShinesparkEnd;
 
     /// <summary>Enemy-library sound queued while Dachora stores its shinespark.</summary>
-    internal static readonly SoundEffectId DachoraChargeSound = EnemySound.DachoraStoredShinespark;
+    internal static readonly SoundEffectId DachoraChargeSound = EnemySound.StoredShinespark;
 
     /// <summary>Enemy-library sound queued when Dachora launches upward.</summary>
-    internal static readonly SoundEffectId DachoraLaunchSound = EnemySound.DachoraShinespark;
+    internal static readonly SoundEffectId DachoraLaunchSound = EnemySound.Shinespark;
 
     /// <summary>Enemy-library sound accompanying Dachora's Speed Booster run.</summary>
-    internal static readonly SoundEffectId DachoraSpeedBoosterSound = EnemySound.DachoraSpeedBooster;
+    internal static readonly SoundEffectId DachoraSpeedBoosterSound = EnemySound.SpeedBooster;
 
     /// <summary>
     /// The enemy-library silence queued at the scripted left wall turn. It is a real request (#1842): it interrupts the
@@ -81,7 +81,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId KagoBugSoundEffect = EnemySound.KagoBug;
 
     /// <summary>Enemy-library landing cue published when the falling top reaches its target.</summary>
-    internal static readonly SoundEffectId KzanLandingSoundEffect = EnemySound.SpikePlatformStop;
+    internal static readonly SoundEffectId KzanLandingSoundEffect = EnemySound.HeavyClank;
 
     /// <summary>The enemy-library sound published when the Rio starts its return.</summary>
     internal static readonly SoundEffectId LowerNorfairRioReturnSound = EnemySound.HoltzCry;
@@ -90,10 +90,10 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId MamaTurtleSpinSound = EnemySound.TatoriSpinning;
 
     /// <summary>Enemy-library sound requested on Mama's hover collision with a wall.</summary>
-    internal static readonly SoundEffectId MamaTurtleWallSound = EnemySound.SpikePlatformStop;
+    internal static readonly SoundEffectId MamaTurtleWallSound = EnemySound.HeavyClank;
 
     /// <summary>Enemy-library sound from the private tail of Oum shot handling.</summary>
-    internal static readonly SoundEffectId MaridiaLargeSnailShotSound = EnemySound.DudShotOnDoor;
+    internal static readonly SoundEffectId MaridiaLargeSnailShotSound = EnemySound.DudShot;
 
     /// <summary>Enemy-library splash sound emitted at the water collision.</summary>
     internal static readonly SoundEffectId MaridiaLargeSnailSplashSound = EnemySound.SplashOut;
@@ -120,7 +120,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId ShutterActivationSound = EnemySound.SplashOut;
 
     /// <summary>Enemy-library cue requested by the wall-jump animation step.</summary>
-    internal static readonly SoundEffectId WallPirateJumpSound = EnemySound.ShotSpacePirate;
+    internal static readonly SoundEffectId WallPirateJumpSound = EnemySound.Yell;
 
     /// <summary>Enemy-library cue requested after a successful laser allocation.</summary>
     internal static readonly SoundEffectId WallPirateLaserSound = EnemySound.Laser;
@@ -135,7 +135,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId YappingMawAttackSound = EnemySound.YappingMaw;
 
     /// <summary>Enemy-library sound queued by the Chozo statue's grab cue.</summary>
-    internal static readonly SoundEffectId ChozoGrabsSamusSound = EnemySound.ChozoGrab;
+    internal static readonly SoundEffectId ChozoGrabsSamusSound = EnemySound.Rattle;
 
     /// <summary>Enemy-library sound queued by the Chozo statue's footstep cue.</summary>
     internal static readonly SoundEffectId ChozoFootstepsSound = EnemySound.ChozoFootsteps;
@@ -147,14 +147,14 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId DeathContactKilledSound = EnemySound.ContactKill;
 
     /// <summary>Enemy-library sound queued as a Metaree or Skree releases its dive.</summary>
-    internal static readonly SoundEffectId DiveSound = EnemySound.SkreeDive;
+    internal static readonly SoundEffectId DiveSound = EnemySound.DiveScreech;
 
     /// <summary>Enemy-library sound queued as a Metaree or Skree hits the floor and burrows.</summary>
-    internal static readonly SoundEffectId BurrowSound = EnemySound.SkreeBurrow;
+    internal static readonly SoundEffectId BurrowSound = EnemySound.Burrow;
 
     /// <summary>Enemy-library sound queued when an airborne Yard bounces off a wall or the floor.</summary>
     internal static readonly SoundEffectId YardBounceSound = EnemySound.YardBounce;
 
     /// <summary>Enemy-library sound queued when a walking Space Pirate reflects a projectile.</summary>
-    internal static readonly SoundEffectId WalkingPirateReflectSound = EnemySound.ShotSpacePirate;
+    internal static readonly SoundEffectId WalkingPirateReflectSound = EnemySound.Yell;
 }

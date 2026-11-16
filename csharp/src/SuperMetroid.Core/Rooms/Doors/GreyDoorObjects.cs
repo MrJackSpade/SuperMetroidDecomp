@@ -31,7 +31,7 @@ internal sealed class GreyDoorObjects
     }
 
     /// <summary>Queues the dud sound a shot on a locked cap makes.</summary>
-    internal void QueueDudSound() => _sounds.Queue(EnemySound.DudShotOnDoor, Priority: DudSoundPriority);
+    internal void QueueDudSound() => _sounds.Queue(EnemySound.DudShot, Priority: DudSoundPriority);
 
     /// <summary>The dud sound's request priority.</summary>
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;

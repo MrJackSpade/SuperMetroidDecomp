@@ -116,8 +116,8 @@ public sealed class SamusXrayState
     public XrayVisorShadeMode VisorShadeMode { get; private set; }
 
     /// <summary>
-    /// The visor shade shown next, 0 through 5: widening shows 0, 1 and 2 and holds 2; the full beam cycles 3, 4
-    /// and 5. Every advance is bounded by those comparisons.
+    /// The shade of <see cref="VisorShadeMode"/>'s sequence shown next (#2285): widening shows the widening glow's three
+    /// and holds its last; the full beam cycles the steady visor cycle's three. Every advance is bounded by those counts.
     /// </summary>
     public int VisorShade { get; private set; }
 
@@ -497,8 +497,8 @@ public sealed class SamusXrayState
 
         if (VisorShadeMode == XrayVisorShadeMode.Widening && BeamPhase is not (XrayBeamPhase.NoBeam or XrayBeamPhase.Widening))
         {
-            // The visor enters the full-beam three-color loop at its first shade.
-            VisorShade = XrayScopeDefinitions.VisorShades.FullCycleFirstShade;
+            // The visor enters the steady cycle at its first shade.
+            VisorShade = 0;
             VisorShadeTimer = 1;
             VisorShadeMode = XrayVisorShadeMode.FullBeam;
         }
@@ -507,21 +507,21 @@ public sealed class SamusXrayState
             return false;
 
         VisorShadeTimer = XrayScopeDefinitions.VisorShades.FrameDelay;
-        colours.ShowVisor(SamusShades.Visor(VisorShade));
+        colours.ShowVisor(VisorShadeMode == XrayVisorShadeMode.Widening
+            ? SamusShades.XrayWideningVisor(VisorShade)
+            : SamusShades.VisorCycle(VisorShade));
 
         if (VisorShadeMode == XrayVisorShadeMode.Widening)
         {
-            // Widening shows shades 0,1,2 and then pins the last until the full beam is observed.
-            if (VisorShade < XrayScopeDefinitions.VisorShades.WideningFinalShade)
+            // Widening shows its shades in order and then pins the last until the full beam is observed.
+            if (VisorShade < XrayScopeDefinitions.VisorShades.WideningLastShade)
                 VisorShade++;
         }
         else
         {
-            // Full beam cycles shades 3,4,5,3... with the comparison after increment.
+            // The full beam cycles the steady shades, back to the first after the last.
             int next = VisorShade + 1;
-            VisorShade = next < XrayScopeDefinitions.VisorShades.FullCycleEndShade
-                ? next
-                : XrayScopeDefinitions.VisorShades.FullCycleFirstShade;
+            VisorShade = next < XrayScopeDefinitions.VisorShades.FullCycleShades ? next : 0;
         }
 
         return true;

@@ -476,7 +476,7 @@ internal static void VerifySamusXray()
         "full beam enters visor cycle");
     AssertEqual(XrayVisorShadeMode.FullBeam, standing.Xray.VisorShadeMode, "full beam palette mode");
     AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
-    AssertEqual(4, standing.Xray.VisorShade, "full-beam visor shade advances");
+    AssertEqual(1, standing.Xray.VisorShade, "full-beam visor shade advances");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.

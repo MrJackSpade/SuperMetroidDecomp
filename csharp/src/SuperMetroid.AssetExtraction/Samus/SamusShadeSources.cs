@@ -78,10 +78,15 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
             shades.Add(Suit(SamusShades.Hurt(variant), Colours(colour => Hurt.Resolve(variant, colour))));
-        for (int shade = 0; shade < SamusVisorColorFormat.ColorCount; shade++)
+        for (int shade = 0; shade < SamusShadeDefinitions.Visor.XrayWideningShades; shade++)
         {
-            shades.Add(new(SamusShades.Visor(shade), [SamusSheetInks.Suit + SamusSheetInks.VisorColour],
-                [Visor.Resolve(shade)]));
+            shades.Add(new(SamusShades.XrayWideningVisor(shade), [SamusSheetInks.Suit + SamusSheetInks.VisorColour],
+                [Visor.XrayWidening(shade)]));
+        }
+        for (int shade = 0; shade < SamusShadeDefinitions.Visor.CycleShades; shade++)
+        {
+            shades.Add(new(SamusShades.VisorCycle(shade), [SamusSheetInks.Suit + SamusSheetInks.VisorColour],
+                [Visor.Cycle(shade)]));
         }
         foreach (SamusBeamCombination combination in SamusBeamColours.Shown)
             shades.Add(Beams(SamusShades.Beam(combination), SamusBeamColours.Of(combination, BeamPalettes)));

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// </summary>
 /// <remarks>
 /// This is intentionally not a generic color tween. In rooms that animate the visor (<see cref="RoomVisorAnimation"/>),
-/// the animation rotates only Samus's visor through the last three of the six visor shades. The
+/// the animation rotates only Samus's visor through the steady visor cycle's shades (#2285). The
 /// countdown and the shade are only ever set by this type: the reset starts a countdown of one at the cycle's first shade,
 /// and every expiry reloads the countdown to the frame delay and moves through the cycle's three shades. The countdown
 /// therefore holds one through the frame delay between updates and never counts down from zero.
@@ -26,10 +26,9 @@ public sealed class SamusVisorShadeState
     public int Timer { get; private set; } = ResetTimer;
 
     /// <summary>
-    /// The visor shade shown next: one of the steady cycle's three, from
-    /// <see cref="SamusShadeDefinitions.Visor.CycleFirstShade"/> up to the shade count.
+    /// The steady visor cycle's shade shown next, 0 through <see cref="SamusShadeDefinitions.Visor.CycleShades"/> less one.
     /// </summary>
-    public int NextShade { get; private set; } = SamusShadeDefinitions.Visor.CycleFirstShade;
+    public int NextShade { get; private set; }
 
     /// <summary>
     /// Advances one update and optionally shows the next shade on Samus's visor.
@@ -57,7 +56,7 @@ public sealed class SamusVisorShadeState
         if (roomVisorAnimation != RoomVisorAnimation.Animated)
         {
             Timer = ResetTimer;
-            NextShade = SamusShadeDefinitions.Visor.CycleFirstShade;
+            NextShade = 0;
             return;
         }
 
@@ -70,14 +69,11 @@ public sealed class SamusVisorShadeState
         // The visor's colour step reloads the expired countdown to the frame delay and keeps the shade.
         Timer = SamusShadeDefinitions.Visor.FrameDelay;
         int shade = NextShade;
-        colours.ShowVisor(SamusShades.Visor(shade));
+        colours.ShowVisor(SamusShades.VisorCycle(shade));
 
-        // Only the cycle's three shades belong to the room-backdrop cycle. The shades before
-        // them are X-ray widening colors and are selected by X-ray's separate suit colouring.
+        // The room shows only the steady cycle; the X-ray widening glow is X-ray's own suit colouring.
         int nextShade = shade + 1;
-        NextShade = nextShade < SamusShadeDefinitions.Visor.CycleEndShade
-            ? nextShade
-            : SamusShadeDefinitions.Visor.CycleFirstShade;
+        NextShade = nextShade < SamusShadeDefinitions.Visor.CycleShades ? nextShade : 0;
     }
 
     /// <summary>

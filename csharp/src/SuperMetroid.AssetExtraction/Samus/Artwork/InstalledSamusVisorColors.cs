@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -18,8 +19,8 @@ public sealed class InstalledSamusVisorColors
         this.colors = (RgbColor[])colors.Clone();
     }
 
-    /// <summary>Returns a visor shade for the owners that animate Samus's visor colour.</summary>
-    /// <param name="index">Visor shade 0..5: 0..2 are X-ray widening colors and 3..5 are the steady X-ray/room-backdrop cycle.</param>
+    /// <summary>Returns a stored visor colour, in the file's order: the X-ray widening glow's, then the steady cycle's.</summary>
+    /// <param name="index">The colour's place in the file, 0..5.</param>
     /// <returns>The installed shade.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The color ordinal is outside 0..5.</exception>
     public RgbColor Resolve(int index)
@@ -28,4 +29,16 @@ public sealed class InstalledSamusVisorColors
             throw new ArgumentOutOfRangeException(nameof(index));
         return colors[index];
     }
+
+    /// <summary>The colour of shade <paramref name="shade"/> of the X-ray widening glow: the file's first run (#2285).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The glow has no such shade.</exception>
+    public RgbColor XrayWidening(int shade) => (uint)shade < SamusShadeDefinitions.Visor.XrayWideningShades
+        ? colors[shade]
+        : throw new ArgumentOutOfRangeException(nameof(shade));
+
+    /// <summary>The colour of shade <paramref name="shade"/> of the steady visor cycle: the file's run after the glow's (#2285).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The cycle has no such shade.</exception>
+    public RgbColor Cycle(int shade) => (uint)shade < SamusShadeDefinitions.Visor.CycleShades
+        ? colors[SamusShadeDefinitions.Visor.XrayWideningShades + shade]
+        : throw new ArgumentOutOfRangeException(nameof(shade));
 }

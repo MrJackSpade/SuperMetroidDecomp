@@ -84,7 +84,7 @@ internal static class ChargeFlareProductionVerification
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = 30;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            runtime.Projectiles.Charge.Flare(component).Show(new(ChargeFlareAnimations.FirstPlace, WrappingCountdown.Start(100)));
+            runtime.Projectiles.Charge.Flare(component).Show(new(ChargeFlareAnimations.FirstPlace(component), WrappingCountdown.Start(100)));
         game.AdoptRuntime(runtime);
         SpriteImage PowerBeamSheet(InstalledSpriteSheets sheets) => sheets.Get(SpriteSheetId.ProjectilesPower).Image;
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(InstalledFixtures.SpriteSheets), draw.Image.Sheet)),
@@ -110,7 +110,7 @@ internal static class ChargeFlareProductionVerification
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             system.Charge.FlareCounter = 30;
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-                system.Charge.Flare(component).Show(new(3, WrappingCountdown.Start(3)));
+                system.Charge.Flare(component).Show(new(ChargeFlareAnimations.PlaceAt(component, 3), WrappingCountdown.Start(3)));
             return system;
         }
     }

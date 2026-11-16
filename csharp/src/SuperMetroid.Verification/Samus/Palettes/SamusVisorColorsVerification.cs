@@ -90,7 +90,8 @@ internal static class SamusVisorColorsVerification
         var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
-            int sourceShade = native.NextShade;
+            // The room's cycle is stored after the widening glow's shades.
+            int sourceShade = SamusShadeDefinitions.Visor.XrayWideningShades + native.NextShade;
             native.Update(nativeColours, 0,
                 RoomVisorAnimation.Animated);
             installed.Update(installedColours, 0,
@@ -130,7 +131,10 @@ internal static class SamusVisorColorsVerification
         {
             // This fixture enters the full-beam stage immediately before call 11;
             // native $91:DCEA restarts that stage at the full-beam cycle's first shade.
-            int sourceShade = call == 11 ? XrayScopeDefinitions.VisorShades.FullCycleFirstShade : native.Xray.VisorShade;
+            // The stored colours hold the widening glow's shades, then the steady cycle's.
+            int sourceShade = call == 11 ? SamusShadeDefinitions.Visor.XrayWideningShades
+                : native.Xray.VisorShadeMode == XrayVisorShadeMode.Widening ? native.Xray.VisorShade
+                : SamusShadeDefinitions.Visor.XrayWideningShades + native.Xray.VisorShade;
             bool expected = native.Xray.UpdateColouring(nativeColours, native.EquippedItems);
             bool actual = installed.Xray.UpdateColouring(installedColours, installed.EquippedItems);
             if (expected)

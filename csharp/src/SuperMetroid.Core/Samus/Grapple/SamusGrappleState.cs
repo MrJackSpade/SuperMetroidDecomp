@@ -181,8 +181,7 @@ public sealed class SamusGrappleState
     /// The place in the main flare's animation whose picture the grapple's flare shows: the flare restarts at the main
     /// flare's loop when fired and plays its animation on from there.
     /// </summary>
-    [IntegerQuantity("beats into the main flare's animation")]
-    public int FlarePlace
+    public ChargeFlarePlace FlarePlace
     {
         get;
         set => field = ChargeFlareAnimations.IsPicture(ChargeFlareComponent.MainFlare, value)

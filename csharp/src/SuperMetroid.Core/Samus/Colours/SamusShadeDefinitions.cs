@@ -9,15 +9,18 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// </remarks>
 public static class SamusShadeDefinitions
 {
-    /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
+    /// <summary>
+    /// The visor's two shade sequences (#2285): the X-ray widening glow, which brightens the visor while the beam widens,
+    /// and the steady visor cycle, which the full X-ray beam and rooms that animate the visor show in turn.
+    /// </summary>
     public static class Visor
     {
         /// <summary>Timer reloaded after each visor shade is shown.</summary>
         public const int FrameDelay = 5;
-        /// <summary>The first visor shade of the three-shade steady visor cycle; the shades before it widen the X-ray beam.</summary>
-        public const int CycleFirstShade = 3;
-        /// <summary>The visor shade count, which ends the steady visor cycle.</summary>
-        public const int CycleEndShade = 6;
+        /// <summary>The X-ray widening glow's shades, shown in order; the last is held.</summary>
+        public const int XrayWideningShades = 3;
+        /// <summary>The steady visor cycle's shades, shown in order and repeated from the first.</summary>
+        public const int CycleShades = 3;
     }
 
     /// <summary>The suit-and-phase lists the special full-body suit colourings select their cycle shades from.</summary>

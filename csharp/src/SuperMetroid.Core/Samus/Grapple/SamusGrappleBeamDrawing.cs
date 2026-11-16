@@ -60,7 +60,7 @@ public static class SamusGrappleBeamDrawing
 
         grapple.FlareAnimationTimer = grapple.FlareAnimationTimer.Decrement().Remaining;
         if (grapple.FlareAnimationTimer.IsNegative)
-            ShowFlare(grapple, ChargeFlareAnimations.NextMainFlare(grapple.FlarePlace));
+            ShowFlare(grapple, ChargeFlareAnimations.Next(ChargeFlareComponent.MainFlare, grapple.FlarePlace));
 
         Offset16<ScreenPixels> place = grapple.FlareOrigin.RelativeToCamera(cameraPosition);
         // The flare is published wherever it lies; the display clips it to the view (#1541).
@@ -83,7 +83,7 @@ public static class SamusGrappleBeamDrawing
         // A beam that starts already connected has no preceding firing history, so it
         // begins at the same first flare state rather than inventing a static flare.
         grapple.FlareStage = GrappleFlareStage.JustFired;
-        grapple.FlarePlace = ChargeFlareAnimations.FirstPlace;
+        grapple.FlarePlace = ChargeFlareAnimations.FirstPlace(ChargeFlareComponent.MainFlare);
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
         grapple.PointAnimationTimer = WrappingCountdown.Start(GrapplePointAnimationDefinitions.Delay);
         grapple.PointAnimationFrame = 0;
@@ -117,7 +117,7 @@ public static class SamusGrappleBeamDrawing
     /// <summary>Shows <paramref name="step"/>'s main-flare picture on the grapple's flare and holds it for the step's wait.</summary>
     private static void ShowFlare(SamusGrappleState grapple, ChargeFlareStep step)
     {
-        grapple.FlarePlace = step.Phase;
+        grapple.FlarePlace = step.Place;
         grapple.FlareAnimationTimer = step.Hold;
     }
 
@@ -237,7 +237,7 @@ public static class SamusGrappleBeamDrawing
         // Every grapple teardown clears these same shared charge/grapple
         // values before restoring Samus's ordinary drawing and projectile shade.
         grapple.FlareStage = GrappleFlareStage.None;
-        grapple.FlarePlace = ChargeFlareAnimations.FirstPlace;
+        grapple.FlarePlace = ChargeFlareAnimations.FirstPlace(ChargeFlareComponent.MainFlare);
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
     }
 }

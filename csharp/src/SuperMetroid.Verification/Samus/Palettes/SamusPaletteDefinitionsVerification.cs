@@ -23,8 +23,8 @@ internal static class SamusPaletteDefinitionsVerification
     {
         // Samus's visor shade, laid over her suit, recolours the ink the native X-ray catalog names (#1512).
         var visorColours = new SamusColours();
-        visorColours.ShowVisor(SamusShades.Visor(0));
-        AssertEqual(SamusShades.Visor(0), visorColours.VisorShade, "the visor shows the shade laid over it");
+        visorColours.ShowVisor(SamusShades.XrayWideningVisor(0));
+        AssertEqual(SamusShades.XrayWideningVisor(0), visorColours.VisorShade, "the visor shows the shade laid over it");
         AssertEqual(InstalledFixtures.SamusShadeSources.Visor.Resolve(0),
             visorColours.ShownSuit(InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex - 192],
             "shared visor destination agrees with X-ray catalog");
@@ -58,7 +58,7 @@ internal static class SamusPaletteDefinitionsVerification
             SamusColourSets.ColoursPerSet * sizeof(ushort),
             "intro Samus colors");
         TouchRange(bus, SamusSourceDefinitions.VisorColors.Value,
-            SamusShadeDefinitions.Visor.CycleEndShade * sizeof(ushort),
+            (SamusShadeDefinitions.Visor.XrayWideningShades + SamusShadeDefinitions.Visor.CycleShades) * sizeof(ushort),
             "Samus visor colors");
 
         foreach (int table in new[]
